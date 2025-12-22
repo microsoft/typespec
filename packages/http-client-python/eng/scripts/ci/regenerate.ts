@@ -153,7 +153,6 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
     namespace: "specialwords",
   },
   "service/multi-service": {
-    "package-name": "service-multiservice",
     namespace: "service.multiservice",
   },
 };

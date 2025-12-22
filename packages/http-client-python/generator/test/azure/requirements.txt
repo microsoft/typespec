@@ -49,6 +49,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/client-structure-twooperationgroup
 -e ./generated/resiliency-srv-driven1
 -e ./generated/resiliency-srv-driven2
+-e ./generated/service-multiservice
 
 # common test case
 -e ./generated/authentication-api-key
