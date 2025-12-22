@@ -61,6 +61,9 @@ model Encoded {
 
   @encode("unknown-bytes")
   unknownBytes?: bytes;
+
+  @encode(ArrayEncoding.commaDelimited)
+  commaDeliminatedArray?: string[];
 }
 
 model Request {
@@ -89,6 +92,6 @@ interface BuiltinOp {
     @body body: Builtin;
   };
 
-  @convenientAPI(false)
+  @post
   write(@body body: Builtin): OkResponse;
 }

@@ -41,6 +41,10 @@ const appearanceCls = `appearance-${appearance ?? "primary"}`;
     color: var(--colorNeutralForeground1);
   }
 
+  .button:focus {
+    outline: 1px solid var(--colorNeutralForeground1);
+  }
+
   .appearance-primary {
     color: var(--colorNeutralForegroundOnBrand);
     background-color: var(--colorBrandBackground);

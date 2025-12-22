@@ -192,9 +192,9 @@ export function isContinuationToken<TServiceOperation extends SdkServiceOperatio
   if (input) {
     return Boolean(
       parameterSegments &&
-        parameterSegments.length > 0 &&
-        (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
-        parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
+      parameterSegments.length > 0 &&
+      (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
+      parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
     );
   }
 

@@ -77,7 +77,7 @@ namespace Sample.Models
                     {
                         continue;
                     }
-                    prop1 = new global::System.Uri(prop.Value.GetString());
+                    prop1 = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new global::System.Uri(prop.Value.GetString());
                     continue;
                 }
                 if ((options.Format != "W"))

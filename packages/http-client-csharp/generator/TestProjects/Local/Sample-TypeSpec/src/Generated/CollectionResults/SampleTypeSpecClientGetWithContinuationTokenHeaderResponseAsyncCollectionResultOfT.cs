@@ -41,7 +41,7 @@ namespace SampleTypeSpec
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
+                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value))
                 {
                     nextToken = value;
                 }
@@ -58,7 +58,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value))
+            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(value));
             }

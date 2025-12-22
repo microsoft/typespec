@@ -18,8 +18,9 @@ import { UnionMutation } from "./union.js";
 
 export type MutationRegistry = Record<Type["kind"], Mutation<Type, any, any>>;
 
-export interface DefaultMutationClasses<TCustomMutations extends CustomMutationClasses>
-  extends MutationRegistry {
+export interface DefaultMutationClasses<
+  TCustomMutations extends CustomMutationClasses,
+> extends MutationRegistry {
   Operation: OperationMutation<MutationOptions, TCustomMutations>;
   Interface: InterfaceMutation<MutationOptions, TCustomMutations>;
   Model: ModelMutation<TCustomMutations, MutationOptions>;
@@ -72,7 +73,9 @@ export interface MutationContext<
   TCustomMutations extends CustomMutationClasses,
   TOptions extends MutationOptions = MutationOptions,
   TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
-> extends InitialMutationContext<TSourceType, TCustomMutations, TOptions, TEngine>,
+>
+  extends
+    InitialMutationContext<TSourceType, TCustomMutations, TOptions, TEngine>,
     CreateMutationContext {}
 
 export interface MutationTraits {
