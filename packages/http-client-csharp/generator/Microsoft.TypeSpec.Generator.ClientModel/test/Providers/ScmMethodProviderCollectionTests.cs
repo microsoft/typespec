@@ -167,6 +167,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
         }
 
+        // Validate that spread model correctly instantiates optional dictionary properties
+        [Test]
+        public async Task SpreadModelWithOptionalDictionaryIsNotNull()
+        {
+            var spreadModelWithDict = InputFactory.Model(
+                "spreadModelWithDict",
+                usage: InputModelTypeUsage.Spread,
+                properties:
+                [
+                    InputFactory.Property("query", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false),
+                    InputFactory.Property("filter", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false),
+                    InputFactory.Property("requiredParam", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                InputFactory.Operation(
+                    "CreateMessage",
+                    parameters:
+                    [
+                        InputFactory.BodyParameter(
+                            "spread",
+                            spreadModelWithDict,
+                            isRequired: true,
+                            scope: InputParameterScope.Spread),
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("query", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter("filter", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter("requiredParam", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Spread)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m => m.Signature.Parameters.All(p => p.Name != "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            var asyncConvenienceMethod = convenienceMethods.FirstOrDefault(m => m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(asyncConvenienceMethod);
+
+            var methodBody = asyncConvenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
         [Test]
         public void ListMethodWithNoPaging()
         {
