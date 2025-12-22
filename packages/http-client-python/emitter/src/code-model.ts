@@ -233,10 +233,15 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   // get all init parameters including children clients
   const initParameters: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[] = [];
   const paramNames = new Set<string>();
+  const apiVersionParams: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[] = [];
+  
   function collectParameters(client: SdkClientType<TServiceOperation>) {
     if (client.clientInitialization?.parameters) {
       for (const param of client.clientInitialization.parameters) {
-        if (!paramNames.has(param.name)) {
+        if (param.isApiVersionParam) {
+          // Collect apiVersion parameters separately
+          apiVersionParams.push(param);
+        } else if (!paramNames.has(param.name)) {
           initParameters.push(param);
           paramNames.add(param.name);
         }
@@ -247,6 +252,20 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
     }
   }
   collectParameters(client);
+
+  // If all apiVersion parameters have same apiVersions, add one of them to initParameters
+  if (apiVersionParams.length > 0) {
+  const allApiVersions = apiVersionParams.map(param => param.apiVersions ?? []);
+  const firstApiVersions = allApiVersions[0] || [];
+  const allSame = allApiVersions.every(versions => 
+    versions.length === firstApiVersions.length && 
+    versions.every((v, i) => v === firstApiVersions[i])
+  );
+  if (allSame) {
+    initParameters.push(apiVersionParams[0]);
+  }
+}
+ 
 
   const parameters =
     initParameters.map((x) => emitMethodParameter(context, x)).reduce((a, b) => [...a, ...b]) ?? [];
