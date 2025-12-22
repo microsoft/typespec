@@ -39,6 +39,20 @@ Scenarios.SpecialWords_ModelProperties_dictMethods = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
+Scenarios.SpecialWords_ModelProperties_list = passOnSuccess({
+  uri: "/special-words/model-properties/list",
+  method: "post",
+  request: {
+    body: json({
+      list: "ok",
+    }),
+  },
+  response: {
+    status: 204,
+  },
+  kind: "MockApiDefinition",
+});
+
 function createModelsTests(uri: string) {
   return passOnSuccess({
     uri,
