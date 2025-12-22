@@ -137,17 +137,6 @@ class ListType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.merge(self.element_type.imports(**kwargs))
-        
-        # If we're using List instead of list due to naming conflicts, import it
-        is_operation_file = kwargs.get("is_operation_file", False)
-        use_list_import = (
-            (self.code_model.has_operation_named_list and is_operation_file) or
-            (self.code_model.has_property_named_list and not is_operation_file)
-        )
-        if use_list_import:
-            from .imports import ImportType
-            file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
-        
         return file_import
 
     @property
