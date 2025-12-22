@@ -39,7 +39,7 @@ Scenarios.SpecialWords_ModelProperties_dictMethods = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.SpecialWords_ModelProperties_list = passOnSuccess({
+Scenarios.SpecialWords_ModelProperties_withList = passOnSuccess({
   uri: "/special-words/model-properties/list",
   method: "post",
   request: {
