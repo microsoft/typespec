@@ -261,6 +261,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         expressions.Add(new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType)
                             .NullCoalesce(New.Instance(convenienceParam.Type.PropertyInitializationType, [])));
                     }
+                    else if (convenienceParam.Type.IsDictionary)
+                    {
+                        expressions.Add(convenienceParam.NullCoalesce(New.Instance(convenienceParam.Type.PropertyInitializationType)));
+                    }
                     else
                     {
                         expressions.Add(convenienceParam);
