@@ -162,16 +162,17 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
     | SdkMethodParameter
     | SdkHttpParameter
     | SdkMethod<TServiceOperation>,
+  rootClientApiVersions: string[] = [],
 ): string | undefined {
-  // since we do not support multi-service for now, we can just check the root client's api version
   // if type is added in the first version of the client, we do not need to add the versioning info
-  if (
-    type.apiVersions[0] ===
-    context.sdkPackage.clients.find(
-      (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
-    )?.apiVersions[0]
-  )
-    return undefined;
+  const apiVersions =
+    rootClientApiVersions.length > 0
+      ? rootClientApiVersions
+      : (context.sdkPackage.clients.find(
+          (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
+        )?.apiVersions ?? []);
+
+  if (type.apiVersions[0] === apiVersions[0]) return undefined;
   return type.apiVersions[0];
 }
 
@@ -192,9 +193,9 @@ export function isContinuationToken<TServiceOperation extends SdkServiceOperatio
   if (input) {
     return Boolean(
       parameterSegments &&
-      parameterSegments.length > 0 &&
-      (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
-      parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
+        parameterSegments.length > 0 &&
+        (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
+        parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
     );
   }
 
@@ -207,6 +208,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
   method?: SdkServiceMethod<TServiceOperation>,
+  rootClientApiVersions: string[] = [],
 ): ParamBase {
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
@@ -231,7 +233,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   return {
     optional: parameter.optional,
     description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
-    addedOn: getAddedOn(context, parameter),
+    addedOn: getAddedOn(context, parameter, rootClientApiVersions),
     clientName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
