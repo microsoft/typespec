@@ -4,7 +4,6 @@ import {
   getHttpOperationParameter,
   SdkBasicServiceMethod,
   SdkBodyParameter,
-  SdkClientType,
   SdkHeaderParameter,
   SdkHttpErrorResponse,
   SdkHttpOperation,
@@ -103,7 +102,6 @@ function emitInitialLroHttpMethod(
 
 function addLroInformation(
   context: PythonSdkContext,
-  rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
@@ -120,7 +118,6 @@ function addLroInformation(
     discriminator: "lro",
     initialOperation: emitInitialLroHttpMethod(
       context,
-      rootClient,
       method,
       operationGroupName,
       rootClientApiVersions,
@@ -217,7 +214,6 @@ function buildAllContinuationToken(
 
 function addPagingInformation(
   context: PythonSdkContext,
-  rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
@@ -260,7 +256,9 @@ function addPagingInformation(
       if (param.kind === "method") {
         for (const parameter of method.operation.parameters) {
           if (parameter.kind === "query" && parameter.correspondingMethodParams.includes(param)) {
-            nextLinkReInjectedParameters.push(emitHttpQueryParameter(context, parameter, method));
+            nextLinkReInjectedParameters.push(
+              emitHttpQueryParameter(context, parameter, method, rootClientApiVersions),
+            );
           }
         }
       }
@@ -286,31 +284,22 @@ function addPagingInformation(
 
 export function emitLroHttpMethod(
   context: PythonSdkContext,
-  rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
 ): Record<string, any>[] {
-  const lroMethod = addLroInformation(
-    context,
-    rootClient,
-    method,
-    operationGroupName,
-    rootClientApiVersions,
-  );
+  const lroMethod = addLroInformation(context, method, operationGroupName, rootClientApiVersions);
   return [lroMethod.initialOperation, lroMethod];
 }
 
 export function emitPagingHttpMethod(
   context: PythonSdkContext,
-  rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
 ): Record<string, any>[] {
   const pagingMethod = addPagingInformation(
     context,
-    rootClient,
     method,
     operationGroupName,
     rootClientApiVersions,
@@ -320,25 +309,17 @@ export function emitPagingHttpMethod(
 
 export function emitLroPagingHttpMethod(
   context: PythonSdkContext,
-  rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
 ): Record<string, any>[] {
   const pagingMethod = addPagingInformation(
     context,
-    rootClient,
     method,
     operationGroupName,
     rootClientApiVersions,
   );
-  const lroMethod = addLroInformation(
-    context,
-    rootClient,
-    method,
-    operationGroupName,
-    rootClientApiVersions,
-  );
+  const lroMethod = addLroInformation(context, method, operationGroupName, rootClientApiVersions);
   return [lroMethod.initialOperation, pagingMethod, lroMethod];
 }
 
