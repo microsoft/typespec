@@ -620,11 +620,11 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly, int _genericDepth = 0)
+        private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly, int genericDepth = 0)
         {
             if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
             {
-                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly, _genericDepth);
+                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly, genericDepth);
                 AppendRaw("[]");
                 return;
             }
@@ -662,7 +662,7 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(_writingXmlDocumentation ? "{" : "<");
                 for (int i = 0; i < type.Arguments.Count; i++)
                 {
-                    AppendType(type.Arguments[i], false, writeTypeNameOnly, _genericDepth + 1);
+                    AppendType(type.Arguments[i], false, writeTypeNameOnly, genericDepth + 1);
                     if (i != type.Arguments.Count - 1)
                     {
                         AppendRaw(_writingXmlDocumentation ? "," : ", ");
@@ -672,7 +672,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             // Add '?' for nullable value types, but skip if we're writing new instance UNLESS we're inside generic type arguments
-            if ((!_writingNewInstance || _genericDepth > 0) && !isDeclaration && type is { IsNullable: true, IsValueType: true })
+            if ((!_writingNewInstance || genericDepth > 0) && !isDeclaration && type is { IsNullable: true, IsValueType: true })
             {
                 AppendRaw("?");
             }
