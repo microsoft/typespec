@@ -394,9 +394,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     });
             }
 
-            return elementType.IsFrameworkType?
-                GetFrameworkTypeConversionFromReader(elementType, reader, value, dictKey):
-                GetNonFrameworkTypeConversionFromReader(elementType, data, reader, value, dictKey);
+            return elementType.IsFrameworkType
+                ? GetFrameworkTypeConversionFromReader(elementType, reader, value, dictKey)
+                : GetNonFrameworkTypeConversionFromReader(elementType, data, reader, value, dictKey);
         }
 
         private MethodBodyStatement GetFrameworkTypeConversionFromReader(CSharpType elementType, VariableExpression reader, ScopedApi value, ValueExpression? dictKey)
