@@ -8,6 +8,7 @@ import "@typespec/events";
 using Http;
 using OpenAPI;
 using SSE;
+using Events;
 
 @service(#{ title: "SSE Import Scenarios" })
 @info(#{ version: "0.0.0" })
@@ -41,13 +42,13 @@ union ChannelEventsWithTerminal {
 @events
 union ChannelEventWithCustomContentType {
   @TypeSpec.Events.contentType("application/octet-stream")
-  binary: Base64,
+  binary: bytes,
 }
 
-@route("/channel/no-terminal") @get op subscribeToChannelNoTerminal(
+@route("/channel/no-terminal") @get op subscribeToChannelNoTerminalGet(
 ): SSEStream<ChannelEventsNoTerminal>;
 
-@route("/channel/no-terminal-post") @post op subscribeToChannelNoTerminal(
+@route("/channel/no-terminal-post") @post op subscribeToChannelNoTerminalPost(
   /** Request body for subscribing to a channel without terminal event. */
   @body body: {
     channelId?: string;
