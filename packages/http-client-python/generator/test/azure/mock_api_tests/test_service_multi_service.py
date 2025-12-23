@@ -8,10 +8,10 @@ from service.multiservice.models import VersionsA
 
 
 def test_service_multi_service_foo():
-    client = Combined(api_version=VersionsA.AV2, endpoint="http://localhost:3000")
+    client = Combined(endpoint="http://localhost:3000")
     client.foo.test()
 
 
 def test_service_multi_service_bar():
-    client = Combined(api_version=VersionsA.AV2, endpoint="http://localhost:3000")
+    client = Combined(endpoint="http://localhost:3000")
     client.bar.test()

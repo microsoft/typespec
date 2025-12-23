@@ -111,7 +111,10 @@ export function getImplementation(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
 ): "Client" | "Method" {
-  if (parameter.onClient) return "Client";
+  if (parameter.onClient)
+    // multi-service client doesn't have api-version at client level
+    if (parameter.isApiVersionParam && context.sdkPackage.clients.length === 1 && context)
+    return "Client";
   return "Method";
 }
 
