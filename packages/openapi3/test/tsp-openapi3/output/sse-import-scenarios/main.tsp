@@ -40,6 +40,15 @@ union ChannelEventsWithTerminal {
 }
 
 @TypeSpec.Events.events
+union ChannelEventsWithDiscriminatedTerminal {
+  userconnect: UserConnect,
+
+  @TypeSpec.SSE.terminalEvent
+  @extension("x-ms-sse-terminal-event", true)
+  usermessage: UserMessage,
+}
+
+@TypeSpec.Events.events
 union ChannelEventWithCustomContentType {
   @TypeSpec.Events.contentType("application/octet-stream")
   binary: Base64,
@@ -57,6 +66,9 @@ union ChannelEventWithCustomContentType {
 
 @route("/channel/with-terminal") @get op subscribeToChannelWithTerminal(
 ): SSEStream<ChannelEventsWithTerminal>;
+
+@route("/channel/with-discriminated-terminal") @get op subscribeToChannelWithDiscriminatedTerminal(
+): SSEStream<ChannelEventsWithDiscriminatedTerminal>;
 
 @route("/data/custom-content-type") @get op subscribeToDataStream(
 ): SSEStream<ChannelEventWithCustomContentType>;
