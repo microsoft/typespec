@@ -13,7 +13,7 @@ export function generateMain(program: TypeSpecProgram, context: Context): string
   import "@typespec/events";`
     : "";
 
-  const sseUsings = context.isSSEUsed() ? "\n  using SSE;" : "";
+  const sseUsings = context.isSSEUsed() ? "\n  using SSE;\n  using Events;" : "";
 
   return `
   import "@typespec/http";
