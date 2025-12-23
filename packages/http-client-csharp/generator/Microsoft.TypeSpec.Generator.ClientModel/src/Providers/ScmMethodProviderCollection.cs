@@ -441,7 +441,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            throw new InvalidOperationException($"Unsupported framework type: {frameworkType}");
+            ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                DiagnosticCodes.UnsupportedFrameworkType,
+                $"Unsupported framework type: {frameworkType}. Element will be skipped.",
+                ServiceMethod.Operation.CrossLanguageDefinitionId,
+                EmitterDiagnosticSeverity.Error);
+
+            return MethodBodyStatement.Empty;
         }
 
         private MethodBodyStatement GetNonFrameworkTypeConversionFromReader(CSharpType elementType, ScopedApi<BinaryData> data, VariableExpression reader, ScopedApi value, ValueExpression? dictKey)
