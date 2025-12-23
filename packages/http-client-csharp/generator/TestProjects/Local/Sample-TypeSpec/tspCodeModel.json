@@ -8706,7 +8706,7 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.sampleTypeSpecUrl"
             }
           ],
           "initializedBy": 0,
@@ -9068,7 +9068,7 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.sampleTypeSpecUrl"
             }
           ],
           "initializedBy": 0,
@@ -9269,7 +9269,7 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.sampleTypeSpecUrl"
             }
           ],
           "initializedBy": 0,
@@ -9432,7 +9432,7 @@
               "serverUrlTemplate": "{sampleTypeSpecUrl}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "SampleTypeSpec.sampleTypeSpecUrl"
+              "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.sampleTypeSpecUrl"
             }
           ],
           "initializedBy": 3,
