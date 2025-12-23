@@ -33,8 +33,6 @@ namespace Microsoft.TypeSpec.Generator
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
-        private int _genericDepth;
-
         internal CodeWriter()
         {
             _builder = new UnsafeBufferSequence(1024);
@@ -622,11 +620,11 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly)
+        private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly, int _genericDepth = 0)
         {
             if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
             {
-                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly);
+                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly, _genericDepth);
                 AppendRaw("[]");
                 return;
             }
@@ -662,16 +660,14 @@ namespace Microsoft.TypeSpec.Generator
             if (type.Arguments.Any())
             {
                 AppendRaw(_writingXmlDocumentation ? "{" : "<");
-                _genericDepth++;
                 for (int i = 0; i < type.Arguments.Count; i++)
                 {
-                    AppendType(type.Arguments[i], false, writeTypeNameOnly);
+                    AppendType(type.Arguments[i], false, writeTypeNameOnly, _genericDepth + 1);
                     if (i != type.Arguments.Count - 1)
                     {
                         AppendRaw(_writingXmlDocumentation ? "," : ", ");
                     }
                 }
-                _genericDepth--;
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
