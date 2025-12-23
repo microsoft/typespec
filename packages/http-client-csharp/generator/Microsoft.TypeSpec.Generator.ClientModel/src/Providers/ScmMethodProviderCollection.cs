@@ -458,28 +458,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
         }
 
-        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<BinaryData> data, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
-        {
-            if (elementType.Equals(typeof(TimeSpan)))
-            {
-                return AddElement(dictKey, item.Invoke("GetTimeSpan", Literal("P")), value);
-            }
-            else if (elementType.Equals(typeof(BinaryData)))
-            {
-                return new IfElseStatement(
-                    item.ValueKind().Equal(JsonValueKindSnippets.Null),
-                    AddElement(dictKey, Null, value),
-                    AddElement(dictKey, BinaryDataSnippets.FromString(item.GetRawText()), value));
-            }
-            else
-            {
-                return AddElement(
-                    dictKey,
-                    MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, item, data, ModelSerializationExtensionsSnippets.Wire),
-                    value);
-            }
-        }
-
         private MethodBodyStatement AddElement(ValueExpression? dictKey, ValueExpression element, ScopedApi scopedApi)
         {
             if (dictKey != null)
