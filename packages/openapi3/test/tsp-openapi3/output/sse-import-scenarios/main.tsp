@@ -22,13 +22,13 @@ model UserMessage {
   text: string;
 }
 
-@events
+@TypeSpec.Events.events
 union ChannelEventsNoTerminal {
   userconnect: UserConnect,
   usermessage: UserMessage,
 }
 
-@events
+@TypeSpec.Events.events
 union ChannelEventsWithTerminal {
   userconnect: UserConnect,
   usermessage: UserMessage,
@@ -39,10 +39,10 @@ union ChannelEventsWithTerminal {
   "[done]",
 }
 
-@events
+@TypeSpec.Events.events
 union ChannelEventWithCustomContentType {
   @TypeSpec.Events.contentType("application/octet-stream")
-  binary: bytes,
+  binary: Base64,
 }
 
 @route("/channel/no-terminal") @get op subscribeToChannelNoTerminalGet(
