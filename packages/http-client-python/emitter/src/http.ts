@@ -370,7 +370,7 @@ function emitHttpOperation(
     url: operation.path,
     method: operation.verb.toUpperCase(),
     parameters: emitHttpParameters(context, rootClient, operation, method, rootClientApiVersions),
-    bodyParameter: emitHttpBodyParameter(context, operation.bodyParam),
+    bodyParameter: emitHttpBodyParameter(context, operation.bodyParam, rootClientApiVersions),
     responses,
     exceptions,
     groupName: operationGroupName,
@@ -577,10 +577,11 @@ function emitHttpParameters(
 function emitHttpBodyParameter(
   context: PythonSdkContext,
   bodyParam?: SdkBodyParameter,
+  rootClientApiVersions: string[] = [],
 ): Record<string, any> | undefined {
   if (bodyParam === undefined) return undefined;
   return {
-    ...emitParamBase(context, bodyParam),
+    ...emitParamBase(context, bodyParam, undefined, rootClientApiVersions),
     contentTypes: bodyParam.contentTypes,
     location: bodyParam.kind,
     clientName: bodyParam.isGeneratedName ? "body" : camelToSnakeCase(bodyParam.name),
