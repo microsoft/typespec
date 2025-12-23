@@ -37,6 +37,7 @@ import { emitParamBase, getClientNamespace, getImplementation, getRootNamespace 
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
+  rootClient: SdkClientType<TServiceOperation>,
   method: SdkBasicServiceMethod<TServiceOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
@@ -45,7 +46,13 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitBasicHttpMethod(context, method, operationGroupName, rootClientApiVersions);
+      return emitBasicHttpMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        rootClientApiVersions,
+      );
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -53,6 +60,7 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
 
 function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
+  rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroServiceMethod<TServiceOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
@@ -61,7 +69,13 @@ function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitLroHttpMethod(context, method, operationGroupName, rootClientApiVersions);
+      return emitLroHttpMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        rootClientApiVersions,
+      );
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -69,6 +83,7 @@ function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
 
 function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
+  rootClient: SdkClientType<TServiceOperation>,
   method: SdkPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
@@ -77,7 +92,13 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitPagingHttpMethod(context, method, operationGroupName, rootClientApiVersions);
+      return emitPagingHttpMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        rootClientApiVersions,
+      );
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -85,6 +106,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
 
 function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
+  rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
@@ -93,7 +115,13 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitLroPagingHttpMethod(context, method, operationGroupName, rootClientApiVersions);
+      return emitLroPagingHttpMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        rootClientApiVersions,
+      );
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -156,19 +184,38 @@ function emitMethodParameter(
 
 function emitMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
+  rootClient: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
   operationGroupName: string,
   rootClientApiVersions: string[],
 ): Record<string, any>[] {
   switch (method.kind) {
     case "basic":
-      return emitBasicMethod(context, method, operationGroupName, rootClientApiVersions);
+      return emitBasicMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        rootClientApiVersions,
+      );
     case "lro":
-      return emitLroMethod(context, method, operationGroupName, rootClientApiVersions);
+      return emitLroMethod(context, rootClient, method, operationGroupName, rootClientApiVersions);
     case "paging":
-      return emitPagingMethod(context, method, operationGroupName, rootClientApiVersions);
+      return emitPagingMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        rootClientApiVersions,
+      );
     default:
-      return emitLroPagingMethod(context, method, operationGroupName, rootClientApiVersions);
+      return emitLroPagingMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        rootClientApiVersions,
+      );
   }
 }
 
@@ -187,7 +234,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
     const apiVersions =
       rootClientApiVersions.length > 0 ? rootClientApiVersions : operationGroup.apiVersions;
     for (const method of operationGroup.methods) {
-      operations = operations.concat(emitMethod(context, method, name, apiVersions));
+      operations = operations.concat(emitMethod(context, rootClient, method, name, apiVersions));
     }
     operationGroups.push({
       name: name,
@@ -203,7 +250,9 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   if (prefix === "") {
     let operations: Record<string, any>[] = [];
     for (const method of client.methods) {
-      operations = operations.concat(emitMethod(context, method, "", rootClientApiVersions));
+      operations = operations.concat(
+        emitMethod(context, rootClient, method, "", rootClientApiVersions),
+      );
     }
     if (operations.length > 0) {
       operationGroups.push({
