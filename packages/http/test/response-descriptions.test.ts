@@ -111,6 +111,32 @@ describe("http: response descriptions", () => {
     );
   });
 
+  it("inline doc comments for an operation returnType with an array", async () => {
+    const op = await getHttpOp(
+      `
+      model Widget {
+        id: string;
+
+        weight: int32;
+        color: "red" | "blue";
+      }
+      op read(): /** List widgets */ Widget[];
+      `,
+    );
+
+    strictEqual(op.responses[0].description, "List widgets");
+  });
+
+  it("inline doc comments for an operation returnType with a scalar", async () => {
+    const op = await getHttpOp(
+      `
+      op read(): /** List widgets */ string;
+      `,
+    );
+
+    strictEqual(op.responses[0].description, "List widgets");
+  });
+
   it("inline doc comments for an operation returnType with union alias", async () => {
     const op = await getHttpOp(
       `
@@ -374,6 +400,24 @@ describe("http: response descriptions", () => {
       "The server could not understand the request due to invalid syntax.",
     );
   });
+
+  //   it.only("common", async () => {
+  //     const op = await getHttpOp(
+  //       `
+  // model ResponseMeta {
+  //   status?: integer;
+  // }
+
+  // model SuccessResponse<T = unknown> {
+  //   meta: ResponseMeta;
+  //   data: T;
+  // }
+  // op read(): /** 📦 */ SuccessResponse<{ content: string }>;
+  //       `,
+  //     );
+
+  //     strictEqual(op.responses[0].description, "📦");
+  //   });
 
   it("ordering check", async () => {
     const docs = [

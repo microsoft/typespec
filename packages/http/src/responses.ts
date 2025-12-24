@@ -17,6 +17,7 @@ import {
   Type,
 } from "@typespec/compiler";
 import {
+  ArrayExpressionNode,
   IntersectionExpressionNode,
   Node,
   SyntaxKind,
@@ -352,6 +353,9 @@ function generateInlineDocNodeTreeMap(
   if (node?.kind === SyntaxKind.UnionExpression) {
     traverseUnionExpression(program, map, node, null);
   }
+  if (node?.kind === SyntaxKind.ArrayExpression) {
+    traverseArrayExpression(program, map, node, null);
+  }
   if (node?.kind === SyntaxKind.TypeReference) {
     traverseTypeReference(program, map, node, null);
   }
@@ -423,7 +427,11 @@ function traverseTypeReference(
     if (kind === SyntaxKind.IntersectionExpression) {
       traverseIntersectionExpression(program, map, childNode, ancestorNode);
     }
-    if (kind === SyntaxKind.ModelStatement || kind === SyntaxKind.ModelExpression) {
+    if (
+      kind === SyntaxKind.ModelStatement ||
+      kind === SyntaxKind.ModelExpression ||
+      kind === SyntaxKind.ScalarStatement
+    ) {
       map.set(childNode, ancestorNode);
     }
   }
@@ -438,6 +446,9 @@ function traverseUnionExpression(
   for (const option of node.options) {
     if (option.kind === SyntaxKind.TypeReference) {
       traverseTypeReference(program, map, option, parentNode);
+    }
+    if (option.kind === SyntaxKind.ArrayExpression) {
+      traverseArrayExpression(program, map, option, parentNode);
     }
     if (option.kind === SyntaxKind.IntersectionExpression) {
       traverseIntersectionExpression(program, map, option, parentNode);
@@ -468,6 +479,29 @@ function traverseUnionStatement(
   }
 }
 
+function traverseArrayExpression(
+  program: Program,
+  map: InlineDocNodeTreeMap,
+  node: ArrayExpressionNode,
+  parentNode: Node | null,
+): void {
+  map.set(node, parentNode);
+  // Array or [] is a reference type, so we need to resolve its original Array model
+  const type = program.checker.getTypeForNode(node);
+
+  if (type.node) {
+    const childNode = type.node;
+    map.set(childNode, node);
+    const elementType = node.elementType;
+    if (elementType.kind === SyntaxKind.UnionExpression) {
+      traverseUnionExpression(program, map, elementType, childNode);
+    }
+    if (elementType.kind === SyntaxKind.TypeReference) {
+      traverseTypeReference(program, map, elementType, childNode);
+    }
+  }
+}
+
 function traverseIntersectionExpression(
   program: Program,
   map: InlineDocNodeTreeMap,
@@ -492,7 +526,8 @@ function getLastDocText(node: Node): string | null {
   const isAllowedNodeKind =
     node.kind !== SyntaxKind.TypeReference &&
     node.kind !== SyntaxKind.ModelExpression &&
-    node.kind !== SyntaxKind.IntersectionExpression;
+    node.kind !== SyntaxKind.IntersectionExpression &&
+    node.kind !== SyntaxKind.ArrayExpression;
   if (isAllowedNodeKind) return null;
   const docs = node.docs;
   if (!docs || docs.length === 0) return null;
