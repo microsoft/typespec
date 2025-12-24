@@ -5,14 +5,14 @@
 # --------------------------------------------------------------------------
 import pytest
 from azure.core.exceptions import HttpResponseError
-from azure.resourcemanager.multiservice.combined.aio import Combined
+from azure.resourcemanager.multiservice.combined.aio import CombinedClient
 from azure.resourcemanager.multiservice.combined.models import VirtualMachine, Disk
 
 
 @pytest.fixture
 async def client(credential, authentication_policy):
     """Create a Combined async client for testing."""
-    return Combined(
+    return CombinedClient(
         credential=credential,
         subscription_id="00000000-0000-0000-0000-000000000000",
         base_url="http://localhost:3000",

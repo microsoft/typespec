@@ -5,14 +5,14 @@
 # --------------------------------------------------------------------------
 import pytest
 from azure.core.exceptions import HttpResponseError
-from azure.resourcemanager.multiservice.combined import Combined
+from azure.resourcemanager.multiservice.combined import CombinedClient
 from azure.resourcemanager.multiservice.combined.models import VirtualMachine, Disk
 
 
 @pytest.fixture
 def client(credential, authentication_policy):
     """Create a Combined client for testing."""
-    return Combined(
+    return CombinedClient(
         credential=credential,  # Will use mock server, no real auth needed
         subscription_id="00000000-0000-0000-0000-000000000000",
         base_url="http://localhost:3000",

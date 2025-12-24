@@ -5,21 +5,24 @@
 # --------------------------------------------------------------------------
 import pytest
 from azure.core.exceptions import HttpResponseError
-from service.multiservice import Combined
+from service.multiservice import CombinedClient
 from service.multiservice.models import VersionsA, VersionsB
 
 
-def test_service_multi_service_foo():
-    client = Combined(endpoint="http://localhost:3000")
+@pytest.fixture
+def client():
+    """Fixture that creates a CombinedClient for testing."""
+    return CombinedClient(endpoint="http://localhost:3000")
+
+
+def test_service_multi_service_foo(client):
     with pytest.raises(HttpResponseError):
         client.foo.test(api_version=VersionsA.AV1)
 
     client.foo.test()
 
 
-def test_service_multi_service_bar():
-    client = Combined(endpoint="http://localhost:3000")
-
+def test_service_multi_service_bar(client):
     with pytest.raises(HttpResponseError):
         client.bar.test(api_version=VersionsB.BV1)
 
