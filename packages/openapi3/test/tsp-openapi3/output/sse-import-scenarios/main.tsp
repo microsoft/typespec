@@ -8,6 +8,7 @@ import "@typespec/events";
 using Http;
 using OpenAPI;
 using SSE;
+using Events;
 
 @service(#{ title: "SSE Import Scenarios" })
 @info(#{ version: "0.0.0" })
@@ -21,13 +22,13 @@ model UserMessage {
   text: string;
 }
 
-@events
+@TypeSpec.Events.events
 union ChannelEventsNoTerminal {
   userconnect: UserConnect,
   usermessage: UserMessage,
 }
 
-@events
+@TypeSpec.Events.events
 union ChannelEventsWithTerminal {
   userconnect: UserConnect,
   usermessage: UserMessage,
@@ -38,16 +39,25 @@ union ChannelEventsWithTerminal {
   "[done]",
 }
 
-@events
+@TypeSpec.Events.events
+union ChannelEventsWithDiscriminatedTerminal {
+  userconnect: UserConnect,
+
+  @TypeSpec.SSE.terminalEvent
+  @extension("x-ms-sse-terminal-event", true)
+  usermessage: UserMessage,
+}
+
+@TypeSpec.Events.events
 union ChannelEventWithCustomContentType {
   @TypeSpec.Events.contentType("application/octet-stream")
   binary: Base64,
 }
 
-@route("/channel/no-terminal") @get op subscribeToChannelNoTerminal(
+@route("/channel/no-terminal") @get op subscribeToChannelNoTerminalGet(
 ): SSEStream<ChannelEventsNoTerminal>;
 
-@route("/channel/no-terminal-post") @post op subscribeToChannelNoTerminal(
+@route("/channel/no-terminal-post") @post op subscribeToChannelNoTerminalPost(
   /** Request body for subscribing to a channel without terminal event. */
   @body body: {
     channelId?: string;
@@ -56,6 +66,9 @@ union ChannelEventWithCustomContentType {
 
 @route("/channel/with-terminal") @get op subscribeToChannelWithTerminal(
 ): SSEStream<ChannelEventsWithTerminal>;
+
+@route("/channel/with-discriminated-terminal") @get op subscribeToChannelWithDiscriminatedTerminal(
+): SSEStream<ChannelEventsWithDiscriminatedTerminal>;
 
 @route("/data/custom-content-type") @get op subscribeToDataStream(
 ): SSEStream<ChannelEventWithCustomContentType>;

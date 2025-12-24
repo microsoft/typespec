@@ -214,7 +214,7 @@ function generateSSEEventVariants(
         decorators += `\n  @extension("${SSE_TERMINAL_EVENT_EXTENSION}", true)`;
       }
 
-      return `${decorators}\n  ${eventName}: ${dataType},`;
+      return `${decorators}\n  ${printIdentifier(eventName)}: ${dataType},`;
     } catch (error) {
       // If any error occurs, fall back to regular generation
       return (

@@ -52,11 +52,11 @@ union ChannelEventWithCustomContentType {
   },
 }
 
-@route("/channel/no-terminal") @get op subscribeToChannelNoTerminal(): {
+@route("/channel/no-terminal") @get op subscribeToChannelNoTerminalGet(): {
   @header contentType: "text/event-stream";
 };
 
-@route("/channel/no-terminal-post") @post op subscribeToChannelNoTerminal(
+@route("/channel/no-terminal-post") @post op subscribeToChannelNoTerminalPost(
   /** Request body for subscribing to a channel without terminal event. */
   @body body: {
     channelId?: string;
