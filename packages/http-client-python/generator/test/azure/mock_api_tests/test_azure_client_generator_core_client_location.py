@@ -34,7 +34,9 @@ def move_to_root_client():
         yield client
 
 
-def test_move_method_parameter_to_client_blob_operations_get_blob(move_method_parameter_to_client: MoveMethodParameterToClient):
+def test_move_method_parameter_to_client_blob_operations_get_blob(
+    move_method_parameter_to_client: MoveMethodParameterToClient,
+):
     move_method_parameter_to_client.blob_operations.get_blob(container="testcontainer", blob="testblob.txt")
 
 
@@ -46,7 +48,9 @@ def test_move_to_existing_sub_client_admin_operations_delete_user(move_to_existi
     move_to_existing_sub_client.admin_operations.delete_user()
 
 
-def test_move_to_existing_sub_client_admin_operations_get_admin_info(move_to_existing_sub_client: MoveToExistingSubClient):
+def test_move_to_existing_sub_client_admin_operations_get_admin_info(
+    move_to_existing_sub_client: MoveToExistingSubClient,
+):
     move_to_existing_sub_client.admin_operations.get_admin_info()
 
 
