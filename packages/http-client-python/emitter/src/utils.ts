@@ -162,12 +162,12 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
     | SdkMethodParameter
     | SdkHttpParameter
     | SdkMethod<TServiceOperation>,
-  rootClientApiVersions: string[] = [],
+  serviceApiVersions: string[] = [],
 ): string | undefined {
   // if type is added in the first version of the client, we do not need to add the versioning info
   const apiVersions =
-    rootClientApiVersions.length > 0
-      ? rootClientApiVersions
+    serviceApiVersions.length > 0
+      ? serviceApiVersions
       : (context.sdkPackage.clients.find(
           (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
         )?.apiVersions ?? []);
@@ -208,7 +208,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter | SdkHttpParameter,
   method?: SdkServiceMethod<TServiceOperation>,
-  rootClientApiVersions: string[] = [],
+  serviceApiVersions: string[] = [],
 ): ParamBase {
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
@@ -233,7 +233,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   return {
     optional: parameter.optional,
     description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
-    addedOn: getAddedOn(context, parameter, rootClientApiVersions),
+    addedOn: getAddedOn(context, parameter, serviceApiVersions),
     clientName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,

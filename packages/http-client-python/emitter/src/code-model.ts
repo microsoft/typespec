@@ -40,7 +40,7 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkBasicServiceMethod<TServiceOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
@@ -51,7 +51,7 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
         rootClient,
         method,
         operationGroupName,
-        rootClientApiVersions,
+        serviceApiVersions,
       );
     default:
       throw new Error("We only support HTTP operations right now");
@@ -63,19 +63,13 @@ function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroServiceMethod<TServiceOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitLroHttpMethod(
-        context,
-        rootClient,
-        method,
-        operationGroupName,
-        rootClientApiVersions,
-      );
+      return emitLroHttpMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -86,7 +80,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
@@ -97,7 +91,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
         rootClient,
         method,
         operationGroupName,
-        rootClientApiVersions,
+        serviceApiVersions,
       );
     default:
       throw new Error("We only support HTTP operations right now");
@@ -109,7 +103,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
@@ -120,7 +114,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
         rootClient,
         method,
         operationGroupName,
-        rootClientApiVersions,
+        serviceApiVersions,
       );
     default:
       throw new Error("We only support HTTP operations right now");
@@ -130,15 +124,15 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
 function emitMethodParameter(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter,
-  rootClientApiVersions: string[] = [],
+  serviceApiVersions: string[] = [],
 ): Record<string, any>[] {
   if (parameter.kind === "endpoint") {
     if (parameter.type.kind === "union") {
       for (const endpointVal of parameter.type.variantTypes) {
-        return emitEndpointType(context, endpointVal as SdkEndpointType, rootClientApiVersions);
+        return emitEndpointType(context, endpointVal as SdkEndpointType, serviceApiVersions);
       }
     } else {
-      return emitEndpointType(context, parameter.type, rootClientApiVersions);
+      return emitEndpointType(context, parameter.type, serviceApiVersions);
     }
   }
   // filter out credential that python does not support for now
@@ -164,7 +158,7 @@ function emitMethodParameter(
     }
   }
   const base = {
-    ...emitParamBase(context, parameter, undefined, rootClientApiVersions),
+    ...emitParamBase(context, parameter, undefined, serviceApiVersions),
     implementation: getImplementation(context, parameter),
     clientDefaultValue: parameter.clientDefaultValue,
     location: parameter.kind,
@@ -187,44 +181,34 @@ function emitMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   switch (method.kind) {
     case "basic":
-      return emitBasicMethod(
-        context,
-        rootClient,
-        method,
-        operationGroupName,
-        rootClientApiVersions,
-      );
+      return emitBasicMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
     case "lro":
-      return emitLroMethod(context, rootClient, method, operationGroupName, rootClientApiVersions);
+      return emitLroMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
     case "paging":
-      return emitPagingMethod(
-        context,
-        rootClient,
-        method,
-        operationGroupName,
-        rootClientApiVersions,
-      );
+      return emitPagingMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
     default:
       return emitLroPagingMethod(
         context,
         rootClient,
         method,
         operationGroupName,
-        rootClientApiVersions,
+        serviceApiVersions,
       );
   }
 }
 
+// TCGC does not supply apiVersions information for each type that could facilitate versioning at the service level,
+// therefore, it is necessary to provide it incrementally so that the `getAddedOn` function can use.
 function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   client: SdkClientType<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
   prefix: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] | undefined {
   const operationGroups: Record<string, any>[] = [];
 
@@ -232,7 +216,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
     const name = `${prefix}${operationGroup.name}`;
     let operations: Record<string, any>[] = [];
     const apiVersions =
-      rootClientApiVersions.length > 0 ? rootClientApiVersions : operationGroup.apiVersions;
+      serviceApiVersions.length > 0 ? serviceApiVersions : operationGroup.apiVersions;
     for (const method of operationGroup.methods) {
       operations = operations.concat(emitMethod(context, rootClient, method, name, apiVersions));
     }
@@ -251,7 +235,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
     let operations: Record<string, any>[] = [];
     for (const method of client.methods) {
       operations = operations.concat(
-        emitMethod(context, rootClient, method, "", rootClientApiVersions),
+        emitMethod(context, rootClient, method, "", serviceApiVersions),
       );
     }
     if (operations.length > 0) {
@@ -286,11 +270,11 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   // get all init parameters including children clients
   const initParameters: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[] = [];
   const paramNames = new Set<string>();
-  const rootClientApiVersions = client.apiVersions;
+  const serviceApiVersions = client.apiVersions;
   function collectParameters(client: SdkClientType<TServiceOperation>) {
     if (client.clientInitialization?.parameters) {
       for (const param of client.clientInitialization.parameters) {
-        if (param.isApiVersionParam && rootClientApiVersions.length === 0) {
+        if (param.isApiVersionParam && serviceApiVersions.length === 0) {
           // for multi-service client with different api-versions, skip adding api-version param here
           continue;
         } else if (!paramNames.has(param.name)) {

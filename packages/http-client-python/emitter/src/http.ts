@@ -60,7 +60,7 @@ export function emitBasicHttpMethod(
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkBasicServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   return [
     {
@@ -70,7 +70,7 @@ export function emitBasicHttpMethod(
         operationGroupName,
         method.operation,
         method,
-        rootClientApiVersions,
+        serviceApiVersions,
       ),
       abstract: isAbstract(method),
       name: camelToSnakeCase(method.name),
@@ -85,7 +85,7 @@ function emitInitialLroHttpMethod(
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any> {
   return {
     ...emitHttpOperation(
@@ -94,7 +94,7 @@ function emitInitialLroHttpMethod(
       operationGroupName,
       method.operation,
       method,
-      rootClientApiVersions,
+      serviceApiVersions,
     ),
     name: `_${camelToSnakeCase(method.name)}_initial`,
     isLroInitialOperation: true,
@@ -110,7 +110,7 @@ function addLroInformation(
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ) {
   return {
     ...emitHttpOperation(
@@ -119,7 +119,7 @@ function addLroInformation(
       operationGroupName,
       method.operation,
       method,
-      rootClientApiVersions,
+      serviceApiVersions,
     ),
     name: camelToSnakeCase(method.name),
     discriminator: "lro",
@@ -128,7 +128,7 @@ function addLroInformation(
       rootClient,
       method,
       operationGroupName,
-      rootClientApiVersions,
+      serviceApiVersions,
     ),
     exposeStreamKeyword: false,
     description: method.doc ?? "",
@@ -225,7 +225,7 @@ function addPagingInformation(
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ) {
   for (const response of method.operation.responses) {
     if (response.type) {
@@ -243,7 +243,7 @@ function addPagingInformation(
     operationGroupName,
     method.operation,
     method,
-    rootClientApiVersions,
+    serviceApiVersions,
   );
   const itemName = getWireNameWithDiagnostics(
     context,
@@ -267,7 +267,7 @@ function addPagingInformation(
         for (const parameter of method.operation.parameters) {
           if (parameter.kind === "query" && parameter.correspondingMethodParams.includes(param)) {
             nextLinkReInjectedParameters.push(
-              emitHttpQueryParameter(context, rootClient, parameter, method, rootClientApiVersions),
+              emitHttpQueryParameter(context, rootClient, parameter, method, serviceApiVersions),
             );
           }
         }
@@ -297,14 +297,14 @@ export function emitLroHttpMethod(
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   const lroMethod = addLroInformation(
     context,
     rootClient,
     method,
     operationGroupName,
-    rootClientApiVersions,
+    serviceApiVersions,
   );
   return [lroMethod.initialOperation, lroMethod];
 }
@@ -314,14 +314,14 @@ export function emitPagingHttpMethod(
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   const pagingMethod = addPagingInformation(
     context,
     rootClient,
     method,
     operationGroupName,
-    rootClientApiVersions,
+    serviceApiVersions,
   );
   return [pagingMethod];
 }
@@ -331,21 +331,21 @@ export function emitLroPagingHttpMethod(
   rootClient: SdkClientType<SdkHttpOperation>,
   method: SdkLroPagingServiceMethod<SdkHttpOperation>,
   operationGroupName: string,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   const pagingMethod = addPagingInformation(
     context,
     rootClient,
     method,
     operationGroupName,
-    rootClientApiVersions,
+    serviceApiVersions,
   );
   const lroMethod = addLroInformation(
     context,
     rootClient,
     method,
     operationGroupName,
-    rootClientApiVersions,
+    serviceApiVersions,
   );
   return [lroMethod.initialOperation, pagingMethod, lroMethod];
 }
@@ -356,7 +356,7 @@ function emitHttpOperation(
   operationGroupName: string,
   operation: SdkHttpOperation,
   method: SdkServiceMethod<SdkHttpOperation>,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any> {
   const responses: Record<string, any>[] = [];
   const exceptions: Record<string, any>[] = [];
@@ -369,12 +369,12 @@ function emitHttpOperation(
   const result = {
     url: operation.path,
     method: operation.verb.toUpperCase(),
-    parameters: emitHttpParameters(context, rootClient, operation, method, rootClientApiVersions),
-    bodyParameter: emitHttpBodyParameter(context, operation.bodyParam, rootClientApiVersions),
+    parameters: emitHttpParameters(context, rootClient, operation, method, serviceApiVersions),
+    bodyParameter: emitHttpBodyParameter(context, operation.bodyParam, serviceApiVersions),
     responses,
     exceptions,
     groupName: operationGroupName,
-    addedOn: method ? getAddedOn(context, method, rootClientApiVersions) : "",
+    addedOn: method ? getAddedOn(context, method, serviceApiVersions) : "",
     discriminator: "basic",
     isOverload: false,
     overloads: [],
@@ -441,9 +441,9 @@ function emitHttpPathParameter(
   context: PythonSdkContext,
   parameter: SdkPathParameter,
   operation: SdkHttpOperation,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any> {
-  const base = emitParamBase(context, parameter, undefined, rootClientApiVersions);
+  const base = emitParamBase(context, parameter, undefined, serviceApiVersions);
   if (parameter.optional && operation.path.includes(`/{${parameter.serializedName}}`)) {
     operation.path = operation.path.replace(
       `/{${parameter.serializedName}}`,
@@ -464,9 +464,9 @@ function emitHttpHeaderParameter(
   context: PythonSdkContext,
   parameter: SdkHeaderParameter,
   method: SdkServiceMethod<SdkHttpOperation>,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any> {
-  const base = emitParamBase(context, parameter, method, rootClientApiVersions);
+  const base = emitParamBase(context, parameter, method, serviceApiVersions);
   const [delimiter, explode] = getDelimiterAndExplode(parameter);
   let clientDefaultValue = parameter.clientDefaultValue;
   if (isContentTypeParameter(parameter)) {
@@ -492,9 +492,9 @@ function emitHttpQueryParameter(
   rootClient: SdkClientType<SdkHttpOperation>,
   parameter: SdkQueryParameter,
   method: SdkServiceMethod<SdkHttpOperation>,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any> {
-  const base = emitParamBase(context, parameter, method, rootClientApiVersions);
+  const base = emitParamBase(context, parameter, method, serviceApiVersions);
   const [delimiter, explode] = getDelimiterAndExplode(parameter);
   return {
     ...base,
@@ -516,7 +516,7 @@ function emitHttpParameters(
   rootClient: SdkClientType<SdkHttpOperation>,
   operation: SdkHttpOperation,
   method: SdkServiceMethod<SdkHttpOperation>,
-  rootClientApiVersions: string[],
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   const parameters: Record<string, any>[] = [...context.__endpointPathParameters];
 
@@ -556,17 +556,15 @@ function emitHttpParameters(
   for (const parameter of httpParameters) {
     switch (parameter.kind) {
       case "header":
-        parameters.push(emitHttpHeaderParameter(context, parameter, method, rootClientApiVersions));
+        parameters.push(emitHttpHeaderParameter(context, parameter, method, serviceApiVersions));
         break;
       case "query":
         parameters.push(
-          emitHttpQueryParameter(context, rootClient, parameter, method, rootClientApiVersions),
+          emitHttpQueryParameter(context, rootClient, parameter, method, serviceApiVersions),
         );
         break;
       case "path":
-        parameters.push(
-          emitHttpPathParameter(context, parameter, operation, rootClientApiVersions),
-        );
+        parameters.push(emitHttpPathParameter(context, parameter, operation, serviceApiVersions));
         break;
     }
   }
@@ -577,11 +575,11 @@ function emitHttpParameters(
 function emitHttpBodyParameter(
   context: PythonSdkContext,
   bodyParam?: SdkBodyParameter,
-  rootClientApiVersions: string[] = [],
+  serviceApiVersions: string[] = [],
 ): Record<string, any> | undefined {
   if (bodyParam === undefined) return undefined;
   return {
-    ...emitParamBase(context, bodyParam, undefined, rootClientApiVersions),
+    ...emitParamBase(context, bodyParam, undefined, serviceApiVersions),
     contentTypes: bodyParam.contentTypes,
     location: bodyParam.kind,
     clientName: bodyParam.isGeneratedName ? "body" : camelToSnakeCase(bodyParam.name),
