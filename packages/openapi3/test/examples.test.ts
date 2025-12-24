@@ -965,14 +965,7 @@ worksFor(supportedVersions, ({ openApiFor }) => {
 
   it("supports example generation for union that contains enums", async () => {
     const res = await openApiFor(
-      `        
-      namespace MyService {
-        enum Versions {
-          v1
-        }
-      }
-      
-      @versioned(Versions)
+      `
       @service
       namespace MyService {
         enum Enum {
