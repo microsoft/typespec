@@ -501,7 +501,7 @@ function getLastDocText(node: Node): string | null {
 }
 
 /**
- * same as {@link file://./../../compiler/src/core/checker.ts}
+ * same as {@link file://./../../compiler/src/core/checker.ts getDocContent}
  */
 function getDocContent(content: readonly DocContent[]) {
   const docs = [];
