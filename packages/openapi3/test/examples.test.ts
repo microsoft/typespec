@@ -962,4 +962,50 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       "2021-01-01T00:00:00Z",
     );
   });
+
+  it("supports example generation for union that contains enums", async () => {
+    const res = await openApiFor(
+      `        
+      namespace MyService {
+        enum Versions {
+          v1
+        }
+      }
+      
+      @versioned(Versions)
+      @service
+      namespace MyService {
+        enum Enum {
+          a: "a",
+          b: "b",
+        }
+      
+        model Foo {
+          entityType: "foo";
+        }
+      
+        model Bar {
+          entityType: "bar";
+          enumValue: Enum;
+        }
+      
+        @opExample(#{ returnType: #[#{ entityType: "bar", enumValue: Enum.a }] })
+        op testOp(): (Foo | Bar)[];
+      }
+    `,
+    );
+
+    ok(res.components?.schemas);
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual([
+      {
+        entityType: "bar",
+        enumValue: "a",
+      },
+    ]);
+  });
 });

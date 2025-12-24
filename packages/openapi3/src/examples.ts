@@ -266,7 +266,10 @@ export function getExampleOrExamples(
   ) {
     const [example, type] = examples[0];
     const encodeAs = getEncodeAs(program, type);
-    return { example: serializeValueAsJson(program, example.value, type, encodeAs) };
+    const exactValueType = program.checker.getValueExactType(example.value);
+    return {
+      example: serializeValueAsJson(program, example.value, exactValueType ?? type, encodeAs),
+    };
   } else {
     const exampleObj: Record<string, OpenAPI3Example> = {};
     for (const [index, [example, type]] of examples.entries()) {
