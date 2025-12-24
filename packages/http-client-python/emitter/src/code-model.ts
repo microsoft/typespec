@@ -286,15 +286,13 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   // get all init parameters including children clients
   const initParameters: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[] = [];
   const paramNames = new Set<string>();
-  const apiVersionParams: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[] =
-    [];
-
+  const rootClientApiVersions = client.apiVersions;
   function collectParameters(client: SdkClientType<TServiceOperation>) {
     if (client.clientInitialization?.parameters) {
       for (const param of client.clientInitialization.parameters) {
-        if (param.isApiVersionParam) {
-          // Collect apiVersion parameters separately
-          apiVersionParams.push(param);
+        if (param.isApiVersionParam && rootClientApiVersions.length === 0) {
+          // for multi-service client with different api-versions, skip adding api-version param here
+          continue;
         } else if (!paramNames.has(param.name)) {
           initParameters.push(param);
           paramNames.add(param.name);
@@ -306,20 +304,6 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
     }
   }
   collectParameters(client);
-
-  // If all apiVersion parameters have same apiVersions, add one of them to initParameters
-  if (apiVersionParams.length > 0) {
-    const allApiVersions = apiVersionParams.map((param) => param.apiVersions ?? []);
-    const firstApiVersions = allApiVersions[0] || [];
-    const allSame = allApiVersions.every(
-      (versions) =>
-        versions.length === firstApiVersions.length &&
-        versions.every((v, i) => v === firstApiVersions[i]),
-    );
-    if (allSame) {
-      initParameters.push(apiVersionParams[0]);
-    }
-  }
 
   const parameters =
     initParameters
@@ -337,7 +321,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
     url = endpointParameter?.type.serverUrl;
   }
   return {
-    name: client.name,
+    name: client.name.endsWith("Client") ? client.name : `${client.name}Client`,
     description: (client.summary ? client.summary : client.doc) ?? "",
     parameters,
     operationGroups,
