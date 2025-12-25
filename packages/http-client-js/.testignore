@@ -9,3 +9,7 @@ streaming
 # discriminated union issue - https://github.com/microsoft/typespec/issues/7134
 
 type/union/discriminated
+
+# Multipart - https://github.com/microsoft/typespec/issues/9155
+
+payload/multipart
