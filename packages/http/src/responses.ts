@@ -1,4 +1,5 @@
 import {
+  ArrayModelType,
   compilerAssert,
   createDiagnosticCollector,
   Diagnostic,
@@ -19,7 +20,9 @@ import {
 import {
   ArrayExpressionNode,
   IntersectionExpressionNode,
+  ModelStatementNode,
   Node,
+  OperationSignatureDeclarationNode,
   SyntaxKind,
   TypeReferenceNode,
   UnionExpressionNode,
@@ -45,7 +48,6 @@ export function getResponsesForOperation(
   const responses = new ResponseIndex();
   const tk = $(program);
   const inlineDocNodeTreeMap = generateInlineDocNodeTreeMap(program, operation);
-
   if (tk.union.is(responseType) && !tk.union.getDiscriminatedUnion(responseType)) {
     // Check if the union itself has a @doc to use as the response description
     const unionDescription = getDoc(program, responseType);
@@ -128,7 +130,6 @@ function processResponseType(
       if (isNullType(option.type)) {
         continue;
       }
-
       processResponseType(
         program,
         diagnostics,
@@ -289,7 +290,7 @@ function getResponseDescription(
     return inlineDescription;
   }
 
-  // If a parent union provided a description, use that second
+  // If a parent union provided a description, use that next
   if (parentDescription) {
     return parentDescription;
   }
@@ -328,6 +329,8 @@ function getResponseDescription(
  *
  * The key is a {@link Node}, and the value is its semantic parent {@link Node} or `null` if none exists.
  * It means that is a root {@link Node} if the value is `null`.
+ *
+ * NOTE: It's useful to change the type to a {@link Map} when you want to debug it.
  */
 interface InlineDocNodeTreeMap extends WeakMap<Node, Node | null> {}
 
@@ -341,6 +344,7 @@ function generateInlineDocNodeTreeMap(
   operation: Operation,
 ): InlineDocNodeTreeMap {
   const node = getOperationReturnTypeNode(operation);
+  // set null to the parentNode explicitly to mark it as a root node
   return traverseChild(program, new WeakMap(), node, null);
 }
 
@@ -349,7 +353,7 @@ function generateInlineDocNodeTreeMap(
  * there is no {@link responseTypeNode} to start traversing,
  * get the inline doc comment from the intrinsic type's node.
  *
- * e.g.,
+ * @example
  * ```typespec
  * op read(): /** void type *\/ void;
  * ```
@@ -369,9 +373,11 @@ function getInlineDescriptionFromOperationReturnTypeIntrinsic(
 
 function getOperationReturnTypeNode(operation: Operation): Node | undefined {
   let node = operation.returnType.node;
-  // if the return type node of operation is a single type reference, which doesn't appear in AST
-  // about operation.returnType.node
-  // so we need to get the actual type reference node from operation signature's return type
+  /**
+   * if the return type node of {@link operation} is a single type reference, which doesn't appear in AST
+   * about {@link operation.returnType.node}
+   * so we need to get the actual type reference node from {@link OperationSignatureDeclarationNode.returnType}
+   */
   if (
     operation.node?.kind === SyntaxKind.OperationStatement &&
     operation.node.signature.kind === SyntaxKind.OperationSignatureDeclaration
@@ -442,8 +448,8 @@ function getNearestInlineDescriptionFromOperationReturnTypeNode(
 
   const parentNodeText = getLastDocText(parentNode);
   if (map.has(parentNode)) {
-    // if parent has no description and current node has description,
-    // keep current node as nearestNodeHasDoc which could have inline doc comment
+    /** If parent node has no inline doc comment, and current node has inline doc comment,
+     * keep current node as {@link nearestNodeHasDoc} which could have inline doc comment */
     if (!parentNodeText && nodeText) {
       return getNearestInlineDescriptionFromOperationReturnTypeNode(
         program,
@@ -453,7 +459,7 @@ function getNearestInlineDescriptionFromOperationReturnTypeNode(
         node,
       );
     }
-    // keep nearestNodeHasDoc as nearest node which could have inline doc comment
+    /** keep {@link nearestNodeHasDoc} as nearest node which could have inline doc comment */
     return getNearestInlineDescriptionFromOperationReturnTypeNode(
       program,
       operation,
@@ -475,8 +481,8 @@ function traverseTypeReference(
   const type = program.checker.getTypeForNode(node);
 
   if (type.node) {
-    const childNode = type.node;
-    traverseChild(program, map, childNode, node);
+    const parentNode = node;
+    traverseChild(program, map, type.node, parentNode);
   }
 }
 
@@ -487,7 +493,8 @@ function traverseUnionExpression(
   parentNode: Node | null,
 ): void {
   for (const option of node.options) {
-    traverseChild(program, map, option, parentNode);
+    const node = option;
+    traverseChild(program, map, node, parentNode);
   }
 }
 
@@ -496,9 +503,10 @@ function traverseUnionStatement(
   map: InlineDocNodeTreeMap,
   node: UnionStatementNode,
   parentNode: Node | null,
-) {
+): void {
   for (const option of node.options) {
-    traverseChild(program, map, option.value, parentNode);
+    const node = option.value;
+    traverseChild(program, map, node, parentNode);
   }
 }
 
@@ -509,13 +517,17 @@ function traverseArrayExpression(
   parentNode: Node | null,
 ): void {
   map.set(node, parentNode);
-  // Array or [] is a reference type, so we need to resolve its original Array model
+  /**
+   * {@link ArrayModelType} or {@link SyntaxKind.ArrayLiteral []} is a reference type,
+   * we need to resolve its original Array model
+   */
   const type = program.checker.getTypeForNode(node);
 
   if (type.node) {
+    const parentNode = node;
     const childNode = type.node;
-    map.set(childNode, node);
-    const grandChildNode = node.elementType;
+    map.set(childNode, parentNode);
+    const grandChildNode = parentNode.elementType;
     traverseChild(program, map, grandChildNode, childNode);
   }
 }
@@ -527,19 +539,23 @@ function traverseIntersectionExpression(
   parentNode: Node | null,
 ): void {
   for (const option of node.options) {
-    traverseChild(program, map, option, parentNode);
+    const node = option;
+    traverseChild(program, map, node, parentNode);
   }
 }
 
 function getLastDocText(node: Node): string | null {
-  // the doc node isn't an inline doc comment when it belongs to a model statement
-  // this condition should be an allowlist for nodes which can have inline doc comments
+  /**
+   * the doc node isn't an inline doc comment when it belongs to a {@link ModelStatementNode}
+   * this {@link isAllowedNodeKind} condition should be an allowlist for nodes which can have inline doc comments
+   */
   const isAllowedNodeKind =
     node.kind !== SyntaxKind.TypeReference &&
     node.kind !== SyntaxKind.ModelExpression &&
     node.kind !== SyntaxKind.IntersectionExpression &&
     node.kind !== SyntaxKind.ArrayExpression &&
-    node.kind !== SyntaxKind.VoidKeyword;
+    node.kind !== SyntaxKind.VoidKeyword &&
+    node.kind !== SyntaxKind.UnknownKeyword;
   if (isAllowedNodeKind) return null;
   const docs = node.docs;
   if (!docs || docs.length === 0) return null;
