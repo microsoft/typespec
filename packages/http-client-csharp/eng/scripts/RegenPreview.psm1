@@ -142,11 +142,19 @@ function Update-GeneratorPackage {
             }
             
             # Get the package filename
-            $packageLine = ($packOutput | Where-Object { $_ -match '\.tgz$' } | Select-Object -First 1).ToString().Trim()
-            if ($packageLine -match 'filename:\s*(.+\.tgz)') {
-                $packageFile = $Matches[1].Trim()
+            $packageLine = ($packOutput | Where-Object { $_ -match '\.tgz$' } | Select-Object -First 1)
+            if ($packageLine) {
+                $packageLine = $packageLine.ToString().Trim()
+                if ($packageLine -match 'filename:\s*(.+\.tgz)') {
+                    $packageFile = $Matches[1].Trim()
+                } else {
+                    $packageFile = $packageLine
+                }
             } else {
-                $packageFile = $packageLine
+                # If we can't find .tgz in output, try to construct the filename
+                $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
+                $packageFile = "$($packageJson.name.Replace('@', '').Replace('/', '-'))-$LocalVersion.tgz"
+                Write-Host "  Could not parse package filename from npm output, using: $packageFile" -ForegroundColor Yellow
             }
             
             # Move to debug folder
@@ -695,8 +703,20 @@ function Add-LocalNuGetSource {
 
     $ErrorActionPreference = 'Stop'
 
+    if ([string]::IsNullOrWhiteSpace($NuGetConfigPath)) {
+        throw "NuGetConfigPath parameter is null or empty"
+    }
+
+    if ([string]::IsNullOrWhiteSpace($SourcePath)) {
+        throw "SourcePath parameter is null or empty"
+    }
+
     if (-not (Test-Path $NuGetConfigPath)) {
         throw "NuGet.Config not found at: $NuGetConfigPath"
+    }
+
+    if (-not (Test-Path $SourcePath)) {
+        throw "Source path not found at: $SourcePath"
     }
 
     Write-Host "Adding local NuGet package source to NuGet.Config..." -ForegroundColor Gray
@@ -769,6 +789,11 @@ function Add-LocalNuGetSource {
             $localPackageSource.AppendChild($packageElement) | Out-Null
             Write-Host "    Added pattern: $pattern" -ForegroundColor Green
         }
+    }
+    
+    # Final validation before saving
+    if ([string]::IsNullOrWhiteSpace($NuGetConfigPath)) {
+        throw "NuGetConfigPath became null or empty before saving"
     }
     
     $nugetConfig.Save($NuGetConfigPath)
