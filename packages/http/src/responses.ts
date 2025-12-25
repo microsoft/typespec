@@ -348,16 +348,35 @@ function generateInlineDocNodeTreeMap(
   ) {
     node = operation.node.signature.returnType;
   }
+  return traverseChild(program, new WeakMap(), node, null);
+}
 
-  const map: InlineDocNodeTreeMap = new WeakMap();
-  if (node?.kind === SyntaxKind.UnionExpression) {
-    traverseUnionExpression(program, map, node, null);
-  }
-  if (node?.kind === SyntaxKind.ArrayExpression) {
-    traverseArrayExpression(program, map, node, null);
-  }
-  if (node?.kind === SyntaxKind.TypeReference) {
-    traverseTypeReference(program, map, node, null);
+function traverseChild(
+  program: Program,
+  map: InlineDocNodeTreeMap,
+  node: Node | undefined,
+  parentNode: Node | null,
+): InlineDocNodeTreeMap {
+  if (!node) return map;
+  switch (node.kind) {
+    case SyntaxKind.UnionExpression:
+      traverseUnionExpression(program, map, node, parentNode);
+      break;
+    case SyntaxKind.UnionStatement:
+      traverseUnionStatement(program, map, node, parentNode);
+      break;
+    case SyntaxKind.TypeReference:
+      traverseTypeReference(program, map, node, parentNode);
+      break;
+    case SyntaxKind.ArrayExpression:
+      traverseArrayExpression(program, map, node, parentNode);
+      break;
+    case SyntaxKind.IntersectionExpression:
+      traverseIntersectionExpression(program, map, node, parentNode);
+      break;
+    default:
+      map.set(node, parentNode);
+      break;
   }
   return map;
 }
@@ -413,27 +432,10 @@ function traverseTypeReference(
 ): void {
   map.set(node, parentNode);
   const type = program.checker.getTypeForNode(node);
-  const ancestorNode = node;
 
   if (type.node) {
     const childNode = type.node;
-    const kind = childNode.kind;
-    if (kind === SyntaxKind.UnionExpression) {
-      traverseUnionExpression(program, map, childNode, ancestorNode);
-    }
-    if (kind === SyntaxKind.UnionStatement) {
-      traverseUnionStatement(program, map, childNode, ancestorNode);
-    }
-    if (kind === SyntaxKind.IntersectionExpression) {
-      traverseIntersectionExpression(program, map, childNode, ancestorNode);
-    }
-    if (
-      kind === SyntaxKind.ModelStatement ||
-      kind === SyntaxKind.ModelExpression ||
-      kind === SyntaxKind.ScalarStatement
-    ) {
-      map.set(childNode, ancestorNode);
-    }
+    traverseChild(program, map, childNode, node);
   }
 }
 
@@ -444,18 +446,7 @@ function traverseUnionExpression(
   parentNode: Node | null,
 ): void {
   for (const option of node.options) {
-    if (option.kind === SyntaxKind.TypeReference) {
-      traverseTypeReference(program, map, option, parentNode);
-    }
-    if (option.kind === SyntaxKind.ArrayExpression) {
-      traverseArrayExpression(program, map, option, parentNode);
-    }
-    if (option.kind === SyntaxKind.IntersectionExpression) {
-      traverseIntersectionExpression(program, map, option, parentNode);
-    }
-    if (option.kind === SyntaxKind.ModelExpression) {
-      map.set(option, parentNode);
-    }
+    traverseChild(program, map, option, parentNode);
   }
 }
 
@@ -466,19 +457,7 @@ function traverseUnionStatement(
   parentNode: Node | null,
 ) {
   for (const option of node.options) {
-    map.set(option, parentNode);
-
-    if (option.kind === SyntaxKind.UnionVariant) {
-      if (option.value.kind === SyntaxKind.TypeReference) {
-        traverseTypeReference(program, map, option.value, parentNode);
-      }
-      if (option.value.kind === SyntaxKind.ArrayExpression) {
-        traverseArrayExpression(program, map, option.value, parentNode);
-      }
-      if (option.value.kind === SyntaxKind.ModelExpression) {
-        map.set(option.value, parentNode);
-      }
-    }
+    traverseChild(program, map, option.value, parentNode);
   }
 }
 
@@ -495,13 +474,8 @@ function traverseArrayExpression(
   if (type.node) {
     const childNode = type.node;
     map.set(childNode, node);
-    const elementType = node.elementType;
-    if (elementType.kind === SyntaxKind.UnionExpression) {
-      traverseUnionExpression(program, map, elementType, childNode);
-    }
-    if (elementType.kind === SyntaxKind.TypeReference) {
-      traverseTypeReference(program, map, elementType, childNode);
-    }
+    const grandChildNode = node.elementType;
+    traverseChild(program, map, grandChildNode, childNode);
   }
 }
 
@@ -511,15 +485,8 @@ function traverseIntersectionExpression(
   node: IntersectionExpressionNode,
   parentNode: Node | null,
 ): void {
-  map.set(node, parentNode);
-
   for (const option of node.options) {
-    if (option.kind === SyntaxKind.UnionExpression) {
-      traverseUnionExpression(program, map, option, parentNode);
-    }
-    if (option.kind === SyntaxKind.TypeReference) {
-      traverseTypeReference(program, map, option, parentNode);
-    }
+    traverseChild(program, map, option, parentNode);
   }
 }
 
