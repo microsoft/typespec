@@ -196,6 +196,65 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
         $ref: "#/components/schemas/U",
       });
     });
+
+    it("default variant with envelope: none (all versions)", async () => {
+      const res = await openApiFor(
+        `
+        @discriminated(#{discriminatorPropertyName: "taxonomic_family", envelope: "none"})
+        union Animal {
+          Dog,
+          felidae: Cat,
+          muscidae: Ferret
+        }
+
+        model Dog {
+          taxonomic_family: "canidae";
+        }
+
+        model Cat {
+          taxonomic_family: "felidae";
+        }
+
+        model Ferret {
+          taxonomic_family: "muscidae";
+        }
+
+        op read(): { @body body: Animal };
+        `,
+      );
+
+      // Dog should be in oneOf even though it's the default variant
+      ok(res.components.schemas.Animal.oneOf, "expected oneOf in Animal schema");
+      deepStrictEqual(res.components.schemas.Animal.oneOf, [
+        { $ref: "#/components/schemas/Cat" },
+        { $ref: "#/components/schemas/Ferret" },
+        { $ref: "#/components/schemas/Dog" },
+      ]);
+
+      // For versions < 3.2, canidae should be in the mapping
+      ok(res.components.schemas.Animal.discriminator, "expected discriminator");
+      deepStrictEqual(res.components.schemas.Animal.discriminator.propertyName, "taxonomic_family");
+
+      // For versions 3.0 and 3.1, canidae should be in the mapping
+      if (res.openapi === "3.0.0" || res.openapi === "3.1.0") {
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+          muscidae: "#/components/schemas/Ferret",
+          canidae: "#/components/schemas/Dog",
+        });
+      } else {
+        // For version 3.2.0, canidae should NOT be in mapping
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+          muscidae: "#/components/schemas/Ferret",
+        });
+        // Instead, it should be in defaultMapping
+        deepStrictEqual(
+          res.components.schemas.Animal.discriminator.defaultMapping,
+          "#/components/schemas/Dog",
+        );
+      }
+    });
   });
 
   describe("union literals", () => {
@@ -846,6 +905,107 @@ worksFor(["3.1.0"], ({ oapiForModel, openApiFor }) => {
       deepStrictEqual(openApi.components.schemas.Pet, {
         type: "null",
       });
+    });
+  });
+});
+
+// Test OpenAPI 3.2.0-specific features
+import { OpenAPISpecHelpers } from "./works-for.js";
+
+describe("openapi3: discriminated union defaultMapping (3.2.0)", () => {
+  const { openApiFor } = OpenAPISpecHelpers["3.2.0"];
+
+  it("default variant uses defaultMapping in OpenAPI 3.2.0", async () => {
+    const res = await openApiFor(
+      `
+      @discriminated(#{discriminatorPropertyName: "taxonomic_family", envelope: "none"})
+      union Animal {
+        Dog,
+        felidae: Cat,
+        muscidae: Ferret
+      }
+
+      model Dog {
+        taxonomic_family: "canidae";
+      }
+
+      model Cat {
+        taxonomic_family: "felidae";
+      }
+
+      model Ferret {
+        taxonomic_family: "muscidae";
+      }
+
+      op read(): { @body body: Animal };
+      `,
+    );
+
+    // Dog should be in oneOf
+    ok(res.components.schemas.Animal.oneOf, "expected oneOf in Animal schema");
+    deepStrictEqual(res.components.schemas.Animal.oneOf, [
+      { $ref: "#/components/schemas/Cat" },
+      { $ref: "#/components/schemas/Ferret" },
+      { $ref: "#/components/schemas/Dog" },
+    ]);
+
+    // In OpenAPI 3.2, defaultMapping should be used instead of putting canidae in mapping
+    ok(res.components.schemas.Animal.discriminator, "expected discriminator");
+    deepStrictEqual(res.components.schemas.Animal.discriminator, {
+      propertyName: "taxonomic_family",
+      defaultMapping: "#/components/schemas/Dog",
+      mapping: {
+        felidae: "#/components/schemas/Cat",
+        muscidae: "#/components/schemas/Ferret",
+      },
+    });
+  });
+
+  it("default variant without discriminator property uses defaultMapping", async () => {
+    const res = await openApiFor(
+      `
+      @discriminated(#{discriminatorPropertyName: "kind", envelope: "none"})
+      union Pet {
+        DefaultPet,
+        cat: Cat,
+        dog: Dog
+      }
+
+      model DefaultPet {
+        name: string;
+      }
+
+      model Cat {
+        kind: "cat";
+        meow: int32;
+      }
+
+      model Dog {
+        kind: "dog";
+        bark: string;
+      }
+
+      op read(): { @body body: Pet };
+      `,
+    );
+
+    // DefaultPet should be in oneOf
+    ok(res.components.schemas.Pet.oneOf, "expected oneOf in Pet schema");
+    deepStrictEqual(res.components.schemas.Pet.oneOf, [
+      { $ref: "#/components/schemas/Cat" },
+      { $ref: "#/components/schemas/Dog" },
+      { $ref: "#/components/schemas/DefaultPet" },
+    ]);
+
+    // In OpenAPI 3.2, defaultMapping should point to DefaultPet
+    ok(res.components.schemas.Pet.discriminator, "expected discriminator");
+    deepStrictEqual(res.components.schemas.Pet.discriminator, {
+      propertyName: "kind",
+      defaultMapping: "#/components/schemas/DefaultPet",
+      mapping: {
+        cat: "#/components/schemas/Cat",
+        dog: "#/components/schemas/Dog",
+      },
     });
   });
 });

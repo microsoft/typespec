@@ -114,6 +114,7 @@ function getDiscriminatedUnionForUnion(
       type,
       options,
       variants,
+      defaultVariant,
     },
     diagnostics,
   ];
