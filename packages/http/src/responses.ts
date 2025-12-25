@@ -280,6 +280,8 @@ function getResponseDescription(
 ): string | undefined {
   // If an inline doc comment provided, use that first
   const inlineDescription = getNearestInlineDescriptionFromOperationReturnTypeNode(
+    program,
+    operation,
     inlineDocNodeTreeMap,
     responseType.node,
   );
@@ -338,6 +340,34 @@ function generateInlineDocNodeTreeMap(
   program: Program,
   operation: Operation,
 ): InlineDocNodeTreeMap {
+  const node = getOperationReturnTypeNode(operation);
+  return traverseChild(program, new WeakMap(), node, null);
+}
+
+/**
+ * If the {@link Operation.returnType} is an intrinsic type, and
+ * there is no {@link responseTypeNode} to start traversing,
+ * get the inline doc comment from the intrinsic type's node.
+ *
+ * e.g.,
+ * ```typespec
+ * op read(): /** void type *\/ void;
+ * ```
+ */
+function getInlineDescriptionFromOperationReturnTypeIntrinsic(
+  program: Program,
+  operation: Operation,
+  responseTypeNode?: Node,
+): string | null {
+  const tk = $(program);
+  const returnTypeNode = getOperationReturnTypeNode(operation);
+  if (!responseTypeNode && returnTypeNode && tk.intrinsic.is(operation.returnType)) {
+    return getLastDocText(returnTypeNode);
+  }
+  return null;
+}
+
+function getOperationReturnTypeNode(operation: Operation): Node | undefined {
   let node = operation.returnType.node;
   // if the return type node of operation is a single type reference, which doesn't appear in AST
   // about operation.returnType.node
@@ -348,7 +378,7 @@ function generateInlineDocNodeTreeMap(
   ) {
     node = operation.node.signature.returnType;
   }
-  return traverseChild(program, new WeakMap(), node, null);
+  return node;
 }
 
 function traverseChild(
@@ -387,12 +417,15 @@ function traverseChild(
  * Return the nearest inline description from the {@link Operation.returnType}'s node.
  */
 function getNearestInlineDescriptionFromOperationReturnTypeNode(
+  program: Program,
+  operation: Operation,
   map: InlineDocNodeTreeMap,
   node?: Node,
   nearestNodeHasDoc?: Node,
 ): string | null {
-  // this branch couldn't happen normally
-  if (!node) return null;
+  if (!node) {
+    return getInlineDescriptionFromOperationReturnTypeIntrinsic(program, operation, node);
+  }
   const parentNode = map.get(node);
   const nodeText = getLastDocText(node);
   // if no parent, stop traversing and return the description
@@ -412,10 +445,18 @@ function getNearestInlineDescriptionFromOperationReturnTypeNode(
     // if parent has no description and current node has description,
     // keep current node as nearestNodeHasDoc which could have inline doc comment
     if (!parentNodeText && nodeText) {
-      return getNearestInlineDescriptionFromOperationReturnTypeNode(map, parentNode, node);
+      return getNearestInlineDescriptionFromOperationReturnTypeNode(
+        program,
+        operation,
+        map,
+        parentNode,
+        node,
+      );
     }
     // keep nearestNodeHasDoc as nearest node which could have inline doc comment
     return getNearestInlineDescriptionFromOperationReturnTypeNode(
+      program,
+      operation,
       map,
       parentNode,
       nearestNodeHasDoc,
@@ -497,7 +538,8 @@ function getLastDocText(node: Node): string | null {
     node.kind !== SyntaxKind.TypeReference &&
     node.kind !== SyntaxKind.ModelExpression &&
     node.kind !== SyntaxKind.IntersectionExpression &&
-    node.kind !== SyntaxKind.ArrayExpression;
+    node.kind !== SyntaxKind.ArrayExpression &&
+    node.kind !== SyntaxKind.VoidKeyword;
   if (isAllowedNodeKind) return null;
   const docs = node.docs;
   if (!docs || docs.length === 0) return null;

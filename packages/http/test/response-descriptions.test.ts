@@ -127,6 +127,16 @@ describe("http: response descriptions", () => {
     strictEqual(op.responses[0].description, "List widgets");
   });
 
+  it("inline doc comments for an operation returnType with a void type", async () => {
+    const op = await getHttpOp(
+      `
+      op read(): /** void type */ void;
+      `,
+    );
+
+    strictEqual(op.responses[0].description, "void type");
+  });
+
   it("inline doc comments for an operation returnType with a scalar", async () => {
     const op = await getHttpOp(
       `
