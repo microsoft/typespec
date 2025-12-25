@@ -472,6 +472,9 @@ function traverseUnionStatement(
       if (option.value.kind === SyntaxKind.TypeReference) {
         traverseTypeReference(program, map, option.value, parentNode);
       }
+      if (option.value.kind === SyntaxKind.ArrayExpression) {
+        traverseArrayExpression(program, map, option.value, parentNode);
+      }
       if (option.value.kind === SyntaxKind.ModelExpression) {
         map.set(option.value, parentNode);
       }
