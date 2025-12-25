@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from typetest.union.discriminated import DiscriminatedClient
-from typetest.union.discriminated import models
+from typetest.discriminatedunion import DiscriminatedClient
+from typetest.discriminatedunion import models
 
 
 @pytest.fixture
