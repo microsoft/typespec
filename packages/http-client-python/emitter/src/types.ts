@@ -514,10 +514,11 @@ export const KnownTypes = {
 export function emitEndpointType(
   context: PythonSdkContext,
   type: SdkEndpointType,
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   const params: Record<string, any>[] = [];
   for (const param of type.templateArguments) {
-    const paramBase = emitParamBase(context, param);
+    const paramBase = emitParamBase(context, param, undefined, serviceApiVersions);
     paramBase.clientName = context.arm ? "base_url" : paramBase.clientName;
     params.push({
       ...paramBase,
