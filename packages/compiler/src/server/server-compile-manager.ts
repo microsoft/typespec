@@ -8,6 +8,7 @@ import {
   Program,
   ServerLog,
 } from "../index.js";
+import { getEnvironmentVariable } from "../utils/misc.js";
 import { ENABLE_SERVER_COMPILE_LOGGING } from "./constants.js";
 import { trackActionFunc } from "./server-track-action-task.js";
 import { UpdateManager } from "./update-manager.js";
@@ -45,8 +46,7 @@ export class ServerCompileManager {
     private log: (log: ServerLog) => void,
   ) {
     this.logDebug =
-      typeof process !== "undefined" &&
-      process?.env?.[ENABLE_SERVER_COMPILE_LOGGING]?.toLowerCase() === "true"
+      getEnvironmentVariable(ENABLE_SERVER_COMPILE_LOGGING)?.toLowerCase() === "true"
         ? (msg) => this.log({ level: "debug", message: msg })
         : () => {};
   }
