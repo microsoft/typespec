@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             _declaringTypeProvider = declaringType;
             AllowedValues = input?.Values ?? [];
+            FixedEnumView = this;
         }
 
         internal IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
@@ -88,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return values;
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
             => EnumValues.Select(v => v.Field).ToArray();
 
         protected override bool GetIsEnum() => true;

@@ -1,5 +1,16 @@
 # Change Log - @typespec/spec-coverage-sdk
 
+## 0.1.0-alpha.13
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8985](https://github.com/microsoft/typespec/pull/8985) Add new `sourceUrl` handling for the go to source navigation
+
+
 ## 0.1.0-alpha.12
 
 ### Features

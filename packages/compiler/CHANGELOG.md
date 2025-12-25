@@ -1,5 +1,32 @@
 # Change Log - @typespec/compiler
 
+## 1.7.1
+
+### Bug Fixes
+
+- [#9210](https://github.com/microsoft/typespec/pull/9210) Fix crash in `tsp init` introduced in `1.7.0`
+
+
+## 1.7.0
+
+### Features
+
+- [#9002](https://github.com/microsoft/typespec/pull/9002) Add `commaDelimited` and `newlineDelimited` values to `ArrayEncoding` enum for serializing arrays with comma and newline delimiters
+- [#8942](https://github.com/microsoft/typespec/pull/8942) - Add 'exit' final event for linter rules
+  - Support 'async' in linter definition and async function as callback for 'exit' event.
+- [#9024](https://github.com/microsoft/typespec/pull/9024) [API] Add `node` to `SourceModel` type
+- [#8619](https://github.com/microsoft/typespec/pull/8619) Add support for escaping param like tags(`@param`, `@prop`, etc.) identifier with backtick in doc comments to allow special characters
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8917](https://github.com/microsoft/typespec/pull/8917) Add security warning to tsp init CLI documentation for external templates (#8916)
+- [#8997](https://github.com/microsoft/typespec/pull/8997) UnusedUsing Diagnostics are reported as warning instead of hint when there are linters defined in tspconfig.yaml
+
+
 ## 1.6.0
 
 ### Features

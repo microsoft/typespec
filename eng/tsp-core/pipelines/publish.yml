@@ -6,7 +6,6 @@ trigger:
       - main
       # For patch releases
       - release/*
-  paths:
     exclude:
       - packages/http-client-csharp
 

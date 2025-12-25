@@ -13,6 +13,7 @@ words:
   - AQID
   - Arize
   - arizeaiobservabilityeval
+  - Ablack
   - arraya
   - astimezone
   - astro
@@ -35,6 +36,8 @@ words:
   - cadl
   - cadleditor
   - cadleng
+  - Cblack
+  - Cbrown
   - cadlplayground
   - canonicalizer
   - clsx
@@ -139,8 +142,6 @@ words:
   - lropaging
   - lstrip
   - lzutf
-  - MACVMIMAGE
-  - MACVMIMAGEM
   - mday
   - methodsubscriptionid
   - mgmt

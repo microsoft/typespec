@@ -48,9 +48,33 @@ export interface DecoratorApplication {
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
 }
 
+/**
+ * Signature for a decorator JS implementation function.
+ * Use `@typespec/tspd` to generate an accurate signature from the `extern dec`
+ */
 export interface DecoratorFunction {
-  (program: DecoratorContext, target: any, ...customArgs: any[]): void;
+  (
+    program: DecoratorContext,
+    target: any,
+    ...customArgs: any[]
+  ): DecoratorValidatorCallbacks | void;
   namespace?: string;
+}
+
+export type ValidatorFn = () => readonly Diagnostic[];
+
+export interface DecoratorValidatorCallbacks {
+  /**
+   * Run validation after all decorators are run on the same type. Useful if trying to validate this decorator is compatible with other decorators without relying on the order they are applied.
+   * @note This is meant for validation which means the type graph should be treated as readonly in this function.
+   */
+  readonly onTargetFinish?: ValidatorFn;
+
+  /**
+   * Run validation after everything is checked in the type graph. Useful when trying to get an overall view of the program.
+   * @note This is meant for validation which means the type graph should be treated as readonly in this function.
+   */
+  readonly onGraphFinish?: ValidatorFn;
 }
 
 export interface BaseType {
@@ -296,6 +320,9 @@ export interface SourceModel {
   readonly usage: "is" | "spread" | "intersection";
   /** Source model */
   readonly model: Model;
+
+  /** Node where this source model was referenced. */
+  readonly node?: Node;
 }
 
 export interface ModelProperty extends BaseType, DecoratedType {
@@ -2336,8 +2363,10 @@ interface LinterRuleDefinitionBase<N extends string, DM extends DiagnosticMessag
   messages: DM;
 }
 
-interface LinterRuleDefinitionSync<N extends string, DM extends DiagnosticMessages>
-  extends LinterRuleDefinitionBase<N, DM> {
+interface LinterRuleDefinitionSync<
+  N extends string,
+  DM extends DiagnosticMessages,
+> extends LinterRuleDefinitionBase<N, DM> {
   /** Whether this is an async rule. Default is false */
   async?: false;
   /** Creator */
@@ -2346,8 +2375,10 @@ interface LinterRuleDefinitionSync<N extends string, DM extends DiagnosticMessag
   ): SemanticNodeListener & { exit?: (context: Program) => void | undefined };
 }
 
-interface LinterRuleDefinitionAsync<N extends string, DM extends DiagnosticMessages>
-  extends LinterRuleDefinitionBase<N, DM> {
+interface LinterRuleDefinitionAsync<
+  N extends string,
+  DM extends DiagnosticMessages,
+> extends LinterRuleDefinitionBase<N, DM> {
   /** Whether this is an async rule. Default is false */
   async: true;
   /** Creator */

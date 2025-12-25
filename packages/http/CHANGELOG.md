@@ -1,5 +1,20 @@
 # Change Log - @typespec/http
 
+## 1.7.0
+
+### Features
+
+- [#8962](https://github.com/microsoft/typespec/pull/8962) support documentation on union variants for response descriptions
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8961](https://github.com/microsoft/typespec/pull/8961) Support nested unions in operation return types
+
+
 ## 1.6.0
 
 ### Bump dependencies

@@ -235,7 +235,10 @@ function emitProperty(
   }
   return {
     clientName: camelToSnakeCase(property.name),
-    wireName: property.serializationOptions.json?.name ?? property.name,
+    wireName:
+      (property.serializationOptions?.multipart
+        ? property.serializationOptions?.multipart?.name
+        : property.serializationOptions?.json?.name) ?? property.name,
     type: getType(context, sourceType),
     optional: property.optional,
     description: property.summary ? property.summary : property.doc,
@@ -246,6 +249,7 @@ function emitProperty(
     flatten: property.flatten,
     isMultipartFileInput: isMultipartFileInput,
     xmlMetadata: getXmlMetadata(property),
+    encode: property.encode,
   };
 }
 
@@ -269,6 +273,12 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
       name: "HttpResponseError",
       submodule: "exceptions",
     };
+  }
+  if (type.external) {
+    return getSimpleTypeResult({
+      type: "external",
+      externalTypeInfo: type.external,
+    });
   }
   const parents: Record<string, any>[] = [];
   const newValue = {
@@ -504,10 +514,11 @@ export const KnownTypes = {
 export function emitEndpointType(
   context: PythonSdkContext,
   type: SdkEndpointType,
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   const params: Record<string, any>[] = [];
   for (const param of type.templateArguments) {
-    const paramBase = emitParamBase(context, param);
+    const paramBase = emitParamBase(context, param, undefined, serviceApiVersions);
     paramBase.clientName = context.arm ? "base_url" : paramBase.clientName;
     params.push({
       ...paramBase,

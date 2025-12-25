@@ -17,13 +17,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "CodeGenSerializationAttribute";
 
+        protected override string BuildNamespace() => CodeModelGenerator.CustomizationAttributeNamespace;
+
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
         private protected sealed override NamedTypeSymbolProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
 
-        protected override CSharpType[] BuildImplements() => [typeof(Attribute)];
+        protected internal override CSharpType[] BuildImplements() => [typeof(Attribute)];
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
@@ -38,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ])];
         }
 
-        protected override PropertyProvider[] BuildProperties() =>
+        protected internal override PropertyProvider[] BuildProperties() =>
         [
             new PropertyProvider(
                 $"Gets or sets the property name which these hooks should apply to.",
@@ -70,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this)
         ];
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var propertyNameParameter = new ParameterProvider("propertyName", $"The property name which these hooks apply to.", typeof(string));
             var serializationNameParameter = new ParameterProvider("serializationName", $"The serialization name of the property.", typeof(string));

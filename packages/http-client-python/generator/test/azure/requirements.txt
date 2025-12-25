@@ -13,7 +13,13 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-client-generator-core-hierarchy-building
 -e ./generated/azure-client-generator-core-usage
 -e ./generated/azure-client-generator-core-override
--e ./generated/azure-client-generator-core-client-location
+-e ./generated/azure-client-generator-core-client-location-move-method-parameter-to-client
+-e ./generated/azure-client-generator-core-client-location-move-to-existing-sub-client
+-e ./generated/azure-client-generator-core-client-location-move-to-new-sub-client
+-e ./generated/azure-client-generator-core-client-location-move-to-root-client
+-e ./generated/azure-client-generator-core-client-default-value
+-e ./generated/azure-client-generator-core-alternate-type
+-e ./generated/azure-client-generator-core-next-link-verb
 -e ./generated/azure-core-basic
 -e ./generated/azure-core-scalar
 -e ./generated/azure-core-lro-rpc
@@ -30,6 +36,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-resource-manager-operation-templates
 -e ./generated/azure-resource-manager-resources
 -e ./generated/azure-resource-manager-method-subscription-id
+-e ./generated/azure-resource-manager-multi-service
 -e ./generated/azure-versioning-previewversion
 -e ./generated/client-namespace
 -e ./generated/azure-payload-pageable
@@ -43,6 +50,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/client-structure-twooperationgroup
 -e ./generated/resiliency-srv-driven1
 -e ./generated/resiliency-srv-driven2
+-e ./generated/service-multi-service
 
 # common test case
 -e ./generated/authentication-api-key
@@ -50,11 +58,14 @@ azure-mgmt-core==1.6.0
 -e ./generated/authentication-oauth2
 -e ./generated/authentication-union
 -e ./generated/setuppy-authentication-union
+-e ./generated/specs-documentation
 -e ./generated/encode-duration
 -e ./generated/encode-numeric
+-e ./generated/encode-array
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
 -e ./generated/parameters-path
+-e ./generated/parameters-query
 -e ./generated/parameters-spread
 -e ./generated/serialization-encoded-name-json
 -e ./generated/server-endpoint-not-defined

@@ -223,6 +223,108 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
         "Expected all ${...} to be escaped but got: " + tsp,
       );
     });
+
+    it("should escape ${...} in extension property values with nested objects", async () => {
+      const tsp = await convertOpenAPI3Document({
+        openapi: version,
+        info: {
+          title: "(title)",
+          version: "0.0.0",
+        },
+        tags: [],
+        paths: {
+          "/foo": {
+            post: {
+              "x-oaiMeta": {
+                javascript: `import fs from "fs";\nconst ref = \`data:audio/wav;base64,\${speakerRef}\`;`,
+              },
+              responses: {
+                "200": {
+                  description: "Success",
+                },
+              },
+            },
+          },
+        },
+      } as any);
+
+      // Should escape ${...} in nested extension object string values
+      strictEqual(
+        tsp.includes("\\${speakerRef}"),
+        true,
+        "Expected '\\${speakerRef}' to be escaped in extension property but got: " + tsp,
+      );
+
+      // Should NOT contain unescaped ${...}
+      strictEqual(
+        tsp.includes("${speakerRef}") && !tsp.includes("\\${speakerRef}"),
+        false,
+        "Should not contain unescaped ${speakerRef} in extension property. Got: " + tsp,
+      );
+    });
+
+    it("should escape ${...} in strings that contain other characters", async () => {
+      const tsp = await convertOpenAPI3Document({
+        openapi: version,
+        info: {
+          title: "(title)",
+          version: "0.0.0",
+        },
+        tags: [],
+        paths: {
+          "/test": {
+            get: {
+              "x-example": "prefix${foo}suffix",
+              "x-nested": {
+                field: "data:audio/wav;base64,${speakerRef}",
+              },
+              responses: {
+                "200": {
+                  description: "Success",
+                },
+              },
+            },
+          },
+        },
+      } as any);
+
+      // Should escape ${...} even when surrounded by other characters
+      strictEqual(
+        tsp.includes("\\${foo}") && tsp.includes("\\${speakerRef}"),
+        true,
+        "Expected all ${...} to be escaped in extension properties but got: " + tsp,
+      );
+    });
+
+    it("should escape ${...} in extension arrays containing strings", async () => {
+      const tsp = await convertOpenAPI3Document({
+        openapi: version,
+        info: {
+          title: "(title)",
+          version: "0.0.0",
+        },
+        tags: [],
+        paths: {
+          "/array": {
+            post: {
+              "x-array-prop": ["value1", "${item}", "prefix${var}suffix"],
+              responses: {
+                "200": {
+                  description: "Success",
+                },
+              },
+            },
+          },
+        },
+      } as any);
+
+      // Should escape ${...} in array elements
+      strictEqual(
+        tsp.includes("\\${item}") && tsp.includes("\\${var}"),
+        true,
+        "Expected ${...} to be escaped in extension array elements but got: " + tsp,
+      );
+    });
   });
 
   if (version !== "3.0.0") {
@@ -405,6 +507,93 @@ describe("unixtime format conversion", () => {
       tsp.includes("created?: string"),
       true,
       "Expected 'created?: string' but got: " + tsp,
+    );
+  });
+
+  it("should convert anyOf with integer unixtime and null to utcDateTime | null with @encode decorator", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.1.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              finished_at: {
+                anyOf: [
+                  {
+                    type: "integer",
+                    format: "unixtime",
+                  },
+                  {
+                    type: "null",
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, integer)" and "finished_at?: utcDateTime | null"
+    strictEqual(
+      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, integer)"),
+      true,
+      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, integer)' but got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("finished_at?: utcDateTime | null"),
+      true,
+      "Expected 'finished_at?: utcDateTime | null' but got: " + tsp,
+    );
+  });
+
+  it("should convert oneOf with integer unixtime and null to utcDateTime | null with @encode decorator", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.1.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              started_at: {
+                oneOf: [
+                  {
+                    type: "integer",
+                    format: "unixtime",
+                  },
+                  {
+                    type: "null",
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, integer)" and "@oneOf" and "started_at?: utcDateTime | null"
+    strictEqual(
+      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, integer)"),
+      true,
+      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, integer)' but got: " + tsp,
+    );
+    strictEqual(tsp.includes("@oneOf"), true, "Expected '@oneOf' but got: " + tsp);
+    strictEqual(
+      tsp.includes("started_at?: utcDateTime | null"),
+      true,
+      "Expected 'started_at?: utcDateTime | null' but got: " + tsp,
     );
   });
 });
