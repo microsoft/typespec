@@ -159,6 +159,28 @@ describe("http: response descriptions", () => {
     );
   });
 
+  it("limitation: inline doc comments for an operation returnType with an alias", async () => {
+    // NOTE: Inline doc comments are not valid
+    // when an alias statement points to a single existing node rather than creating a new collection.
+    // Due to syntax resolution, Response directly points to Widget, so the inline comment is ignored.
+    // This is a limitation of TypeSpec's syntax resolution system, where aliases to existing nodes
+    // don't create intermediate nodes that can carry inline doc.
+    const op = await getHttpOp(
+      `
+      model Widget {
+        id: string;
+
+        weight: int32;
+        color: "red" | "blue";
+      }
+      alias Response = /** invalid */ Widget;
+      op read(): Response;
+      `,
+    );
+
+    strictEqual(op.responses[0].description, "The request has succeeded.");
+  });
+
   it("inline doc comments and @doc and @returnsDoc for an operation returnType with union declaration", async () => {
     const op = await getHttpOp(
       `
