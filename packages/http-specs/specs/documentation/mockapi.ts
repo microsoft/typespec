@@ -37,7 +37,9 @@ Scenarios.Documentation_Lists_bulletPointsOp = createGetServerTests(
 Scenarios.Documentation_Lists_bulletPointsModel = createPostServerTests(
   "/documentation/lists/bullet-points/model",
   {
-    prop: "Simple",
+    input: {
+      prop: "Simple",
+    },
   },
 );
 
