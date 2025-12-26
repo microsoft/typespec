@@ -456,14 +456,14 @@ elements common to both.
 
 The fields in an OpenAPI response object are specified with the following TypeSpec constructs:
 
-| OpenAPI `response` field | TypeSpec construct                                  | Notes                                               |
-| ------------------------ | --------------------------------------------------- | --------------------------------------------------- |
-| `description`            | `@doc` decorator                                    |                                                     |
-| `headers`                | fields in the return type with `@header` decorator  | Required or optional based on optionality of field. |
-| `schema` (OAS2)          | return type or type of `@body`` property            |                                                     |
-| `content` (OAS3)         | return type or type of `@body`` property            |                                                     |
-| `examples` (OAS3)        | `@opExample` to describe return types of operations | Supported on an operation.                          |
-| `links` (OAS3)           |                                                     | Not currently supported.                            |
+| OpenAPI `response` field | TypeSpec construct                                                    | Notes                                               |
+| ------------------------ | --------------------------------------------------------------------- | --------------------------------------------------- |
+| `description`            | `/** */` or `@doc`, `@@doc`, `@returnsDoc` and `@errorsDoc` decorator | see [Description ordering](#description-ordering)   |
+| `headers`                | fields in the return type with `@header` decorator                    | Required or optional based on optionality of field. |
+| `schema` (OAS2)          | return type or type of `@body`` property                              |                                                     |
+| `content` (OAS3)         | return type or type of `@body`` property                              |                                                     |
+| `examples` (OAS3)        | `@opExample` to describe return types of operations                   | Supported on an operation.                          |
+| `links` (OAS3)           |                                                                       | Not currently supported.                            |
 
 ```typespec
 @get op read(@path id: string): {
@@ -493,6 +493,110 @@ namespace ResponseContent {
     @body _: bytes;
   };
 }
+```
+
+### Description ordering
+
+In TypeSpec, you can use various ways to configure the `description`, which is one of the OpenAPI `response` fields.
+Here is an example of a documentation feature ordering, which will be the real output of the `description` field in the `response` for an operation.
+
+1. An [Inline doc comment](#inline-doc-comment)
+1. A `@@doc` [Augment decorators](../language-basics/decorators.md#augmenting-decorators)
+1. A [`@doc`](../standard-library/built-in-decorators.md#@doc) decorator on [Union](../language-basics/unions.md)
+1. A [`/** */`](../language-basics/documentation.md#comments) doc comment on [Unions](../language-basics/unions.md)
+1. A [`@doc`](../standard-library/built-in-decorators.md#@doc) decorator on [Models](../language-basics/models.md)
+1. A [`/** */`](../language-basics/documentation.md#comments) doc comment on [Models](../language-basics/models.md)
+1. A [`@returnsDoc`](../standard-library/built-in-decorators.md#@returnsDoc) on [Operations](../language-basics/operations.md)
+
+<!-- prettier-ignore -->
+```typespec
+/** 6 */
+@doc("5")
+model SuccessResponse {
+  @statusCode _: 200;
+  content: string;
+}
+
+/** 4 */
+@doc("3")
+union ReadRespose {
+  SuccessResponse,
+}
+
+@@doc(ReadRespose, "2");
+
+@returnsDoc("7")
+op read():
+/** 1 */
+ReadRespose;
+```
+
+results in
+
+```yaml title=openapi.yaml
+# ...
+      responses:
+        '200':
+          description: '1'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+components:
+  schemas:
+    SuccessResponse:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+      description: '5'
+```
+
+### Inline doc comment
+
+Inline [`/** */`](../language-basics/documentation.md#comments) doc comments provide more flexibility to configure the `description` field in the `response`.
+
+<!-- prettier-ignore -->
+```typespec
+op getUser(@path id: string):
+| /** User details retrieved successfully. */
+  {
+    @statusCode _: 200;
+    @body body: {
+      id: string;
+      name: string;
+    }
+  }
+| /** User not found. */
+  {
+    @statusCode _: 404;
+  };
+```
+
+results in
+
+```yaml title=openapi.yaml
+# ...
+      responses:
+        '200':
+          description: User details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                required:
+                  - id
+                  - name
+        '404':
+          description: User not found.
+components: {}
 ```
 
 ## Schema Object
