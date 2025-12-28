@@ -57,13 +57,15 @@ export function ClientClass(props: ClientClassProps) {
   return (
     <ts.ClassDeclaration export name={clientName} refkey={clientClassRef}>
       <List hardline>
-        <ts.ClassField
-          name="context"
-          jsPrivate
-          refkey={contextMemberRef}
-          type={contextDeclarationRef}
-        />
-        <For each={subClients} hardline semicolon>
+        <>
+          <ts.ClassField
+            name="context"
+            jsPrivate
+            refkey={contextMemberRef}
+            type={contextDeclarationRef}
+          />;
+        </>
+        <For each={subClients} hardline semicolon ender={";"}>
           {(subClient) => <SubClientClassField client={subClient} />}
         </For>
         <ClientConstructor client={props.client} />
@@ -138,13 +140,13 @@ function ClientConstructor(props: ClientConstructorProps) {
     <ts.ClassMethod name="constructor" parameters={constructorParameters}>
       {clientContextFieldRef} ={" "}
       <ts.FunctionCallExpression target={clientContextFactoryRef} args={args} />;<br />
-      <For each={subClients} joiner=";" hardline>
+      <For each={subClients} hardline semicolon ender={";"}>
         {(subClient) => {
           const subClientFieldRef = getSubClientClassFieldRef(subClient);
           const subClientArgs = calculateSubClientArgs(subClient, constructorParameters);
           return (
             <>
-              {subClientFieldRef} = <NewClientExpression client={subClient} args={subClientArgs} />;
+              {subClientFieldRef} = <NewClientExpression client={subClient} args={subClientArgs} />
             </>
           );
         }}
