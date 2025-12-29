@@ -36,6 +36,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-resource-manager-operation-templates
 -e ./generated/azure-resource-manager-resources
 -e ./generated/azure-resource-manager-method-subscription-id
+-e ./generated/azure-resource-manager-multi-service
 -e ./generated/azure-versioning-previewversion
 -e ./generated/client-namespace
 -e ./generated/azure-payload-pageable
@@ -49,6 +50,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/client-structure-twooperationgroup
 -e ./generated/resiliency-srv-driven1
 -e ./generated/resiliency-srv-driven2
+-e ./generated/service-multi-service
 
 # common test case
 -e ./generated/authentication-api-key
@@ -90,6 +92,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/typetest-property-additionalproperties
 -e ./generated/typetest-scalar
 -e ./generated/typetest-union
+-e ./generated/typetest-discriminatedunion
 -e ./generated/typetest-model-empty
 -e ./generated/headasbooleantrue
 -e ./generated/headasbooleanfalse

@@ -41,6 +41,7 @@
 -e ./generated/typetest-property-additionalproperties
 -e ./generated/typetest-scalar
 -e ./generated/typetest-union
+-e ./generated/typetest-discriminatedunion
 -e ./generated/typetest-model-empty
 -e ./generated/headasbooleantrue
 -e ./generated/headasbooleanfalse
