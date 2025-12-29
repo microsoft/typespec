@@ -2,7 +2,7 @@
 export function stringLiteral(value: string): string {
   if (value.includes("\n")) {
     // Escape ${...} in multi-line strings to prevent interpolation
-    return `"""\n${value.replaceAll("${", "\\${")}\n"""`;
+    return `"""\n${value.replaceAll("${", "\\${").replaceAll('"""', '\\"""')}\n"""`;
   }
   // Escape both quotes and ${...} in single-line strings to prevent interpolation
   return `"${value.replaceAll('"', '\\"').replaceAll("${", "\\${")}"`;
