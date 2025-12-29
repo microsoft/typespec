@@ -38,7 +38,7 @@ namespace SampleTypeSpec
                 yield return result;
 
                 string nextPageString = ((ListWithStringNextLinkResponse)result).Next;
-                if (nextPageString == null)
+                if (string.IsNullOrEmpty(nextPageString))
                 {
                     yield break;
                 }
@@ -53,7 +53,7 @@ namespace SampleTypeSpec
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             string nextPage = ((ListWithStringNextLinkResponse)page).Next;
-            if (nextPage != null)
+            if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
             }

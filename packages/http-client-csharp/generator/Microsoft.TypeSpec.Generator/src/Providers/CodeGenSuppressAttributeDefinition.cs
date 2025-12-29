@@ -17,6 +17,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "CodeGenSuppressAttribute";
 
+        protected override string BuildNamespace() => CodeModelGenerator.CustomizationAttributeNamespace;
+
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
         private protected sealed override NamedTypeSymbolProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
 

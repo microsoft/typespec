@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-client-js
 
+## 0.12.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 ## 0.11.0
 
 ### Bump dependencies

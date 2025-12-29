@@ -13,25 +13,12 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public partial class MrwSerializationTypeDefinition
     {
-        internal static ValueExpression GetDeserializationMethodInvocationForType(
-            CSharpType modelType,
-            ScopedApi<JsonElement> jsonElementVariable,
-            ValueExpression dataVariable,
-            ValueExpression? optionsVariable = null)
-        {
-            return ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(modelType, out var provider) &&
-                provider is ModelProvider modelProvider
-                ? GetDeserializationMethodInvocationForType(modelProvider, jsonElementVariable, dataVariable, optionsVariable)
-                : modelType.Deserialize(jsonElementVariable, null, optionsVariable);
-        }
-
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         private MethodBodyStatement CreateDictionarySerializationWithPatch(
             DictionaryExpression dictionary,

@@ -231,8 +231,8 @@ public class GenericType implements IType {
                         + "(el -> %2$s).collect(java.util.stream.Collectors.toList())", expression, mapping);
                 } else if (this instanceof MapType) {
                     String mapping = isToClient
-                        ? wireTypeArguments[i].convertToClientType("el")
-                        : wireTypeArguments[i].convertFromClientType("el");
+                        ? wireTypeArguments[i].convertToClientType("el.getValue()")
+                        : wireTypeArguments[i].convertFromClientType("el.getValue()");
                     // Key is always String in Swagger 2
                     expression = String.format(
                         "%1$s.entrySet().stream().collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, el -> %2$s))",

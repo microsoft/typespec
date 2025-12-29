@@ -501,3 +501,84 @@ op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
 @doc("An operation with a dynamic model")
 @post
 op DynamicModelOperation(@body body: DynamicModel): void;
+
+@doc("Base animal with discriminator")
+@discriminator("kind")
+model Animal {
+  @doc("The kind of animal")
+  kind: string;
+
+  @doc("Name of the animal")
+  name: string;
+}
+
+alias PetContent = {
+  @doc("Whether the pet is trained")
+  trained: boolean;
+};
+
+@doc("Pet is a discriminated animal")
+model Pet extends Animal {
+  kind: "pet";
+  ...PetContent;
+}
+
+alias DogContent = {
+  @doc("The breed of the dog")
+  breed: string;
+};
+
+@doc("Dog is a specific type of pet with hierarchy building")
+@Legacy.hierarchyBuilding(Pet)
+model Dog extends Animal {
+  kind: "dog";
+  ...PetContent;
+  ...DogContent;
+}
+
+@route("/animals")
+interface AnimalOperations {
+  @doc("Update a pet as an animal")
+  @put
+  @route("/pet/as-animal")
+  updatePetAsAnimal(@body animal: Animal): Animal;
+
+  @doc("Update a dog as an animal")
+  @put
+  @route("/dog/as-animal")
+  updateDogAsAnimal(@body animal: Animal): Animal;
+}
+
+@route("/pets")
+interface PetOperations {
+  @doc("Update a pet as a pet")
+  @put
+  @route("/pet/as-pet")
+  updatePetAsPet(@body pet: Pet): Pet;
+
+  @doc("Update a dog as a pet")
+  @put
+  @route("/dog/as-pet")
+  updateDogAsPet(@body pet: Pet): Pet;
+}
+
+@route("/dogs")
+interface DogOperations {
+  @doc("Update a dog as a dog")
+  @put
+  @route("/dog/as-dog")
+  updateDogAsDog(@body dog: Dog): Dog;
+}
+
+@clientInitialization({
+  initializedBy: InitializedBy.individually | InitializedBy.parent,
+})
+interface Metrics {
+  @doc("Get Widget metrics for given day of week")
+  @get
+  @route("/metrics/widgets/daysOfWeek")
+  getWidgetMetrics(@path day: DaysOfWeekExtensibleEnum): {
+    numSold: int32;
+    averagePrice: float32;
+  };
+}

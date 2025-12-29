@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             _declaringTypeProvider = declaringType;
             AllowedValues = input?.Values ?? [];
+            FixedEnumView = this;
         }
 
         internal IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }

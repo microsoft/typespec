@@ -17,10 +17,15 @@ export function getServiceApiVersions(
 ): Version[] | undefined {
   // TODO: use client.apiVersions after TCGC supports multiple service
   // Also, this function lacks the logic of the handling of added/removed on the Namespace/Interface of the SDK client.
+
+  // TODO: TCGC 0.63.1+ supports multiple api-version in a single client, emitter has not yet support this scenario. For now only take the 1st service.
+  const serviceNamespace = Array.isArray(client.__raw.service)
+    ? client.__raw.service[0]
+    : client.__raw.service;
   let apiVersions: Version[] | undefined;
   const versionedNamespace: Namespace | undefined = findVersionedNamespace(
     program,
-    client.__raw.service,
+    serviceNamespace,
   );
   if (versionedNamespace) {
     apiVersions = getVersions(program, versionedNamespace)[1]?.getVersions();

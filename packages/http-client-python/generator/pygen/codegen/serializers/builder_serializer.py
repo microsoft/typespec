@@ -403,7 +403,12 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
         builder: RequestBuilderType,
     ) -> list[str]:
         def _get_value(param):
-            declaration = param.get_declaration() if param.constant else None
+            if param.constant:
+                declaration = param.get_declaration()
+            elif param.client_default_value_declaration is not None:
+                declaration = param.client_default_value_declaration
+            else:
+                declaration = None
             if param.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]:
                 kwarg_dict = "headers" if param.location == ParameterLocation.HEADER else "params"
                 return f"_{kwarg_dict}.pop('{param.wire_name}', {declaration})"
@@ -679,7 +684,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     ")",
                     f"_file_fields: list[str] = {file_fields}",
                     f"_data_fields: list[str] = {data_fields}",
-                    "_files, _data = prepare_multipart_form_data(_body, _file_fields, _data_fields)",
+                    "_files = prepare_multipart_form_data(_body, _file_fields, _data_fields)",
                 ]
             )
             return retval
@@ -776,8 +781,14 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         client_names = [
             overload.request_builder.parameters.body_parameter.client_name for overload in builder.overloads
         ]
-        for v in sorted(set(client_names), key=client_names.index):
-            retval.append(f"_{v} = None")
+        all_dpg_model_overloads = False
+        if self.code_model.options["models-mode"] == "dpg" and builder.overloads:
+            all_dpg_model_overloads = all(
+                isinstance(o.parameters.body_parameter.type, DPGModelType) for o in builder.overloads
+            )
+        if not all_dpg_model_overloads:
+            for v in sorted(set(client_names), key=client_names.index):
+                retval.append(f"_{v} = None")
         try:
             # if there is a binary overload, we do a binary check first.
             binary_overload = cast(
@@ -803,17 +814,20 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     f'"{other_overload.parameters.body_parameter.default_content_type}"{check_body_suffix}'
                 )
         except StopIteration:
-            for idx, overload in enumerate(builder.overloads):
-                if_statement = "if" if idx == 0 else "elif"
-                body_param = overload.parameters.body_parameter
-                retval.append(
-                    f"{if_statement} {body_param.type.instance_check_template.format(body_param.client_name)}:"
-                )
-                if body_param.default_content_type and not same_content_type:
+            if all_dpg_model_overloads:
+                retval.extend(f"{l}" for l in self._create_body_parameter(cast(OperationType, builder.overloads[0])))
+            else:
+                for idx, overload in enumerate(builder.overloads):
+                    if_statement = "if" if idx == 0 else "elif"
+                    body_param = overload.parameters.body_parameter
                     retval.append(
-                        f'    content_type = content_type or "{body_param.default_content_type}"{check_body_suffix}'
+                        f"{if_statement} {body_param.type.instance_check_template.format(body_param.client_name)}:"
                     )
-                retval.extend(f"    {l}" for l in self._create_body_parameter(cast(OperationType, overload)))
+                    if body_param.default_content_type and not same_content_type:
+                        retval.append(
+                            f'    content_type = content_type or "{body_param.default_content_type}"{check_body_suffix}'
+                        )
+                    retval.extend(f"    {l}" for l in self._create_body_parameter(cast(OperationType, overload)))
         return retval
 
     def _create_request_builder_call(
@@ -861,7 +875,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append(f"    {client_name}=_{client_name},")
         elif request_builder.has_form_data_body:
             retval.append("    files=_files,")
-            retval.append("    data=_data,")
         elif request_builder.overloads:
             seen_body_params = set()
             for overload in request_builder.overloads:
@@ -1331,7 +1344,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         except StopIteration:
             pass
 
-        retval.append(f'_request = HttpRequest("GET", {next_link_str}{query_str})')
+        retval.append(f'_request = HttpRequest("{builder.next_link_verb}", {next_link_str}{query_str})')
         retval.extend(self._postprocess_http_request(builder, "_request.url"))
 
         return retval

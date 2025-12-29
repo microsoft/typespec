@@ -94,8 +94,6 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.float32-as-double=false"""
     $tspOptions += " --option ""@typespec/http-client-java.uuid-as-string=false"""
   } elseif ($tspFile -match "tsp[\\/]arm-stream-style-serialization.tsp") {
-    # for mgmt, do not generate tests due to random mock values
-    $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # test service-name
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
     # test property-include-always
@@ -107,6 +105,9 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # add customization code
     $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/KeyVaultCustomization.java"""
+  } elseif ($tspFile -match "tsp[\\/]arm-versioned.tsp") {
+    # enable advanced versioning for resiliency test
+    $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
   } elseif ($tspFile -match "tsp[\\/]subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
@@ -197,7 +198,14 @@ try {
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
 
-  $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
+  $specFiles = Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse
+  $multiServiceSpec = Join-Path ./specs "azure/resource-manager/multi-service/client.tsp"
+  if (Test-Path $multiServiceSpec) {
+    # ensure multi-service client specs are processed even though they do not match the default filter
+    $specFiles += Get-Item $multiServiceSpec
+  }
+
+  $job = $specFiles | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
   $job | Wait-Job -Timeout 1200
   $job | Receive-Job

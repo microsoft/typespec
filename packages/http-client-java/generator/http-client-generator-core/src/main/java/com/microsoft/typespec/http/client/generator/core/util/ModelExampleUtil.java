@@ -13,7 +13,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.BinaryDataNode;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ClientModelNode;
@@ -23,11 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examp
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MapNode;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ObjectNode;
-import io.clientcore.core.utils.Base64Uri;
 import io.clientcore.core.utils.CoreUtils;
-import io.clientcore.core.utils.DateTimeRfc1123;
-import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -76,6 +71,19 @@ public class ModelExampleUtil {
                     ExampleNode childNode = parseNode(elementType, childObjectValue);
                     node.getChildNodes().add(childNode);
                 }
+            } else if (objectValue instanceof String) {
+                // there is ArrayEncoding that serializes array to string
+                // for simplicity, treat it as CSV
+                ListNode listNode = new ListNode(elementType, objectValue);
+                if (!((String) objectValue).isEmpty()) {
+                    String value = (String) objectValue;
+                    String[] elements = value.split(",", -1);
+                    for (String childObjectValue : elements) {
+                        ExampleNode childNode = parseNode(elementType, childObjectValue);
+                        listNode.getChildNodes().add(childNode);
+                    }
+                }
+                node = listNode;
             } else {
                 throw new IllegalStateException("Example value is not List type: " + objectValue);
             }
@@ -208,34 +216,11 @@ public class ModelExampleUtil {
         node = literalNode;
 
         if (exampleValue != null) {
-            String literalValue = convertLiteralToClientValue(wireType, exampleValue.toString());
+            String literalValue
+                = WireTypeClientTypeConverter.convertLiteralToClientValue(wireType, exampleValue.toString());
             literalNode.setLiteralsValue(literalValue);
         }
         return node;
-    }
-
-    /**
-     * Convert literal value in wire type, to literal value in client type
-     * <p>
-     * date-time in RFC1123 to RFC3339
-     * date-time in Unix epoch to RFC3339
-     * bytes in base64URL to bytes in string
-     *
-     * @param wireType the wire type
-     * @param literalInWireType the literal value in wire type
-     * @return the literal value in client type
-     */
-    public static String convertLiteralToClientValue(IType wireType, String literalInWireType) {
-        // see ClassType.convertToClientType and PrimitiveType.convertToClientType
-        String literalValue = literalInWireType;
-        if (wireType == ClassType.DATE_TIME_RFC_1123) {
-            literalValue = new DateTimeRfc1123(literalValue).getDateTime().toString();
-        } else if (wireType == ClassType.BASE_64_URL) {
-            literalValue = new Base64Uri(literalValue).toString();
-        } else if (wireType == PrimitiveType.UNIX_TIME_LONG) {
-            literalValue = OffsetDateTime.from(Instant.ofEpochSecond(Long.parseLong(literalValue))).toString();
-        }
-        return literalValue;
     }
 
     @SuppressWarnings("unchecked")
