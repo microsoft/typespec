@@ -32,6 +32,7 @@ namespace SampleTypeSpec
             PathAndQuery.Clear();
             PathAndQuery.Append(UriBuilder.Path);
             _pathLength = PathAndQuery.Length;
+            PathAndQuery.Append(UriBuilder.Query);
         }
 
         public void AppendPath(string value, bool escape)
