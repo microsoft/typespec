@@ -148,7 +148,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     if (context.isSSEEventSchema(schemaRef)) {
       // Remove @oneOf decorator if present and add @events
       decorators = decorators.filter((d) => d.name !== "oneOf");
-      decorators.push({ name: "events", args: [] });
+      decorators.push({ name: "TypeSpec.Events.events", args: [] });
     }
 
     const union: TypeSpecUnion = {
