@@ -35,6 +35,8 @@ max-branches=20
 max-attributes=10
 # Maximum number of ancestors
 max-parents=15
+# Maximum number of positional arugments for function / method
+max-positional-arguments=5
 
 [SIMILARITIES]
 min-similarity-lines=10
