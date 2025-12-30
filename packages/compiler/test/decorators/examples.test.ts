@@ -463,6 +463,25 @@ describe("json serialization of examples", () => {
           },
         ],
       ],
+      [
+        "bytes",
+        [
+          {
+            value: `bytes.fromString("hello⛳❤️🧀")`,
+            expect: "hello⛳❤️🧀",
+          },
+          {
+            value: `bytes.fromString("hello⛳❤️🧀")`,
+            expect: "aGVsbG/im7PinaTvuI/wn6eA",
+            encode: `@encode("base64", string)`,
+          },
+          {
+            value: `bytes.fromString("hello⛳❤️🧀")`,
+            expect: "aGVsbG_im7PinaTvuI_wn6eA",
+            encode: `@encode("base64url", string)`,
+          },
+        ],
+      ],
     ];
 
     describe.each(allCases)("%s", (type, cases) => {

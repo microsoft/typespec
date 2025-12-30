@@ -11,6 +11,7 @@ import {
   type Value,
 } from "../core/types.js";
 import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
+import { uint8ArrayToBase64 } from "./Uint8ArrayBase64Polyfill.js";
 
 /**
  * Serialize the given TypeSpec value as a JSON object using the given type and its encoding annotations.
@@ -118,7 +119,7 @@ function resolveKnownScalar(
 ):
   | {
       scalar: Scalar & {
-        name: "utcDateTime" | "offsetDateTime" | "plainDate" | "plainTime" | "duration";
+        name: "utcDateTime" | "offsetDateTime" | "plainDate" | "plainTime" | "duration" | "bytes";
       };
       encodeAs: EncodeData | undefined;
     }
@@ -131,6 +132,7 @@ function resolveKnownScalar(
       case "plainDate":
       case "plainTime":
       case "duration":
+      case "bytes":
         return { scalar: scalar as any, encodeAs: encode };
       case "unixTimestamp32":
         break;
@@ -168,6 +170,8 @@ function serializeScalarValueAsJson(
       return ScalarSerializers.plainTime((value.value.args[0] as any).value);
     case "duration":
       return ScalarSerializers.duration((value.value.args[0] as any).value, encodeAs);
+    case "bytes":
+      return ScalarSerializers.bytes((value.value.args[0] as any).value, encodeAs);
   }
 }
 
@@ -221,6 +225,20 @@ const ScalarSerializers = {
       default:
         return duration.toString();
     }
+  },
+  bytes: (value: string, encodeAs: EncodeData | undefined): unknown => {
+    if (encodeAs === undefined) {
+      return value;
+    }
+
+    switch (encodeAs.encoding) {
+      case "base64":
+      case "base64url":
+        const encodedArray = new TextEncoder().encode(value);
+        /** FIXME: Remove this polyfill when Node.js LTS supports {@link Uint8Array.toBase64} natively. */
+        return uint8ArrayToBase64(encodedArray, { alphabet: encodeAs.encoding });
+    }
+    return value;
   },
 };
 

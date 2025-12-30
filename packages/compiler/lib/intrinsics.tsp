@@ -7,7 +7,17 @@ namespace TypeSpec;
 /**
  * Represent a byte array
  */
-scalar bytes;
+scalar bytes {
+  /**
+   * Create a byte array from a string.
+   * @example
+   *
+   * ```tsp
+   * const bytes = bytes.fromString("TypeSpec");
+   * ```
+   */
+  init fromString(value: string);
+}
 
 /**
  * A numeric type
