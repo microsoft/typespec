@@ -630,10 +630,7 @@ def grade(sample: dict, item: dict) -> float:
 }`,
               examples: {
                 request: {
-                  curl: `curl "https://api.openai.com/v1/assistants?order=desc&limit=20" \\
-                -H "Content-Type: application/json" \\
-                -H "Authorization: Bearer $OPENAI_API_KEY" \\
-                -H "OpenAI-Beta: assistants=v2"`,
+                  curl: 'curl "https://api.openai.com/v1/assistants?order=desc&limit=20" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer $OPENAI_API_KEY" \\\n  -H "OpenAI-Beta: assistants=v2"\n',
                 },
               },
             },
