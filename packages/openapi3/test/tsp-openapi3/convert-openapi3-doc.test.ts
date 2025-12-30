@@ -620,9 +620,9 @@ describe.each(versions)("Extension with JSON-like string values v%s", (version) 
   "image_tag": "2025-05-08",
   "source": """
 def grade(sample: dict, item: dict) -> float:
-    """
+    \\"""
     Returns 1.0 if \`output_text\` equals \`label\`, otherwise 0.0.
-    """
+    \\"""
     output = sample.get("output_text")
     label = item.get("label")
     return 1.0 if output == label else 0.0
@@ -638,6 +638,14 @@ def grade(sample: dict, item: dict) -> float:
     strictEqual(
       tsp.includes('source": \\"""'),
       true,
+      "Expected 'example' to be an escaped string literal with newlines represented as \\n, but got: " +
+        tsp,
+    );
+
+    // The triple quote should NOT be escaped twice
+    strictEqual(
+      tsp.includes('\\\\"""'),
+      false,
       "Expected 'example' to be an escaped string literal with newlines represented as \\n, but got: " +
         tsp,
     );

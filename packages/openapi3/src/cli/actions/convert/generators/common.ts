@@ -2,8 +2,12 @@
 export function stringLiteral(value: string): string {
   if (value.includes("\n")) {
     // Escape ${...} in multi-line strings to prevent interpolation
-    return `"""\n${value.replaceAll("${", "\\${").replaceAll('"""', '\\"""')}\n"""`;
+    // Also escape triple quotes
+    // Avoid double-escaping backslashes
+    return `"""\n${value.replaceAll("${", "\\${").replaceAll('"""', '\\"""').replaceAll("\\\\", "\\")}\n"""`;
   }
-  // Escape both quotes and ${...} in single-line strings to prevent interpolation
-  return `"${value.replaceAll('"', '\\"').replaceAll("${", "\\${")}"`;
+  // Escape both quotes
+  // Escape ${...} in single-line strings to prevent interpolation
+  // Avoid double-escaping backslashes
+  return `"${value.replaceAll('"', '\\"').replaceAll("${", "\\${").replaceAll("\\\\", "\\")}"`;
 }
