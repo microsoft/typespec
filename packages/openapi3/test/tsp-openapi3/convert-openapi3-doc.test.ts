@@ -628,6 +628,14 @@ def grade(sample: dict, item: dict) -> float:
     return 1.0 if output == label else 0.0
 """,
 }`,
+              examples: {
+                request: {
+                  curl: `curl "https://api.openai.com/v1/assistants?order=desc&limit=20" \\
+                -H "Content-Type: application/json" \\
+                -H "Authorization: Bearer $OPENAI_API_KEY" \\
+                -H "OpenAI-Beta: assistants=v2"`,
+                },
+              },
             },
           },
         },
@@ -647,6 +655,13 @@ def grade(sample: dict, item: dict) -> float:
       tsp.includes('\\\\"""'),
       false,
       "Expected triple-quoted strings to not be escaped twice, but got: " + tsp,
+    );
+
+    // Terminal backslashes are escaped once
+    strictEqual(
+      tsp.includes('-H "Content-Type: application/json" \\\\\n'),
+      true,
+      "Expected terminal backslashes to be escaped once, but got: " + tsp,
     );
 
     // Should use triple-quoted strings for object literal values
