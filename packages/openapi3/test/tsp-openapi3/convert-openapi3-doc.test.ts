@@ -646,8 +646,7 @@ def grade(sample: dict, item: dict) -> float:
     strictEqual(
       tsp.includes('\\\\"""'),
       false,
-      "Expected 'example' to be an escaped string literal with newlines represented as \\n, but got: " +
-        tsp,
+      "Expected triple-quoted strings to not be escaped twice, but got: " + tsp,
     );
 
     // Should use triple-quoted strings for object literal values
