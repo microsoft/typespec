@@ -632,6 +632,8 @@ def grade(sample: dict, item: dict) -> float:
                 request: {
                   curl: 'curl "https://api.openai.com/v1/assistants?order=desc&limit=20" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer $OPENAI_API_KEY" \\\n  -H "OpenAI-Beta: assistants=v2"\n',
                 },
+                response:
+                  '{\n  "output": [\n    {\n      "content": [\n        {\n          "text": "The file seems to contain excerpts from a letter to the shareholders of Berkshire Hathaway Inc., likely written by Warren Buffett. It covers several topics:\\n\\n1. **Communication Philosophy**: Buffett emphasizes the importance of transparency and candidness in reporting mistakes and successes to shareholders.\\n\\n2. **Mistakes and Learnings**: The letter acknowledges past mistakes in business assessments and management hires, highlighting the importance of correcting errors promptly.\\n\\n3. **CEO Succession**: Mention of Greg Abel stepping in as the new CEO and continuing the tradition of honest communication.\\n\\n4. **Pete Liegl Story**: A detailed account of acquiring Forest River and the relationship with its founder, highlighting trust and effective business decisions.\\n\\n5. **2024 Performance**: Overview of business performance, particularly in insurance and investment activities, with a focus on GEICO\'s improvement.\\n\\n6. **Tax Contributions**: Discussion of significant tax payments to the U.S. Treasury, credited to shareholders\' reinvestments.\\n\\n7. **Investment Strategy**: A breakdown of Berkshire\\u2019s investments in both controlled subsidiaries and marketable equities, along with a focus on long-term holding strategies.\\n\\n8. **American Capitalism**: Reflections on America\\u2019s economic development and Berkshire\\u2019s role within it.\\n\\n9. **Property-Casualty Insurance**: Insights into the P/C insurance business model and its challenges and benefits.\\n\\n10. **Japanese Investments**: Information about Berkshire\\u2019s investments in Japanese companies and future plans.\\n\\n11. **Annual Meeting**: Details about the upcoming annual gathering in Omaha, including schedule changes and new book releases.\\n\\n12. **Personal Anecdotes**: Light-hearted stories about family and interactions, conveying Buffett\'s personable approach.\\n\\n13. **Financial Performance Data**: Tables comparing Berkshire\\u2019s annual performance to the S&P 500, showing impressive long-term gains.\\n\\nOverall, the letter reinforces Berkshire Hathaway\'s commitment to transparency, investment in both its businesses and the wider economy, and emphasizes strong leadership and prudent financial management."\n        }\n      ]\n    }\n  ]\n',
               },
             },
           },
@@ -659,6 +661,13 @@ def grade(sample: dict, item: dict) -> float:
       tsp.includes('-H "Content-Type: application/json" \\\\\n'),
       true,
       "Expected terminal backslashes to be escaped once, but got: " + tsp,
+    );
+
+    // Unicode sequences are preserved
+    strictEqual(
+      tsp.includes("\\\\u2019s"),
+      true,
+      "Expected unicode sequences to be preserved, but got: " + tsp,
     );
 
     // Should use triple-quoted strings for object literal values

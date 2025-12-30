@@ -8,7 +8,8 @@ export function stringLiteral(value: string): string {
     return `"""\n${value
       .replaceAll(/(?:([^\\])\\([\s])|^\\([\s]))/gi, "$1\\\\$2")
       .replaceAll(/(?:([^\\])\$\{|^\$\{)/gi, "$1\\${")
-      .replaceAll(/(?:([^\\])"""|^""")/gi, '$1\\"""')}\n"""`;
+      .replaceAll(/(?:([^\\])"""|^""")/gi, '$1\\"""')
+      .replaceAll(/(?:([^\\])\\u|^\\u)/gi, "$1\\\\u")}\n"""`;
   }
   // Escape both quotes
   // Escape ${...} in single-line strings to prevent interpolation
