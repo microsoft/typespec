@@ -36,6 +36,7 @@ __all__ = ["SdkJSONEncoder", "Model", "rest_field", "rest_discriminator"]
 
 TZ_UTC = timezone.utc
 _T = typing.TypeVar("_T")
+_NONE_TYPE = type(None)
 
 {% if code_model.has_external_type %}
 TYPE_HANDLER_REGISTRY = TypeHandlerRegistry()
@@ -916,16 +917,16 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
 
     # is it optional?
     try:
-        if any(isinstance(None, a) for a in annotation.__args__):  # pyright: ignore
+        if any(a is _NONE_TYPE for a in annotation.__args__):  # pyright: ignore
             if len(annotation.__args__) <= 2:  # pyright: ignore
                 if_obj_deserializer = _get_deserialize_callable_from_annotation(
-                    next(a for a in annotation.__args__ if not isinstance(None, a)), module, rf  # pyright: ignore
+                    next(a for a in annotation.__args__ if a is not _NONE_TYPE), module, rf  # pyright: ignore
                 )
 
                 return functools.partial(_deserialize_with_optional, if_obj_deserializer)
             # the type is Optional[Union[...]], we need to remove the None type from the Union
             annotation_copy = copy.copy(annotation)
-            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if not isinstance(None, a)]  # pyright: ignore
+            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a is not _NONE_TYPE]  # pyright: ignore
             return _get_deserialize_callable_from_annotation(annotation_copy, module, rf)
     except AttributeError:
         pass
