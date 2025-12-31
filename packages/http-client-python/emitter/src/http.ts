@@ -347,7 +347,11 @@ export function emitLroPagingHttpMethod(
     operationGroupName,
     serviceApiVersions,
   );
-  return [lroMethod.initialOperation, pagingMethod, lroMethod];
+
+  // merge paging method and lro method into lropaging method
+  const lroPagingMethod = { ...lroMethod, ...pagingMethod, discriminator: "lropaging" };
+
+  return [lroMethod.initialOperation, lroPagingMethod];
 }
 
 function emitHttpOperation(
