@@ -153,6 +153,8 @@ function main() {
   documents.onDidClose(profile(s.documentClosed));
   documents.onDidOpen(profile(s.documentOpened));
 
+  (globalThis as any).lspConnection = connection;
+
   documents.listen(connection);
   connection.listen();
 }
