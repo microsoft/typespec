@@ -7,9 +7,20 @@ import { RetryResult, runWithRetry, runWithTimingLog } from "../utils";
 const lmModelCache = new Map<string, Thenable<LanguageModelChat[]>>();
 let lmParallelRequestCount = 0;
 
+export interface LmChatMesage {
+  role: "user" | "assist";
+  message: string;
+}
+
+export interface LmChatRequestOptions {
+  modelOptions?: { [name: string]: any };
+}
+
 export async function sendLmChatRequest(
-  messages: { role: "user" | "assist"; message: string }[],
+  messages: LmChatMesage[],
   modelFamily: string,
+  options?: LmChatRequestOptions,
+  /** Only for logging purpose */
   id?: string,
 ): Promise<string | undefined> {
   const logEnabled = process.env[ENABLE_LM_LOGGING] === "true";
@@ -88,6 +99,7 @@ export async function sendLmChatRequest(
               return LanguageModelChatMessage.User(m.message);
             }
           }),
+          options,
         );
         let fullResponse = "";
         for await (const chunk of response.text) {

@@ -21,6 +21,10 @@ import logger from "./log/logger.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
 import {
+  LspClientCustomRequest_ChatComplete_Name,
+  LspClientCustomRequest_ChatCompletion_Params,
+} from "./types.js";
+import {
   ExecOutput,
   isWhitespaceStringOrUndefined,
   listParentFolder,
@@ -271,8 +275,12 @@ export class TspLanguageClient {
     const id = "typespec";
     const lc = new LanguageClient(id, name, { run: exe, debug: exe }, options);
 
-    lc.onRequest("custom/chatCompletion", (params) =>
-      sendLmChatRequest(params.messages, params.modelFamily, params.id),
+    const sendLmChatRequestRequestName: LspClientCustomRequest_ChatComplete_Name =
+      "custom/chatCompletion";
+    lc.onRequest(
+      sendLmChatRequestRequestName,
+      (params: LspClientCustomRequest_ChatCompletion_Params) =>
+        sendLmChatRequest(params.messages, params.modelFamily, params.options, params.id),
     );
 
     return new TspLanguageClient(lc, exe);
