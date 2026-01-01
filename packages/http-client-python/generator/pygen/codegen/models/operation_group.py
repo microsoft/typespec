@@ -93,7 +93,9 @@ class OperationGroup(BaseModel):
     @property
     def need_validation(self) -> bool:
         """Whether any of its operations need validation"""
-        return any(o for o in self.operations if o.need_validation)
+        return any(o for o in self.operations if o.need_validation) or any(
+            og for og in self.operation_groups if og.need_validation
+        )
 
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)

@@ -70,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
             _generateConvenienceMethod = ServiceMethod.Operation is
-                { GenerateConvenienceMethod: true, IsMultipartFormData: false };
+            { GenerateConvenienceMethod: true, IsMultipartFormData: false };
 
             if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
@@ -261,6 +261,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         expressions.Add(new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType)
                             .NullCoalesce(New.Instance(convenienceParam.Type.PropertyInitializationType, [])));
                     }
+                    else if (convenienceParam.Type.IsDictionary)
+                    {
+                        expressions.Add(convenienceParam.NullCoalesce(New.Instance(convenienceParam.Type.PropertyInitializationType)));
+                    }
                     else
                     {
                         expressions.Add(convenienceParam);
@@ -284,18 +288,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (responseBodyType.IsList)
             {
                 var elementType = responseBodyType.Arguments[0];
-                if (!elementType.IsFrameworkType || elementType.Equals(typeof(TimeSpan)) || elementType.Equals(typeof(BinaryData)))
+
+                // Use Utf8JsonReader for non-framework types or supported framework types to avoid reflection (AOT-safe)
+                if (!elementType.IsFrameworkType || ShouldBuildStackVarForFrameworkType(elementType))
                 {
-                    var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(List<>), elementType)).As(responseBodyType), out var value);
+                    // Create List with the exact element type to preserve nullability
+                    var listType = new CSharpType(typeof(List<>), elementType);
+                    var valueDeclaration = Declare("value", New.Instance(listType).As(listType), out var value);
                     var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
+
+                    // Create Utf8JsonReader from BinaryData
+                    var readerVar = new VariableExpression(typeof(Utf8JsonReader), "jsonReader");
+                    var readerDeclaration = Declare(readerVar, New.Instance(typeof(Utf8JsonReader), ReadOnlyMemorySnippets.Span(data.ToMemory())));
+
+                    // Create while loop to read array elements
+                    var readMethod = readerVar.Read();
+                    var tokenTypeProperty = readerVar.TokenType();
+                    var elementReaderLoop = new WhileStatement(readMethod)
+                    {
+                        new IfStatement(tokenTypeProperty.Equal(JsonTokenTypeSnippets.EndArray)) { Break },
+                        GetElementConversionFromReader(elementType, data, readerVar, value)
+                    };
 
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
                         dataDeclaration,
-                        UsingDeclare("document", data.Parse(), out var document),
-                        ForEachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
-                            .Add(GetElementConversion(elementType, data, item, value))
+                        readerDeclaration,
+                        readMethod.Terminate(), // Read StartArray token
+                        elementReaderLoop
                     ];
                     declarations = new Dictionary<string, ValueExpression>
                     {
@@ -308,18 +329,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var keyType = responseBodyType.Arguments[0];
                 var valueType = responseBodyType.Arguments[1];
-                if (!valueType.IsFrameworkType || valueType.Equals(typeof(TimeSpan)) || valueType.Equals(typeof(BinaryData)))
+
+                // Use Utf8JsonReader for non-framework types or supported framework types to avoid reflection (AOT-safe)
+                if (!valueType.IsFrameworkType || ShouldBuildStackVarForFrameworkType(valueType))
                 {
                     var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(Dictionary<,>), keyType, valueType)).As(responseBodyType), out var value);
                     var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
+
+                    // Create Utf8JsonReader from BinaryData
+                    var readerVar = new VariableExpression(typeof(Utf8JsonReader), "jsonReader");
+                    var readerDeclaration = Declare(readerVar, New.Instance(typeof(Utf8JsonReader), ReadOnlyMemorySnippets.Span(data.ToMemory())));
+
+                    // For dictionaries, we need to read property name and value
+                    var readMethod = readerVar.Read();
+                    var tokenTypeProperty = readerVar.TokenType();
+
+                    var getString = readerVar.GetString();
+                    var propertyValueReaderLoop = new WhileStatement(readMethod)
+                    {
+                        new IfStatement(tokenTypeProperty.Equal(JsonTokenTypeSnippets.EndObject)) { Break },
+                        Declare("propertyName", typeof(string), getString, out var propertyName),
+                        readMethod.Terminate(), // Read the value token
+                        GetElementConversionFromReader(valueType, data, readerVar, value, propertyName)
+                    };
 
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
                         dataDeclaration,
-                        UsingDeclare("document", data.Parse(), out var document),
-                        ForEachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
-                            .Add(GetElementConversion(valueType, data, item.Value(), value, item.Name()))
+                        readerDeclaration,
+                        readMethod.Terminate(), // Read StartObject token
+                        propertyValueReaderLoop
                     ];
                     declarations = new Dictionary<string, ValueExpression>
                     {
@@ -333,26 +373,99 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [];
         }
 
-        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<BinaryData> data, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
+        private MethodBodyStatement GetElementConversionFromReader(CSharpType elementType, ScopedApi<BinaryData> data, VariableExpression reader, ScopedApi value, ValueExpression? dictKey = null)
         {
+            // Handle special cases first
             if (elementType.Equals(typeof(TimeSpan)))
             {
-                return AddElement(dictKey, item.Invoke("GetTimeSpan", Literal("P")), value);
+                // TimeSpan requires reading as string and parsing with TypeFormatters
+                var getString = reader.GetString();
+                return AddElement(dictKey, TypeFormattersSnippets.ParseTimeSpan(getString.As<string>(), Literal("P")), value);
             }
-            else if (elementType.Equals(typeof(BinaryData)))
+
+            if (elementType.Equals(typeof(BinaryData)))
             {
+                // For BinaryData (unknown type), we need to capture the raw JSON for any token type
+                var tokenTypeProperty = reader.TokenType();
+                var readerRef = new VariableExpression(reader.Type, reader.Declaration, IsRef: true, IsOut: false);
                 return new IfElseStatement(
-                    item.ValueKind().Equal(JsonValueKindSnippets.Null),
+                    tokenTypeProperty.Equal(JsonTokenTypeSnippets.Null),
                     AddElement(dictKey, Null, value),
-                    AddElement(dictKey, BinaryDataSnippets.FromString(item.GetRawText()), value));
+                    new[]
+                    {
+                        UsingDeclare("element", JsonDocumentSnippets.ParseValue(readerRef), out var element),
+                        AddElement(dictKey, BinaryDataSnippets.FromString(element.RootElement().GetRawText()), value)
+                    });
             }
-            else
+
+            return elementType.IsFrameworkType
+                ? GetFrameworkTypeConversionFromReader(elementType, reader, value, dictKey)
+                : GetNonFrameworkTypeConversionFromReader(elementType, data, reader, value, dictKey);
+        }
+
+        private MethodBodyStatement GetFrameworkTypeConversionFromReader(CSharpType elementType, VariableExpression reader, ScopedApi value, ValueExpression? dictKey)
+        {
+            var frameworkType = elementType.FrameworkType;
+
+            // Special handling for string
+            if (frameworkType == typeof(string))
             {
-                return AddElement(
-                    dictKey,
-                    MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, item, data, ModelSerializationExtensionsSnippets.Wire),
-                    value);
+                var getString = reader.GetString();
+                return AddElement(dictKey, getString.As<string>(), value);
             }
+
+            // Map framework types to their Utf8JsonReader method names
+            var readerMethodName = frameworkType switch
+            {
+                Type t when t == typeof(int) => nameof(Utf8JsonReader.GetInt32),
+                Type t when t == typeof(long) => nameof(Utf8JsonReader.GetInt64),
+                Type t when t == typeof(bool) => nameof(Utf8JsonReader.GetBoolean),
+                Type t when t == typeof(double) => nameof(Utf8JsonReader.GetDouble),
+                Type t when t == typeof(float) => nameof(Utf8JsonReader.GetSingle),
+                Type t when t == typeof(decimal) => nameof(Utf8JsonReader.GetDecimal),
+                Type t when t == typeof(DateTimeOffset) => nameof(Utf8JsonReader.GetDateTimeOffset),
+                Type t when t == typeof(Guid) => nameof(Utf8JsonReader.GetGuid),
+                _ => null
+            };
+
+            if (readerMethodName != null)
+            {
+                if (elementType.IsNullable)
+                {
+                    // For nullable types, check if token is null, otherwise call the reader method
+                    var nullCheck = reader.TokenType().Equal(FrameworkEnumValue(JsonTokenType.Null));
+                    var nullableType = new CSharpType(frameworkType, isNullable: true);
+                    var nullableValue = new TernaryConditionalExpression(nullCheck, Null, reader.Invoke(readerMethodName).As(nullableType));
+                    return AddElement(dictKey, nullableValue, value);
+                }
+                else
+                {
+                    // For non-nullable types, directly call the reader method
+                    return AddElement(dictKey, reader.Invoke(readerMethodName), value);
+                }
+            }
+
+            ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                DiagnosticCodes.UnsupportedFrameworkType,
+                $"Unsupported framework type: {frameworkType}. Element will be skipped.",
+                ServiceMethod.Operation.CrossLanguageDefinitionId,
+                EmitterDiagnosticSeverity.Error);
+
+            return MethodBodyStatement.Empty;
+        }
+
+        private MethodBodyStatement GetNonFrameworkTypeConversionFromReader(CSharpType elementType, ScopedApi<BinaryData> data, VariableExpression reader, ScopedApi value, ValueExpression? dictKey)
+        {
+            // For non-framework types, we need to parse into a JsonElement first
+            var readerRef = new VariableExpression(reader.Type, reader.Declaration, IsRef: true, IsOut: false);
+            return new[]
+            {
+                UsingDeclare("element", JsonDocumentSnippets.ParseValue(readerRef), out var element),
+                AddElement(
+                    dictKey,
+                    MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, element.RootElement(), data, ModelSerializationExtensionsSnippets.Wire),
+                    value)
+            };
         }
 
         private MethodBodyStatement AddElement(ValueExpression? dictKey, ValueExpression element, ScopedApi scopedApi)
@@ -374,25 +487,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (responseBodyType.IsList)
             {
-                if (!responseBodyType.Arguments[0].IsFrameworkType || responseBodyType.Arguments[0].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[0].Equals(typeof(BinaryData)))
-                {
-                    return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0]));
-                }
-                else
-                {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
-                }
+                // Always use Utf8JsonReader path for AOT safety
+                return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0]));
             }
             if (responseBodyType.IsDictionary)
             {
-                if (!responseBodyType.Arguments[1].IsFrameworkType || responseBodyType.Arguments[1].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[1].Equals(typeof(BinaryData)))
-                {
-                    return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0], responseBodyType.Arguments[1]));
-                }
-                else
-                {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
-                }
+                // Always use Utf8JsonReader path for AOT safety
+                return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0], responseBodyType.Arguments[1]));
             }
             if (responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
             {
@@ -407,6 +508,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
             }
             return result.CastTo(responseBodyType);
+        }
+
+        private static bool ShouldBuildStackVarForFrameworkType(CSharpType type)
+        {
+            // Check if this framework type is supported by Utf8JsonReader deserialization
+            return type.Equals(typeof(string)) ||
+                   type.Equals(typeof(int)) ||
+                   type.Equals(typeof(int?)) ||
+                   type.Equals(typeof(long)) ||
+                   type.Equals(typeof(long?)) ||
+                   type.Equals(typeof(double)) ||
+                   type.Equals(typeof(double?)) ||
+                   type.Equals(typeof(float)) ||
+                   type.Equals(typeof(float?)) ||
+                   type.Equals(typeof(decimal)) ||
+                   type.Equals(typeof(decimal?)) ||
+                   type.Equals(typeof(bool)) ||
+                   type.Equals(typeof(bool?)) ||
+                   type.Equals(typeof(DateTimeOffset)) ||
+                   type.Equals(typeof(DateTimeOffset?)) ||
+                   type.Equals(typeof(Guid)) ||
+                   type.Equals(typeof(Guid?)) ||
+                   type.Equals(typeof(TimeSpan)) ||
+                   type.Equals(typeof(TimeSpan?)) ||
+                   type.Equals(typeof(BinaryData));
         }
 
         private static bool IsConvertibleFromBinaryData(CSharpType type)
