@@ -110,7 +110,8 @@ it("it suppress parent model for is", async () => {
       model Bar {
       }
 
-      model FooBarArray is ┆(Foo | Bar)[];
+      model FooBarArray
+        is ┆(Foo | Bar)[];
     `,
     (node) => createSuppressCodeFix(node, "foo"),
   ).toChangeTo(`
@@ -121,6 +122,7 @@ it("it suppress parent model for is", async () => {
       }
 
       #suppress "foo" ""
-      model FooBarArray is (Foo | Bar)[];
+      model FooBarArray 
+        is (Foo | Bar)[];
     `);
 });
