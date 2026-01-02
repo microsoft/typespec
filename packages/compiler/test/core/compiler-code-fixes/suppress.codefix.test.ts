@@ -122,7 +122,7 @@ it("it suppress parent model for is", async () => {
       }
 
       #suppress "foo" ""
-      model FooBarArray 
+      model FooBarArray
         is (Foo | Bar)[];
     `);
 });
