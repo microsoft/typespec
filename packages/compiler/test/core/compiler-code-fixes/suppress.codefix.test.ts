@@ -100,3 +100,27 @@ it("it suppress for model property with message", async () => {
       }
     `);
 });
+
+it("it suppress parent model for is", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {
+      }
+
+      model Bar {
+      }
+
+      model FooBarArray is ┆(Foo | Bar)[];
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {
+      }
+
+      model Bar {
+      }
+
+      #suppress "foo" ""
+      model FooBarArray is (Foo | Bar)[];
+    `);
+});
