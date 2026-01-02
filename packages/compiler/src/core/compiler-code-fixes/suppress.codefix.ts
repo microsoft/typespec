@@ -50,7 +50,10 @@ function findSuppressNode(node: Node): Node {
     case SyntaxKind.TypeReference:
     case SyntaxKind.UnionExpression:
     case SyntaxKind.ModelExpression:
+    case SyntaxKind.ArrayExpression:
       return findSuppressNode(node.parent!);
+    case SyntaxKind.ModelStatement:
+      return node.id;
     default:
       return node;
   }
