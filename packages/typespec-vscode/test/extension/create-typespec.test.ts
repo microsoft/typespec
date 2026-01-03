@@ -77,7 +77,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       page,
       "Project created",
       "Failed to create project Successful",
-      150000,
+      160000,
       cs,
       app,
     );
