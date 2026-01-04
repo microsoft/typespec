@@ -87,13 +87,13 @@ namespace Lists {
     Expected input:
     ```json
     {
-      "prop": "Simple"
+      "input": {"prop": "Simple"}
     }
     ```
     """)
   @post
   @route("/bullet-points/model")
-  op bulletPointsModel(input: BulletPointsModel): NoContentResponse;
+  op bulletPointsModel(input: BulletPointsModel): OkResponse;
 
   /**
    * Steps to follow:
