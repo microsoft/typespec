@@ -197,7 +197,7 @@ const sidebar: SidebarItem[] = [
             "emitters/clients/http-client-python",
             "Python",
             false,
-            [],
+            ["emitters/clients/http-client-python/architecture"],
             "preview",
           ),
           createLibraryReferenceStructure(

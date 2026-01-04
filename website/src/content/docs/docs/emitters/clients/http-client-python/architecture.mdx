@@ -1,0 +1,339 @@
+---
+title: Architecture Overview
+---
+
+# http-client-python Architecture
+
+This guide provides a comprehensive overview of the `@typespec/http-client-python` emitter architecture, helping developers understand how TypeSpec definitions are transformed into Python SDK code.
+
+## Overview
+
+The `@typespec/http-client-python` package generates Python SDK code from TypeSpec definitions using a two-stage pipeline:
+
+1. **Emitter Stage (TypeScript)**: Processes TypeSpec and creates an intermediate YAML representation
+2. **Generator Stage (Python)**: Transforms YAML into Python SDK code using templates
+
+This architecture separates language-agnostic processing from Python-specific code generation, enabling clean separation of concerns and easier maintenance.
+
+## Architecture Diagram
+
+```
+┌────────────────────────────────┐
+│   TypeSpec Compiler (.tsp)    │
+└───────────────┬────────────────┘
+                │
+                ▼
+┌────────────────────────────────┐
+│  Emitter (TypeScript)          │
+│  • Parse TypeSpec              │
+│  • Build code model            │
+│  • Map types                   │
+│  • Generate YAML               │
+└───────────────┬────────────────┘
+                │ YAML Code Model
+                ▼
+┌────────────────────────────────┐
+│  Preprocess (Python)           │
+│  • Add Python naming           │
+│  • Pad reserved words          │
+│  • Add overloads               │
+└───────────────┬────────────────┘
+                │ Enhanced YAML
+                ▼
+┌────────────────────────────────┐
+│  Codegen (Python)              │
+│  • Parse YAML into models      │
+│  • Render Jinja2 templates     │
+│  • Generate Python files       │
+└───────────────┬────────────────┘
+                │
+                ▼
+┌────────────────────────────────┐
+│  Generated Python SDK          │
+└────────────────────────────────┘
+```
+
+## Component Overview
+
+### 1. Emitter (TypeScript)
+
+**Location**: `packages/http-client-python/emitter/src/`
+
+The emitter bridges TypeSpec and Python code generation.
+
+#### Key Responsibilities
+
+- Parse TypeSpec definitions using `@azure-tools/typespec-client-generator-core`
+- Extract clients, operations, models, and types
+- Map TypeSpec types to Python equivalents
+- Generate intermediate YAML code model
+- Invoke Python generator
+
+#### Key Files
+
+- **`emitter.ts`**: Entry point, implements `$onEmit()` function
+- **`code-model.ts`**: Builds the code model from TypeSpec AST
+- **`types.ts`**: Type system mapping (TypeSpec → Python)
+- **`http.ts`**: HTTP operation processing
+- **`lib.ts`**: Shared utilities and SDK context
+
+### 2. Generator (Python)
+
+**Location**: `packages/http-client-python/generator/pygen/`
+
+The generator transforms YAML into Python code.
+
+#### Two-Stage Process
+
+##### Stage 1: Preprocess (`pygen/preprocess/`)
+
+Enhances the YAML with Python-specific information:
+
+- **Naming**: Converts to `snake_case`, pads reserved words
+- **Types**: Adds Python type hints and mappings
+- **Overloads**: Creates overloads for body parameters (JSON, binary, etc.)
+- **Formatting**: Converts Markdown to reStructuredText for docstrings
+
+**Key File**: `preprocess/__init__.py` - Contains `PreProcessPlugin` class
+
+##### Stage 2: Codegen (`pygen/codegen/`)
+
+Generates Python files using a three-layer architecture:
+
+1. **Models** (`codegen/models/`): Python classes representing code elements
+   - `CodeModel`: Root containing all clients, types, operations
+   - `Client`: Client class with configuration
+   - `Operation`: Individual API methods
+   - `ModelType`: Data models/classes
+   - `EnumType`: Enumerations
+   - `Parameter`: Method parameters
+
+2. **Serializers** (`codegen/serializers/`): Orchestrate code generation
+   - `JinjaSerializer`: Main coordinator
+   - `ClientSerializer`: Generates client classes
+   - `ModelSerializer`: Generates model classes
+   - `EnumSerializer`: Generates enums
+   - `OperationGroupsSerializer`: Generates operation groups
+   - `RequestBuildersSerializer`: Generates request builders
+
+3. **Templates** (`codegen/templates/`): Jinja2 templates for Python code
+   - `client.py.jinja2`: Client class
+   - `model_dpg.py.jinja2`: Dictionary-based models
+   - `model_msrest.py.jinja2`: Class-based models
+   - `enum.py.jinja2`: Enumerations
+   - `operation.py.jinja2`: Operations
+   - `request_builder.py.jinja2`: Request builders
+
+## Code Generation Flow
+
+### Step-by-Step Process
+
+1. **User Action**: Run `tsp compile . --emit=@typespec/http-client-python`
+
+2. **Emitter Phase** (TypeScript)
+   - TypeSpec compiler loads the emitter
+   - `$onEmit()` is called with TypeSpec AST
+   - Creates SDK context using TCGC (TypeSpec Client Generator Core)
+   - Traverses TypeSpec definitions
+   - Builds code model with clients, operations, models, types
+   - Maps types from TypeSpec to Python
+   - Exports code model as YAML file
+
+3. **Preprocess Phase** (Python)
+   - Loads YAML file
+   - Applies Python naming conventions (snake_case)
+   - Pads Python reserved words (e.g., `class` → `class_property`)
+   - Adds type hints and Python-specific metadata
+   - Creates operation overloads for different content types
+   - Saves enhanced YAML
+
+4. **Codegen Phase** (Python)
+   - Loads enhanced YAML
+   - Parses into `CodeModel` object hierarchy
+   - `JinjaSerializer` determines which files to generate
+   - For each file:
+     - Prepares model objects with data
+     - Loads appropriate Jinja2 template
+     - Renders template with model data
+     - Writes Python file to output
+
+5. **Output**: Complete Python SDK package structure
+
+## Directory Structure
+
+```
+packages/http-client-python/
+├── emitter/                    # TypeScript emitter
+│   ├── src/
+│   │   ├── emitter.ts         # Entry point
+│   │   ├── code-model.ts      # Code model builder
+│   │   ├── types.ts           # Type mappings
+│   │   ├── http.ts            # HTTP operations
+│   │   └── lib.ts             # Utilities
+│   └── test/                  # Tests
+├── generator/                 # Python generator
+│   ├── pygen/
+│   │   ├── preprocess/        # Preprocessing
+│   │   └── codegen/           # Code generation
+│   │       ├── models/        # Data models
+│   │       ├── serializers/   # Serializers
+│   │       └── templates/     # Jinja2 templates
+│   └── test/                  # Tests
+└── eng/                       # Build scripts
+```
+
+## Key Concepts
+
+### Type Mapping
+
+TypeSpec types are mapped to Python equivalents:
+
+| TypeSpec      | Python Type           |
+|---------------|-----------------------|
+| `string`      | `str`                 |
+| `int32`       | `int`                 |
+| `float32`     | `float`               |
+| `boolean`     | `bool`                |
+| `bytes`       | `bytes`               |
+| Model         | `TypedDict` or class  |
+| Enum          | `str` + Enum class    |
+| Union         | `Union[...]`          |
+| Array         | `List[...]`           |
+
+### Operation Types
+
+The emitter supports various operation patterns:
+
+- **Basic**: Simple request-response operations
+- **LRO (Long Running Operation)**: Asynchronous operations with polling
+- **Paging**: Operations returning paginated results
+- **LRO + Paging**: Combined pattern for long-running paginated operations
+
+### Model Generation Modes
+
+Two model generation modes are supported:
+
+1. **DPG (Data Plane Generator)**: 
+   - Dictionary-based models using `TypedDict`
+   - Lightweight and flexible
+   - Recommended for new SDKs
+
+2. **MSRest**: 
+   - Class-based models with serialization
+   - Legacy mode for backward compatibility
+   - Full class definitions with methods
+
+## Development Workflow
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- Python 3.8+
+- pnpm (for monorepo management)
+
+### Setup
+
+```bash
+# Clone and navigate
+git clone https://github.com/microsoft/typespec.git
+cd typespec/packages/http-client-python
+
+# Install dependencies
+npm install
+
+# Build
+npm run build
+```
+
+### Making Changes
+
+#### Emitter Changes (TypeScript)
+
+```bash
+# Edit files in emitter/src/
+# Build
+npm run build
+# or watch mode
+npm run watch
+
+# Test
+npm run test:emitter
+```
+
+#### Generator Changes (Python)
+
+```bash
+# Edit files in generator/pygen/
+# Regenerate test samples
+npm run regenerate
+
+# Test
+npm run test:generator
+```
+
+#### Template Changes
+
+```bash
+# Edit .jinja2 files in generator/pygen/codegen/templates/
+# Regenerate
+npm run regenerate
+
+# Verify output
+```
+
+### Testing
+
+```bash
+# Run all tests
+npm run ci
+
+# Run specific tests
+npm run test:emitter      # TypeScript emitter tests
+npm run test:generator    # Python generator tests
+
+# Regenerate test samples
+npm run regenerate
+```
+
+## Output Structure
+
+Generated Python SDK has the following structure:
+
+```
+<package-name>/
+├── __init__.py              # Package exports
+├── _client.py               # Main client class
+├── _configuration.py        # Client configuration
+├── _version.py              # Version info
+├── models/                  # Data models
+│   ├── __init__.py
+│   └── _models.py
+├── operations/              # Operations
+│   ├── __init__.py
+│   └── _operations.py
+└── aio/                     # Async versions
+    ├── __init__.py
+    ├── _client.py
+    └── operations/
+        ├── __init__.py
+        └── _operations.py
+```
+
+Plus packaging files:
+- `setup.py` or `pyproject.toml`
+- `README.md`
+- `CHANGELOG.md`
+- `LICENSE`
+
+## Additional Resources
+
+- [Contributing Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-python/CONTRIBUTING.md)
+- [Full Architecture Document](https://github.com/microsoft/typespec/blob/main/packages/http-client-python/ARCHITECTURE.md)
+- [TypeSpec Documentation](https://typespec.io)
+- [Python SDK Guidelines](https://azure.github.io/azure-sdk/python_introduction.html)
+
+## Getting Help
+
+- **Issues**: [TypeSpec GitHub Issues](https://github.com/microsoft/typespec/issues)
+- **Discussions**: [TypeSpec Discussions](https://github.com/microsoft/typespec/discussions)
+- **Documentation**: [TypeSpec Docs](https://typespec.io)
