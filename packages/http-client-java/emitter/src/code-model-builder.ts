@@ -1067,6 +1067,7 @@ export class CodeModelBuilder {
     }
     if (!responses.some((r) => r.type && r.type.kind === "model")) {
       // abort, if none of the responses contains model type
+      // this operation is not valid for pageable (which should return a JSON object), and hence will be generated without pageable
       return;
     }
 
