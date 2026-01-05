@@ -485,14 +485,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return response.Content();
             }
+            if (responseBodyType.IsReadOnlyMemory)
+            {
+                return New.Instance(responseBodyType, declarations["value"].Invoke(nameof(List<>.ToArray)));
+            }
             if (responseBodyType.IsList)
             {
-                // Always use Utf8JsonReader path for AOT safety
                 return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0]));
             }
             if (responseBodyType.IsDictionary)
             {
-                // Always use Utf8JsonReader path for AOT safety
                 return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0], responseBodyType.Arguments[1]));
             }
             if (responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
