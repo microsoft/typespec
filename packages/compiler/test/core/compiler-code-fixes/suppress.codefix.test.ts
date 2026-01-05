@@ -254,3 +254,17 @@ it("it suppress parent model when expression is intersection", async () => {
         is Foo & Bar;
     `);
 });
+
+it("it suppress parent model when expression is string template", async () => {
+  await expectCodeFixOnAst(
+    `
+      model FooBarStringTemplate
+        is ┆"Start \${"one"} end";
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      #suppress "foo" ""
+      model FooBarStringTemplate
+        is "Start \${"one"} end";
+    `);
+});
