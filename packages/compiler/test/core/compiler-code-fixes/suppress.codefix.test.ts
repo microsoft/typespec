@@ -1,8 +1,11 @@
 import { strictEqual } from "assert";
 import { it } from "vitest";
 import { SyntaxKind } from "../../../src/ast/index.js";
-import { createSuppressCodeFix } from "../../../src/core/compiler-code-fixes/suppress.codefix.js";
-import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
+import {
+  createSuppressCodeFix,
+  createSuppressCodeFixes,
+} from "../../../src/core/compiler-code-fixes/suppress.codefix.js";
+import { expectCodeFixesOnAst, expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
 it("it suppress in previous line", async () => {
   await expectCodeFixOnAst(
@@ -266,5 +269,27 @@ it("it suppress parent model when expression is string template", async () => {
       #suppress "foo" ""
       model FooBarStringTemplate
         is "Start \${"one"} end";
+    `);
+});
+
+it("it suppresses multiple diagnostics on the same target", async () => {
+  await expectCodeFixesOnAst(
+    `
+      model Foo {
+        ┆┆a: int32 | string;
+      }
+    `,
+    "foo",
+    (diagnostics) => {
+      strictEqual(diagnostics.length, 2);
+      const fixes = createSuppressCodeFixes(diagnostics);
+      strictEqual(fixes.length, 1, "Expected only one suppress code fix to be created.");
+      return fixes;
+    },
+  ).toChangeTo(`
+      model Foo {
+        #suppress "foo" ""
+        a: int32 | string;
+      }
     `);
 });

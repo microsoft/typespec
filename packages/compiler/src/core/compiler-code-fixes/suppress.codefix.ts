@@ -1,5 +1,7 @@
 import { defineCodeFix, getNodeForTarget, getSourceLocation } from "../diagnostics.js";
 import {
+  Diagnostic,
+  NoTarget,
   SyntaxKind,
   type CodeFix,
   type DiagnosticTarget,
@@ -29,6 +31,42 @@ export function createSuppressCodeFix(
       );
     },
   });
+}
+/**
+ * Create code fixes to suppress the given diagnostics.
+ * This function groups diagnostics by their suppression target to avoid duplicate suppressions.
+ * @param diagnostics The diagnostics to suppress.
+ * @param suppressionMessage The suppression message to use.
+ * @returns An array of code fixes to apply the suppressions.
+ */
+export function createSuppressCodeFixes(
+  diagnostics: readonly Diagnostic[],
+  suppressionMessage: string = "",
+): readonly CodeFix[] {
+  return Array.from(
+    Array.from(
+      Map.groupBy(
+        diagnostics.map((diag) => {
+          const suppressTarget =
+            diag.target === NoTarget
+              ? undefined
+              : findSuppressTarget(diag.target as DiagnosticTarget);
+          const groupingKey = suppressTarget
+            ? `${diag.code}-${suppressTarget.file.path}-${suppressTarget.pos}-${suppressTarget.end}`
+            : `no-target-${diag.code}`;
+          return {
+            groupingKey: groupingKey,
+            fix: createSuppressCodeFix(
+              diag.target as DiagnosticTarget,
+              diag.code,
+              suppressionMessage,
+            ),
+          };
+        }),
+        (fix) => fix.groupingKey,
+      ).entries(),
+    ).map((group) => group[1][0].fix),
+  );
 }
 
 function findSuppressTarget(target: DiagnosticTarget): SourceLocation | undefined {
