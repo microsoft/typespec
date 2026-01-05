@@ -152,3 +152,23 @@ it("it suppress parent model when expression is tuple", async () => {
         is [Foo, Bar];
     `);
 });
+
+it("it suppress parent model when expression is type of", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {
+      }
+
+      model FooBarTypeOf
+        is ┆typeof Foo;
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {
+      }
+
+      #suppress "foo" ""
+      model FooBarTypeOf
+        is typeof Foo;
+    `);
+});
