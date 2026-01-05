@@ -376,7 +376,7 @@ export function generateModelProperty(
 
   // Directives come before decorators
   const directives = generateDirectives(prop.directives);
-  
+
   // Decorators will be a combination of top-level (parameters) and
   // schema-level decorators.
   const decorators = generateDecorators(
@@ -393,7 +393,7 @@ export function generateModelProperty(
 
   // Format: doc, directives (each on new line), decorators (space separated), property definition
   const directiveLines = directives.length > 0 ? directives.join("\n") + "\n" : "";
-  
+
   return `${doc}${directiveLines}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.getPartType(propertyType, prop.name, isModelReferencedAsMultipartRequestBody ?? false, encoding, isEnumType, isUnionType)};`;
 }
 
