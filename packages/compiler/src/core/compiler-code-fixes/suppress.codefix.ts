@@ -52,8 +52,6 @@ function findSuppressNode(node: Node): Node {
     case SyntaxKind.ModelExpression:
     case SyntaxKind.ArrayExpression:
       return findSuppressNode(node.parent!);
-    case SyntaxKind.ModelStatement:
-      return node.id;
     default:
       return node;
   }

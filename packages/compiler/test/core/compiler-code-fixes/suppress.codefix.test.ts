@@ -101,7 +101,7 @@ it("it suppress for model property with message", async () => {
     `);
 });
 
-it("it suppress parent model for is", async () => {
+it("it suppress parent model when expression is array", async () => {
   await expectCodeFixOnAst(
     `
       model Foo {
