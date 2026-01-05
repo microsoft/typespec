@@ -685,4 +685,211 @@ def grade(sample: dict, item: dict) -> float:
       "Should not parse JSON string as object literal. Got: " + tsp,
     );
   });
+
+  it("should convert deprecated property to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              bar: {
+                type: "string",
+                deprecated: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        model Foo {
+          #deprecated "deprecated"
+          bar?: string;
+        }
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated property with description", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              bar: {
+                type: "string",
+                description: "This field is deprecated",
+                deprecated: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        model Foo {
+          /** This field is deprecated */
+          #deprecated "deprecated"
+          bar?: string;
+        }
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated model to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            deprecated: true,
+            properties: {
+              bar: {
+                type: "string",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        #deprecated "deprecated"
+        model Foo {
+          bar?: string;
+        }
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated scalar to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "string",
+            deprecated: true,
+          },
+        },
+      },
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        #deprecated "deprecated"
+        scalar Foo extends string;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
 });
