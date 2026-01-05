@@ -192,3 +192,21 @@ it("it suppress parent model when expression is value of", async () => {
         is valueof Foo;
     `);
 });
+
+it("it suppress parent model when expression is call", async () => {
+  await expectCodeFixOnAst(
+    `
+      scalar Foo extends string;
+
+      model FooBarCall
+        is ┆Foo("bar");
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      scalar Foo extends string;
+
+      #suppress "foo" ""
+      model FooBarCall
+        is Foo("bar");
+    `);
+});
