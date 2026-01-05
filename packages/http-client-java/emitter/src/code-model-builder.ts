@@ -1065,9 +1065,8 @@ export class CodeModelBuilder {
     if (responses.length === 0) {
       return;
     }
-    const response = responses[0];
-    const bodyType = response.type;
-    if (!bodyType || bodyType.kind !== "model") {
+    if (!responses.some(r => r.type && r.type.kind === "model")) {
+      // abort, if none of the responses contains model type
       return;
     }
 

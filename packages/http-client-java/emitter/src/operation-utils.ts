@@ -198,8 +198,8 @@ export function findResponsePropertySegments(
   op: CodeModelOperation,
   propertySegments: (SdkServiceResponseHeader | SdkModelPropertyType)[] | undefined,
 ): Property[] | undefined {
-  if (op.responses && op.responses.length > 0 && op.responses[0] instanceof SchemaResponse) {
-    const schema = op.responses[0].schema;
+  if (op.responses && op.responses.length > 0) {
+    const schema = op.responses.find((r) => r instanceof SchemaResponse)?.schema;
     if (propertySegments && schema instanceof ObjectSchema && schema.properties) {
       const propertyArray: Property[] = [];
 
