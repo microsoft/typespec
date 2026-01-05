@@ -45,7 +45,8 @@ export function getServiceApiVersions(
     );
     if (versionedNamespace) {
       apiVersions =
-        getVersions(program, versionedNamespace)[1]?.getVersions() ?? InconsistentVersions.NotVersioned;
+        getVersions(program, versionedNamespace)[1]?.getVersions() ??
+        InconsistentVersions.NotVersioned;
     } else {
       apiVersions = InconsistentVersions.NotVersioned;
     }

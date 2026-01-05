@@ -44,6 +44,7 @@ import {
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
+  CreateSdkContextOptions,
   InitializedByFlags,
   SdkArrayType,
   SdkBodyParameter,
@@ -297,10 +298,14 @@ export class CodeModelBuilder {
       return this.codeModel;
     }
 
-    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, {
-      additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
-      versioning: { previewStringRegex: /$/ },
-    }); // include all versions and do the filter by ourselves
+    const sdkContextOptions: CreateSdkContextOptions =
+      this.options["service-version-exclude-preview"] === false
+        ? {
+            versioning: { previewStringRegex: /$/ },
+          }
+        : {};
+    sdkContextOptions.additionalDecorators = ["Azure\\.ClientGenerator\\.Core\\.@override"];
+    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, sdkContextOptions);
     this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // license
