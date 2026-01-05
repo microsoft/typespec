@@ -10,6 +10,28 @@ import {
 } from "../types.js";
 import { findLineStartAndIndent } from "./utils.js";
 
+/**
+ * A polyfill for Map.groupBy for environments that do not support it yet.
+ * Mostly for Node.js versions prior to 21.
+ * This method can be removed once we drop support for Node.js versions that do not support it.
+ */
+const mapGroupBy: typeof Map.groupBy =
+  (Map as { groupBy?: typeof Map.groupBy }).groupBy ??
+  ((items, keyFn) => {
+    const result = new Map<any, any[]>();
+    let index = 0;
+    for (const item of items) {
+      const key = keyFn(item, index++);
+      const group = result.get(key);
+      if (group) {
+        group.push(item);
+      } else {
+        result.set(key, [item]);
+      }
+    }
+    return result;
+  });
+
 export function createSuppressCodeFix(
   diagnosticTarget: DiagnosticTarget,
   warningCode: string,
@@ -45,7 +67,7 @@ export function createSuppressCodeFixes(
 ): readonly CodeFix[] {
   return Array.from(
     Array.from(
-      Map.groupBy(
+      mapGroupBy(
         diagnostics.map((diag) => {
           const suppressTarget =
             diag.target === NoTarget
