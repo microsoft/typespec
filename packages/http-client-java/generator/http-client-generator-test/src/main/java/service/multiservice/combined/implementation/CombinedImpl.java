@@ -10,7 +10,6 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
-import service.multiservice.combined.ServiceAServiceVersion;
 
 /**
  * Initializes a new instance of the Combined type.
@@ -28,20 +27,6 @@ public final class CombinedImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Service version.
-     */
-    private final ServiceAServiceVersion serviceVersion;
-
-    /**
-     * Gets Service version.
-     * 
-     * @return the serviceVersion value.
-     */
-    public ServiceAServiceVersion getServiceVersion() {
-        return this.serviceVersion;
     }
 
     /**
@@ -104,11 +89,10 @@ public final class CombinedImpl {
      * Initializes an instance of Combined client.
      * 
      * @param endpoint Service host.
-     * @param serviceVersion Service version.
      */
-    public CombinedImpl(String endpoint, ServiceAServiceVersion serviceVersion) {
+    public CombinedImpl(String endpoint) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint);
     }
 
     /**
@@ -116,10 +100,9 @@ public final class CombinedImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
-     * @param serviceVersion Service version.
      */
-    public CombinedImpl(HttpPipeline httpPipeline, String endpoint, ServiceAServiceVersion serviceVersion) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
+    public CombinedImpl(HttpPipeline httpPipeline, String endpoint) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint);
     }
 
     /**
@@ -128,14 +111,11 @@ public final class CombinedImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
-     * @param serviceVersion Service version.
      */
-    public CombinedImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        ServiceAServiceVersion serviceVersion) {
+    public CombinedImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.serviceVersion = serviceVersion;
         this.foos = new FoosImpl(this);
         this.bars = new BarsImpl(this);
     }

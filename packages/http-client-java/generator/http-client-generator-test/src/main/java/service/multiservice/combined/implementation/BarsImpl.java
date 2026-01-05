@@ -23,7 +23,6 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
-import service.multiservice.combined.ServiceAServiceVersion;
 
 /**
  * An instance of this class provides access to all the operations defined in Bars.
@@ -47,15 +46,6 @@ public final class BarsImpl {
     BarsImpl(CombinedImpl client) {
         this.service = RestProxy.create(BarsService.class, client.getHttpPipeline(), client.getSerializerAdapter());
         this.client = client;
-    }
-
-    /**
-     * Gets Service version.
-     * 
-     * @return the serviceVersion value.
-     */
-    public ServiceAServiceVersion getServiceVersion() {
-        return client.getServiceVersion();
     }
 
     /**
@@ -95,8 +85,9 @@ public final class BarsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> testWithResponseAsync(RequestOptions requestOptions) {
-        return FluxUtil.withContext(context -> service.test(this.client.getEndpoint(),
-            this.client.getServiceVersion().getVersion(), requestOptions, context));
+        final String apiVersion = "bv2";
+        return FluxUtil
+            .withContext(context -> service.test(this.client.getEndpoint(), apiVersion, requestOptions, context));
     }
 
     /**
@@ -111,7 +102,7 @@ public final class BarsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> testWithResponse(RequestOptions requestOptions) {
-        return service.testSync(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(), requestOptions,
-            Context.NONE);
+        final String apiVersion = "bv2";
+        return service.testSync(this.client.getEndpoint(), apiVersion, requestOptions, Context.NONE);
     }
 }
