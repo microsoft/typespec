@@ -58,6 +58,9 @@ function findSuppressNode(node: Node): Node {
     case SyntaxKind.IntersectionExpression:
     case SyntaxKind.StringTemplateExpression:
     case SyntaxKind.StringTemplateHead:
+    case SyntaxKind.StringTemplateSpan:
+    case SyntaxKind.StringTemplateTail:
+    case SyntaxKind.StringTemplateMiddle:
       return findSuppressNode(node.parent!);
     default:
       return node;
