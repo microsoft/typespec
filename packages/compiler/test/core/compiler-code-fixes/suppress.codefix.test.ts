@@ -100,3 +100,171 @@ it("it suppress for model property with message", async () => {
       }
     `);
 });
+
+it("it suppress parent model when expression is array", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {
+      }
+
+      model Bar {
+      }
+
+      model FooBarArray
+        is ┆(Foo | Bar)[];
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {
+      }
+
+      model Bar {
+      }
+
+      #suppress "foo" ""
+      model FooBarArray
+        is (Foo | Bar)[];
+    `);
+});
+
+it("it suppress parent model when expression is tuple", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {
+      }
+
+      model Bar {
+      }
+
+      model FooBarTuple
+        is ┆[Foo, Bar];
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {
+      }
+
+      model Bar {
+      }
+
+      #suppress "foo" ""
+      model FooBarTuple
+        is [Foo, Bar];
+    `);
+});
+
+it("it suppress parent model when expression is type of", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {
+      }
+
+      model FooBarTypeOf
+        is ┆typeof Foo;
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {
+      }
+
+      #suppress "foo" ""
+      model FooBarTypeOf
+        is typeof Foo;
+    `);
+});
+
+it("it suppress parent model when expression is value of", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {
+      }
+
+      model FooBarValueOf
+        is ┆valueof Foo;
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {
+      }
+
+      #suppress "foo" ""
+      model FooBarValueOf
+        is valueof Foo;
+    `);
+});
+
+it("it suppress parent model when expression is call", async () => {
+  await expectCodeFixOnAst(
+    `
+      scalar Foo extends string;
+
+      model FooBarCall
+        is ┆Foo("bar");
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      scalar Foo extends string;
+
+      #suppress "foo" ""
+      model FooBarCall
+        is Foo("bar");
+    `);
+});
+
+it("it suppress parent model when expression is member", async () => {
+  await expectCodeFixOnAst(
+    `
+      namespace Lib {
+        model Foo {}
+      }
+
+      model FooBarMember
+        is ┆Lib.Foo;
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      namespace Lib {
+        model Foo {}
+      }
+
+      #suppress "foo" ""
+      model FooBarMember
+        is Lib.Foo;
+    `);
+});
+
+it("it suppress parent model when expression is intersection", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {}
+
+      model Bar {}
+
+      model FooBarIntersection
+        is ┆Foo & Bar;
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {}
+
+      model Bar {}
+
+      #suppress "foo" ""
+      model FooBarIntersection
+        is Foo & Bar;
+    `);
+});
+
+it("it suppress parent model when expression is string template", async () => {
+  await expectCodeFixOnAst(
+    `
+      model FooBarStringTemplate
+        is ┆"Start \${"one"} end";
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      #suppress "foo" ""
+      model FooBarStringTemplate
+        is "Start \${"one"} end";
+    `);
+});
