@@ -165,7 +165,11 @@ import {
   stringArrayContainsIgnoreCase,
   trace,
 } from "./utils.js";
-import { getFilteredApiVersions, getServiceApiVersions } from "./versioning-utils.js";
+import {
+  InconsistentVersions,
+  getFilteredApiVersions,
+  getServiceApiVersions,
+} from "./versioning-utils.js";
 const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
@@ -723,7 +727,9 @@ export class CodeModelBuilder {
       baseUri,
       hostParameters,
       codeModelClient.globalParameters!,
-      codeModelClient.apiVersions,
+      versions === InconsistentVersions.MixedVersions
+        ? InconsistentVersions.MixedVersions
+        : codeModelClient.apiVersions,
     );
 
     const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;

@@ -1,25 +1,32 @@
 import { ApiVersions, Parameter } from "@autorest/codemodel";
 import { Operation } from "@typespec/compiler";
 import { Version } from "@typespec/versioning";
-import { isVersionEarlierThan, isVersionedByDate } from "./versioning-utils.js";
+import {
+  InconsistentVersions,
+  isVersionEarlierThan,
+  isVersionedByDate,
+} from "./versioning-utils.js";
 
 export class ClientContext {
   baseUri: string;
   hostParameters: Parameter[];
   globalParameters: Parameter[];
-  apiVersions?: string[];
+  apiVersions?: string[] | InconsistentVersions.MixedVersions;
   ignoredOperations: Set<Operation>;
 
   constructor(
     baseUri: string,
     hostParameters: Parameter[],
     globalParameters: Parameter[],
-    apiVersions?: ApiVersions,
+    apiVersions?: ApiVersions | InconsistentVersions.MixedVersions,
   ) {
     this.baseUri = baseUri;
     this.hostParameters = hostParameters;
     this.globalParameters = globalParameters;
-    this.apiVersions = apiVersions?.map((it) => it.version);
+    this.apiVersions =
+      apiVersions === InconsistentVersions.MixedVersions
+        ? InconsistentVersions.MixedVersions
+        : apiVersions?.map((it) => it.version);
     this.ignoredOperations = new Set<Operation>();
   }
 
@@ -38,7 +45,7 @@ export class ClientContext {
     // currently only allow one added version
     const addedVersions: string[] = [];
     const addedVersion = versions.shift()!.value;
-    if (this.apiVersions) {
+    if (this.apiVersions && this.apiVersions !== InconsistentVersions.MixedVersions) {
       let includeVersion = false;
       for (const version of this.apiVersions) {
         if (version === addedVersion) {
