@@ -664,9 +664,10 @@ export class CodeModelBuilder {
     });
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
-    // versioning
+    // versioning, here we handle consistent api-versions for the client
     const versions = getServiceApiVersions(this.program, client);
     if (Array.isArray(versions) && versions.length > 0) {
+      // consistent api-versions
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
         this.apiVersion = versions[versions.length - 1].value;
       } else {
@@ -728,6 +729,7 @@ export class CodeModelBuilder {
       baseUri,
       hostParameters,
       codeModelClient.globalParameters!,
+      // versioning: consistent api-versions, or MixedVersions for mixed api-versions, undefined if not versioned
       versions === InconsistentVersions.MixedVersions
         ? InconsistentVersions.MixedVersions
         : codeModelClient.apiVersions,
@@ -1374,7 +1376,7 @@ export class CodeModelBuilder {
         );
         op.addParameter(parameter);
       } else {
-        // single api-version
+        // consistent api-versions
         if (this.isArm()) {
           const apiVersion = this.apiVersion;
           if (!this._armApiVersionParameter) {
