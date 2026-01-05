@@ -1495,8 +1495,8 @@ export class CodeModelBuilder {
       const parameterOnClient = param.onClient;
       if (parameterOnClient) {
         // use parameter name from client parameter, as the name could be an alias
-        if (param.methodParameterSegments && param.methodParameterSegments[-1]) {
-          parameterName = param.methodParameterSegments[-1][0].name;
+        if (param.methodParameterSegments && param.methodParameterSegments.at(-1)) {
+          parameterName = param.methodParameterSegments.at(-1)![0].name;
         }
       }
 
@@ -2038,7 +2038,7 @@ export class CodeModelBuilder {
         !this.isArm() &&
         schema instanceof ObjectSchema &&
         sdkType.kind === "model" &&
-        sdkBody.type !== sdkBody.methodParameterSegments[-1][0]?.type;
+        sdkBody.type !== sdkBody.methodParameterSegments.at(-1)?.at(0)?.type;
 
       if (schema instanceof ObjectSchema && bodyParameterFlatten) {
         // flatten body parameter
