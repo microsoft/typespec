@@ -1188,6 +1188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(double))]
         [TestCase(typeof(bool))]
         [TestCase(typeof(string))]
+        [TestCase(typeof(DateTimeOffset))]
         public void ListOfPrimitivesUsesUtf8JsonReader(Type elementType)
         {
             InputType inputElementType = elementType switch
@@ -1198,6 +1199,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(double) => InputPrimitiveType.Float64,
                 { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
                 { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
                 _ => throw new ArgumentException("Unsupported type")
             };
 
@@ -1224,14 +1226,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(elementType.Name), generatedCode);
         }
 
-        [TestCase(typeof(DateTimeOffset))]
         [TestCase(typeof(TimeSpan))]
         [TestCase(typeof(BinaryData))]
-        public void ListOfValueTypeUsesUtf8JsonReader(Type elementType)
+        public void ListOfValueTypeUsesJsonDoc(Type elementType)
         {
             InputType inputElementType = elementType switch
             {
-                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
                 { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
                 { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
                 _ => throw new ArgumentException("Unsupported type")
@@ -1305,6 +1305,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(double))]
         [TestCase(typeof(bool))]
         [TestCase(typeof(string))]
+        [TestCase(typeof(DateTimeOffset))]
         public void DictionaryOfPrimitivesUsesUtf8JsonReader(Type valueType)
         {
             InputType inputValueType = valueType switch
@@ -1315,6 +1316,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(double) => InputPrimitiveType.Float64,
                 { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
                 { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
                 _ => throw new ArgumentException("Unsupported type")
             };
 
@@ -1341,10 +1343,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
         }
 
-        [TestCase(typeof(DateTimeOffset))]
         [TestCase(typeof(TimeSpan))]
         [TestCase(typeof(BinaryData))]
-        public void DictionaryOfValueTypeUsesUtf8JsonReader(Type valueType)
+        public void DictionaryOfValueTypeUsesJsonDoc(Type valueType)
         {
             InputType inputValueType = valueType switch
             {
