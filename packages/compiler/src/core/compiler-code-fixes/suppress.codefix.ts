@@ -55,6 +55,7 @@ function findSuppressNode(node: Node): Node {
     case SyntaxKind.TypeOfExpression:
     case SyntaxKind.CallExpression:
     case SyntaxKind.MemberExpression:
+    case SyntaxKind.IntersectionExpression:
       return findSuppressNode(node.parent!);
     default:
       return node;

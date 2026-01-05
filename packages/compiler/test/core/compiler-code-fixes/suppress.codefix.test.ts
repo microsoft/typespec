@@ -232,3 +232,25 @@ it("it suppress parent model when expression is member", async () => {
         is Lib.Foo;
     `);
 });
+
+it("it suppress parent model when expression is intersection", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {}
+
+      model Bar {}
+
+      model FooBarIntersection
+        is ┆Foo & Bar;
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {}
+
+      model Bar {}
+
+      #suppress "foo" ""
+      model FooBarIntersection
+        is Foo & Bar;
+    `);
+});
