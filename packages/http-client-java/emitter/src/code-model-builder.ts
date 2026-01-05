@@ -1497,8 +1497,12 @@ export class CodeModelBuilder {
       const parameterOnClient = param.onClient;
       if (parameterOnClient) {
         // use parameter name from client parameter, as the name could be an alias
-        if (param.methodParameterSegments && param.methodParameterSegments.at(-1)) {
-          parameterName = param.methodParameterSegments.at(-1)![0].name;
+        if (
+          param.methodParameterSegments &&
+          param.methodParameterSegments[0] &&
+          param.methodParameterSegments[0].at(-1)
+        ) {
+          parameterName = param.methodParameterSegments[0].at(-1)!.name;
         }
       }
 
@@ -2033,14 +2037,14 @@ export class CodeModelBuilder {
        * see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
        */
       /**
-       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type'.
+       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.methodParameterSegments.at(0)?.at(-1)?.type'.
        * Basically, it means that the model of the SDK method parameters (typically, more than 1) be different from the model of this single HTTP body parameter.
        */
       const bodyParameterFlatten =
         !this.isArm() &&
         schema instanceof ObjectSchema &&
         sdkType.kind === "model" &&
-        sdkBody.type !== sdkBody.methodParameterSegments.at(-1)?.at(0)?.type;
+        sdkBody.type !== sdkBody.methodParameterSegments.at(0)?.at(-1)?.type;
 
       if (schema instanceof ObjectSchema && bodyParameterFlatten) {
         // flatten body parameter
