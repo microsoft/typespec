@@ -54,6 +54,7 @@ function findSuppressNode(node: Node): Node {
     case SyntaxKind.TupleExpression:
     case SyntaxKind.TypeOfExpression:
     case SyntaxKind.CallExpression:
+    case SyntaxKind.MemberExpression:
       return findSuppressNode(node.parent!);
     default:
       return node;

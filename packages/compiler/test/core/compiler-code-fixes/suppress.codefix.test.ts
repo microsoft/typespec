@@ -210,3 +210,25 @@ it("it suppress parent model when expression is call", async () => {
         is Foo("bar");
     `);
 });
+
+it("it suppress parent model when expression is member", async () => {
+  await expectCodeFixOnAst(
+    `
+      namespace Lib {
+        model Foo {}
+      }
+
+      model FooBarMember
+        is ┆Lib.Foo;
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      namespace Lib {
+        model Foo {}
+      }
+
+      #suppress "foo" ""
+      model FooBarMember
+        is Lib.Foo;
+    `);
+});
