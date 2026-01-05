@@ -172,3 +172,23 @@ it("it suppress parent model when expression is type of", async () => {
         is typeof Foo;
     `);
 });
+
+it("it suppress parent model when expression is value of", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {
+      }
+
+      model FooBarValueOf
+        is ┆valueof Foo;
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {
+      }
+
+      #suppress "foo" ""
+      model FooBarValueOf
+        is valueof Foo;
+    `);
+});
