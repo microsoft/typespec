@@ -656,7 +656,7 @@ export class CodeModelBuilder {
 
     // versioning
     const versions = getServiceApiVersions(this.program, client);
-    if (versions && versions.length > 0) {
+    if (Array.isArray(versions) && versions.length > 0) {
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
         this.apiVersion = versions[versions.length - 1].value;
       } else {

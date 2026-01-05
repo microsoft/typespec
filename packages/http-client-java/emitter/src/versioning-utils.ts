@@ -3,6 +3,17 @@ import { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-ge
 import { Namespace, Program } from "@typespec/compiler";
 import { findVersionedNamespace, getVersions, Version } from "@typespec/versioning";
 
+export enum InconsistentVersions {
+  /**
+   * The client is not versioned.
+   */
+  NotVersioned,
+  /**
+   * The client contains service from different set of api-versions.
+   */
+  MixedVersions,
+}
+
 /**
  * Gets the array of api-version on the TypeSpec service that contains this SDK client.
  * `undefined` if the service is not versioned.
@@ -14,21 +25,30 @@ import { findVersionedNamespace, getVersions, Version } from "@typespec/versioni
 export function getServiceApiVersions(
   program: Program,
   client: SdkClientType<SdkHttpOperation>,
-): Version[] | undefined {
+): Version[] | InconsistentVersions {
   // TODO: use client.apiVersions after TCGC supports multiple service
   // Also, this function lacks the logic of the handling of added/removed on the Namespace/Interface of the SDK client.
 
-  // TODO: TCGC 0.63.1+ supports multiple api-version in a single client, emitter has not yet support this scenario. For now only take the 1st service.
-  const serviceNamespace = Array.isArray(client.__raw.service)
-    ? client.__raw.service[0]
-    : client.__raw.service;
-  let apiVersions: Version[] | undefined;
-  const versionedNamespace: Namespace | undefined = findVersionedNamespace(
-    program,
-    serviceNamespace,
-  );
-  if (versionedNamespace) {
-    apiVersions = getVersions(program, versionedNamespace)[1]?.getVersions();
+  let apiVersions: Version[] | InconsistentVersions;
+  // TCGC 0.63+ supports multiple api-version in a single client
+  if (Array.isArray(client.__raw.service)) {
+    // on TCGC, the difference of versioned client and not versioned client is on the "apiVersion" parameter in clientInitialization
+    // here, we treat a versioned client with multiple service as client of mixed versions
+    apiVersions = client.clientInitialization.parameters.some((p) => p.name === "apiVersion")
+      ? InconsistentVersions.MixedVersions
+      : InconsistentVersions.NotVersioned;
+  } else {
+    const serviceNamespace = client.__raw.service;
+    const versionedNamespace: Namespace | undefined = findVersionedNamespace(
+      program,
+      serviceNamespace,
+    );
+    if (versionedNamespace) {
+      apiVersions =
+        getVersions(program, versionedNamespace)[1]?.getVersions() ?? InconsistentVersions.NotVersioned;
+    } else {
+      apiVersions = InconsistentVersions.NotVersioned;
+    }
   }
   return apiVersions;
 }
