@@ -43,9 +43,8 @@ class ListType(BaseType):
 
         # if there is a function/property named `list` we have to make sure there's no conflict with the built-in `list`
         is_operation_file = kwargs.get("is_operation_file", False)
-        use_list_import = (
-            (self.code_model.has_operation_named_list and is_operation_file) or
-            (self.code_model.has_property_named_list and not is_operation_file)
+        use_list_import = (self.code_model.has_operation_named_list and is_operation_file) or (
+            self.code_model.has_property_named_list and not is_operation_file
         )
         list_type = "List" if use_list_import else "list"
         return f"{list_type}[{self.element_type.type_annotation(**kwargs)}]"
