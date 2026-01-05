@@ -32,7 +32,7 @@ export function getServiceApiVersions(
   let apiVersions: Version[] | InconsistentVersions;
   // TCGC 0.63+ supports multiple api-version in a single client
   if (Array.isArray(client.__raw.service)) {
-    // on TCGC, the difference of versioned client and not versioned client is on the existance of "apiVersion" parameter in clientInitialization
+    // on TCGC, the difference of versioned client and not versioned client is on the existence of "apiVersion" parameter in clientInitialization
     // here, we treat a versioned client with multiple service as client of mixed versions
     apiVersions = client.clientInitialization.parameters.some((p) => p.name === "apiVersion")
       ? InconsistentVersions.MixedVersions
