@@ -126,3 +126,29 @@ it("it suppress parent model when expression is array", async () => {
         is (Foo | Bar)[];
     `);
 });
+
+it("it suppress parent model when expression is tuple", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {
+      }
+
+      model Bar {
+      }
+
+      model FooBarTuple
+        is ┆[Foo, Bar];
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(`
+      model Foo {
+      }
+
+      model Bar {
+      }
+
+      #suppress "foo" ""
+      model FooBarTuple
+        is [Foo, Bar];
+    `);
+});
