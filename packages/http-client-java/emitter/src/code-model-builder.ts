@@ -1065,7 +1065,7 @@ export class CodeModelBuilder {
     if (responses.length === 0) {
       return;
     }
-    if (!responses.some(r => r.type && r.type.kind === "model")) {
+    if (!responses.some((r) => r.type && r.type.kind === "model")) {
       // abort, if none of the responses contains model type
       return;
     }
