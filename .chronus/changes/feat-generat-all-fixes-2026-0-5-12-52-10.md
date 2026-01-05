@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-compiler - new method to generate multiple code fixes from diagnostics
+[api] Expose `createSuppressCodeFixes` method to generate multiple code fixes from diagnostics
