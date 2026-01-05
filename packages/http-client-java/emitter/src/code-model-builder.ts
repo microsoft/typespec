@@ -302,6 +302,7 @@ export class CodeModelBuilder {
       return this.codeModel;
     }
 
+    // on filtering of preview version: TCGC only do this on "apiVersion" parameter in clientInitialization
     const sdkContextOptions: CreateSdkContextOptions =
       this.options["service-version-exclude-preview"] === false
         ? {
@@ -1363,23 +1364,33 @@ export class CodeModelBuilder {
   ) {
     if (clientContext.apiVersions && this.isApiVersionParameter(param) && param.kind !== "cookie") {
       // pre-condition for "isApiVersion": the client supports ApiVersions
-      if (this.isArm()) {
-        // Currently we assume ARM tsp only have one client and one api-version.
-        // TODO: How will service define mixed api-versions(like those in Compute RP)?
-        const apiVersion = this.apiVersion;
-        if (!this._armApiVersionParameter) {
-          this._armApiVersionParameter = this.createApiVersionParameter(
-            "api-version",
-            param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
-            apiVersion,
-          );
-          clientContext.addGlobalParameter(this._armApiVersionParameter);
-        }
-        op.addParameter(this._armApiVersionParameter);
-      } else {
-        const parameter = this.getApiVersionParameter(param);
+      if (clientContext.apiVersions === InconsistentVersions.MixedVersions) {
+        // mixed api-versions
+        const parameter = this.createApiVersionParameter(
+          "api-version",
+          param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
+          String(param.clientDefaultValue),
+          ImplementationLocation.Method,
+        );
         op.addParameter(parameter);
-        clientContext.addGlobalParameter(parameter);
+      } else {
+        // single api-version
+        if (this.isArm()) {
+          const apiVersion = this.apiVersion;
+          if (!this._armApiVersionParameter) {
+            this._armApiVersionParameter = this.createApiVersionParameter(
+              "api-version",
+              param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
+              apiVersion,
+            );
+            clientContext.addGlobalParameter(this._armApiVersionParameter);
+          }
+          op.addParameter(this._armApiVersionParameter);
+        } else {
+          const parameter = this.getApiVersionParameter(param);
+          op.addParameter(parameter);
+          clientContext.addGlobalParameter(parameter);
+        }
       }
     } else if (param.kind === "path" && param.onClient && this.isSubscriptionId(param)) {
       const parameter = this.subscriptionIdParameter(param);
@@ -3322,6 +3333,7 @@ export class CodeModelBuilder {
     serializedName: string,
     parameterLocation: ParameterLocation,
     value = "",
+    implementationLocation = ImplementationLocation.Client,
   ): Parameter {
     return new Parameter(
       serializedName,
@@ -3333,7 +3345,7 @@ export class CodeModelBuilder {
         }),
       ),
       {
-        implementation: ImplementationLocation.Client,
+        implementation: implementationLocation,
         origin: ORIGIN_API_VERSION,
         required: true,
         protocol: {

@@ -42,10 +42,15 @@ export class ClientContext {
   }
 
   getAddedVersions(versions: Version[]): string[] | undefined {
+    if (this.apiVersions === InconsistentVersions.MixedVersions) {
+      // TODO: handle mixed versions scenario
+      return undefined;
+    }
+
     // currently only allow one added version
     const addedVersions: string[] = [];
     const addedVersion = versions.shift()!.value;
-    if (this.apiVersions && this.apiVersions !== InconsistentVersions.MixedVersions) {
+    if (this.apiVersions) {
       let includeVersion = false;
       for (const version of this.apiVersions) {
         if (version === addedVersion) {
