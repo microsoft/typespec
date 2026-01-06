@@ -3,6 +3,10 @@ import { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-ge
 import { Namespace, Program } from "@typespec/compiler";
 import { findVersionedNamespace, getVersions, Version } from "@typespec/versioning";
 
+/**
+ * Sentinel values that describe a client that not have consistent api-versions.
+ * Reason is either the service is not versioned, or the client aggregates multiple services of different api-versions.
+ */
 export enum InconsistentVersions {
   /**
    * The client is not versioned.
@@ -16,11 +20,13 @@ export enum InconsistentVersions {
 
 /**
  * Gets the array of api-version on the TypeSpec service that contains this SDK client.
- * `undefined` if the service is not versioned.
+ * Returns {@link InconsistentVersions.NotVersioned} when the service is not versioned and
+ * {@link InconsistentVersions.MixedVersions} when the client aggregates multiple services
+ * that disagree on api-version.
  *
  * @param program the program
  * @param client the SDK client
- * @returns the array of api-version on the TypeSpec service that contains this SDK client
+ * @returns the array of api-version or an {@link InconsistentVersions} indicator
  */
 export function getServiceApiVersions(
   program: Program,
