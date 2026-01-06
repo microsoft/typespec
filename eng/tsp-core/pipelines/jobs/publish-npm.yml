@@ -14,7 +14,7 @@ jobs:
     displayName: Publish Npm (${{ parameters.tag }})
     dependsOn: ${{ parameters.dependsOn }}
     condition: ${{ parameters.condition }}
-    environment: typespec-cli
+    environment: package-publish
     pool: # hardcoding the pool and image name because deployment jobs do not support variable expansion in pool names
       name: azsdk-pool
       image: ubuntu-24.04
