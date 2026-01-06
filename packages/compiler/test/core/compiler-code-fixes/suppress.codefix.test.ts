@@ -272,6 +272,32 @@ it("it suppress parent model when expression is string template", async () => {
     `);
 });
 
+it("it suppress parent model when expression is a response body template", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {}
+
+      model Bar {}
+
+      op createTranslation(
+        body: Foo,
+      ): Body<┆Foo | Bar>;
+    `,
+    (node) => createSuppressCodeFix(node, "foo"),
+  ).toChangeTo(
+    `
+      model Foo {}
+
+      model Bar {}
+
+      #suppress "foo" ""
+      op createTranslation(
+        body: Foo,
+      ): Body<Foo | Bar>;
+    `,
+  );
+});
+
 it("it suppresses multiple diagnostics on the same target", async () => {
   await expectCodeFixesOnAst(
     `
