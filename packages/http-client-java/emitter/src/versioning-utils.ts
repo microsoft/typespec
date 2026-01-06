@@ -26,7 +26,7 @@ export enum InconsistentVersions {
  *
  * @param program the program
  * @param client the SDK client
- * @returns the array of api-version or an {@link InconsistentVersions} indicator
+ * @returns the array of api-version when there is only one service in the SDK client or an {@link InconsistentVersions} indicator when the SDK client is not versioned or has multiple versions.
  */
 export function getServiceApiVersions(
   program: Program,
