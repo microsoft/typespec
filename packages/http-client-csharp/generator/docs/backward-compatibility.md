@@ -203,7 +203,9 @@ public class BaseModel
     public string CommonProperty { get; set; }
 }
 ```
+
 Current TypeSpec would generate:
+
 ```csharp
 public class BaseModel
 {
