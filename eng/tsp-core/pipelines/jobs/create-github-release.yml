@@ -6,7 +6,7 @@ parameters:
     default: ""
 
 jobs:
-  - job: build
+  - job: github_release
     dependsOn: ${{ parameters.dependsOn }}
     displayName: Create github release(s)
     pool:
