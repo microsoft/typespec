@@ -69,6 +69,31 @@ components:
               contentMediaType: application/json
               contentSchema:
                 $ref: "#/components/schemas/UserMessage"
+    ChannelEventsWithDiscriminatedTerminal:
+      type: object
+      properties:
+        event:
+          type: string
+        data:
+          type: string
+      required: [event]
+      # Define event types and specific schemas for the corresponding data
+      oneOf:
+        - properties:
+            event:
+              const: userconnect
+            data:
+              contentMediaType: application/json
+              contentSchema:
+                $ref: "#/components/schemas/UserConnect"
+        - properties:
+            event:
+              const: usermessage
+            data:
+              contentMediaType: application/json
+              contentSchema:
+                $ref: "#/components/schemas/UserMessage"
+          x-ms-sse-terminal-event: true
     ChannelEventWithCustomContentType:
       type: object
       properties:
@@ -93,7 +118,7 @@ components:
 paths:
   /channel/no-terminal:
     get:
-      operationId: subscribeToChannelNoTerminal
+      operationId: subscribeToChannelNoTerminalGet
       responses:
         "200":
           description: A request body to add a stream of typed data.
@@ -103,7 +128,7 @@ paths:
                 $ref: "#/components/schemas/ChannelEventsNoTerminal"
   /channel/no-terminal-post:
     post:
-      operationId: subscribeToChannelNoTerminal
+      operationId: subscribeToChannelNoTerminalPost
       requestBody:
         description: Request body for subscribing to a channel without terminal event.
         required: true
@@ -131,6 +156,16 @@ paths:
             text/event-stream:
               itemSchema:
                 $ref: "#/components/schemas/ChannelEventsWithTerminal"
+  /channel/with-discriminated-terminal:
+    get:
+      operationId: subscribeToChannelWithDiscriminatedTerminal
+      responses:
+        "200":
+          description: A request body to add a stream of typed data.
+          content:
+            text/event-stream:
+              itemSchema:
+                $ref: "#/components/schemas/ChannelEventsWithDiscriminatedTerminal"
   /data/custom-content-type:
     get:
       operationId: subscribeToDataStream

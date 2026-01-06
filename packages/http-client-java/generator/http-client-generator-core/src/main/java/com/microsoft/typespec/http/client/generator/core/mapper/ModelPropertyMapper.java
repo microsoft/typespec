@@ -10,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayEncoding;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
@@ -240,6 +241,11 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
             String autoRestPropertyDefaultValueExpression
                 = propertyWireType.defaultValueExpression(property.getClientDefaultValue());
             builder.defaultValue(autoRestPropertyDefaultValueExpression);
+        }
+
+        // array encoding
+        if (property.getArrayEncoding() != null) {
+            builder.arrayEncoding(ArrayEncoding.fromValue(property.getArrayEncoding()));
         }
 
         return builder.build();

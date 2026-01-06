@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public FormattableString GetCRef() => $"{Name}({Parameters.GetTypesFormattable()})";
 
         internal string FullMethodName => ExplicitInterface != null ? $"{ExplicitInterface}.{Name}" : Name;
-        internal static IEqualityComparer<MethodSignature> MethodSignatureComparer = new MethodSignatureEqualityComparer();
+        public static readonly IEqualityComparer<MethodSignature> MethodSignatureComparer = new MethodSignatureEqualityComparer();
 
         private class MethodSignatureEqualityComparer : IEqualityComparer<MethodSignature>
         {

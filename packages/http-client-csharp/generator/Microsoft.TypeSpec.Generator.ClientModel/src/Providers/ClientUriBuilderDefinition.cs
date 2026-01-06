@@ -124,7 +124,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _uriBuilderField.Assign(New.Instance(_uriBuilderField.Type, uriParameter)).Terminate(),
                 stringBuilder.Invoke("Clear").Terminate(),
                 stringBuilder.Append(UriBuilderPath).Terminate(),
-                _pathLengthField.Assign(stringBuilder.Length()).Terminate()
+                _pathLengthField.Assign(stringBuilder.Length()).Terminate(),
+                stringBuilder.Append(UriBuilderQuery).Terminate()
             };
 
             return new(signature, body, this, XmlDocProvider.Empty);
