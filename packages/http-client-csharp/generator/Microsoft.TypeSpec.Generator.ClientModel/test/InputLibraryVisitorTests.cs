@@ -67,5 +67,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             _mockVisitor.Protected().Verify<ClientProvider?>("Visit", Times.Once(), inputClient, ItExpr.IsAny<ClientProvider?>());
         }
+
+        [Test]
+        public void PreVisitsCreateRequestMethods()
+        {
+            _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
+
+            var inputOperation = InputFactory.Operation("testOperation", responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("fooClient", methods: [inputServiceMethod]);
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
+                "Sample",
+                clients: [inputClient]));
+
+            var clientProvider = new ClientProvider(inputClient);
+            var restClient = clientProvider.RestClient;
+            _ = restClient.Methods;
+
+            _mockVisitor.Protected().Verify<ScmMethodProvider?>("VisitCreateRequestMethod", Times.Once(), inputServiceMethod, ItExpr.IsAny<RestClientProvider>(), ItExpr.IsAny<ScmMethodProvider?>());
+        }
     }
 }

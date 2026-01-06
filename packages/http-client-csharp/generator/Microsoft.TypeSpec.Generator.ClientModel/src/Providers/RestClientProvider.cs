@@ -81,8 +81,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var operation = serviceMethod.Operation;
                 var method = BuildCreateRequestMethod(serviceMethod);
-                methods.Add(method);
-                MethodCache[operation] = method;
+                foreach (var visitor in ScmCodeModelGenerator.Instance.Visitors)
+                {
+                    if (visitor is ScmLibraryVisitor scmVisitor)
+                    {
+                        method = scmVisitor.VisitCreateRequestMethod(serviceMethod, this, method);
+                    }
+                }
+
+                if (method != null)
+                {
+                    methods.Add(method);
+                    MethodCache[operation] = method;
+                }
 
                 // For paging operations with next link, also generate a CreateNextXXXRequest method
                 if (serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null })
