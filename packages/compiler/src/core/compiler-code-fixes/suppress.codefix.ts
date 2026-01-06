@@ -68,23 +68,22 @@ export function createSuppressCodeFixes(
   return Array.from(
     Array.from(
       mapGroupBy(
-        diagnostics.map((diag) => {
-          const suppressTarget =
-            diag.target === NoTarget
+        diagnostics
+          .filter((diag) => diag.severity === "warning" && diag.target !== NoTarget)
+          .map((diag) => {
+            const suppressTarget = findSuppressTarget(diag.target as DiagnosticTarget);
+            return suppressTarget === undefined
               ? undefined
-              : findSuppressTarget(diag.target as DiagnosticTarget);
-          const groupingKey = suppressTarget
-            ? `${diag.code}-${suppressTarget.file.path}-${suppressTarget.pos}-${suppressTarget.end}`
-            : `no-target-${diag.code}`;
-          return {
-            groupingKey: groupingKey,
-            fix: createSuppressCodeFix(
-              diag.target as DiagnosticTarget,
-              diag.code,
-              suppressionMessage,
-            ),
-          };
-        }),
+              : {
+                  groupingKey: `${diag.code}-${suppressTarget.file.path}-${suppressTarget.pos}-${suppressTarget.end}`,
+                  fix: createSuppressCodeFix(
+                    diag.target as DiagnosticTarget,
+                    diag.code,
+                    suppressionMessage,
+                  ),
+                };
+          })
+          .filter((fix) => fix !== undefined),
         (fix) => fix.groupingKey,
       ).entries(),
     ).map((group) => group[1][0].fix),
