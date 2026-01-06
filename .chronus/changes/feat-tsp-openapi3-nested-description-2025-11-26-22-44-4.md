@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-Import nested `description` of `properties`
+[converter] Import nested `description` of `properties`
