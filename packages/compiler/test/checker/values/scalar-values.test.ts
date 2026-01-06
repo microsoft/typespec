@@ -3,6 +3,61 @@ import { describe, expect, it } from "vitest";
 import { expectDiagnostics } from "../../../src/testing/expect.js";
 import { compileValue, diagnoseValue } from "./utils.js";
 
+describe("instantiate with now initializer", () => {
+  it("with utcDateTime", async () => {
+    const value = await compileValue(`utcDateTime.now()`);
+    strictEqual(value.valueKind, "ScalarValue");
+    strictEqual(value.type.kind, "Scalar");
+    strictEqual(value.type.name, "utcDateTime");
+    strictEqual(value.scalar?.name, "utcDateTime");
+    strictEqual(value.value.name, "now");
+    expect(value.value.args).toEqual([]);
+  });
+
+  it("with plainDate", async () => {
+    const value = await compileValue(`plainDate.now()`);
+    strictEqual(value.valueKind, "ScalarValue");
+    strictEqual(value.type.kind, "Scalar");
+    strictEqual(value.type.name, "plainDate");
+    strictEqual(value.scalar?.name, "plainDate");
+    strictEqual(value.value.name, "now");
+    expect(value.value.args).toEqual([]);
+  });
+
+  it("with plainTime", async () => {
+    const value = await compileValue(`plainTime.now()`);
+    strictEqual(value.valueKind, "ScalarValue");
+    strictEqual(value.type.kind, "Scalar");
+    strictEqual(value.type.name, "plainTime");
+    strictEqual(value.scalar?.name, "plainTime");
+    strictEqual(value.value.name, "now");
+    expect(value.value.args).toEqual([]);
+  });
+
+  it("with offsetDateTime", async () => {
+    const value = await compileValue(`offsetDateTime.now()`);
+    strictEqual(value.valueKind, "ScalarValue");
+    strictEqual(value.type.kind, "Scalar");
+    strictEqual(value.type.name, "offsetDateTime");
+    strictEqual(value.scalar?.name, "offsetDateTime");
+    strictEqual(value.value.name, "now");
+    expect(value.value.args).toEqual([]);
+  });
+
+  it("via const declaration", async () => {
+    const value = await compileValue(
+      `timestamp`,
+      `const timestamp = utcDateTime.now();`,
+    );
+    strictEqual(value.valueKind, "ScalarValue");
+    strictEqual(value.type.kind, "Scalar");
+    strictEqual(value.type.name, "utcDateTime");
+    strictEqual(value.scalar?.name, "utcDateTime");
+    strictEqual(value.value.name, "now");
+    expect(value.value.args).toEqual([]);
+  });
+});
+
 describe("instantiate with named constructor", () => {
   const ipv4Code = `
     scalar ipv4 {
