@@ -10,7 +10,7 @@ import {
   Refable,
 } from "../../../../types.js";
 import { stringLiteral } from "../generators/common.js";
-import { TSValue, TypeSpecDecorator } from "../interfaces.js";
+import { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
 
 const validLocations = ["header", "query", "path"];
 const extensionDecoratorName = "extension";
@@ -245,6 +245,22 @@ export function getDecoratorsForSchema(
   }
 
   return decorators;
+}
+
+export function getDirectivesForSchema(
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+): TypeSpecDirective[] {
+  const directives: TypeSpecDirective[] = [];
+
+  if ("$ref" in schema) {
+    return directives;
+  }
+
+  if (schema.deprecated) {
+    directives.push({ name: "deprecated", message: "deprecated" });
+  }
+
+  return directives;
 }
 
 function createTSValue(value: string): TSValue {
