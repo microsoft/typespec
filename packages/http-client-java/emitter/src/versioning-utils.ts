@@ -26,15 +26,13 @@ export function getServiceApiVersions(
   program: Program,
   client: SdkClientType<SdkHttpOperation>,
 ): Version[] | InconsistentVersions {
-  // TODO: use client.apiVersions after TCGC supports multiple service
-  // Also, this function lacks the logic of the handling of added/removed on the Namespace/Interface of the SDK client.
+  // TODO: use client.apiVersions
 
   let apiVersions: Version[] | InconsistentVersions;
   // TCGC 0.63+ supports multiple api-version in a single client
   if (Array.isArray(client.__raw.service)) {
-    // on TCGC, the difference of versioned client and not versioned client is on the existence of "apiVersion" parameter in clientInitialization
     // here, we treat a versioned client with multiple service as client of mixed versions
-    apiVersions = client.clientInitialization.parameters.some((p) => p.name === "apiVersion")
+    apiVersions = isSdkClientVersioned(client)
       ? InconsistentVersions.MixedVersions
       : InconsistentVersions.NotVersioned;
   } else {
@@ -160,4 +158,9 @@ export function isVersionEarlierThan(version: string, compareTo: string): boolea
 
   // Versions are identical
   return false;
+}
+
+function isSdkClientVersioned(client: SdkClientType<SdkHttpOperation>): boolean {
+  // on TCGC, the difference of versioned client and not versioned client is on the existence of "apiVersion" parameter in clientInitialization
+  return client.clientInitialization.parameters.some((p) => p.name === "apiVersion");
 }
