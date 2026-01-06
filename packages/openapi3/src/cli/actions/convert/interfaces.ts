@@ -39,9 +39,15 @@ export interface TypeSpecExternalDocs {
   description?: string;
 }
 
+export interface TypeSpecDirective {
+  name: string;
+  message: string;
+}
+
 export interface TypeSpecDeclaration {
   name: string;
   doc?: string;
+  directives?: TypeSpecDirective[];
   decorators: TypeSpecDecorator[];
   scope: string[];
   fixmes?: string[];
@@ -142,6 +148,7 @@ export interface TypeSpecModelProperty {
   name: string;
   isOptional: boolean;
   doc?: string;
+  directives?: TypeSpecDirective[];
   /**
    * A partial list of decorators that can't be ascertained from
    * the schema.
