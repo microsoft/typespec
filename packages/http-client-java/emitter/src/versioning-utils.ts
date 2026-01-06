@@ -13,7 +13,7 @@ export enum InconsistentVersions {
    */
   NotVersioned,
   /**
-   * The client contains service from different set of api-versions.
+   * The client contains multiple services which may have the same set or different set of api-versions.
    */
   MixedVersions,
 }
