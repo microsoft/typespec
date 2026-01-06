@@ -45,10 +45,7 @@ describe("instantiate with now initializer", () => {
   });
 
   it("via const declaration", async () => {
-    const value = await compileValue(
-      `timestamp`,
-      `const timestamp = utcDateTime.now();`,
-    );
+    const value = await compileValue(`timestamp`, `const timestamp = utcDateTime.now();`);
     strictEqual(value.valueKind, "ScalarValue");
     strictEqual(value.type.kind, "Scalar");
     strictEqual(value.type.name, "utcDateTime");
