@@ -81,13 +81,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var operation = serviceMethod.Operation;
                 var method = BuildCreateRequestMethod(serviceMethod);
-                foreach (var visitor in ScmCodeModelGenerator.Instance.Visitors)
-                {
-                    if (visitor is ScmLibraryVisitor scmVisitor)
-                    {
-                        method = scmVisitor.VisitCreateRequestMethod(serviceMethod, this, method);
-                    }
-                }
+                method = VisitCreateRequestMethod(method, serviceMethod);
 
                 if (method != null)
                 {
@@ -99,12 +93,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null })
                 {
                     var nextMethod = BuildCreateRequestMethod(serviceMethod, isNextLinkRequest: true);
-                    methods.Add(nextMethod);
-                    NextMethodCache[operation] = nextMethod;
+                    nextMethod = VisitCreateRequestMethod(nextMethod, serviceMethod);
+
+                    if (nextMethod != null)
+                    {
+                        methods.Add(nextMethod);
+                        NextMethodCache[operation] = nextMethod;
+                    }
                 }
             }
 
             return [.. methods];
+        }
+
+        private ScmMethodProvider? VisitCreateRequestMethod(ScmMethodProvider method, InputServiceMethod serviceMethod)
+        {
+            ScmMethodProvider? result = method;
+            foreach (var visitor in ScmCodeModelGenerator.Instance.Visitors)
+            {
+                if (visitor is ScmLibraryVisitor scmVisitor)
+                {
+                    result = scmVisitor.VisitCreateRequestMethod(serviceMethod, this, result);
+                }
+            }
+
+            return method;
         }
 
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)

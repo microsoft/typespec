@@ -86,5 +86,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             _mockVisitor.Protected().Verify<ScmMethodProvider?>("VisitCreateRequestMethod", Times.Once(), inputServiceMethod, ItExpr.IsAny<RestClientProvider>(), ItExpr.IsAny<ScmMethodProvider?>());
         }
+
+        [Test]
+        public void PreVisitsCreateNextRequestMethods()
+        {
+            _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
+
+            var inputOperation = InputFactory.Operation("testOperation", responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["items"], ["nextLink"], InputResponseLocation.Body);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("test", inputOperation, pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("fooClient", methods: [inputServiceMethod]);
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
+                "Sample",
+                clients: [inputClient]));
+
+            var clientProvider = new ClientProvider(inputClient);
+            var restClient = clientProvider.RestClient;
+            _ = restClient.Methods;
+
+            // Verified twice because it is called for CreateRequest and CreateNextRequest
+            _mockVisitor.Protected().Verify<ScmMethodProvider?>("VisitCreateRequestMethod", Times.Exactly(2), inputServiceMethod, ItExpr.IsAny<RestClientProvider>(), ItExpr.IsAny<ScmMethodProvider?>());
+        }
     }
 }
