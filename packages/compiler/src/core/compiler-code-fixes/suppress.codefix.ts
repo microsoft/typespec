@@ -50,6 +50,17 @@ function findSuppressNode(node: Node): Node {
     case SyntaxKind.TypeReference:
     case SyntaxKind.UnionExpression:
     case SyntaxKind.ModelExpression:
+    case SyntaxKind.ArrayExpression:
+    case SyntaxKind.TupleExpression:
+    case SyntaxKind.TypeOfExpression:
+    case SyntaxKind.CallExpression:
+    case SyntaxKind.MemberExpression:
+    case SyntaxKind.IntersectionExpression:
+    case SyntaxKind.StringTemplateExpression:
+    case SyntaxKind.StringTemplateHead:
+    case SyntaxKind.StringTemplateSpan:
+    case SyntaxKind.StringTemplateTail:
+    case SyntaxKind.StringTemplateMiddle:
       return findSuppressNode(node.parent!);
     default:
       return node;
