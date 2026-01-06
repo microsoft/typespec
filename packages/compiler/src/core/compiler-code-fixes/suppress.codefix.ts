@@ -120,6 +120,8 @@ function findSuppressNode(node: Node): Node {
     case SyntaxKind.StringTemplateSpan:
     case SyntaxKind.StringTemplateTail:
     case SyntaxKind.StringTemplateMiddle:
+    case SyntaxKind.TemplateArgument:
+    case SyntaxKind.OperationSignatureDeclaration:
       return findSuppressNode(node.parent!);
     default:
       return node;
