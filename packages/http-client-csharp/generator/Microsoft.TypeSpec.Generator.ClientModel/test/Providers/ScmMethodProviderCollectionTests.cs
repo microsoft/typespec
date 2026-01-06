@@ -1189,8 +1189,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(bool))]
         [TestCase(typeof(string))]
         [TestCase(typeof(DateTimeOffset))]
-        [TestCase(typeof(TimeSpan))]
-        [TestCase(typeof(BinaryData))]
         public void ListOfPrimitivesUsesUtf8JsonReader(Type elementType)
         {
             InputType inputElementType = elementType switch
@@ -1202,8 +1200,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
                 { } t when t == typeof(string) => InputPrimitiveType.String,
                 { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
-                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
-                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
                 _ => throw new ArgumentException("Unsupported type")
             };
 
@@ -1230,6 +1226,79 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(elementType.Name), generatedCode);
         }
 
+        [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(BinaryData))]
+        public void ListOfValueTypeUsesJsonDoc(Type elementType)
+        {
+            InputType inputElementType = elementType switch
+            {
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
+                _ => throw new ArgumentException("Unsupported type")
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetList",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Array(inputElementType))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetList", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetList");
+            Assert.IsNotNull(convenienceMethod);
+
+            var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(elementType.Name), generatedCode);
+        }
+
+        [Test]
+        public void TestDeserializeReadOnlyMemResponse()
+        {
+            var inputOperation = InputFactory.Operation(
+                "GetList",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Array(InputPrimitiveType.Int32))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetList", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [inputClient],
+                createCSharpTypeCore: input =>
+                {
+                    if (input is InputArrayType inputArrayType)
+                    {
+                        // Simulate a ReadOnlyMemory type
+                        return new CSharpType(typeof(ReadOnlyMemory<int>));
+                    }
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                },
+                createCSharpTypeCoreFallback: input => input is InputArrayType);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetList");
+            Assert.IsNotNull(convenienceMethod);
+
+            var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), generatedCode);
+        }
+
         [TestCase(typeof(int))]
         [TestCase(typeof(long))]
         [TestCase(typeof(float))]
@@ -1237,8 +1306,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(bool))]
         [TestCase(typeof(string))]
         [TestCase(typeof(DateTimeOffset))]
-        [TestCase(typeof(TimeSpan))]
-        [TestCase(typeof(BinaryData))]
         public void DictionaryOfPrimitivesUsesUtf8JsonReader(Type valueType)
         {
             InputType inputValueType = valueType switch
@@ -1249,6 +1316,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(double) => InputPrimitiveType.Float64,
                 { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
                 { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                _ => throw new ArgumentException("Unsupported type")
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetDict",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Dictionary(inputValueType))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetDict", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetDict");
+            Assert.IsNotNull(convenienceMethod);
+
+            var actualCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+            
+            Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
+        }
+
+        [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(BinaryData))]
+        public void DictionaryOfValueTypeUsesJsonDoc(Type valueType)
+        {
+            InputType inputValueType = valueType switch
+            {
                 { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
                 { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
                 { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
@@ -1274,7 +1374,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(convenienceMethod);
 
             var actualCode = convenienceMethod!.BodyStatements!.ToDisplayString();
-            
+
             Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
         }
 

@@ -620,14 +620,21 @@ describe.each(versions)("Extension with JSON-like string values v%s", (version) 
   "image_tag": "2025-05-08",
   "source": """
 def grade(sample: dict, item: dict) -> float:
-    """
+    \\"""
     Returns 1.0 if \`output_text\` equals \`label\`, otherwise 0.0.
-    """
+    \\"""
     output = sample.get("output_text")
     label = item.get("label")
     return 1.0 if output == label else 0.0
 """,
 }`,
+              examples: {
+                request: {
+                  curl: 'curl "https://api.openai.com/v1/assistants?order=desc&limit=20" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer $OPENAI_API_KEY" \\\n  -H "OpenAI-Beta: assistants=v2"\n',
+                },
+                response:
+                  '{\n  "output": [\n    {\n      "content": [\n        {\n          "text": "The file seems to relate to contoso\\u2019s annual performance."\n        }\n      ]\n    }\n  ]\n',
+              },
             },
           },
         },
@@ -640,6 +647,27 @@ def grade(sample: dict, item: dict) -> float:
       true,
       "Expected 'example' to be an escaped string literal with newlines represented as \\n, but got: " +
         tsp,
+    );
+
+    // The triple quote should NOT be escaped twice
+    strictEqual(
+      tsp.includes('\\\\"""'),
+      false,
+      "Expected triple-quoted strings to not be escaped twice, but got: " + tsp,
+    );
+
+    // Terminal backslashes are escaped once
+    strictEqual(
+      tsp.includes('-H "Content-Type: application/json" \\\\\n'),
+      true,
+      "Expected terminal backslashes to be escaped once, but got: " + tsp,
+    );
+
+    // Unicode sequences are preserved
+    strictEqual(
+      tsp.includes("\\\\u2019s"),
+      true,
+      "Expected unicode sequences to be preserved, but got: " + tsp,
     );
 
     // Should use triple-quoted strings for object literal values
@@ -655,6 +683,213 @@ def grade(sample: dict, item: dict) -> float:
       tsp.includes("example: #{"),
       false,
       "Should not parse JSON string as object literal. Got: " + tsp,
+    );
+  });
+
+  it("should convert deprecated property to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              bar: {
+                type: "string",
+                deprecated: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        model Foo {
+          #deprecated "deprecated"
+          bar?: string;
+        }
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated property with description", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              bar: {
+                type: "string",
+                description: "This field is deprecated",
+                deprecated: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        model Foo {
+          /** This field is deprecated */
+          #deprecated "deprecated"
+          bar?: string;
+        }
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated model to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            deprecated: true,
+            properties: {
+              bar: {
+                type: "string",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        #deprecated "deprecated"
+        model Foo {
+          bar?: string;
+        }
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("should convert deprecated scalar to #deprecated directive", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "string",
+            deprecated: true,
+          },
+        },
+      },
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{
+          title: "(title)",
+        })
+        @info(#{
+          version: "0.0.0",
+        })
+        namespace title;
+
+        #deprecated "deprecated"
+        scalar Foo extends string;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
     );
   });
 });
