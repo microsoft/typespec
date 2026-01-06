@@ -8,6 +8,7 @@
   - [Model Factory Methods](#model-factory-methods)
   - [Model Properties](#model-properties)
   - [API Version Enum](#api-version-enum)
+  - [Non-abstract Base Models](#non-abstract-base-models)
 
 ## Overview
 
@@ -185,3 +186,27 @@ public enum ServiceVersion
 - Previous enum members are preserved even if removed from TypeSpec
 - Enum values are re-indexed to maintain sequential ordering
 - Version format and separator are detected from current versions and applied to previous versions
+
+### Non-abstract Base Models
+
+#### Scenario: The previous version of a base model was defined as non-abstract.
+
+**Description:** This can occur if the library was generated using a different generator that supported non-abstract base models. In such cases, the generator preserves the non-abstract nature of the base model to maintain compatibility.
+
+**Example:**
+
+Previous version generated using a different generator:
+
+```csharp
+public class BaseModel
+{
+    public string CommonProperty { get; set; }
+}
+```
+Current TypeSpec would generate:
+```csharp
+public class BaseModel
+{
+    public string CommonProperty { get; set; }
+}
+```
