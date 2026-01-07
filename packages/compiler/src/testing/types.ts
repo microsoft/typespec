@@ -1,6 +1,7 @@
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, Entity, Type } from "../core/types.js";
+import { Typekit } from "../typekit/define-kit.js";
 import { PositionedMarker } from "./fourslash.js";
 import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 
@@ -52,6 +53,9 @@ export interface TestFileSystem {
 export type TestCompileResult<T extends Record<string, Entity>> = T & {
   /** The program created in this test compilation. */
   readonly program: Program;
+
+  /** The typekit for this compilation. */
+  readonly $: Typekit;
 
   /** File system */
   readonly fs: TestFileSystem;
@@ -172,7 +176,8 @@ export interface OutputTestable<Result> {
 
 /** Alternate version of the tester which runs the configured emitter */
 export interface EmitterTester<Result = TestEmitterCompileResult>
-  extends OutputTestable<Result>, TesterBuilder<EmitterTester<Result>> {
+  extends OutputTestable<Result>,
+    TesterBuilder<EmitterTester<Result>> {
   /**
    * Pipe the output of the emitter into a different structure
    *
@@ -196,6 +201,9 @@ export interface TesterInstanceBase {
   /** Program created. Only available after calling `compile`, `diagnose` or `compileAndDiagnose` */
   get program(): Program;
 
+  /** The typekit for this compilation. Only available after calling `compile`, `diagnose` or `compileAndDiagnose` */
+  get $(): Typekit;
+
   /** File system used */
   readonly fs: TestFileSystem;
 }
@@ -213,17 +221,18 @@ export interface PositionedMarkerInFile extends PositionedMarker {
 // #endregion
 
 // #region Legacy Test host
-export interface TestHost extends Pick<
-  TestFileSystem,
-  | "addTypeSpecFile"
-  | "addJsFile"
-  | "addRealTypeSpecFile"
-  | "addRealJsFile"
-  | "addRealFolder"
-  | "addTypeSpecLibrary"
-  | "compilerHost"
-  | "fs"
-> {
+export interface TestHost
+  extends Pick<
+    TestFileSystem,
+    | "addTypeSpecFile"
+    | "addJsFile"
+    | "addRealTypeSpecFile"
+    | "addRealJsFile"
+    | "addRealFolder"
+    | "addTypeSpecLibrary"
+    | "compilerHost"
+    | "fs"
+  > {
   program: Program;
   libraries: TypeSpecTestLibrary[];
   testTypes: Record<string, Type>;
