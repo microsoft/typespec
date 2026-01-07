@@ -87,10 +87,7 @@ describe("Record map to IDictionary", () => {
         <TypeExpression type={test.type} />
       </Wrapper>,
     ).toRenderTo(`
-      class Pet
-      {
-      
-      }
+      class Pet {}
       IDictionary<string, Pet>
     `);
   });

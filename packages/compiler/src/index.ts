@@ -244,7 +244,10 @@ export const $decorators = {
 
 export { applyCodeFix, applyCodeFixes } from "./core/code-fixes.js";
 export { createAddDecoratorCodeFix } from "./core/compiler-code-fixes/create-add-decorator/create-add-decorator.codefix.js";
-export { createSuppressCodeFix } from "./core/compiler-code-fixes/suppress.codefix.js";
+export {
+  createSuppressCodeFix,
+  createSuppressCodeFixes,
+} from "./core/compiler-code-fixes/suppress.codefix.js";
 export {
   ensureTrailingDirectorySeparator,
   getAnyExtensionFromPath,
@@ -322,6 +325,7 @@ export type {
   DecoratorContext,
   DecoratorFunction,
   DecoratorImplementations,
+  DecoratorValidatorCallbacks,
   DeprecatedDirective,
   Diagnostic,
   DiagnosticCreator,

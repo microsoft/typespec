@@ -108,6 +108,7 @@ import { fail } from "assert";
 import pkg from "lodash";
 import {
   Client as CodeModelClient,
+  EncodedProperty,
   EncodedSchema,
   PageableContinuationToken,
   Serializable,
@@ -746,7 +747,7 @@ export class CodeModelBuilder {
         );
         const parentAccessorPublic = Boolean(
           subClient.clientInitialization.initializedBy & InitializedByFlags.Parent ||
-            subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
+          subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
         );
         codeModelClient.addSubClient(codeModelSubclient, buildMethodPublic, parentAccessorPublic);
       }
@@ -1064,9 +1065,9 @@ export class CodeModelBuilder {
     if (responses.length === 0) {
       return;
     }
-    const response = responses[0];
-    const bodyType = response.type;
-    if (!bodyType || bodyType.kind !== "model") {
+    if (!responses.some((r) => r.type && r.type.kind === "model")) {
+      // abort, if none of the responses contains model type
+      // this operation is not valid for pageable (which should return a JSON object), and hence will be generated without pageable
       return;
     }
 
@@ -2865,6 +2866,18 @@ export class CodeModelBuilder {
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    if (modelProperty.encode) {
+      if (schema instanceof ArraySchema) {
+        const elementSchema = schema.elementType;
+        if (!(elementSchema instanceof StringSchema)) {
+          reportDiagnostic(this.program, {
+            code: "non-string-array-encoding-element-notsupported",
+            target: modelProperty.__raw ?? NoTarget,
+          });
+        }
+      }
+      (codeModelProperty as EncodedProperty).arrayEncoding = modelProperty.encode;
+    }
 
     // xml
     if (modelProperty.serializationOptions.xml) {

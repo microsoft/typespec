@@ -817,13 +817,20 @@ class Serializer:  # pylint: disable=too-many-public-methods
         :param str data_type: Type of object in the iterable.
         :rtype: str, int, float, bool
         :return: serialized object
+        :raises TypeError: raise if data_type is not one of str, int, float, bool.
         """
         custom_serializer = cls._get_custom_serializers(data_type, **kwargs)
         if custom_serializer:
             return custom_serializer(data)
         if data_type == "str":
             return cls.serialize_unicode(data)
-        return eval(data_type)(data)  # nosec # pylint: disable=eval-used
+        if data_type == "int":
+            return int(data)
+        if data_type == "float":
+            return float(data)
+        if data_type == "bool":
+            return bool(data)
+        raise TypeError("Unknown basic data type: {}".format(data_type))
 
     @classmethod
     def serialize_unicode(cls, data):
@@ -1753,7 +1760,7 @@ class Deserializer:
         :param str data_type: deserialization data type.
         :return: Deserialized basic type.
         :rtype: str, int, float or bool
-        :raises TypeError: if string format is not valid.
+        :raises TypeError: if string format is not valid or data_type is not one of str, int, float, bool.
         """
         # If we're here, data is supposed to be a basic type.
         # If it's still an XML node, take the text
@@ -1779,7 +1786,11 @@ class Deserializer:
 
         if data_type == "str":
             return self.deserialize_unicode(attr)
-        return eval(data_type)(attr)  # nosec # pylint: disable=eval-used
+        if data_type == "int":
+            return int(attr)
+        if data_type == "float":
+            return float(attr)
+        raise TypeError("Unknown basic data type: {}".format(data_type))
 
     @staticmethod
     def deserialize_unicode(data):

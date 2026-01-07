@@ -81,19 +81,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var operation = serviceMethod.Operation;
                 var method = BuildCreateRequestMethod(serviceMethod);
-                methods.Add(method);
-                MethodCache[operation] = method;
+                method = VisitCreateRequestMethod(method, serviceMethod);
+
+                if (method != null)
+                {
+                    methods.Add(method);
+                    MethodCache[operation] = method;
+                }
 
                 // For paging operations with next link, also generate a CreateNextXXXRequest method
                 if (serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null })
                 {
                     var nextMethod = BuildCreateRequestMethod(serviceMethod, isNextLinkRequest: true);
-                    methods.Add(nextMethod);
-                    NextMethodCache[operation] = nextMethod;
+                    nextMethod = VisitCreateRequestMethod(nextMethod, serviceMethod);
+
+                    if (nextMethod != null)
+                    {
+                        methods.Add(nextMethod);
+                        NextMethodCache[operation] = nextMethod;
+                    }
                 }
             }
 
             return [.. methods];
+        }
+
+        private ScmMethodProvider? VisitCreateRequestMethod(ScmMethodProvider method, InputServiceMethod serviceMethod)
+        {
+            ScmMethodProvider? result = method;
+            foreach (var visitor in ScmCodeModelGenerator.Instance.Visitors)
+            {
+                if (visitor is ScmLibraryVisitor scmVisitor)
+                {
+                    result = scmVisitor.VisitCreateRequestMethod(serviceMethod, this, result);
+                }
+            }
+
+            return method;
         }
 
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
@@ -545,9 +569,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             Dictionary<string, InputParameter> inputParamMap = new(operation.Parameters.ToDictionary(p => p.SerializedName));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
+
+            // Only process operation.Uri segments that come AFTER the endpoint parameter
             int uriOffset = GetUriOffset(operation.Uri);
-            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamMap, paramMap, operation);
-            AddUriSegments(operation.Path, 0, uri, statements, inputParamMap, paramMap, operation);
+            if (uriOffset < operation.Uri.Length)
+            {
+                AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamMap, paramMap, operation);
+            }
+
+            // Process operation.Path if it exists and is different from operation.Uri
+            if (!string.IsNullOrEmpty(operation.Path) && operation.Path != operation.Uri)
+            {
+                AddUriSegments(operation.Path, 0, uri, statements, inputParamMap, paramMap, operation);
+            }
+
             return statements;
         }
 

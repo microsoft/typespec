@@ -21,23 +21,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? new ApiVersionEnumProvider(input, declaringType)
                 : new FixedEnumProvider(input, declaringType);
             var extensibleEnumProvider = new ExtensibleEnumProvider(input, declaringType);
+            fixedEnumProvider.ExtensibleEnumView = extensibleEnumProvider;
+            extensibleEnumProvider.FixedEnumView = fixedEnumProvider;
 
-            // Check to see if there is custom code that customizes the enum.
-            var customCodeView = fixedEnumProvider.CustomCodeView ?? extensibleEnumProvider.CustomCodeView;
-
-            EnumProvider provider = customCodeView switch
-            {
-                { Type: { IsValueType: true, IsStruct: true } } => extensibleEnumProvider,
-                { Type: { IsValueType: true, IsStruct: false } } => fixedEnumProvider,
-                _ => input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider
-            };
-
-            if (input.Access == "public")
-            {
-                CodeModelGenerator.Instance.AddTypeToKeep(provider);
-            }
-
-            return provider;
+            return input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider;
         }
 
         protected EnumProvider(InputEnumType? input)
@@ -46,6 +33,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _deprecated = input?.Deprecation;
             IsExtensible = input?.IsExtensible ?? false;
         }
+
+        internal EnumProvider? FixedEnumView { get; set; }
+        internal EnumProvider? ExtensibleEnumView { get; set; }
 
         public bool IsExtensible { get; }
         private bool? _isIntValue;

@@ -1,5 +1,25 @@
 # Change Log - @typespec/http-client-python
 
+## 0.23.1
+
+### Bug Fixes
+
+- [#9219](https://github.com/microsoft/typespec/pull/9219) fix client default value for special headers
+- [#9222](https://github.com/microsoft/typespec/pull/9222) Persist mutations to mutable properties when accessed via attribute syntax
+- [#9206](https://github.com/microsoft/typespec/pull/9206) Remove `# nosec` comments from Python SDK to avoid security confusion
+
+
+## 0.23.0
+
+### Features
+
+- [#9146](https://github.com/microsoft/typespec/pull/9146) Support encode for array of string in serialization and deserialization
+
+### Bug Fixes
+
+- [#8927](https://github.com/microsoft/typespec/pull/8927) Fix bad indent
+
+
 ## 0.22.0
 
 ### Features

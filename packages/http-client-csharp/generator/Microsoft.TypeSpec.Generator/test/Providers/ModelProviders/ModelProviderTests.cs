@@ -1089,6 +1089,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_NonAbstractTypeIsRespected()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+        }
+
+        [Test]
         public void PublicModelsAreIncludedInAdditionalRootTypes()
         {
             var inputModel = InputFactory.Model(
@@ -1303,7 +1335,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void TestMultiLayerDiscriminator_IntermediateWithoutDiscriminator()
         {
             // Test hierarchy: Pet (base, no discriminator) → Cat (intermediate, no discriminator) → Tiger (leaf, discriminator: "tiger")
-            
+
             InputModelType tigerModel = InputFactory.Model(
                 "tiger",
                 discriminatedKind: "tiger",
@@ -1312,7 +1344,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                     InputFactory.Property("stripes", InputPrimitiveType.Int32, isRequired: true)
                 ]);
-                
+
             InputModelType catModel = InputFactory.Model(
                 "cat",
                 properties:
@@ -1321,7 +1353,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "tiger", tigerModel } });
-                
+
             var baseModel = InputFactory.Model(
                 "pet",
                 properties:
@@ -1332,15 +1364,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
 
             MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, catModel, tigerModel]);
-            
+
             var tigerProvider = new ModelProvider(tigerModel);
-            
+
             Assert.AreEqual(2, tigerProvider.Constructors.Count);
-            
+
             var publicConstructor = tigerProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.IsNotNull(publicConstructor);
             Assert.AreEqual(MethodSignatureModifiers.Public, publicConstructor!.Signature.Modifiers);
-            
+
             // Tiger's public constructor should have parameters: name (from Pet), meows (from Cat), stripes (from Tiger)
             var publicParams = publicConstructor.Signature.Parameters;
             Assert.AreEqual(3, publicParams.Count);
@@ -1350,45 +1382,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(typeof(bool), publicParams[1].Type.FrameworkType);
             Assert.AreEqual("stripes", publicParams[2].Name);
             Assert.AreEqual(typeof(int), publicParams[2].Type.FrameworkType);
-            
+
             // Tiger should call base constructor with only base parameters (no discriminator from Cat since Cat doesn't have one)
             var initializer = publicConstructor.Signature.Initializer;
             Assert.IsNotNull(initializer);
             Assert.IsTrue(initializer!.IsBase);
-            
+
             // Should have name and meows parameters from base chain (no discriminator since Cat has no discriminatedKind)
             Assert.AreEqual(2, initializer.Arguments.Count);
             Assert.AreEqual("name", initializer.Arguments[0].ToDisplayString());
             Assert.AreEqual("meows", initializer.Arguments[1].ToDisplayString());
-            
+
             // Verify internal (serialization) constructor signature and parameters
             var internalConstructor = tigerProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.IsNotNull(internalConstructor);
             Assert.AreEqual(MethodSignatureModifiers.Internal, internalConstructor!.Signature.Modifiers);
-            
+
             // Internal constructor should have all parameters including serialization params
             var internalParams = internalConstructor.Signature.Parameters;
             Assert.IsTrue(internalParams.Count >= 4);
-            
+
             var internalInitializer = internalConstructor.Signature.Initializer;
             Assert.IsNotNull(internalInitializer);
             Assert.IsTrue(internalInitializer!.IsBase);
         }
 
-        [Test] 
+        [Test]
         public void TestMultiLayerDiscriminator_IntermediateWithDiscriminator()
         {
-            // Test hierarchy: Pet (base, no discriminator) → Cat (intermediate, discriminator: "cat") → DomesticCat (leaf, discriminator: "domestic")  
-            
+            // Test hierarchy: Pet (base, no discriminator) → Cat (intermediate, discriminator: "cat") → DomesticCat (leaf, discriminator: "domestic")
+
             InputModelType domesticCatModel = InputFactory.Model(
                 "domesticCat",
-                discriminatedKind: "domestic", 
+                discriminatedKind: "domestic",
                 properties:
                 [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                     InputFactory.Property("breed", InputPrimitiveType.String, isRequired: true)
                 ]);
-                
+
             InputModelType catModel = InputFactory.Model(
                 "cat",
                 discriminatedKind: "cat",
@@ -1398,9 +1430,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "domestic", domesticCatModel } });
-                
+
             var baseModel = InputFactory.Model(
-                "pet",  
+                "pet",
                 properties:
                 [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
@@ -1409,16 +1441,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
 
             MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, catModel, domesticCatModel]);
-            
+
             var domesticCatProvider = new ModelProvider(domesticCatModel);
             var catProvider = new ModelProvider(catModel);
-            
+
             Assert.AreEqual(2, domesticCatProvider.Constructors.Count);
-            
+
             var publicConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.IsNotNull(publicConstructor);
             Assert.AreEqual(MethodSignatureModifiers.Public, publicConstructor!.Signature.Modifiers);
-            
+
             // DomesticCat's public constructor should have parameters: name (from Pet), meows (from Cat), breed (from DomesticCat)
             var publicParams = publicConstructor.Signature.Parameters;
             Assert.AreEqual(3, publicParams.Count);
@@ -1428,25 +1460,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(typeof(bool), publicParams[1].Type.FrameworkType);
             Assert.AreEqual("breed", publicParams[2].Name);
             Assert.AreEqual(typeof(string), publicParams[2].Type.FrameworkType);
-            
+
             // DomesticCat should call Cat's dual constructor with discriminator value since Cat has discriminatedKind
             var initializer = publicConstructor.Signature.Initializer;
             Assert.IsNotNull(initializer);
             Assert.IsTrue(initializer!.IsBase);
-            
+
             // Should have discriminator + parameters from Cat's dual constructor pattern
             Assert.AreEqual(3, initializer.Arguments.Count); // discriminator "domestic" + name + meows
             Assert.AreEqual("\"domestic\"", initializer.Arguments[0].ToDisplayString());
             Assert.AreEqual("name", initializer.Arguments[1].ToDisplayString());
             Assert.AreEqual("meows", initializer.Arguments[2].ToDisplayString());
-            
+
             // Verify Cat also has dual constructor pattern (public and protected)
             Assert.AreEqual(3, catProvider.Constructors.Count);
-            
+
             var internalConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.IsNotNull(internalConstructor);
             Assert.AreEqual(MethodSignatureModifiers.Internal, internalConstructor!.Signature.Modifiers);
-            
+
             var internalInitializer = internalConstructor.Signature.Initializer;
             Assert.IsNotNull(internalInitializer);
             Assert.IsTrue(internalInitializer!.IsBase);
@@ -1456,7 +1488,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void TestMultiLayerDiscriminator_ThreeLayers()
         {
             // Test hierarchy: Animal (base) → Pet (discriminator: "pet") → Cat (discriminator: "cat") → DomesticCat (discriminator: "domestic")
-            
+
             InputModelType domesticCatModel = InputFactory.Model(
                 "domesticCat",
                 discriminatedKind: "domestic",
@@ -1465,7 +1497,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                     InputFactory.Property("breed", InputPrimitiveType.String, isRequired: true)
                 ]);
-                
+
             InputModelType catModel = InputFactory.Model(
                 "cat",
                 discriminatedKind: "cat",
@@ -1475,7 +1507,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "domestic", domesticCatModel } });
-                
+
             InputModelType petModel = InputFactory.Model(
                 "pet",
                 discriminatedKind: "pet",
@@ -1485,7 +1517,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
-                
+
             var animalModel = InputFactory.Model(
                 "animal",
                 properties:
@@ -1496,26 +1528,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "pet", petModel } });
 
             MockHelpers.LoadMockGenerator(inputModelTypes: [animalModel, petModel, catModel, domesticCatModel]);
-            
+
             var domesticCatProvider = new ModelProvider(domesticCatModel);
             var catProvider = new ModelProvider(catModel);
             var petProvider = new ModelProvider(petModel);
             var animalProvider = new ModelProvider(animalModel);
-            
+
             Assert.IsNotNull(domesticCatProvider.BaseModelProvider);
-            Assert.IsNotNull(domesticCatProvider.BaseModelProvider!.BaseModelProvider);  
+            Assert.IsNotNull(domesticCatProvider.BaseModelProvider!.BaseModelProvider);
             Assert.IsNotNull(domesticCatProvider.BaseModelProvider!.BaseModelProvider!.BaseModelProvider);
-            
+
             Assert.AreEqual(2, domesticCatProvider.Constructors.Count); // public, internal (leaf type)
             Assert.AreEqual(3, catProvider.Constructors.Count); // public, protected with discriminator, internal
             Assert.AreEqual(3, petProvider.Constructors.Count); // public, protected with discriminator, internal
             Assert.AreEqual(2, animalProvider.Constructors.Count); // public, internal (base type)
-            
+
             // Verify DomesticCat's public constructor parameters: species (from Animal), name (from Pet), meows (from Cat), breed (from DomesticCat)
             var publicConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.IsNotNull(publicConstructor);
             Assert.AreEqual(MethodSignatureModifiers.Public, publicConstructor!.Signature.Modifiers);
-            
+
             var publicParams = publicConstructor.Signature.Parameters;
             Assert.AreEqual(4, publicParams.Count);
             Assert.AreEqual("species", publicParams[0].Name);
@@ -1526,22 +1558,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(typeof(bool), publicParams[2].Type.FrameworkType);
             Assert.AreEqual("breed", publicParams[3].Name);
             Assert.AreEqual(typeof(string), publicParams[3].Type.FrameworkType);
-            
+
             var initializer = publicConstructor.Signature.Initializer;
             Assert.IsNotNull(initializer);
             Assert.IsTrue(initializer!.IsBase);
-            
+
             Assert.AreEqual(4, initializer.Arguments.Count); // discriminator "domestic" + species + name + meows
             Assert.AreEqual("\"domestic\"", initializer.Arguments[0].ToDisplayString());
             Assert.AreEqual("species", initializer.Arguments[1].ToDisplayString());
             Assert.AreEqual("name", initializer.Arguments[2].ToDisplayString());
             Assert.AreEqual("meows", initializer.Arguments[3].ToDisplayString());
-            
+
             // Verify Cat's protected constructor exists and has correct signature
             var catProtectedConstructor = catProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
             Assert.IsNotNull(catProtectedConstructor);
             Assert.IsTrue(catProtectedConstructor!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
-            
+
             // Cat's protected constructor should have: discriminator + species + name + meows
             var catProtectedParams = catProtectedConstructor.Signature.Parameters;
             Assert.AreEqual(4, catProtectedParams.Count);
@@ -1558,21 +1590,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // Create a three-level discriminator hierarchy: base → intermediate → derived
             var derivedInputModel = InputFactory.Model(
                 "derived",
-                discriminatedKind: "derived", 
+                discriminatedKind: "derived",
                 properties: [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                     InputFactory.Property("derivedProperty", InputPrimitiveType.String, isRequired: true)
                 ]);
-                
+
             var intermediateInputModel = InputFactory.Model(
                 "intermediate",
                 discriminatedKind: "intermediate",
                 properties: [
-                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true), 
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                     InputFactory.Property("intermediateProperty", InputPrimitiveType.Boolean, isRequired: true)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "derived", derivedInputModel } });
-                
+
             var baseInputModel = InputFactory.Model(
                 "base",
                 properties: [
@@ -1591,31 +1623,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // Verify intermediate model has expected constructor count
             Assert.AreEqual(3, intermediateProvider.Constructors.Count);
-            
+
             // Get the protected constructor for intermediate model
-            var intermediateProtectedCtor = intermediateProvider.Constructors.FirstOrDefault(c => 
-                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) && 
+            var intermediateProtectedCtor = intermediateProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) &&
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
-            
+
             Assert.IsNotNull(intermediateProtectedCtor, "Intermediate model should have a protected constructor for multi-level discriminator");
-            
+
             // Verify the base constructor call uses the discriminator parameter, not hardcoded literal
             var initializer = intermediateProtectedCtor!.Signature.Initializer;
             Assert.IsNotNull(initializer, "Protected constructor should have base initializer");
             Assert.IsTrue(initializer!.IsBase, "Initializer should call base constructor");
-            
+
             // Key validation: first argument should be the discriminator parameter, not hardcoded value
             var kindArgument = initializer!.Arguments[0].ToDisplayString();
             Assert.AreEqual("kind", kindArgument, "Intermediate protected constructor should pass discriminator parameter to base, not hardcode literal");
-            
+
             // Verify derived model constructor passes discriminator correctly to intermediate
             var derivedCtor = derivedProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.IsNotNull(derivedCtor, "Derived model should have a public constructor");
-            
-            var derivedInitializer = derivedCtor!.Signature.Initializer; 
+
+            var derivedInitializer = derivedCtor!.Signature.Initializer;
             Assert.IsNotNull(derivedInitializer, "Derived constructor should have base initializer");
             Assert.IsTrue(derivedInitializer!.IsBase, "Derived initializer should call base constructor");
-            
+
             // Derived should pass its discriminator value to intermediate constructor
             var derivedKindArgument = derivedInitializer!.Arguments[0].ToDisplayString();
             Assert.AreEqual("\"derived\"", derivedKindArgument, "Derived should pass its discriminator value to intermediate constructor");

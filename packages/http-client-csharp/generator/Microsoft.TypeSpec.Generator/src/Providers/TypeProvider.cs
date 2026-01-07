@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -187,7 +189,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Name}");
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                   DiagnosticCodes.InvalidAccessModifier,
+                   $"Invalid modifiers {modifiers} detected.",
+                   severity: EmitterDiagnosticSeverity.Warning);
             }
 
             // we always add partial when possible
@@ -295,7 +300,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..properties];
+            return [.. properties];
         }
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
@@ -334,7 +339,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..methods];
+            return [.. methods];
         }
 
         internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
@@ -348,7 +353,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..constructors];
+            return [.. constructors];
         }
 
         private TypeProvider[] BuildNestedTypesInternal()
@@ -549,6 +554,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
+        internal void ProcessTypeForBackCompatibility()
+        {
+            if (LastContractView?.Methods == null || LastContractView?.Methods.Count == 0)
+            {
+                return;
+            }
+
+            Update(methods: BuildMethodsForBackCompatibility(Methods));
+        }
+
+        protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
         private bool ShouldGenerate(ConstructorProvider constructor)
@@ -661,7 +679,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             else if (attribute.ConstructorArguments[1].Kind != TypedConstantKind.Array)
             {
-                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?) a.Value).ToArray();
+                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?)a.Value).ToArray();
             }
             else
             {

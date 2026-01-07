@@ -285,6 +285,9 @@ class DpgModelSerializer(_ModelSerializer):
                 file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Mapping", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
+        # if there is a property named `list` we have to make sure there's no conflict with the built-in `list`
+        if self.code_model.has_property_named_list:
+            file_import.define_mypy_type("List", "list")
         return file_import
 
     def declare_model(self, model: ModelType) -> str:
@@ -329,6 +332,8 @@ class DpgModelSerializer(_ModelSerializer):
             args.append("is_multipart_file_input=True")
         elif hasattr(prop.type, "encode") and prop.type.encode:  # type: ignore
             args.append(f'format="{prop.type.encode}"')  # type: ignore
+        elif prop.encode:
+            args.append(f'format="{prop.encode}"')
 
         if prop.xml_metadata:
             args.append(f"xml={prop.xml_metadata}")

@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
+from ast import Mod
 import copy
 import decimal
 import json
@@ -329,6 +330,72 @@ def test_property_is_a_type():
     assert isinstance(fishery.fish, Fish)
     assert fishery.fish.name == fishery.fish["name"] == fishery["fish"]["name"] == "Benjamin"
     assert fishery.fish.species == fishery.fish["species"] == fishery["fish"]["species"] == "Salmon"
+
+
+def test_model_initialization():
+    class DatetimeModel(Model):
+        datetime_value: datetime.datetime = rest_field(name="datetimeValue")
+
+        @overload
+        def __init__(self, *, datetime_value: datetime.datetime): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    val_str = "9999-12-31T23:59:59.999000Z"
+    val = isodate.parse_datetime(val_str)
+
+    # when initialize model with dict, the dict value is shall be serialized value
+    model1 = DatetimeModel({"datetimeValue": val_str})
+    assert model1["datetimeValue"] == val_str
+    assert model1.datetime_value == val
+
+    # when initialize model with keyword args, the value is deserialized value
+    model2 = DatetimeModel(datetime_value=val)
+    assert model2["datetimeValue"] == val_str
+    assert model2.datetime_value == val
+
+    # what if we initialize with dict but the dict has deserialized value? this case show what happens.
+    # Since we always serialize the value before initializing the model from dict, we could still get correct result
+    model3 = DatetimeModel({"datetimeValue": val})
+    assert model3["datetimeValue"] == val_str
+    assert model3.datetime_value == val
+
+
+def test_model_dict_prop_initialization():
+    class DatetimeModel(Model):
+        dict_prop: dict[str, datetime.datetime] = rest_field(name="dictProp")
+
+        @overload
+        def __init__(self, *, dict_prop: dict[str, datetime.datetime]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    val_str = "9999-12-31T23:59:59.999000Z"
+    val = isodate.parse_datetime(val_str)
+
+    # when initialize model with dict, the dict value is shall be serialized value
+    model1 = DatetimeModel({"dictProp": {"key1": val_str}})
+    assert model1["dictProp"] == {"key1": val_str}
+    assert model1.dict_prop == {"key1": val}
+
+    # when initialize model with keyword args, the value is deserialized value
+    model2 = DatetimeModel(dict_prop={"key1": val})
+    assert model2["dictProp"] == {"key1": val_str}
+    assert model2.dict_prop == {"key1": val}
+
+    # what if we initialize with dict but the dict has deserialized value? this case show what happens.
+    # Since we always serialize the value before initializing the model from dict, we could still get correct result
+    model3 = DatetimeModel({"dictProp": {"key1": val}})
+    assert model3["dictProp"] == {"key1": val_str}
+    assert model3.dict_prop == {"key1": val}
 
 
 def test_datetime_deserialization():
@@ -928,9 +995,7 @@ def test_deserialization_callback_override():
 
     model_with_callback = MyModel2(prop=[1.3, 2.4, 3.5])
     assert model_with_callback.prop == ["1.3", "2.4", "3.5"]
-    # since the deserialize function is not roundtrip-able, once we deserialize
-    # the serialized version is the same
-    assert model_with_callback["prop"] == [1.3, 2.4, 3.5]
+    assert model_with_callback["prop"] == ["1.3", "2.4", "3.5"]
 
 
 def test_deserialization_callback_override_parent():
@@ -966,7 +1031,7 @@ def test_deserialization_callback_override_parent():
 
     child_model = ChildWithCallback(prop=[1, 1, 2, 3])
     assert child_model.prop == set(["1", "1", "2", "3"])
-    assert child_model["prop"] == [1, 1, 2, 3]
+    assert child_model["prop"] == set(["1", "1", "2", "3"])
 
 
 def test_inheritance_basic():
@@ -3267,7 +3332,7 @@ def test_complex_array_wrapper(model: ArrayWrapper):
 
     model["array"] = [1, 2, 3, 4, 5]
     assert model.array == ["1", "2", "3", "4", "5"]
-    assert model["array"] == [1, 2, 3, 4, 5]
+    assert model["array"] == ["1", "2", "3", "4", "5"]
 
 
 @pytest.mark.parametrize("model", [ArrayWrapper(array=[]), ArrayWrapper({"array": []})])
@@ -4108,3 +4173,520 @@ def test_multi_layer_discriminator():
 
     assert AnotherPet(name="Buddy", trained=True) == model_pet
     assert AnotherDog(name="Rex", trained=True, breed="German Shepherd") == model_dog
+
+
+def test_array_encode_comma_delimited():
+    """Test commaDelimited format for array of strings"""
+
+    class CommaDelimitedModel(Model):
+        colors: list[str] = rest_field(format="commaDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> comma-delimited string
+    model = CommaDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue,red,green"
+
+    # Test deserialization: comma-delimited string -> list[str]
+    model = CommaDelimitedModel({"colors": "blue,red,green"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue,red,green"
+
+    # Test with empty list
+    model = CommaDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+    # Test with single item
+    model = CommaDelimitedModel(colors=["blue"])
+    assert model.colors == ["blue"]
+    assert model["colors"] == "blue"
+
+
+def test_array_encode_pipe_delimited():
+    """Test pipeDelimited format for array of strings"""
+
+    class PipeDelimitedModel(Model):
+        colors: list[str] = rest_field(format="pipeDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> pipe-delimited string
+    model = PipeDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue|red|green"
+
+    # Test deserialization: pipe-delimited string -> list[str]
+    model = PipeDelimitedModel({"colors": "blue|red|green"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue|red|green"
+
+    # Test with empty list
+    model = PipeDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+
+def test_array_encode_space_delimited():
+    """Test spaceDelimited format for array of strings"""
+
+    class SpaceDelimitedModel(Model):
+        colors: list[str] = rest_field(format="spaceDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> space-delimited string
+    model = SpaceDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue red green"
+
+    # Test deserialization: space-delimited string -> list[str]
+    model = SpaceDelimitedModel({"colors": "blue red green"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue red green"
+
+    # Test with empty list
+    model = SpaceDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+
+def test_array_encode_newline_delimited():
+    """Test newlineDelimited format for array of strings"""
+
+    class NewlineDelimitedModel(Model):
+        colors: list[str] = rest_field(format="newlineDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> newline-delimited string
+    model = NewlineDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue\nred\ngreen"
+
+    # Test deserialization: newline-delimited string -> list[str]
+    model = NewlineDelimitedModel({"colors": "blue\nred\ngreen"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue\nred\ngreen"
+
+    # Test with empty list
+    model = NewlineDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+
+def test_array_encode_optional():
+    """Test array encoding with optional fields"""
+
+    class OptionalEncodedModel(Model):
+        colors: Optional[list[str]] = rest_field(default=None, format="commaDelimited")
+
+        @overload
+        def __init__(self, *, colors: Optional[list[str]] = None): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test with None
+    model = OptionalEncodedModel(colors=None)
+    assert model.colors is None
+    assert model["colors"] is None
+
+    # Test with value
+    model = OptionalEncodedModel(colors=["blue", "red"])
+    assert model.colors == ["blue", "red"]
+    assert model["colors"] == "blue,red"
+
+    # Test deserialization with None
+    model = OptionalEncodedModel({"colors": None})
+    assert model.colors is None
+
+
+def test_array_encode_modification():
+    """Test modifying array-encoded fields"""
+
+    class ModifiableModel(Model):
+        colors: list[str] = rest_field(format="commaDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    model = ModifiableModel(colors=["blue", "red"])
+    assert model.colors == ["blue", "red"]
+    assert model["colors"] == "blue,red"
+
+    # Modify through property
+    model.colors = ["green", "yellow", "purple"]
+    assert model.colors == ["green", "yellow", "purple"]
+    assert model["colors"] == "green,yellow,purple"
+
+    # Modify through dict access
+    model["colors"] = "orange,pink"
+    assert model.colors == ["orange", "pink"]
+    assert model["colors"] == "orange,pink"
+
+
+def test_array_encode_json_roundtrip():
+    """Test JSON serialization and deserialization with array encoding"""
+
+    class JsonModel(Model):
+        pipe_colors: list[str] = rest_field(name="pipeColors", format="pipeDelimited")
+        comma_colors: list[str] = rest_field(name="commaColors", format="commaDelimited")
+
+        @overload
+        def __init__(
+            self,
+            *,
+            pipe_colors: list[str],
+            comma_colors: list[str],
+        ): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    model = JsonModel(
+        pipe_colors=["blue", "red", "green"],
+        comma_colors=["small", "medium", "large"],
+    )
+
+    # Serialize to JSON
+    json_str = json.dumps(dict(model), cls=SdkJSONEncoder)
+    assert json.loads(json_str) == {
+        "pipeColors": "blue|red|green",
+        "commaColors": "small,medium,large",
+    }
+
+    # Deserialize from JSON
+    deserialized = JsonModel(json.loads(json_str))
+    assert deserialized.pipe_colors == ["blue", "red", "green"]
+    assert deserialized.comma_colors == ["small", "medium", "large"]
+
+
+def test_array_encode_with_special_characters():
+    """Test array encoding with strings containing special characters"""
+
+    class SpecialCharsModel(Model):
+        comma_values: list[str] = rest_field(name="commaValues", format="commaDelimited")
+        pipe_values: list[str] = rest_field(name="pipeValues", format="pipeDelimited")
+
+        @overload
+        def __init__(
+            self,
+            *,
+            comma_values: list[str],
+            pipe_values: list[str],
+        ): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test with strings that might contain delimiters
+    # Note: In real usage, the strings should not contain the delimiter character
+    # This test documents current behavior
+    model = SpecialCharsModel(
+        comma_values=["value with spaces", "another-value", "value_3"],
+        pipe_values=["path/to/file", "another-path", "final.path"],
+    )
+
+    assert model.comma_values == ["value with spaces", "another-value", "value_3"]
+    assert model["commaValues"] == "value with spaces,another-value,value_3"
+
+    assert model.pipe_values == ["path/to/file", "another-path", "final.path"]
+    assert model["pipeValues"] == "path/to/file|another-path|final.path"
+
+
+def test_dictionary_set():
+    """Test that dictionary mutations via attribute syntax persist and sync to dictionary syntax."""
+
+    class MyModel(Model):
+        my_dict: dict[str, int] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Basic mutation via attribute syntax
+    m = MyModel(my_dict={"a": 1, "b": 2})
+    assert m.my_dict == {"a": 1, "b": 2}
+
+    # Test 2: Add new key via attribute syntax and verify it persists
+    m.my_dict["c"] = 3
+    assert m.my_dict["c"] == 3
+    assert m.my_dict == {"a": 1, "b": 2, "c": 3}
+
+    # Test 3: Verify mutation is reflected in dictionary syntax
+    assert m["my_dict"] == {"a": 1, "b": 2, "c": 3}
+
+    # Test 4: Modify existing key via attribute syntax
+    m.my_dict["a"] = 100
+    assert m.my_dict["a"] == 100
+    assert m["my_dict"]["a"] == 100
+
+    # Test 5: Delete key via attribute syntax
+    del m.my_dict["b"]
+    assert "b" not in m.my_dict
+    assert "b" not in m["my_dict"]
+
+    # Test 6: Update via dict methods
+    m.my_dict.update({"d": 4, "e": 5})
+    assert m.my_dict["d"] == 4
+    assert m.my_dict["e"] == 5
+    assert m["my_dict"]["d"] == 4
+
+    # Test 7: Clear via attribute syntax and verify via dictionary syntax
+    m.my_dict.clear()
+    assert len(m.my_dict) == 0
+    assert len(m["my_dict"]) == 0
+
+    # Test 8: Reassign entire dictionary via attribute syntax
+    m.my_dict = {"x": 10, "y": 20}
+    assert m.my_dict == {"x": 10, "y": 20}
+    assert m["my_dict"] == {"x": 10, "y": 20}
+
+    # Test 9: Mutation after reassignment
+    m.my_dict["z"] = 30
+    assert m.my_dict["z"] == 30
+    assert m["my_dict"]["z"] == 30
+
+    # Test 10: Access via dictionary syntax first, then mutate via attribute syntax
+    m.my_dict["w"] = 40
+    assert m["my_dict"]["w"] == 40
+
+    # Test 11: Multiple accesses maintain same cached object
+    dict_ref1 = m.my_dict
+    dict_ref2 = m.my_dict
+    assert dict_ref1 is dict_ref2
+    dict_ref1["new_key"] = 999
+    assert dict_ref2["new_key"] == 999
+    assert m.my_dict["new_key"] == 999
+
+
+def test_list_set():
+    """Test that list mutations via attribute syntax persist and sync to dictionary syntax."""
+
+    class MyModel(Model):
+        my_list: list[int] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Basic mutation via attribute syntax
+    m = MyModel(my_list=[1, 2, 3])
+    assert m.my_list == [1, 2, 3]
+
+    # Test 2: Append via attribute syntax and verify it persists
+    m.my_list.append(4)
+    assert m.my_list == [1, 2, 3, 4]
+
+    # Test 3: Verify mutation is reflected in dictionary syntax
+    assert m["my_list"] == [1, 2, 3, 4]
+
+    # Test 4: Modify existing element via attribute syntax
+    m.my_list[0] = 100
+    assert m.my_list[0] == 100
+    assert m["my_list"][0] == 100
+
+    # Test 5: Extend list via attribute syntax
+    m.my_list.extend([5, 6])
+    assert m.my_list == [100, 2, 3, 4, 5, 6]
+    assert m["my_list"] == [100, 2, 3, 4, 5, 6]
+
+    # Test 6: Remove element via attribute syntax
+    m.my_list.remove(2)
+    assert 2 not in m.my_list
+    assert 2 not in m["my_list"]
+
+    # Test 7: Pop element
+    popped = m.my_list.pop()
+    assert popped == 6
+    assert 6 not in m.my_list
+    assert 6 not in m["my_list"]
+
+    # Test 8: Insert element
+    m.my_list.insert(0, 999)
+    assert m.my_list[0] == 999
+    assert m["my_list"][0] == 999
+
+    # Test 9: Clear via attribute syntax
+    m.my_list.clear()
+    assert len(m.my_list) == 0
+    assert len(m["my_list"]) == 0
+
+    # Test 10: Reassign entire list via attribute syntax
+    m.my_list = [10, 20, 30]
+    assert m.my_list == [10, 20, 30]
+    assert m["my_list"] == [10, 20, 30]
+
+    # Test 11: Mutation after reassignment
+    m.my_list.append(40)
+    assert m.my_list == [10, 20, 30, 40]
+    assert m["my_list"] == [10, 20, 30, 40]
+
+    # Test 12: Multiple accesses maintain same cached object
+    list_ref1 = m.my_list
+    list_ref2 = m.my_list
+    assert list_ref1 is list_ref2
+    list_ref1.append(50)
+    assert 50 in list_ref2
+    assert 50 in m.my_list
+
+
+def test_set_collection():
+    """Test that set mutations via attribute syntax persist and sync to dictionary syntax."""
+
+    class MyModel(Model):
+        my_set: set[int] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Basic mutation via attribute syntax
+    m = MyModel(my_set={1, 2, 3})
+    assert m.my_set == {1, 2, 3}
+
+    # Test 2: Add via attribute syntax and verify it persists
+    m.my_set.add(4)
+    assert 4 in m.my_set
+
+    # Test 3: Verify mutation is reflected in dictionary syntax
+    assert 4 in m["my_set"]
+
+    # Test 4: Remove element via attribute syntax
+    m.my_set.remove(2)
+    assert 2 not in m.my_set
+    assert 2 not in m["my_set"]
+
+    # Test 5: Update set via attribute syntax
+    m.my_set.update({5, 6, 7})
+    assert m.my_set == {1, 3, 4, 5, 6, 7}
+    assert m["my_set"] == {1, 3, 4, 5, 6, 7}
+
+    # Test 6: Discard element
+    m.my_set.discard(1)
+    assert 1 not in m.my_set
+    assert 1 not in m["my_set"]
+
+    # Test 7: Clear via attribute syntax
+    m.my_set.clear()
+    assert len(m.my_set) == 0
+    assert len(m["my_set"]) == 0
+
+    # Test 8: Reassign entire set via attribute syntax
+    m.my_set = {10, 20, 30}
+    assert m.my_set == {10, 20, 30}
+    assert m["my_set"] == {10, 20, 30}
+
+    # Test 9: Mutation after reassignment
+    m.my_set.add(40)
+    assert 40 in m.my_set
+    assert 40 in m["my_set"]
+
+    # Test 10: Multiple accesses maintain same cached object
+    set_ref1 = m.my_set
+    set_ref2 = m.my_set
+    assert set_ref1 is set_ref2
+    set_ref1.add(50)
+    assert 50 in set_ref2
+    assert 50 in m.my_set
+
+
+def test_dictionary_set_datetime():
+    """Test that dictionary with datetime values properly serializes/deserializes."""
+    from datetime import datetime, timezone
+
+    class MyModel(Model):
+        my_dict: dict[str, datetime] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Initialize with datetime values
+    dt1 = datetime(2023, 1, 15, 10, 30, 45, tzinfo=timezone.utc)
+    dt2 = datetime(2023, 6, 20, 14, 15, 30, tzinfo=timezone.utc)
+    m = MyModel(my_dict={"created": dt1, "updated": dt2})
+
+    # Test 2: Access via attribute syntax returns datetime objects
+    assert isinstance(m.my_dict["created"], datetime)
+    assert isinstance(m.my_dict["updated"], datetime)
+    assert m.my_dict["created"] == dt1
+    assert m.my_dict["updated"] == dt2
+
+    # Test 3: Access via dictionary syntax returns serialized strings (ISO format)
+    dict_access = m["my_dict"]
+    assert isinstance(dict_access["created"], str)
+    assert isinstance(dict_access["updated"], str)
+    assert dict_access["created"] == "2023-01-15T10:30:45Z"
+    assert dict_access["updated"] == "2023-06-20T14:15:30Z"
+
+    # Test 4: Mutate via attribute syntax with new datetime
+    dt3 = datetime(2023, 12, 25, 18, 0, 0, tzinfo=timezone.utc)
+    m.my_dict["holiday"] = dt3
+    assert m.my_dict["holiday"] == dt3
+
+    # Test 5: Verify mutation is serialized in dictionary syntax
+    assert m["my_dict"]["holiday"] == "2023-12-25T18:00:00Z"
+
+    # Test 6: Update existing datetime via attribute syntax
+    dt4 = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    m.my_dict["created"] = dt4
+    assert m.my_dict["created"] == dt4
+    assert m["my_dict"]["created"] == "2024-01-01T00:00:00Z"
+
+    # Test 7: Verify all datetimes are deserialized correctly after mutation
+    assert isinstance(m.my_dict["created"], datetime)
+    assert isinstance(m.my_dict["updated"], datetime)
+    assert isinstance(m.my_dict["holiday"], datetime)
+
+    # Test 8: Use dict update method with datetimes
+    dt5 = datetime(2024, 6, 15, 12, 30, 0, tzinfo=timezone.utc)
+    dt6 = datetime(2024, 7, 4, 16, 45, 0, tzinfo=timezone.utc)
+    m.my_dict.update({"event1": dt5, "event2": dt6})
+    assert m.my_dict["event1"] == dt5
+    assert m["my_dict"]["event1"] == "2024-06-15T12:30:00Z"
+
+    # Test 9: Reassign entire dictionary with new datetimes
+    dt7 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    dt8 = datetime(2025, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+    m.my_dict = {"start": dt7, "end": dt8}
+    assert m.my_dict["start"] == dt7
+    assert m.my_dict["end"] == dt8
+    assert m["my_dict"]["start"] == "2025-01-01T00:00:00Z"
+    assert m["my_dict"]["end"] == "2025-12-31T23:59:59Z"
+
+    # Test 10: Cached object maintains datetime type
+    dict_ref1 = m.my_dict
+    dict_ref2 = m.my_dict
+    assert dict_ref1 is dict_ref2
+    assert isinstance(dict_ref1["start"], datetime)
+    assert isinstance(dict_ref2["start"], datetime)
