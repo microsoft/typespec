@@ -158,6 +158,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
+            // Process properties from custom code view
+            if (provider.CustomCodeView != null)
+            {
+                foreach (var customProperty in provider.CustomCodeView.Properties)
+                {
+                    var propertyType = customProperty.Type.IsCollection ? GetInnerMostElement(customProperty.Type) : customProperty.Type;
+
+                    // we only care about types that is framework type
+                    if (propertyType.IsFrameworkType)
+                    {
+                        CollectBuildableTypesRecursive(propertyType.WithNullable(false), visitedTypes, buildableTypes);
+                    }
+                }
+            }
+
+            // Process method return types
+            foreach (var method in provider.Methods)
+            {
+                if (method.Signature.ReturnType != null)
+                {
+                    var returnType = method.Signature.ReturnType;
+
+                    // Unwrap Task/Task<T> and collection types to get to the actual model type
+                    var actualType = UnwrapReturnType(returnType);
+
+                    if (actualType != null && actualType.IsFrameworkType)
+                    {
+                        CollectBuildableTypesRecursive(actualType.WithNullable(false), visitedTypes, buildableTypes);
+                    }
+                }
+            }
+
+            // Process method return types from custom code view
+            if (provider.CustomCodeView != null)
+            {
+                foreach (var customMethod in provider.CustomCodeView.Methods)
+                {
+                    if (customMethod.Signature.ReturnType != null)
+                    {
+                        var returnType = customMethod.Signature.ReturnType;
+
+                        // Unwrap Task/Task<T> and collection types to get to the actual model type
+                        var actualType = UnwrapReturnType(returnType);
+
+                        if (actualType != null && actualType.IsFrameworkType)
+                        {
+                            CollectBuildableTypesRecursive(actualType.WithNullable(false), visitedTypes, buildableTypes);
+                        }
+                    }
+                }
+            }
+
             if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
                 // For base model types, we need to process their properties as well, but we don't need to add the base model type itself
@@ -256,6 +308,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 result = result.ElementType;
             }
             return result;
+        }
+
+        /// <summary>
+        /// Unwraps a return type to get the actual model type by stripping away Task, Task&lt;T&gt;, and collection wrappers.
+        /// </summary>
+        private static CSharpType? UnwrapReturnType(CSharpType? returnType)
+        {
+            if (returnType == null)
+            {
+                return null;
+            }
+
+            var type = returnType;
+
+            // Unwrap Task<T> or ValueTask<T>
+            if (type.Name == "Task" || type.Name == "ValueTask")
+            {
+                if (type.Arguments.Count > 0)
+                {
+                    type = type.Arguments[0];
+                }
+                else
+                {
+                    // Task without type argument doesn't have a model
+                    return null;
+                }
+            }
+
+            // Unwrap collection types to get the element type
+            if (type.IsCollection)
+            {
+                type = GetInnerMostElement(type);
+            }
+
+            return type;
         }
 
         /// <summary>

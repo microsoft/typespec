@@ -1358,5 +1358,131 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual("BModel", typeNames[1], "Second attribute should be BModel");
             Assert.AreEqual("CModel", typeNames[2], "Third attribute should be CModel");
         }
+
+        [Test]
+        public void ValidateMethodReturnTypesAreDiscovered()
+        {
+            // Create a model that is only used as a method return type
+            var returnTypeModel = InputFactory.Model("ReturnTypeModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.String)
+            ]);
+
+            var clientProvider = new TestClientProvider(returnTypeModel);
+            var outputLibrary = new TestOutputLibrary([clientProvider]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [returnTypeModel],
+                createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Check that the model used as return type is discovered
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ReturnTypeModel")),
+                "ReturnTypeModel should be discovered from method return type");
+        }
+
+        [Test]
+        public void ValidateFrameworkReturnTypesAreDiscovered()
+        {
+            // Create a client provider that returns a framework type
+            var clientProvider = new TestClientProviderWithFrameworkReturnType();
+            var outputLibrary = new TestOutputLibrary([clientProvider]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Check that the framework type used as return type is discovered
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("FrameworkModelWithMRW")),
+                "FrameworkModelWithMRW should be discovered from method return type");
+        }
+
+        // Test client provider that has methods with return types
+        private class TestClientProvider : TypeProvider
+        {
+            private readonly InputModelType _returnTypeModel;
+
+            public TestClientProvider(InputModelType returnTypeModel) : base()
+            {
+                _returnTypeModel = returnTypeModel;
+            }
+
+            protected override string BuildName() => "TestClient";
+
+            protected override string BuildRelativeFilePath() => "TestClient.cs";
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_returnTypeModel);
+                var returnType = new CSharpType(typeof(System.Threading.Tasks.Task<>), modelProvider!);
+
+                var signature = new MethodSignature(
+                    Name: "GetModel",
+                    Description: null,
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: returnType,
+                    ReturnDescription: null,
+                    Parameters: []);
+
+                return
+                [
+                    new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)
+                ];
+            }
+
+            protected override CSharpType[] BuildImplements()
+            {
+                return [new CSharpType(typeof(IPersistableModel<object>))];
+            }
+        }
+
+        // Test client provider that returns a framework type with MRW
+        private class TestClientProviderWithFrameworkReturnType : TypeProvider
+        {
+            public TestClientProviderWithFrameworkReturnType() : base()
+            {
+            }
+
+            protected override string BuildName() => "TestClient";
+
+            protected override string BuildRelativeFilePath() => "TestClient.cs";
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                var returnType = new CSharpType(typeof(FrameworkModelWithMRW));
+
+                var signature = new MethodSignature(
+                    Name: "GetFrameworkModel",
+                    Description: null,
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: returnType,
+                    ReturnDescription: null,
+                    Parameters: []);
+
+                return
+                [
+                    new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)
+                ];
+            }
+
+            protected override CSharpType[] BuildImplements()
+            {
+                return [new CSharpType(typeof(IPersistableModel<object>))];
+            }
+        }
     }
 }
