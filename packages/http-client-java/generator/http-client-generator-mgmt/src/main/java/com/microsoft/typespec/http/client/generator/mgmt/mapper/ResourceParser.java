@@ -352,15 +352,22 @@ public class ResourceParser {
                         FluentResourceModel fluentModel = fluentModelMapByName.get(returnTypeName);
                         // at present, cannot handle derived models
                         if (fluentModel != null && fluentModel.getInnerModel().getDerivedModels().isEmpty()) {
+                            String url = m.getInnerProxyMethod().getUrlPath();
+                            UrlPathSegments urlPathSegments = new UrlPathSegments(url);
                             // "id", "name", "type" in resource instance
                             if (fluentModel.getResourceCreate() == null
-                                && !foundModels.containsKey(fluentModel)
                                 && !excludeModels.contains(fluentModel)
                                 && fluentModel.hasProperty(ResourceTypeName.FIELD_ID)
                                 && fluentModel.hasProperty(ResourceTypeName.FIELD_NAME)
-                                && fluentModel.hasProperty(ResourceTypeName.FIELD_TYPE)) {
-                                String url = m.getInnerProxyMethod().getUrlPath();
-                                UrlPathSegments urlPathSegments = new UrlPathSegments(url);
+                                && fluentModel.hasProperty(ResourceTypeName.FIELD_TYPE)
+                                && (!foundModels.containsKey(fluentModel) ||
+                            // In case multiple PUTs appear in the same collection, try sticking with the one with the
+                            // shortest URL segments in order to keep consistency.
+                            // We can't do much if some of them share the same shortest segment length. Currently, we
+                            // stick with the first one, as this scenario doesn't make sense for now.
+                            // We may need a way to specify which one, when we meet real case.
+                            foundModels.get(fluentModel).getUrlPathSegments().getReverseSegments().size()
+                                > urlPathSegments.getReverseSegments().size())) {
 
                                 // logger.info("Candidate fluent model '{}', hasSubscription '{}', hasResourceGroup
                                 // '{}', isNested '{}', method name '{}'", fluentModel.getName(),

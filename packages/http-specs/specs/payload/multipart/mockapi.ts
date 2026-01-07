@@ -182,6 +182,29 @@ function createMultiBinaryPartsHandler(req: MockRequest) {
   }
 }
 
+function createOptionalPartsHandler(req: MockRequest) {
+  const hasId = req.body.id !== undefined;
+  const hasProfileImage = req.files instanceof Array && req.files.length > 0;
+
+  if (hasId && hasProfileImage) {
+    checkId(req);
+    checkJpgFile(req, req.files[0]);
+    return { pass: "id,profileImage", status: 204 } as const;
+  } else if (hasId && !hasProfileImage) {
+    checkId(req);
+    return { pass: "id", status: 204 } as const;
+  } else if (!hasId && hasProfileImage) {
+    checkJpgFile(req, req.files[0]);
+    return { pass: "profileImage", status: 204 } as const;
+  } else {
+    throw new ValidationError(
+      "No id or profileImage found",
+      "At least one of id or profileImage is expected",
+      req.body,
+    );
+  }
+}
+
 Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess({
   uri: "/multipart/form-data/mixed-parts",
   method: "post",
@@ -192,6 +215,52 @@ Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess({
   handler: (req: MockRequest) => createHandler(req, [checkId, checkProfileImage]),
   kind: "MockApiDefinition",
 });
+Scenarios.Payload_MultiPart_FormData_withWireName = passOnSuccess({
+  uri: "/multipart/form-data/mixed-parts-with-wire-name",
+  method: "post",
+  request: {
+    body: multipart({ parts: { id: 123 }, files: [files[0]] }),
+  },
+  response: { status: 204 },
+  handler: (req: MockRequest) => createHandler(req, [checkId, checkProfileImage]),
+  kind: "MockApiDefinition",
+});
+Scenarios.Payload_MultiPart_FormData_optionalParts = withServiceKeys([
+  "id",
+  "profileImage",
+  "id,profileImage",
+]).pass([
+  {
+    uri: "/multipart/form-data/optional-parts",
+    method: "post",
+    request: {
+      body: multipart({ parts: { id: 123 } }),
+    },
+    response: { status: 204 },
+    handler: createOptionalPartsHandler,
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/multipart/form-data/optional-parts",
+    method: "post",
+    request: {
+      body: multipart({ files: [files[0]] }),
+    },
+    response: { status: 204 },
+    handler: createOptionalPartsHandler,
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/multipart/form-data/optional-parts",
+    method: "post",
+    request: {
+      body: multipart({ parts: { id: 123 }, files: [files[0]] }),
+    },
+    response: { status: 204 },
+    handler: createOptionalPartsHandler,
+    kind: "MockApiDefinition",
+  },
+]);
 Scenarios.Payload_MultiPart_FormData_fileArrayAndBasic = passOnSuccess({
   uri: "/multipart/form-data/complex-parts",
   method: "post",

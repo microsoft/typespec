@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
-            _isAbstract = _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null;
+            _isAbstract = _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null && LastContractView?.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) != false;
             _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
 
             if (_inputModel.BaseModel is not null)
