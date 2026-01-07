@@ -30,65 +30,65 @@ This separation allows for language-specific code generation while maintaining a
 │                        TypeSpec Compiler                        │
 │                    (parses .tsp files)                          │
 └────────────────────────────┬────────────────────────────────────┘
-                                                                  │
+                             │
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Emitter (TypeScript)                         │
 │  Location: packages/http-client-python/emitter/src/             │
-│                                                                  │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐     │
-│  │  emitter.ts  │───▶│code-model.ts │───▶│   types.ts   │     │
-│  │ (entry point)│    │(build model) │    │(type mapping)│     │
-│  └──────────────┘    └──────────────┘    └──────────────┘     │
-│         │                                                        │
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐       │
+│  │  emitter.ts  │──▶│code-model.ts │───▶│   types.ts   │       │
+│  │ (entry point)│    │(build model) │    │(type mapping)│       │
+│  └──────────────┘    └──────────────┘    └──────────────┘       │
+│         │                                                       │
 │         │ Uses @azure-tools/typespec-client-generator-core      │
-│         │                                                        │
-│         ▼                                                        │
-│  ┌──────────────────────────────────────────────────────┐      │
-│  │         Intermediate YAML Code Model                  │      │
-│  │  (contains clients, operations, models, types, etc.)  │      │
-│  └──────────────────────────────────────────────────────┘      │
+│         │                                                       │
+│         ▼                                                       │
+│  ┌──────────────────────────────────────────────────────┐       │
+│  │         Intermediate YAML Code Model                 │       │
+│  │  (contains clients, operations, models, types, etc.) │       │
+│  └──────────────────────────────────────────────────────┘       │
 └────────────────────────────┬────────────────────────────────────┘
-                                                                  │
-                                                                  │
-                                                                  │
+                             │
+                             │
+                             │
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                  Generator (Python - pygen)                     │
 │  Location: packages/http-client-python/generator/pygen/         │
-│                                                                  │
+│                                                                 │
 │  Step 1: Preprocess                                             │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  preprocess/                                             │  │
-│  │  - Adds Python naming conventions (snake_case, etc.)     │  │
-│  │  - Pads reserved words                                   │  │
-│  │  - Adds body parameter overloads                         │  │
-│  │  - Maps Python types                                     │  │
-│  └────────────────────────┬─────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  preprocess/                                             │   │
+│  │  - Adds Python naming conventions (snake_case, etc.)     │   │
+│  │  - Pads reserved words                                   │   │
+│  │  - Adds body parameter overloads                         │   │
+│  │  - Maps Python types                                     │   │
+│  └────────────────────────┬─────────────────────────────────┘   │
 │                           │                                     │
 │                           │ Enhanced YAML                       │
 │                           │                                     │
 │  Step 2: Codegen          ▼                                     │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  codegen/                                                │  │
-│  │                                                           │  │
-│  │  ┌──────────┐      ┌──────────────┐    ┌─────────────┐ │  │
-│  │  │ models/  │─────▶│ serializers/ │───▶│ templates/  │ │  │
-│  │  │ (Python  │      │ (Jinja2)     │    │ (.jinja2)   │ │  │
-│  │  │  classes)│      │              │    │             │ │  │
-│  │  └──────────┘      └──────────────┘    └─────────────┘ │  │
-│  │       │                   │                    │         │  │
-│  │       │                   │                    │         │  │
-│  │       ▼                   ▼                    ▼         │  │
-│  │  Structures data    Renders with       Jinja2 templates │  │
-│  │                     parameters                           │  │
-│  └────────────────────────┬─────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  codegen/                                                │   │
+│  │                                                          │   │
+│  │  ┌──────────┐      ┌──────────────┐    ┌─────────────┐   │   │
+│  │  │ models/  │────▶│ serializers/ │───▶│ templates/  │   │   │
+│  │  │ (Python  │      │ (Jinja2)     │    │ (.jinja2)   │   │   │
+│  │  │  classes)│      │              │    │             │   │   │
+│  │  └──────────┘      └──────────────┘    └─────────────┘   │   │
+│  │       │                   │                    │         │   │
+│  │       │                   │                    │         │   │
+│  │       ▼                   ▼                    ▼         │   │
+│  │  Structures data    Renders with       Jinja2 templates  │   │
+│  │                     parameters                           │   │
+│  └────────────────────────┬─────────────────────────────────┘   │
 │                           │                                     │
 │                           ▼                                     │
-│                ┌─────────────────────┐                         │
-│                │  Generated Python   │                         │
-│                │  SDK Files (.py)    │                         │
-│                └─────────────────────┘                         │
+│                ┌─────────────────────┐                          │
+│                │  Generated Python   │                          │
+│                │  SDK Files (.py)    │                          │
+│                └─────────────────────┘                          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
