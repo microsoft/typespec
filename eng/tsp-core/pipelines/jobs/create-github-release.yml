@@ -1,0 +1,32 @@
+parameters:
+  - name: artifactName
+    type: string
+  - name: dependsOn
+    type: string
+    default: ""
+
+jobs:
+  - job: github_release
+    dependsOn: ${{ parameters.dependsOn }}
+    displayName: Create github release(s)
+    pool:
+      name: azsdk-pool
+      image: ubuntu-24.04
+      os: linux
+
+    steps:
+      - download: current
+        artifact: ${{ parameters.artifactName }}
+        displayName: Download package manifest
+
+      - template: /eng/tsp-core/pipelines/templates/install.yml
+
+      - script: |
+          echo "Publish summary:"
+          cat "$(Pipeline.Workspace)/${{ parameters.artifactName }}/publish-summary.json"
+        displayName: Log publish summary
+
+      - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary "$(Pipeline.Workspace)/${{ parameters.artifactName }}/publish-summary.json"
+        displayName: Create github releases
+        env:
+          GITHUB_TOKEN: $(azuresdk-github-pat)
