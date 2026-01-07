@@ -75,15 +75,15 @@ Two new methods handle XML writing:
 
 ```csharp
 // Private method that writes the root element wrapper
-private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
+private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
 {
     writer.WriteStartElement(nameHint ?? "Dog");
-    WriteXmlContentCore(writer, options);
+    XmlModelWriteCore(writer, options);
     writer.WriteEndElement();
 }
 
 // Protected virtual method for writing inner content - extensibility point for derived types
-protected virtual void WriteXmlContentCore(XmlWriter writer, ModelReaderWriterOptions options)
+protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
 {
     string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
     if (format != "X")
@@ -153,7 +153,7 @@ For Azure branded libraries, models that support XML will also implement Azure C
 public partial class Dog : IXmlSerializable, IJsonModel<Dog>
 {
     // ...
-    void IXmlSerializable.Write(XmlWriter writer, string nameHint) => WriteXml(writer, ModelSerializationExtensions.WireOptions, nameHint);
+    void IXmlSerializable.Write(XmlWriter writer, string nameHint) => Write(writer, ModelSerializationExtensions.WireOptions, nameHint);
     // ...
 }
 ```
@@ -235,17 +235,17 @@ namespace PetStore
             }
         }
 
-        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
+        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
         {
             writer.WriteStartElement(nameHint ?? "Dog");
-            WriteXmlContentCore(writer, options);
+            XmlModelWriteCore(writer, options);
             writer.WriteEndElement();
         }
 
         /// <summary> Writes the XML content of this model without the root element wrapper. </summary>
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void WriteXmlContentCore(XmlWriter writer, ModelReaderWriterOptions options)
+        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "X")
@@ -368,7 +368,7 @@ namespace PetStore
                         using MemoryStream stream = new MemoryStream(256);
                         using (XmlWriter writer = XmlWriter.Create(stream))
                         {
-                            WriteXml(writer, options);
+                            Write(writer, options);
                         }
                         return new BinaryData(stream.ToArray());
                     }
@@ -499,17 +499,17 @@ namespace PetStore
             }
         }
 
-        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
+        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
         {
             writer.WriteStartElement(nameHint ?? "Address");
-            WriteXmlContentCore(writer, options);
+            XmlModelWriteCore(writer, options);
             writer.WriteEndElement();
         }
 
         /// <summary> Writes the XML content of this model without the root element wrapper. </summary>
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void WriteXmlContentCore(XmlWriter writer, ModelReaderWriterOptions options)
+        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<Address>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "X")
@@ -635,7 +635,7 @@ namespace PetStore
                         using MemoryStream stream = new MemoryStream(256);
                         using (XmlWriter writer = XmlWriter.Create(stream))
                         {
-                            WriteXml(writer, options);
+                            Write(writer, options);
                         }
                         return new BinaryData(stream.ToArray());
                     }
@@ -752,17 +752,17 @@ namespace PetStore
             }
         }
 
-        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
+        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
         {
             writer.WriteStartElement(nameHint ?? "PetDetails");
-            WriteXmlContentCore(writer, options);
+            XmlModelWriteCore(writer, options);
             writer.WriteEndElement();
         }
 
         /// <summary> Writes the XML content of this model without the root element wrapper. </summary>
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void WriteXmlContentCore(XmlWriter writer, ModelReaderWriterOptions options)
+        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<PetDetails>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "X")
@@ -895,7 +895,7 @@ namespace PetStore
                         using MemoryStream stream = new MemoryStream(256);
                         using (XmlWriter writer = XmlWriter.Create(stream))
                         {
-                            WriteXml(writer, options);
+                            Write(writer, options);
                         }
                         return new BinaryData(stream.ToArray());
                     }
