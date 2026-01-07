@@ -40,3 +40,21 @@ async def test_model(client: SpecialWordsClient, special_words):
 @pytest.mark.asyncio
 async def test_model_properties(client: SpecialWordsClient):
     await client.model_properties.same_as_model(models.SameAsModel(same_as_model="ok"))
+
+@pytest.mark.asyncio
+async def test_model_properties_dict_methods(client: SpecialWordsClient):
+    await client.model_properties.dict_methods(
+        body={
+            "clear": "ok",
+            "copy": "ok",
+            "get": "ok",
+            "items": "ok",
+            "keys": "ok",
+            "pop": "ok",
+            "popitem": "ok",
+            "setdefault": "ok",
+            "update": "ok",
+            "values": "ok",
+        },
+    )
+
