@@ -63,6 +63,7 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
       parameters={parameters}
     >
       {resolvedEndpoint}
+      <hbr />
       return <ts.FunctionCallExpression target={httpRuntimeTemplateLib.getClient} args={[args]} />
     </FunctionDeclaration>
   );
