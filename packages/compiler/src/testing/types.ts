@@ -176,8 +176,7 @@ export interface OutputTestable<Result> {
 
 /** Alternate version of the tester which runs the configured emitter */
 export interface EmitterTester<Result = TestEmitterCompileResult>
-  extends OutputTestable<Result>,
-    TesterBuilder<EmitterTester<Result>> {
+  extends OutputTestable<Result>, TesterBuilder<EmitterTester<Result>> {
   /**
    * Pipe the output of the emitter into a different structure
    *
@@ -221,18 +220,17 @@ export interface PositionedMarkerInFile extends PositionedMarker {
 // #endregion
 
 // #region Legacy Test host
-export interface TestHost
-  extends Pick<
-    TestFileSystem,
-    | "addTypeSpecFile"
-    | "addJsFile"
-    | "addRealTypeSpecFile"
-    | "addRealJsFile"
-    | "addRealFolder"
-    | "addTypeSpecLibrary"
-    | "compilerHost"
-    | "fs"
-  > {
+export interface TestHost extends Pick<
+  TestFileSystem,
+  | "addTypeSpecFile"
+  | "addJsFile"
+  | "addRealTypeSpecFile"
+  | "addRealJsFile"
+  | "addRealFolder"
+  | "addTypeSpecLibrary"
+  | "compilerHost"
+  | "fs"
+> {
   program: Program;
   libraries: TypeSpecTestLibrary[];
   testTypes: Record<string, Type>;
