@@ -217,5 +217,54 @@ worksFor(supportedVersions, ({ openApiFor, version: specVersion }) => {
     `,
       );
     });
+
+    // regression test for https://github.com/microsoft/typespec/issues/8769
+    it("supports example generation for union that contains enums", async () => {
+      const { v1 } = await openApiForVersions(
+        `        
+      namespace MyService {
+        enum Versions {
+          v1
+        }
+      }
+      
+      @versioned(Versions)
+      @service
+      namespace MyService {
+        enum Enum {
+          a: "a",
+          b: "b",
+        }
+      
+        model Foo {
+          entityType: "foo";
+        }
+      
+        model Bar {
+          entityType: "bar";
+          enumValue: Enum;
+        }
+      
+        @opExample(#{ returnType: #[#{ entityType: "bar", enumValue: Enum.a }] })
+        op testOp(): (Foo | Bar)[];
+      }
+    `,
+        ["v1"],
+      );
+
+      strictEqual(v1.info.version, "v1");
+      ok(v1.components?.schemas);
+      ok(v1.paths["/"].get);
+      ok(v1.paths["/"].get.responses);
+      ok("200" in v1.paths["/"].get.responses);
+      ok("content" in v1.paths["/"].get.responses["200"]);
+      ok(v1.paths["/"].get.responses["200"].content);
+      deepStrictEqual(v1.paths["/"].get?.responses["200"].content["application/json"].example, [
+        {
+          entityType: "bar",
+          enumValue: "a",
+        },
+      ]);
+    });
   });
 });

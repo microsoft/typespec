@@ -437,6 +437,50 @@ describe("global graph mutation", () => {
 });
 
 describe("decorators", () => {
+  it("mutates arguments values", async () => {
+    const host = await createTestHost();
+    const code = `
+      import "./dec.js";
+      extern dec myDec(target, value: valueof unknown);
+      
+      enum E {
+        a: "a"
+      }
+      
+      @myDec(#{
+        enumValue: E.a,
+      })
+      @test model Foo {}
+  `;
+    host.addJsFile("dec.js", { $myDec: () => {} });
+    host.addTypeSpecFile("main.tsp", code);
+
+    const visited: string[] = [];
+
+    const { Foo } = (await host.compile("main.tsp")) as { Foo: Model };
+    const mutator: Mutator = {
+      name: "test",
+      Enum: {
+        mutate: (_enum, clone) => {
+          visited.push(clone.name);
+        },
+      },
+      EnumMember: {
+        mutate: (_enumMember, clone) => {
+          visited.push(clone.name);
+        },
+      },
+      Model: {
+        mutate: (_model, clone) => {
+          visited.push(clone.name);
+        },
+      },
+    };
+
+    mutateSubgraph(host.program, [mutator], Foo);
+    expect(visited).toStrictEqual(["Foo", "a", "E"]);
+  });
+
   // Regression test for https://github.com/microsoft/typespec/issues/6655
   it("doesn't crash when mutating null value", async () => {
     const host = await createTestHost();

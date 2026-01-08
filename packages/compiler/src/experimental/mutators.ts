@@ -1,7 +1,7 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { getLocationContext } from "../core/helpers/location-context.js";
 import { Program } from "../core/program.js";
-import { isTemplateInstance, isType } from "../core/type-utils.js";
+import { isTemplateInstance, isType, isValue } from "../core/type-utils.js";
 import {
   DecoratedType,
   Decorator,
@@ -10,10 +10,12 @@ import {
   IntrinsicType,
   Model,
   Namespace,
+  ObjectValue,
   TemplatedType,
   TemplateParameter,
   Type,
   TypeMapper,
+  Value,
 } from "../core/types.js";
 import { $ } from "../typekit/index.js";
 import { CustomKeyMap } from "../utils/custom-key-map.js";
@@ -723,26 +725,74 @@ function createMutatorEngine(
     for (const [index, dec] of type.decorators.entries()) {
       const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
-        const jsValue =
-          typeof arg.jsValue === "object" &&
-          arg.jsValue !== null &&
-          isType(arg.jsValue as any) &&
-          isMutableTypeWithNamespace(arg.jsValue as any)
-            ? mutateSubgraphWorker(arg.jsValue as any, newMutators)
-            : arg.jsValue;
         args.push({
           ...arg,
-          value:
-            isType(arg.value) && isMutableTypeWithNamespace(arg.value)
-              ? mutateSubgraphWorker(arg.value, newMutators)
-              : arg.value,
-          jsValue,
+          value: mutateDecoratorArgumentValue(arg.value, newMutators),
+          jsValue: mutateDecoratorArgumentValue(arg.jsValue, newMutators),
         });
       }
 
       if (mutating) {
         type.decorators[index] = { ...dec, args };
       }
+    }
+  }
+
+  function mutateDecoratorArgumentValue<T extends DecoratorArgument["jsValue"]>(
+    value: T,
+    newMutators: Set<MutatorAll>,
+  ): T {
+    if (typeof value === "object" && value !== null) {
+      if (isType(value as any)) {
+        return isMutableTypeWithNamespace(value as any)
+          ? (mutateSubgraphWorker(value as any, newMutators) as T)
+          : value;
+      }
+      if (isValue(value as any)) {
+        return mutateValue(value as any, newMutators) as T;
+      }
+      if (Array.isArray(value)) {
+        return value.map((item) => mutateDecoratorArgumentValue(item as any, newMutators)) as T;
+      }
+      return Object.entries(value).reduce((acc, [key, val]) => {
+        return {
+          ...acc,
+          [key]: mutateDecoratorArgumentValue(val as any, newMutators),
+        };
+      }, {}) as T;
+    }
+    return value;
+  }
+
+  function mutateValue<T extends Value>(value: T, newMutators: Set<MutatorAll>): T {
+    switch (value.valueKind) {
+      case "ObjectValue":
+        const newObjectValue: ObjectValue = {
+          ...value,
+          properties: new Map(),
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+        };
+        for (const [key, val] of value.properties.entries()) {
+          newObjectValue.properties.set(key, {
+            ...val,
+            value: mutateValue(val.value, newMutators),
+          });
+        }
+        return newObjectValue as T;
+      case "ArrayValue":
+        return {
+          ...value,
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+          values: value.values.map((val) => mutateValue(val, newMutators)),
+        } as T;
+      case "EnumValue":
+        return {
+          ...value,
+          type: mutateDecoratorArgumentValue(value.type, newMutators),
+          value: mutateDecoratorArgumentValue(value.value, newMutators),
+        } as T;
+      default:
+        return value;
     }
   }
 
