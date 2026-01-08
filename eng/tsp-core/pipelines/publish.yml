@@ -43,7 +43,7 @@ extends:
       - stage: publish_npm
         displayName: Publish Npm Packages
         dependsOn: build
-        # condition: or(eq('true', stageDependencies.build.build.outputs['pack_npm_packages_stable.PUBLISH_PKG_ANY']), eq('true', stageDependencies.build.build.outputs['pack_npm_packages_next.PUBLISH_PKG_ANY']))
+        condition: or(eq('true', dependencies.build.outputs['build.pack_npm_packages_stable.PUBLISH_PKG_ANY']), eq('true', dependencies.build.outputs['build.pack_npm_packages_next.PUBLISH_PKG_ANY']))
 
         pool:
           name: $(LINUXPOOL)
