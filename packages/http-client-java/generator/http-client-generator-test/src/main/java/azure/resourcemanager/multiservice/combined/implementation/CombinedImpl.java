@@ -58,20 +58,6 @@ public final class CombinedImpl implements Combined {
     }
 
     /**
-     * Version parameter.
-     */
-    private final String apiVersion;
-
-    /**
-     * Gets Version parameter.
-     * 
-     * @return the apiVersion value.
-     */
-    public String getApiVersion() {
-        return this.apiVersion;
-    }
-
-    /**
      * The ID of the target subscription. The value must be an UUID.
      */
     private final String subscriptionId;
@@ -172,7 +158,6 @@ public final class CombinedImpl implements Combined {
         this.defaultPollInterval = defaultPollInterval;
         this.endpoint = endpoint;
         this.subscriptionId = subscriptionId;
-        this.apiVersion = "2025-04-01";
         this.virtualMachines = new VirtualMachinesClientImpl(this);
         this.disks = new DisksClientImpl(this);
     }

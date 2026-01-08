@@ -6,8 +6,11 @@ trigger:
       - main
       # For patch releases
       - release/*
+  paths:
     exclude:
       - packages/http-client-csharp
+      - packages/http-client-java
+      - packages/http-client-python
 
 pr: none
 
@@ -46,17 +49,30 @@ extends:
           os: linux
 
         jobs:
+          - job: debug
+            variables:
+              varFromA: $[convertToJson(stageDependencies.build.outputs)]
+              deps: $[convertToJson(stageDependencies)] # create a variable with the job dependencies
+            steps:
+              - pwsh: Write-Host "$(deps)"
+
           - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
             parameters:
               artifactName: npm-packages-stable
               tag: latest
-              publishGithubRelease: true
+              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_stable.PUBLISH_PKG_ANY'])
 
           - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
             parameters:
               dependsOn: publish_npm_latest
               artifactName: npm-packages-next
               tag: next
+              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_next.PUBLISH_PKG_ANY'])
+
+          - template: /eng/tsp-core/pipelines/jobs/create-github-release.yml
+            parameters:
+              dependsOn: publish_npm_latest
+              artifactName: npm-packages-stable
 
       - stage: publish_vscode
         displayName: Publish VSCode extension
@@ -99,25 +115,3 @@ extends:
                 displayName: "Build"
               - script: docker push $(imageName) --all-tags
                 displayName: "Push"
-
-      - stage: validate_manifest
-        displayName: Validate Manifest
-        dependsOn: build
-        jobs:
-          - job: validate_manifest
-            displayName: Validate Manifest
-            pool:
-              name: $(WINDOWSPOOL)
-              image: $(WINDOWSVMIMAGE)
-              os: windows
-            variables:
-              TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
-            steps:
-              - template: /eng/tsp-core/pipelines/templates/install.yml
-              - template: /eng/tsp-core/pipelines/templates/build.yml
-
-              - script: pnpm run validate-scenarios --debug
-                displayName: Validate Scenarios
-
-              - script: pnpm run validate-mock-apis --debug
-                displayName: Validate mock apis

@@ -115,9 +115,10 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<VirtualMachineInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String vmName) {
+        final String apiVersion = "2025-04-01";
         final String accept = "application/json";
         return FluxUtil
-            .withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
+            .withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), apiVersion,
                 this.client.getSubscriptionId(), resourceGroupName, vmName, accept, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -152,9 +153,10 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<VirtualMachineInner> getByResourceGroupWithResponse(String resourceGroupName, String vmName,
         Context context) {
+        final String apiVersion = "2025-04-01";
         final String accept = "application/json";
-        return service.getByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, vmName, accept, context);
+        return service.getByResourceGroupSync(this.client.getEndpoint(), apiVersion, this.client.getSubscriptionId(),
+            resourceGroupName, vmName, accept, context);
     }
 
     /**
@@ -187,10 +189,11 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName, String vmName,
         VirtualMachineInner resource) {
+        final String apiVersion = "2025-04-01";
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
-            .withContext(context -> service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
+            .withContext(context -> service.createOrUpdate(this.client.getEndpoint(), apiVersion,
                 this.client.getSubscriptionId(), resourceGroupName, vmName, contentType, accept, resource, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -210,10 +213,11 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String vmName,
         VirtualMachineInner resource) {
+        final String apiVersion = "2025-04-01";
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, vmName, contentType, accept, resource, Context.NONE);
+        return service.createOrUpdateSync(this.client.getEndpoint(), apiVersion, this.client.getSubscriptionId(),
+            resourceGroupName, vmName, contentType, accept, resource, Context.NONE);
     }
 
     /**
@@ -232,10 +236,11 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String vmName,
         VirtualMachineInner resource, Context context) {
+        final String apiVersion = "2025-04-01";
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, vmName, contentType, accept, resource, context);
+        return service.createOrUpdateSync(this.client.getEndpoint(), apiVersion, this.client.getSubscriptionId(),
+            resourceGroupName, vmName, contentType, accept, resource, context);
     }
 
     /**

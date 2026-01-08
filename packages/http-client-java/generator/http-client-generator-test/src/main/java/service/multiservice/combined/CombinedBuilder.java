@@ -191,24 +191,6 @@ public final class CombinedBuilder
     }
 
     /*
-     * Service version
-     */
-    @Generated
-    private ServiceAServiceVersion serviceVersion;
-
-    /**
-     * Sets Service version.
-     * 
-     * @param serviceVersion the serviceVersion value.
-     * @return the CombinedBuilder.
-     */
-    @Generated
-    public CombinedBuilder serviceVersion(ServiceAServiceVersion serviceVersion) {
-        this.serviceVersion = serviceVersion;
-        return this;
-    }
-
-    /*
      * The retry policy that will attempt to retry failed requests, if applicable.
      */
     @Generated
@@ -236,10 +218,8 @@ public final class CombinedBuilder
         this.validateClient();
         HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ServiceAServiceVersion localServiceVersion
-            = (serviceVersion != null) ? serviceVersion : ServiceAServiceVersion.getLatest();
-        CombinedImpl client = new CombinedImpl(localPipeline, JacksonAdapter.createDefaultSerializerAdapter(),
-            localEndpoint, localServiceVersion);
+        CombinedImpl client
+            = new CombinedImpl(localPipeline, JacksonAdapter.createDefaultSerializerAdapter(), localEndpoint);
         return client;
     }
 

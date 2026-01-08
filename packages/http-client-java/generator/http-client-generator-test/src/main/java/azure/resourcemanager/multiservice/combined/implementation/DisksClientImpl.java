@@ -112,9 +112,10 @@ public final class DisksClientImpl implements DisksClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<DiskInner>> getByResourceGroupWithResponseAsync(String resourceGroupName, String diskName) {
+        final String apiVersion = "2025-01-02";
         final String accept = "application/json";
         return FluxUtil
-            .withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
+            .withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), apiVersion,
                 this.client.getSubscriptionId(), resourceGroupName, diskName, accept, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -149,9 +150,10 @@ public final class DisksClientImpl implements DisksClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DiskInner> getByResourceGroupWithResponse(String resourceGroupName, String diskName,
         Context context) {
+        final String apiVersion = "2025-01-02";
         final String accept = "application/json";
-        return service.getByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, diskName, accept, context);
+        return service.getByResourceGroupSync(this.client.getEndpoint(), apiVersion, this.client.getSubscriptionId(),
+            resourceGroupName, diskName, accept, context);
     }
 
     /**
@@ -183,10 +185,11 @@ public final class DisksClientImpl implements DisksClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName, String diskName,
         DiskInner resource) {
+        final String apiVersion = "2025-01-02";
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
-            .withContext(context -> service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
+            .withContext(context -> service.createOrUpdate(this.client.getEndpoint(), apiVersion,
                 this.client.getSubscriptionId(), resourceGroupName, diskName, contentType, accept, resource, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
@@ -205,10 +208,11 @@ public final class DisksClientImpl implements DisksClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String diskName,
         DiskInner resource) {
+        final String apiVersion = "2025-01-02";
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, diskName, contentType, accept, resource, Context.NONE);
+        return service.createOrUpdateSync(this.client.getEndpoint(), apiVersion, this.client.getSubscriptionId(),
+            resourceGroupName, diskName, contentType, accept, resource, Context.NONE);
     }
 
     /**
@@ -226,10 +230,11 @@ public final class DisksClientImpl implements DisksClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String diskName,
         DiskInner resource, Context context) {
+        final String apiVersion = "2025-01-02";
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, diskName, contentType, accept, resource, context);
+        return service.createOrUpdateSync(this.client.getEndpoint(), apiVersion, this.client.getSubscriptionId(),
+            resourceGroupName, diskName, contentType, accept, resource, context);
     }
 
     /**
