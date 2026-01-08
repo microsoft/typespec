@@ -6,7 +6,6 @@ trigger:
       - main
       # For patch releases
       - release/*
-      - revert-env-to-typespec
   paths:
     exclude:
       - packages/http-client-csharp
