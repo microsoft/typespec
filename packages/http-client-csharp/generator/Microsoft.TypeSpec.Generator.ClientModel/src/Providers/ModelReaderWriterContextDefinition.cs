@@ -146,8 +146,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             HashSet<TypeProvider> buildableProviders,
             HashSet<CSharpType> buildableTypes)
         {
-            // Process all properties of the provider
-            foreach (var property in provider.Properties)
+            // Process all properties of the provider (includes both generated and custom code properties)
+            foreach (var property in provider.CanonicalView.Properties)
             {
                 var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
 
@@ -158,23 +158,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            // Process properties from custom code view
-            if (provider.CustomCodeView != null)
-            {
-                foreach (var customProperty in provider.CustomCodeView.Properties)
-                {
-                    var propertyType = customProperty.Type.IsCollection ? GetInnerMostElement(customProperty.Type) : customProperty.Type;
-
-                    // we only care about types that is framework type
-                    if (propertyType.IsFrameworkType)
-                    {
-                        CollectBuildableTypesRecursive(propertyType.WithNullable(false), visitedTypes, buildableTypes);
-                    }
-                }
-            }
-
-            // Process method return types
-            foreach (var method in provider.Methods)
+            // Process method return types (includes both generated and custom code methods)
+            foreach (var method in provider.CanonicalView.Methods)
             {
                 if (method.Signature.ReturnType != null)
                 {
@@ -186,26 +171,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (actualType != null && actualType.IsFrameworkType)
                     {
                         CollectBuildableTypesRecursive(actualType.WithNullable(false), visitedTypes, buildableTypes);
-                    }
-                }
-            }
-
-            // Process method return types from custom code view
-            if (provider.CustomCodeView != null)
-            {
-                foreach (var customMethod in provider.CustomCodeView.Methods)
-                {
-                    if (customMethod.Signature.ReturnType != null)
-                    {
-                        var returnType = customMethod.Signature.ReturnType;
-
-                        // Unwrap Task/Task<T> and collection types to get to the actual model type
-                        var actualType = UnwrapReturnType(returnType);
-
-                        if (actualType != null && actualType.IsFrameworkType)
-                        {
-                            CollectBuildableTypesRecursive(actualType.WithNullable(false), visitedTypes, buildableTypes);
-                        }
                     }
                 }
             }
