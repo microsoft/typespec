@@ -1443,11 +1443,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                     new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)
                 ];
             }
-
-            protected override CSharpType[] BuildImplements()
-            {
-                return [new CSharpType(typeof(IPersistableModel<object>))];
-            }
         }
 
         // Test client provider that returns a framework type with MRW
@@ -1477,11 +1472,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 [
                     new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)
                 ];
-            }
-
-            protected override CSharpType[] BuildImplements()
-            {
-                return [new CSharpType(typeof(IPersistableModel<object>))];
             }
         }
     }
