@@ -16,7 +16,7 @@ import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
-import { flushEmittedFilesPaths } from "./emitter-utils.js";
+import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
@@ -196,7 +196,7 @@ export async function compile(
     const { duration } = await emit(emitter, program);
     emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = duration;
     if (options.listFiles) {
-      logEmittedFilesPath(host.logSink);
+      logEmittedFilesPath(program);
     }
   }
   emitStats.total = timer.end();
@@ -1014,10 +1014,10 @@ async function runEmitter(emitter: EmitterRef, program: Program) {
   }
 }
 
-function logEmittedFilesPath(logSink: LogSink) {
-  flushEmittedFilesPaths().forEach((filePath) => {
+function logEmittedFilesPath(program: Program) {
+  getEmittedFilesForProgram(program).forEach((filePath) => {
     // eslint-disable-next-line no-console
-    console.log(`    ${pc.dim(transformPathForSink(logSink, filePath))}`);
+    console.log(`    ${pc.dim(transformPathForSink(program.host.logSink, filePath))}`);
   });
 }
 function transformPathForSink(logSink: LogSink, path: string) {
