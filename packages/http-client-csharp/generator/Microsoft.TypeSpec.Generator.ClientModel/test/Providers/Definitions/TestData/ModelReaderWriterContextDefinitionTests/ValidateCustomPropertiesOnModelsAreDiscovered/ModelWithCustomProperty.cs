@@ -4,7 +4,7 @@ namespace Sample.Models
 {
     public partial class ModelWithCustomProperty
     {
-        // Custom property added through customization that references a framework type
+        // Custom property added through customization that references a buildable type
         DependencyModel CustomDependencyProperty { get; set; }
     }
 }
