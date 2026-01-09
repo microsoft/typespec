@@ -2897,9 +2897,15 @@ export class CodeModelBuilder {
     if (modelProperty.encode) {
       if (schema instanceof ArraySchema) {
         const elementSchema = schema.elementType;
-        if (!(elementSchema instanceof StringSchema)) {
+        if (
+          !(
+            elementSchema instanceof StringSchema ||
+            elementSchema instanceof ChoiceSchema ||
+            elementSchema instanceof SealedChoiceSchema
+          )
+        ) {
           reportDiagnostic(this.program, {
-            code: "non-string-array-encoding-element-notsupported",
+            code: "array-encoding-element-notsupported",
             target: modelProperty.__raw ?? NoTarget,
           });
         }

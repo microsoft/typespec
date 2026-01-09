@@ -119,10 +119,11 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Constant header '${"headerName"}' is removed from response headers.`,
       },
     },
-    "non-string-array-encoding-element-notsupported": {
+    "array-encoding-element-notsupported": {
       severity: "error",
       messages: {
-        default: "Element of type other than 'string' is not supported for 'ArrayEncoding'.",
+        default:
+          "Element of type other than 'string' or 'enum' is not supported for 'ArrayEncoding'.",
       },
     },
   },
