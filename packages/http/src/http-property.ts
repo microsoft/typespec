@@ -240,7 +240,7 @@ export function resolvePayloadProperties(
   const diagnostics = createDiagnosticCollector();
   const httpProperties = new Map<ModelProperty, HttpProperty>();
 
-  if (type.kind !== "Model" || type.properties.size === 0) {
+  if (type.kind !== "Model" || (type.properties.size === 0 && !type.baseModel)) {
     return diagnostics.wrap([]);
   }
 
