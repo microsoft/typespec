@@ -49,7 +49,6 @@ public final class PropertyChangedToRequired extends PropertyChangedToRequiredPa
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("propertyChangedToRequired", getPropertyChangedToRequired());
         jsonWriter.writeStringField("propertyChangedToRequired", this.propertyChangedToRequired);
         return jsonWriter.writeEndObject();
     }
@@ -67,7 +66,6 @@ public final class PropertyChangedToRequired extends PropertyChangedToRequiredPa
     public static PropertyChangedToRequired fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String propertyChangedToRequired = null;
-            String propertyChangedToRequired = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -78,11 +76,7 @@ public final class PropertyChangedToRequired extends PropertyChangedToRequiredPa
                     reader.skipChildren();
                 }
             }
-            PropertyChangedToRequired deserializedPropertyChangedToRequired
-                = new PropertyChangedToRequired(propertyChangedToRequired);
-            deserializedPropertyChangedToRequired.setPropertyChangedToRequired(propertyChangedToRequired);
-
-            return deserializedPropertyChangedToRequired;
+            return new PropertyChangedToRequired(propertyChangedToRequired);
         });
     }
 }

@@ -49,7 +49,6 @@ public final class PropertyChangedToConstant extends PropertyChangedToConstantPa
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("propertyChangedToConstant", getPropertyChangedToConstant());
         jsonWriter.writeStringField("propertyChangedToConstant", this.propertyChangedToConstant);
         return jsonWriter.writeEndObject();
     }
@@ -66,14 +65,15 @@ public final class PropertyChangedToConstant extends PropertyChangedToConstantPa
     @Generated
     public static PropertyChangedToConstant fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            String propertyChangedToConstant = null;
+            PropertyChangedToConstant deserializedPropertyChangedToConstant = new PropertyChangedToConstant();
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 reader.skipChildren();
             }
-            return new PropertyChangedToConstant(propertyChangedToConstant);
+
+            return deserializedPropertyChangedToConstant;
         });
     }
 }
