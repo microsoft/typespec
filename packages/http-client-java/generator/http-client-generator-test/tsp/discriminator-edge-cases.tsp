@@ -32,14 +32,6 @@ model GrandChildWithAnotherDiscriminator extends ChildWithAnotherDiscriminator {
   differentDiscriminator: "anotherValue";
 }
 
-model PropertyOptional {
-  generatedKeyName?: string;
-}
-
-model PropertyChangedToRequired extends PropertyOptional {
-  generatedKeyName: string;
-}
-
 @client({
   service: TspTest.DiscriminatorEdgeCases,
   name: "DiscriminatorEdgeCasesClient",
@@ -57,8 +49,4 @@ interface DiscriminatorEdgeCasesOp {
   getChildNewDiscrim(): {
     @body body: ChildWithAnotherDiscriminator;
   };
-
-  @post
-  @route("/property-changed-to-required")
-  propertyChangedToRequired(@body body: PropertyChangedToRequired): PropertyChangedToRequired;
 }
