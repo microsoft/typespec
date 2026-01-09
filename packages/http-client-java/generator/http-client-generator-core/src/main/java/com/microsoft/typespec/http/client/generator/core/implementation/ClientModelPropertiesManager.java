@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Manages metadata about properties in a {@link ClientModel} and how they correlate with model class generation.
@@ -124,6 +125,14 @@ public final class ClientModelPropertiesManager {
             xmlRootElementNamespace = model.getXmlNamespace();
         }
 
+        Set<String> thisModelPropertySerializeNames = model.getProperties()
+            .stream()
+            // discriminator property is known to be redefined in subclass
+            .filter(property -> !property.isPolymorphicDiscriminator())
+            .map(ClientModelProperty::getSerializedName)
+            .filter(name -> Objects.nonNull(name) && !name.isEmpty())
+            .collect(Collectors.toSet());
+
         for (ClientModelProperty property : ClientModelUtil.getParentProperties(model)) {
             // Ignore additional properties from parent types as it will be handled specifically in the subtype.
             if (property.isAdditionalProperties()) {
@@ -136,6 +145,11 @@ public final class ClientModelPropertiesManager {
             }
 
             if (!property.isPolymorphicDiscriminator()) {
+                if (thisModelPropertySerializeNames.contains(property.getSerializedName())) {
+                    // skip the property from parent that is overwritten in this model
+                    continue;
+                }
+
                 superPropertyConsumer(property, superRequiredProperties, superConstructorProperties,
                     superReadOnlyProperties, superSetterProperties, settings);
                 hasRequiredProperties |= property.isRequired();
