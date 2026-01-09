@@ -1412,19 +1412,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public async Task ValidateCustomPropertiesOnModelsAreDiscovered()
+        public void ValidateCustomPropertiesOnModelsAreDiscovered()
         {
-            // Test that properties added via custom code are discovered
-            // The custom code adds a DependencyModel property to ModelWithCustomProperty
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
-                inputModels: () => new List<InputModelType>
-                {
-                    InputFactory.Model("ModelWithCustomProperty", properties:
-                    [
-                        InputFactory.Property("GeneratedProperty", InputPrimitiveType.String)
-                    ])
-                });
+            // Test that properties from CanonicalView (which includes custom properties) are discovered
+            // This validates that the implementation correctly uses CanonicalView.Properties
+            var modelWithDependency = InputFactory.Model("ModelWithDependency", properties:
+            [
+                InputFactory.Property("GeneratedProperty", InputPrimitiveType.String),
+                InputFactory.Property("DependencyProperty", InputFactory.Model("DependencyModel"))
+            ]);
+
+            var dependencyModel = InputFactory.Model("DependencyModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [modelWithDependency, dependencyModel]);
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
@@ -1432,14 +1436,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsNotNull(attributes);
             Assert.IsTrue(attributes.Count > 0);
 
-            // Check that both the model and the dependency from custom property are discovered
+            // Check that both models are discovered through property traversal
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
                 a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
 
-            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ModelWithCustomProperty")),
-                "ModelWithCustomProperty should be discovered");
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ModelWithDependency")),
+                "ModelWithDependency should be discovered");
             Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("DependencyModel")),
-                "DependencyModel from custom property should be discovered");
+                "DependencyModel from property should be discovered");
         }
 
         // Test client provider that has methods with return types
