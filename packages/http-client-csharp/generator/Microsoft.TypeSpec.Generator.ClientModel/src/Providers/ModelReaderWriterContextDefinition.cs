@@ -86,10 +86,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var buildableProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
             var buildableTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
 
-            // Get all providers from the output library that are models or implement MRW interface types
-            var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .Where(t => t is ModelProvider || ImplementsModelReaderWriter(t))
-                .ToHashSet(s_typeProviderNameComparer);
+            // Process all providers from the output library to discover types from methods and properties
+            var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
 
             // Process each provider recursively
             foreach (var provider in providers)
@@ -127,12 +125,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             HashSet<CSharpType> buildableTypes)
         {
             // Avoid duplicate processing
-            if (!ShouldProcessTypeProvider(currentProvider, visitedTypeProviders))
+            if (!visitedTypeProviders.Add(currentProvider))
             {
                 return;
             }
-            buildableProviders.Add(currentProvider);
 
+            // Only add to buildableProviders if it implements MRW
+            if (ImplementsModelReaderWriter(currentProvider))
+            {
+                buildableProviders.Add(currentProvider);
+            }
+
+            // Process all providers to discover types from methods and properties
             if (currentProvider is not null)
             {
                 CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
