@@ -13,8 +13,10 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
@@ -891,7 +893,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        private class DependencyModel : IJsonModel<DependencyModel>
+        public class DependencyModel : IJsonModel<DependencyModel>
         {
             DependencyModel? IJsonModel<DependencyModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             {
@@ -1412,23 +1414,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public void ValidateCustomPropertiesOnModelsAreDiscovered()
+        public async Task ValidateCustomPropertiesOnModelsAreDiscovered()
         {
-            // Test that properties from CanonicalView (which includes custom properties) are discovered
-            // This validates that the implementation correctly uses CanonicalView.Properties
-            var modelWithDependency = InputFactory.Model("ModelWithDependency", properties:
+            // Test that properties added via custom code are discovered
+            // The custom code adds a DependencyModel property to ModelWithCustomProperty
+            var modelWithCustomProperty = InputFactory.Model("ModelWithCustomProperty", properties:
             [
-                InputFactory.Property("GeneratedProperty", InputPrimitiveType.String),
-                InputFactory.Property("DependencyProperty", InputFactory.Model("DependencyModel"))
-            ]);
-
-            var dependencyModel = InputFactory.Model("DependencyModel", properties:
-            [
-                InputFactory.Property("Value", InputPrimitiveType.String)
+                InputFactory.Property("GeneratedProperty", InputPrimitiveType.String)
             ]);
 
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                inputModels: () => [modelWithDependency, dependencyModel]);
+                inputModels: () => [modelWithCustomProperty]);
+
+            // Set up the compilation to load custom code
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilation, null)) { CallBase = true };
+            mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
@@ -1436,14 +1437,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsNotNull(attributes);
             Assert.IsTrue(attributes.Count > 0);
 
-            // Check that both models are discovered through property traversal
+            // Check that both the model and the dependency from custom property are discovered
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
                 a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
 
-            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ModelWithDependency")),
-                "ModelWithDependency should be discovered");
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ModelWithCustomProperty")),
+                "ModelWithCustomProperty should be discovered");
             Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("DependencyModel")),
-                "DependencyModel from property should be discovered");
+                "DependencyModel from custom property should be discovered");
         }
 
         // Test client provider that has methods with return types
