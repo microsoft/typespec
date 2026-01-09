@@ -621,7 +621,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Should include both the collection model and the framework type it contains
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count());
-            
+
             var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
             Assert.IsTrue(attributeStrings.Contains("typeof(global::Sample.Models.CollectionModel)"),
                 "Should include CollectionModel");
@@ -662,7 +662,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Should include both the collection model and the framework type it contains
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count());
-            
+
             var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
             Assert.IsTrue(attributeStrings.Contains("typeof(global::Sample.Models.CollectionModel)"),
                 "Should include CollectionModel");
@@ -698,7 +698,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Should include all expected types
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(expectedCount, buildableAttributes.Count());
-            
+
             var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
             var expectedTypes = new[]
             {
@@ -707,7 +707,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
                 "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.NestedFrameworkType)"
             };
-            
+
             foreach (var expectedType in expectedTypes)
             {
                 Assert.IsTrue(attributeStrings.Contains(expectedType), $"Should include {expectedType}");
@@ -1269,7 +1269,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         public void ValidateDuplicateModelNamesInDifferentNamespaces()
         {
             // Create two models with the same name but different namespaces by setting the namespace in the InputModelType
-            var model1 = InputFactory.Model("DuplicateModel", 
+            var model1 = InputFactory.Model("DuplicateModel",
                 @namespace: "Sample.Namespace1",
                 properties:
                 [
@@ -1422,14 +1422,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             [
                 InputFactory.Property("GeneratedProperty", InputPrimitiveType.String)
             ]);
+            var dependencyModel = InputFactory.Model("DependencyModel", properties:
+            [
+                InputFactory.Property("DepProperty", InputPrimitiveType.Int32)
+            ]);
 
-            var mockGenerator = MockHelpers.LoadMockGenerator(
-                inputModels: () => [modelWithCustomProperty]);
-
-            // Set up the compilation to load custom code
-            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilation, null)) { CallBase = true };
-            mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [modelWithCustomProperty, dependencyModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
