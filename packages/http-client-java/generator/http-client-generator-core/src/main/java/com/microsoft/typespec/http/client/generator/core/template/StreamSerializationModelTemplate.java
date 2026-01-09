@@ -1605,6 +1605,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 }
             } else if (wireType instanceof IterableType) {
                 final String propertyStringVariableName = property.getName() + "EncodedAsString";
+                IType wireElementType = ((IterableType) wireType).getElementType();
                 if (property.getArrayEncoding() != null) {
                     // need to prepare the expression for propertyStringVariableName,
                     // to be used in "if (property.getArrayEncoding() == null)" block
@@ -1617,15 +1618,25 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
                 deserializationBlock.text(property.getName() + " = ");
                 if (property.getArrayEncoding() == null) {
-                    deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType,
-                        ((IterableType) wireType).getElementType(), ((IterableType) clientType).getElementType(), 0);
+                    deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType, wireElementType,
+                        ((IterableType) clientType).getElementType(), 0);
                 } else {
-                    // wireType is String
-                    // at present, only String element is supported. this check is in ts code.
                     // LinkedList is used to be consistent with internal code of core, e.g. "readArray" API
-                    deserializationBlock.line(
-                        "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
-                        propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
+                    if (wireElementType == ClassType.STRING) {
+                        // wireType is String
+                        deserializationBlock.line(
+                            "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
+                            propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
+                    } else {
+                        // wireType need to be converted from String
+                        String conversionExpress = wireElementType.defaultValueExpression("valueAsString")
+                            .replace("\"valueAsString\"", "valueAsString");
+                        deserializationBlock.line(
+                            "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.stream(%1$s.split(\"%2$s\", -1)).map(valueAsString -> %3$s).collect(Collectors.toList()));",
+                            propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter(),
+                            conversionExpress);
+
+                    }
                 }
 
                 if (!propertiesManager.hasConstructorArguments()) {
