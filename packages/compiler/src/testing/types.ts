@@ -1,6 +1,7 @@
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, Entity, Type } from "../core/types.js";
+import { Typekit } from "../typekit/define-kit.js";
 import { PositionedMarker } from "./fourslash.js";
 import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 
@@ -52,6 +53,9 @@ export interface TestFileSystem {
 export type TestCompileResult<T extends Record<string, Entity>> = T & {
   /** The program created in this test compilation. */
   readonly program: Program;
+
+  /** The typekit for this compilation. */
+  readonly $: Typekit;
 
   /** File system */
   readonly fs: TestFileSystem;
@@ -195,6 +199,9 @@ export interface EmitterTester<Result = TestEmitterCompileResult>
 export interface TesterInstanceBase {
   /** Program created. Only available after calling `compile`, `diagnose` or `compileAndDiagnose` */
   get program(): Program;
+
+  /** The typekit for this compilation. Only available after calling `compile`, `diagnose` or `compileAndDiagnose` */
+  get $(): Typekit;
 
   /** File system used */
   readonly fs: TestFileSystem;

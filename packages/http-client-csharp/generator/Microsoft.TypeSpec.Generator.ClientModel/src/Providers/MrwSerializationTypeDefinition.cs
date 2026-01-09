@@ -527,6 +527,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
             bool onlyContainsUnknownDerivedModel = _model.DerivedModels.Count == 1;
             var discriminator = _model.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+            if (discriminator == null && _model.BaseModelProvider != null)
+            {
+                // Look for discriminator property in the base model
+                discriminator = _model.BaseModelProvider.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+            }
+
             var deserializeDiscriminatedModelsConditions = BuildDiscriminatedModelsCondition(
                 discriminator,
                 GetDiscriminatorSwitchCases(unknownVariant),
@@ -568,7 +574,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var model = _model.DerivedModels[i];
                 if (ReferenceEquals(model, unknownVariant))
+                {
                     continue;
+                }
                 cases[index++] = new SwitchCaseStatement(
                     Literal(model.DiscriminatorValue!),
                     Return(GetDeserializationMethodInvocationForType(model, _jsonElementParameterSnippet, _dataParameter, _serializationOptionsParameter)));

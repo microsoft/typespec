@@ -68,6 +68,14 @@ namespace SampleTypeSpec
             {
                 return null;
             }
+            if (element.TryGetProperty("kind"u8, out JsonElement discriminator))
+            {
+                switch (discriminator.GetString())
+                {
+                    case "dog":
+                        return Dog.DeserializeDog(element, options);
+                }
+            }
             return UnknownPet.DeserializeUnknownPet(element, options);
         }
 
