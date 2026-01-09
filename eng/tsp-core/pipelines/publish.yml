@@ -42,6 +42,7 @@ extends:
       - stage: publish_npm
         displayName: Publish Npm Packages
         dependsOn: build
+        condition: or(eq('true', dependencies.build.outputs['build.pack_npm_packages_stable.PUBLISH_PKG_ANY']), eq('true', dependencies.build.outputs['build.pack_npm_packages_next.PUBLISH_PKG_ANY']))
 
         pool:
           name: $(LINUXPOOL)
@@ -49,13 +50,6 @@ extends:
           os: linux
 
         jobs:
-          - job: debug
-            variables:
-              varFromA: $[convertToJson(stageDependencies.build.outputs)]
-              deps: $[convertToJson(stageDependencies)] # create a variable with the job dependencies
-            steps:
-              - pwsh: Write-Host "$(deps)"
-
           - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
             parameters:
               artifactName: npm-packages-stable
