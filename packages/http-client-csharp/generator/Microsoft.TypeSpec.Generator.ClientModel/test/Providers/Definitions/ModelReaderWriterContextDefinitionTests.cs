@@ -1411,6 +1411,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "FrameworkModelWithMRW should be discovered from method return type");
         }
 
+        [Test]
+        public async Task ValidateCustomPropertiesOnModelsAreDiscovered()
+        {
+            // Test that properties added via custom code are discovered
+            // The custom code adds a DependencyModel property to ModelWithCustomProperty
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => new List<InputModelType>
+                {
+                    InputFactory.Model("ModelWithCustomProperty", properties:
+                    [
+                        InputFactory.Property("GeneratedProperty", InputPrimitiveType.String)
+                    ])
+                });
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Check that both the model and the dependency from custom property are discovered
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ModelWithCustomProperty")),
+                "ModelWithCustomProperty should be discovered");
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("DependencyModel")),
+                "DependencyModel from custom property should be discovered");
+        }
+
         // Test client provider that has methods with return types
         private class TestClientProvider : TypeProvider
         {

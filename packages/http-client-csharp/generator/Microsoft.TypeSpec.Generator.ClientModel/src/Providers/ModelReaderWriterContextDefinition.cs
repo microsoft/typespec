@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -292,7 +293,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var type = returnType;
 
             // Unwrap Task<T> or ValueTask<T>
-            if (type.Name == "Task" || type.Name == "ValueTask")
+            if (type.IsFrameworkType &&
+                (type.FrameworkType.Equals(typeof(Task)) || type.FrameworkType.Equals(typeof(ValueTask))))
             {
                 if (type.Arguments.Count > 0)
                 {
