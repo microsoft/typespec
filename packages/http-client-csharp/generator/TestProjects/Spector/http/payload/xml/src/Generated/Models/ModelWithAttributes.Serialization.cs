@@ -7,59 +7,17 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 
 namespace Payload.Xml
 {
     /// <summary> Contains fields that are XML attributes. </summary>
-    public partial class ModelWithAttributes : IXmlSerializable, IJsonModel<ModelWithAttributes>
+    public partial class ModelWithAttributes : IXmlSerializable, IPersistableModel<ModelWithAttributes>
     {
         /// <summary> Initializes a new instance of <see cref="ModelWithAttributes"/> for deserialization. </summary>
         internal ModelWithAttributes()
         {
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<ModelWithAttributes>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ModelWithAttributes>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(ModelWithAttributes)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("id1"u8);
-            writer.WriteNumberValue(Id1);
-            writer.WritePropertyName("id2"u8);
-            writer.WriteStringValue(Id2);
-            writer.WritePropertyName("enabled"u8);
-            writer.WriteBooleanValue(Enabled);
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
         }
 
         private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
@@ -88,60 +46,6 @@ namespace Payload.Xml
             writer.WriteStartElement("enabled");
             writer.WriteValue(Enabled);
             writer.WriteEndElement();
-        }
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ModelWithAttributes IJsonModel<ModelWithAttributes>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ModelWithAttributes JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ModelWithAttributes>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(ModelWithAttributes)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeModelWithAttributes(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static ModelWithAttributes DeserializeModelWithAttributes(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            int id1 = default;
-            string id2 = default;
-            bool enabled = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("id1"u8))
-                {
-                    id1 = prop.Value.GetInt32();
-                    continue;
-                }
-                if (prop.NameEquals("id2"u8))
-                {
-                    id2 = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("enabled"u8))
-                {
-                    enabled = prop.Value.GetBoolean();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new ModelWithAttributes(id1, id2, enabled, additionalBinaryDataProperties);
         }
 
         internal static ModelWithAttributes DeserializeModelWithAttributes(XElement element, ModelReaderWriterOptions options)
@@ -187,22 +91,16 @@ namespace Payload.Xml
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ModelWithAttributes>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
+            if (format != "X")
             {
-                case "X":
-                    {
-                        using MemoryStream stream = new MemoryStream(256);
-                        using (XmlWriter writer = XmlWriter.Create(stream))
-                        {
-                            Write(writer, options);
-                        }
-                        return new BinaryData(stream.ToArray());
-                    }
-                case "J":
-                    return ModelReaderWriter.Write(this, options, PayloadXmlContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ModelWithAttributes)} does not support writing '{options.Format}' format.");
+                throw new FormatException($"The model {nameof(ModelWithAttributes)} does not support writing '{format}' format.");
             }
+            using MemoryStream stream = new MemoryStream(256);
+            using (XmlWriter writer = XmlWriter.Create(stream))
+            {
+                Write(writer, options);
+            }
+            return new BinaryData(stream.ToArray());
         }
 
         /// <param name="data"> The data to parse. </param>
@@ -214,20 +112,13 @@ namespace Payload.Xml
         protected virtual ModelWithAttributes PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ModelWithAttributes>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
+            if (format != "X")
             {
-                case "X":
-                    using (var stream = data.ToStream())
-                    {
-                        return DeserializeModelWithAttributes(XElement.Load(stream, LoadOptions.None), options);
-                    }
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeModelWithAttributes(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(ModelWithAttributes)} does not support reading '{options.Format}' format.");
+                throw new FormatException($"The model {nameof(ModelWithAttributes)} does not support reading '{format}' format.");
+            }
+            using (var dataStream = data.ToStream())
+            {
+                return DeserializeModelWithAttributes(XElement.Load(dataStream, LoadOptions.None), options);
             }
         }
 

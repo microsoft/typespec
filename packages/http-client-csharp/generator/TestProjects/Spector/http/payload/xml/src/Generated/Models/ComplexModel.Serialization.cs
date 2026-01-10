@@ -7,41 +7,17 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 
 namespace Payload.Xml
 {
     /// <summary> A complex model that inherits from SimpleModel. </summary>
-    public partial class ComplexModel : IXmlSerializable, IJsonModel<ComplexModel>
+    public partial class ComplexModel : IXmlSerializable, IPersistableModel<ComplexModel>
     {
         /// <summary> Initializes a new instance of <see cref="ComplexModel"/> for deserialization. </summary>
         internal ComplexModel()
         {
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<ComplexModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ComplexModel>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(ComplexModel)} does not support writing '{format}' format.");
-            }
-            base.JsonModelWriteCore(writer, options);
-            writer.WritePropertyName("bar"u8);
-            writer.WriteStringValue(Bar);
         }
 
         private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
@@ -65,60 +41,6 @@ namespace Payload.Xml
             writer.WriteStartElement("bar");
             writer.WriteValue(Bar);
             writer.WriteEndElement();
-        }
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ComplexModel IJsonModel<ComplexModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (ComplexModel)JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override SimpleModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ComplexModel>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(ComplexModel)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeComplexModel(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static ComplexModel DeserializeComplexModel(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            string name = default;
-            int age = default;
-            string bar = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("name"u8))
-                {
-                    name = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("age"u8))
-                {
-                    age = prop.Value.GetInt32();
-                    continue;
-                }
-                if (prop.NameEquals("bar"u8))
-                {
-                    bar = prop.Value.GetString();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new ComplexModel(name, age, bar, additionalBinaryDataProperties);
         }
 
         internal static ComplexModel DeserializeComplexModel(XElement element, ModelReaderWriterOptions options)
@@ -162,22 +84,16 @@ namespace Payload.Xml
         protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ComplexModel>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
+            if (format != "X")
             {
-                case "X":
-                    {
-                        using MemoryStream stream = new MemoryStream(256);
-                        using (XmlWriter writer = XmlWriter.Create(stream))
-                        {
-                            Write(writer, options);
-                        }
-                        return new BinaryData(stream.ToArray());
-                    }
-                case "J":
-                    return ModelReaderWriter.Write(this, options, PayloadXmlContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ComplexModel)} does not support writing '{options.Format}' format.");
+                throw new FormatException($"The model {nameof(ComplexModel)} does not support writing '{format}' format.");
             }
+            using MemoryStream stream = new MemoryStream(256);
+            using (XmlWriter writer = XmlWriter.Create(stream))
+            {
+                Write(writer, options);
+            }
+            return new BinaryData(stream.ToArray());
         }
 
         /// <param name="data"> The data to parse. </param>
@@ -189,20 +105,13 @@ namespace Payload.Xml
         protected override SimpleModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ComplexModel>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
+            if (format != "X")
             {
-                case "X":
-                    using (var dataStream = data.ToStream())
-                    {
-                        return DeserializeComplexModel(XElement.Load(dataStream, LoadOptions.None), options);
-                    }
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeComplexModel(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(ComplexModel)} does not support reading '{options.Format}' format.");
+                throw new FormatException($"The model {nameof(ComplexModel)} does not support reading '{format}' format.");
+            }
+            using (var dataStream = data.ToStream())
+            {
+                return DeserializeComplexModel(XElement.Load(dataStream, LoadOptions.None), options);
             }
         }
 

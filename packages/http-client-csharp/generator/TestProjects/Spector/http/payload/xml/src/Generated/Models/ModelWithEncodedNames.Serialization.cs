@@ -8,67 +8,17 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 
 namespace Payload.Xml
 {
     /// <summary> Uses encodedName instead of Xml.Name which is functionally equivalent. </summary>
-    public partial class ModelWithEncodedNames : IXmlSerializable, IJsonModel<ModelWithEncodedNames>
+    public partial class ModelWithEncodedNames : IXmlSerializable, IPersistableModel<ModelWithEncodedNames>
     {
         /// <summary> Initializes a new instance of <see cref="ModelWithEncodedNames"/> for deserialization. </summary>
         internal ModelWithEncodedNames()
         {
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<ModelWithEncodedNames>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ModelWithEncodedNames>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(ModelWithEncodedNames)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("SimpleModelData"u8);
-            writer.WriteObjectValue(ModelData, options);
-            writer.WritePropertyName("PossibleColors"u8);
-            writer.WriteStartArray();
-            foreach (string item in Colors)
-            {
-                if (item == null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
-                writer.WriteStringValue(item);
-            }
-            writer.WriteEndArray();
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
         }
 
         private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
@@ -97,66 +47,6 @@ namespace Payload.Xml
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
-        }
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ModelWithEncodedNames IJsonModel<ModelWithEncodedNames>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ModelWithEncodedNames JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ModelWithEncodedNames>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(ModelWithEncodedNames)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeModelWithEncodedNames(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static ModelWithEncodedNames DeserializeModelWithEncodedNames(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            SimpleModel modelData = default;
-            IList<string> colors = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("SimpleModelData"u8))
-                {
-                    modelData = SimpleModel.DeserializeSimpleModel(prop.Value, options);
-                    continue;
-                }
-                if (prop.NameEquals("PossibleColors"u8))
-                {
-                    List<string> array = new List<string>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        if (item.ValueKind == JsonValueKind.Null)
-                        {
-                            array.Add(null);
-                        }
-                        else
-                        {
-                            array.Add(item.GetString());
-                        }
-                    }
-                    colors = array;
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new ModelWithEncodedNames(modelData, colors, additionalBinaryDataProperties);
         }
 
         internal static ModelWithEncodedNames DeserializeModelWithEncodedNames(XElement element, ModelReaderWriterOptions options)
@@ -197,22 +87,16 @@ namespace Payload.Xml
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ModelWithEncodedNames>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
+            if (format != "X")
             {
-                case "X":
-                    {
-                        using MemoryStream stream = new MemoryStream(256);
-                        using (XmlWriter writer = XmlWriter.Create(stream))
-                        {
-                            Write(writer, options);
-                        }
-                        return new BinaryData(stream.ToArray());
-                    }
-                case "J":
-                    return ModelReaderWriter.Write(this, options, PayloadXmlContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ModelWithEncodedNames)} does not support writing '{options.Format}' format.");
+                throw new FormatException($"The model {nameof(ModelWithEncodedNames)} does not support writing '{format}' format.");
             }
+            using MemoryStream stream = new MemoryStream(256);
+            using (XmlWriter writer = XmlWriter.Create(stream))
+            {
+                Write(writer, options);
+            }
+            return new BinaryData(stream.ToArray());
         }
 
         /// <param name="data"> The data to parse. </param>
@@ -224,20 +108,13 @@ namespace Payload.Xml
         protected virtual ModelWithEncodedNames PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ModelWithEncodedNames>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
+            if (format != "X")
             {
-                case "X":
-                    using (var stream = data.ToStream())
-                    {
-                        return DeserializeModelWithEncodedNames(XElement.Load(stream, LoadOptions.None), options);
-                    }
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeModelWithEncodedNames(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(ModelWithEncodedNames)} does not support reading '{options.Format}' format.");
+                throw new FormatException($"The model {nameof(ModelWithEncodedNames)} does not support reading '{format}' format.");
+            }
+            using (var dataStream = data.ToStream())
+            {
+                return DeserializeModelWithEncodedNames(XElement.Load(dataStream, LoadOptions.None), options);
             }
         }
 

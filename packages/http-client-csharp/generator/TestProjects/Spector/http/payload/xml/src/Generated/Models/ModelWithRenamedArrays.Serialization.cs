@@ -8,72 +8,17 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 
 namespace Payload.Xml
 {
     /// <summary> Contains fields of wrapped and unwrapped arrays of primitive types that have different XML representations. </summary>
-    public partial class ModelWithRenamedArrays : IXmlSerializable, IJsonModel<ModelWithRenamedArrays>
+    public partial class ModelWithRenamedArrays : IXmlSerializable, IPersistableModel<ModelWithRenamedArrays>
     {
         /// <summary> Initializes a new instance of <see cref="ModelWithRenamedArrays"/> for deserialization. </summary>
         internal ModelWithRenamedArrays()
         {
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<ModelWithRenamedArrays>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ModelWithRenamedArrays>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(ModelWithRenamedArrays)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("Colors"u8);
-            writer.WriteStartArray();
-            foreach (string item in Colors)
-            {
-                if (item == null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
-                writer.WriteStringValue(item);
-            }
-            writer.WriteEndArray();
-            writer.WritePropertyName("Counts"u8);
-            writer.WriteStartArray();
-            foreach (int item in Counts)
-            {
-                writer.WriteNumberValue(item);
-            }
-            writer.WriteEndArray();
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
         }
 
         private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
@@ -107,71 +52,6 @@ namespace Payload.Xml
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
-        }
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ModelWithRenamedArrays IJsonModel<ModelWithRenamedArrays>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ModelWithRenamedArrays JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ModelWithRenamedArrays>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(ModelWithRenamedArrays)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeModelWithRenamedArrays(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static ModelWithRenamedArrays DeserializeModelWithRenamedArrays(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            IList<string> colors = default;
-            IList<int> counts = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("Colors"u8))
-                {
-                    List<string> array = new List<string>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        if (item.ValueKind == JsonValueKind.Null)
-                        {
-                            array.Add(null);
-                        }
-                        else
-                        {
-                            array.Add(item.GetString());
-                        }
-                    }
-                    colors = array;
-                    continue;
-                }
-                if (prop.NameEquals("Counts"u8))
-                {
-                    List<int> array = new List<int>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(item.GetInt32());
-                    }
-                    counts = array;
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new ModelWithRenamedArrays(colors, counts, additionalBinaryDataProperties);
         }
 
         internal static ModelWithRenamedArrays DeserializeModelWithRenamedArrays(XElement element, ModelReaderWriterOptions options)
@@ -212,22 +92,16 @@ namespace Payload.Xml
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ModelWithRenamedArrays>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
+            if (format != "X")
             {
-                case "X":
-                    {
-                        using MemoryStream stream = new MemoryStream(256);
-                        using (XmlWriter writer = XmlWriter.Create(stream))
-                        {
-                            Write(writer, options);
-                        }
-                        return new BinaryData(stream.ToArray());
-                    }
-                case "J":
-                    return ModelReaderWriter.Write(this, options, PayloadXmlContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ModelWithRenamedArrays)} does not support writing '{options.Format}' format.");
+                throw new FormatException($"The model {nameof(ModelWithRenamedArrays)} does not support writing '{format}' format.");
             }
+            using MemoryStream stream = new MemoryStream(256);
+            using (XmlWriter writer = XmlWriter.Create(stream))
+            {
+                Write(writer, options);
+            }
+            return new BinaryData(stream.ToArray());
         }
 
         /// <param name="data"> The data to parse. </param>
@@ -239,20 +113,13 @@ namespace Payload.Xml
         protected virtual ModelWithRenamedArrays PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ModelWithRenamedArrays>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
+            if (format != "X")
             {
-                case "X":
-                    using (var stream = data.ToStream())
-                    {
-                        return DeserializeModelWithRenamedArrays(XElement.Load(stream, LoadOptions.None), options);
-                    }
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeModelWithRenamedArrays(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(ModelWithRenamedArrays)} does not support reading '{options.Format}' format.");
+                throw new FormatException($"The model {nameof(ModelWithRenamedArrays)} does not support reading '{format}' format.");
+            }
+            using (var dataStream = data.ToStream())
+            {
+                return DeserializeModelWithRenamedArrays(XElement.Load(dataStream, LoadOptions.None), options);
             }
         }
 
