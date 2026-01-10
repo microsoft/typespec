@@ -507,27 +507,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (name != null)
             {
-                // Reset the custom code view to reflect the new name
-                _customCodeView = new(BuildCustomCodeView(name, Type.Namespace));
-                // Give precedence to the custom code view name if it exists
-                _lastContractView = new(BuildLastContractView(
-                    _customCodeView.Value?.Name ?? name,
-                    _customCodeView.Value?.Type.Namespace ?? Type.Namespace));
-                Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace);
+                ResetMembersBasedOnIdentityChange(name, Type.Namespace);
             }
 
             if (@namespace != null)
             {
-                // Reset the custom code view to reflect the new namespace
-                _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
-                _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
-                _declarationModifiers = BuildDeclarationModifiersInternal(); // recalculate declaration modifiers
-                Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
+                ResetMembersBasedOnIdentityChange(Type.Name, @namespace);
             }
 
             // Rebuild the canonical view
             _canonicalView = new(BuildCanonicalView);
         }
+
+        private void ResetMembersBasedOnIdentityChange(string name, string @namespace)
+        {
+            // Reset the custom code view to reflect the new namespace
+            _customCodeView = new(BuildCustomCodeView(name, @namespace));
+            _lastContractView = new(BuildLastContractView(name, @namespace));
+            // recalculate declaration modifiers and constructors
+            _declarationModifiers = null;
+            // constructors might change based on declaration modifier changes
+            _constructors = null;
+            Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
+        }
+
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 
         protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");

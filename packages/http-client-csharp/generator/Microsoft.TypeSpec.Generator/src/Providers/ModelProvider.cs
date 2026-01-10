@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
                               $"The {Name}.";
-            if (_isAbstract)
+            if (IsAbstract)
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
@@ -51,7 +51,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return description;
         }
 
-        private readonly bool _isAbstract;
         private readonly bool _isMultiLevelDiscriminator;
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
@@ -63,11 +62,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
+        private bool IsAbstract => _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null && LastContractView?.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) != false;
 
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
-            _isAbstract = _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null && LastContractView?.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract) != false;
             _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
 
             if (_inputModel.BaseModel is not null)
@@ -183,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            if (_isAbstract)
+            if (IsAbstract)
             {
                 declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
@@ -572,7 +571,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private bool ComputeIsMultiLevelDiscriminator()
         {
             // Only applies to non-abstract models with a base model
-            if (_isAbstract || _inputModel.BaseModel == null)
+            if (IsAbstract || _inputModel.BaseModel == null)
             {
                 return false;
             }
