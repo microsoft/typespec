@@ -4,6 +4,6 @@ using SampleTypeSpec;
 
 namespace NewNamespace;
 
-internal class MockInputModel
+internal class CustomizedModel
 {
 }
