@@ -507,28 +507,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (name != null)
             {
-                ResetMembersBasedOnIdentityChange(name, Type.Namespace);
+                ResetMembersBasedOnIdentityChange(name);
             }
 
             if (@namespace != null)
             {
-                ResetMembersBasedOnIdentityChange(Type.Name, @namespace);
+                ResetMembersBasedOnIdentityChange(@namespace: @namespace);
             }
 
             // Rebuild the canonical view
             _canonicalView = new(BuildCanonicalView);
         }
 
-        private void ResetMembersBasedOnIdentityChange(string name, string @namespace)
+        private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
         {
             // Reset the custom code view to reflect the new namespace
-            _customCodeView = new(BuildCustomCodeView(name, @namespace));
-            _lastContractView = new(BuildLastContractView(name, @namespace));
+            _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
+            name = _customCodeView.Value?.Name ?? name ?? Type.Name;
+            @namespace = _customCodeView.Value?.Type.Namespace ?? @namespace ?? Type.Namespace;
+            _lastContractView = new(BuildLastContractView(
+                name,
+                @namespace));
             // recalculate declaration modifiers and constructors
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes
             _constructors = null;
-            Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
+            Type.Update(name: name, @namespace: @namespace);
         }
 
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
