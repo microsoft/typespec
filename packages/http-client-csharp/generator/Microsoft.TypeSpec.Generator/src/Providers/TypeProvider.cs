@@ -528,7 +528,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes
             _constructors = null;
-            Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
+            Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
         }
 
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
