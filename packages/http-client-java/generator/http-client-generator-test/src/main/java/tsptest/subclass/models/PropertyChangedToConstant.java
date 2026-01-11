@@ -27,6 +27,7 @@ public final class PropertyChangedToConstant extends PropertyChangedToConstantPa
      */
     @Generated
     public PropertyChangedToConstant() {
+        super("constantValue");
     }
 
     /**

@@ -29,6 +29,7 @@ public final class DuplicateRequiredProperty extends DuplicateRequiredPropertyPa
      */
     @Generated
     public DuplicateRequiredProperty(String duplicateRequiredProperty) {
+        super(duplicateRequiredProperty);
         this.duplicateRequiredProperty = duplicateRequiredProperty;
     }
 
