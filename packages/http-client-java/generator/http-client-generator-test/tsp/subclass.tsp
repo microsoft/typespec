@@ -41,9 +41,9 @@ model PropertyChangedToConstant extends PropertyChangedToConstantParent {
 // }
 
 model Body {
-  duplicateRequiredProperty: DuplicateRequiredProperty;
-  propertyChangedToRequired: PropertyChangedToRequired;
-  propertyChangedToConstant: PropertyChangedToConstant;
+  duplicateRequiredProperty?: DuplicateRequiredProperty;
+  propertyChangedToRequired?: PropertyChangedToRequired;
+  propertyChangedToConstant?: PropertyChangedToConstant;
 }
 
 @route("/subclass")

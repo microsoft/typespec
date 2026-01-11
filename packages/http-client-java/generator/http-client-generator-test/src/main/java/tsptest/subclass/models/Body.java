@@ -4,8 +4,8 @@
 
 package tsptest.subclass.models;
 
+import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.Generated;
-import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -15,39 +15,31 @@ import java.io.IOException;
 /**
  * The Body model.
  */
-@Immutable
+@Fluent
 public final class Body implements JsonSerializable<Body> {
     /*
      * The duplicateRequiredProperty property.
      */
     @Generated
-    private final DuplicateRequiredProperty duplicateRequiredProperty;
+    private DuplicateRequiredProperty duplicateRequiredProperty;
 
     /*
      * The propertyChangedToRequired property.
      */
     @Generated
-    private final PropertyChangedToRequired propertyChangedToRequired;
+    private PropertyChangedToRequired propertyChangedToRequired;
 
     /*
      * The propertyChangedToConstant property.
      */
     @Generated
-    private final PropertyChangedToConstant propertyChangedToConstant;
+    private PropertyChangedToConstant propertyChangedToConstant;
 
     /**
      * Creates an instance of Body class.
-     * 
-     * @param duplicateRequiredProperty the duplicateRequiredProperty value to set.
-     * @param propertyChangedToRequired the propertyChangedToRequired value to set.
-     * @param propertyChangedToConstant the propertyChangedToConstant value to set.
      */
     @Generated
-    public Body(DuplicateRequiredProperty duplicateRequiredProperty,
-        PropertyChangedToRequired propertyChangedToRequired, PropertyChangedToConstant propertyChangedToConstant) {
-        this.duplicateRequiredProperty = duplicateRequiredProperty;
-        this.propertyChangedToRequired = propertyChangedToRequired;
-        this.propertyChangedToConstant = propertyChangedToConstant;
+    public Body() {
     }
 
     /**
@@ -61,6 +53,18 @@ public final class Body implements JsonSerializable<Body> {
     }
 
     /**
+     * Set the duplicateRequiredProperty property: The duplicateRequiredProperty property.
+     * 
+     * @param duplicateRequiredProperty the duplicateRequiredProperty value to set.
+     * @return the Body object itself.
+     */
+    @Generated
+    public Body setDuplicateRequiredProperty(DuplicateRequiredProperty duplicateRequiredProperty) {
+        this.duplicateRequiredProperty = duplicateRequiredProperty;
+        return this;
+    }
+
+    /**
      * Get the propertyChangedToRequired property: The propertyChangedToRequired property.
      * 
      * @return the propertyChangedToRequired value.
@@ -71,6 +75,18 @@ public final class Body implements JsonSerializable<Body> {
     }
 
     /**
+     * Set the propertyChangedToRequired property: The propertyChangedToRequired property.
+     * 
+     * @param propertyChangedToRequired the propertyChangedToRequired value to set.
+     * @return the Body object itself.
+     */
+    @Generated
+    public Body setPropertyChangedToRequired(PropertyChangedToRequired propertyChangedToRequired) {
+        this.propertyChangedToRequired = propertyChangedToRequired;
+        return this;
+    }
+
+    /**
      * Get the propertyChangedToConstant property: The propertyChangedToConstant property.
      * 
      * @return the propertyChangedToConstant value.
@@ -78,6 +94,18 @@ public final class Body implements JsonSerializable<Body> {
     @Generated
     public PropertyChangedToConstant getPropertyChangedToConstant() {
         return this.propertyChangedToConstant;
+    }
+
+    /**
+     * Set the propertyChangedToConstant property: The propertyChangedToConstant property.
+     * 
+     * @param propertyChangedToConstant the propertyChangedToConstant value to set.
+     * @return the Body object itself.
+     */
+    @Generated
+    public Body setPropertyChangedToConstant(PropertyChangedToConstant propertyChangedToConstant) {
+        this.propertyChangedToConstant = propertyChangedToConstant;
+        return this;
     }
 
     /**
@@ -99,30 +127,28 @@ public final class Body implements JsonSerializable<Body> {
      * @param jsonReader The JsonReader being read.
      * @return An instance of Body if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
-     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Body.
      */
     @Generated
     public static Body fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            DuplicateRequiredProperty duplicateRequiredProperty = null;
-            PropertyChangedToRequired propertyChangedToRequired = null;
-            PropertyChangedToConstant propertyChangedToConstant = null;
+            Body deserializedBody = new Body();
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("duplicateRequiredProperty".equals(fieldName)) {
-                    duplicateRequiredProperty = DuplicateRequiredProperty.fromJson(reader);
+                    deserializedBody.duplicateRequiredProperty = DuplicateRequiredProperty.fromJson(reader);
                 } else if ("propertyChangedToRequired".equals(fieldName)) {
-                    propertyChangedToRequired = PropertyChangedToRequired.fromJson(reader);
+                    deserializedBody.propertyChangedToRequired = PropertyChangedToRequired.fromJson(reader);
                 } else if ("propertyChangedToConstant".equals(fieldName)) {
-                    propertyChangedToConstant = PropertyChangedToConstant.fromJson(reader);
+                    deserializedBody.propertyChangedToConstant = PropertyChangedToConstant.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }
             }
-            return new Body(duplicateRequiredProperty, propertyChangedToRequired, propertyChangedToConstant);
+
+            return deserializedBody;
         });
     }
 }

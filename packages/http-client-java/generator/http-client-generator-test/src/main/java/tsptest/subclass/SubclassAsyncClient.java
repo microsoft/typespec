@@ -45,13 +45,13 @@ public final class SubclassAsyncClient {
      * <pre>
      * {@code
      * {
-     *     duplicateRequiredProperty (Required): {
+     *     duplicateRequiredProperty (Optional): {
      *         duplicateRequiredProperty: String (Required)
      *     }
-     *     propertyChangedToRequired (Required): {
+     *     propertyChangedToRequired (Optional): {
      *         propertyChangedToRequired: String (Required)
      *     }
-     *     propertyChangedToConstant (Required): {
+     *     propertyChangedToConstant (Optional): {
      *         propertyChangedToConstant: String (Required)
      *     }
      * }
@@ -63,13 +63,13 @@ public final class SubclassAsyncClient {
      * <pre>
      * {@code
      * {
-     *     duplicateRequiredProperty (Required): {
+     *     duplicateRequiredProperty (Optional): {
      *         duplicateRequiredProperty: String (Required)
      *     }
-     *     propertyChangedToRequired (Required): {
+     *     propertyChangedToRequired (Optional): {
      *         propertyChangedToRequired: String (Required)
      *     }
-     *     propertyChangedToConstant (Required): {
+     *     propertyChangedToConstant (Optional): {
      *         propertyChangedToConstant: String (Required)
      *     }
      * }

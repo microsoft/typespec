@@ -24,12 +24,9 @@ public final class PropertyChangedToConstant extends PropertyChangedToConstantPa
 
     /**
      * Creates an instance of PropertyChangedToConstant class.
-     * 
-     * @param propertyChangedToConstant the propertyChangedToConstant value to set.
      */
     @Generated
-    public PropertyChangedToConstant(String propertyChangedToConstant) {
-        super(propertyChangedToConstant);
+    public PropertyChangedToConstant() {
     }
 
     /**
