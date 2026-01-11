@@ -840,13 +840,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 || generatePrivateConstructorForJackson
                 || !requireSerialization);
 
+            // Properties required by the super class structure come first.
             ClientModel parentModel = ClientModelUtil.getClientModel(model.getParentModelName());
             if (parentModel != null) {
                 Set<String> superConstructorPropertiesSerializedNames = new HashSet<>();
                 propertiesManager
                     .forEachSuperConstructorProperty(p -> superConstructorPropertiesSerializedNames.add(p.getName()));
 
-                // Properties required by the super class structure come first.
                 ClientModelPropertiesManager parentPropertiesManager
                     = new ClientModelPropertiesManager(parentModel, settings);
                 List<ClientModelProperty> superConstructorProperties = new ArrayList<>();
