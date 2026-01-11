@@ -872,15 +872,34 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
                         superProperties.append(property.getName());
                     } else {
+                        /*
+                         * here because the property in superclass constructor is overwritten in this model
+                         * one example is
+                         *
+                         * model ParentModel {
+                         * property: string;
+                         * }
+                         * model Model extends ParentModel {
+                         * property: "constant";
+                         * }
+                         *
+                         * we use the property in this model to initiate the superclass
+                         */
                         ClientModelProperty propertyInThisModel = model.getProperties()
                             .stream()
                             .filter(p -> Objects.equals(p.getSerializedName(), property.getSerializedName()))
                             .findFirst()
                             .orElse(null);
-                        if (propertyInThisModel != null && propertyInThisModel.isConstant() && !property.isConstant()) {
-                            // property changed to constant in this model, use constant value to initiate super class
-                            superProperties.append(propertyInThisModel.getDefaultValue());
+                        if (propertyInThisModel != null) {
+                            if (propertyInThisModel.isConstant() && !property.isConstant()) {
+                                // property changed to constant in this model, use constant value to initiate super
+                                // class
+                                superProperties.append(propertyInThisModel.getDefaultValue());
+                            } else {
+                                superProperties.append(propertyInThisModel.getName());
+                            }
                         } else {
+                            // this should not happen
                             superProperties.append(property.getName());
                         }
                     }

@@ -20,27 +20,28 @@ public final class DuplicateRequiredProperty extends DuplicateRequiredPropertyPa
      * The duplicateRequiredProperty property.
      */
     @Generated
-    private final String duplicateRequiredProperty;
+    private final String newRequiredProperty;
 
     /**
      * Creates an instance of DuplicateRequiredProperty class.
      * 
-     * @param duplicateRequiredProperty the duplicateRequiredProperty value to set.
+     * @param requiredProperty the requiredProperty value to set.
+     * @param newRequiredProperty the newRequiredProperty value to set.
      */
     @Generated
-    public DuplicateRequiredProperty(String duplicateRequiredProperty) {
-        super(duplicateRequiredProperty);
-        this.duplicateRequiredProperty = duplicateRequiredProperty;
+    public DuplicateRequiredProperty(String requiredProperty, String newRequiredProperty) {
+        super(requiredProperty, newRequiredProperty);
+        this.newRequiredProperty = newRequiredProperty;
     }
 
     /**
-     * Get the duplicateRequiredProperty property: The duplicateRequiredProperty property.
+     * Get the newRequiredProperty property: The duplicateRequiredProperty property.
      * 
-     * @return the duplicateRequiredProperty value.
+     * @return the newRequiredProperty value.
      */
     @Generated
-    public String getDuplicateRequiredProperty() {
-        return this.duplicateRequiredProperty;
+    public String getNewRequiredProperty() {
+        return this.newRequiredProperty;
     }
 
     /**
@@ -50,7 +51,8 @@ public final class DuplicateRequiredProperty extends DuplicateRequiredPropertyPa
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("duplicateRequiredProperty", this.duplicateRequiredProperty);
+        jsonWriter.writeStringField("property", getRequiredProperty());
+        jsonWriter.writeStringField("duplicateRequiredProperty", this.newRequiredProperty);
         return jsonWriter.writeEndObject();
     }
 
@@ -66,18 +68,21 @@ public final class DuplicateRequiredProperty extends DuplicateRequiredPropertyPa
     @Generated
     public static DuplicateRequiredProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            String duplicateRequiredProperty = null;
+            String requiredProperty = null;
+            String newRequiredProperty = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if ("duplicateRequiredProperty".equals(fieldName)) {
-                    duplicateRequiredProperty = reader.getString();
+                if ("property".equals(fieldName)) {
+                    requiredProperty = reader.getString();
+                } else if ("duplicateRequiredProperty".equals(fieldName)) {
+                    newRequiredProperty = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
-            return new DuplicateRequiredProperty(duplicateRequiredProperty);
+            return new DuplicateRequiredProperty(requiredProperty, newRequiredProperty);
         });
     }
 }

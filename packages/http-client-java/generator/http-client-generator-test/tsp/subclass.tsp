@@ -8,10 +8,14 @@ using TypeSpec.Http;
 namespace TspTest.Subclass;
 
 model DuplicateRequiredPropertyParent {
+  @encodedName("application/json", "property")
+  requiredProperty: string;
+
   duplicateRequiredProperty: string;
 }
 model DuplicateRequiredProperty extends DuplicateRequiredPropertyParent {
-  duplicateRequiredProperty: string;
+  @encodedName("application/json", "duplicateRequiredProperty")
+  newRequiredProperty: string;
 }
 
 model PropertyChangedToRequiredParent {

@@ -18,6 +18,12 @@ import java.io.IOException;
 @Immutable
 public class DuplicateRequiredPropertyParent implements JsonSerializable<DuplicateRequiredPropertyParent> {
     /*
+     * The property property.
+     */
+    @Generated
+    private final String requiredProperty;
+
+    /*
      * The duplicateRequiredProperty property.
      */
     @Generated
@@ -26,11 +32,23 @@ public class DuplicateRequiredPropertyParent implements JsonSerializable<Duplica
     /**
      * Creates an instance of DuplicateRequiredPropertyParent class.
      * 
+     * @param requiredProperty the requiredProperty value to set.
      * @param duplicateRequiredProperty the duplicateRequiredProperty value to set.
      */
     @Generated
-    public DuplicateRequiredPropertyParent(String duplicateRequiredProperty) {
+    public DuplicateRequiredPropertyParent(String requiredProperty, String duplicateRequiredProperty) {
+        this.requiredProperty = requiredProperty;
         this.duplicateRequiredProperty = duplicateRequiredProperty;
+    }
+
+    /**
+     * Get the requiredProperty property: The property property.
+     * 
+     * @return the requiredProperty value.
+     */
+    @Generated
+    public String getRequiredProperty() {
+        return this.requiredProperty;
     }
 
     /**
@@ -50,6 +68,7 @@ public class DuplicateRequiredPropertyParent implements JsonSerializable<Duplica
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
+        jsonWriter.writeStringField("property", this.requiredProperty);
         jsonWriter.writeStringField("duplicateRequiredProperty", this.duplicateRequiredProperty);
         return jsonWriter.writeEndObject();
     }
@@ -66,18 +85,21 @@ public class DuplicateRequiredPropertyParent implements JsonSerializable<Duplica
     @Generated
     public static DuplicateRequiredPropertyParent fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
+            String requiredProperty = null;
             String duplicateRequiredProperty = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if ("duplicateRequiredProperty".equals(fieldName)) {
+                if ("property".equals(fieldName)) {
+                    requiredProperty = reader.getString();
+                } else if ("duplicateRequiredProperty".equals(fieldName)) {
                     duplicateRequiredProperty = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
-            return new DuplicateRequiredPropertyParent(duplicateRequiredProperty);
+            return new DuplicateRequiredPropertyParent(requiredProperty, duplicateRequiredProperty);
         });
     }
 }

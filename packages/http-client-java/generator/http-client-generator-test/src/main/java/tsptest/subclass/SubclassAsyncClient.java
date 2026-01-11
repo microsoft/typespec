@@ -46,6 +46,7 @@ public final class SubclassAsyncClient {
      * {@code
      * {
      *     duplicateRequiredProperty (Optional): {
+     *         property: String (Required)
      *         duplicateRequiredProperty: String (Required)
      *     }
      *     propertyChangedToRequired (Optional): {
@@ -64,6 +65,7 @@ public final class SubclassAsyncClient {
      * {@code
      * {
      *     duplicateRequiredProperty (Optional): {
+     *         property: String (Required)
      *         duplicateRequiredProperty: String (Required)
      *     }
      *     propertyChangedToRequired (Optional): {

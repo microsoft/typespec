@@ -44,6 +44,7 @@ public final class SubclassClient {
      * {@code
      * {
      *     duplicateRequiredProperty (Optional): {
+     *         property: String (Required)
      *         duplicateRequiredProperty: String (Required)
      *     }
      *     propertyChangedToRequired (Optional): {
@@ -62,6 +63,7 @@ public final class SubclassClient {
      * {@code
      * {
      *     duplicateRequiredProperty (Optional): {
+     *         property: String (Required)
      *         duplicateRequiredProperty: String (Required)
      *     }
      *     propertyChangedToRequired (Optional): {
