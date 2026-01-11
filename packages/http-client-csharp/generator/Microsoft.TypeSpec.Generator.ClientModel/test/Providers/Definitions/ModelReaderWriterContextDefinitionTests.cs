@@ -13,8 +13,10 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
@@ -619,7 +621,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Should include both the collection model and the framework type it contains
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count());
-            
+
             var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
             Assert.IsTrue(attributeStrings.Contains("typeof(global::Sample.Models.CollectionModel)"),
                 "Should include CollectionModel");
@@ -660,7 +662,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Should include both the collection model and the framework type it contains
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count());
-            
+
             var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
             Assert.IsTrue(attributeStrings.Contains("typeof(global::Sample.Models.CollectionModel)"),
                 "Should include CollectionModel");
@@ -696,7 +698,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Should include all expected types
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(expectedCount, buildableAttributes.Count());
-            
+
             var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
             var expectedTypes = new[]
             {
@@ -705,7 +707,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
                 "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.NestedFrameworkType)"
             };
-            
+
             foreach (var expectedType in expectedTypes)
             {
                 Assert.IsTrue(attributeStrings.Contains(expectedType), $"Should include {expectedType}");
@@ -891,7 +893,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        private class DependencyModel : IJsonModel<DependencyModel>
+        public class DependencyModel : IJsonModel<DependencyModel>
         {
             DependencyModel? IJsonModel<DependencyModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             {
@@ -1267,7 +1269,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         public void ValidateDuplicateModelNamesInDifferentNamespaces()
         {
             // Create two models with the same name but different namespaces by setting the namespace in the InputModelType
-            var model1 = InputFactory.Model("DuplicateModel", 
+            var model1 = InputFactory.Model("DuplicateModel",
                 @namespace: "Sample.Namespace1",
                 properties:
                 [
@@ -1357,6 +1359,156 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual("AModel", typeNames[0], "First attribute should be AModel");
             Assert.AreEqual("BModel", typeNames[1], "Second attribute should be BModel");
             Assert.AreEqual("CModel", typeNames[2], "Third attribute should be CModel");
+        }
+
+        [Test]
+        public void ValidateMethodReturnTypesAreDiscovered()
+        {
+            // Create a model that is only used as a method return type
+            var returnTypeModel = InputFactory.Model("ReturnTypeModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.String)
+            ]);
+
+            var clientProvider = new TestClientProvider(returnTypeModel);
+            var outputLibrary = new TestOutputLibrary([clientProvider]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [returnTypeModel],
+                createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Check that the model used as return type is discovered
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ReturnTypeModel")),
+                "ReturnTypeModel should be discovered from method return type");
+        }
+
+        [Test]
+        public void ValidateFrameworkReturnTypesAreDiscovered()
+        {
+            // Create a client provider that returns a framework type
+            var clientProvider = new TestClientProviderWithFrameworkReturnType();
+            var outputLibrary = new TestOutputLibrary([clientProvider]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Check that the framework type used as return type is discovered
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("FrameworkModelWithMRW")),
+                "FrameworkModelWithMRW should be discovered from method return type");
+        }
+
+        [Test]
+        public async Task ValidateCustomPropertiesOnModelsAreDiscovered()
+        {
+            // Test that properties added via custom code are discovered
+            // The custom code adds a DependencyModel property to ModelWithCustomProperty
+            var modelWithCustomProperty = InputFactory.Model("ModelWithCustomProperty", properties:
+            [
+                InputFactory.Property("GeneratedProperty", InputPrimitiveType.String)
+            ]);
+            var dependencyModel = InputFactory.Model("DependencyModel", properties:
+            [
+                InputFactory.Property("DepProperty", InputPrimitiveType.Int32)
+            ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [modelWithCustomProperty, dependencyModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Check that both the model and the dependency from custom property are discovered
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ModelWithCustomProperty")),
+                "ModelWithCustomProperty should be discovered");
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("DependencyModel")),
+                "DependencyModel from custom property should be discovered");
+        }
+
+        // Test client provider that has methods with return types
+        private class TestClientProvider : TypeProvider
+        {
+            private readonly InputModelType _returnTypeModel;
+
+            public TestClientProvider(InputModelType returnTypeModel) : base()
+            {
+                _returnTypeModel = returnTypeModel;
+            }
+
+            protected override string BuildName() => "TestClient";
+
+            protected override string BuildRelativeFilePath() => "TestClient.cs";
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_returnTypeModel);
+                var returnType = new CSharpType(typeof(System.Threading.Tasks.Task<>), modelProvider!);
+
+                var signature = new MethodSignature(
+                    Name: "GetModel",
+                    Description: null,
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: returnType,
+                    ReturnDescription: null,
+                    Parameters: []);
+
+                return
+                [
+                    new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)
+                ];
+            }
+        }
+
+        // Test client provider that returns a framework type with MRW
+        private class TestClientProviderWithFrameworkReturnType : TypeProvider
+        {
+            public TestClientProviderWithFrameworkReturnType() : base()
+            {
+            }
+
+            protected override string BuildName() => "TestClient";
+
+            protected override string BuildRelativeFilePath() => "TestClient.cs";
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                var returnType = new CSharpType(typeof(FrameworkModelWithMRW));
+
+                var signature = new MethodSignature(
+                    Name: "GetFrameworkModel",
+                    Description: null,
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: returnType,
+                    ReturnDescription: null,
+                    Parameters: []);
+
+                return
+                [
+                    new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)
+                ];
+            }
         }
     }
 }
