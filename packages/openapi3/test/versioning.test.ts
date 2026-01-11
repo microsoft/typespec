@@ -9,6 +9,78 @@ worksFor(supportedVersions, ({ openApiFor, version: specVersion }) => {
     .using("Http", "Rest", "Versioning")
     .emit("@typespec/openapi3", { "openapi-versions": [specVersion] });
 
+  it("works with enums for examples", async () => {
+    const { v1, v2 } = await openApiForVersions(
+      `
+      @versioned(Versions)
+      @service(#{title: "My Service"})
+      namespace MyService {
+        enum Versions {
+          v1,
+          v2
+        }
+        
+        enum MyEnum {
+          VALUE_1,
+          VALUE_2
+        }
+
+        model MyBaseModel {
+          id: string;
+        }
+
+        model MyModel1 extends MyBaseModel {
+          type: "Type1";
+          prop1: MyEnum;
+          @added(Versions.v2) prop2?: string;
+          @removed(Versions.v2) prop3?: int32;
+        }
+
+        model MyModel2 extends MyBaseModel {
+          type: "Type2";
+          prop2: string;
+        }
+
+        @discriminated(#{ discriminatorPropertyName: "type", envelope: "none" })
+        union MyUnion {
+          Type1: MyModel1;
+          Type2: MyModel2;
+        }
+
+        @route("/read1")
+        @added(Versions.v1)
+        @opExample(#{returnType: #{type: "Type1", id: "id", prop1: MyEnum.VALUE_1, prop3: 234}})
+        op read1(): MyUnion;
+      }
+      `,
+      ["v1", "v2"],
+    );
+
+    deepStrictEqual((v1 as any).paths["/read1"].get.responses["200"], {
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/MyUnion" },
+          example: {
+            type: "Type1",
+            id: "id",
+            prop1: "VALUE_1",
+            prop3: 234
+          }
+        }
+      },
+      description: "The request has succeeded.",
+    });
+    deepStrictEqual((v2 as any).paths["/read1"].get.responses["200"], {
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/MyUnion" },
+          example: {} // example is empty for v2 since the example contains a property deleted in v2
+        }
+      },
+      description: "The request has succeeded.",
+    });
+  });
+
   it("works with models", async () => {
     const { v1, v2, v3 } = await openApiForVersions(
       `

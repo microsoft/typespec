@@ -886,6 +886,29 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
   }
 
+  function isAssignableToEnumDeep(enum1: Enum, enum2: Enum) {
+    if (enum1.node === enum2.node) {
+      // In the case that one enum is cloned from another (i.e. during OpenAPI3 version
+      // projections) the nodes will still be the same even if the enums objects are not
+      // the same object reference as versioning does a shallow clone
+      return true;
+    }
+
+    // If the nodes are still not similar, we can check whether the two enums are the same
+    // name and in the same namespace
+    function isSameNamespace(namespace1: Namespace | undefined, namespace2: Namespace | undefined) {
+      if (namespace1 === undefined && namespace2 === undefined) {
+        return true;
+      }
+
+      if (namespace1?.name !== namespace2?.name) {
+        return false;
+      }
+      return isSameNamespace(namespace1?.namespace, namespace2?.namespace);
+    }
+    return enum1.name === enum2.name && isSameNamespace(enum1.namespace, enum2.namespace);
+  }
+
   function isAssignableToEnum(
     source: Type,
     target: Enum,
@@ -899,7 +922,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
           return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
         }
       case "EnumMember":
-        if (source.enum === target) {
+        if (source.enum === target || isAssignableToEnumDeep(source.enum, target)) {
           return [Related.true, []];
         } else {
           return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
