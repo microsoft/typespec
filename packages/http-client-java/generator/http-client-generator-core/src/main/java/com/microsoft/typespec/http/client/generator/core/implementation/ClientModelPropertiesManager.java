@@ -393,9 +393,10 @@ public final class ClientModelPropertiesManager {
      * Consumes each constructor {@link ClientModelProperty property} defined by super classes of the
      * {@link #getModel() model}.
      * <p>
+     * This is part of the properties from superclass that would appear in the constructor of this model.
      * This is not the same as the constructor parameters in super class.
      * Duplicated properties from superclass (that would be overwritten by properties of this model)
-     * only appears in "constructorProperties".
+     * only appears once, in "constructorProperties", not in "superConstructorProperties".
      *
      * @param consumer The {@link ClientModelProperty} consumer.
      */

@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -839,24 +840,52 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 || generatePrivateConstructorForJackson
                 || !requireSerialization);
 
-            // Properties required by the super class structure come first.
-            propertiesManager.forEachSuperConstructorProperty(property -> {
-                if (constructorProperties.length() > 0) {
-                    constructorProperties.append(", ");
-                }
+            ClientModel parentModel = ClientModelUtil.getClientModel(model.getParentModelName());
+            if (parentModel != null) {
+                Set<String> superConstructorPropertiesSerializedNames = new HashSet<>();
+                propertiesManager
+                    .forEachSuperConstructorProperty(p -> superConstructorPropertiesSerializedNames.add(p.getName()));
 
-                addModelConstructorParameter(property, constructorProperties, addJsonPropertyAnnotation);
+                // Properties required by the super class structure come first.
+                ClientModelPropertiesManager parentPropertiesManager
+                    = new ClientModelPropertiesManager(parentModel, settings);
+                List<ClientModelProperty> superConstructorProperties = new ArrayList<>();
+                parentPropertiesManager.forEachSuperConstructorProperty(superConstructorProperties::add);
+                parentPropertiesManager.forEachConstructorProperty(superConstructorProperties::add);
+                superConstructorProperties.forEach(property -> {
+                    if (superProperties.length() > 0) {
+                        superProperties.append(", ");
+                    }
 
-                javadocCommentConsumer.set(javadocCommentConsumer.get()
-                    .andThen(
-                        comment -> comment.param(property.getName(), "the " + property.getName() + " value to set")));
+                    boolean propertyInConstructor
+                        = superConstructorPropertiesSerializedNames.contains(property.getSerializedName());
+                    if (propertyInConstructor) {
+                        if (constructorProperties.length() > 0) {
+                            constructorProperties.append(", ");
+                        }
 
-                if (superProperties.length() > 0) {
-                    superProperties.append(", ");
-                }
+                        addModelConstructorParameter(property, constructorProperties, addJsonPropertyAnnotation);
 
-                superProperties.append(property.getName());
-            });
+                        javadocCommentConsumer.set(javadocCommentConsumer.get()
+                            .andThen(comment -> comment.param(property.getName(),
+                                "the " + property.getName() + " value to set")));
+
+                        superProperties.append(property.getName());
+                    } else {
+                        ClientModelProperty propertyInThisModel = model.getProperties()
+                            .stream()
+                            .filter(p -> Objects.equals(p.getSerializedName(), property.getSerializedName()))
+                            .findFirst()
+                            .orElse(null);
+                        if (propertyInThisModel != null && propertyInThisModel.isConstant() && !property.isConstant()) {
+                            // property changed to constant in this model, use constant value to initiate super class
+                            superProperties.append(propertyInThisModel.getDefaultValue());
+                        } else {
+                            superProperties.append(property.getName());
+                        }
+                    }
+                });
+            }
 
             // Then properties required by this class come next.
             propertiesManager.forEachConstructorProperty(property -> {
