@@ -844,8 +844,8 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             ClientModel parentModel = ClientModelUtil.getClientModel(model.getParentModelName());
             if (parentModel != null) {
                 Set<String> superConstructorPropertiesSerializedNames = new HashSet<>();
-                propertiesManager
-                    .forEachSuperConstructorProperty(p -> superConstructorPropertiesSerializedNames.add(p.getName()));
+                propertiesManager.forEachSuperConstructorProperty(
+                    p -> superConstructorPropertiesSerializedNames.add(p.getSerializedName()));
 
                 ClientModelPropertiesManager parentPropertiesManager
                     = new ClientModelPropertiesManager(parentModel, settings);
