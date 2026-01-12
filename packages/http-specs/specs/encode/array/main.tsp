@@ -8,6 +8,12 @@ using Spector;
 @scenarioService("/encode/array")
 namespace Encode.Array;
 
+enum Color {
+  blue,
+  red,
+  green,
+}
+
 model CommaDelimitedArrayProperty {
   @encode(ArrayEncoding.commaDelimited)
   value: string[];
@@ -26,6 +32,11 @@ model PipeDelimitedArrayProperty {
 model NewlineDelimitedArrayProperty {
   @encode(ArrayEncoding.newlineDelimited)
   value: string[];
+}
+
+model PipeDelimitedArrayEnumElementProperty {
+  @encode(ArrayEncoding.pipeDelimited)
+  value: Color[];
 }
 
 @route("/property")
@@ -109,4 +120,26 @@ namespace Property {
     """)
   @post
   op newlineDelimited(@body body: NewlineDelimitedArrayProperty): NewlineDelimitedArrayProperty;
+
+  @route("/pipe-delimited-enum-element")
+  @scenario
+  @scenarioDoc("""
+    Test operation with request and response model contains an enum array property with pipeDelimited encode.
+    Expected request body:
+    ```json
+    {
+      "value": "blue|red|green"
+    }
+    ```
+    Expected response body:
+    ```json
+    {
+      "value": "blue|red|green"
+    }
+    ```
+    """)
+  @post
+  op pipeDelimitedEnumElement(
+    @body body: PipeDelimitedArrayEnumElementProperty,
+  ): PipeDelimitedArrayEnumElementProperty;
 }

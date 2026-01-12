@@ -168,6 +168,27 @@ Expected response body:
 }
 ```
 
+### Encode_Array_Property_pipeDelimitedEnumElement
+
+- Endpoint: `post /encode/array/property/pipe-delimited-enum-element`
+
+Test operation with request and response model contains an enum array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
 ### Encode_Array_Property_spaceDelimited
 
 - Endpoint: `post /encode/array/property/space-delimited`

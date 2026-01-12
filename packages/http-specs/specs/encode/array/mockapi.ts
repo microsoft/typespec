@@ -41,3 +41,8 @@ Scenarios.Encode_Array_Property_newlineDelimited = createPropertyServerTests(
   "/encode/array/property/newline-delimited",
   "\n",
 );
+
+Scenarios.Encode_Array_Property_pipeDelimitedEnumElement = createPropertyServerTests(
+  "/encode/array/property/pipe-delimited-enum-element",
+  "|",
+);
