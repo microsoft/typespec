@@ -1500,7 +1500,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var baseModel = InputFactory.Model(
                 "pet",
-                discriminatedKind: "pet",
                 properties:
                 [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
