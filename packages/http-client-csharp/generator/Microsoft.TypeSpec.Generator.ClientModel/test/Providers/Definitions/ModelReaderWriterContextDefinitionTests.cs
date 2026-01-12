@@ -1447,6 +1447,74 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "DependencyModel from custom property should be discovered");
         }
 
+        [Test]
+        public void ValidateTypeWithCustomSerializationProviderImplementingIJsonModelIsIncluded()
+        {
+            var outputLibrary = new TestOutputLibrary([new ModelWithCustomSerialization()]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ModelWithCustomSerialization")),
+                "ModelWithCustomSerialization should be included because it has a serialization provider implementing IJsonModel");
+        }
+
+        [Test]
+        public void ValidateTypeWithCustomSerializationProviderImplementingIPersistableModelIsIncluded()
+        {
+            var outputLibrary = new TestOutputLibrary([new ModelWithCustomSerialization(usePersistableModel: true)]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ModelWithCustomSerialization")),
+                "ModelWithCustomSerialization should be included because it has a serialization provider implementing IJsonModel");
+        }
+
+        private class CustomSerializationProvider : TypeProvider
+        {
+            private readonly bool _usePersistableModel;
+
+            public CustomSerializationProvider(bool usePersistableModel = false)
+            {
+                _usePersistableModel = usePersistableModel;
+            }
+            protected override string BuildName() => "CustomSerializationProvider";
+            protected override string BuildRelativeFilePath() => "CustomSerializationProvider.cs";
+
+            protected override CSharpType[] BuildImplements()
+            {
+                return [new CSharpType(_usePersistableModel ? typeof(IPersistableModel<object>) : typeof(IJsonModel<object>))];
+            }
+        }
+
+        private class ModelWithCustomSerialization : TypeProvider
+        {
+            private readonly bool _usePersistableModel;
+
+            public ModelWithCustomSerialization(bool usePersistableModel = false)
+            {
+                _usePersistableModel = usePersistableModel;
+            }
+            protected override string BuildName() => "ModelWithCustomSerialization";
+            protected override string BuildRelativeFilePath() => "ModelWithCustomSerialization.cs";
+
+            protected override TypeProvider[] BuildSerializationProviders()
+            {
+                return [new CustomSerializationProvider(_usePersistableModel)];
+            }
+        }
+
         // Test client provider that has methods with return types
         private class TestClientProvider : TypeProvider
         {
