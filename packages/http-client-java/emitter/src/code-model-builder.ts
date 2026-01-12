@@ -2896,15 +2896,9 @@ export class CodeModelBuilder {
     });
     if (modelProperty.encode) {
       if (schema instanceof ArraySchema) {
-        const elementSchema = schema.elementType;
-        if (!(elementSchema instanceof StringSchema)) {
-          reportDiagnostic(this.program, {
-            code: "non-string-array-encoding-element-notsupported",
-            target: modelProperty.__raw ?? NoTarget,
-          });
-        }
+        // ArrayEncoding
+        (codeModelProperty as EncodedProperty).arrayEncoding = modelProperty.encode;
       }
-      (codeModelProperty as EncodedProperty).arrayEncoding = modelProperty.encode;
     }
 
     // xml

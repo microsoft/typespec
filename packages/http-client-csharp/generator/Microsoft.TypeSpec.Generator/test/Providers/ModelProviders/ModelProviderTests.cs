@@ -1121,6 +1121,72 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_NonAbstractTypeIsRespected_NamespaceChangedInVisitor()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            // simulate a visitor that changes the model's namespace
+            modelProvider!.Update(@namespace: "Sample.Models.NewNamespace");
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+        }
+
+        [Test]
+        public async Task BackCompat_NonAbstractTypeIsRespected_NameChangedInVisitor()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            // simulate a visitor that changes the model's name
+            modelProvider!.Update(name: "NewBaseModel");
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+        }
+
+        [Test]
         public void PublicModelsAreIncludedInAdditionalRootTypes()
         {
             var inputModel = InputFactory.Model(

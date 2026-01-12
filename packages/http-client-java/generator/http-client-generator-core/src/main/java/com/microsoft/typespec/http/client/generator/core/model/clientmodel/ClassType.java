@@ -26,7 +26,7 @@ import java.util.function.Function;
 /**
  * The details of a class type that is used by a client.
  */
-public class ClassType implements IType {
+public class ClassType implements IType, ConvertToJsonTypeTrait {
     private static ClassType withClientCoreReplacement(String azureClass, String clientCoreClass) {
         return withClientCoreAndVNextReplacement(azureClass, clientCoreClass, clientCoreClass);
     }
@@ -782,6 +782,13 @@ public class ClassType implements IType {
     @Override
     public boolean isUsedInXml() {
         return usedInXml;
+    }
+
+    @Override
+    public String convertToJsonType(String variableName) {
+        return serializationValueGetterModifier != null
+            ? serializationValueGetterModifier.apply(variableName)
+            : variableName;
     }
 
     public static class Builder {
