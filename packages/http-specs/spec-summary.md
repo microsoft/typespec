@@ -172,7 +172,7 @@ Expected response body:
 
 - Endpoint: `post /encode/array/property/pipe-delimited-enum-element`
 
-Test operation with request and response model contains an enum array property with pipeDelimited encode.
+Test operation with request and response model contains an extensible union array property with pipeDelimited encode.
 Expected request body:
 
 ```json
