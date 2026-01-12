@@ -126,7 +126,7 @@ namespace Property {
   @route("/pipe-delimited-enum-element")
   @scenario
   @scenarioDoc("""
-    Test operation with request and response model contains an enum array property with pipeDelimited encode.
+    Test operation with request and response model contains an extensible union array property with pipeDelimited encode.
     Expected request body:
     ```json
     {
