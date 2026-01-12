@@ -73,7 +73,7 @@ export function isArrayType(program: Program, type: ModelProperty | Scalar): boo
   return (
     type.kind === "ModelProperty" &&
     type.type.kind === "Model" &&
-    isArrayModelType(program, type.type)
+    isArrayModelType(type.type)
   );
 }
 

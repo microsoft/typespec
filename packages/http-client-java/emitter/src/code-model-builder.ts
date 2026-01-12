@@ -3000,14 +3000,14 @@ export class CodeModelBuilder {
       case "Enum":
         return pascalCase(type.name);
       case "Model":
-        if (isArrayModelType(this.program, type)) {
+        if (isArrayModelType(type)) {
           ++option.depth;
           if (option.depth === 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "List";
           } else {
             return "ListOf" + this.getUnionVariantName(type.indexer.value, option);
           }
-        } else if (isRecordModelType(this.program, type)) {
+        } else if (isRecordModelType(type)) {
           ++option.depth;
           if (option.depth === 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "Map";
