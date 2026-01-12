@@ -1,5 +1,6 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { getLocationContext } from "../core/helpers/location-context.js";
+import { isNumeric } from "../core/numeric.js";
 import { Program } from "../core/program.js";
 import { isTemplateInstance, isType, isValue } from "../core/type-utils.js";
 import {
@@ -738,10 +739,9 @@ function createMutatorEngine(
     }
   }
 
-  function mutateDecoratorArgumentValue<T extends DecoratorArgument["jsValue"]>(
-    value: T,
-    newMutators: Set<MutatorAll>,
-  ): T {
+  function mutateDecoratorArgumentValue<
+    T extends DecoratorArgument["jsValue"] | DecoratorArgument["value"],
+  >(value: T, newMutators: Set<MutatorAll>): T {
     if (typeof value === "object" && value !== null) {
       if (isType(value as any)) {
         return isMutableTypeWithNamespace(value as any)
@@ -750,6 +750,9 @@ function createMutatorEngine(
       }
       if (isValue(value as any)) {
         return mutateValue(value as any, newMutators) as T;
+      }
+      if (isNumeric(value)) {
+        return value;
       }
       if (Array.isArray(value)) {
         return value.map((item) => mutateDecoratorArgumentValue(item as any, newMutators)) as T;
