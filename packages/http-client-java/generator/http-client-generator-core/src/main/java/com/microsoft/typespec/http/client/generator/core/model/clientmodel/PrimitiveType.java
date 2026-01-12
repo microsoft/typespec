@@ -12,7 +12,7 @@ import java.util.function.Function;
 /**
  * A basic type used by a client.
  */
-public class PrimitiveType implements IType {
+public class PrimitiveType implements IType, ConvertToJsonTypeTrait {
     public static final PrimitiveType VOID = new Builder().name("void").nullableType(ClassType.VOID).build();
 
     public static final PrimitiveType BOOLEAN = new Builder().name("boolean")
@@ -301,6 +301,15 @@ public class PrimitiveType implements IType {
     @Override
     public String toString() {
         return getName();
+    }
+
+    @Override
+    public String convertToJsonType(String variableName) {
+        if (wrapSerializationWithObjectsToString) {
+            return "Objects.toString(" + variableName + ", null)";
+        } else {
+            return variableName;
+        }
     }
 
     private static class Builder {

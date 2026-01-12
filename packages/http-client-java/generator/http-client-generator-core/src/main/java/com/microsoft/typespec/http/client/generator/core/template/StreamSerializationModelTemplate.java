@@ -15,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvertToJsonTypeTrait;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
@@ -752,15 +753,33 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
                         isJsonMergePatch);
                 } else {
-                    // wireType is String
-                    // at present, only String element is supported. this check is in ts code.
-                    methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
-                        String serializeExpression = propertyValueGetter
-                            + ".stream().map(element -> element == null ? \"\" : element).collect(Collectors.joining(\""
-                            + property.getArrayEncoding().getDelimiter() + "\"))";
-                        methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
-                            serializeExpression);
-                    });
+                    IType wireElementType = ((IterableType) wireType).getElementType();
+                    if (wireElementType == ClassType.STRING) {
+                        // wireType is String
+                        methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
+                            String serializeExpression = propertyValueGetter
+                                + ".stream().map(element -> element == null ? \"\" : element).collect(Collectors.joining(\""
+                                + property.getArrayEncoding().getDelimiter() + "\"))";
+                            methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
+                                serializeExpression);
+                        });
+                    } else {
+                        // wireType need to be converted to String
+                        if (wireElementType instanceof ConvertToJsonTypeTrait) {
+                            String convertToJsonExpression
+                                = ((ConvertToJsonTypeTrait) wireElementType).convertToJsonType("element");
+                            methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
+                                String serializeExpression = propertyValueGetter + ".stream().map(element -> "
+                                    + convertToJsonExpression + ").collect(Collectors.joining(\""
+                                    + property.getArrayEncoding().getDelimiter() + "\"))";
+                                methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
+                                    serializeExpression);
+                            });
+                        } else {
+                            throw new RuntimeException("Unable to convert type " + wireElementType
+                                + " to String for ArrayEncoding serialization.");
+                        }
+                    }
                 }
             } else if (wireType instanceof MapType) {
                 // Assumption is that the key type for the Map is a String. This may not always hold true and when that
