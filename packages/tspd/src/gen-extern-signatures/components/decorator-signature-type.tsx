@@ -178,7 +178,6 @@ function getCompilerType(name: string) {
 }
 
 function ValueTsType({ type }: { type: Type }) {
-  const { program } = useTspd();
   switch (type.kind) {
     case "Boolean":
       return `${type.value}`;

@@ -5096,10 +5096,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     let valueType: Type | undefined;
     let type: Type | undefined;
     if (constraint.valueType) {
-      if (
-        constraint.valueType.kind === "Model" &&
-        isArrayModelType(constraint.valueType)
-      ) {
+      if (constraint.valueType.kind === "Model" && isArrayModelType(constraint.valueType)) {
         valueType = constraint.valueType.indexer.value;
       } else {
         return undefined;

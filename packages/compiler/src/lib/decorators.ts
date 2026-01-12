@@ -390,10 +390,7 @@ function validateTargetingAnArray(
   decoratorName: string,
 ) {
   const targetType = getTypeForArrayValidation(target);
-  const valid = isTypeIn(
-    targetType,
-    (x) => x.kind === "Model" && isArrayModelType(x),
-  );
+  const valid = isTypeIn(targetType, (x) => x.kind === "Model" && isArrayModelType(x));
   if (!valid) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
