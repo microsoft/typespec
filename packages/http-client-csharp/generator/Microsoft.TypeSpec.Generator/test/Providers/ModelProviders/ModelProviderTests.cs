@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
@@ -1717,6 +1718,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // Derived should pass its discriminator value to intermediate constructor
             var derivedKindArgument = derivedInitializer!.Arguments[0].ToDisplayString();
             Assert.AreEqual("\"derived\"", derivedKindArgument, "Derived should pass its discriminator value to intermediate constructor");
+        }
+
+        [Test]
+        public void TestUpdate_ResetsSerializationProviders()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
+            // Use the subclass to ensure we populate serialization providers
+            var modelProvider = new TestModelProvider(inputModel);
+
+            var serializationProviders = modelProvider.SerializationProviders;
+            Assert.IsNotNull(serializationProviders);
+            Assert.AreEqual(1, serializationProviders.Count);
+
+            // Change name
+            modelProvider.Update(name: "NewName");
+            var newSerializationProviders = modelProvider.SerializationProviders;
+            // The serialization providers list reference should be different after update
+            Assert.AreNotSame(serializationProviders, newSerializationProviders);
+            // Verify our subclass logic ran again
+            Assert.AreEqual(1, newSerializationProviders.Count);
+
+            // Change namespace
+            modelProvider.Update(@namespace: "NewNamespace");
+            var newerSerializationProviders = modelProvider.SerializationProviders;
+            // The serialization providers list reference should be different after update
+            Assert.AreNotSame(newSerializationProviders, newerSerializationProviders);
+            Assert.AreEqual(1, newerSerializationProviders.Count);
+        }
+
+        private class TestModelProvider : ModelProvider
+        {
+            public TestModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            protected override TypeProvider[] BuildSerializationProviders()
+            {
+                // Add a dummy provider to ensure the list is populated
+                return [new Mock<TypeProvider>() { CallBase = true }.Object];
+            }
         }
     }
 }
