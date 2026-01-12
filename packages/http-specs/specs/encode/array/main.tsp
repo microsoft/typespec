@@ -10,7 +10,6 @@ namespace Encode.Array;
 
 union Color {
   string,
-
   Blue: "blue",
   Red: "red",
   Green: "green",
