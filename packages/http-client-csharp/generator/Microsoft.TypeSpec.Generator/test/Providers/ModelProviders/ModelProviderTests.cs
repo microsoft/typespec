@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
@@ -1121,6 +1122,72 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_NonAbstractTypeIsRespected_NamespaceChangedInVisitor()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            // simulate a visitor that changes the model's namespace
+            modelProvider!.Update(@namespace: "Sample.Models.NewNamespace");
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+        }
+
+        [Test]
+        public async Task BackCompat_NonAbstractTypeIsRespected_NameChangedInVisitor()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            // simulate a visitor that changes the model's name
+            modelProvider!.Update(name: "NewBaseModel");
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+        }
+
+        [Test]
         public void PublicModelsAreIncludedInAdditionalRootTypes()
         {
             var inputModel = InputFactory.Model(
@@ -1651,6 +1718,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // Derived should pass its discriminator value to intermediate constructor
             var derivedKindArgument = derivedInitializer!.Arguments[0].ToDisplayString();
             Assert.AreEqual("\"derived\"", derivedKindArgument, "Derived should pass its discriminator value to intermediate constructor");
+        }
+
+        [Test]
+        public void TestUpdate_ResetsSerializationProviders()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
+            // Use the subclass to ensure we populate serialization providers
+            var modelProvider = new TestModelProvider(inputModel);
+
+            var serializationProviders = modelProvider.SerializationProviders;
+            Assert.IsNotNull(serializationProviders);
+            Assert.AreEqual(1, serializationProviders.Count);
+
+            // Change name
+            modelProvider.Update(name: "NewName");
+            var newSerializationProviders = modelProvider.SerializationProviders;
+            // The serialization providers list reference should be different after update
+            Assert.AreNotSame(serializationProviders, newSerializationProviders);
+            // Verify our subclass logic ran again
+            Assert.AreEqual(1, newSerializationProviders.Count);
+
+            // Change namespace
+            modelProvider.Update(@namespace: "NewNamespace");
+            var newerSerializationProviders = modelProvider.SerializationProviders;
+            // The serialization providers list reference should be different after update
+            Assert.AreNotSame(newSerializationProviders, newerSerializationProviders);
+            Assert.AreEqual(1, newerSerializationProviders.Count);
+        }
+
+        private class TestModelProvider : ModelProvider
+        {
+            public TestModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            protected override TypeProvider[] BuildSerializationProviders()
+            {
+                // Add a dummy provider to ensure the list is populated
+                return [new Mock<TypeProvider>() { CallBase = true }.Object];
+            }
         }
     }
 }

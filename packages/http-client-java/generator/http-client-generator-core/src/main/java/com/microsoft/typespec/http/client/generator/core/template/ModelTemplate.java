@@ -40,8 +40,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -152,7 +155,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             JavaVisibility modelConstructorVisibility = immutableModel
                 ? (hasDerivedModels ? JavaVisibility.Protected : JavaVisibility.Private)
                 : JavaVisibility.Public;
-            addModelConstructor(model, modelConstructorVisibility, settings, classBlock);
+            addModelConstructor(model, propertiesManager, modelConstructorVisibility, settings, classBlock);
 
             boolean streamStyle = settings.isStreamStyleSerialization();
 
@@ -783,12 +786,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
      * Adds the model constructor to the Java class file.
      *
      * @param model The model.
+     * @param propertiesManager the model properties manager.
      * @param constructorVisibility The visibility of constructor.
      * @param settings AutoRest settings.
      * @param classBlock The Java class file.
      */
-    private void addModelConstructor(ClientModel model, JavaVisibility constructorVisibility, JavaSettings settings,
-        JavaClass classBlock) {
+    private void addModelConstructor(ClientModel model, ClientModelPropertiesManager propertiesManager,
+        JavaVisibility constructorVisibility, JavaSettings settings, JavaClass classBlock) {
         final boolean requireSerialization = modelRequireSerialization(model);
 
         // Early out on custom strongly typed headers constructor as this has different handling that doesn't require
@@ -798,56 +802,37 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             return;
         }
 
-        // Get the required properties from the super class structure.
-        List<ClientModelProperty> requiredParentProperties
-            = ClientModelUtil.getParentConstructorProperties(model, settings);
-
-        // Required properties are those that are required but not constant.
-        List<ClientModelProperty> requiredProperties = new ArrayList<>();
-
-        for (ClientModelProperty property : model.getProperties()) {
-            // Property isn't required and won't be bucketed into either constant or required properties.
-            if (!property.isConstant() && !ClientModelUtil.includePropertyInConstructor(property, settings)) {
-                continue;
-            }
-
-            // Property matches a parent property, don't need to include it twice.
-            if (requiredParentProperties.stream().anyMatch(p -> p.getName().equals(property.getName()))) {
-                continue;
-            }
-
-            // Only include non-constant properties.
-            if (!property.isConstant()) {
-                requiredProperties.add(property);
-            }
-        }
-
         // Jackson requires a constructor with @JsonCreator, with parameters in wire type. Ref
         // https://github.com/Azure/autorest.java/issues/2170
         boolean generatePrivateConstructorForJackson = false;
 
         // Description for the class is always the same, not matter whether there are required properties.
         // If there are required properties, the required properties will extend the consumer to add param Javadocs.
-        Consumer<JavaJavadocComment> javadocCommentConsumer
-            = comment -> comment.description("Creates an instance of " + model.getName() + " class.");
-
-        final int constructorPropertiesStringBuilderCapacity
-            = 128 * (requiredProperties.size() + requiredParentProperties.size());
+        AtomicReference<Consumer<JavaJavadocComment>> javadocCommentConsumer = new AtomicReference<>(
+            comment -> comment.description("Creates an instance of " + model.getName() + " class."));
 
         // Use a StringBuilder with an initial capacity of 128 times the total number of required constructor
         // properties.
         // If there are no required constructor properties this will simply be zero and result in a no-args constructor
         // being generated.
-        StringBuilder constructorProperties = new StringBuilder(constructorPropertiesStringBuilderCapacity);
+        StringBuilder constructorProperties = new StringBuilder();
 
-        StringBuilder superProperties = new StringBuilder(64 * requiredParentProperties.size());
+        StringBuilder superProperties = new StringBuilder();
 
         if (settings.isRequiredFieldsAsConstructorArgs()) {
-            final boolean constructorParametersContainsMismatchWireType
-                = requiredProperties.stream().anyMatch(p -> ClientModelUtil.isWireTypeMismatch(p, true))
-                    || requiredParentProperties.stream().anyMatch(p -> ClientModelUtil.isWireTypeMismatch(p, true));
+            AtomicBoolean constructorParametersContainsMismatchWireType = new AtomicBoolean(false);
+            propertiesManager.forEachSuperConstructorProperty(p -> {
+                if (ClientModelUtil.isWireTypeMismatch(p, true)) {
+                    constructorParametersContainsMismatchWireType.set(true);
+                }
+            });
+            propertiesManager.forEachConstructorProperty(p -> {
+                if (ClientModelUtil.isWireTypeMismatch(p, true)) {
+                    constructorParametersContainsMismatchWireType.set(true);
+                }
+            });
 
-            if (constructorParametersContainsMismatchWireType && !settings.isStreamStyleSerialization()) {
+            if (constructorParametersContainsMismatchWireType.get() && !settings.isStreamStyleSerialization()) {
                 generatePrivateConstructorForJackson = requireSerialization;
             }
 
@@ -856,38 +841,87 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 || !requireSerialization);
 
             // Properties required by the super class structure come first.
-            for (ClientModelProperty property : requiredParentProperties) {
-                if (constructorProperties.length() > 0) {
-                    constructorProperties.append(", ");
-                }
+            ClientModel parentModel = ClientModelUtil.getClientModel(model.getParentModelName());
+            if (parentModel != null) {
+                Set<String> superConstructorPropertiesSerializedNames = new HashSet<>();
+                propertiesManager.forEachSuperConstructorProperty(
+                    p -> superConstructorPropertiesSerializedNames.add(p.getSerializedName()));
 
-                addModelConstructorParameter(property, constructorProperties, addJsonPropertyAnnotation);
+                ClientModelPropertiesManager parentPropertiesManager
+                    = new ClientModelPropertiesManager(parentModel, settings);
+                List<ClientModelProperty> superConstructorProperties = new ArrayList<>();
+                parentPropertiesManager.forEachSuperConstructorProperty(superConstructorProperties::add);
+                parentPropertiesManager.forEachConstructorProperty(superConstructorProperties::add);
+                superConstructorProperties.forEach(property -> {
+                    if (superProperties.length() > 0) {
+                        superProperties.append(", ");
+                    }
 
-                javadocCommentConsumer = javadocCommentConsumer.andThen(
-                    comment -> comment.param(property.getName(), "the " + property.getName() + " value to set"));
+                    boolean propertyInConstructor
+                        = superConstructorPropertiesSerializedNames.contains(property.getSerializedName());
+                    if (propertyInConstructor) {
+                        if (constructorProperties.length() > 0) {
+                            constructorProperties.append(", ");
+                        }
 
-                if (superProperties.length() > 0) {
-                    superProperties.append(", ");
-                }
+                        addModelConstructorParameter(property, constructorProperties, addJsonPropertyAnnotation);
 
-                superProperties.append(property.getName());
+                        javadocCommentConsumer.set(javadocCommentConsumer.get()
+                            .andThen(comment -> comment.param(property.getName(),
+                                "the " + property.getName() + " value to set")));
+
+                        superProperties.append(property.getName());
+                    } else {
+                        /*
+                         * here because the property in superclass constructor is overwritten in this model
+                         * one example is
+                         *
+                         * model ParentModel {
+                         * property: string;
+                         * }
+                         * model Model extends ParentModel {
+                         * property: "constant";
+                         * }
+                         *
+                         * we use the property in this model to initiate the superclass
+                         */
+                        ClientModelProperty propertyInThisModel = model.getProperties()
+                            .stream()
+                            .filter(p -> Objects.equals(p.getSerializedName(), property.getSerializedName()))
+                            .findFirst()
+                            .orElse(null);
+                        if (propertyInThisModel != null) {
+                            if (propertyInThisModel.isConstant() && !property.isConstant()) {
+                                // property changed to constant in this model, use constant value to initiate super
+                                // class
+                                superProperties.append(propertyInThisModel.getDefaultValue());
+                            } else {
+                                superProperties.append(propertyInThisModel.getName());
+                            }
+                        } else {
+                            // this should not happen
+                            superProperties.append(property.getName());
+                        }
+                    }
+                });
             }
 
             // Then properties required by this class come next.
-            for (ClientModelProperty property : requiredProperties) {
+            propertiesManager.forEachConstructorProperty(property -> {
                 if (constructorProperties.length() > 0) {
                     constructorProperties.append(", ");
                 }
 
                 addModelConstructorParameter(property, constructorProperties, addJsonPropertyAnnotation);
 
-                javadocCommentConsumer = javadocCommentConsumer.andThen(
-                    comment -> comment.param(property.getName(), "the " + property.getName() + " value to set"));
-            }
+                javadocCommentConsumer.set(javadocCommentConsumer.get()
+                    .andThen(
+                        comment -> comment.param(property.getName(), "the " + property.getName() + " value to set")));
+            });
         }
 
         // Add the Javadocs for the constructor.
-        classBlock.javadocComment(javadocCommentConsumer);
+        classBlock.javadocComment(javadocCommentConsumer.get());
 
         addGeneratedAnnotation(classBlock);
         // If there are any constructor arguments indicate that this is the JsonCreator. No args constructors are
@@ -934,7 +968,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
                 // Finally, add all required properties.
                 if (settings.isRequiredFieldsAsConstructorArgs()) {
-                    for (ClientModelProperty property : requiredProperties) {
+                    propertiesManager.forEachConstructorProperty(property -> {
                         if (property.getClientType() != property.getWireType()) {
                             // If the property needs to be converted and the passed value is null, set the field to null
                             // as the
@@ -950,7 +984,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                             constructor.line("this." + property.getName() + " = "
                                 + property.getWireType().convertFromClientType(property.getName()) + ";");
                         }
-                    }
+                    });
                 }
 
                 PolymorphicDiscriminatorHandler.initializeInConstructor(model, constructor, settings);
@@ -960,11 +994,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("JsonCreator");
 
-            StringBuilder constructorPropertiesAsWireType
-                = new StringBuilder(constructorPropertiesStringBuilderCapacity);
+            StringBuilder constructorPropertiesAsWireType = new StringBuilder();
 
-            StringBuilder constructorPropertiesInvokePublicConstructor
-                = new StringBuilder(constructorPropertiesStringBuilderCapacity);
+            StringBuilder constructorPropertiesInvokePublicConstructor = new StringBuilder();
 
             final Consumer<ClientModelProperty> addParameterInvokePublicConstructor = p -> {
                 if (constructorPropertiesInvokePublicConstructor.length() > 0) {
@@ -979,7 +1011,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 }
             };
 
-            for (ClientModelProperty property : requiredParentProperties) {
+            propertiesManager.forEachSuperConstructorProperty(property -> {
                 if (constructorPropertiesAsWireType.length() > 0) {
                     constructorPropertiesAsWireType.append(", ");
                 }
@@ -987,8 +1019,8 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 addModelConstructorParameterAsWireType(property, constructorPropertiesAsWireType);
 
                 addParameterInvokePublicConstructor.accept(property);
-            }
-            for (ClientModelProperty property : requiredProperties) {
+            });
+            propertiesManager.forEachConstructorProperty(property -> {
                 if (constructorPropertiesAsWireType.length() > 0) {
                     constructorPropertiesAsWireType.append(", ");
                 }
@@ -996,7 +1028,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 addModelConstructorParameterAsWireType(property, constructorPropertiesAsWireType);
 
                 addParameterInvokePublicConstructor.accept(property);
-            }
+            });
 
             classBlock.privateConstructor(model.getName() + "(" + constructorPropertiesAsWireType + ")",
                 constructor -> constructor.line("this(" + constructorPropertiesInvokePublicConstructor + ");"));
