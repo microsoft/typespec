@@ -8,10 +8,12 @@ using Spector;
 @scenarioService("/encode/array")
 namespace Encode.Array;
 
-enum Color {
-  blue,
-  red,
-  green,
+union Color {
+  string,
+
+  Blue: "blue",
+  Red: "red",
+  Green: "green",
 }
 
 model CommaDelimitedArrayProperty {
