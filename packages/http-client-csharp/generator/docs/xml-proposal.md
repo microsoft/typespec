@@ -19,10 +19,10 @@ The goal is to enable models to be serialized to and deserialized from XML using
 
 ### Approach
 
-The XML serialization support follows the same patterns established for JSON serialization:
+The XML serialization support leverages the `IPersistableModel<T>` infrastructure:
 
-1. **Format Support**: Extend the model's `IPersistableModel<T>` implementation to handle the `"X"` format for XML
-2. **Parallel Structure**: Mirror the JSON serialization methods with XML equivalents
+1. **Format Support**: Models implement `IPersistableModel<T>` to handle the `"X"` format for XML
+2. **XML Methods**: Provide XML-specific serialization and deserialization methods using `XmlWriter` and `XElement`
 
 ## Sample TypeSpec
 
@@ -147,10 +147,10 @@ internal static Dog DeserializeDog(XElement element, ModelReaderWriterOptions op
 
 ### Azure Branded Implementation
 
-For Azure branded libraries, models that support XML will also implement Azure Core's `IXmlSerializable` and the existing `IJsonModel<T>`:
+For Azure branded libraries, models that support XML will implement Azure Core's `IXmlSerializable`:
 
 ```csharp
-public partial class Dog : IXmlSerializable, IJsonModel<Dog>
+public partial class Dog : IXmlSerializable, IPersistableModel<Dog>
 {
     // ...
     void IXmlSerializable.Write(XmlWriter writer, string nameHint) => Write(writer, ModelSerializationExtensions.WireOptions, nameHint);
@@ -177,62 +177,17 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 
 namespace PetStore
 {
     /// <summary> The Dog. </summary>
-    public partial class Dog : IJsonModel<Dog>
+    public partial class Dog : IPersistableModel<Dog>
     {
         /// <summary> Initializes a new instance of <see cref="Dog"/> for deserialization. </summary>
         internal Dog()
         {
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<Dog>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(Dog)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("id"u8);
-            writer.WriteStringValue(Id);
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Name);
-            if (Optional.IsDefined(Breed))
-            {
-                writer.WritePropertyName("breed"u8);
-                writer.WriteStringValue(Breed);
-            }
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
         }
 
         private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
@@ -264,60 +219,6 @@ namespace PetStore
                 writer.WriteValue(Breed);
                 writer.WriteEndElement();
             }
-        }
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        Dog IJsonModel<Dog>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Dog JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(Dog)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeDog(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static Dog DeserializeDog(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            string id = default;
-            string name = default;
-            string breed = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("id"u8))
-                {
-                    id = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("name"u8))
-                {
-                    name = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("breed"u8))
-                {
-                    breed = prop.Value.GetString();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new Dog(id, name, breed, additionalBinaryDataProperties);
         }
 
         internal static Dog DeserializeDog(XElement element, ModelReaderWriterOptions options)
@@ -364,18 +265,16 @@ namespace PetStore
             switch (format)
             {
                 case "X":
+                    using (MemoryStream stream = new MemoryStream(256))
                     {
-                        using MemoryStream stream = new MemoryStream(256);
                         using (XmlWriter writer = XmlWriter.Create(stream))
                         {
                             Write(writer, options);
                         }
                         return new BinaryData(stream.ToArray());
                     }
-                case "J":
-                    return ModelReaderWriter.Write(this, options, PetStoreContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(Dog)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Dog)} does not support writing '{format}' format.");
             }
         }
 
@@ -395,13 +294,8 @@ namespace PetStore
                     {
                         return DeserializeDog(XElement.Load(dataStream, LoadOptions.None), options);
                     }
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeDog(document.RootElement, options);
-                    }
                 default:
-                    throw new FormatException($"The model {nameof(Dog)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Dog)} does not support reading '{format}' format.");
             }
         }
 
@@ -438,65 +332,17 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 
 namespace PetStore
 {
     /// <summary> The Address. </summary>
-    public partial class Address : IJsonModel<Address>
+    public partial class Address : IPersistableModel<Address>
     {
         /// <summary> Initializes a new instance of <see cref="Address"/> for deserialization. </summary>
         internal Address()
         {
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<Address>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Address>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(Address)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("city"u8);
-            writer.WriteStringValue(City);
-            if (Optional.IsDefined(Street))
-            {
-                writer.WritePropertyName("street"u8);
-                writer.WriteStringValue(Street);
-            }
-            if (Optional.IsDefined(ZipCode))
-            {
-                writer.WritePropertyName("zipCode"u8);
-                writer.WriteStringValue(ZipCode);
-            }
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
         }
 
         private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
@@ -531,60 +377,6 @@ namespace PetStore
                 writer.WriteValue(ZipCode);
                 writer.WriteEndElement();
             }
-        }
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        Address IJsonModel<Address>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Address JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Address>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(Address)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeAddress(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static Address DeserializeAddress(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            string city = default;
-            string street = default;
-            string zipCode = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("city"u8))
-                {
-                    city = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("street"u8))
-                {
-                    street = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("zipCode"u8))
-                {
-                    zipCode = prop.Value.GetString();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new Address(city, street, zipCode, additionalBinaryDataProperties);
         }
 
         internal static Address DeserializeAddress(XElement element, ModelReaderWriterOptions options)
@@ -631,18 +423,16 @@ namespace PetStore
             switch (format)
             {
                 case "X":
+                    using (MemoryStream stream = new MemoryStream(256))
                     {
-                        using MemoryStream stream = new MemoryStream(256);
                         using (XmlWriter writer = XmlWriter.Create(stream))
                         {
                             Write(writer, options);
                         }
                         return new BinaryData(stream.ToArray());
                     }
-                case "J":
-                    return ModelReaderWriter.Write(this, options, PetStoreContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(Address)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Address)} does not support writing '{format}' format.");
             }
         }
 
@@ -662,13 +452,8 @@ namespace PetStore
                     {
                         return DeserializeAddress(XElement.Load(dataStream, LoadOptions.None), options);
                     }
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeAddress(document.RootElement, options);
-                    }
                 default:
-                    throw new FormatException($"The model {nameof(Address)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Address)} does not support reading '{format}' format.");
             }
         }
 
@@ -695,61 +480,17 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 
 namespace PetStore
 {
     /// <summary> The PetDetails. </summary>
-    public partial class PetDetails : IJsonModel<PetDetails>
+    public partial class PetDetails : IPersistableModel<PetDetails>
     {
         /// <summary> Initializes a new instance of <see cref="PetDetails"/> for deserialization. </summary>
         internal PetDetails()
         {
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<PetDetails>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<PetDetails>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(PetDetails)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("id"u8);
-            writer.WriteStringValue(Id);
-            writer.WritePropertyName("ownerName"u8);
-            writer.WriteStringValue(OwnerName);
-            writer.WritePropertyName("petName"u8);
-            writer.WriteStringValue(PetName);
-            writer.WritePropertyName("address"u8);
-            writer.WriteObjectValue(Address, options);
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
         }
 
         private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
@@ -779,66 +520,6 @@ namespace PetStore
             writer.WriteValue(PetName);
             writer.WriteEndElement();
             writer.WriteObjectValue(Address, options, "address");
-        }
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        PetDetails IJsonModel<PetDetails>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual PetDetails JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<PetDetails>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(PetDetails)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializePetDetails(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static PetDetails DeserializePetDetails(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            string id = default;
-            string ownerName = default;
-            string petName = default;
-            Address address = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("id"u8))
-                {
-                    id = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("ownerName"u8))
-                {
-                    ownerName = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("petName"u8))
-                {
-                    petName = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("address"u8))
-                {
-                    address = Address.DeserializeAddress(prop.Value, options);
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new PetDetails(id, ownerName, petName, address, additionalBinaryDataProperties);
         }
 
         internal static PetDetails DeserializePetDetails(XElement element, ModelReaderWriterOptions options)
@@ -891,18 +572,16 @@ namespace PetStore
             switch (format)
             {
                 case "X":
+                    using (MemoryStream stream = new MemoryStream(256))
                     {
-                        using MemoryStream stream = new MemoryStream(256);
                         using (XmlWriter writer = XmlWriter.Create(stream))
                         {
                             Write(writer, options);
                         }
                         return new BinaryData(stream.ToArray());
                     }
-                case "J":
-                    return ModelReaderWriter.Write(this, options, PetStoreContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(PetDetails)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(PetDetails)} does not support writing '{format}' format.");
             }
         }
 
@@ -922,13 +601,8 @@ namespace PetStore
                     {
                         return DeserializePetDetails(XElement.Load(dataStream, LoadOptions.None), options);
                     }
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializePetDetails(document.RootElement, options);
-                    }
                 default:
-                    throw new FormatException($"The model {nameof(PetDetails)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(PetDetails)} does not support reading '{format}' format.");
             }
         }
 
