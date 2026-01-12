@@ -17,6 +17,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             MockHelpers.LoadMockGenerator();
 
             var multiPartFormData = new MultiPartFormDataBinaryContentDefinition();
+            Assert.AreEqual("MultiPartFormDataBinaryContent", multiPartFormData.Name);
             Assert.IsNotNull(multiPartFormData.Methods);
             var writeToMethod = multiPartFormData.Methods.Single(m => m.Signature.Name == "WriteTo");
             Assert.IsNotNull(writeToMethod);
@@ -30,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             MockHelpers.LoadMockGenerator();
 
             var multiPartFormData = new MultiPartFormDataBinaryContentDefinition();
+            Assert.AreEqual("MultiPartFormDataBinaryContent", multiPartFormData.Name);
             Assert.IsNotNull(multiPartFormData.Methods);
             var writeToMethod = multiPartFormData.Methods.Single(m => m.Signature.Name == "WriteToAsync");
             Assert.IsNotNull(writeToMethod);
