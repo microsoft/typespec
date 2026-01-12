@@ -23,6 +23,7 @@ export const typespecCompiler = createPackage({
         "EnumValue",
         "Numeric",
         "ScalarValue",
+        "DecoratorValidatorCallbacks",
       ],
     },
   },

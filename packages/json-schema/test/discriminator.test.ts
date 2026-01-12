@@ -232,10 +232,10 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
 
-    // Should have base model properties along with oneOf
+    // Pet schema should contain both oneOf and base properties
     strictEqual(petSchema.type, "object");
-    ok(petSchema.properties, "Should have properties");
-    strictEqual(petSchema.properties.name.type, "string");
+    ok(petSchema.properties, "Pet should have properties");
+    strictEqual(petSchema.properties.name.type, "string", "Pet should have name property");
     deepStrictEqual(petSchema.properties.kind, {
       type: "string",
       description: "Discriminator property for Pet.",
@@ -271,13 +271,17 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     ok(catSchema, "Cat schema should exist");
     strictEqual(catSchema.properties.kind.const, "cat");
     strictEqual(catSchema.properties.meow.type, "integer");
-    deepStrictEqual(catSchema.allOf, [{ $ref: "Pet.json" }]);
+    // Cat should include base properties (name) inline to avoid circular refs
+    strictEqual(catSchema.properties.name.type, "string");
+    strictEqual(catSchema.allOf, undefined, "Should not have allOf to avoid circular refs");
 
     const dogSchema = schemas["Dog.json"];
     ok(dogSchema, "Dog schema should exist");
     strictEqual(dogSchema.properties.kind.const, "dog");
     strictEqual(dogSchema.properties.bark.type, "string");
-    deepStrictEqual(dogSchema.allOf, [{ $ref: "Pet.json" }]);
+    // Dog should include base properties (name) inline to avoid circular refs
+    strictEqual(dogSchema.properties.name.type, "string");
+    strictEqual(dogSchema.allOf, undefined, "Should not have allOf to avoid circular refs");
   });
 
   it("works with multiple levels of inheritance", async () => {
@@ -308,7 +312,9 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
 
     const dogSchema = schemas["Dog.json"];
     ok(dogSchema, "Dog schema should exist");
-    deepStrictEqual(dogSchema.allOf, [{ $ref: "Pet.json" }]);
+    // Dog should inline Pet properties, not use allOf
+    strictEqual(dogSchema.properties.name.type, "string");
+    strictEqual(dogSchema.allOf, undefined, "Should not have allOf to avoid circular refs");
   });
 
   it("does not emit oneOf when option is ignore", async () => {
@@ -381,10 +387,10 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.anyOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.anyOf[1], { $ref: "Dog.json" });
 
-    // Should have base model properties along with anyOf
+    // Pet schema should contain both anyOf and base properties
     strictEqual(petSchema.type, "object");
-    ok(petSchema.properties, "Should have properties");
-    strictEqual(petSchema.properties.name.type, "string");
+    ok(petSchema.properties, "Pet should have properties");
+    strictEqual(petSchema.properties.name.type, "string", "Pet should have name property");
     deepStrictEqual(petSchema.properties.kind, {
       type: "string",
       description: "Discriminator property for Pet.",
@@ -460,5 +466,149 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     // References use #/$defs when models are bundled
     deepStrictEqual(petSchema.oneOf[0], { $ref: "#/$defs/Cat" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "#/$defs/Dog" });
+  });
+
+  it("generates catch-all variant for open discriminators", async () => {
+    const schemas = await emitSchema(
+      `
+        @discriminator("type")
+        model Tool {
+          name: string;
+          type: string;
+        }
+
+        model FileSearch extends Tool {
+          type: "file_search";
+          query: string;
+        }
+
+        model Function extends Tool {
+          type: "function";
+          functionName: string;
+        }
+      `,
+      { "polymorphic-models-strategy": "oneOf" },
+    );
+
+    const toolSchema = schemas["Tool.json"];
+    ok(toolSchema, "Tool schema should exist");
+    ok(toolSchema.oneOf, "Tool schema should have oneOf");
+
+    // Should have 3 variants: 2 known types + 1 catch-all
+    strictEqual(toolSchema.oneOf.length, 3, "oneOf should have 3 options (2 known + catch-all)");
+
+    // First two should be references to known types
+    deepStrictEqual(toolSchema.oneOf[0], { $ref: "FileSearch.json" });
+    deepStrictEqual(toolSchema.oneOf[1], { $ref: "Function.json" });
+
+    // Third should be the catch-all variant
+    const catchAll = toolSchema.oneOf[2];
+    ok(catchAll, "Catch-all variant should exist");
+    strictEqual(catchAll.type, "object");
+    ok(catchAll.properties, "Catch-all should have properties");
+
+    // Catch-all discriminator property should have "not: { enum: [...known values...] }"
+    const typeProperty = catchAll.properties.type;
+    ok(typeProperty, "Catch-all should have type property");
+    strictEqual(typeProperty.type, "string");
+    ok(typeProperty.not, "Type property should have 'not' constraint");
+    deepStrictEqual(
+      typeProperty.not.enum,
+      ["file_search", "function"],
+      "Should exclude known values",
+    );
+
+    // Should include base properties
+    ok(catchAll.properties.name, "Catch-all should have name property");
+    deepStrictEqual(catchAll.required, ["name", "type"]);
+  });
+
+  it("generates catch-all variant for union discriminators that include string", async () => {
+    const schemas = await emitSchema(
+      `
+        union ToolType {
+          string,
+          file_search: "file_search",
+          function: "function",
+        }
+
+        @discriminator("type")
+        model Tool {
+          name: string;
+          type: ToolType;
+        }
+
+        model FileSearch extends Tool {
+          type: ToolType.file_search;
+          query: string;
+        }
+
+        model Function extends Tool {
+          type: ToolType.function;
+          functionName: string;
+        }
+      `,
+      { "polymorphic-models-strategy": "oneOf" },
+    );
+
+    const toolSchema = schemas["Tool.json"];
+    ok(toolSchema, "Tool schema should exist");
+    ok(toolSchema.oneOf, "Tool schema should have oneOf");
+
+    // Should have 3 variants: 2 known types + 1 catch-all
+    strictEqual(toolSchema.oneOf.length, 3, "oneOf should have 3 options (2 known + catch-all)");
+
+    // Third should be the catch-all variant
+    const catchAll = toolSchema.oneOf[2];
+    ok(catchAll, "Catch-all variant should exist");
+    strictEqual(catchAll.type, "object");
+
+    // Catch-all discriminator property should exclude known values
+    const typeProperty = catchAll.properties.type;
+    ok(typeProperty.not, "Type property should have 'not' constraint");
+    deepStrictEqual(
+      typeProperty.not.enum,
+      ["file_search", "function"],
+      "Should exclude known values",
+    );
+  });
+
+  it("does not generate catch-all for closed discriminators", async () => {
+    const schemas = await emitSchema(
+      `
+        union PetKind {
+          cat: "cat",
+          dog: "dog",
+        }
+
+        @discriminator("kind")
+        model Pet {
+          name: string;
+          kind: PetKind;
+        }
+
+        model Cat extends Pet {
+          kind: PetKind.cat;
+          meow: int32;
+        }
+
+        model Dog extends Pet {
+          kind: PetKind.dog;
+          bark: string;
+        }
+      `,
+      { "polymorphic-models-strategy": "oneOf" },
+    );
+
+    const petSchema = schemas["Pet.json"];
+    ok(petSchema, "Pet schema should exist");
+    ok(petSchema.oneOf, "Pet schema should have oneOf");
+
+    // Should have only 2 variants (no catch-all for closed union)
+    strictEqual(petSchema.oneOf.length, 2, "oneOf should have 2 options (no catch-all)");
+
+    // Both should be references to known types
+    deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
+    deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
   });
 });

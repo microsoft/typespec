@@ -3,11 +3,12 @@ import type {
   CustomMutationClasses,
   MutationEngine,
   MutationFor,
+  MutationHalfEdge,
   MutationOptions,
 } from "./mutation-engine.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 
-export class ScalarMutation<
+export abstract class ScalarMutation<
   TOptions extends MutationOptions,
   TCustomMutations extends CustomMutationClasses,
   TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
@@ -18,17 +19,24 @@ export class ScalarMutation<
   constructor(
     engine: TEngine,
     sourceType: Scalar,
-    referenceTypes: MemberType[] = [],
+    referenceTypes: MemberType[],
     options: TOptions,
+    info: MutationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
   }
 
   protected mutateBaseScalar() {
     if (this.sourceType.baseScalar) {
-      this.baseScalar = this.engine.mutate(this.sourceType.baseScalar, this.options);
+      this.baseScalar = this.engine.mutate(
+        this.sourceType.baseScalar,
+        this.options,
+        this.startBaseScalarEdge(),
+      );
     }
   }
+
+  protected abstract startBaseScalarEdge(): MutationHalfEdge;
 
   mutate() {
     this.mutateBaseScalar();

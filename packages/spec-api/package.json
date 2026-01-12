@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spec-api",
-  "version": "0.1.0-alpha.10",
+  "version": "0.1.0-alpha.11",
   "description": "Spec api to implement mock api",
   "type": "module",
   "exports": {
@@ -29,19 +29,19 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "deep-equal": "^2.2.0",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@types/deep-equal": "^1.0.1",
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.6",
     "@types/multer": "^2.0.0",
-    "@types/node": "~24.10.1",
+    "@types/node": "~25.0.2",
     "@types/xml2js": "^0.4.11",
-    "@vitest/coverage-v8": "^4.0.4",
-    "@vitest/ui": "^4.0.4",
+    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/ui": "^4.0.15",
     "rimraf": "~6.1.2",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.4"
+    "vitest": "^4.0.15"
   }
 }

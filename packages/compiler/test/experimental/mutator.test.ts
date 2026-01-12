@@ -8,9 +8,11 @@ import {
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
 import { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
+import { t } from "../../src/testing/index.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper, expectTypeEquals } from "../../src/testing/test-utils.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
+import { Tester } from "../tester.js";
 
 let host: TestHost;
 let runner: BasicTestRunner;
@@ -437,6 +439,65 @@ describe("global graph mutation", () => {
 });
 
 describe("decorators", () => {
+  it("mutates arguments values", async () => {
+    const host = await createTestHost();
+    const code = `
+      import "./dec.js";
+      extern dec myDec(target, value: valueof unknown);
+      
+      enum E {
+        a: "a"
+      }
+      
+      @myDec(#{
+        enumValue: E.a,
+      })
+      @test model Foo {}
+  `;
+    host.addJsFile("dec.js", { $myDec: () => {} });
+    host.addTypeSpecFile("main.tsp", code);
+
+    const visited: string[] = [];
+
+    const { Foo } = (await host.compile("main.tsp")) as { Foo: Model };
+    const mutator: Mutator = {
+      name: "test",
+      Enum: {
+        mutate: (_enum, clone) => {
+          visited.push(clone.name);
+        },
+      },
+      EnumMember: {
+        mutate: (_enumMember, clone) => {
+          visited.push(clone.name);
+        },
+      },
+      Model: {
+        mutate: (_model, clone) => {
+          visited.push(clone.name);
+        },
+      },
+    };
+
+    mutateSubgraph(host.program, [mutator], Foo);
+    expect(visited).toStrictEqual(["Foo", "a", "E"]);
+  });
+
+  // Regression test for https://github.com/microsoft/typespec/issues/9318
+  it("doesn't crash when mutating numeric value", async () => {
+    const { prop, program } = await Tester.compile(t.code`
+      model Test {
+        @minValue(123)
+        ${t.modelProperty("prop")}: int32;
+      }
+    `);
+    const mutator: Mutator = {
+      name: "test",
+      ModelProperty: { mutate: (_, clone) => {} },
+    };
+    expect(() => mutateSubgraph(program, [mutator], prop)).not.toThrow();
+  });
+
   // Regression test for https://github.com/microsoft/typespec/issues/6655
   it("doesn't crash when mutating null value", async () => {
     const host = await createTestHost();

@@ -8,7 +8,7 @@ import {
   TypeSpecUnion,
 } from "../interfaces.js";
 import { Context } from "../utils/context.js";
-import { getDecoratorsForSchema } from "../utils/decorators.js";
+import { getDecoratorsForSchema, getDirectivesForSchema } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 
 /**
@@ -78,6 +78,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     const tsEnum: TypeSpecEnum = {
       kind: "enum",
       ...getScopeAndName(name),
+      directives: getDirectivesForSchema(schema),
       decorators: getDecoratorsForSchema(schema),
       doc: schema.description,
       schema,
@@ -109,6 +110,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "model",
       name,
       scope,
+      directives: [...getDirectivesForSchema(effectiveSchema)],
       decorators: [...getDecoratorsForSchema(effectiveSchema)],
       doc: effectiveSchema.description || schema.description,
       properties: [
@@ -148,12 +150,13 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     if (context.isSSEEventSchema(schemaRef)) {
       // Remove @oneOf decorator if present and add @events
       decorators = decorators.filter((d) => d.name !== "oneOf");
-      decorators.push({ name: "events", args: [] });
+      decorators.push({ name: "TypeSpec.Events.events", args: [] });
     }
 
     const union: TypeSpecUnion = {
       kind: "union",
       ...getScopeAndName(name),
+      directives: getDirectivesForSchema(schema),
       decorators,
       doc: schema.description ?? unionMetadata.description,
       schema,
@@ -214,6 +217,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     types.push({
       kind: "scalar",
       ...getScopeAndName(name),
+      directives: getDirectivesForSchema(schema),
       decorators: getDecoratorsForSchema(schema),
       doc: schema.description,
       schema: "$ref" in schema ? {} : schema,
@@ -346,6 +350,7 @@ function getModelPropertiesFromObjectSchema({
       doc: property.description,
       schema: property,
       isOptional: !required.includes(name),
+      directives: [...getDirectivesForSchema(property)],
       decorators: [...getDecoratorsForSchema(property)],
     });
   }

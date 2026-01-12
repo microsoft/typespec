@@ -105,6 +105,90 @@ Expected behavior: Should handle nested and combined formatting.
 Test italic text formatting using _single asterisks_.
 Expected behavior: Text between \* should render as italic.
 
+### Encode_Array_Property_commaDelimited
+
+- Endpoint: `post /encode/array/property/comma-delimited`
+
+Test operation with request and response model contains a string array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_newlineDelimited
+
+- Endpoint: `post /encode/array/property/newline-delimited`
+
+Test operation with request and response model contains a string array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_pipeDelimited
+
+- Endpoint: `post /encode/array/property/pipe-delimited`
+
+Test operation with request and response model contains a string array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_spaceDelimited
+
+- Endpoint: `post /encode/array/property/space-delimited`
+
+Test operation with request and response model contains a string array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
 ### Encode_Bytes_Header_base64
 
 - Endpoint: `get /encode/bytes/header/base64`
@@ -1264,6 +1348,12 @@ Second request path:
 /optional/foo
 ```
 
+### Parameters_Query_Constant_post
+
+- Endpoint: `post /parameters/query/constant`
+
+Expect to handle a constant value for query and mock api returns nothing
+
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -2022,6 +2112,98 @@ Content-Disposition: form-data; name="picture"; filename="<any-or-no-name-is-ok>
 Content-Type: application/octet-stream
 
 {…file content of .png file…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_optionalParts
+
+- Endpoint: `post /multipart/form-data/optional-parts`
+
+Please send request three times:
+
+- First time with only id
+- Second time with only profileImage
+- Third time with both id and profileImage
+
+Expect requests (
+
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+  If there are duplicated filename in same fieldName, server can't parse them all.
+  ):
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345--
+```
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream
+
+{…file content of .jpg file…}
+--abcde12345--
+```
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream
+
+{…file content of .jpg file…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_withWireName
+
+- Endpoint: `post /multipart/form-data/mixed-parts-with-wire-name`
+
+Expect request with wire names (
+
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+  If there are duplicated filename in same fieldName, server can't parse them all.
+  ):
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream;
+
+{…file content of .jpg file…}
 --abcde12345--
 ```
 

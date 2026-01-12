@@ -63,6 +63,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.next_link_reinjected_parameters: list[Parameter] = [
             Parameter.from_yaml(p, code_model) for p in yaml_data.get("nextLinkReInjectedParameters", [])
         ]
+        self.next_link_verb: str = (yaml_data.get("nextLinkVerb") or "GET").upper()
 
     @property
     def has_continuation_token(self) -> bool:

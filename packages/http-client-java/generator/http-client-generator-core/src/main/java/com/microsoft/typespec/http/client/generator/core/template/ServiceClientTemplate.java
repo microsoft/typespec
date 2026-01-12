@@ -72,7 +72,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             imports.add(String.format("%1$s.%2$s", ClientModelUtil.getServiceClientBuilderPackageName(serviceClient),
                 serviceClient.getInterfaceName() + ClientModelUtil.getBuilderSuffix()));
         } else if (settings.isAzureV1()) {
-            imports.add("com.azure.core.util.serializer.JacksonAdapter");
+            imports.add(ClassType.JACKSON_ADAPTER.getFullName());
         }
 
         imports.add(InvocationTargetException.class.getName());
@@ -106,9 +106,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
 
             // Add ServiceClient client property variables, getters, and setters
             for (ServiceClientProperty serviceClientProperty : serviceClient.getProperties()) {
-                classBlock.javadocComment(comment -> {
-                    comment.description(serviceClientProperty.getDescription());
-                });
+                classBlock.javadocComment(comment -> comment.description(serviceClientProperty.getDescription()));
                 classBlock.privateFinalMemberVariable(serviceClientProperty.getType().toString(),
                     serviceClientProperty.getName());
 
@@ -116,11 +114,10 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                     comment.description(String.format("Gets %1$s", serviceClientProperty.getDescription()));
                     comment.methodReturns(String.format("the %1$s value.", serviceClientProperty.getName()));
                 });
-                classBlock.method(serviceClientProperty.getMethodVisibility(), null, String.format("%1$s %2$s()",
-                    serviceClientProperty.getType(), new ModelNamer().modelPropertyGetterName(serviceClientProperty)),
-                    function -> {
-                        function.methodReturn(String.format("this.%1$s", serviceClientProperty.getName()));
-                    });
+                classBlock.method(serviceClientProperty.getMethodVisibility(), null,
+                    String.format("%1$s %2$s()", serviceClientProperty.getType(),
+                        new ModelNamer().modelPropertyGetterName(serviceClientProperty)),
+                    function -> function.methodReturn("this." + serviceClientProperty.getName()));
 
                 /*
                  * if (!serviceClientProperty.isReadOnly()) {
@@ -149,10 +146,8 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
 
             // AutoRestMethod Group Client declarations and getters
             for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
-                classBlock.javadocComment(comment -> {
-                    comment.description(String.format("The %1$s object to access its operations.",
-                        methodGroupClient.getVariableType()));
-                });
+                classBlock.javadocComment(comment -> comment.description(
+                    String.format("The %1$s object to access its operations.", methodGroupClient.getVariableType())));
                 classBlock.privateFinalMemberVariable(methodGroupClient.getVariableType(),
                     methodGroupClient.getVariableName());
 
@@ -161,21 +156,19 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                         methodGroupClient.getVariableType()));
                     comment.methodReturns(String.format("the %1$s object.", methodGroupClient.getVariableType()));
                 });
-                classBlock.publicMethod(String.format("%1$s get%2$s()", methodGroupClient.getVariableType(),
-                    CodeNamer.toPascalCase(methodGroupClient.getVariableName())), function -> {
-                        function.methodReturn(String.format("this.%1$s", methodGroupClient.getVariableName()));
-                    });
+                classBlock.publicMethod(
+                    String.format("%1$s get%2$s()", methodGroupClient.getVariableType(),
+                        CodeNamer.toPascalCase(methodGroupClient.getVariableName())),
+                    function -> function.methodReturn("this." + methodGroupClient.getVariableName()));
             }
 
             // additional service client properties in constructor arguments
             final String constructorArgs = getAdditionalConstructorArguments(serviceClient);
             // code lines
-            Consumer<JavaBlock> constructorParametersCodes = javaBlock -> {
-                serviceClient.getProperties()
-                    .stream()
-                    .filter(p -> !p.isReadOnly())
-                    .forEach(p -> javaBlock.line(String.format("this.%1$s = %2$s;", p.getName(), p.getName())));
-            };
+            Consumer<JavaBlock> constructorParametersCodes = javaBlock -> serviceClient.getProperties()
+                .stream()
+                .filter(p -> !p.isReadOnly())
+                .forEach(p -> javaBlock.line(String.format("this.%1$s = %2$s;", p.getName(), p.getName())));
 
             // Service Client Constructors
             // boolean serviceClientUsesCredentials = serviceClient.getConstructors().stream().anyMatch(constructor ->

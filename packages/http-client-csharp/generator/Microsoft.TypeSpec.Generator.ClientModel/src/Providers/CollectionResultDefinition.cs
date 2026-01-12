@@ -31,6 +31,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected InputOperation Operation { get; }
         protected InputPagingServiceMetadata Paging { get; }
 
+        protected internal FieldProvider? PageSizeField { get; }
+
         protected FieldProvider RequestOptionsField => _requestOptionsField ??= RequestFields
             .First(f => f.Name == RequestOptionsFieldName);
         private FieldProvider? _requestOptionsField;
@@ -80,11 +82,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ResponseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
             ResponseModelType = ResponseModel.Type;
 
+            // The page size request parameter will always correspond to the last segment. We do not currently support
+            // nested page size parameters that are not HTTP parameters, i.e. just a property in a body.
+            // TODO https://github.com/microsoft/typespec/issues/9069
+            var pageSize = Paging.PageSizeParameterSegments.LastOrDefault();
+
             foreach (var field in RequestFields)
             {
                 if (field.AsParameter.Name == Paging.ContinuationToken?.Parameter.Name)
                 {
                     NextTokenField = field;
+                }
+
+                if (field.AsParameter.Name == pageSize)
+                {
+                    PageSizeField = field;
                 }
             }
 
@@ -192,27 +204,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseModel)
         {
-            TypeProvider model = ResponseModel;
-            ValueExpression getPropertyExpression = responseModel;
-
-            for (int i = 0; i < segments.Count; i++)
-            {
-                var property = model.Properties.First(p => p.WireInfo?.SerializedName == segments[i]);
-
-                if (i > 0)
-                {
-                    getPropertyExpression = getPropertyExpression.NullConditional();
-                }
-
-                getPropertyExpression = getPropertyExpression.Property(property.Name);
-
-                if (i < segments.Count - 1)
-                {
-                    model = ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
-                }
-            }
-
-            return getPropertyExpression;
+            return ResponseModel.GetPropertyExpression(responseModel, segments);
         }
 
         private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
@@ -323,25 +315,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 case InputResponseLocation.Body:
                     var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
-                    return
-                    [
-                        Declare(nextPageVariable, resultExpression),
-                        new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
+
+                    var ifElseStatement = nextPageType.Equals(typeof(Uri))
+                        ? new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
                             {
                                 Return(Static(typeof(ContinuationToken))
                                 .Invoke("FromBytes", BinaryDataSnippets.FromString(
-                                    nextPageType.Equals(typeof(Uri)) ?
-                                        nextPageVariable.Property("AbsoluteUri") :
-                                        nextPageVariable)))
+                                    nextPageVariable.Property("AbsoluteUri"))))
                             },
                             Return(Null))
+                        : new IfElseStatement(new IfStatement(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageVariable)))
+                            {
+                                Return(Static(typeof(ContinuationToken))
+                                .Invoke("FromBytes", BinaryDataSnippets.FromString(nextPageVariable)))
+                            },
+                            Return(Null));
+
+                    return
+                    [
+                        Declare(nextPageVariable, resultExpression),
+                        ifElseStatement
                     ];
                 case InputResponseLocation.Header:
                     return
                     [
                         new IfElseStatement(
                             new IfStatement(PageParameter.ToApi<ClientResponseApi>().GetRawResponse()
-                                .TryGetHeader(nextPagePropertySegments![0], out var nextLinkHeader))
+                                .TryGetHeader(nextPagePropertySegments![0], out var nextLinkHeader)
+                                .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                             {
                                 Return(Static(typeof(ContinuationToken)).Invoke("FromBytes", BinaryDataSnippets.FromString(nextLinkHeader!)))
                             },
@@ -458,19 +459,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, responseModel);
                     if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
                     {
+                        IfStatement condition = NextPagePropertyType.Equals(typeof(Uri))
+                            ? new IfStatement(nextPage.Equal(Null))
+                            : new IfStatement(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPage));
+                        condition.Add(YieldBreak());
+
                         return
                         [
                             nextPage.Assign(resultExpression).Terminate(),
-                            new IfStatement(nextPage.Equal(Null))
-                            {
-                                YieldBreak()
-                            }
+                            condition,
                         ];
                     }
+
                     return
                     [
                         Declare("nextPageString", resultExpression.As<string>(), out ScopedApi<string> nextPageString),
-                        new IfStatement(nextPageString.Equal(Null))
+                        new IfStatement(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageString))
                         {
                             YieldBreak()
                         },
@@ -480,7 +484,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return
                         [
                             new IfElseStatement(
-                                new IfStatement(result.GetRawResponse().TryGetHeader(NextPagePropertySegments[0], out var nextLinkHeader))
+                                new IfStatement(result.GetRawResponse().TryGetHeader(NextPagePropertySegments[0], out var nextLinkHeader)
+                                    .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                                 {
                                         nextPage.Type.Equals(typeof(Uri)) ?
                                             nextPage.Assign(New.Instance<Uri>(nextLinkHeader!)).Terminate() :

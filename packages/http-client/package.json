@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "type": "module",
   "main": "dist/src/index.js",
   "license": "MIT",
@@ -23,27 +23,27 @@
     }
   },
   "peerDependencies": {
-    "@alloy-js/core": "^0.21.0",
-    "@alloy-js/typescript": "^0.21.0",
+    "@alloy-js/core": "^0.22.0",
+    "@alloy-js/typescript": "^0.22.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.21.0",
-    "@alloy-js/core": "^0.21.0",
+    "@alloy-js/cli": "^0.22.0",
+    "@alloy-js/core": "^0.22.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/typescript": "^0.21.0",
-    "@types/node": "~24.10.1",
+    "@alloy-js/typescript": "^0.22.0",
+    "@types/node": "~25.0.2",
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/tspd": "workspace:^",
-    "eslint": "^9.23.0",
-    "prettier": "~3.6.2",
+    "eslint": "^9.39.2",
+    "prettier": "~3.7.4",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.4"
+    "vitest": "^4.0.15"
   },
   "scripts": {
     "build": "npm run gen-extern-signature && alloy build && npm run lint-typespec-library",

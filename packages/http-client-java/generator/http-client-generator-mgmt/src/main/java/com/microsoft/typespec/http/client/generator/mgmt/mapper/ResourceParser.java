@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
-import com.azure.core.http.HttpMethod;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -31,6 +29,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -307,15 +307,11 @@ public class ResourceParser {
                     if (method.getInnerProxyMethod()
                         .getParameters()
                         .stream()
-                        .allMatch(p -> p.isFromClient()
-                            || !p.isRequired()
-                            || (p.getRequestParameterLocation() == RequestParameterLocation.QUERY && p.isConstant())     // usually
-                                                                                                                         // 'api-version'
-                                                                                                                         // query
-                                                                                                                         // parameter
-                            || (p.getRequestParameterLocation() == RequestParameterLocation.HEADER && p.isConstant())    // usually
-                                                                                                                         // 'accept'
-                                                                                                                         // header
+                        .allMatch(p -> p.isFromClient() || !p.isRequired()
+                        // usually 'api-version' query parameter
+                            || (p.getRequestParameterLocation() == RequestParameterLocation.QUERY && p.isConstant())
+                            // usually 'accept' header
+                            || (p.getRequestParameterLocation() == RequestParameterLocation.HEADER && p.isConstant())
                             || p.getRequestParameterLocation() == RequestParameterLocation.PATH
                             || p.getRequestParameterLocation() == RequestParameterLocation.BODY)) {
                         actionMethods.add(method);
@@ -356,15 +352,22 @@ public class ResourceParser {
                         FluentResourceModel fluentModel = fluentModelMapByName.get(returnTypeName);
                         // at present, cannot handle derived models
                         if (fluentModel != null && fluentModel.getInnerModel().getDerivedModels().isEmpty()) {
+                            String url = m.getInnerProxyMethod().getUrlPath();
+                            UrlPathSegments urlPathSegments = new UrlPathSegments(url);
                             // "id", "name", "type" in resource instance
                             if (fluentModel.getResourceCreate() == null
-                                && !foundModels.containsKey(fluentModel)
                                 && !excludeModels.contains(fluentModel)
                                 && fluentModel.hasProperty(ResourceTypeName.FIELD_ID)
                                 && fluentModel.hasProperty(ResourceTypeName.FIELD_NAME)
-                                && fluentModel.hasProperty(ResourceTypeName.FIELD_TYPE)) {
-                                String url = m.getInnerProxyMethod().getUrlPath();
-                                UrlPathSegments urlPathSegments = new UrlPathSegments(url);
+                                && fluentModel.hasProperty(ResourceTypeName.FIELD_TYPE)
+                                && (!foundModels.containsKey(fluentModel) ||
+                            // In case multiple PUTs appear in the same collection, try sticking with the one with the
+                            // shortest URL segments in order to keep consistency.
+                            // We can't do much if some of them share the same shortest segment length. Currently, we
+                            // stick with the first one, as this scenario doesn't make sense for now.
+                            // We may need a way to specify which one, when we meet real case.
+                            foundModels.get(fluentModel).getUrlPathSegments().getReverseSegments().size()
+                                > urlPathSegments.getReverseSegments().size())) {
 
                                 // logger.info("Candidate fluent model '{}', hasSubscription '{}', hasResourceGroup
                                 // '{}', isNested '{}', method name '{}'", fluentModel.getName(),

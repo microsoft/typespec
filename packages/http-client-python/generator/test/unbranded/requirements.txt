@@ -7,11 +7,14 @@
 -e ./generated/authentication-oauth2
 -e ./generated/authentication-union
 -e ./generated/setuppy-authentication-union
+-e ./generated/specs-documentation
 -e ./generated/encode-duration
 -e ./generated/encode-numeric
+-e ./generated/encode-array
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
 -e ./generated/parameters-path
+-e ./generated/parameters-query
 -e ./generated/parameters-spread
 -e ./generated/serialization-encoded-name-json
 -e ./generated/server-endpoint-not-defined
@@ -38,6 +41,7 @@
 -e ./generated/typetest-property-additionalproperties
 -e ./generated/typetest-scalar
 -e ./generated/typetest-union
+-e ./generated/typetest-discriminatedunion
 -e ./generated/typetest-model-empty
 -e ./generated/headasbooleantrue
 -e ./generated/headasbooleanfalse

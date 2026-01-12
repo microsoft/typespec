@@ -11,7 +11,7 @@ import type {
   SourceLocation,
 } from "./types.js";
 
-export async function applyCodeFixes(host: CompilerHost, codeFixes: CodeFix[]) {
+export async function applyCodeFixes(host: CompilerHost, codeFixes: readonly CodeFix[]) {
   if (!codeFixes.length) return;
   const edits = (await Promise.all(codeFixes.map((codeFix) => resolveCodeFix(codeFix)))).flat();
   await applyCodeFixEdits(host, edits);

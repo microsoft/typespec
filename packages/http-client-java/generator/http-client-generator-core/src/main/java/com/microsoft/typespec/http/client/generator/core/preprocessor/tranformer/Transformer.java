@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AndSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BinarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
@@ -34,6 +33,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.extensi
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

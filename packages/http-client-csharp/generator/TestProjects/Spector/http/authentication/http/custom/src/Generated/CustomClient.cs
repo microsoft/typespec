@@ -16,6 +16,8 @@ namespace Authentication.Http.Custom
 
         public CustomClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new CustomClientOptions()) => throw null;
 
+        public CustomClient(ApiKeyCredential credential, CustomClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
+
         public CustomClient(Uri endpoint, ApiKeyCredential credential, CustomClientOptions options) => throw null;
 
         public ClientPipeline Pipeline => throw null;

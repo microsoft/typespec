@@ -1,57 +1,89 @@
 import type { MemberType, Scalar } from "@typespec/compiler";
-import { ScalarMutation } from "@typespec/mutator-framework";
-import { getJsonEncoderRegistry, type Codec } from "./codecs.js";
+import {
+  MutationHalfEdge,
+  ScalarMutation,
+  type MutationNodeForType,
+  type MutationTraits,
+} from "@typespec/mutator-framework";
+import { type Codec, type EncodingInfo } from "./codecs.js";
 import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizer } from "./http-canonicalization.js";
+import type {
+  CanonicalizationPredicate,
+  HttpCanonicalizationCommon,
+  HttpCanonicalizationInfo,
+  HttpCanonicalizer,
+} from "./http-canonicalization.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 
 /**
  * Canonicalizes scalar types by applying encoding-specific mutations.
  */
-export class ScalarHttpCanonicalization extends ScalarMutation<
-  HttpCanonicalizationOptions,
-  HttpCanonicalizationMutations,
-  HttpCanonicalizer
-> {
-  /**
-   * Canonicalization options.
-   */
-  options: HttpCanonicalizationOptions;
-  /**
-   * Codec responsible for transforming the scalar into language and wire types.
-   */
+export class ScalarHttpCanonicalization
+  extends ScalarMutation<
+    HttpCanonicalizationOptions,
+    HttpCanonicalizationMutations,
+    HttpCanonicalizer
+  >
+  implements HttpCanonicalizationCommon
+{
   codec: Codec;
-  /**
-   * Indicates whether the scalar is a named TypeSpec declaration.
-   */
+  #encodingInfo: EncodingInfo;
   isDeclaration: boolean = false;
 
-  /**
-   * Mutation subgraph for language types.
-   */
-  get #languageSubgraph() {
-    return this.engine.getLanguageSubgraph(this.options);
+  #languageMutationNode: MutationNodeForType<Scalar>;
+  get languageMutationNode() {
+    return this.#languageMutationNode;
   }
 
-  /**
-   * Mutation subgraph for wire types.
-   */
-  get #wireSubgraph() {
-    return this.engine.getWireSubgraph(this.options);
+  #wireMutationNode: MutationNodeForType<Scalar>;
+  get wireMutationNode() {
+    return this.#wireMutationNode;
   }
 
-  /**
-   * The possibly mutated language type for this scalar.
-   */
   get languageType() {
-    return this.getMutatedType(this.#languageSubgraph);
+    return this.#languageMutationNode.mutatedType;
+  }
+
+  get wireType() {
+    return this.#wireMutationNode.mutatedType;
   }
 
   /**
-   * The possibly mutated wire type for this scalar.
+   * Tests whether the subgraph rooted at this canonicalization uses only
+   * the identity codec (no transformation).
    */
-  get wireType() {
-    return this.getMutatedType(this.#wireSubgraph);
+  subgraphUsesIdentityCodec(): boolean {
+    return this.engine.subgraphUsesIdentityCodec(this);
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization satisfies
+   * the provided predicate.
+   */
+  subgraphMatchesPredicate(predicate: CanonicalizationPredicate): boolean {
+    return this.engine.subgraphMatchesPredicate(this, predicate);
+  }
+
+  static mutationInfo(
+    engine: HttpCanonicalizer,
+    sourceType: Scalar,
+    referenceTypes: MemberType[],
+    options: HttpCanonicalizationOptions,
+    halfEdge?: MutationHalfEdge<any, any>,
+    traits?: MutationTraits,
+  ): HttpCanonicalizationInfo {
+    let mutationKey = options.mutationKey;
+    const encodingInfo = engine.codecs.encode(sourceType, referenceTypes);
+
+    if (encodingInfo.codec) {
+      mutationKey += `-codec-${encodingInfo.codec.id}`;
+    }
+
+    return {
+      mutationKey,
+      encodingInfo,
+      isSynthetic: traits?.isSynthetic,
+    };
   }
 
   constructor(
@@ -59,12 +91,21 @@ export class ScalarHttpCanonicalization extends ScalarMutation<
     sourceType: Scalar,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    info: HttpCanonicalizationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
     this.options = options;
+    this.#languageMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-language",
+    );
+    this.#wireMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-wire",
+    );
 
-    const registry = getJsonEncoderRegistry(this.engine.$);
-    this.codec = registry.detect(this);
+    this.#encodingInfo = info.encodingInfo!;
+    this.codec = info.encodingInfo!.codec;
     this.isDeclaration = false;
   }
 
@@ -72,15 +113,23 @@ export class ScalarHttpCanonicalization extends ScalarMutation<
    * Canonicalize this scalar for HTTP.
    */
   mutate() {
-    const languageNode = this.getMutationNode(this.#languageSubgraph);
-    const wireNode = this.getMutationNode(this.#wireSubgraph);
-
-    const { languageType, wireType } = this.codec.encode();
+    const { languageType, wireType } = this.#encodingInfo;
     if (languageType !== this.sourceType) {
-      languageNode.replace(languageType as Scalar);
+      this.#languageMutationNode = this.#languageMutationNode.replace(
+        languageType as Scalar,
+      ) as MutationNodeForType<Scalar>;
     }
     if (wireType !== this.sourceType) {
-      wireNode.replace(wireType as Scalar);
+      this.#wireMutationNode = this.#wireMutationNode.replace(
+        wireType as Scalar,
+      ) as MutationNodeForType<Scalar>;
     }
+  }
+
+  protected startBaseScalarEdge(): MutationHalfEdge {
+    return new MutationHalfEdge("base", this, (tail) => {
+      this.#languageMutationNode.connectBaseScalar(tail.languageMutationNode);
+      this.#wireMutationNode.connectBaseScalar(tail.wireMutationNode);
+    });
   }
 }
