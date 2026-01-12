@@ -392,7 +392,7 @@ function validateTargetingAnArray(
   const targetType = getTypeForArrayValidation(target);
   const valid = isTypeIn(
     targetType,
-    (x) => x.kind === "Model" && isArrayModelType(context.program, x),
+    (x) => x.kind === "Model" && isArrayModelType(x),
   );
   if (!valid) {
     reportDiagnostic(context.program, {

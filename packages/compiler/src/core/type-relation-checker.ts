@@ -323,10 +323,10 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       ];
     } else if (
       target.kind === "Model" &&
-      isArrayModelType(program, target) &&
+      isArrayModelType(target) &&
       source.kind === "Model"
     ) {
-      if (isArrayModelType(program, source)) {
+      if (isArrayModelType(source)) {
         return hasIndexAndIsAssignableTo(
           source,
           target as Model & { indexer: ModelIndexer },
@@ -341,7 +341,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       return areModelsRelated(source, target, diagnosticTarget, relationCache);
     } else if (
       target.kind === "Model" &&
-      isArrayModelType(program, target) &&
+      isArrayModelType(target) &&
       source.kind === "Tuple"
     ) {
       return isTupleAssignableToArray(source, target, diagnosticTarget, relationCache);
