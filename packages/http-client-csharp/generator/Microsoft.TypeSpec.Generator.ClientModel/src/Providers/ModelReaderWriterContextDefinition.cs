@@ -247,17 +247,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static bool ShouldProcessTypeProvider(TypeProvider provider, HashSet<TypeProvider> visitedTypeProviders)
-        {
-            if (!visitedTypeProviders.Add(provider))
-            {
-                return false;
-            }
-
-            // Check if the type provider implements the model reader/writer interface
-            return ImplementsModelReaderWriter(provider);
-        }
-
         private static bool ShouldProcessCSharpType(CSharpType type, HashSet<CSharpType> visitedTypes)
         {
             if (!type.IsFrameworkType || !visitedTypes.Add(type))
@@ -396,6 +385,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var implementedType in typeProvider.Implements)
             {
                 if (IsModelReaderWriterInterfaceType(implementedType))
+                {
+                    return true;
+                }
+            }
+
+            // Also consider serialization providers that may implement MRW
+            foreach (var serializationProvider in typeProvider.SerializationProviders)
+            {
+                if (ImplementsModelReaderWriter(serializationProvider))
                 {
                     return true;
                 }

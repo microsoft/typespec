@@ -7,7 +7,7 @@ from enum import Enum
 from collections import OrderedDict
 from typing import Any, Optional, TYPE_CHECKING, cast
 import sys
-from .utils import add_to_pylint_disable, NamespaceType
+from .utils import add_to_pylint_disable, NamespaceType, LOCALS_LENGTH_LIMIT
 from .base import BaseType
 from .constant_type import ConstantType
 from .property import Property
@@ -244,7 +244,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
     @property
     def init_pylint_disable(self) -> str:
         retval: str = ""
-        if len(self.properties) > 23:
+        if len(self.properties) > LOCALS_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "too-many-locals")
         return retval
 

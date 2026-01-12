@@ -16,11 +16,12 @@ from typing import (
 from abc import abstractmethod
 
 from .base_builder import BaseBuilder
-from .utils import add_to_pylint_disable
+from .utils import add_to_pylint_disable, LOCALS_LENGTH_LIMIT, REQUEST_BUILDER_BODY_VARIABLES_LENGTH
 from .parameter_list import (
     RequestBuilderParameterList,
     OverloadedRequestBuilderParameterList,
 )
+from .parameter import ParameterLocation
 from .imports import FileImport, ImportType, TypingSection, MsrestImportType
 from ...utils import NAME_LENGTH_LIMIT
 
@@ -67,9 +68,25 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
         return self.yaml_data.get("discriminator") in ("lro", "lropaging")
 
     def pylint_disable(self, async_mode: bool) -> str:
+        retval = ""
         if len(self.name) > NAME_LENGTH_LIMIT:
-            return add_to_pylint_disable("", "name-too-long")
-        return ""
+            retval = add_to_pylint_disable(retval, "name-too-long")
+        method_params = self.parameters.method
+        if len(method_params) > LOCALS_LENGTH_LIMIT - REQUEST_BUILDER_BODY_VARIABLES_LENGTH:
+            retval = add_to_pylint_disable(retval, "too-many-locals")
+        if (
+            len(
+                [
+                    p
+                    for p in method_params
+                    if p.optional and p.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]
+                ]
+            )
+            > LOCALS_LENGTH_LIMIT
+        ):
+            retval = add_to_pylint_disable(retval, "too-many-statements")
+            retval = add_to_pylint_disable(retval, "too-many-branches")
+        return retval
 
     def response_type_annotation(self, **kwargs) -> str:
         return "HttpRequest"

@@ -532,6 +532,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _declarationModifiers = null;
             // constructors might change based on declaration modifier changes
             _constructors = null;
+            // serialization providers need to reflect the new type name/namespace
+            _serializationProviders = null;
             Type.Update(name: name, @namespace: @namespace);
         }
 
