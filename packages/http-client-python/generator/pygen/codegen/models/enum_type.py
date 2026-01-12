@@ -189,7 +189,7 @@ class EnumType(BaseType):
 
             return f"Union[{self.value_type.type_annotation(**kwargs)}, {model_name}]"
         return self.value_type.type_annotation(**kwargs)
-    
+
     def pylint_disable(self) -> str:
         retval: str = ""
         if len(self.name) > NAME_LENGTH_LIMIT:

@@ -1,5 +1,7 @@
 
-class {{ enum.name }}({{ enum.value_type.type_annotation(is_operation_file=False) }}, Enum, metaclass=CaseInsensitiveEnumMeta):{enum.pylint_disable()}
+class {{ enum.name }}({{enum.pylint_disable()}}
+  {{ enum.value_type.type_annotation(is_operation_file=False) }}, Enum, metaclass=CaseInsensitiveEnumMeta
+):
     {% if enum.yaml_data.get("description") %}
     """{{ op_tools.wrap_string(enum.yaml_data["description"], "\n    ") }}
     """
