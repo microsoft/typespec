@@ -25,7 +25,7 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsx ./scripts/build.ts",
     "check": "tsx ./scripts/check.ts",
-    "watch": "tsc -p . --watch",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test:skip": "vitest run",
     "test:e2e": "pnpm check",
     "test:watch": "vitest -w",
