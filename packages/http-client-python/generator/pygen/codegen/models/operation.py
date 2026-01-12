@@ -16,7 +16,7 @@ from typing import (
 
 from .request_builder_parameter import RequestBuilderParameter
 
-from .utils import OrderedSet, add_to_pylint_disable
+from .utils import OrderedSet, add_to_pylint_disable, LOCALS_LENGTH_LIMIT, OPERATION_BODY_VARIABLES_LENGTH
 from .base_builder import BaseBuilder
 from .imports import FileImport, ImportType, TypingSection
 from .response import (
@@ -143,6 +143,12 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             retval = add_to_pylint_disable(retval, "inconsistent-return-statements")
         if len(self.name) > NAME_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "name-too-long")
+        method_params = self.parameters.method
+        if self.is_overload and len(method_params) > LOCALS_LENGTH_LIMIT:
+            retval = add_to_pylint_disable(retval, "too-many-locals")
+        elif not self.is_overload and len(method_params) > (LOCALS_LENGTH_LIMIT - OPERATION_BODY_VARIABLES_LENGTH):
+            retval = add_to_pylint_disable(retval, "too-many-locals")
+
         return retval
 
     def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
