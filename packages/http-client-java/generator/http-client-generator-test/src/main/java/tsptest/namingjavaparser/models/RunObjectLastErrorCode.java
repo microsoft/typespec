@@ -14,7 +14,7 @@ public enum RunObjectLastErrorCode {
     SERVER_ERROR("server_error"),
 
     /**
-     * Enum value rate_limit_exceeded.
+     * Enum value rate<i>limit</i>exceeded.
      */
     RATE_LIMIT_EXCEEDED("rate_limit_exceeded"),
 

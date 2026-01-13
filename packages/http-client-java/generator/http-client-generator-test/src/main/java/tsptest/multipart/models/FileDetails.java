@@ -14,16 +14,17 @@ import com.azure.core.util.BinaryData;
  * A file in an HTTP request, response, or multipart payload.
  * 
  * Files have a special meaning that the HTTP library understands. When the body of an HTTP request, response,
- * or multipart payload is _effectively_ an instance of `TypeSpec.Http.File` or any type that extends it, the
+ * or multipart payload is <i>effectively</i> an instance of `TypeSpec.Http.File` or any type that extends it, the
  * operation is treated as a file upload or download.
  * 
  * When using file bodies, the fields of the file model are defined to come from particular locations by default:
  * 
- * - `contentType`: The `Content-Type` header of the request, response, or multipart payload (CANNOT be overridden or
- * changed).
- * - `contents`: The body of the request, response, or multipart payload (CANNOT be overridden or changed).
- * - `filename`: The `filename` parameter value of the `Content-Disposition` header of the response or multipart payload
- * (MAY be overridden or changed).
+ * <ul><li>`contentType`: The `Content-Type` header of the request, response, or multipart payload (CANNOT be overridden
+ * or changed).</li>
+ * <li>`contents`: The body of the request, response, or multipart payload (CANNOT be overridden or changed).</li>
+ * <li>`filename`: The `filename` parameter value of the `Content-Disposition` header of the response or multipart
+ * payload</li>
+ * </ul>(MAY be overridden or changed).
  * 
  * A File may be used as a normal structured JSON object in a request or response, if the request specifies an explicit
  * `Content-Type` header. In this case, the entire File model is serialized as if it were any other model. In a JSON
@@ -38,7 +39,7 @@ import com.azure.core.util.BinaryData;
  * }
  * ```
  * 
- * The `contentType` _within_ the file defines what media types the data inside the file can be, but if the
+ * The `contentType` <i>within</i> the file defines what media types the data inside the file can be, but if the
  * specification
  * defines a `Content-Type` for the payload as HTTP metadata, that `Content-Type` metadata defines _how the file is
  * serialized_. See the examples below for more information.

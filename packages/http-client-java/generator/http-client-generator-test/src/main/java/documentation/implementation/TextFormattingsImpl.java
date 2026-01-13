@@ -111,9 +111,9 @@ public final class TextFormattingsImpl {
     }
 
     /**
-     * This is **bold text** in the middle of a sentence.
-     * This is a sentence with **multiple bold** sections and **another bold** section.
-     * **This entire sentence is bold.**.
+     * This is <b>bold text</b> in the middle of a sentence.
+     * This is a sentence with <b>multiple bold</b> sections and <b>another bold</b> section.
+     * <b>This entire sentence is bold.</b>.
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -128,9 +128,9 @@ public final class TextFormattingsImpl {
     }
 
     /**
-     * This is **bold text** in the middle of a sentence.
-     * This is a sentence with **multiple bold** sections and **another bold** section.
-     * **This entire sentence is bold.**.
+     * This is <b>bold text</b> in the middle of a sentence.
+     * This is a sentence with <b>multiple bold</b> sections and <b>another bold</b> section.
+     * <b>This entire sentence is bold.</b>.
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -145,9 +145,9 @@ public final class TextFormattingsImpl {
     }
 
     /**
-     * This is *italic text* in the middle of a sentence.
-     * This is a sentence with *multiple italic* sections and *another italic* section.
-     * *This entire sentence is italic.*.
+     * This is <i>italic text</i> in the middle of a sentence.
+     * This is a sentence with <i>multiple italic</i> sections and <i>another italic</i> section.
+     * <i>This entire sentence is italic.</i>.
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -162,9 +162,9 @@ public final class TextFormattingsImpl {
     }
 
     /**
-     * This is *italic text* in the middle of a sentence.
-     * This is a sentence with *multiple italic* sections and *another italic* section.
-     * *This entire sentence is italic.*.
+     * This is <i>italic text</i> in the middle of a sentence.
+     * This is a sentence with <i>multiple italic</i> sections and <i>another italic</i> section.
+     * <i>This entire sentence is italic.</i>.
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -179,10 +179,10 @@ public final class TextFormattingsImpl {
     }
 
     /**
-     * This sentence has **bold**, *italic*, and ***bold italic*** text.
-     * You can also combine them like **bold with *italic inside* bold**.
-     * Or *italic with **bold inside** italic*.
-     * This is a sentence with **bold**, *italic*, and ***bold italic*** text.
+     * This sentence has <b>bold</b>, <i>italic</i>, and <b><i>bold italic</b></i> text.
+     * You can also combine them like <b>bold with <i>italic inside</i> bold</b>.
+     * Or <i>italic with <b>bold inside</b> italic</i>.
+     * This is a sentence with <b>bold</b>, <i>italic</i>, and <b><i>bold italic</b></i> text.
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -198,10 +198,10 @@ public final class TextFormattingsImpl {
     }
 
     /**
-     * This sentence has **bold**, *italic*, and ***bold italic*** text.
-     * You can also combine them like **bold with *italic inside* bold**.
-     * Or *italic with **bold inside** italic*.
-     * This is a sentence with **bold**, *italic*, and ***bold italic*** text.
+     * This sentence has <b>bold</b>, <i>italic</i>, and <b><i>bold italic</b></i> text.
+     * You can also combine them like <b>bold with <i>italic inside</i> bold</b>.
+     * Or <i>italic with <b>bold inside</b> italic</i>.
+     * This is a sentence with <b>bold</b>, <i>italic</i>, and <b><i>bold italic</b></i> text.
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
