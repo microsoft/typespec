@@ -1,5 +1,12 @@
 # Change Log - @typespec/rest
 
+## 0.78.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
 ## 0.77.0
 
 ### Bump dependencies
