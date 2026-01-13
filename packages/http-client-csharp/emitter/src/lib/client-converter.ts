@@ -65,7 +65,7 @@ function fromSdkClient(
 
   inputClient = {
     kind: "client",
-    name: client.name,
+    name: getClientName(client),
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
@@ -190,4 +190,19 @@ function getMethodUri(p: SdkEndpointParameter | undefined): string {
     return (p.type.variantTypes[0] as SdkEndpointType).serverUrl;
 
   return `{${p.name}}`;
+}
+
+/**
+ * Gets the client name, ensuring root clients (those without a parent) are suffixed with "Client".
+ * Sub-clients retain their original names.
+ */
+function getClientName(client: SdkClientType): string {
+  if (client.parent) {
+    return client.name;
+  }
+  const clientSuffix = "Client";
+  const clientSuffixLower = "client";
+  return client.name.toLowerCase().endsWith(clientSuffixLower)
+    ? client.name
+    : `${client.name}${clientSuffix}`;
 }
