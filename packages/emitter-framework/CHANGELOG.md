@@ -1,5 +1,18 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.15.0
+
+### Features
+
+- [#9141](https://github.com/microsoft/typespec/pull/9141) Add an SCCSet class which incrementally calculates strongly connected components from types added to it and updates reactive arrays with the topologically ordered types and components.
+- [#8966](https://github.com/microsoft/typespec/pull/8966) Add Python Emitter Framework implementation
+
+### Bump dependencies
+
+- [#9202](https://github.com/microsoft/typespec/pull/9202) Update to alloy 0.22
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
 ## 0.14.0
 
 No changes, version bump only.

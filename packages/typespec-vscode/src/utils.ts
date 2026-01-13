@@ -7,7 +7,7 @@ import vscode, { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import which from "which";
 import { parseDocument } from "yaml";
-import logger from "./log/logger.js";
+import logger, { LogItem } from "./log/logger.js";
 import { getDirectoryPath, isUrl, joinPaths } from "./path-utils.js";
 import { ResultCode } from "./types.js";
 
@@ -486,4 +486,71 @@ export function distinctArray<T>(arr: T[], compare: (a: T, b: T) => boolean): T[
     }
   }
   return result;
+}
+
+/**
+ * the fn will be wrapped with following log:
+ * operationName started at startTime
+ *  fn()
+ * operationName finished at endTime in duration ms
+ *
+ * @param operationName for logging purpose only
+ */
+export async function runWithTimingLog<T>(
+  operationName: string,
+  fn: () => Promise<T>,
+  log: (item: LogItem) => void,
+): Promise<T> {
+  const start = new Date();
+  try {
+    log({ level: "debug", message: `${operationName} started at ${start.toISOString()}` });
+    return await fn();
+  } finally {
+    const end = new Date();
+    log({
+      level: "debug",
+      message: `${operationName} finished at ${end.toISOString()} in ${end.getTime() - start.getTime()} ms`,
+    });
+  }
+}
+
+export enum RetryResult {
+  Failed,
+}
+/**
+ *
+ * @param fn return RetryResult.Failed or throw to retry
+ * @param operationName for logging purpose only
+ */
+export async function runWithRetry<T>(
+  operationName: string,
+  fn: () => Promise<T | RetryResult.Failed>,
+  log: (item: LogItem) => void,
+  retryCount: number = 3,
+  retryIntervalInMs: number = 200,
+): Promise<T> {
+  for (let i = 0; i < retryCount; i++) {
+    try {
+      const result = await fn();
+      if (result === RetryResult.Failed) {
+        log({
+          level: "debug",
+          message: `${operationName} returned failed on attempt (${i}/${retryCount})`,
+        });
+      } else {
+        return result;
+      }
+    } catch (e) {
+      log({
+        level: "debug",
+        message: `${operationName} threw exception on attempt (${i}/${retryCount}): ${JSON.stringify(e)}`,
+      });
+    }
+    if (i < retryCount - 1) {
+      await new Promise((res) => setTimeout(res, retryIntervalInMs));
+    }
+  }
+  throw new Error(
+    `'${operationName}' failed after ${retryCount} retries, please check previous logs for details`,
+  );
 }

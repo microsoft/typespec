@@ -135,6 +135,7 @@ function emitMethodParameter(
       return emitEndpointType(context, parameter.type, serviceApiVersions);
     }
   }
+  let optional = parameter.optional;
   // filter out credential that python does not support for now
   if (parameter.kind === "credential") {
     const filteredCredentialType = [];
@@ -147,6 +148,8 @@ function emitMethodParameter(
         (credentialType.scheme.type === "apiKey" && credentialType.scheme.in === "header")
       ) {
         filteredCredentialType.push(credentialType);
+      } else if (credentialType.scheme.type === "noAuth") {
+        optional = true;
       }
     }
     if (filteredCredentialType.length === 0) {
@@ -162,6 +165,7 @@ function emitMethodParameter(
     implementation: getImplementation(context, parameter),
     clientDefaultValue: parameter.clientDefaultValue,
     location: parameter.kind,
+    optional,
   };
   if (parameter.isApiVersionParam) {
     return [

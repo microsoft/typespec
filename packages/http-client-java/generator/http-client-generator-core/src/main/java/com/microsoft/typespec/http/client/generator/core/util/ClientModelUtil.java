@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -610,40 +609,7 @@ public class ClientModelUtil {
     }
 
     /**
-     * Gets all the properties that parent models define that are part of the constructor.
-     * <p>
-     * This uses {@link ClientModelUtil#includePropertyInConstructor(ClientModelProperty, JavaSettings)} to determine
-     * which properties should be included in the constructor.
-     *
-     * @param model The client model.
-     * @param settings Autorest generation settings.
-     * @return All properties that are defined by super types of the client model that should be included in the
-     * constructor.
-     */
-    public static List<ClientModelProperty> getParentConstructorProperties(ClientModel model, JavaSettings settings) {
-        String lastParentName = model.getName();
-        ClientModel parentModel = getClientModel(model.getParentModelName());
-        Set<ClientModelProperty> constructorProperties = new LinkedHashSet<>();
-        while (parentModel != null && !lastParentName.equals(parentModel.getName())) {
-            // Add the properties in inverse order as they be reverse at the end.
-            List<ClientModelProperty> parentProperties = parentModel.getProperties();
-            for (int i = parentProperties.size() - 1; i >= 0; i--) {
-                ClientModelProperty property = parentProperties.get(i);
-                if (includePropertyInConstructor(property, settings)) {
-                    constructorProperties.add(property);
-                }
-            }
-
-            lastParentName = parentModel.getName();
-            parentModel = getClientModel(parentModel.getParentModelName());
-        }
-
-        List<ClientModelProperty> propertyList = new ArrayList<>(constructorProperties);
-        Collections.reverse(propertyList);
-        return propertyList;
-    }
-
-    /**
+     * /**
      * Whether the property needs public setter.
      *
      * @param property The client model property, or a reference.

@@ -39,6 +39,18 @@ Expect error code 403 and error body:
 
 Expects header 'Authorization': 'SharedAccessKey valid-key'
 
+### Authentication_Noauth_Union_validNoAuth
+
+- Endpoint: `get /authentication/noauth/union/valid`
+
+Expects no authentication. The server accepts requests without any authentication header.
+
+### Authentication_Noauth_Union_validToken
+
+- Endpoint: `get /authentication/noauth/union/validtoken`
+
+Expects header 'authorization': 'Bearer https://security.microsoft.com/.default'
+
 ### Authentication_OAuth2_invalid
 
 - Endpoint: `get /authentication/oauth2/invalid`
