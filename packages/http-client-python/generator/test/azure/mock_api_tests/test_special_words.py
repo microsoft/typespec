@@ -35,3 +35,20 @@ def test_model(client: SpecialWordsClient, special_words):
 
 def test_model_properties(client: SpecialWordsClient):
     client.model_properties.same_as_model(models.SameAsModel(same_as_model="ok"))
+
+
+def test_model_properties_dict_methods(client: SpecialWordsClient):
+    client.model_properties.dict_methods(
+        body=models.DictMethods(
+            keys_property="ok",
+            items_property="ok",
+            values_property="ok",
+            popitem_property="ok",
+            clear_property="ok",
+            update_property="ok",
+            setdefault_property="ok",
+            pop_property="ok",
+            get_property="ok",
+            copy_property="ok",
+        )
+    )
