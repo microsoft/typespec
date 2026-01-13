@@ -31,10 +31,16 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(nextPage);
-            uri.AppendQuery("p1", p1, true);
+            if (!uri.Query.Contains("p1="))
+            {
+                uri.AppendQuery("p1", p1, true);
+            }
             if ((maxPageSize != null))
             {
-                uri.AppendQuery("maxPageSize", global::Sample.TypeFormatters.ConvertToString(maxPageSize), true);
+                if (!uri.Query.Contains("maxPageSize="))
+                {
+                    uri.AppendQuery("maxPageSize", global::Sample.TypeFormatters.ConvertToString(maxPageSize), true);
+                }
             }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;

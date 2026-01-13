@@ -222,7 +222,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (reinjectedParamsMap.Count > 0)
                 {
-                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
+                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap, isNextLinkRequest: true));
                 }
             }
             else
@@ -417,7 +417,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -426,7 +426,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
                     continue;
 
-                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation);
+                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation, isNextLinkRequest);
                 if (queryStatement != null)
                 {
                     statements.Add(queryStatement);
@@ -440,7 +440,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
             Dictionary<string, ParameterProvider> paramMap,
-            InputOperation operation)
+            InputOperation operation,
+            bool isNextLinkRequest = false)
         {
             GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var serializationFormat, out var valueExpression);
             if (valueExpression == null)
@@ -449,6 +450,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
+
+            // Runtime check to avoid duplicate parameters
+            if (isNextLinkRequest)
+            {
+                var parameterExistsCheck = uri.Property("Query").Invoke("Contains", Literal($"{inputQueryParameter.SerializedName}="));
+                var conditionalStatement = new IfStatement(Not(parameterExistsCheck)) { statement };
+                statement = conditionalStatement;
+            }
 
             // Apply null check if needed
             if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||

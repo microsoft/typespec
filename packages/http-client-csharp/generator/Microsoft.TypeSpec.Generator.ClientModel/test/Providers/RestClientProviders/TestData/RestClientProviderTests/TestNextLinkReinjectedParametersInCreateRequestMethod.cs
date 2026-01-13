@@ -27,8 +27,14 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(nextPage);
-            uri.AppendQuery("someOtherName", p1, true);
-            uri.AppendQuery("p2", p2, true);
+            if (!uri.Query.Contains("someOtherName="))
+            {
+                uri.AppendQuery("someOtherName", p1, true);
+            }
+            if (!uri.Query.Contains("p2="))
+            {
+                uri.AppendQuery("p2", p2, true);
+            }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Headers.Set("p3", p3);
