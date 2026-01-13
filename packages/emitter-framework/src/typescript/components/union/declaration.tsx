@@ -1,5 +1,6 @@
-import { declarationRefkeys } from "#typescript/utils/refkey.js";
-import { type Children } from "@alloy-js/core";
+import { useDeclarationProvider } from "#core/context/declaration-provider.js";
+import { joinRefkeys } from "#typescript/utils/refkey.js";
+import { splitProps, type Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Enum, Union } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
@@ -14,26 +15,29 @@ export interface TypedUnionDeclarationProps extends Omit<ts.TypeDeclarationProps
 
 export type UnionDeclarationProps = TypedUnionDeclarationProps | ts.TypeDeclarationProps;
 
+/**
+ * Create a union declaration from the given union or enum type.
+ */
 export function UnionDeclaration(props: UnionDeclarationProps) {
   const { $ } = useTsp();
+
   if (!isTypedUnionDeclarationProps(props)) {
-    return <ts.TypeDeclaration {...props}>{props.children}</ts.TypeDeclaration>;
+    return <ts.TypeDeclaration {...props} />;
   }
 
-  const { type, ...coreProps } = props;
-  const refkeys = declarationRefkeys(props.refkey, props.type);
+  const [typeProp, coreProps] = splitProps(props, ["type"]);
+  const type = typeProp.type;
+  const originalName = coreProps.name ?? type.name ?? "";
 
-  const originalName = coreProps.name ?? type.name;
-
-  if (!originalName || originalName === "") {
+  if (originalName === "") {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: type });
   }
 
-  const name = ts.useTSNamePolicy().getName(originalName!, "type");
-
+  const dp = useDeclarationProvider();
+  const refkey = joinRefkeys(props.refkey, dp.getRefkey(type));
   const doc = props.doc ?? $.type.getDoc(type);
   return (
-    <ts.TypeDeclaration doc={doc} {...props} name={name} refkey={refkeys}>
+    <ts.TypeDeclaration doc={doc} {...props} name={originalName} refkey={refkey}>
       <UnionExpression type={type}>{coreProps.children}</UnionExpression>
     </ts.TypeDeclaration>
   );

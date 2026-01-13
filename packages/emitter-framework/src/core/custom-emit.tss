@@ -1,0 +1,122 @@
+import { Refkey } from "@alloy-js/core";
+import { Children, ComponentDefinition } from "@alloy-js/core/jsx-runtime";
+import { Enum, EnumMember, ModelProperty, Program, Scalar, Type } from "@typespec/compiler";
+import { UnionVariant } from "@typespec/compiler/src/core/types";
+import { $ } from "@typespec/compiler/typekit";
+
+const getEmitOptionsForTypeSym: unique symbol = Symbol.for(
+  "@typespec/emitter-framework:getEmitOptionsForType",
+);
+
+const getEmitOptionsForTypeKindSym: unique symbol = Symbol.for(
+  "@typespec/emitter-framework:getEmitOptionsForTypeKind",
+);
+
+export function typeEmitOptions() {
+  return new TypeEmitOptionsBuilder();
+}
+
+typeEmitOptions().forTypeKind("Enum", {
+  declare(props) {
+    props.type;
+  },
+});
+
+declare const foo: Enum;
+typeEmitOptions().forType(foo, {
+  declare(props) {
+    props.type;
+  },
+});
+export class TypeEmitOptionsBuilder {
+  #typeEmitOptions: Map<Type, TypeEmitOptions<any>> = new Map();
+  #typeKindEmitOptions: Map<Type["kind"], TypeEmitOptions<any>> = new Map();
+
+  forType<const T extends Type>(type: T, options: TypeEmitOptions<T>) {
+    this.#typeEmitOptions.set(type, options);
+
+    return this;
+  }
+
+  forTypeKind<const TKind extends Type["kind"]>(
+    typeKind: TKind,
+    options: TypeEmitOptions<Extract<Type, { kind: TKind }>>,
+  ) {
+    this.#typeKindEmitOptions.set(typeKind, options);
+
+    return this;
+  }
+
+  /**
+   * @internal
+   */
+  [getEmitOptionsForTypeSym](program: Program, type: Type) {
+    let options = this.#typeEmitOptions.get(type);
+    if (options || !$(program).scalar.is(type) || program.checker.isStdType(type)) {
+      return options;
+    }
+
+    // have a scalar, it's not a built-in scalar, and didn't find options, so
+    // see if we have options for a base scalar.
+    let currentScalar: Scalar | undefined = type;
+    while (
+      currentScalar &&
+      !program.checker.isStdType(type) &&
+      !this.#typeEmitOptions.has(currentScalar)
+    ) {
+      currentScalar = currentScalar?.baseScalar;
+    }
+
+    if (!currentScalar) {
+      return undefined;
+    }
+
+    return this.#typeEmitOptions.get(currentScalar);
+  }
+
+  /**
+   * @internal
+   */
+  [getEmitOptionsForTypeKindSym](program: Program, typeKind: Type["kind"]) {
+    return this.#typeKindEmitOptions.get(typeKind);
+  }
+}
+
+interface TypeEmitOptionsDeclarationDefaultProps {
+  name: string;
+  refkey: Refkey | Refkey[];
+}
+
+interface TypeEmitOptionsReferenceDefaultProps {}
+
+interface TypeEmitOptionsDeclarationProps<TType extends Type> {
+  type: TType;
+  default: Children;
+  defaultProps: TypeEmitOptionsDeclarationDefaultProps;
+}
+
+interface TypeEmitOptionsExpressionProps<TType extends Type> {
+  type: TType;
+  default: Children;
+  defaultProps: TypeEmitOptionsReferenceDefaultProps;
+  member?: UnionVariant | EnumMember | ModelProperty;
+}
+
+interface TypeEmitOptions<
+  TType extends Type,
+  TDeclarationProps = TypeEmitOptionsDeclarationProps<TType>,
+  TExpressionProps = TypeEmitOptionsExpressionProps<TType>,
+  TReferenceProps = TypeEmitOptionsReferenceProps<TType>,
+> {
+  declaration?: ComponentDefinition<TDeclarationProps>;
+  expression?: ComponentDefinition<TExpressionProps>;
+  reference?: ComponentDefinition<TReferenceProps>;
+  noDeclaration?: boolean;
+  noReference?: boolean;
+  noExpression?: boolean;
+}
+
+typeEmitOptions().forTypeKind("Enum", {}).forTypeKind("Scalar", {}).forTypeKind("Union", {});
+
+interface ZodTypeEmitOptionsDeclarationProps<TType extends Type>
+  extends TypeEmitOptionsDeclarationProps<TType> {}

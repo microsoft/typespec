@@ -1,9 +1,10 @@
+import { useDeclarationProvider } from "#core/context/declaration-provider.js";
+import { joinRefkeys } from "#typescript/utils/refkey.js";
 import { type Children, For, type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
-import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 
 export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
@@ -25,29 +26,32 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
   if (!props.type.name || props.type.name === "") {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
-  const refkeys = declarationRefkeys(props.refkey, props.type);
-  const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");
-  const members = Array.from(type.members.entries());
+  const dp = useDeclarationProvider();
+  const refkeys = joinRefkeys(props.refkey, dp.getRefkey(props.type));
+  const members = type.members.values();
   const doc = props.doc ?? $.type.getDoc(type);
 
   return (
     <ts.EnumDeclaration
       doc={doc}
-      name={name}
+      name={props.type.name!}
       refkey={refkeys}
       default={props.default}
       export={props.export}
     >
       <For each={members} joiner={",\n"}>
-        {([key, value]) => {
-          const memberDoc = $.type.getDoc(value);
+        {(member) => {
+          const memberDoc = $.type.getDoc(member);
+
+          const originalMember = $.union.is(props.type)
+            ? props.type.variants.get(member.name)!
+            : member;
+
           return (
             <EnumMember
               doc={memberDoc}
-              type={value}
-              refkey={
-                $.union.is(props.type) ? efRefkey(props.type.variants.get(key)) : efRefkey(value)
-              }
+              type={member}
+              refkey={dp.getStaticMemberRefkey(originalMember)}
             />
           );
         }}

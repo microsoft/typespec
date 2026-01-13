@@ -1,9 +1,8 @@
-import { refkey, type Refkey } from "@alloy-js/core";
+import { type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "../components/type-expression.jsx";
-import { efRefkey } from "./refkey.js";
 
 export function getReturnType(
   type: Operation,
@@ -30,7 +29,6 @@ export function buildParameterDescriptors(
   options: BuildParameterDescriptorsOptions = {},
 ): ts.ParameterDescriptor[] | undefined {
   const { $ } = useTsp();
-  const suffixRefkey = options.suffixRefkey ?? refkey();
   const optionsParams = normalizeParameters(options.params);
 
   if (options.mode === "replace") {
@@ -38,9 +36,7 @@ export function buildParameterDescriptors(
   }
 
   const modelProperties = $.model.getProperties(type);
-  const operationParams = [...modelProperties.values()].map((m) =>
-    buildParameterDescriptor(m, suffixRefkey),
-  );
+  const operationParams = [...modelProperties.values()].map((m) => buildParameterDescriptor(m));
 
   // Merge parameters based on location
   const allParams =
@@ -51,10 +47,7 @@ export function buildParameterDescriptors(
   return allParams;
 }
 
-export function buildParameterDescriptor(
-  modelProperty: ModelProperty,
-  suffixRefkey: Refkey,
-): ts.ParameterDescriptor {
+export function buildParameterDescriptor(modelProperty: ModelProperty): ts.ParameterDescriptor {
   const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const paramName = namePolicy.getName(modelProperty.name, "parameter");
@@ -63,7 +56,6 @@ export function buildParameterDescriptor(
   return {
     doc,
     name: paramName,
-    refkey: efRefkey(modelProperty, suffixRefkey),
     optional: isOptional,
     type: TypeExpression({ type: modelProperty.type }),
   };

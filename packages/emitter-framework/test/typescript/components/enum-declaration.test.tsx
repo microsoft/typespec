@@ -1,10 +1,12 @@
+import { DeclarationProviderContext } from "#core/context/declaration-provider.js";
+import { DeclarationProvider } from "#core/declaration-provider.js";
 import { List, StatementList } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
-import type { Enum, Union } from "@typespec/compiler";
+import type { Enum, Program, Union } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { describe, expect, it } from "vitest";
 import { TspContext } from "../../../src/core/index.js";
 import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
-import { efRefkey } from "../../../src/typescript/utils/refkey.js";
 import { getEmitOutput } from "../../utils.js";
 
 describe("Typescript Enum Declaration", () => {
@@ -141,19 +143,26 @@ describe("Typescript Enum Declaration", () => {
       }
     `;
 
-    const output = await getEmitOutput(code, (program) => {
-      const Foo = program.resolveTypeReference("Foo")[0]! as Enum;
+    function Test(props: { program: Program }) {
+      const dp = new DeclarationProvider($(props.program));
+      const Foo = props.program.resolveTypeReference("Foo")[0]! as Enum;
       return (
-        <TspContext.Provider value={{ program }}>
-          <List hardline>
-            <EnumDeclaration type={Foo} />
-            <StatementList>
-              {efRefkey(Foo)}
-              {efRefkey(Foo.members.get("one"))}
-            </StatementList>
-          </List>
-        </TspContext.Provider>
+        <DeclarationProviderContext.Provider value={dp}>
+          <TspContext.Provider value={{ program: props.program }}>
+            <List hardline>
+              <EnumDeclaration type={Foo} />
+              <StatementList>
+                {dp.getRefkey(Foo)}
+                {dp.getStaticMemberRefkey(Foo.members.get("one")!)}
+              </StatementList>
+            </List>
+          </TspContext.Provider>
+        </DeclarationProviderContext.Provider>
       );
+    }
+
+    const output = await getEmitOutput(code, (program) => {
+      return <Test program={program} />;
     });
 
     expect(output).toBe(d`
@@ -176,19 +185,26 @@ describe("Typescript Enum Declaration", () => {
       }
     `;
 
-    const output = await getEmitOutput(code, (program) => {
-      const Foo = program.resolveTypeReference("Foo")[0]! as Union;
+    function Test(props: { program: Program }) {
+      const dp = new DeclarationProvider($(props.program));
+      const Foo = props.program.resolveTypeReference("Foo")[0]! as Union;
       return (
-        <TspContext.Provider value={{ program }}>
-          <List hardline>
-            <EnumDeclaration type={Foo} />
-            <StatementList>
-              {efRefkey(Foo)}
-              {efRefkey(Foo.variants.get("one"))}
-            </StatementList>
-          </List>
-        </TspContext.Provider>
+        <DeclarationProviderContext.Provider value={dp}>
+          <TspContext.Provider value={{ program: props.program }}>
+            <List hardline>
+              <EnumDeclaration type={Foo} />
+              <StatementList>
+                {dp.getRefkey(Foo)}
+                {dp.getStaticMemberRefkey(Foo.variants.get("one")!)}
+              </StatementList>
+            </List>
+          </TspContext.Provider>
+        </DeclarationProviderContext.Provider>
       );
+    }
+
+    const output = await getEmitOutput(code, (program) => {
+      return <Test program={program} />;
     });
 
     expect(output).toBe(d`

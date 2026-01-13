@@ -1,3 +1,4 @@
+import { useDeclarationProvider } from "#core/context/declaration-provider.js";
 import { type Children, For, List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
@@ -8,7 +9,6 @@ import {
   type UnionVariant,
 } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
-import { efRefkey } from "../../utils/refkey.js";
 import { TypeExpression } from "../type-expression.jsx";
 
 export interface UnionExpressionProps {
@@ -125,6 +125,8 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
     return <TypeExpression type={model} />;
   }
 
+  const dp = useDeclarationProvider();
+
   return (
     <List joiner={" & "}>
       <ts.ObjectExpression>
@@ -133,7 +135,7 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
           value={<ts.ValueExpression jsValue={props.type.name} />}
         />
       </ts.ObjectExpression>
-      <>{efRefkey(props.type.type)}</>
+      <>{dp.getRefkey(props.type.type)}</>
     </List>
   );
 }

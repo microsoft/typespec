@@ -70,7 +70,7 @@ function buildClientParameterDescriptor(
     };
   }
 
-  return buildParameterDescriptor(modelProperty, suffixRefkey);
+  return buildParameterDescriptor(modelProperty);
 }
 
 const oauth2FlowRefs: Record<OAuth2FlowType, Refkey> = {
