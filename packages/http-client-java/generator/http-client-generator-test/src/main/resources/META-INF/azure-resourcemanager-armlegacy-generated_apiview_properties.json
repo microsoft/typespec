@@ -1,0 +1,23 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.armlegacy.fluent.ArmLegacyClient": "TspTest.ArmLegacy",
+    "tsptest.armlegacy.fluent.SkusClient": "TspTest.ArmLegacy.Skus",
+    "tsptest.armlegacy.fluent.SkusClient.createNested": "TspTest.ArmLegacy.Skus.createNested",
+    "tsptest.armlegacy.fluent.SkusClient.createNestedWithResponse": "TspTest.ArmLegacy.Skus.createNested",
+    "tsptest.armlegacy.fluent.SkusClient.createRoot": "TspTest.ArmLegacy.Skus.createRoot",
+    "tsptest.armlegacy.fluent.SkusClient.createRootWithResponse": "TspTest.ArmLegacy.Skus.createRoot",
+    "tsptest.armlegacy.fluent.SkusClient.deleteNested": "TspTest.ArmLegacy.Skus.deleteNested",
+    "tsptest.armlegacy.fluent.SkusClient.deleteNestedWithResponse": "TspTest.ArmLegacy.Skus.deleteNested",
+    "tsptest.armlegacy.fluent.SkusClient.deleteRoot": "TspTest.ArmLegacy.Skus.deleteRoot",
+    "tsptest.armlegacy.fluent.SkusClient.deleteRootWithResponse": "TspTest.ArmLegacy.Skus.deleteRoot",
+    "tsptest.armlegacy.fluent.SkusClient.getNested": "TspTest.ArmLegacy.Skus.getNested",
+    "tsptest.armlegacy.fluent.SkusClient.getNestedWithResponse": "TspTest.ArmLegacy.Skus.getNested",
+    "tsptest.armlegacy.fluent.SkusClient.getRoot": "TspTest.ArmLegacy.Skus.getRoot",
+    "tsptest.armlegacy.fluent.SkusClient.getRootWithResponse": "TspTest.ArmLegacy.Skus.getRoot",
+    "tsptest.armlegacy.fluent.models.SkuResourceInner": "TspTest.ArmLegacy.SkuResource",
+    "tsptest.armlegacy.implementation.ArmLegacyClientBuilder": "TspTest.ArmLegacy",
+    "tsptest.armlegacy.models.ProvisioningState": "TspTest.ArmLegacy.ProvisioningState",
+    "tsptest.armlegacy.models.ResourceTypeSku": "TspTest.ArmLegacy.ResourceTypeSku"
+  }
+}

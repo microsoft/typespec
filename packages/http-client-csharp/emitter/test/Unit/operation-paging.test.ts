@@ -468,4 +468,36 @@ describe("PageSize parameter operations", () => {
       strictEqual(paging.pageSizeParameterSegments[0], "maxpagesize");
     }
   });
+
+  it("should use original name for itemPropertySegments when pageItems is renamed via clientName", async () => {
+    const program = await typeSpecCompile(
+      `
+        @list
+        op link(): {
+          @pageItems
+          @clientName("RenamedItems")
+          items: Foo[];
+
+          @nextLink
+          next?: url;
+        };
+        model Foo {
+          bar: string;
+          baz: int32;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
+    ok(paging);
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+  });
 });

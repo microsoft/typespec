@@ -19,13 +19,6 @@ public interface Combined {
     String getEndpoint();
 
     /**
-     * Gets Version parameter.
-     * 
-     * @return the apiVersion value.
-     */
-    String getApiVersion();
-
-    /**
      * Gets The ID of the target subscription. The value must be an UUID.
      * 
      * @return the subscriptionId value.
