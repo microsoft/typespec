@@ -1,0 +1,12 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "server.path.single.SingleAsyncClient": "Server.Path.Single",
+    "server.path.single.SingleAsyncClient.myOp": "Server.Path.Single.myOp",
+    "server.path.single.SingleAsyncClient.myOpWithResponse": "Server.Path.Single.myOp",
+    "server.path.single.SingleClient": "Server.Path.Single",
+    "server.path.single.SingleClient.myOp": "Server.Path.Single.myOp",
+    "server.path.single.SingleClient.myOpWithResponse": "Server.Path.Single.myOp",
+    "server.path.single.SingleClientBuilder": "Server.Path.Single"
+  }
+}

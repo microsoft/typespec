@@ -147,16 +147,16 @@ public class JavaJavadocComment {
     private static String processText(String value) {
         String text = trim(value);
         if (text != null && !text.isEmpty()) {
-            // Convert Markdown formatting to JavaDoc HTML tags
-            text = convertMarkdownToJavadoc(text);
-            // Ensure period at the end
+            // Ensure period at the end before any processing
             text = ensurePeriod(text);
-            // Escape XML special characters
+            // Escape XML special characters FIRST (before markdown conversion)
             text = CodeNamer.escapeXmlComment(text);
             // escape "@" that isn't prefixed with "{"
             text = ESCAPE_AT.matcher(text).replaceAll("&#064;");
             // escape tab
             text = text.replace("\t", " ");
+            // Convert Markdown formatting to JavaDoc HTML tags AFTER escaping
+            text = convertMarkdownToJavadoc(text);
         }
         return CodeNamer.escapeIllegalUnicodeEscape(CodeNamer.escapeComment(text));
     }

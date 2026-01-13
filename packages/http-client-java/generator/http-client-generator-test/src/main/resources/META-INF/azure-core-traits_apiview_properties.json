@@ -1,0 +1,19 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.core.traits.TraitsAsyncClient": "_Specs_.Azure.Core.Traits",
+    "azure.core.traits.TraitsAsyncClient.repeatableAction": "_Specs_.Azure.Core.Traits.repeatableAction",
+    "azure.core.traits.TraitsAsyncClient.repeatableActionWithResponse": "_Specs_.Azure.Core.Traits.repeatableAction",
+    "azure.core.traits.TraitsAsyncClient.smokeTest": "_Specs_.Azure.Core.Traits.smokeTest",
+    "azure.core.traits.TraitsAsyncClient.smokeTestWithResponse": "_Specs_.Azure.Core.Traits.smokeTest",
+    "azure.core.traits.TraitsClient": "_Specs_.Azure.Core.Traits",
+    "azure.core.traits.TraitsClient.repeatableAction": "_Specs_.Azure.Core.Traits.repeatableAction",
+    "azure.core.traits.TraitsClient.repeatableActionWithResponse": "_Specs_.Azure.Core.Traits.repeatableAction",
+    "azure.core.traits.TraitsClient.smokeTest": "_Specs_.Azure.Core.Traits.smokeTest",
+    "azure.core.traits.TraitsClient.smokeTestWithResponse": "_Specs_.Azure.Core.Traits.smokeTest",
+    "azure.core.traits.TraitsClientBuilder": "_Specs_.Azure.Core.Traits",
+    "azure.core.traits.models.User": "_Specs_.Azure.Core.Traits.User",
+    "azure.core.traits.models.UserActionParam": "_Specs_.Azure.Core.Traits.UserActionParam",
+    "azure.core.traits.models.UserActionResponse": "_Specs_.Azure.Core.Traits.UserActionResponse"
+  }
+}

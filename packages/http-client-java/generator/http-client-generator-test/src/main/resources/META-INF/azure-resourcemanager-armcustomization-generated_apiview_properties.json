@@ -1,0 +1,12 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.armcustomization.fluent.ArmCustomizationClient": "TspTest.ArmCustomization",
+    "tsptest.armcustomization.fluent.VaultsClient": "TspTest.ArmCustomization.Vaults",
+    "tsptest.armcustomization.fluent.VaultsClient.getByResourceGroup": "TspTest.ArmCustomization.Vaults.get",
+    "tsptest.armcustomization.fluent.VaultsClient.getByResourceGroupWithResponse": "TspTest.ArmCustomization.Vaults.get",
+    "tsptest.armcustomization.fluent.models.VaultInner": "TspTest.ArmCustomization.Vault",
+    "tsptest.armcustomization.implementation.ArmCustomizationClientBuilder": "TspTest.ArmCustomization",
+    "tsptest.armcustomization.models.VaultProperties": "TspTest.ArmCustomization.VaultProperties"
+  }
+}

@@ -96,9 +96,7 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
 
     /**
      * Get the aggregate property: The aggregation function to be applied on the client metric. Allowed functions
-     * &lt;ul&gt;
-     * &lt;li&gt;‘percentage’ - for error metric , ‘avg’, ‘p50’, ‘p90’, ‘p95’, ‘p99’, ‘min’,&lt;/li&gt;
-     * &lt;/ul&gt;
+     * - ‘percentage’ - for error metric , ‘avg’, ‘p50’, ‘p90’, ‘p95’, ‘p99’, ‘min’,
      * ‘max’ - for response_time_ms and latency metric, ‘avg’ - for requests_per_sec,
      * ‘count’ - for requests.
      *

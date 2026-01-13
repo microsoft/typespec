@@ -1,0 +1,21 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "type.enums.fixed.FixedAsyncClient": "Type.Enum.Fixed.String",
+    "type.enums.fixed.FixedAsyncClient.getKnownValue": "Type.Enum.Fixed.String.getKnownValue",
+    "type.enums.fixed.FixedAsyncClient.getKnownValueWithResponse": "Type.Enum.Fixed.String.getKnownValue",
+    "type.enums.fixed.FixedAsyncClient.putKnownValue": "Type.Enum.Fixed.String.putKnownValue",
+    "type.enums.fixed.FixedAsyncClient.putKnownValueWithResponse": "Type.Enum.Fixed.String.putKnownValue",
+    "type.enums.fixed.FixedAsyncClient.putUnknownValue": "Type.Enum.Fixed.String.putUnknownValue",
+    "type.enums.fixed.FixedAsyncClient.putUnknownValueWithResponse": "Type.Enum.Fixed.String.putUnknownValue",
+    "type.enums.fixed.FixedClient": "Type.Enum.Fixed.String",
+    "type.enums.fixed.FixedClient.getKnownValue": "Type.Enum.Fixed.String.getKnownValue",
+    "type.enums.fixed.FixedClient.getKnownValueWithResponse": "Type.Enum.Fixed.String.getKnownValue",
+    "type.enums.fixed.FixedClient.putKnownValue": "Type.Enum.Fixed.String.putKnownValue",
+    "type.enums.fixed.FixedClient.putKnownValueWithResponse": "Type.Enum.Fixed.String.putKnownValue",
+    "type.enums.fixed.FixedClient.putUnknownValue": "Type.Enum.Fixed.String.putUnknownValue",
+    "type.enums.fixed.FixedClient.putUnknownValueWithResponse": "Type.Enum.Fixed.String.putUnknownValue",
+    "type.enums.fixed.FixedClientBuilder": "Type.Enum.Fixed",
+    "type.enums.fixed.models.DaysOfWeekEnum": "Type.Enum.Fixed.DaysOfWeekEnum"
+  }
+}
