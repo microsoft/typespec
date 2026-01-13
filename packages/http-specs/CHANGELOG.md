@@ -1,5 +1,17 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.30
+
+### Features
+
+- [#8836](https://github.com/microsoft/typespec/pull/8836) Add case for constant query
+- [#9139](https://github.com/microsoft/typespec/pull/9139) Add new test case for multipart
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
 ## 0.1.0-alpha.29
 
 ### Features
