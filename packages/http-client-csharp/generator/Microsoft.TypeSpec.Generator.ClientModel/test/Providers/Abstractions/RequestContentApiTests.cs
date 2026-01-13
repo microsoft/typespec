@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             {
                 Assert.IsNotNull(method);
                 Assert.IsNotNull(method.Signature.ReturnType);
-                Assert.IsTrue(method.Signature.ReturnType!.Equals(typeof(string)));
+                Assert.IsTrue(method.Signature.ReturnType!.Equals(typeof(TestRequestContent)));
             }
         }
 
@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             var multiPartFormDefinition = new MultiPartFormDataBinaryContentDefinition();
 
             Assert.AreEqual(ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType, multiPartFormDefinition.BaseType);
-            var expectedBaseType = overrideType ? typeof(string) : typeof(BinaryContent);
+            var expectedBaseType = overrideType ? typeof(TestRequestContent) : typeof(BinaryContent);
             Assert.IsTrue(multiPartFormDefinition.BaseType!.Equals(expectedBaseType));
         }
     }
