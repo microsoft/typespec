@@ -32,8 +32,100 @@ public class JavaJavadocComment {
             text = ESCAPE_AT.matcher(text).replaceAll("&#064;");
             // escape tab
             text = text.replace("\t", " ");
+            text = CodeNamer.escapeComment(text);
+            // replace "*&#47;" with "&#42;/" so that it doesn't contain "*" which might be matched by markdown
+            text = text.replace("*&#47;", "&#42;/");
+            text = processMarkdown(text);
+            text = text.replace("&#42;/", "*&#47;");
         }
-        return CodeNamer.escapeIllegalUnicodeEscape(CodeNamer.escapeComment(text));
+        return CodeNamer.escapeIllegalUnicodeEscape(text);
+    }
+
+    /**
+     * Process simple Markdown style formatting in the text.
+     * <p>
+     * It supports:<br>
+     * 1. Bullet list: line starting with "- " or "* "<br>
+     * 2. Numbered list: line starting with "1. "<br>
+     * 3. Bold: text wrapped with "**" or "__"<br>
+     * 4. Italic: text wrapped with "*" or "_"
+     * </p>
+     *
+     * @param text the text to process.
+     * @return the text with Markdown style formatting converted to HTML.
+     */
+    private static String processMarkdown(String text) {
+        if (text == null) {
+            return null;
+        }
+
+        // Handle Lists
+        StringBuilder sb = new StringBuilder();
+        String[] lines = text.split("\\R");
+
+        boolean inUl = false;
+        boolean inOl = false;
+
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            String trimmed = line.trim();
+
+            if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+                if (inOl) {
+                    sb.append("</ol>");
+                    inOl = false;
+                }
+                if (!inUl) {
+                    sb.append("<ul>");
+                    inUl = true;
+                }
+                sb.append("<li>").append(trimmed.substring(2)).append("</li>");
+            } else if (trimmed.matches("^\\d+\\.\\s.*")) {
+                if (inUl) {
+                    sb.append("</ul>");
+                    inUl = false;
+                }
+                if (!inOl) {
+                    sb.append("<ol>");
+                    inOl = true;
+                }
+                int dotIndex = trimmed.indexOf('.');
+                sb.append("<li>").append(trimmed.substring(dotIndex + 1).trim()).append("</li>");
+            } else {
+                if (inUl) {
+                    sb.append("</ul>");
+                    inUl = false;
+                }
+                if (inOl) {
+                    sb.append("</ol>");
+                    inOl = false;
+                }
+                sb.append(line);
+            }
+
+            if (i < lines.length - 1) {
+                sb.append("\n");
+            }
+        }
+
+        if (inUl) {
+            sb.append("</ul>");
+        }
+        if (inOl) {
+            sb.append("</ol>");
+        }
+
+        text = sb.toString();
+
+        // Bold
+        text = text.replaceAll("\\*\\*(.+?)\\*\\*", "<b>$1</b>");
+        text = text.replaceAll("__(.+?)__", "<b>$1</b>");
+
+        // Italic
+        text = text.replaceAll("\\*(.+?)\\*", "<i>$1</i>");
+        text = text.replaceAll("_(.+?)_", "<i>$1</i>");
+
+        return text;
     }
 
     private void addExpectedLineSeparator() {
