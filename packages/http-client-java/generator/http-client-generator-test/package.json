@@ -30,7 +30,7 @@
     "@typespec/sse": "0.78.0",
     "@typespec/streams": "0.78.0",
     "@azure-tools/typespec-azure-core": "0.64.0",
-    "@azure-tools/typespec-client-generator-core": "0.64.1",
+    "@azure-tools/typespec-client-generator-core": "0.64.0",
     "@azure-tools/typespec-azure-resource-manager": "0.64.0",
     "@azure-tools/typespec-autorest": "0.64.0"
   },
