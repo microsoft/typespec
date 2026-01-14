@@ -119,11 +119,9 @@ public class JavaJavadocComment {
 
         // Bold
         text = text.replaceAll("\\*\\*(.+?)\\*\\*", "<b>$1</b>");
-        text = text.replaceAll("__(.+?)__", "<b>$1</b>");
 
         // Italic
         text = text.replaceAll("\\*(.+?)\\*", "<i>$1</i>");
-        text = text.replaceAll("_(.+?)_", "<i>$1</i>");
 
         return text;
     }

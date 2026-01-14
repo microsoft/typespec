@@ -14,7 +14,7 @@ import com.azure.core.util.BinaryData;
  * A file in an HTTP request, response, or multipart payload.
  * 
  * Files have a special meaning that the HTTP library understands. When the body of an HTTP request, response,
- * or multipart payload is <i>effectively</i> an instance of `TypeSpec.Http.File` or any type that extends it, the
+ * or multipart payload is _effectively_ an instance of `TypeSpec.Http.File` or any type that extends it, the
  * operation is treated as a file upload or download.
  * 
  * When using file bodies, the fields of the file model are defined to come from particular locations by default:
@@ -39,7 +39,7 @@ import com.azure.core.util.BinaryData;
  * }
  * ```
  * 
- * The `contentType` <i>within</i> the file defines what media types the data inside the file can be, but if the
+ * The `contentType` _within_ the file defines what media types the data inside the file can be, but if the
  * specification
  * defines a `Content-Type` for the payload as HTTP metadata, that `Content-Type` metadata defines _how the file is
  * serialized_. See the examples below for more information.

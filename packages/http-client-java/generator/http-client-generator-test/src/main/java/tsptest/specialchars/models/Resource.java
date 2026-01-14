@@ -74,7 +74,7 @@ public final class Resource implements JsonSerializable<Resource> {
     /**
      * Get the aggregate property: The aggregation function to be applied on the client metric. Allowed functions
      * <ul><li>‘percentage’ - for error metric , ‘avg’, ‘p50’, ‘p90’, ‘p95’, ‘p99’, ‘min’,</li>
-     * </ul>‘max’ - for response<i>time</i>ms and latency metric, ‘avg’ - for requests<i>per</i>sec,
+     * </ul>‘max’ - for response_time_ms and latency metric, ‘avg’ - for requests_per_sec,
      * ‘count’ - for requests.
      * 
      * @return the aggregate value.
@@ -106,7 +106,7 @@ public final class Resource implements JsonSerializable<Resource> {
 
     /**
      * Get the value property: The value to compare with the client metric. Allowed values - ‘error : [0.0 ,
-     * 100.0] unit- % ’, response<i>time</i>ms and latency : any integer value unit- ms.
+     * 100.0] unit- % ’, response_time_ms and latency : any integer value unit- ms.
      * 
      * @return the value value.
      */
