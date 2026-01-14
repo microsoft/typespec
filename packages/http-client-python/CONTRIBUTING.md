@@ -117,7 +117,7 @@ After your PR is created and CI passes:
    - Click the three dots and select "Copy download url"
 
 2. **Trigger downstream testing**:
-   - Run [this pipeline](https://dev.azure.com/azure-sdk/internal/_build/results?buildId=4278466&view=results) with:
+   - Run [this pipeline](https://dev.azure.com/azure-sdk/internal/_build?definitionId=7257) with:
      - `PULL-REQUEST-URL`: Your PR URL from step 1
      - `ARTIFACTS_URL`: The artifact URL from step 1
 
