@@ -30,6 +30,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 BuildClient(child, types);
             }
 
+            // Skip multi-service clients as we want to directly generate the individual service clients only.
+            if (inputClient.IsMultiServiceClient)
+            {
+                return;
+            }
+
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             if (client == null)
             {

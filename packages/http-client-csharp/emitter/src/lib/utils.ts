@@ -210,7 +210,7 @@ export function containsMultiServiceClient(rootClients: SdkClientType<SdkHttpOpe
     return false;
   }
 
-  return Array.isArray(rootClients[0].__raw.service)
+  return isMultiServiceClient(rootClients[0]);
 }
 
 
