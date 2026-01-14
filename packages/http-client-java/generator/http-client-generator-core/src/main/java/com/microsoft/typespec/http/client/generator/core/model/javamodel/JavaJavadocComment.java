@@ -45,10 +45,10 @@ public class JavaJavadocComment {
      * Process simple Markdown style formatting in the text.
      * <p>
      * It supports:<br>
-     * 1. Bullet list: line starting with "- " or "* "<br>
+     * 1. Bullet list: line starting with "* "<br>
      * 2. Numbered list: line starting with "1. "<br>
-     * 3. Bold: text wrapped with "**" or "__"<br>
-     * 4. Italic: text wrapped with "*" or "_"
+     * 3. Bold: text wrapped with "**" <br>
+     * 4. Italic: text wrapped with "*"
      * </p>
      *
      * @param text the text to process.
