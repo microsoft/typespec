@@ -1507,6 +1507,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
         }
 
+        [Test]
+        public async Task CanCustomizeBaseModelToExternalType()
+        {
+            // This test verifies that a model can be customized to inherit from an external base type
+            // that is not generated during the current generation run (e.g., from another assembly)
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel") as ModelProvider;
+
+            // Should have customized base type from external assembly
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNotNull(modelProvider!.BaseType);
+            Assert.IsNotNull(modelProvider.BaseTypeProvider);
+            Assert.AreEqual("ExternalBaseModel", modelProvider.BaseType!.Name);
+            Assert.AreEqual("Sample.Models", modelProvider.BaseType!.Namespace);
+            
+            // The BaseModelProvider should be null since the base is not a generated model
+            Assert.IsNull(modelProvider.BaseModelProvider);
+            
+            // But BaseTypeProvider should have the properties of the external base type
+            Assert.AreEqual(2, modelProvider.BaseTypeProvider!.Properties.Count);
+            var externalPropertyNames = modelProvider.BaseTypeProvider.Properties.Select(p => p.Name).ToList();
+            Assert.Contains("ExternalProperty", externalPropertyNames);
+            Assert.Contains("ExternalDictionary", externalPropertyNames);
+        }
+
         private class TestNameVisitor : NameVisitor
         {
             public TypeProvider? InvokeVisit(TypeProvider type)

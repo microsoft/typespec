@@ -118,7 +118,49 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return [.. derivedModels];
         }
-        internal override TypeProvider? BaseTypeProvider => BaseModelProvider;
+        internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
+        private TypeProvider? _baseTypeProvider;
+
+        private TypeProvider? BuildBaseTypeProvider()
+        {
+            // First check if there's a generated base model
+            if (BaseModelProvider != null)
+            {
+                return BaseModelProvider;
+            }
+
+            // If there's a custom base type that's not a generated model, create a provider for it
+            if (CustomCodeView?.BaseType != null && !string.IsNullOrEmpty(CustomCodeView.BaseType.Namespace))
+            {
+                var baseType = CustomCodeView.BaseType;
+
+                // Try to find it in the CSharpTypeMap first
+                if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var existingProvider))
+                {
+                    return existingProvider;
+                }
+
+                // If not found, try to look it up from Roslyn's customization compilation
+                var customization = CodeModelGenerator.Instance.SourceInputModel.Customization;
+                if (customization != null)
+                {
+                    var fullyQualifiedName = baseType.IsGenericType
+                        ? $"{baseType.Namespace}.{baseType.Name}`{baseType.Arguments.Count}"
+                        : $"{baseType.Namespace}.{baseType.Name}";
+
+                    var baseTypeSymbol = customization.GetTypeByMetadataName(fullyQualifiedName);
+                    if (baseTypeSymbol != null)
+                    {
+                        var baseTypeProvider = new NamedTypeSymbolProvider(baseTypeSymbol, customization);
+                        // Cache it in CSharpTypeMap for future lookups
+                        CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = baseTypeProvider;
+                        return baseTypeProvider;
+                    }
+                }
+            }
+
+            return null;
+        }
 
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= BuildBaseModelProvider();
@@ -241,7 +283,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private ModelProvider? BuildBaseModelProvider()
         {
-            // consider models that have been customized to inherit from a different model
+            // consider models that have been customized to inherit from a different generated model
             if (CustomCodeView?.BaseType != null)
             {
                 var baseType = CustomCodeView.BaseType;
@@ -256,12 +298,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         baseType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseInputModel);
                     }
                 }
+
+                // Try to find the base type in the CSharpTypeMap
                 if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                         baseType,
                         out var customBaseType) &&
                     customBaseType is ModelProvider customBaseModel)
                 {
                     return customBaseModel;
+                }
+
+                // If the custom base type has a namespace (external type), we don't return it here
+                // as it's handled by BuildBaseTypeProvider() which returns a TypeProvider
+                if (!string.IsNullOrEmpty(baseType?.Namespace))
+                {
+                    return null;
                 }
             }
 
