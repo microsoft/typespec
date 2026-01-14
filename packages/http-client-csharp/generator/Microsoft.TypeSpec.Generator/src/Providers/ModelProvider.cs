@@ -144,6 +144,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var customization = CodeModelGenerator.Instance.SourceInputModel.Customization;
                 if (customization != null)
                 {
+                    // Construct the fully qualified metadata name in .NET format
+                    // For generic types, this uses backtick notation (e.g., "System.Collections.Generic.List`1")
                     var fullyQualifiedName = baseType.IsGenericType
                         ? $"{baseType.Namespace}.{baseType.Name}`{baseType.Arguments.Count}"
                         : $"{baseType.Namespace}.{baseType.Name}";

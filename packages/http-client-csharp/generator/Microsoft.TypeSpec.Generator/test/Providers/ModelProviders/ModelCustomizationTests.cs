@@ -1534,7 +1534,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNull(modelProvider.BaseModelProvider);
             
             // But BaseTypeProvider should have the properties of the external base type
-            Assert.AreEqual(2, modelProvider.BaseTypeProvider!.Properties.Count);
+            // ExternalBaseModel has 2 properties: ExternalProperty and ExternalDictionary
+            Assert.AreEqual(2, modelProvider.BaseTypeProvider!.Properties.Count, 
+                "ExternalBaseModel should have ExternalProperty and ExternalDictionary");
             var externalPropertyNames = modelProvider.BaseTypeProvider.Properties.Select(p => p.Name).ToList();
             Assert.Contains("ExternalProperty", externalPropertyNames);
             Assert.Contains("ExternalDictionary", externalPropertyNames);
