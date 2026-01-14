@@ -159,6 +159,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         return baseTypeProvider;
                     }
                 }
+
+                // If we couldn't find the type symbol (e.g., type is from a referenced assembly not in customization),
+                // create a SystemObjectTypeProvider that represents the external type
+                var systemObjectTypeProvider = new SystemObjectTypeProvider(baseType);
+                // Cache it in CSharpTypeMap for future lookups
+                CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = systemObjectTypeProvider;
+                return systemObjectTypeProvider;
             }
 
             return null;
