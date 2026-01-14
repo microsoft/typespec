@@ -31,10 +31,7 @@ namespace Sample
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(nextPage);
-            if (!uri.Query.Contains("p1="))
-            {
-                uri.AppendQuery("p1", p1, true);
-            }
+            uri.AppendQuery("p1", p1, true);
             if ((maxPageSize != null))
             {
                 if (!uri.Query.Contains("maxPageSize="))

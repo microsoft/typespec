@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
+        private const string MaxPageSizeParameterName = "maxpagesize";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -451,8 +452,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
 
-            // Runtime check to avoid duplicate parameters
-            if (isNextLinkRequest)
+            // Runtime check to avoid duplicate pagination parameters
+            if (isNextLinkRequest && ShouldSkipReinjectedParameter(inputQueryParameter.SerializedName))
             {
                 var parameterExistsCheck = uri.Property("Query").Invoke("Contains", Literal($"{inputQueryParameter.SerializedName}="));
                 var conditionalStatement = new IfStatement(Not(parameterExistsCheck)) { statement };
@@ -809,6 +810,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             parameterProvider = null;
             return false;
+        }
+
+        private static bool ShouldSkipReinjectedParameter(string parameterName)
+        {
+            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase);
+            // In the future, we can extend this to check multiple parameters
         }
 
         private static List<int> GetSuccessStatusCodes(InputOperation operation)
