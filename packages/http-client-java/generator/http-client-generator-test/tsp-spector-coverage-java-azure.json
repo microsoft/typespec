@@ -1,7 +1,7 @@
 [
   {
     "scenariosMetadata": {
-      "commit": "419507f53967c6650c0f57962a266047ab4e6155",
+      "commit": "0fa984246ba1c82af0cfe8b468dc3d0856b675d2",
       "version": "0.1.0-alpha.30",
       "packageName": "@typespec/http-specs"
     },
@@ -728,15 +728,20 @@
       "Type_Model_Inheritance_SingleDiscriminator_getWrongDiscriminator": "not-implemented",
       "Type_Model_Inheritance_SingleDiscriminator_getLegacyModel": "not-implemented"
     },
-    "createdAt": "2026-01-14T07:32:15.790Z"
+    "createdAt": "2026-01-14T07:38:58.954Z"
   },
   {
     "scenariosMetadata": {
-      "commit": "419507f53967c6650c0f57962a266047ab4e6155",
+      "commit": "0fa984246ba1c82af0cfe8b468dc3d0856b675d2",
       "version": "0.1.0-alpha.35",
       "packageName": "@azure-tools/azure-http-specs"
     },
     "results": {
+      "Resiliency_ServiceDriven_AddOptionalParam_fromNone": "not-implemented",
+      "Resiliency_ServiceDriven_AddOptionalParam_fromOneRequired": "not-implemented",
+      "Resiliency_ServiceDriven_AddOptionalParam_fromOneOptional": "not-implemented",
+      "Resiliency_ServiceDriven_breakTheGlass": "not-implemented",
+      "Resiliency_ServiceDriven_addOperation": "not-implemented",
       "Client_ClientNamespace": "not-implemented",
       "Client_Naming_Property_client": "not-implemented",
       "Client_Naming_Property_language": "not-implemented",
@@ -751,11 +756,6 @@
       "Client_Naming_UnionEnum_unionEnumMemberName": "not-implemented",
       "Client_Overload_list": "not-implemented",
       "Client_Overload_listByScope": "not-implemented",
-      "Resiliency_ServiceDriven_AddOptionalParam_fromNone": "not-implemented",
-      "Resiliency_ServiceDriven_AddOptionalParam_fromOneRequired": "not-implemented",
-      "Resiliency_ServiceDriven_AddOptionalParam_fromOneOptional": "not-implemented",
-      "Resiliency_ServiceDriven_breakTheGlass": "not-implemented",
-      "Resiliency_ServiceDriven_addOperation": "not-implemented",
       "Service_MultiService_ServiceA_Foo_test": "not-implemented",
       "Service_MultiService_ServiceB_Bar_test": "not-implemented",
       "Azure_ClientGenerator_Core_Access_PublicOperation": "not-implemented",
@@ -909,6 +909,6 @@
       "Azure_Core_Lro_Standard_delete": "not-implemented",
       "Azure_Core_Lro_Standard_export": "not-implemented"
     },
-    "createdAt": "2026-01-14T07:32:15.790Z"
+    "createdAt": "2026-01-14T07:38:58.954Z"
   }
 ]
