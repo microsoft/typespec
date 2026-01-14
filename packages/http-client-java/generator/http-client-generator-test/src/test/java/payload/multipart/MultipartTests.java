@@ -30,9 +30,12 @@ import payload.multipart.models.FileSpecificContentType;
 import payload.multipart.models.FileWithHttpPartOptionalContentTypeRequest;
 import payload.multipart.models.FileWithHttpPartRequiredContentTypeRequest;
 import payload.multipart.models.FileWithHttpPartSpecificContentTypeRequest;
+import payload.multipart.models.ImageFileDetails;
 import payload.multipart.models.JsonPartRequest;
 import payload.multipart.models.MultiBinaryPartsRequest;
+import payload.multipart.models.MultiPartOptionalRequest;
 import payload.multipart.models.MultiPartRequest;
+import payload.multipart.models.MultiPartRequestWithWireName;
 import payload.multipart.models.PictureFileDetails;
 import payload.multipart.models.PicturesFileDetails;
 import payload.multipart.models.ProfileImageFileDetails;
@@ -170,6 +173,32 @@ public class MultipartTests {
 
         client.basic(request);
         asyncClient.basic(request).block();
+    }
+
+    @Test
+    public void testWithWireName() {
+        MultiPartRequestWithWireName request = new MultiPartRequestWithWireName("123",
+            new ImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
+
+        client.withWireName(request);
+        asyncClient.withWireName(request).block();
+    }
+
+    @Test
+    public void testOptionalParts() {
+        // Test with only id
+        MultiPartOptionalRequest requestWithIdOnly = new MultiPartOptionalRequest().setId("123");
+        client.optionalParts(requestWithIdOnly);
+
+        // Test with only profileImage
+        MultiPartOptionalRequest requestWithImageOnly = new MultiPartOptionalRequest()
+            .setProfileImage(new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
+        asyncClient.optionalParts(requestWithImageOnly).block();
+
+        // Test with both id and profileImage
+        MultiPartOptionalRequest requestWithBoth = new MultiPartOptionalRequest().setId("123")
+            .setProfileImage(new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
+        client.optionalParts(requestWithBoth);
     }
 
     @Test
