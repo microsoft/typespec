@@ -119,7 +119,7 @@ After your PR is created and CI passes:
 2. **Trigger downstream testing**:
    - Run [this pipeline](https://dev.azure.com/azure-sdk/internal/_build/results?buildId=4278466&view=results) with:
      - `PULL-REQUEST-URL`: Your PR URL from step 1
-     - `ARTIFACTS-URL`: The artifact URL from step 1 (submit it wrapped in quotes like "ARTIFACTS-URL")
+     - `ARTIFACTS_URL`: The artifact URL from step 1
 
 3. **Review downstream changes**:
    - The pipeline will create a PR in [autorest.python](https://github.com/Azure/autorest.python)
