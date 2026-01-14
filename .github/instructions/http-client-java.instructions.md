@@ -30,6 +30,8 @@ The publish workflow (to NPM) will be automatically triggered after the PR is me
 
 Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 
+- The execution of `mvn` and `npm` command should be done in the test directory `<repository-root>/packages/http-client-java/generator/http-client-generator-test`.
+
 1. The source files for the generated client under test are located in `generator/http-client-generator-test/src/main/java/<package>`.
 2. Read the `Builder` and `Client` Java files to understand the client structure and available APIs.
 3. Read the Java model classes under `generator/http-client-generator-test/src/main/java/<package>/models` to understand the data types used by the APIs.
@@ -37,3 +39,7 @@ Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 5. Optionally, check for a `client.tsp` in the same folder (replace `main.tsp` with `client.tsp` in the URL). Use it if present.
 6. Review a few existing test cases in `generator/http-client-generator-test/src/test/java/` to learn the test structure and patterns used. Do not read file under `**/generated` folder.
 7. Add a new test class in `generator/http-client-generator-test/src/test/java/<package>/` named `<Scenario>Tests.java`, following existing conventions. The test class should not extend other class.
+8. Make sure compile pass (`mvn clean compile`).
+9. Start Spector server by `npm run spector-start`.
+10. Run the tests (`mvn test`). Make sure all tests pass.
+11. Stop Spector server by `npm run spector-stop`.
