@@ -1554,6 +1554,42 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
         }
 
+        [Test]
+        public async Task CanCustomizeBaseModelToSystemType()
+        {
+            // This test verifies that a model can be customized to inherit from a system type
+            // (e.g., System.Exception) which simulates inheriting from types like
+            // Azure.ResourceManager.TrackedResourceData that are from referenced assemblies
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel") as ModelProvider;
+
+            // Should have customized base type from system library
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNotNull(modelProvider!.BaseType);
+            Assert.IsNotNull(modelProvider.BaseTypeProvider);
+            Assert.AreEqual("Exception", modelProvider.BaseType!.Name);
+            Assert.AreEqual("System", modelProvider.BaseType!.Namespace);
+
+            // The BaseModelProvider should be null since the base is not a generated model
+            Assert.IsNull(modelProvider.BaseModelProvider);
+
+            // BaseTypeProvider could be either NamedTypeSymbolProvider (if type found via GetTypeByMetadataName)
+            // or SystemObjectTypeProvider (if type not found in compilation at all)
+            // System types are typically available through referenced assemblies, so NamedTypeSymbolProvider is expected
+            Assert.IsTrue(
+                modelProvider.BaseTypeProvider is NamedTypeSymbolProvider ||
+                modelProvider.BaseTypeProvider is SystemObjectTypeProvider,
+                "BaseTypeProvider should be either NamedTypeSymbolProvider or SystemObjectTypeProvider");
+        }
+
         private class TestNameVisitor : NameVisitor
         {
             public TypeProvider? InvokeVisit(TypeProvider type)
