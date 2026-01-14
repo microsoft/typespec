@@ -3621,6 +3621,18 @@ Send
 { "SameAsModel": "ok" }
 ```
 
+### SpecialWords_ModelProperties_withList
+
+- Endpoint: `get /special-words/model-properties/list`
+
+Verify that a property can be named "list", which is a reserved word in many languages like Python.
+
+Send
+
+```json
+{ "list": "ok" }
+```
+
 ### SpecialWords_Models_and
 
 - Endpoint: `get /special-words/models/and`
