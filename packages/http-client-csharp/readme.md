@@ -27,6 +27,14 @@ For detailed instructions on how to customize the generated C# code, see the [Cu
 tsp compile . --emit=@typespec/http-client-csharp
 ```
 
+You can pass multiple options via the command line using the `--option` flag:
+
+```bash
+tsp compile . --emit=@typespec/http-client-csharp \
+  --option "@typespec/http-client-csharp.package-name=MyClient" \
+  --option "@typespec/http-client-csharp.generate-protocol-methods=false"
+```
+
 2. Via the config
 
 ```yaml
@@ -41,8 +49,20 @@ emit:
   - "@typespec/http-client-csharp"
 options:
   "@typespec/http-client-csharp":
-    option: value
+    package-name: MyClient
+    generate-protocol-methods: false
+    generate-convenience-methods: true
 ```
+
+> **Note for custom emitter authors:** If you are building a custom emitter that extends `@typespec/http-client-csharp`, you must specify your own emitter name in the options rather than `@typespec/http-client-csharp`. For example, if your emitter is named `@my-org/my-custom-emitter`:
+>
+> ```yaml
+> emit:
+>   - "@my-org/my-custom-emitter"
+> options:
+>   "@my-org/my-custom-emitter":
+>     package-name: MyClient
+> ```
 
 ## Emitter options
 
