@@ -32,6 +32,7 @@ Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 
 - The execution of `mvn` and `npm` command should be done in the test directory `<repository-root>/packages/http-client-java/generator/http-client-generator-test`.
 
+0. Run `pwsh Setup.ps1` in `generator/http-client-generator-test` to set up the environment if not done before.
 1. The source files for the generated client under test are located in `generator/http-client-generator-test/src/main/java/<package>`.
 2. Read the `Builder` and `Client` Java files to understand the client structure and available APIs.
 3. Read the Java model classes under `generator/http-client-generator-test/src/main/java/<package>/models` to understand the data types used by the APIs.
