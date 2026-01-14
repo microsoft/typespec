@@ -226,7 +226,6 @@ BenchmarkDotnet.Artifacts/
 
 # java emitter
 !packages/http-client-java/package-lock.json
-packages/http-client-java/generator/http-client-generator-test/tsp-spector-coverage-java-azure.json
 
 # python emitter
 packages/http-client-python/generator/test/**/generated/
