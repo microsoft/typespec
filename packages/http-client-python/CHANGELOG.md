@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.24.1
+
+### Bug Fixes
+
+- [#9298](https://github.com/microsoft/typespec/pull/9298) Fix clients with `NoAuth` credentials to have optional generated `credential` parameters
+
+
 ## 0.24.0
 
 ### Features

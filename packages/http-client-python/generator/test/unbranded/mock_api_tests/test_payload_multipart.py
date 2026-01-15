@@ -139,3 +139,34 @@ def test_complex_with_http_part(client: MultiPartClient):
 
 def test_http_parts_non_string_float(client: MultiPartClient):
     client.form_data.http_parts.non_string.float(FloatRequest(temperature=0.5))
+
+
+def test_with_wire_name(client: MultiPartClient):
+    client.form_data.with_wire_name(
+        models.MultiPartRequestWithWireName(
+            identifier="123",
+            image=open(str(JPG), "rb"),
+        )
+    )
+
+
+def test_optional_parts(client: MultiPartClient):
+    # First time with only id
+    client.form_data.optional_parts(
+        models.MultiPartOptionalRequest(
+            id="123",
+        )
+    )
+    # Second time with only profileImage
+    client.form_data.optional_parts(
+        models.MultiPartOptionalRequest(
+            profile_image=open(str(JPG), "rb"),
+        )
+    )
+    # Third time with both id and profileImage
+    client.form_data.optional_parts(
+        models.MultiPartOptionalRequest(
+            id="123",
+            profile_image=open(str(JPG), "rb"),
+        )
+    )
