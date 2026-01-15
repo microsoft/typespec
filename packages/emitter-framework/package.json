@@ -23,18 +23,23 @@
   },
   "exports": {
     ".": {
+      "development": "./src/core/index.ts",
       "import": "./dist/src/core/index.js"
     },
     "./csharp": {
+      "development": "./src/csharp/index.ts",
       "import": "./dist/src/csharp/index.js"
     },
     "./typescript": {
+      "development": "./src/typescript/index.ts",
       "import": "./dist/src/typescript/index.js"
     },
     "./python": {
+      "development": "./src/python/index.ts",
       "import": "./dist/src/python/index.js"
     },
     "./testing": {
+      "development": "./src/testing/index.ts",
       "import": "./dist/src/testing/index.js"
     }
   },

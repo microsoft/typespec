@@ -244,9 +244,7 @@ describe("getRefkey", () => {
     const pet = program.resolveTypeReference("Pet")[0] as Model;
     const prop = pet.properties.get("name")!;
 
-    expect(() => provider.getRefkey(prop)).toThrow(
-      "Type ModelProperty is not a declaration type and cannot have a refkey.",
-    );
+    expect(() => provider.getRefkey(prop)).toThrow(/Type ModelProperty is not a declaration/);
   });
 
   it("adds type to declarations map", async () => {

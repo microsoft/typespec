@@ -1,4 +1,4 @@
-import { Children } from "@alloy-js/core/jsx-runtime";
+import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Program } from "@typespec/compiler";
 import { Output as EFOutput, TransformNamePolicyContext } from "@typespec/emitter-framework";

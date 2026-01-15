@@ -34,7 +34,7 @@ export class DeclarationProvider {
     }
 
     throw new Error(
-      "Type ${type.kind} is not a declaration or static member and cannot have a refkey.",
+      `Type ${type.kind} is not a declaration or static member and cannot have a refkey.`,
     );
   }
 
