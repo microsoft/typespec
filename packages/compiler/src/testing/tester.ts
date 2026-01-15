@@ -452,6 +452,9 @@ function extractMarkedEntities(
     }
     const { name, pos } = marker;
     const markerConfig = markerConfigs[name];
+    if (name.startsWith("pos:")) {
+      continue;
+    }
     const node = getNodeAtPosition(file, pos);
     if (!node) {
       throw new Error(`Could not find node at ${pos}`);
