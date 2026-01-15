@@ -58,3 +58,8 @@ async def test_model_properties_dict_methods(client: SpecialWordsClient):
             copy_property="ok",
         )
     )
+
+
+@pytest.mark.asyncio
+async def test_model_properties_with_list(client: SpecialWordsClient):
+    await client.model_properties.with_list(models.ModelWithList(list="ok"))
