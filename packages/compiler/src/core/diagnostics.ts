@@ -1,3 +1,4 @@
+import { createDiagnostic } from "./messages.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
 import {
@@ -247,18 +248,26 @@ export function assertType<TKind extends Type["kind"][]>(
  * @param program TypeSpec Program.
  * @param message Message describing the deprecation.
  * @param target Target of the deprecation.
+ * @param reportFunc Optional custom report function.
  */
 export function reportDeprecated(
   program: Program,
   message: string,
   target: DiagnosticTarget | typeof NoTarget,
+  reportFunc?: (diagnostic: Diagnostic) => void,
 ): void {
-  program.reportDiagnostic({
-    severity: "warning",
-    code: "deprecated",
-    message: `Deprecated: ${message}`,
-    target,
-  });
+  if (program.compilerOptions.ignoreDeprecated !== true) {
+    const report = reportFunc ?? program.reportDiagnostic.bind(program);
+    report(
+      createDiagnostic({
+        code: "deprecated",
+        format: {
+          message,
+        },
+        target,
+      }),
+    );
+  }
 }
 
 /**
