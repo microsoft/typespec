@@ -1,6 +1,6 @@
 import { For } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { useDeclarationProvider, useTsp } from "@typespec/emitter-framework";
+import { useDeclarationProvider } from "@typespec/emitter-framework";
 import * as ef from "@typespec/emitter-framework/typescript";
 import { useClientLibrary } from "@typespec/http-client";
 
@@ -9,7 +9,6 @@ export interface ModelsProps {
 }
 
 export function Models(props: ModelsProps) {
-  const { $ } = useTsp();
   const clientLibrary = useClientLibrary();
   const dataTypes = clientLibrary.dataTypes;
   const dp = useDeclarationProvider();
