@@ -108,7 +108,7 @@ function createCodeFixesForDecorators(
 
   const codeFixes: CodeFix[] = [];
 
-  for (const { type, decorator } of decoratorsToUpdate) {
+  for (const { decorator } of decoratorsToUpdate) {
     if (!decorator.node || decorator.args.length === 0) {
       continue;
     }
@@ -135,7 +135,6 @@ function createCodeFixesForDecorators(
 }
 
 export function getVersionRemovalCodeFixes(program: Program, versionName: string) {
-  const results: Record<string, string> = {};
   const services = listServices(program);
   if (services.length > 1) {
     throw new Error("Version patching only supports specs with a single service");

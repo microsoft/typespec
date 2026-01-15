@@ -19,6 +19,9 @@
   "type": "module",
   "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
+  "bin": {
+    "tsp-version-patcher": "dist/src/version-patcher/cli.js"
+  },
   "exports": {
     ".": {
       "typespec": "./lib/main.tsp",
