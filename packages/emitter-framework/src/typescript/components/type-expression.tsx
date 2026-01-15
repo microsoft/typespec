@@ -32,7 +32,6 @@ export function TypeExpression(props: TypeExpressionProps) {
       {() => {
         const dp = useDeclarationProvider();
         if (!props.noReference && dp.shouldReference(type)) {
-          console.log("Referencing " + type.kind);
           return dp.getRefkey(type);
         }
 

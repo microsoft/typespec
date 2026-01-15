@@ -70,6 +70,7 @@ export function ClientClass(props: ClientClassProps) {
         <For each={operations} hardline semicolon>
           {(op) => {
             const parameters = getOperationParameters(op.httpOperation, refkey());
+            console.log("Params: ", parameters);
             const args = parameters.flatMap((p) => p.refkey);
             const isPaging = Boolean($.operation.getPagingMetadata(op.httpOperation.operation));
 

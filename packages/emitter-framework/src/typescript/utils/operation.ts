@@ -47,7 +47,13 @@ export function buildParameterDescriptors(
   return allParams;
 }
 
-export function buildParameterDescriptor(modelProperty: ModelProperty): ts.ParameterDescriptor {
+/**
+ * Create a parameter descriptor from a model property type.
+ */
+export function buildParameterDescriptor(
+  modelProperty: ModelProperty,
+  options: { refkey?: Refkey } = {},
+): ts.ParameterDescriptor {
   const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const paramName = namePolicy.getName(modelProperty.name, "parameter");
@@ -58,6 +64,7 @@ export function buildParameterDescriptor(modelProperty: ModelProperty): ts.Param
     name: paramName,
     optional: isOptional,
     type: TypeExpression({ type: modelProperty.type }),
+    refkey: options.refkey,
   };
 }
 

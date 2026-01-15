@@ -53,9 +53,11 @@ export class DeclarationProvider {
    * @throws if the type is not a declaration type.
    */
   public getDeclarationRefkey(type: Type): Refkey {
+    console.log("Getting decl refkey for " + (type as any).name);
     const existing = this.declarations.get(type);
 
     if (existing) {
+      console.log("Existing: ", existing);
       return existing;
     }
 
@@ -64,6 +66,7 @@ export class DeclarationProvider {
     }
 
     const key = refkey();
+    console.log("New", key);
     this.declarations.set(type, key);
     return key;
   }
