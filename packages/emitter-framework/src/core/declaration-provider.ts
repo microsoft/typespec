@@ -1,5 +1,5 @@
 import { refkey, shallowReactive, type Refkey } from "@alloy-js/core";
-import { getLocationContext, type MemberType, type Type } from "@typespec/compiler";
+import { getLocationContext, isVoidType, type MemberType, type Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 
 export class DeclarationProvider {
@@ -53,11 +53,9 @@ export class DeclarationProvider {
    * @throws if the type is not a declaration type.
    */
   public getDeclarationRefkey(type: Type): Refkey {
-    console.log("Getting decl refkey for " + (type as any).name);
     const existing = this.declarations.get(type);
 
     if (existing) {
-      console.log("Existing: ", existing);
       return existing;
     }
 
@@ -66,7 +64,6 @@ export class DeclarationProvider {
     }
 
     const key = refkey();
-    console.log("New", key);
     this.declarations.set(type, key);
     return key;
   }
@@ -87,6 +84,11 @@ export class DeclarationProvider {
     const location = getLocationContext(this.$.program, type).type;
 
     if (location === "compiler") {
+      return false;
+    }
+
+    // BUG: intrinsic.is doesn't capture void...
+    if (this.$.intrinsic.is(type) || isVoidType(type)) {
       return false;
     }
 

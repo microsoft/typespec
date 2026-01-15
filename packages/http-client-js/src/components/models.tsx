@@ -21,9 +21,7 @@ export function Models(props: ModelsProps) {
             return;
           }
 
-          return $.array.is(type) || $.record.is(type) ? null : (
-            <ef.TypeDeclaration export type={type} refkey={dp.getRefkey(type)} />
-          );
+          return <ef.TypeDeclaration export type={type} refkey={dp.getRefkey(type)} />;
         }}
       </For>
     </ts.SourceFile>

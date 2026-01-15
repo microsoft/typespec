@@ -2,7 +2,7 @@ import * as ts from "@alloy-js/typescript";
 
 import { type Children, code, For, type Refkey, refkey } from "@alloy-js/core";
 import type { Model } from "@typespec/compiler";
-import { useTsp } from "@typespec/emitter-framework";
+import { useDeclarationProvider, useTsp } from "@typespec/emitter-framework";
 import { JsonAdditionalPropertiesTransform } from "./json-model-additional-properties-transform.jsx";
 import { JsonModelPropertyTransform } from "./json-model-property-transform.jsx";
 import { JsonRecordTransformDeclaration } from "./json-record-transform.jsx";
@@ -70,13 +70,14 @@ export interface JsonModelTransformDeclarationProps {
 export function JsonModelTransformDeclaration(props: JsonModelTransformDeclarationProps): Children {
   const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
+  const dp = useDeclarationProvider();
   const transformName = namePolicy.getName(
     `json_${props.type.name}_to_${props.target}_transform`,
     "function",
   );
 
-  const returnType = props.target === "transport" ? "any" : refkey(props.type);
-  const inputType = props.target === "transport" ? <>{refkey(props.type)} | null</> : "any";
+  const returnType = props.target === "transport" ? "any" : dp.getRefkey(props.type);
+  const inputType = props.target === "transport" ? <>{dp.getRefkey(props.type)} | null</> : "any";
   const inputRef = refkey();
 
   const parameters: ts.ParameterDescriptor[] = [
