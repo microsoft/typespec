@@ -19,6 +19,7 @@ import azure.resourcemanager.operationtemplates.models.OperationDisplay;
 import azure.resourcemanager.operationtemplates.models.Order;
 import azure.resourcemanager.operationtemplates.models.OrderProperties;
 import azure.resourcemanager.operationtemplates.models.Origin;
+import azure.resourcemanager.operationtemplates.models.Product;
 import azure.resourcemanager.operationtemplates.models.Widget;
 import azure.resourcemanager.operationtemplates.models.WidgetProperties;
 import com.azure.core.http.HttpPipeline;
@@ -127,6 +128,28 @@ public class OperationTests {
                 new ActionRequest().withActionType("perform").withParameters("test-parameters"), Context.NONE)
             .getValue();
         Assertions.assertEquals("Action completed successfully with parameters", actionResult.result());
+    }
+
+    @Test
+    public void testLroPaging() {
+        String resourceGroup = "test-rg";
+        String productName = "default";
+        List<Product> productList
+            = manager.lroPagings().postPagingLro(resourceGroup, productName).stream().collect(Collectors.toList());
+        Assertions.assertFalse(productList.isEmpty());
+        Assertions.assertEquals(2, productList.size());
+
+        Product product1 = productList.get(0);
+        Assertions.assertNotNull(product1);
+        Assertions.assertEquals("product1", product1.name());
+        Assertions.assertEquals("Succeeded", product1.properties().provisioningState());
+        Assertions.assertEquals("product1", product1.properties().productId());
+
+        Product product2 = productList.get(1);
+        Assertions.assertNotNull(product2);
+        Assertions.assertEquals("product2", product2.name());
+        Assertions.assertEquals("Succeeded", product2.properties().provisioningState());
+        Assertions.assertEquals("product2", product2.properties().productId());
     }
 
     // for LRO operations, we need to override default poll interval
