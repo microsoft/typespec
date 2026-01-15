@@ -166,3 +166,24 @@ describe("it removes types if it was removed in the newTarget version", () => {
     expect(result).toEqual(`model Bar {}`);
   });
 });
+
+describe("it removes `@removed` and `@added` when @removed is fast-forwarded to @added version", () => {
+  it("added before removed", async () => {
+    const result = await removeTestVersion(`
+      @added(Versions.v3) @removed(Versions.v2) model Foo {}
+    `);
+    expect(result).toEqual(`model Foo {}`);
+  });
+  it("added after removed", async () => {
+    const result = await removeTestVersion(`
+      @removed(Versions.v2) @added(Versions.v3) model Foo {}
+    `);
+    expect(result).toEqual(`model Foo {}`);
+  });
+  it("other decorator in between", async () => {
+    const result = await removeTestVersion(`
+      @removed(Versions.v2) @doc("Abc") @added(Versions.v3) model Foo {}
+    `);
+    expect(result).toEqual(`@doc("Abc")  model Foo {}`);
+  });
+});

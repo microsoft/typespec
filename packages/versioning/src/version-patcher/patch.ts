@@ -117,6 +117,30 @@ function hasRemovedDecorator(type: Type, version: Version, versions: VersionMap)
 }
 
 /**
+ * Find a @added decorator with the specified version on a type
+ */
+function findAddedDecorator(
+  type: Type,
+  version: Version,
+  versions: VersionMap,
+): DecoratorApplication | undefined {
+  if (!("decorators" in type)) return undefined;
+
+  for (const decorator of type.decorators) {
+    if (decorator.definition?.name !== "@added") continue;
+
+    const firstArg = decorator.args[0];
+    if (firstArg && isType(firstArg.value) && firstArg.value.kind === "EnumMember") {
+      const addedVersion = versions.getVersionForEnumMember(firstArg.value);
+      if (addedVersion && addedVersion.index === version.index) {
+        return decorator;
+      }
+    }
+  }
+  return undefined;
+}
+
+/**
  * Get the removal location for a type that includes the trailing/leading separator for list members.
  * For model properties, enum members, and union variants, this extends the removal range to include
  * the separator (semicolon, comma) to avoid leaving orphaned punctuation.
@@ -182,6 +206,7 @@ function createCodeFixesForDecorators(
 
   const codeFixes: CodeFix[] = [];
   const typesToRemove = new Set<Type>();
+  const decoratorsToRemove: DecoratorApplication[] = [];
 
   for (const { type, decorator } of decoratorsToUpdate) {
     if (!decorator.node || decorator.args.length === 0) {
@@ -198,6 +223,17 @@ function createCodeFixesForDecorators(
     if (decoratorName === "@added" && hasRemovedDecorator(type, nextVersion, versions)) {
       typesToRemove.add(type);
       continue;
+    }
+
+    // Special case: if this is @removed and there's also @added(nextVersion),
+    // both decorators should be dropped (but the type remains)
+    if (decoratorName === "@removed") {
+      const addedDecorator = findAddedDecorator(type, nextVersion, versions);
+      if (addedDecorator) {
+        decoratorsToRemove.push(decorator);
+        decoratorsToRemove.push(addedDecorator);
+        continue;
+      }
     }
 
     const newVersionRef = `${nextVersion.enumMember.enum.name}.${nextVersion.enumMember.name}`;
@@ -223,6 +259,24 @@ function createCodeFixesForDecorators(
       defineCodeFix({
         id: `remove-type-added-and-removed`,
         label: `Remove type that is added and removed in ${nextVersion.name}`,
+        fix: (context) => {
+          return context.replaceText(location, "");
+        },
+      }),
+    );
+  }
+
+  // Create code fixes to remove decorators where @removed and @added cancel each other out
+  for (const decorator of decoratorsToRemove) {
+    if (!decorator.node) continue;
+
+    const location = getSourceLocation(decorator.node);
+    if (!location) continue;
+
+    codeFixes.push(
+      defineCodeFix({
+        id: `remove-decorator-cancelled`,
+        label: `Remove decorator that is cancelled out`,
         fix: (context) => {
           return context.replaceText(location, "");
         },
