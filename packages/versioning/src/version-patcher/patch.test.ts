@@ -82,3 +82,87 @@ it("doesn't replace when the version doesn't match", async () => {
   `);
   expect(result).toEqual(`@added(Versions.v1) model Foo {}`);
 });
+
+describe("it removes types if it was removed in the newTarget version", () => {
+  it("model", async () => {
+    const result = await removeTestVersion(`
+      @added(Versions.v2) @removed(Versions.v3) model Foo {}
+      model Bar {}
+    `);
+    expect(result).toEqual(`model Bar {}`);
+  });
+  it("enum", async () => {
+    const result = await removeTestVersion(`
+      @added(Versions.v2) @removed(Versions.v3) enum Foo { A, B }
+      model Bar {}
+    `);
+    expect(result).toEqual(`model Bar {}`);
+  });
+  it("op", async () => {
+    const result = await removeTestVersion(`
+      @added(Versions.v2) @removed(Versions.v3) op Foo(): void;
+      model Bar {}
+    `);
+    expect(result).toEqual(`model Bar {}`);
+  });
+
+  it("model property", async () => {
+    const result = await removeTestVersion(`
+      model Foo {
+        @added(Versions.v2) @removed(Versions.v3) prop: string;
+        other: string;
+      }
+    `);
+    expect(result).toEqual(`model Foo {
+        other: string;
+      }`);
+  });
+
+  it("enum member", async () => {
+    const result = await removeTestVersion(`
+      enum Foo {
+        @added(Versions.v2) @removed(Versions.v3) A,
+        B,
+      }
+    `);
+    expect(result).toEqual(`enum Foo {
+        B,
+      }`);
+  });
+
+  it("union", async () => {
+    const result = await removeTestVersion(`
+      @added(Versions.v2) @removed(Versions.v3) union Foo { a: string, b: int32 }
+      model Bar {}
+    `);
+    expect(result).toEqual(`model Bar {}`);
+  });
+
+  it("union variant", async () => {
+    const result = await removeTestVersion(`
+      union Foo {
+        @added(Versions.v2) @removed(Versions.v3) a: string,
+        b: int32,
+      }
+    `);
+    expect(result).toEqual(`union Foo {
+        b: int32,
+      }`);
+  });
+
+  it("scalar", async () => {
+    const result = await removeTestVersion(`
+      @added(Versions.v2) @removed(Versions.v3) scalar Foo extends string;
+      model Bar {}
+    `);
+    expect(result).toEqual(`model Bar {}`);
+  });
+
+  it("interface", async () => {
+    const result = await removeTestVersion(`
+      @added(Versions.v2) @removed(Versions.v3) interface Foo { op test(): void; }
+      model Bar {}
+    `);
+    expect(result).toEqual(`model Bar {}`);
+  });
+});
