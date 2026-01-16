@@ -34,7 +34,20 @@ namespace Sample
             uri.AppendQuery("p1", p1, true);
             if ((maxPageSize != null))
             {
-                if (!uri.Query.Contains("maxPageSize="))
+                if (uri.Query.Contains("maxPageSize="))
+                {
+                    string currentQuery = uri.Query;
+                    int paramIndex = currentQuery.IndexOf("maxPageSize=");
+                    int valueStartIndex = (paramIndex + 12);
+                    int valueEndIndex = currentQuery.IndexOf('&', valueStartIndex);
+                    if ((valueEndIndex == -1))
+                    {
+                        valueEndIndex = currentQuery.Length;
+                    }
+                    string newQuery = ((currentQuery.Substring(0, valueStartIndex) + global::Sample.TypeFormatters.ConvertToString(maxPageSize)) + currentQuery.Substring(valueEndIndex));
+                    uri.Query = newQuery;
+                }
+                else
                 {
                     uri.AppendQuery("maxPageSize", global::Sample.TypeFormatters.ConvertToString(maxPageSize), true);
                 }
