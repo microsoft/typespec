@@ -317,7 +317,8 @@
       "initializedBy": 1,
       "decorators": [],
       "crossLanguageDefinitionId": "Response.StatusCodeRange",
-      "apiVersions": []
+      "apiVersions": [],
+      "isMultiServiceClient": false
     }
   ]
 }
