@@ -9,7 +9,8 @@ import {
   OpenAPISchema3_2,
   Refable,
 } from "../../../../types.js";
-import { TSValue, TypeSpecDecorator } from "../interfaces.js";
+import { stringLiteral } from "../generators/common.js";
+import { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
 
 const validLocations = ["header", "query", "path"];
 const extensionDecoratorName = "extension";
@@ -101,6 +102,8 @@ export function normalizeObjectValueToTSValueExpression(value: any): string {
       .join(", ")}}`;
   } else if (Array.isArray(value)) {
     return `#[${value.map((v) => normalizeObjectValueToTSValueExpression(v)).join(", ")}]`;
+  } else if (typeof value === "string") {
+    return stringLiteral(value);
   } else return `${JSON.stringify(value)}`;
 }
 
@@ -242,6 +245,22 @@ export function getDecoratorsForSchema(
   }
 
   return decorators;
+}
+
+export function getDirectivesForSchema(
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+): TypeSpecDirective[] {
+  const directives: TypeSpecDirective[] = [];
+
+  if ("$ref" in schema) {
+    return directives;
+  }
+
+  if (schema.deprecated) {
+    directives.push({ name: "deprecated", message: "deprecated" });
+  }
+
+  return directives;
 }
 
 function createTSValue(value: string): TSValue {

@@ -23,7 +23,9 @@ import payload.multipart.models.BinaryArrayPartsRequest;
 import payload.multipart.models.ComplexPartsRequest;
 import payload.multipart.models.JsonPartRequest;
 import payload.multipart.models.MultiBinaryPartsRequest;
+import payload.multipart.models.MultiPartOptionalRequest;
 import payload.multipart.models.MultiPartRequest;
+import payload.multipart.models.MultiPartRequestWithWireName;
 import payload.multipart.models.PicturesFileDetails;
 
 /**
@@ -61,6 +63,44 @@ public final class FormDataClient {
         // Operation 'basic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
         return this.serviceClient.basicWithResponse(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> withWireNameWithResponse(BinaryData body, RequestOptions requestOptions) {
+        // Operation 'withWireName' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
+        return this.serviceClient.withWireNameWithResponse(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> optionalPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+        // Operation 'optionalParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
+        return this.serviceClient.optionalPartsWithResponse(body, requestOptions);
     }
 
     /**
@@ -196,6 +236,56 @@ public final class FormDataClient {
         basicWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
             .serializeFileField("profileImage", body.getProfileImage().getContent(),
                 body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .end()
+            .getRequestBody(), requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withWireName(MultiPartRequestWithWireName body) {
+        // Generated convenience method for withWireNameWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        withWireNameWithResponse(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getIdentifier())
+                .serializeFileField("profileImage", body.getImage().getContent(), body.getImage().getContentType(),
+                    body.getImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void optionalParts(MultiPartOptionalRequest body) {
+        // Generated convenience method for optionalPartsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        optionalPartsWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+            .serializeFileField("profileImage",
+                body.getProfileImage() == null ? null : body.getProfileImage().getContent(),
+                body.getProfileImage() == null ? null : body.getProfileImage().getContentType(),
+                body.getProfileImage() == null ? null : body.getProfileImage().getFilename())
             .end()
             .getRequestBody(), requestOptions).getValue();
     }

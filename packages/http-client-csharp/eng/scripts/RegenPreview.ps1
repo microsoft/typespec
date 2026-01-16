@@ -163,9 +163,9 @@ Write-Host ""
 # Generate version string with timestamp and hash
 # Used for both npm and NuGet packages to ensure consistency
 function Get-LocalPackageVersion {
-    $timestamp = Get-Date -Format "yyyyMMdd"
-    $hash = (git -C $packageRoot rev-parse --short HEAD 2>$null) ?? "local"
-    return "1.0.0-alpha.$timestamp.$hash"
+    $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+    $hash = (git -C $packageRoot rev-parse --short=7 HEAD 2>$null) ?? "local"
+    return "1.0.0-alpha-$timestamp.$hash"
 }
 
 # Run npm pack and return the package file path
@@ -347,10 +347,16 @@ function Select-LibrariesToRegenerate {
     Write-Host "Found $($Libraries.Count) libraries available for regeneration" -ForegroundColor White
     Write-Host ""
     
-    # Display libraries grouped by generator
+    # Group libraries by generator
     $azureLibs = @($Libraries | Where-Object { $_.Generator -eq "@azure-typespec/http-client-csharp" })
     $unbrandedLibs = @($Libraries | Where-Object { $_.Generator -eq "@typespec/http-client-csharp" })
     $mgmtLibs = @($Libraries | Where-Object { $_.Generator -eq "@azure-typespec/http-client-csharp-mgmt" })
+    
+    # Reorder libraries array to match display order (Azure, Unbranded, Mgmt)
+    $orderedLibraries = @()
+    $orderedLibraries += $azureLibs
+    $orderedLibraries += $unbrandedLibs
+    $orderedLibraries += $mgmtLibs
     
     $currentIndex = 1
     
@@ -398,7 +404,7 @@ function Select-LibrariesToRegenerate {
     }
     
     if ($selection -ieq 'all') {
-        return $Libraries
+        return $orderedLibraries
     }
     
     # Parse selection
@@ -425,11 +431,11 @@ function Select-LibrariesToRegenerate {
     # Validate and collect selected libraries
     $selectedLibraries = @()
     foreach ($index in $selectedIndices | Sort-Object -Unique) {
-        if ($index -lt 1 -or $index -gt $Libraries.Count) {
-            Write-Host "Invalid library number: $index (valid range: 1-$($Libraries.Count))" -ForegroundColor Red
+        if ($index -lt 1 -or $index -gt $orderedLibraries.Count) {
+            Write-Host "Invalid library number: $index (valid range: 1-$($orderedLibraries.Count))" -ForegroundColor Red
             exit 1
         }
-        $selectedLibraries += $Libraries[$index - 1]
+        $selectedLibraries += $orderedLibraries[$index - 1]
     }
     
     if ($selectedLibraries.Count -eq 0) {

@@ -44,6 +44,7 @@ import {
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
+  CreateSdkContextOptions,
   InitializedByFlags,
   SdkArrayType,
   SdkBodyParameter,
@@ -108,6 +109,7 @@ import { fail } from "assert";
 import pkg from "lodash";
 import {
   Client as CodeModelClient,
+  EncodedProperty,
   EncodedSchema,
   PageableContinuationToken,
   Serializable,
@@ -163,7 +165,11 @@ import {
   stringArrayContainsIgnoreCase,
   trace,
 } from "./utils.js";
-import { getFilteredApiVersions, getServiceApiVersions } from "./versioning-utils.js";
+import {
+  InconsistentVersions,
+  getFilteredApiVersions,
+  getServiceApiVersions,
+} from "./versioning-utils.js";
 const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
@@ -296,10 +302,15 @@ export class CodeModelBuilder {
       return this.codeModel;
     }
 
-    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, {
-      additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
-      versioning: { previewStringRegex: /$/ },
-    }); // include all versions and do the filter by ourselves
+    // on filtering of preview version: TCGC only do this on "apiVersion" parameter in clientInitialization
+    const sdkContextOptions: CreateSdkContextOptions =
+      this.options["service-version-exclude-preview"] === false
+        ? {
+            versioning: { previewStringRegex: /$/ },
+          }
+        : {};
+    sdkContextOptions.additionalDecorators = ["Azure\\.ClientGenerator\\.Core\\.@override"];
+    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, sdkContextOptions);
     this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // license
@@ -653,9 +664,10 @@ export class CodeModelBuilder {
     });
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
-    // versioning
+    // versioning, here we handle consistent api-versions for the client
     const versions = getServiceApiVersions(this.program, client);
-    if (versions && versions.length > 0) {
+    if (Array.isArray(versions) && versions.length > 0) {
+      // consistent api-versions
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
         this.apiVersion = versions[versions.length - 1].value;
       } else {
@@ -717,7 +729,10 @@ export class CodeModelBuilder {
       baseUri,
       hostParameters,
       codeModelClient.globalParameters!,
-      codeModelClient.apiVersions,
+      // versioning: consistent api-versions, or MixedVersions for mixed api-versions, undefined if not versioned
+      versions === InconsistentVersions.MixedVersions
+        ? InconsistentVersions.MixedVersions
+        : codeModelClient.apiVersions,
     );
 
     const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
@@ -746,7 +761,7 @@ export class CodeModelBuilder {
         );
         const parentAccessorPublic = Boolean(
           subClient.clientInitialization.initializedBy & InitializedByFlags.Parent ||
-            subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
+          subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
         );
         codeModelClient.addSubClient(codeModelSubclient, buildMethodPublic, parentAccessorPublic);
       }
@@ -1064,9 +1079,9 @@ export class CodeModelBuilder {
     if (responses.length === 0) {
       return;
     }
-    const response = responses[0];
-    const bodyType = response.type;
-    if (!bodyType || bodyType.kind !== "model") {
+    if (!responses.some((r) => r.type && r.type.kind === "model")) {
+      // abort, if none of the responses contains model type
+      // this operation is not valid for pageable (which should return a JSON object), and hence will be generated without pageable
       return;
     }
 
@@ -1351,23 +1366,33 @@ export class CodeModelBuilder {
   ) {
     if (clientContext.apiVersions && this.isApiVersionParameter(param) && param.kind !== "cookie") {
       // pre-condition for "isApiVersion": the client supports ApiVersions
-      if (this.isArm()) {
-        // Currently we assume ARM tsp only have one client and one api-version.
-        // TODO: How will service define mixed api-versions(like those in Compute RP)?
-        const apiVersion = this.apiVersion;
-        if (!this._armApiVersionParameter) {
-          this._armApiVersionParameter = this.createApiVersionParameter(
-            "api-version",
-            param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
-            apiVersion,
-          );
-          clientContext.addGlobalParameter(this._armApiVersionParameter);
-        }
-        op.addParameter(this._armApiVersionParameter);
-      } else {
-        const parameter = this.getApiVersionParameter(param);
+      if (clientContext.apiVersions === InconsistentVersions.MixedVersions) {
+        // mixed api-versions
+        const parameter = this.createApiVersionParameter(
+          "api-version",
+          param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
+          String(param.clientDefaultValue),
+          ImplementationLocation.Method,
+        );
         op.addParameter(parameter);
-        clientContext.addGlobalParameter(parameter);
+      } else {
+        // consistent api-versions
+        if (this.isArm()) {
+          const apiVersion = this.apiVersion;
+          if (!this._armApiVersionParameter) {
+            this._armApiVersionParameter = this.createApiVersionParameter(
+              "api-version",
+              param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
+              apiVersion,
+            );
+            clientContext.addGlobalParameter(this._armApiVersionParameter);
+          }
+          op.addParameter(this._armApiVersionParameter);
+        } else {
+          const parameter = this.getApiVersionParameter(param);
+          op.addParameter(parameter);
+          clientContext.addGlobalParameter(parameter);
+        }
       }
     } else if (param.kind === "path" && param.onClient && this.isSubscriptionId(param)) {
       const parameter = this.subscriptionIdParameter(param);
@@ -1472,8 +1497,12 @@ export class CodeModelBuilder {
       const parameterOnClient = param.onClient;
       if (parameterOnClient) {
         // use parameter name from client parameter, as the name could be an alias
-        if (param.correspondingMethodParams) {
-          parameterName = param.correspondingMethodParams[0].name;
+        if (
+          param.methodParameterSegments &&
+          param.methodParameterSegments[0] &&
+          param.methodParameterSegments[0].at(-1)
+        ) {
+          parameterName = param.methodParameterSegments[0].at(-1)!.name;
         }
       }
 
@@ -2008,14 +2037,14 @@ export class CodeModelBuilder {
        * see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
        */
       /**
-       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type'.
+       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.methodParameterSegments.at(0)?.at(-1)?.type'.
        * Basically, it means that the model of the SDK method parameters (typically, more than 1) be different from the model of this single HTTP body parameter.
        */
       const bodyParameterFlatten =
         !this.isArm() &&
         schema instanceof ObjectSchema &&
         sdkType.kind === "model" &&
-        sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type;
+        sdkBody.type !== sdkBody.methodParameterSegments.at(0)?.at(-1)?.type;
 
       if (schema instanceof ObjectSchema && bodyParameterFlatten) {
         // flatten body parameter
@@ -2865,6 +2894,12 @@ export class CodeModelBuilder {
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    if (modelProperty.encode) {
+      if (schema instanceof ArraySchema) {
+        // ArrayEncoding
+        (codeModelProperty as EncodedProperty).arrayEncoding = modelProperty.encode;
+      }
+    }
 
     // xml
     if (modelProperty.serializationOptions.xml) {
@@ -3298,6 +3333,7 @@ export class CodeModelBuilder {
     serializedName: string,
     parameterLocation: ParameterLocation,
     value = "",
+    implementationLocation = ImplementationLocation.Client,
   ): Parameter {
     return new Parameter(
       serializedName,
@@ -3309,7 +3345,7 @@ export class CodeModelBuilder {
         }),
       ),
       {
-        implementation: ImplementationLocation.Client,
+        implementation: implementationLocation,
         origin: ORIGIN_API_VERSION,
         required: true,
         protocol: {

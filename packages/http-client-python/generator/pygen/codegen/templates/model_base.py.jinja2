@@ -36,6 +36,7 @@ __all__ = ["SdkJSONEncoder", "Model", "rest_field", "rest_discriminator"]
 
 TZ_UTC = timezone.utc
 _T = typing.TypeVar("_T")
+_NONE_TYPE = type(None)
 
 {% if code_model.has_external_type %}
 TYPE_HANDLER_REGISTRY = TypeHandlerRegistry()
@@ -223,7 +224,7 @@ def _deserialize_datetime(attr: typing.Union[str, datetime]) -> datetime:
     test_utc = date_obj.utctimetuple()
     if test_utc.tm_year > 9999 or test_utc.tm_year < 1:
         raise OverflowError("Hit max or min date")
-    return date_obj
+    return date_obj  # type: ignore[no-any-return]
 
 
 def _deserialize_datetime_rfc7231(attr: typing.Union[str, datetime]) -> datetime:
@@ -277,7 +278,7 @@ def _deserialize_time(attr: typing.Union[str, time]) -> time:
     """
     if isinstance(attr, time):
         return attr
-    return isodate.parse_time(attr)
+    return isodate.parse_time(attr)  # type: ignore[no-any-return]
 
 
 def _deserialize_bytes(attr):
@@ -382,9 +383,39 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
         return key in self._data
 
     def __getitem__(self, key: str) -> typing.Any:
+        # If this key has been deserialized (for mutable types), we need to handle serialization
+        if hasattr(self, "_attr_to_rest_field"):
+            cache_attr = f"_deserialized_{key}"
+            if hasattr(self, cache_attr):
+                rf = _get_rest_field(getattr(self, "_attr_to_rest_field"), key)
+                if rf:
+                    value = self._data.get(key)
+                    if isinstance(value, (dict, list, set)):
+                        # For mutable types, serialize and return
+                        # But also update _data with serialized form and clear flag
+                        # so mutations via this returned value affect _data
+                        serialized = _serialize(value, rf._format)
+                        # If serialized form is same type (no transformation needed),
+                        # return _data directly so mutations work
+                        if isinstance(serialized, type(value)) and serialized == value:
+                          return self._data.get(key)
+                        # Otherwise return serialized copy and clear flag
+                        try:
+                            object.__delattr__(self, cache_attr)
+                        except AttributeError:
+                            pass
+                        # Store serialized form back
+                        self._data[key] = serialized
+                        return serialized
         return self._data.__getitem__(key)
 
     def __setitem__(self, key: str, value: typing.Any) -> None:
+        # Clear any cached deserialized value when setting through dictionary access
+        cache_attr = f"_deserialized_{key}"
+        try:
+            object.__delattr__(self, cache_attr)
+        except AttributeError:
+            pass
         self._data.__setitem__(key, value)
 
     def __delitem__(self, key: str) -> None:
@@ -886,16 +917,16 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
 
     # is it optional?
     try:
-        if any(a for a in annotation.__args__ if a == type(None)):  # pyright: ignore
+        if any(a is _NONE_TYPE for a in annotation.__args__):  # pyright: ignore
             if len(annotation.__args__) <= 2:  # pyright: ignore
                 if_obj_deserializer = _get_deserialize_callable_from_annotation(
-                    next(a for a in annotation.__args__ if a != type(None)), module, rf  # pyright: ignore
+                    next(a for a in annotation.__args__ if a is not _NONE_TYPE), module, rf  # pyright: ignore
                 )
 
                 return functools.partial(_deserialize_with_optional, if_obj_deserializer)
             # the type is Optional[Union[...]], we need to remove the None type from the Union
             annotation_copy = copy.copy(annotation)
-            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a != type(None)]  # pyright: ignore
+            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a is not _NONE_TYPE]  # pyright: ignore
             return _get_deserialize_callable_from_annotation(annotation_copy, module, rf)
     except AttributeError:
         pass
@@ -1093,14 +1124,37 @@ class _RestField:
     def __get__(self, obj: Model, type=None):  # pylint: disable=redefined-builtin
         # by this point, type and rest_name will have a value bc we default
         # them in __new__ of the Model class
-        item = obj.get(self._rest_name)
+        # Use _data.get() directly to avoid triggering __getitem__ which clears the cache
+        item = obj._data.get(self._rest_name)
         if item is None:
             return item
         if self._is_model:
             return item
-        return _deserialize(self._type, _serialize(item, self._format), rf=self)
+
+        # For mutable types, we want mutations to directly affect _data
+        # Check if we've already deserialized this value
+        cache_attr = f"_deserialized_{self._rest_name}"
+        if hasattr(obj, cache_attr):
+            # Return the value from _data directly (it's been deserialized in place)
+            return obj._data.get(self._rest_name)
+
+        deserialized = _deserialize(self._type, _serialize(item, self._format), rf=self)
+
+        # For mutable types, store the deserialized value back in _data
+        # so mutations directly affect _data
+        if isinstance(deserialized, (dict, list, set)):
+            obj._data[self._rest_name] = deserialized
+            object.__setattr__(obj, cache_attr, True)  # Mark as deserialized
+            return deserialized
+
+        return deserialized
 
     def __set__(self, obj: Model, value) -> None:
+        # Clear the cached deserialized object when setting a new value
+        cache_attr = f"_deserialized_{self._rest_name}"
+        if hasattr(obj, cache_attr):
+            object.__delattr__(obj, cache_attr)
+
         if value is None:
             # we want to wipe out entries if users set attr to None
             try:
@@ -1274,7 +1328,7 @@ def _get_wrapped_element(
         _get_element(v, exclude_readonly, meta, wrapped_element)
     else:
         wrapped_element.text = _get_primitive_type_value(v)
-    return wrapped_element
+    return wrapped_element  # type: ignore[no-any-return]
 
 
 def _get_primitive_type_value(v) -> str:
@@ -1287,7 +1341,9 @@ def _get_primitive_type_value(v) -> str:
     return str(v)
 
 
-def _create_xml_element(tag, prefix=None, ns=None):
+def _create_xml_element(
+  tag: typing.Any, prefix: typing.Optional[str] = None, ns: typing.Optional[str] = None
+) -> ET.Element:
     if prefix and ns:
         ET.register_namespace(prefix, ns)
     if ns:

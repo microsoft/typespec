@@ -99,7 +99,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
-        protected override string BuildName() => _inputModel.Name.ToIdentifierName();
+        protected override string BuildName() => _model.Name;
 
         protected override CSharpType? BuildBaseType() => _model.BaseType;
 
@@ -527,6 +527,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
             bool onlyContainsUnknownDerivedModel = _model.DerivedModels.Count == 1;
             var discriminator = _model.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+            if (discriminator == null && _model.BaseModelProvider != null)
+            {
+                // Look for discriminator property in the base model
+                discriminator = _model.BaseModelProvider.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+            }
+
             var deserializeDiscriminatedModelsConditions = BuildDiscriminatedModelsCondition(
                 discriminator,
                 GetDiscriminatorSwitchCases(unknownVariant),
@@ -568,7 +574,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var model = _model.DerivedModels[i];
                 if (ReferenceEquals(model, unknownVariant))
+                {
                     continue;
+                }
                 cases[index++] = new SwitchCaseStatement(
                     Literal(model.DiscriminatorValue!),
                     Return(GetDeserializationMethodInvocationForType(model, _jsonElementParameterSnippet, _dataParameter, _serializationOptionsParameter)));
@@ -1434,8 +1442,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<JsonElement> jsonElement)
         {
             var data = jsonElement.GetUtf8Bytes();
-
-            return valueType switch
+            var result = valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
                     ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
@@ -1452,6 +1459,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _ => GetDeserializationMethodInvocationForType(valueType, jsonElement, data,
                     _mrwOptionsParameterSnippet)
             };
+
+            if (valueType.IsFrameworkType && valueType.FrameworkType == typeof(Uri))
+            {
+                return new TernaryConditionalExpression(
+                       Static<string>().Invoke(nameof(string.IsNullOrEmpty), jsonElement.GetString()),
+                       Null,
+                       result);
+            }
+
+            return result;
         }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(

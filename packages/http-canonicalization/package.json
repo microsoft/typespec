@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-canonicalization",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "type": "module",
   "main": "dist/src/index.js",
   "repository": {
@@ -39,8 +39,8 @@
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~24.10.1",
+    "@types/node": "~25.0.2",
     "concurrently": "^9.1.2",
-    "prettier": "~3.6.2"
+    "prettier": "~3.7.4"
   }
 }

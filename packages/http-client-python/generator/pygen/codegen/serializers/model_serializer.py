@@ -285,6 +285,9 @@ class DpgModelSerializer(_ModelSerializer):
                 file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Mapping", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
+        # if there is a property named `list` we have to make sure there's no conflict with the built-in `list`
+        if self.code_model.has_property_named_list:
+            file_import.define_mypy_type("List", "list")
         return file_import
 
     def declare_model(self, model: ModelType) -> str:

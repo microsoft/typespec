@@ -33,7 +33,7 @@ namespace Sample
                 global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                if (result.GetRawResponse().Headers.TryGetValue("nextPage", out string value))
+                if ((result.GetRawResponse().Headers.TryGetValue("nextPage", out string value) && !string.IsNullOrEmpty(value)))
                 {
                     nextToken = value;
                 }
@@ -47,7 +47,7 @@ namespace Sample
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            if (page.GetRawResponse().Headers.TryGetValue("nextPage", out string value))
+            if ((page.GetRawResponse().Headers.TryGetValue("nextPage", out string value) && !string.IsNullOrEmpty(value)))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(value));
             }

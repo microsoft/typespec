@@ -1,0 +1,117 @@
+import { Tester } from "#test/test-host.js";
+import { t } from "@typespec/compiler/testing";
+import { describe, expect, it } from "vitest";
+import { getOutput } from "../../test-utils.js";
+import { TypeAliasDeclaration } from "./type-alias-declaration.js";
+
+describe("Python Declaration equivalency to Type Alias", () => {
+  describe("Type Alias Declaration bound to Typespec Scalar", () => {
+    describe("Scalar extends utcDateTime", () => {
+      it("creates a type alias declaration for a utcDateTime without encoding", async () => {
+        const { program, MyDate } = await Tester.compile(t.code`
+          scalar ${t.scalar("MyDate")} extends utcDateTime;
+        `);
+
+        expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
+          from datetime import datetime
+          from typing import TypeAlias
+
+
+          my_date: TypeAlias = datetime`);
+      });
+
+      it("creates a type alias declaration with doc", async () => {
+        const { program, MyDate } = await Tester.compile(t.code`
+          /**
+           * Type to represent a date
+           */
+          scalar ${t.scalar("MyDate")} extends utcDateTime;
+        `);
+
+        expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
+          from datetime import datetime
+          from typing import TypeAlias
+
+
+          # Type to represent a date
+          my_date: TypeAlias = datetime`);
+      });
+
+      it("can override JSDoc", async () => {
+        const { program, MyDate } = await Tester.compile(t.code`
+          /**
+           * Type to represent a date
+           */
+          scalar ${t.scalar("MyDate")} extends utcDateTime;
+        `);
+
+        expect(getOutput(program, [<TypeAliasDeclaration doc={"Overridden Doc"} type={MyDate} />]))
+          .toRenderTo(`
+          from datetime import datetime
+          from typing import TypeAlias
+
+
+          # Overridden Doc
+          my_date: TypeAlias = datetime`);
+      });
+
+      it("creates a type alias declaration for a utcDateTime with unixTimeStamp encoding", async () => {
+        const { program, MyDate } = await Tester.compile(t.code`
+          @encode("unixTimestamp", int32)
+          scalar ${t.scalar("MyDate")} extends utcDateTime;
+        `);
+
+        expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
+          from datetime import datetime
+          from typing import TypeAlias
+
+
+          my_date: TypeAlias = datetime`);
+      });
+
+      it("creates a type alias declaration for a utcDateTime with rfc7231 encoding", async () => {
+        const { program, MyDate } = await Tester.compile(t.code`
+          @encode("rfc7231")
+          scalar ${t.scalar("MyDate")} extends utcDateTime;
+        `);
+
+        expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
+          from datetime import datetime
+          from typing import TypeAlias
+
+
+          my_date: TypeAlias = datetime`);
+      });
+
+      it("creates a type alias declaration for a utcDateTime with rfc3339 encoding", async () => {
+        const { program, MyDate } = await Tester.compile(t.code`
+          @encode("rfc3339")
+          scalar ${t.scalar("MyDate")} extends utcDateTime;
+        `);
+
+        expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
+          from datetime import datetime
+          from typing import TypeAlias
+
+
+          my_date: TypeAlias = datetime`);
+      });
+    });
+  });
+
+  describe("Type Alias Declaration for Operation (Callable)", () => {
+    it("creates a type alias for an operation type reference", async () => {
+      const { program, Handler } = await Tester.compile(t.code`
+        op handleRequest(id: string): string;
+        alias ${t.type("Handler")} = handleRequest;
+      `);
+
+      expect(getOutput(program, [<TypeAliasDeclaration type={Handler} />])).toRenderTo(`
+        from typing import Callable
+        from typing import TypeAlias
+
+
+        handle_request: TypeAlias = Callable[[str], str]`);
+    });
+  });
+});

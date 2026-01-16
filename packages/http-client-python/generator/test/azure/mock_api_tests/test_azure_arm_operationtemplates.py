@@ -154,3 +154,18 @@ def test_optional_body_provider_post_with_body(client):
     )
     assert result.total_allowed == 100
     assert result.status == "Changed to requested allowance"
+
+
+def test_lro_paging_begin_post_paging_lro(client):
+    result = client.lro_paging.begin_post_paging_lro(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        product_name="default",
+    ).result()
+    items = list(result)
+    assert len(items) == 2
+    assert items[0].name == "product1"
+    assert items[0].properties.product_id == "product1"
+    assert items[0].properties.provisioning_state == "Succeeded"
+    assert items[1].name == "product2"
+    assert items[1].properties.product_id == "product2"
+    assert items[1].properties.provisioning_state == "Succeeded"

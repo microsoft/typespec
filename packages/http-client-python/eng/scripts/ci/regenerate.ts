@@ -22,7 +22,7 @@ const argv = parseArgs({
 });
 
 // Add this near the top with other constants
-const SKIP_SPECS = ["type/union/discriminated"];
+const SKIP_SPECS: string[] = [];
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
@@ -152,6 +152,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "special-words": {
     namespace: "specialwords",
   },
+  "service/multi-service": {
+    namespace: "service.multiservice",
+  },
 };
 
 const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
@@ -271,6 +274,10 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "type/union": {
     "package-name": "typetest-union",
     namespace: "typetest.union",
+  },
+  "type/union/discriminated": {
+    "package-name": "typetest-discriminatedunion",
+    namespace: "typetest.discriminatedunion",
   },
   documentation: {
     "package-name": "specs-documentation",
