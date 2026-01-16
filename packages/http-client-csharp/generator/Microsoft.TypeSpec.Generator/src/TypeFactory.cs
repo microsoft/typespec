@@ -435,7 +435,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private string? _primaryNamespace;
-        public string PrimaryNamespace => _primaryNamespace ??= GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
+        internal string PrimaryNamespace => _primaryNamespace ??= GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
 
         public string ServiceName => _serviceName ??= BuildServiceName();
         private string? _serviceName;

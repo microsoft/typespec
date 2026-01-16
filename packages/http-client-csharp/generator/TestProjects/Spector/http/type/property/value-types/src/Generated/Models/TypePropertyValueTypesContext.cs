@@ -36,7 +36,7 @@ namespace _Type.Property.ValueTypes
     [ModelReaderWriterBuildable(typeof(UnknownDictProperty))]
     [ModelReaderWriterBuildable(typeof(UnknownIntProperty))]
     [ModelReaderWriterBuildable(typeof(UnknownStringProperty))]
-    public partial class _TypePropertyValueTypesContext : ModelReaderWriterContext
+    public partial class TypePropertyValueTypesContext : ModelReaderWriterContext
     {
     }
 }

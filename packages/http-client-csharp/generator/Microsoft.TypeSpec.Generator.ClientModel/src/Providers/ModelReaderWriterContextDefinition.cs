@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static readonly CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
         private static readonly TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
 
-        internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
+        internal static readonly string s_name = $"{ScmCodeModelGenerator.Instance.TypeFactory.ServiceName}Context";
 
         protected override string BuildName() => s_name;
 

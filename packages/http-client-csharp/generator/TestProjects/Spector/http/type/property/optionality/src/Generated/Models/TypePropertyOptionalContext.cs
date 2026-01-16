@@ -22,7 +22,7 @@ namespace _Type.Property.Optional
     [ModelReaderWriterBuildable(typeof(UnionFloatLiteralProperty))]
     [ModelReaderWriterBuildable(typeof(UnionIntLiteralProperty))]
     [ModelReaderWriterBuildable(typeof(UnionStringLiteralProperty))]
-    public partial class _TypePropertyOptionalContext : ModelReaderWriterContext
+    public partial class TypePropertyOptionalContext : ModelReaderWriterContext
     {
     }
 }

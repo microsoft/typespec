@@ -45,7 +45,7 @@ namespace _Type.Property.AdditionalProperties
     [ModelReaderWriterBuildable(typeof(WidgetData0))]
     [ModelReaderWriterBuildable(typeof(WidgetData1))]
     [ModelReaderWriterBuildable(typeof(WidgetData2))]
-    public partial class _TypePropertyAdditionalPropertiesContext : ModelReaderWriterContext
+    public partial class TypePropertyAdditionalPropertiesContext : ModelReaderWriterContext
     {
     }
 }
