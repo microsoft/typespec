@@ -24,7 +24,7 @@ import {
   getParameterDefaultValue,
 } from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
-import { isReadOnly } from "./utils.js";
+import { isMultiServiceClient, isReadOnly } from "./utils.js";
 
 type SdkClientType = SdkClientTypeOfT<SdkHttpOperation>;
 
@@ -79,6 +79,7 @@ function fromSdkClient(
     apiVersions: client.apiVersions,
     parent: undefined,
     children: undefined,
+    isMultiServiceClient: isMultiServiceClient(client),
   };
 
   sdkContext.__typeCache.updateSdkClientReferences(client, inputClient);

@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import {
+  SdkClientType,
+  SdkEnumType,
+  SdkHttpOperation,
+  UsageFlags,
+} from "@azure-tools/typespec-client-generator-core";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
@@ -9,7 +14,7 @@ import { fromSdkClients } from "./client-converter.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
-import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
+import { containsMultiServiceClient, firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
  * Creates the code model from the SDK context.
@@ -31,13 +36,8 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     types.filter((type) => type.kind === "enum") as InputEnumType[],
   ];
 
-  const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
   const rootClients = sdkPackage.clients;
-  const rootApiVersions =
-    sdkApiVersionEnums.length > 0
-      ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
-      : (rootClients[0]?.apiVersions ?? []);
-
+  const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
@@ -59,6 +59,30 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   };
 
   return clientModel;
+}
+
+/**
+ * Parses and returns the correct API versions for the library.
+ * Handles both regular and multiservice client libraries.
+ *
+ * @param enums - Array of enums from the SDK package
+ * @param rootClients - Array of root clients from the SDK package
+ * @returns Array of API version strings
+ */
+function parseApiVersions(
+  enums: SdkEnumType[],
+  rootClients: SdkClientType<SdkHttpOperation>[],
+): string[] {
+  if (containsMultiServiceClient(rootClients)) {
+    return [];
+  }
+
+  const apiVersionEnum = enums.find((e) => (e.usage & UsageFlags.ApiVersionEnum) !== 0);
+  if (apiVersionEnum) {
+    return apiVersionEnum.values.map((v) => v.value as string);
+  }
+
+  return rootClients[0]?.apiVersions ?? [];
 }
 
 /**

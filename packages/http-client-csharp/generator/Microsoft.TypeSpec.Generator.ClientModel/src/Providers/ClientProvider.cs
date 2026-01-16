@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return description;
             }
 
-            if (_inputClient.Parent is null)
+            if (!IsSubClient(_inputClient))
             {
                 // Clients will always have the Client suffix appended.
                 return $"The {Name}.";
@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
-            ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
+            ClientOptions = BuildClientOptions(inputClient);
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
 
             var apiKey = _inputAuth?.ApiKey;
@@ -162,7 +162,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Only create the caching field if the subclient can be initialized by parent
             // (InitializedBy is Default meaning default behavior = Parent, or explicitly includes Parent)
-            _canBeInitializedByParent = _inputClient.Parent != null &&
+            _canBeInitializedByParent = IsSubClient(_inputClient) &&
                 (_inputClient.InitializedBy.HasFlag(InputClientInitializedBy.Parent) || _inputClient.InitializedBy == InputClientInitializedBy.Default);
 
             if (_canBeInitializedByParent)
@@ -343,7 +343,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
+        protected override string BuildName()
+        {
+            string defaultName = _inputClient.Name.ToIdentifierName();
+
+            // TO-DO: handle naming overrides
+            if (_inputClient.Parent?.IsMultiServiceClient == true)
+            {
+                return _inputClient.Name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
+                    ? defaultName
+                    : $"{defaultName}{ClientSuffix}";
+            }
+
+            return defaultName;
+        }
 
         protected override FieldProvider[] BuildFields()
         {
@@ -485,7 +498,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var shouldIncludeMockingConstructor = !onlyContainsUnsupportedAuth && secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
 
             return shouldIncludeMockingConstructor
-                ? [ConstructorProviderHelper.BuildMockingConstructor(this), .. secondaryConstructors, .. primaryConstructors]
+                ? [mockingConstructor, .. secondaryConstructors, .. primaryConstructors]
                 : [.. secondaryConstructors, .. primaryConstructors];
 
             void AppendConstructors(
@@ -1218,6 +1231,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 xmlDocs.Update(parameters: reorderedParamDocs);
             }
+        }
+
+        private ClientOptionsProvider? BuildClientOptions(InputClient inputClient)
+        {
+            if (!IsSubClient(inputClient))
+            {
+                return ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this);
+            }
+
+            return null;
+        }
+
+        private static bool IsSubClient(InputClient inputClient)
+        {
+            return inputClient.Parent != null && inputClient.Parent.IsMultiServiceClient == false;
         }
     }
 }

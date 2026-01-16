@@ -38,6 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? @namespace = null;
             string? summary = null;
             string? doc = null;
+            bool isMultiServiceClient = false;
             IReadOnlyList<InputServiceMethod>? methods = null;
             IReadOnlyList<InputParameter>? parameters = null;
             int initializedByValue = 0;
@@ -53,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("namespace", ref @namespace)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
+                    || reader.TryReadBoolean("isMultiServiceClient", ref isMultiServiceClient)
                     || reader.TryReadComplexType("methods", options, ref methods)
                     || reader.TryReadComplexType("parameters", options, ref parameters)
                     || reader.TryReadInt32("initializedBy", ref initializedByValue)
@@ -73,6 +75,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             client.Summary = summary;
             client.Doc = doc;
+            client.IsMultiServiceClient = isMultiServiceClient;
             client.Methods = methods ?? [];
             client.Parameters = parameters ?? [];
             client.InitializedBy = (InputClientInitializedBy)initializedByValue;

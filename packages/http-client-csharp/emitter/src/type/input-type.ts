@@ -43,6 +43,7 @@ export interface InputClient extends DecoratedType {
   crossLanguageDefinitionId: string;
   parent?: InputClient;
   children?: InputClient[];
+  isMultiServiceClient: boolean;
 }
 
 /**

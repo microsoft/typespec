@@ -176,3 +176,84 @@ describe("fixNamingConflicts", () => {
     );
   });
 });
+
+describe("parseApiVersions", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("should pick up apiVersion enum used as input parameter in root apiVersions", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("/test")
+        op test(@query apiVersion: Versions): void;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    // The root apiVersions should include the version from the Versions enum
+    // which is defined in the default namespace with version "2023-01-01-preview"
+    ok(root.apiVersions.length > 0, "Root apiVersions should not be empty");
+    ok(
+      root.apiVersions.includes("2023-01-01-preview"),
+      "Root apiVersions should include the version from the Versions enum",
+    );
+  });
+
+  it("should pick up apiVersion enum with multiple versions in root apiVersions", async () => {
+    const program = await typeSpecCompile(
+      `
+        @service(#{
+          title: "Test Service",
+        })
+        @versioned(TestVersions)
+        namespace TestService;
+        
+        enum TestVersions {
+          v1: "2023-01-01",
+          v2: "2023-06-01",
+          v3: "2024-01-01",
+        }
+        
+        @route("/test")
+        op test(@query apiVersion: TestVersions): void;
+      `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    // The root apiVersions should include all versions from the TestVersions enum
+    strictEqual(root.apiVersions.length, 3, "Root apiVersions should have 3 versions");
+    ok(root.apiVersions.includes("2023-01-01"), "Root apiVersions should include 2023-01-01");
+    ok(root.apiVersions.includes("2023-06-01"), "Root apiVersions should include 2023-06-01");
+    ok(root.apiVersions.includes("2024-01-01"), "Root apiVersions should include 2024-01-01");
+  });
+
+  it("should have apiVersions for single service client", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("/test")
+        op test(): void;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    // Single service client should have apiVersions from the @versioned decorator
+    ok(root.apiVersions.length > 0, "Root apiVersions should not be empty for single service");
+    ok(
+      root.apiVersions.includes("2023-01-01-preview"),
+      "Root apiVersions should include the service version",
+    );
+  });
+});
