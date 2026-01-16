@@ -22,7 +22,7 @@ namespace _Type.Union
     [ModelReaderWriterBuildable(typeof(MixedLiteralsCases))]
     [ModelReaderWriterBuildable(typeof(MixedTypesCases))]
     [ModelReaderWriterBuildable(typeof(StringAndArrayCases))]
-    public partial class _TypeUnionContext : ModelReaderWriterContext
+    public partial class TypeUnionContext : ModelReaderWriterContext
     {
     }
 }

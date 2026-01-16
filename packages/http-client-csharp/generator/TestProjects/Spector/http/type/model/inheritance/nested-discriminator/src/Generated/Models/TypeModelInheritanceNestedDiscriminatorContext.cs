@@ -13,7 +13,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
     [ModelReaderWriterBuildable(typeof(Shark))]
     [ModelReaderWriterBuildable(typeof(UnknownFish))]
     [ModelReaderWriterBuildable(typeof(UnknownShark))]
-    public partial class _TypeModelInheritanceNestedDiscriminatorContext : ModelReaderWriterContext
+    public partial class TypeModelInheritanceNestedDiscriminatorContext : ModelReaderWriterContext
     {
     }
 }

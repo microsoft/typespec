@@ -14,7 +14,7 @@ namespace _Type.Property.Nullable
     [ModelReaderWriterBuildable(typeof(DurationProperty))]
     [ModelReaderWriterBuildable(typeof(InnerModel))]
     [ModelReaderWriterBuildable(typeof(StringProperty))]
-    public partial class _TypePropertyNullableContext : ModelReaderWriterContext
+    public partial class TypePropertyNullableContext : ModelReaderWriterContext
     {
     }
 }

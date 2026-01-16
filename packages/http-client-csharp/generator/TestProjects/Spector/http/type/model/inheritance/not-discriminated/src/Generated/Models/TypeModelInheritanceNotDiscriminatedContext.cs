@@ -9,7 +9,7 @@ namespace _Type.Model.Inheritance.NotDiscriminated
     [ModelReaderWriterBuildable(typeof(Cat))]
     [ModelReaderWriterBuildable(typeof(Pet))]
     [ModelReaderWriterBuildable(typeof(Siamese))]
-    public partial class _TypeModelInheritanceNotDiscriminatedContext : ModelReaderWriterContext
+    public partial class TypeModelInheritanceNotDiscriminatedContext : ModelReaderWriterContext
     {
     }
 }

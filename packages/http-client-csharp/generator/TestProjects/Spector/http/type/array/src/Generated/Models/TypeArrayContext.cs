@@ -4,10 +4,10 @@
 
 using System.ClientModel.Primitives;
 
-namespace _Type.Dictionary
+namespace _Type._Array
 {
     [ModelReaderWriterBuildable(typeof(InnerModel))]
-    public partial class _TypeDictionaryContext : ModelReaderWriterContext
+    public partial class TypeArrayContext : ModelReaderWriterContext
     {
     }
 }

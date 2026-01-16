@@ -8,7 +8,7 @@ namespace _Type.Model.Inheritance.Recursive
 {
     [ModelReaderWriterBuildable(typeof(Element))]
     [ModelReaderWriterBuildable(typeof(Extension))]
-    public partial class _TypeModelInheritanceRecursiveContext : ModelReaderWriterContext
+    public partial class TypeModelInheritanceRecursiveContext : ModelReaderWriterContext
     {
     }
 }
