@@ -8718,7 +8718,8 @@
           ],
           "parent": {
             "$ref": "368"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "636",
@@ -9080,7 +9081,8 @@
           ],
           "parent": {
             "$ref": "368"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "655",
@@ -9281,7 +9283,8 @@
           ],
           "parent": {
             "$ref": "368"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "666",
@@ -9444,9 +9447,11 @@
           ],
           "parent": {
             "$ref": "368"
-          }
+          },
+          "isMultiServiceClient": false
         }
-      ]
+      ],
+      "isMultiServiceClient": false
     }
   ],
   "auth": {
