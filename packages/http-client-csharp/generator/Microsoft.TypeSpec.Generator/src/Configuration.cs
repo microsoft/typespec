@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator
     /// </summary>
     public class Configuration
     {
-        internal enum UnreferencedTypesHandlingOption
+        public enum UnreferencedTypesHandlingOption
         {
             RemoveOrInternalize = 0,
             Internalize = 1,
@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator
         {
         }
 
-        private Configuration(
+        public Configuration(
             string outputPath,
             Dictionary<string, BinaryData> additionalConfigurationOptions,
             string packageName,
