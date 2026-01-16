@@ -12,14 +12,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
     {
         private static TestRequestContentApi? _instance;
         internal static TestRequestContentApi Instance => _instance ??= new();
-        public TestRequestContentApi(ValueExpression original) : base(typeof(string), original)
+        public TestRequestContentApi(ValueExpression original) : base(typeof(TestRequestContent), original)
         {
         }
-        private TestRequestContentApi() : base(typeof(string), Empty)
+        private TestRequestContentApi() : base(typeof(TestRequestContent), Empty)
         {
         }
 
-        public override CSharpType RequestContentType => new CSharpType(typeof(string));
+        public override CSharpType RequestContentType => new CSharpType(typeof(TestRequestContent));
         public override RequestContentApi FromExpression(ValueExpression original) =>
             new TestRequestContentApi(original);
 

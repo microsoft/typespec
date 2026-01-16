@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private readonly PropertyProvider _contentTypeProperty;
         private readonly PropertyProvider _httpContentProperty;
+        private readonly CSharpType _requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
         private const string ContentTypePropertyName = "ContentType";
         private const string HttpContentPropertyName = "HttpContent";
@@ -74,11 +75,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override string BuildName() => "MultiPartFormDataBinaryContent";
+        protected override string BuildName() => $"MultiPartFormData{_requestContentType.Name}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Class | TypeSignatureModifiers.Internal;
 
-        protected override CSharpType BuildBaseType() => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+        protected override CSharpType BuildBaseType() => _requestContentType;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 

@@ -8,9 +8,11 @@ import {
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
 import { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
+import { t } from "../../src/testing/index.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper, expectTypeEquals } from "../../src/testing/test-utils.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
+import { Tester } from "../tester.js";
 
 let host: TestHost;
 let runner: BasicTestRunner;
@@ -479,6 +481,21 @@ describe("decorators", () => {
 
     mutateSubgraph(host.program, [mutator], Foo);
     expect(visited).toStrictEqual(["Foo", "a", "E"]);
+  });
+
+  // Regression test for https://github.com/microsoft/typespec/issues/9318
+  it("doesn't crash when mutating numeric value", async () => {
+    const { prop, program } = await Tester.compile(t.code`
+      model Test {
+        @minValue(123)
+        ${t.modelProperty("prop")}: int32;
+      }
+    `);
+    const mutator: Mutator = {
+      name: "test",
+      ModelProperty: { mutate: (_, clone) => {} },
+    };
+    expect(() => mutateSubgraph(program, [mutator], prop)).not.toThrow();
   });
 
   // Regression test for https://github.com/microsoft/typespec/issues/6655

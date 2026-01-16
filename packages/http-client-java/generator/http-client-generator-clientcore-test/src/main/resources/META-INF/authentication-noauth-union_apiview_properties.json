@@ -1,0 +1,7 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "authentication.noauth.union.UnionClient": "Authentication.Noauth.Union",
+    "authentication.noauth.union.UnionClientBuilder": "Authentication.Noauth.Union"
+  }
+}

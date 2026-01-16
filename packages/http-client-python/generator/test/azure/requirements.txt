@@ -55,6 +55,7 @@ azure-mgmt-core==1.6.0
 # common test case
 -e ./generated/authentication-api-key
 -e ./generated/authentication-http-custom
+-e ./generated/authentication-noauth-union
 -e ./generated/authentication-oauth2
 -e ./generated/authentication-union
 -e ./generated/setuppy-authentication-union

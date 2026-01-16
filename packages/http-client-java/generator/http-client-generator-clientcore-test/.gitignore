@@ -1,0 +1,2 @@
+# ignore tsp-spector coverage files
+tsp-spector-coverage-*.json
