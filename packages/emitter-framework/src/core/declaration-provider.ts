@@ -2,8 +2,20 @@ import { refkey, shallowReactive, type Refkey } from "@alloy-js/core";
 import { getLocationContext, isVoidType, type MemberType, type Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 
+/**
+ * This class tracks determines what types should be declared in the emit output
+ * and vends refkeys for them. The emitter framework will call `getRefkey` on
+ * the current declaration provider (see DeclarationProviderContext) to get
+ * refkeys for declarations it needs. Types passed to `getRefkey` and the refkey
+ * ultimately returned are added to the reactive `declarations` map. All types
+ * in this map should be emitted as declarations by the emitter.
+ */
 export class DeclarationProvider {
   $: Typekit;
+  /**
+   * Reactive map of types to refkeys for all types which should be emitted
+   * as declarations.
+   */
   declarations: Map<Type, Refkey> = shallowReactive(new Map());
   #staticMemberRefkeys: Map<MemberType, Refkey> = new Map();
 
