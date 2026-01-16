@@ -15,7 +15,7 @@ import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
-import { deepClone, distinctArray } from "../utils/misc.js";
+import { deepClone, distinctArray, getEnvironmentVariable } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
@@ -90,7 +90,6 @@ export function createCompileService({
   const eventListeners = new Map<string, (...args: unknown[]) => void | Promise<void>>();
   const compileManager = new ServerCompileManager(updateManager, compilerHost, log);
   let configFilePath: string | undefined;
-  const { getEnvironmentVariable } = serverHost;
   const logDebug =
     getEnvironmentVariable(ENABLE_COMPILE_CONFIG_LOGGING)?.toLowerCase() === "true"
       ? log

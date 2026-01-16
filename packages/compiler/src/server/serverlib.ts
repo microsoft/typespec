@@ -99,7 +99,7 @@ import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
 import { resolveModule, ResolveModuleHost } from "../module-resolver/index.js";
 import { listAllFilesInDir } from "../utils/fs-utils.js";
-import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
+import { getEnvironmentVariable, getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
@@ -1412,10 +1412,11 @@ export function createServer(
     host.log(log);
   }
 
-  const logCompileConfig =
-    host.getEnvironmentVariable(ENABLE_COMPILE_CONFIG_LOGGING)?.toLowerCase() === "true"
-      ? log
-      : () => {};
+  function logCompileConfig(logMessage: ServerLog) {
+    if (getEnvironmentVariable(ENABLE_COMPILE_CONFIG_LOGGING)?.toLowerCase() === "true") {
+      log(logMessage);
+    }
+  }
 
   function sendDiagnostics(document: TextDocument, diagnostics: VSDiagnostic[]) {
     host.sendDiagnostics({
