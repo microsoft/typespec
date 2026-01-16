@@ -1366,6 +1366,14 @@ Second request path:
 
 Expect to handle a constant value for query and mock api returns nothing
 
+### Parameters_Query_QueryList_post
+
+- Endpoint: `post /parameters/query/list`
+
+Expect to handle a list of values for query parameter.
+The list should be serialized as CSV (comma-separated values).
+Pass array ["a", "b", "c"] and expect it to be serialized as "a,b,c".
+
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
