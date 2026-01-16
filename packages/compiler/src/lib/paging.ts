@@ -87,7 +87,7 @@ export const [
   /** {@inheritdoc PageItemsDecorator} */
   pageItemsDecorator,
 ] = createMarkerDecorator<PageItemsDecorator>("pageItems", (context, target) => {
-  if (target.type.kind !== "Model" || !isArrayModelType(target.type)) {
+  if (target.type.kind !== "Model" || !isArrayModelType(context.program, target.type)) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       messageId: "withExpected",

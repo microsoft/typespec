@@ -52,17 +52,36 @@ export function isValue(entity: Entity): entity is Value {
 }
 
 /**
+ * Check if a model is an array type.
+ * @param program Program (unused)
  * @param type Model type
+ * @deprecated Use `isArrayModelType(type)` instead. The `program` parameter is unused.
  */
-export function isArrayModelType(type: Model): type is ArrayModelType {
-  return Boolean(type.indexer && type.indexer.key.name === "integer");
-}
-
+export function isArrayModelType(program: Program, type: Model): type is ArrayModelType;
 /**
  * Check if a model is an array type.
  * @param type Model type
  */
-export function isRecordModelType(type: Model): type is RecordModelType {
+export function isArrayModelType(type: Model): type is ArrayModelType;
+export function isArrayModelType(programOrType: Program | Model, maybeType?: Model): boolean {
+  const type = maybeType ?? (programOrType as Model);
+  return Boolean(type.indexer && type.indexer.key.name === "integer");
+}
+
+/**
+ * Check if a model is a record type.
+ * @param program Program (unused)
+ * @param type Model type
+ * @deprecated Use `isRecordModelType(type)` instead. The `program` parameter is unused.
+ */
+export function isRecordModelType(program: Program, type: Model): type is RecordModelType;
+/**
+ * Check if a model is a record type.
+ * @param type Model type
+ */
+export function isRecordModelType(type: Model): type is RecordModelType;
+export function isRecordModelType(programOrType: Program | Model, maybeType?: Model): boolean {
+  const type = maybeType ?? (programOrType as Model);
   return Boolean(type.indexer && type.indexer.key.name === "string");
 }
 

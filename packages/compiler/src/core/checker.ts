@@ -4730,7 +4730,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
       return [[], undefined];
     }
-    if (isArrayModelType(targetType)) {
+    if (isArrayModelType(program, targetType)) {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "spread-model", target: targetNode }),
         mapper,
@@ -5096,14 +5096,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     let valueType: Type | undefined;
     let type: Type | undefined;
     if (constraint.valueType) {
-      if (constraint.valueType.kind === "Model" && isArrayModelType(constraint.valueType)) {
+      if (
+        constraint.valueType.kind === "Model" &&
+        isArrayModelType(program, constraint.valueType)
+      ) {
         valueType = constraint.valueType.indexer.value;
       } else {
         return undefined;
       }
     }
     if (constraint.type) {
-      if (constraint.type.kind === "Model" && isArrayModelType(constraint.type)) {
+      if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
         type = constraint.type.indexer.value;
       } else {
         return undefined;

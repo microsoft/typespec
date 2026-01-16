@@ -1,5 +1,5 @@
 ---
-changeKind: breaking
+changeKind: deprecation
 packages:
   - "@typespec/compiler"
   - "@typespec/http"
@@ -9,4 +9,4 @@ packages:
   - "@typespec/http-server-csharp"
 ---
 
-Remove unused `program` parameter from `isArrayModelType` and `isRecordModelType` functions
+Deprecate `program` parameter in `isArrayModelType` and `isRecordModelType` functions. Use the new single-argument overload instead: `isArrayModelType(type)` and `isRecordModelType(type)`.
