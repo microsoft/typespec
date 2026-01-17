@@ -22,11 +22,10 @@ class TestLists:
         # Expected: 204 No Content
         await client.lists.bullet_points_op()
 
-    @pytest.mark.skip(reason="https://github.com/microsoft/typespec/issues/9173")
     @pytest.mark.asyncio
     async def test_bullet_points_model(self, client: DocumentationClient):
         # POST /documentation/lists/bullet-points/model
-        # Expected request body: {"prop": "Simple"}
+        # Expected request body: {"input": {"prop": "Simple"}}
         # Expected: 200 OK
         await client.lists.bullet_points_model(input=models.BulletPointsModel(prop="Simple"))
 

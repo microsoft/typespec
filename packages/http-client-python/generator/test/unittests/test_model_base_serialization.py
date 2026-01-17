@@ -64,6 +64,22 @@ class BasicResource(Model):
         super().__init__(*args, **kwargs)
 
 
+class ModelWithArgsProperty(Model):
+    """A model that has a property named 'args' to test potential conflicts with *args."""
+
+    name: str = rest_field()
+    args: list[str] = rest_field()  # property named 'args' which could conflict with *args
+
+    @overload
+    def __init__(self, *, name: str, args: list[str]): ...
+
+    @overload
+    def __init__(self, mapping: Mapping[str, Any], /): ...
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 class Pet(Model):
     name: str = rest_field()  # my name
     species: str = rest_field()  # my species
@@ -104,6 +120,43 @@ def test_model_and_dict_equal():
         == 3
     )
     assert model.virtual_machines == model["virtualMachines"] == dict_response["virtualMachines"]
+
+
+def test_model_with_args_property():
+    """Test that a model with a property named 'args' works correctly."""
+    # Test initialization with keyword arguments
+    model = ModelWithArgsProperty(name="test", args=["arg1", "arg2", "arg3"])
+    assert model.name == "test"
+    assert model.args == ["arg1", "arg2", "arg3"]
+
+    # Test dict-style access
+    assert model["name"] == "test"
+    assert model["args"] == ["arg1", "arg2", "arg3"]
+
+    # Test equality with dict
+    dict_response = {"name": "test", "args": ["arg1", "arg2", "arg3"]}
+    assert model == dict_response
+
+    # Test initialization from dict (using positional argument which goes to *args)
+    model_from_dict = ModelWithArgsProperty(dict_response)
+    assert model_from_dict.name == "test"
+    assert model_from_dict.args == ["arg1", "arg2", "arg3"]
+    assert model_from_dict == model
+
+    # Test modification of the 'args' property
+    model.args = ["new_arg"]
+    assert model.args == ["new_arg"]
+    assert model["args"] == ["new_arg"]
+
+    # Test dict-style modification of 'args'
+    model["args"] = ["modified_arg1", "modified_arg2"]
+    assert model.args == ["modified_arg1", "modified_arg2"]
+
+    # Test JSON serialization roundtrip
+    json_str = json.dumps(dict(model))
+    parsed = json.loads(json_str)
+    assert parsed["name"] == "test"
+    assert parsed["args"] == ["modified_arg1", "modified_arg2"]
 
 
 def test_json_roundtrip():
