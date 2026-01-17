@@ -1,7 +1,7 @@
 import { Children, code, refkey, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Union } from "@typespec/compiler";
-import { useTsp } from "@typespec/emitter-framework";
+import { useDeclarationProvider, useTsp } from "@typespec/emitter-framework";
 import {
   getJsonTransformDiscriminatorRefkey,
   JsonTransformDiscriminatorDeclaration,
@@ -53,8 +53,8 @@ export function JsonUnionTransformDeclaration(props: JsonUnionTransformDeclarati
     `json_${props.type.name}_to_${props.target}_transform`,
     "function",
   );
-
-  const typeRef = refkey(props.type);
+  const dp = useDeclarationProvider();
+  const typeRef = dp.getRefkey(props.type);
   const returnType = props.target === "transport" ? "any" : typeRef;
   const inputType = props.target === "transport" ? <>{typeRef} | null</> : "any";
   const inputRef = refkey();
