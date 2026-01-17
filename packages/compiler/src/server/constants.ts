@@ -1,5 +1,5 @@
 import { CompilerOptions } from "../core/options.js";
-import { getEnvironmentVariable } from "../utils/misc.js";
+import createDebug from "debug";
 
 export const serverOptions: CompilerOptions = {
   dryRun: true,
@@ -15,44 +15,16 @@ export const Commands = {
 };
 
 /**
- * Debug areas that can be enabled via DEBUG environment variable.
+ * Debug loggers for different areas. Can be enabled via DEBUG environment variable.
  * Usage: DEBUG=typespec:server_compile,typespec:compile_config
- */
-export const DebugAreas = {
-  SERVER_COMPILE: "typespec:server_compile",
-  UPDATE_MANAGER: "typespec:update_manager",
-  COMPILE_CONFIG: "typespec:compile_config",
-} as const;
-
-/**
- * Check if a debug area is enabled via the DEBUG environment variable.
- * Supports Node.js DEBUG pattern with wildcards and comma-separated values.
+ * 
  * Examples:
- *   DEBUG=typespec:server_compile
- *   DEBUG=typespec:*
- *   DEBUG=typespec:server_compile,typespec:compile_config
+ *   DEBUG=typespec:server_compile      - Enable server compilation debug logs
+ *   DEBUG=typespec:*                   - Enable all typespec debug logs
+ *   DEBUG=typespec:server_compile,typespec:compile_config - Enable multiple areas
  */
-export function isDebugEnabled(area: string): boolean {
-  const debug = getEnvironmentVariable("DEBUG");
-  if (!debug) {
-    return false;
-  }
-
-  const areas = debug.split(",").map((a) => a.trim());
-  
-  return areas.some((pattern) => {
-    // Exact match
-    if (pattern === area) {
-      return true;
-    }
-    
-    // Wildcard pattern matching
-    if (pattern.includes("*")) {
-      const regexPattern = pattern.replace(/\*/g, ".*");
-      const regex = new RegExp(`^${regexPattern}$`);
-      return regex.test(area);
-    }
-    
-    return false;
-  });
-}
+export const debugLoggers = {
+  serverCompile: createDebug("typespec:server_compile"),
+  updateManager: createDebug("typespec:update_manager"),
+  compileConfig: createDebug("typespec:compile_config"),
+} as const;

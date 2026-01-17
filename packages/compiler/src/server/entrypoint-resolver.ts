@@ -3,7 +3,7 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { SystemHost, Diagnostic as TypeSpecDiagnostic } from "../core/types.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
-import { DebugAreas, isDebugEnabled } from "./constants.js";
+import { debugLoggers } from "./constants.js";
 import { FileSystemCache } from "./file-system-cache.js";
 import { ServerLog } from "./types.js";
 
@@ -15,7 +15,8 @@ export async function resolveEntrypointFile(
   log: (log: ServerLog) => void,
 ): Promise<string | undefined> {
   const options = { allowFileNotFound: true };
-  const logDebug = isDebugEnabled(DebugAreas.COMPILE_CONFIG) ? log : () => {};
+  const debug = debugLoggers.compileConfig;
+  const logDebug = debug.enabled ? log : () => {};
 
   const pathStat = await doIO(() => host.stat(path), path, logMainFileSearchDiagnostic, options);
   const isFilePath = pathStat?.isFile() ?? false;

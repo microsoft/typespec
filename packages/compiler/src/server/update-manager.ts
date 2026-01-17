@@ -1,7 +1,7 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getEnvironmentVariable } from "../utils/misc.js";
-import { DebugAreas, isDebugEnabled } from "./constants.js";
+import { debugLoggers } from "./constants.js";
 import { ServerLog } from "./types.js";
 
 interface PendingUpdate {
@@ -43,7 +43,8 @@ export class UpdateManager<T = void> {
     log: (sl: ServerLog) => void,
     getDebounceDelay?: () => number,
   ) {
-    this._log = isDebugEnabled(DebugAreas.UPDATE_MANAGER)
+    const debug = debugLoggers.updateManager;
+    this._log = debug.enabled
       ? (sl: ServerLog) => {
           log({ ...sl, message: `#FromUpdateManager(${this.name}): ${sl.message}` });
         }

@@ -104,7 +104,7 @@ import { getSemanticTokens } from "./classify.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
-import { Commands, DebugAreas, isDebugEnabled } from "./constants.js";
+import { Commands, debugLoggers } from "./constants.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
@@ -1413,7 +1413,7 @@ export function createServer(
   }
 
   function logCompileConfig(logMessage: ServerLog) {
-    if (isDebugEnabled(DebugAreas.COMPILE_CONFIG)) {
+    if (debugLoggers.compileConfig.enabled) {
       log(logMessage);
     }
   }

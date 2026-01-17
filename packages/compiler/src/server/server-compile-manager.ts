@@ -9,7 +9,7 @@ import {
   ServerLog,
 } from "../index.js";
 import { getEnvironmentVariable } from "../utils/misc.js";
-import { DebugAreas, isDebugEnabled } from "./constants.js";
+import { debugLoggers } from "./constants.js";
 import { trackActionFunc } from "./server-track-action-task.js";
 import { UpdateManager } from "./update-manager.js";
 
@@ -45,7 +45,8 @@ export class ServerCompileManager {
     private compilerHost: CompilerHost,
     private log: (log: ServerLog) => void,
   ) {
-    this.logDebug = isDebugEnabled(DebugAreas.SERVER_COMPILE)
+    const debug = debugLoggers.serverCompile;
+    this.logDebug = debug.enabled
       ? (msg) => this.log({ level: "debug", message: msg })
       : () => {};
   }
