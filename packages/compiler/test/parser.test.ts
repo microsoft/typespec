@@ -1091,6 +1091,82 @@ describe("compiler: parser", () => {
         strictEqual(comments[0].parsedAsDocs, true);
       });
 
+      it("mark used block comment with parsedAsDocs at operation", () => {
+        const script = parse(
+          `
+        op foo(): /** One-liner */ |
+        { bar: string };
+      `,
+          { docs: true, comments: true },
+        );
+        const comments = script.comments;
+        strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+        strictEqual(comments[0].parsedAsDocs, true);
+      });
+
+      describe("mark used block comment with parsedAsDocs at union", () => {
+        parseEach(
+          [
+            [
+              `
+                op foo(): | /** First-union */  
+                { bar: string } | /** Second-union */ { baz: string };
+              `,
+              (script) => {
+                const comments = script.comments;
+                strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+                strictEqual(comments[0].parsedAsDocs, true);
+                strictEqual(comments[1].kind, SyntaxKind.BlockComment);
+                strictEqual(comments[1].parsedAsDocs, true);
+              },
+            ],
+            [
+              `
+              alias MyResponse = /** First-union */ { bar: string } | /** Second-union */ { baz: string };
+              op foo(): MyResponse;
+              `,
+              (script) => {
+                const comments = script.comments;
+                strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+                strictEqual(comments[0].parsedAsDocs, true);
+                strictEqual(comments[1].kind, SyntaxKind.BlockComment);
+                strictEqual(comments[1].parsedAsDocs, true);
+              },
+            ],
+            [
+              `
+              model Second { baz: string };
+              union MyResponse { /** First-union */ { bar: string }; /** Second-union */ Second; };
+              op foo(): MyResponse;
+              `,
+              (script) => {
+                const comments = script.comments;
+                strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+                strictEqual(comments[0].parsedAsDocs, true);
+                strictEqual(comments[1].kind, SyntaxKind.BlockComment);
+                strictEqual(comments[1].parsedAsDocs, true);
+              },
+            ],
+            [
+              `
+              /** This is Second model */
+              model Second { baz: string };
+              union MyResponse { /** First-union */ { bar: string }; /** Second-union */ Second; };
+              op foo(): /** Override MyResponse union */ MyResponse | /** Override third-union */ { qux: string };
+              `,
+              (script) => {
+                const comments = script.comments;
+                strictEqual(comments[0].kind, SyntaxKind.BlockComment);
+                strictEqual(comments[0].parsedAsDocs, true);
+                strictEqual(comments[1].kind, SyntaxKind.BlockComment);
+                strictEqual(comments[1].parsedAsDocs, true);
+              },
+            ],
+          ],
+          { docs: true, comments: true },
+        );
+      });
+
       it("other comments are not marked with parsedAsDocs", () => {
         const script = parse(
           `
