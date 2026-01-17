@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace _Type._Enum.Fixed
 {
-    public partial class TypeEnumFixedContext : ModelReaderWriterContext
+    public partial class _Type_EnumFixedContext : ModelReaderWriterContext
     {
     }
 }

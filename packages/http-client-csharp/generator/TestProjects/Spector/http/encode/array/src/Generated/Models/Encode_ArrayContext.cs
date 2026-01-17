@@ -10,7 +10,7 @@ namespace Encode._Array
     [ModelReaderWriterBuildable(typeof(NewlineDelimitedArrayProperty))]
     [ModelReaderWriterBuildable(typeof(PipeDelimitedArrayProperty))]
     [ModelReaderWriterBuildable(typeof(SpaceDelimitedArrayProperty))]
-    public partial class EncodeArrayContext : ModelReaderWriterContext
+    public partial class Encode_ArrayContext : ModelReaderWriterContext
     {
     }
 }

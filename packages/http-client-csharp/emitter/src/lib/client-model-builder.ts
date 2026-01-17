@@ -47,8 +47,6 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   fixNamingConflicts(models, constants);
 
   const clientModel: CodeModel = {
-    // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
-    // if the typespec is changed.
     name: getClientNamespaceString(sdkContext)!,
     apiVersions: rootApiVersions,
     enums: enums,

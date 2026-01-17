@@ -140,15 +140,21 @@ export async function execAsync(
 
 export function getClientNamespaceString(context: CSharpEmitterContext): string | undefined {
   return getClientNamespaceStringHelper(
+    // namespace is not a public emitter option, but it is supported by TCGC
+    (context.emitContext.options as any).namespace,
     context.emitContext.options["package-name"],
     listAllServiceNamespaces(context)[0],
   );
 }
 
 export function getClientNamespaceStringHelper(
+  namespaceOverride?: string,
   packageName?: string,
   namespace?: Namespace,
 ): string | undefined {
+  if (namespaceOverride) {
+    return namespaceOverride;
+  }
   if (packageName) {
     packageName = packageName
       .replace(/-/g, ".")

@@ -6,7 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace _Type._Enum.Extensible
 {
-    public partial class TypeEnumExtensibleContext : ModelReaderWriterContext
+    public partial class _Type_EnumExtensibleContext : ModelReaderWriterContext
     {
     }
 }

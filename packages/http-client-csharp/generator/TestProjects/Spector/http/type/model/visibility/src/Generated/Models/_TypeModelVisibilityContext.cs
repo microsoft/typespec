@@ -8,7 +8,7 @@ namespace _Type.Model.Visibility
 {
     [ModelReaderWriterBuildable(typeof(ReadOnlyModel))]
     [ModelReaderWriterBuildable(typeof(VisibilityModel))]
-    public partial class TypeModelVisibilityContext : ModelReaderWriterContext
+    public partial class _TypeModelVisibilityContext : ModelReaderWriterContext
     {
     }
 }

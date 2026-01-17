@@ -8,7 +8,7 @@ namespace _Type.Union.Discriminated
 {
     [ModelReaderWriterBuildable(typeof(Cat))]
     [ModelReaderWriterBuildable(typeof(Dog))]
-    public partial class TypeUnionDiscriminatedContext : ModelReaderWriterContext
+    public partial class _TypeUnionDiscriminatedContext : ModelReaderWriterContext
     {
     }
 }
