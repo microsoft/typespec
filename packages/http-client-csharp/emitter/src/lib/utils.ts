@@ -144,22 +144,31 @@ export function getClientNamespaceString(context: CSharpEmitterContext): string 
   const packageName = context.emitContext.options["package-name"];
   const serviceNamespaces = listAllServiceNamespaces(context);
   const firstNamespace = serviceNamespaces.length > 0 ? serviceNamespaces[0] : undefined;
+  // namespace is not a public emitter option, but it is supported by TCGC
+  const namespaceOverride = (context.emitContext.options as any).namespace;
 
   if (packageName) {
-    return getClientNamespaceStringHelper(packageName, firstNamespace);
+    return getClientNamespaceStringHelper(namespaceOverride, packageName, firstNamespace);
   }
 
   if (containsMultiServiceClient(context.sdkPackage.clients)) {
-    return getClientNamespaceStringHelper(context.sdkPackage.clients[0].namespace);
+    return getClientNamespaceStringHelper(
+      namespaceOverride,
+      context.sdkPackage.clients[0].namespace,
+    );
   }
 
-  return getClientNamespaceStringHelper(undefined, firstNamespace);
+  return getClientNamespaceStringHelper(namespaceOverride, undefined, firstNamespace);
 }
 
 export function getClientNamespaceStringHelper(
+  namespaceOverride?: string,
   packageName?: string,
   namespace?: Namespace,
 ): string | undefined {
+  if (namespaceOverride) {
+    return namespaceOverride;
+  }
   if (packageName) {
     packageName = packageName
       .replace(/-/g, ".")

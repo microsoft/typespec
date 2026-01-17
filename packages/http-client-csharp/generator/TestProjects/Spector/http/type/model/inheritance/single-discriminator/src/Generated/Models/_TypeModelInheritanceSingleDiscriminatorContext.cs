@@ -15,7 +15,7 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
     [ModelReaderWriterBuildable(typeof(TRex))]
     [ModelReaderWriterBuildable(typeof(UnknownBird))]
     [ModelReaderWriterBuildable(typeof(UnknownDinosaur))]
-    public partial class TypeModelInheritanceSingleDiscriminatorContext : ModelReaderWriterContext
+    public partial class _TypeModelInheritanceSingleDiscriminatorContext : ModelReaderWriterContext
     {
     }
 }

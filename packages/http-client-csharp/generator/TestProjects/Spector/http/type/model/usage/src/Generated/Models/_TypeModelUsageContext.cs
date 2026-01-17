@@ -9,7 +9,7 @@ namespace _Type.Model.Usage
     [ModelReaderWriterBuildable(typeof(InputOutputRecord))]
     [ModelReaderWriterBuildable(typeof(InputRecord))]
     [ModelReaderWriterBuildable(typeof(OutputRecord))]
-    public partial class TypeModelUsageContext : ModelReaderWriterContext
+    public partial class _TypeModelUsageContext : ModelReaderWriterContext
     {
     }
 }
