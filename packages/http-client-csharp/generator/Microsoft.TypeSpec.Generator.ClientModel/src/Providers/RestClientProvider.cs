@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
+        private const string MaxPageSizeParameterName = "maxpagesize";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -222,7 +223,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (reinjectedParamsMap.Count > 0)
                 {
-                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
+                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap, isNextLinkRequest: true));
                 }
             }
             else
@@ -417,7 +418,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -426,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
                     continue;
 
-                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation);
+                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation, isNextLinkRequest);
                 if (queryStatement != null)
                 {
                     statements.Add(queryStatement);
@@ -440,7 +441,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
             Dictionary<string, ParameterProvider> paramMap,
-            InputOperation operation)
+            InputOperation operation,
+            bool isNextLinkRequest = false)
         {
             GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var serializationFormat, out var valueExpression);
             if (valueExpression == null)
@@ -448,7 +450,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
+            MethodBodyStatement statement;
+
+            // Special handling for reinjected parameters (currently just maxpagesize)
+            if (isNextLinkRequest && ShouldSkipReinjectedParameter(inputQueryParameter.SerializedName))
+            {
+                statement = BuildUpdateOrAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
+            }
+            else
+            {
+                statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
+            }
 
             // Apply null check if needed
             if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
@@ -460,6 +472,73 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statement;
         }
 
+        private static MethodBodyStatement BuildUpdateOrAppendQueryStatement(
+            ScopedApi uri,
+            InputQueryParameter inputQueryParameter,
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            SerializationFormat? serializationFormat)
+        {
+            if (paramType?.IsCollection == true)
+            {
+                return BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
+            }
+
+            var toStringExpression = paramType?.Equals(typeof(string)) == true
+                ? valueExpression
+                : GetParameterValueExpression(valueExpression, serializationFormat);
+
+            var parameterName = inputQueryParameter.SerializedName;
+            var currentQuery = uri.Property("Query");
+            var parameterExists = currentQuery.Invoke("Contains", Literal($"{parameterName}="));
+
+            var updateStatements = BuildUpdateExistingParameterStatements(uri, parameterName, toStringExpression);
+
+            var appendStatement = uri.AppendQuery(Literal(parameterName), toStringExpression, true).Terminate();
+
+            return new IfElseStatement(
+                parameterExists,
+                updateStatements,
+                appendStatement
+            );
+        }
+
+        private static MethodBodyStatement[] BuildUpdateExistingParameterStatements(
+            ScopedApi uri,
+            string parameterName,
+            ValueExpression newValue)
+        {
+            var currentQueryVar = uri.Property("Query");
+            var searchPattern = $"{parameterName}=";
+            var parameterExistsCheck = currentQueryVar.Invoke("Contains", Literal($"{parameterName}="));
+
+            return new MethodBodyStatement[]
+            {
+                Declare("currentQuery", typeof(string), currentQueryVar, out var currentQuery),
+
+                Declare("paramIndex", typeof(int), currentQuery.Invoke("IndexOf", Literal(searchPattern)), out var paramIndex),
+
+                Declare("valueStartIndex", typeof(int), new BinaryOperatorExpression("+", paramIndex, Literal(searchPattern.Length)), out var valueStartIndex),
+
+                Declare("valueEndIndex", typeof(int), currentQuery.Invoke("IndexOf", Literal('&'), valueStartIndex), out var valueEndIndex),
+
+                new IfStatement(valueEndIndex.Equal(Literal(-1)))
+                {
+                    valueEndIndex.Assign(currentQuery.Property("Length")).Terminate()
+                },
+
+                Declare("newQuery", typeof(string),
+                    new BinaryOperatorExpression("+",
+                        new BinaryOperatorExpression("+",
+                            currentQuery.Invoke("Substring", Literal(0), valueStartIndex),
+                            newValue.As<string>()),
+                        currentQuery.Invoke("Substring", valueEndIndex)),
+                    out var newQuery),
+
+                currentQueryVar.Assign(newQuery).Terminate()
+            };
+        }
+
         private static MethodBodyStatement BuildAppendQueryStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
@@ -467,7 +546,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression valueExpression,
             SerializationFormat? serializationFormat)
         {
-            // Handle non-collection parameters
             if (paramType?.IsCollection != true)
             {
                 var toStringExpression = paramType?.Equals(typeof(string)) == true
@@ -800,6 +878,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             parameterProvider = null;
             return false;
+        }
+
+        private static bool ShouldSkipReinjectedParameter(string parameterName)
+        {
+            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase);
+            // In the future, we can extend this to check multiple parameters
         }
 
         private static List<int> GetSuccessStatusCodes(InputOperation operation)
