@@ -104,7 +104,7 @@ import { getSemanticTokens } from "./classify.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
-import { Commands } from "./constants.js";
+import { Commands, debugLoggers } from "./constants.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
@@ -1138,7 +1138,7 @@ export function createServer(
           compilerHost,
           emitterProvider,
           linterProvider,
-          log,
+          log: logCompileConfig,
         });
         return CompletionList.create(items);
       }
@@ -1410,6 +1410,12 @@ export function createServer(
 
     pendingMessages = [];
     host.log(log);
+  }
+
+  function logCompileConfig(logMessage: ServerLog) {
+    if (debugLoggers.compileConfig.enabled) {
+      log(logMessage);
+    }
   }
 
   function sendDiagnostics(document: TextDocument, diagnostics: VSDiagnostic[]) {

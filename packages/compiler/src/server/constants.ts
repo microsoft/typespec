@@ -1,4 +1,5 @@
 import { CompilerOptions } from "../core/options.js";
+import createDebug from "debug";
 
 export const serverOptions: CompilerOptions = {
   dryRun: true,
@@ -14,7 +15,16 @@ export const Commands = {
 };
 
 /**
- * Environment variables to enable some logging when needed
+ * Debug loggers for different areas. Can be enabled via DEBUG environment variable.
+ * Usage: DEBUG=typespec:server_compile,typespec:compile_config
+ * 
+ * Examples:
+ *   DEBUG=typespec:server_compile      - Enable server compilation debug logs
+ *   DEBUG=typespec:*                   - Enable all typespec debug logs
+ *   DEBUG=typespec:server_compile,typespec:compile_config - Enable multiple areas
  */
-export const ENABLE_SERVER_COMPILE_LOGGING = "ENABLE_SERVER_COMPILE_LOGGING";
-export const ENABLE_UPDATE_MANAGER_LOGGING = "ENABLE_UPDATE_MANAGER_LOGGING";
+export const debugLoggers = {
+  serverCompile: createDebug("typespec:server_compile"),
+  updateManager: createDebug("typespec:update_manager"),
+  compileConfig: createDebug("typespec:compile_config"),
+} as const;

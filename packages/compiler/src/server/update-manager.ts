@@ -1,7 +1,7 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getEnvironmentVariable } from "../utils/misc.js";
-import { ENABLE_UPDATE_MANAGER_LOGGING } from "./constants.js";
+import { debugLoggers } from "./constants.js";
 import { ServerLog } from "./types.js";
 
 interface PendingUpdate {
@@ -43,12 +43,12 @@ export class UpdateManager<T = void> {
     log: (sl: ServerLog) => void,
     getDebounceDelay?: () => number,
   ) {
-    this._log =
-      getEnvironmentVariable(ENABLE_UPDATE_MANAGER_LOGGING)?.toLowerCase() === "true"
-        ? (sl: ServerLog) => {
-            log({ ...sl, message: `#FromUpdateManager(${this.name}): ${sl.message}` });
-          }
-        : () => {};
+    const debug = debugLoggers.updateManager;
+    this._log = debug.enabled
+      ? (sl: ServerLog) => {
+          log({ ...sl, message: `#FromUpdateManager(${this.name}): ${sl.message}` });
+        }
+      : () => {};
 
     // Set the debounce delay function once during construction
     this.getDebounceDelay = getDebounceDelay ?? this.getAdaptiveDebounceDelay;

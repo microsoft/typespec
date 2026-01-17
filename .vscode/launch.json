@@ -141,8 +141,12 @@
         // Set the telemetry key environment variable to use if you dont want to set it in package.json
         //"TYPESPEC_VSCODE_TELEMETRY_KEY": "{The instrumentation key of your Application Insights}",
 
-        //"ENABLE_SERVER_COMPILE_LOGGING": "true",
-        //"ENABLE_UPDATE_MANAGER_LOGGING": "true",
+        // Enable debug logging for specific areas using DEBUG environment variable
+        // Examples:
+        //   "DEBUG": "typespec:server_compile"           - Enable server compilation debug logs
+        //   "DEBUG": "typespec:*"                        - Enable all typespec debug logs
+        //   "DEBUG": "typespec:server_compile,typespec:compile_config" - Enable multiple areas
+        //"DEBUG": "typespec:server_compile,typespec:update_manager,typespec:compile_config",
         //"ENABLE_LM_LOGGING": "true",
 
         "TYPESPEC_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
