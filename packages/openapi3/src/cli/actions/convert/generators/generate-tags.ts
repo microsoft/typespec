@@ -24,7 +24,7 @@ export function generateTags(tags: TypeSpecTagMetadata[]): string {
     const tagMetadata =
       description || externalDocs
         ? `, #{${[description, externalDocs].filter((x) => !!x).join(", ")}}`
-        : "";
+        : ", #{}";
     return `@tagMetadata("${tag.name}"${tagMetadata})`;
   });
 
