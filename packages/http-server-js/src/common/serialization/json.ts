@@ -64,7 +64,7 @@ export function requiresJsonSerialization(
 
   switch (type.kind) {
     case "Model": {
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
         requiresSerialization = requiresJsonSerialization(ctx, module, argumentType);
         break;
@@ -237,7 +237,7 @@ export function transposeExpressionToJson(
 ): string {
   switch (type.kind) {
     case "Model": {
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -245,7 +245,7 @@ export function transposeExpressionToJson(
         } else {
           return expr;
         }
-      } else if (isRecordModelType(ctx.program, type)) {
+      } else if (isRecordModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -480,7 +480,7 @@ export function transposeExpressionFromJson(
 ): string {
   switch (type.kind) {
     case "Model": {
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {
@@ -488,7 +488,7 @@ export function transposeExpressionFromJson(
         } else {
           return expr;
         }
-      } else if (isRecordModelType(ctx.program, type)) {
+      } else if (isRecordModelType(type)) {
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, module, argumentType)) {

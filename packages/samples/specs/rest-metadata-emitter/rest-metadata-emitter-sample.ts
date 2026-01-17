@@ -199,7 +199,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
           }
           break;
         case "Model":
-          if (isArrayModelType(program, type)) {
+          if (isArrayModelType(type)) {
             // When a model appears in an array, we add the special Item to include
             // all metadata in payload.
             visibility |= Visibility.Item;
@@ -232,7 +232,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
     ): string {
       const remarks: string[] = [];
 
-      if (property.type.kind === "Model" && isArrayModelType(program, property.type)) {
+      if (property.type.kind === "Model" && isArrayModelType(property.type)) {
         remarks.push("+Item on element visibility");
       }
 

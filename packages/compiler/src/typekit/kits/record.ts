@@ -39,7 +39,7 @@ defineKit<TypekitExtension>({
       return (
         type.entityKind === "Type" &&
         type.kind === "Model" &&
-        isRecordModelType(this.program, type) &&
+        isRecordModelType(type) &&
         type.properties.size === 0
       );
     },

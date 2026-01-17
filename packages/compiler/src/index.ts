@@ -284,6 +284,7 @@ export {
   type NavigationOptions,
 } from "./core/semantic-walker.js";
 export { createSourceFile, getSourceFileKindFromExt } from "./core/source-file.js";
+/* eslint-disable @typescript-eslint/no-deprecated -- exporting deprecated overloads for backward compatibility */
 export {
   isArrayModelType,
   isDeclaredInNamespace,
@@ -301,6 +302,7 @@ export {
   isValue,
   isVoidType,
 } from "./core/type-utils.js";
+/* eslint-enable @typescript-eslint/no-deprecated */
 export { ListenerFlow, NoTarget } from "./core/types.js";
 export type {
   ArrayModelType,

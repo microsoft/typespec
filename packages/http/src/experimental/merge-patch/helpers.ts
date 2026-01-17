@@ -56,7 +56,7 @@ export function getMergePatchProperties(
   function getUpdateBehavior(type: Type): "merge" | "replace" {
     switch (type.kind) {
       case "Model":
-        if (isArrayModelType(program, type)) return "merge";
+        if (isArrayModelType(type)) return "merge";
         return "replace";
       default:
         return "replace";

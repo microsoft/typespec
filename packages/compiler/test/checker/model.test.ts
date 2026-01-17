@@ -847,7 +847,7 @@ describe("compiler: models", () => {
         `,
       );
       const { A } = (await testHost.compile("main.tsp")) as { A: Model };
-      ok(isArrayModelType(testHost.program, A));
+      ok(isArrayModelType(A));
     });
 
     it("model is accept array expression of complex type", async () => {
@@ -859,7 +859,7 @@ describe("compiler: models", () => {
         `,
       );
       const { A } = (await testHost.compile("main.tsp")) as { A: Model };
-      ok(isArrayModelType(testHost.program, A));
+      ok(isArrayModelType(A));
       strictEqual(A.indexer.value.kind, "Union");
     });
 
@@ -1124,7 +1124,7 @@ describe("compiler: models", () => {
       const { Test } = (await testHost.compile("main.tsp")) as {
         Test: Model;
       };
-      ok(isRecordModelType(testHost.program, Test));
+      ok(isRecordModelType(Test));
       strictEqual(Test.indexer?.key.name, "string");
       strictEqual(Test.indexer?.value.kind, "Scalar");
       strictEqual(Test.indexer?.value.name, "int32");
@@ -1143,7 +1143,7 @@ describe("compiler: models", () => {
       const { Test } = (await testHost.compile("main.tsp")) as {
         Test: Model;
       };
-      ok(isRecordModelType(testHost.program, Test));
+      ok(isRecordModelType(Test));
       const nameProp = Test.properties.get("name");
       strictEqual(nameProp?.type.kind, "Scalar");
       strictEqual(nameProp?.type.name, "string");
@@ -1165,7 +1165,7 @@ describe("compiler: models", () => {
       const { Test } = (await testHost.compile("main.tsp")) as {
         Test: Model;
       };
-      ok(isRecordModelType(testHost.program, Test));
+      ok(isRecordModelType(Test));
       strictEqual(Test.indexer?.key.name, "string");
       const indexerValue = Test.indexer?.value;
       strictEqual(indexerValue.kind, "Union");
