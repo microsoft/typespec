@@ -16,6 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string crossLanguageDefinitionId,
             string? summary,
             string? doc,
+            bool isMultiServiceClient,
             IReadOnlyList<InputServiceMethod> methods,
             IReadOnlyList<InputParameter> parameters,
             InputClient? parent,
@@ -34,13 +35,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             ApiVersions = apiVersions ?? [];
         }
 
-        public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Array.Empty<InputServiceMethod>(), Array.Empty<InputParameter>(), null, null, null) { }
+        public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, false, Array.Empty<InputServiceMethod>(), Array.Empty<InputParameter>(), null, null, null) { }
 
         public string Name { get; internal set; }
         public string Namespace { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
+        public bool IsMultiServiceClient { get; internal set; }
         public IReadOnlyList<InputServiceMethod> Methods { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public InputClientInitializedBy InitializedBy { get; internal set; }
@@ -74,6 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? crossLanguageDefinitionId = null,
             string? summary = null,
             string? doc = null,
+            bool? isMultiServiceClient = null,
             IEnumerable<InputServiceMethod>? methods = null,
             IEnumerable<InputParameter>? parameters = null,
             InputClient? parent = null,
@@ -103,6 +106,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (doc != null)
             {
                 Doc = doc;
+            }
+
+            if (isMultiServiceClient != null)
+            {
+                IsMultiServiceClient = isMultiServiceClient.Value;
             }
 
             if (methods != null)

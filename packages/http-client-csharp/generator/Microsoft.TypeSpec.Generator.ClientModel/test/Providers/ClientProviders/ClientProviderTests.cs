@@ -197,7 +197,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCaseSource(nameof(BuildOAuth2FlowsFieldTestCases))]
         public void TestBuildOAuth2FlowsField(IEnumerable<InputOAuth2Flow> inputFlows)
         {
-            var oauth2Auth = new InputOAuth2Auth([ ..inputFlows]);
+            var oauth2Auth = new InputOAuth2Auth([.. inputFlows]);
             Func<InputAuth>? inputAuth = () => new InputAuth(null, oauth2Auth);
             MockHelpers.LoadMockGenerator(auth: inputAuth);
 
@@ -1287,7 +1287,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void ClientProviderSummaryIsPopulatedWithDefaultDocs()
         {
             var mockGenerator = MockHelpers.LoadMockGenerator(
-                clients: () => [new InputClient("testClient", @namespace: "test", string.Empty, null, null, [], [], null, null, null)]);
+                clients: () => [new InputClient("testClient", @namespace: "test", string.Empty, null, null, false, [], [], null, null, null)]);
 
             var client = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
             Assert.IsNotNull(client);
@@ -2759,7 +2759,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // - operation.Uri = "{endpoint}/contentsafety" (same as server template, no additional segments)
             // - operation.Path = "/text:analyze" (actual operation path)
             // Expected: Should append both the base path from server template and the operation path
-            
+
             MockHelpers.LoadMockGenerator();
 
             var serverTemplate = "{endpoint}/contentsafety";
@@ -2783,7 +2783,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var fullText = string.Join("\n", bodyText);
 
             var contentsafetyCount = System.Text.RegularExpressions.Regex.Matches(fullText, "contentsafety", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
-        
+
             var analyzeTextCount = System.Text.RegularExpressions.Regex.Matches(fullText, "text:analyze", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
 
             Assert.AreEqual(1, contentsafetyCount, "Should append /contentsafety path segment from Uri (after endpoint)");
@@ -2798,7 +2798,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // - operation.Uri = "{endpoint}/{apiVersion}" (path parameter in Uri)
             // - operation.Path = "/users/{userId}" (actual operation path with its own parameter)
             // Expected: Should append apiVersion parameter and then the operation path
-            
+
             MockHelpers.LoadMockGenerator();
 
             var serverTemplate = "{endpoint}/{apiVersion}";
@@ -2825,12 +2825,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var bodyText = methodBody.Select(s => s.ToDisplayString()).ToArray();
             var fullText = string.Join("\n", bodyText);
 
-            Assert.IsTrue(fullText.Contains("AppendPath(") && fullText.Contains("apiVersion"), 
+            Assert.IsTrue(fullText.Contains("AppendPath(") && fullText.Contains("apiVersion"),
                 "Should append apiVersion path parameter from Uri");
-            
-            Assert.IsTrue(fullText.Contains("/users/"), 
+
+            Assert.IsTrue(fullText.Contains("/users/"),
                 "Should append the operation path /users/");
-            Assert.IsTrue(fullText.Contains("userId"), 
+            Assert.IsTrue(fullText.Contains("userId"),
                 "Should append userId path parameter from operation path");
         }
 
@@ -2842,7 +2842,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // - operation.Uri = "{endpoint}/v1/services" (multiple static segments after endpoint)
             // - operation.Path = "/operations/{operationId}"
             // Expected: Should append /v1/services and then the operation path
-            
+
             MockHelpers.LoadMockGenerator();
 
             var serverTemplate = "{endpoint}/v1/services";
@@ -2869,12 +2869,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var fullText = string.Join("\n", bodyText);
 
             // Should append /v1/services from Uri
-            Assert.IsTrue(fullText.Contains("/v1/services"), 
+            Assert.IsTrue(fullText.Contains("/v1/services"),
                 "Should append server template path segments /v1/services");
-            
-            Assert.IsTrue(fullText.Contains("/operations/"), 
+
+            Assert.IsTrue(fullText.Contains("/operations/"),
                 "Should append the operation path /operations/");
-            Assert.IsTrue(fullText.Contains("operationId"), 
+            Assert.IsTrue(fullText.Contains("operationId"),
                 "Should append operationId path parameter");
         }
 
@@ -2886,7 +2886,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // - operation.Uri = "{endpoint}" (same as server template)
             // - operation.Path = "/items"
             // Expected: Should only append the operation path
-            
+
             MockHelpers.LoadMockGenerator();
 
             var serverTemplate = "{endpoint}";
@@ -2910,10 +2910,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var fullText = string.Join("\n", bodyText);
 
             var appendPathCount = System.Text.RegularExpressions.Regex.Matches(fullText, "AppendPath\\(").Count;
-            
-            Assert.GreaterOrEqual(appendPathCount, 1, 
+
+            Assert.GreaterOrEqual(appendPathCount, 1,
                 "Should have at least one AppendPath call for the operation path");
-            Assert.IsTrue(fullText.Contains("/items"), 
+            Assert.IsTrue(fullText.Contains("/items"),
                 "Should append the operation path /items");
         }
     }
