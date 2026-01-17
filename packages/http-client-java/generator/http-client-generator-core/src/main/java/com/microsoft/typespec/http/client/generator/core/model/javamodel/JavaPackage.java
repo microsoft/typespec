@@ -382,7 +382,8 @@ public class JavaPackage {
         }
 
         // TODO(weidxu): remove in future, when "apiview_properties.json" file is not needed
-        filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_apiview_properties.json";
+        filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_apiview_properties"
+            + (suffix == null ? "" : "_" + suffix) + ".json";
         if (!CoreUtils.isNullOrEmpty(typeSpecMetadata.getCrossLanguageDefinitions())) {
             String flavor = typeSpecMetadata.getFlavor();
             StringBuilder sb
