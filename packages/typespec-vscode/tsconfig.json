@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "references": [{ "path": "../tmlanguage-generator/tsconfig.json" }],
+  "references": [{ "path": "../tmlanguage-generator/tsconfig.build.json" }],
   "compilerOptions": {
     "incremental": false,
     "composite": false,
