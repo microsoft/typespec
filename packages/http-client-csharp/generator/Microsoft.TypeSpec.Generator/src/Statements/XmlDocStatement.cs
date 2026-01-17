@@ -208,11 +208,40 @@ namespace Microsoft.TypeSpec.Generator.Statements
         private static bool SkipValidTag(ref ReadOnlySpan<char> span, ref int i)
         {
             var slice = span.Slice(i);
+            // Check for <see> tags
             if (slice.StartsWith(SeeCrefStart.AsSpan(), StringComparison.Ordinal) || slice.StartsWith(SeeCrefEnd.AsSpan(), StringComparison.Ordinal))
             {
                 i += slice.IndexOf('>');
                 return true;
             }
+
+            // Check for markdown-converted XML tags
+            // Bold: <b>, </b>
+            if (slice.StartsWith("<b>".AsSpan(), StringComparison.Ordinal) || slice.StartsWith("</b>".AsSpan(), StringComparison.Ordinal))
+            {
+                i += slice.IndexOf('>');
+                return true;
+            }
+
+            // Italic: <i>, </i>
+            if (slice.StartsWith("<i>".AsSpan(), StringComparison.Ordinal) || slice.StartsWith("</i>".AsSpan(), StringComparison.Ordinal))
+            {
+                i += slice.IndexOf('>');
+                return true;
+            }
+
+            // List and related tags: <list, <item, <description, and their closing tags
+            if (slice.StartsWith("<list ".AsSpan(), StringComparison.Ordinal) ||
+                slice.StartsWith("</list>".AsSpan(), StringComparison.Ordinal) ||
+                slice.StartsWith("<item>".AsSpan(), StringComparison.Ordinal) ||
+                slice.StartsWith("</item>".AsSpan(), StringComparison.Ordinal) ||
+                slice.StartsWith("<description>".AsSpan(), StringComparison.Ordinal) ||
+                slice.StartsWith("</description>".AsSpan(), StringComparison.Ordinal))
+            {
+                i += slice.IndexOf('>');
+                return true;
+            }
+
             return false;
         }
 
