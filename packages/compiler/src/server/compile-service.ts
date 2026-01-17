@@ -15,11 +15,11 @@ import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
-import { deepClone, distinctArray, getEnvironmentVariable } from "../utils/misc.js";
+import { deepClone, distinctArray } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
-import { ENABLE_COMPILE_CONFIG_LOGGING, serverOptions } from "./constants.js";
+import { DebugAreas, isDebugEnabled, serverOptions } from "./constants.js";
 import { resolveEntrypointFile } from "./entrypoint-resolver.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
@@ -90,10 +90,7 @@ export function createCompileService({
   const eventListeners = new Map<string, (...args: unknown[]) => void | Promise<void>>();
   const compileManager = new ServerCompileManager(updateManager, compilerHost, log);
   let configFilePath: string | undefined;
-  const logDebug =
-    getEnvironmentVariable(ENABLE_COMPILE_CONFIG_LOGGING)?.toLowerCase() === "true"
-      ? log
-      : () => {};
+  const logDebug = isDebugEnabled(DebugAreas.COMPILE_CONFIG) ? log : () => {};
 
   return { compile, getScript, on, notifyChange, getMainFileForDocument };
 

@@ -99,12 +99,12 @@ import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
 import { resolveModule, ResolveModuleHost } from "../module-resolver/index.js";
 import { listAllFilesInDir } from "../utils/fs-utils.js";
-import { getEnvironmentVariable, getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
+import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
-import { Commands, ENABLE_COMPILE_CONFIG_LOGGING } from "./constants.js";
+import { Commands, DebugAreas, isDebugEnabled } from "./constants.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
@@ -1413,7 +1413,7 @@ export function createServer(
   }
 
   function logCompileConfig(logMessage: ServerLog) {
-    if (getEnvironmentVariable(ENABLE_COMPILE_CONFIG_LOGGING)?.toLowerCase() === "true") {
+    if (isDebugEnabled(DebugAreas.COMPILE_CONFIG)) {
       log(logMessage);
     }
   }
