@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string AppendQueryDelimitedMethodName = "AppendQueryDelimited";
         private const string AppendPathDelimitedMethodName = "AppendPathDelimited";
         private const string AppendPathMethodName = "AppendPath";
+        private const string UpdateQueryMethodName = "UpdateQuery";
 
         private readonly FieldProvider _uriBuilderField;
         private readonly FieldProvider _pathAndQueryField;
@@ -100,6 +101,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             methods.AddRange(BuildAppendPathDelimitedMethods());
             methods.AddRange(BuildAppendQueryMethods());
             methods.AddRange(BuildAppendQueryDelimitedMethods());
+            methods.Add(BuildUpdateQueryMethod());
             methods.Add(BuildToUriMethod());
 
             return methods.ToArray();
@@ -331,6 +333,73 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : new InvokeMethodExpression(null, appendMethodName, [StringSnippets.Join(delimiterParameter, stringValues), escapeParameter])
                     .Terminate()
             };
+            return new(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildUpdateQueryMethod()
+        {
+            var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
+            var valueParameter = new ParameterProvider("value", $"The value.", typeof(string));
+
+            var signature = new MethodSignature(
+                Name: UpdateQueryMethodName,
+                Modifiers: MethodSignatureModifiers.Public,
+                Parameters: [nameParameter, valueParameter],
+                ReturnType: null,
+                Description: null, ReturnDescription: null);
+
+            var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
+            var pathLength = (ValueExpression)_pathLengthField;
+
+            var body = new MethodBodyStatement[]
+            {
+                MethodBodyStatement.Empty,
+                // Check if we have any query string
+                new IfStatement(stringBuilder.Length().Equal(pathLength))
+                {
+                    // No query string exists, append the parameter
+                    stringBuilder.Append(Literal('?')).Terminate(),
+                    stringBuilder.Append(nameParameter).Terminate(),
+                    stringBuilder.Append(Literal('=')).Terminate(),
+                    stringBuilder.Append(valueParameter).Terminate()
+                },
+                new IfElseStatement(
+                    // Check if parameter already exists in query string
+                    stringBuilder.Invoke("ToString").Invoke("Contains", new BinaryOperatorExpression("+", nameParameter, Literal("="))),
+                    // Update existing parameter
+                    new MethodBodyStatement[]
+                    {
+                        Declare("currentQuery", typeof(string), stringBuilder.Invoke("ToString", [new BinaryOperatorExpression("+", pathLength, Int(1)), new BinaryOperatorExpression("-", new BinaryOperatorExpression("-", stringBuilder.Length(), pathLength), Int(1))]), out var currentQuery),
+                        Declare("searchPattern", typeof(string), new BinaryOperatorExpression("+", nameParameter, Literal("=")), out var searchPattern),
+                        Declare("paramIndex", typeof(int), currentQuery.Invoke("IndexOf", searchPattern), out var paramIndex),
+                        Declare("valueStartIndex", typeof(int), new BinaryOperatorExpression("+", paramIndex, searchPattern.Property("Length")), out var valueStartIndex),
+                        Declare("valueEndIndex", typeof(int), currentQuery.Invoke("IndexOf", Literal('&'), valueStartIndex), out var valueEndIndex),
+                        new IfStatement(valueEndIndex.Equal(Literal(-1)))
+                        {
+                            valueEndIndex.Assign(currentQuery.Property("Length")).Terminate()
+                        },
+                        Declare("newQuery", typeof(string),
+                            new BinaryOperatorExpression("+",
+                                new BinaryOperatorExpression("+",
+                                    currentQuery.Invoke("Substring", Literal(0), valueStartIndex),
+                                    valueParameter),
+                                currentQuery.Invoke("Substring", valueEndIndex)),
+                            out var newQuery),
+                        // Replace the query portion in the StringBuilder
+                        stringBuilder.Remove(new BinaryOperatorExpression("+", pathLength, Int(1)), new BinaryOperatorExpression("-", new BinaryOperatorExpression("-", stringBuilder.Length(), pathLength), Int(1))).Terminate(),
+                        stringBuilder.Append(newQuery).Terminate()
+                    },
+                    // Append new parameter
+                    new MethodBodyStatement[]
+                    {
+                        stringBuilder.Append(Literal('&')).Terminate(),
+                        stringBuilder.Append(nameParameter).Terminate(),
+                        stringBuilder.Append(Literal('=')).Terminate(),
+                        stringBuilder.Append(valueParameter).Terminate()
+                    }
+                )
+            };
+
             return new(signature, body, this, XmlDocProvider.Empty);
         }
 

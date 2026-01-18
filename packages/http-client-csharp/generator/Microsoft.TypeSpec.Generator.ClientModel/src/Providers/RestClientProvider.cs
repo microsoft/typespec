@@ -450,17 +450,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            MethodBodyStatement statement;
+            // Determine if we should update existing parameters or always append
+            bool shouldUpdateExisting = isNextLinkRequest &&
+                                      ShouldSkipReinjectedParameter(inputQueryParameter.SerializedName) &&
+                                      paramType?.IsCollection != true;
 
-            // Special handling for reinjected parameters (currently just maxpagesize)
-            if (isNextLinkRequest && ShouldSkipReinjectedParameter(inputQueryParameter.SerializedName))
-            {
-                statement = BuildUpdateOrAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
-            }
-            else
-            {
-                statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
-            }
+            MethodBodyStatement statement = shouldUpdateExisting
+                ? BuildUpdateQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat)
+                : BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
 
             // Apply null check if needed
             if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
@@ -472,71 +469,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statement;
         }
 
-        private static MethodBodyStatement BuildUpdateOrAppendQueryStatement(
+        private static MethodBodyStatement BuildUpdateQueryStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
             CSharpType? paramType,
             ValueExpression valueExpression,
             SerializationFormat? serializationFormat)
         {
-            if (paramType?.IsCollection == true)
-            {
-                return BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
-            }
-
             var toStringExpression = paramType?.Equals(typeof(string)) == true
                 ? valueExpression
                 : GetParameterValueExpression(valueExpression, serializationFormat);
 
             var parameterName = inputQueryParameter.SerializedName;
-            var currentQuery = uri.Property("Query");
-            var parameterExists = currentQuery.Invoke("Contains", Literal($"{parameterName}="));
 
-            var updateStatements = BuildUpdateExistingParameterStatements(uri, parameterName, toStringExpression);
-
-            var appendStatement = uri.AppendQuery(Literal(parameterName), toStringExpression, true).Terminate();
-
-            return new IfElseStatement(
-                parameterExists,
-                updateStatements,
-                appendStatement
-            );
-        }
-
-        private static MethodBodyStatement[] BuildUpdateExistingParameterStatements(
-            ScopedApi uri,
-            string parameterName,
-            ValueExpression newValue)
-        {
-            var currentQueryVar = uri.Property("Query");
-            var searchPattern = $"{parameterName}=";
-            var parameterExistsCheck = currentQueryVar.Invoke("Contains", Literal($"{parameterName}="));
-
-            return new MethodBodyStatement[]
-            {
-                Declare("currentQuery", typeof(string), currentQueryVar, out var currentQuery),
-
-                Declare("paramIndex", typeof(int), currentQuery.Invoke("IndexOf", Literal(searchPattern)), out var paramIndex),
-
-                Declare("valueStartIndex", typeof(int), new BinaryOperatorExpression("+", paramIndex, Literal(searchPattern.Length)), out var valueStartIndex),
-
-                Declare("valueEndIndex", typeof(int), currentQuery.Invoke("IndexOf", Literal('&'), valueStartIndex), out var valueEndIndex),
-
-                new IfStatement(valueEndIndex.Equal(Literal(-1)))
-                {
-                    valueEndIndex.Assign(currentQuery.Property("Length")).Terminate()
-                },
-
-                Declare("newQuery", typeof(string),
-                    new BinaryOperatorExpression("+",
-                        new BinaryOperatorExpression("+",
-                            currentQuery.Invoke("Substring", Literal(0), valueStartIndex),
-                            newValue.As<string>()),
-                        currentQuery.Invoke("Substring", valueEndIndex)),
-                    out var newQuery),
-
-                currentQueryVar.Assign(newQuery).Terminate()
-            };
+            return uri.UpdateQuery(Literal(parameterName), toStringExpression).Terminate();
         }
 
         private static MethodBodyStatement BuildAppendQueryStatement(
