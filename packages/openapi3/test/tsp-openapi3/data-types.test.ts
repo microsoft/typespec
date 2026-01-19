@@ -111,6 +111,23 @@ describe("converts top-level schemas", () => {
     ]);
   });
 
+  it("handles string with duration format as duration without @encode decorator", async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      schemas: {
+        DurationString: {
+          type: "string",
+          format: "duration",
+        },
+      },
+    });
+
+    const scalars = serviceNamespace.scalars;
+    /* scalar DurationString extends duration; */
+    expect(scalars.get("DurationString")?.baseScalar?.name).toBe("duration");
+    // Should have no encode decorator for string type with duration format
+    expect(scalars.get("DurationString")!.decorators.length).toBe(0);
+  });
+
   it("handles arrays", async () => {
     const serviceNamespace = await tspForOpenAPI3({
       schemas: {
