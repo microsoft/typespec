@@ -1,19 +1,13 @@
 #nullable disable
 
+using System;
+
 namespace Sample.Models
 {
-    // This test case shows a model inheriting from a type in a different namespace.
-    // ExternalNamespace.ExternalBaseType is defined in this file for compilation purposes.
-    public partial class MockInputModel : ExternalNamespace.ExternalBaseType
+    // This test case shows a model inheriting from a system type (System.Exception).
+    // This simulates inheriting from types like Azure.ResourceManager.TrackedResourceData
+    // which are from referenced assemblies.
+    public partial class MockInputModel : Exception
     {
-    }
-}
-
-namespace ExternalNamespace
-{
-    public class ExternalBaseType
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
     }
 }

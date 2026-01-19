@@ -1550,9 +1550,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanCustomizeBaseModelToSystemType()
         {
-            // This test verifies that a model can be customized to inherit from a type in a different namespace.
-            // Currently, since ExternalNamespace.ExternalBaseType is in the compilation, it uses NamedTypeSymbolProvider.
-            // TODO: Need to clarify how to test SystemObjectTypeProvider path where GetTypeByMetadataName returns null.
+            // This test verifies that a model can be customized to inherit from a system type
+            // (e.g., System.Exception) which simulates inheriting from types like
+            // Azure.ResourceManager.TrackedResourceData that are from referenced assemblies.
             var childModel = InputFactory.Model(
                 "mockInputModel",
                 properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
@@ -1564,19 +1564,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel") as ModelProvider;
 
-            // Should have customized base type
+            // Should have customized base type from system library
             Assert.IsNotNull(modelProvider);
             Assert.IsNotNull(modelProvider!.BaseType);
             Assert.IsNotNull(modelProvider.BaseTypeProvider);
-            Assert.AreEqual("ExternalBaseType", modelProvider.BaseType!.Name);
-            Assert.AreEqual("ExternalNamespace", modelProvider.BaseType!.Namespace);
+            Assert.AreEqual("Exception", modelProvider.BaseType!.Name);
+            Assert.AreEqual("System", modelProvider.BaseType!.Namespace);
 
             // The BaseModelProvider should be null since the base is not a generated model
             Assert.IsNull(modelProvider.BaseModelProvider);
 
-            // Currently uses NamedTypeSymbolProvider since the type is in the compilation
-            // SystemObjectTypeProvider testing requires clarification on test setup
-            Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider);
+            // System types from referenced assemblies are found via GetTypeByMetadataName
+            // because the test compilation includes system assembly references
+            Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider,
+                "System.Exception is found in the compilation and uses NamedTypeSymbolProvider");
         }
 
         private class TestNameVisitor : NameVisitor
