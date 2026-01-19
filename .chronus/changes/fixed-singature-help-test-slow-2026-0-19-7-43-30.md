@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fixed singature help test slow
+Fixed signature help test slow
