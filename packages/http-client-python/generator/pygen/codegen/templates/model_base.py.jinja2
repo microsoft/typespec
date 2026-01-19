@@ -848,17 +848,6 @@ def _deserialize_multiple_sequence(
     return type(obj)(_deserialize(deserializer, entry, module) for entry, deserializer in zip(obj, entry_deserializers))
 
 
-
-def _deserialize_multiple_sequence(
-    entry_deserializers: list[typing.Optional[typing.Callable]],
-    module: typing.Optional[str],
-    obj,
-):
-    if obj is None:
-        return obj
-    return type(obj)(_deserialize(deserializer, entry, module) for entry, deserializer in zip(obj, entry_deserializers))
-
-
 def _is_array_encoded_deserializer(deserializer: functools.partial) -> bool:
     return (
         isinstance(deserializer, functools.partial)
