@@ -309,6 +309,10 @@
     "vitest": "^4.0.15",
     "vscode-languageclient": "~9.0.1",
     "which": "^6.0.0",
-    "yaml": "~2.8.2"
+    "yaml": "~2.8.2",
+    "@types/debug": "~4.1.12"
+  },
+  "dependencies": {
+    "debug": "~4.4.0"
   }
 }
