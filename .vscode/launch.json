@@ -147,6 +147,8 @@
         //   "DEBUG": "typespec:*"                        - Enable all typespec debug logs
         //   "DEBUG": "typespec:server_compile,typespec:compile_config" - Enable multiple areas
         //"DEBUG": "typespec:server_compile,typespec:update_manager,typespec:compile_config",
+
+        // Enable Language Model logging (separate from DEBUG logging)
         //"ENABLE_LM_LOGGING": "true",
 
         "TYPESPEC_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
