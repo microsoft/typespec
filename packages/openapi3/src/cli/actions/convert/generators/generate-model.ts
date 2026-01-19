@@ -245,10 +245,12 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
       return "";
     }
 
-    const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref)! : member;
+    const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref) : member;
 
     const propertySchema =
-      memberSchema.properties && memberSchema.properties[union.schema.discriminator.propertyName];
+      memberSchema &&
+      memberSchema.properties &&
+      memberSchema.properties[union.schema.discriminator.propertyName];
     const value =
       (union.schema.discriminator?.mapping && "$ref" in member
         ? Object.entries(union.schema.discriminator.mapping).find((x) => x[1] === member.$ref)?.[0]
