@@ -3,7 +3,7 @@
 
 export { writeCodeModel } from "./code-model-writer.js";
 export { configurationFileName, tspOutputFileName } from "./constants.js";
-export { $onEmit } from "./emitter.js";
+export { $onEmit, createCodeModel, CreateCodeModelResult } from "./emitter.js";
 // we export `createModel` only for autorest.csharp because it uses the emitter to generate the code model file but not calling the dll here
 // we could remove this export when in the future we deprecate autorest.csharp
 export { createModel } from "./lib/client-model-builder.js";

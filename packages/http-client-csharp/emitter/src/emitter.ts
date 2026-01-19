@@ -3,6 +3,7 @@
 
 import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
 import {
+  Diagnostic,
   EmitContext,
   getDirectoryPath,
   joinPaths,
@@ -25,6 +26,7 @@ import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
+import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
@@ -48,6 +50,62 @@ function findProjectRoot(path: string): string | undefined {
 }
 
 /**
+ * Result type for createCodeModel function.
+ * @beta
+ */
+export interface CreateCodeModelResult {
+  /**
+   * The generated code model, or undefined if there were errors during generation
+   */
+  codeModel: CodeModel | undefined;
+  /**
+   * Array of diagnostics collected during code model generation
+   */
+  diagnostics: readonly Diagnostic[];
+}
+
+/**
+ * Creates a code model from the given emit context.
+ * This function is intended to be called by downstream emitters that need to generate
+ * a code model without triggering the full emit process.
+ * 
+ * @param context - The emit context
+ * @returns A result object containing the code model and any diagnostics
+ * @beta
+ */
+export async function createCodeModel(
+  context: EmitContext<CSharpEmitterOptions>,
+): Promise<CreateCodeModelResult> {
+  const program: Program = context.program;
+  const options = resolveOptions(context);
+
+  /* set the log level. */
+  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
+
+  // Create the SDK context
+  const sdkContext = createCSharpEmitterContext(
+    await createSdkContext(
+      context,
+      "@typespec/http-client-csharp",
+      options["sdk-context-options"],
+    ),
+    logger,
+  );
+
+  // Create the code model
+  let root = createModel(sdkContext);
+
+  if (root) {
+    root = options["update-code-model"](root, sdkContext);
+  }
+
+  return {
+    codeModel: root,
+    diagnostics: sdkContext.diagnostics,
+  };
+}
+
+/**
  * The entry point for the emitter. This function is called by the typespec compiler.
  * @param context - The emit context
  * @beta
@@ -60,8 +118,21 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   /* set the log level. */
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
-  if (!program.compilerOptions.noEmit && !program.hasError()) {
-    // Write out the dotnet model to the output path
+  // Get the code model and diagnostics
+  const result = await createCodeModel(context);
+  
+  // Report diagnostics
+  program.reportDiagnostics(result.diagnostics);
+
+  if (!program.compilerOptions.noEmit && !program.hasError() && result.codeModel) {
+    const root = result.codeModel;
+    const generatedFolder = resolvePath(outputFolder, "src", "Generated");
+
+    if (!fs.existsSync(generatedFolder)) {
+      fs.mkdirSync(generatedFolder, { recursive: true });
+    }
+
+    // Re-create SDK context for file operations (we need it for the logger)
     const sdkContext = createCSharpEmitterContext(
       await createSdkContext(
         context,
@@ -70,67 +141,55 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       ),
       logger,
     );
-    program.reportDiagnostics(sdkContext.diagnostics);
 
-    let root = createModel(sdkContext);
+    // emit tspCodeModel.json
+    await writeCodeModel(sdkContext, root, outputFolder);
 
-    if (root) {
-      root = options["update-code-model"](root, sdkContext);
-      const generatedFolder = resolvePath(outputFolder, "src", "Generated");
+    const namespace = root.name;
+    const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      if (!fs.existsSync(generatedFolder)) {
-        fs.mkdirSync(generatedFolder, { recursive: true });
-      }
+    //emit configuration.json
+    await writeConfiguration(sdkContext, configurations, outputFolder);
 
-      // emit tspCodeModel.json
-      await writeCodeModel(sdkContext, root, outputFolder);
+    const csProjFile = resolvePath(
+      outputFolder,
+      "src",
+      `${configurations["package-name"]}.csproj`,
+    );
+    logger.info(`Checking if ${csProjFile} exists`);
 
-      const namespace = root.name;
-      const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
+    const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+    const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
+    const generatorPath = resolvePath(
+      projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
+    );
 
-      //emit configuration.json
-      await writeConfiguration(sdkContext, configurations, outputFolder);
-
-      const csProjFile = resolvePath(
-        outputFolder,
-        "src",
-        `${configurations["package-name"]}.csproj`,
-      );
-      logger.info(`Checking if ${csProjFile} exists`);
-
-      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
-      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
-      const generatorPath = resolvePath(
-        projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
-      );
-
-      try {
-        const result = await execCSharpGenerator(sdkContext, {
-          generatorPath: generatorPath,
-          outputFolder: outputFolder,
-          generatorName: options["generator-name"],
-          newProject: options["new-project"] || !checkFile(csProjFile),
-          debug: options.debug ?? false,
-        });
-        if (result.exitCode !== 0) {
-          const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
-          // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          if (isValid) {
-            throw new Error(
-              `Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`,
-            );
-          }
-        }
-      } catch (error: any) {
+    try {
+      const result = await execCSharpGenerator(sdkContext, {
+        generatorPath: generatorPath,
+        outputFolder: outputFolder,
+        generatorName: options["generator-name"],
+        newProject: options["new-project"] || !checkFile(csProjFile),
+        debug: options.debug ?? false,
+      });
+      if (result.exitCode !== 0) {
         const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
         // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-        if (isValid) throw new Error(error);
+        if (isValid) {
+          throw new Error(
+            `Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`,
+          );
+        }
       }
-      if (!options["save-inputs"]) {
-        // delete
-        context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
-        context.program.host.rm(resolvePath(outputFolder, configurationFileName));
-      }
+    } catch (error: any) {
+      const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+      // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+      if (isValid) throw new Error(error);
+    }
+    if (!options["save-inputs"]) {
+      // delete
+      context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
+      context.program.host.rm(resolvePath(outputFolder, configurationFileName));
     }
   }
 }
