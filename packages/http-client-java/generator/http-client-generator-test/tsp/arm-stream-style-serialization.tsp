@@ -233,7 +233,46 @@ interface Fishes {
 }
 
 interface TopLevelArmResources {
-  update is ArmCustomPatchAsync<TopLevelArmResource>;
+  create is ArmResourceCreateOrReplaceAsync<
+    TopLevelArmResource,
+    Parameters = {
+      @format("uuid")
+      @header("x-ms-client-request-id")
+      clientRequestId?: string;
+    }
+  >;
+  update is ArmCustomPatchAsync<
+    TopLevelArmResource,
+    Parameters = {
+      @format("uuid")
+      @header("x-ms-client-request-id")
+      clientRequestId?: string;
+    }
+  >;
+  @autoRoute
+  checkNameAvailability is ArmProviderActionSync<
+    Request = CheckNameAvailabilityInput,
+    Response = CheckNameAvailabilityOutput,
+    Scope = SubscriptionActionScope,
+    Parameters = {
+      @format("uuid")
+      @header("x-ms-client-request-id")
+      clientRequestId?: string;
+    }
+  >;
+}
+
+model CheckNameAvailabilityInput {
+  name: string;
+  type: "searchServices";
+}
+
+model CheckNameAvailabilityOutput {
+  @visibility(Lifecycle.Read)
+  nameAvailable?: boolean;
+
+  @visibility(Lifecycle.Read)
+  message?: string;
 }
 
 @route("/function")

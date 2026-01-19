@@ -761,7 +761,7 @@ export class CodeModelBuilder {
         );
         const parentAccessorPublic = Boolean(
           subClient.clientInitialization.initializedBy & InitializedByFlags.Parent ||
-          subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
+            subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
         );
         codeModelClient.addSubClient(codeModelSubclient, buildMethodPublic, parentAccessorPublic);
       }
@@ -1400,7 +1400,8 @@ export class CodeModelBuilder {
       clientContext.addGlobalParameter(parameter);
     } else if (
       param.kind === "header" &&
-      SPECIAL_HEADER_NAMES.has(param.serializedName.toLowerCase())
+      SPECIAL_HEADER_NAMES.has(param.serializedName.toLowerCase()) &&
+      !this.isArm()
     ) {
       // special headers
       op.specialHeaders = op.specialHeaders ?? [];
