@@ -48,6 +48,7 @@ const testScenarios: TestScenario[] = [
   { schema: { type: "number", format: "decimal128" }, expected: "decimal128" },
   { schema: { type: "number", format: "double" }, expected: "float64" },
   { schema: { type: "number", format: "float" }, expected: "float32" },
+  { schema: { type: "number", format: "duration" }, expected: "duration" },
   { schema: { type: "number", enum: [3.14, 6.28, 42] }, expected: "3.14 | 6.28 | 42" },
   // strings
   { schema: { type: "string" }, expected: "string" },

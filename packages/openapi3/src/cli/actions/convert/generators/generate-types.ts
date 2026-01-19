@@ -564,6 +564,8 @@ function getNumberType(schema: SupportedOpenAPISchema): string {
       return "float64";
     case "float":
       return "float32";
+    case "duration":
+      return "duration";
     default:
       // Could be either 'float' or 'numeric' - add FIXME?
       return "numeric";

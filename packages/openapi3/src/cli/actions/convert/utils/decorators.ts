@@ -206,6 +206,11 @@ export function getDecoratorsForSchema(
     decorators.push(...getUnixtimeSchemaDecorators(typeForFormat));
   }
 
+  // Handle duration format with @encode decorator
+  if (formatToUse === "duration" && typeForFormat === "number") {
+    decorators.push(...getDurationSchemaDecorators(schema));
+  }
+
   switch (effectiveType) {
     case "array":
       decorators.push(...getArraySchemaDecorators(schema));
@@ -318,6 +323,19 @@ function getUnixtimeSchemaDecorators(effectiveType: string | undefined) {
       args: [createTSValue("DateTimeKnownEncoding.unixTimestamp"), createTSValue("integer")],
     });
   }
+
+  return decorators;
+}
+
+function getDurationSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // For number type with duration format, encode as seconds with float32 by default
+  // This matches the expected behavior in the issue description
+  decorators.push({
+    name: "encode",
+    args: [createTSValue(`"seconds"`), createTSValue("float32")],
+  });
 
   return decorators;
 }

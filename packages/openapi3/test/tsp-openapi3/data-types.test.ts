@@ -93,6 +93,24 @@ describe("converts top-level schemas", () => {
     ]);
   });
 
+  it("handles number with duration format as duration with @encode decorator", async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      schemas: {
+        DurationInSeconds: {
+          type: "number",
+          format: "duration",
+        },
+      },
+    });
+
+    const scalars = serviceNamespace.scalars;
+    /* @encode("seconds", float32) scalar DurationInSeconds extends duration; */
+    expect(scalars.get("DurationInSeconds")?.baseScalar?.name).toBe("duration");
+    expectDecorators(scalars.get("DurationInSeconds")!.decorators, [
+      { name: "encode", args: ["seconds", { kind: "Scalar", name: "float32" }] },
+    ]);
+  });
+
   it("handles arrays", async () => {
     const serviceNamespace = await tspForOpenAPI3({
       schemas: {
