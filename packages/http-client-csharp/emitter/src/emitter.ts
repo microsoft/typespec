@@ -62,6 +62,11 @@ export interface CreateCodeModelResult {
    * Array of diagnostics collected during code model generation
    */
   diagnostics: readonly Diagnostic[];
+  /**
+   * @internal
+   * The SDK context used to create the code model. This is for internal use only.
+   */
+  __sdkContext?: CSharpEmitterContext;
 }
 
 /**
@@ -102,6 +107,7 @@ export async function createCodeModel(
   return {
     codeModel: root,
     diagnostics: sdkContext.diagnostics,
+    __sdkContext: sdkContext,
   };
 }
 
@@ -132,15 +138,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       fs.mkdirSync(generatedFolder, { recursive: true });
     }
 
-    // Re-create SDK context for file operations (we need it for the logger)
-    const sdkContext = createCSharpEmitterContext(
-      await createSdkContext(
-        context,
-        "@typespec/http-client-csharp",
-        options["sdk-context-options"],
-      ),
-      logger,
-    );
+    // Reuse the SDK context from createCodeModel to avoid duplicate work
+    const sdkContext = result.__sdkContext!;
 
     // emit tspCodeModel.json
     await writeCodeModel(sdkContext, root, outputFolder);
