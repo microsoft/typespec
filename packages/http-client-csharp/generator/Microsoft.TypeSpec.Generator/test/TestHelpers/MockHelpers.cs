@@ -33,6 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             InputModelType[]? inputModelTypes = null,
             InputEnumType[]? inputEnumTypes = null,
             InputLiteralType[]? inputLiteralTypes = null,
+            InputClient[]? inputClients = null,
             Func<Task<Compilation>>? compilation = null,
             Func<Task<Compilation>>? lastContractCompilation = null,
             IEnumerable<MetadataReference>? additionalMetadataReferences = null,
@@ -51,6 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 inputModelTypes,
                 inputEnumTypes,
                 inputLiteralTypes,
+                inputClients,
                 additionalMetadataReferences,
                 sharedSourceDirectories,
                 typesToKeep,
@@ -76,6 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             InputModelType[]? inputModelTypes = null,
             InputEnumType[]? inputEnumTypes = null,
             InputLiteralType[]? inputLiteralTypes = null,
+            InputClient[]? inputClients = null,
             IEnumerable<MetadataReference>? additionalMetadataReferences = null,
             IEnumerable<string>? sharedSourceDirectories = null,
             IEnumerable<string>? typesToKeep = null,
@@ -122,6 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 inputNamespaceName ?? "Sample",
                 models: inputModelTypes,
                 enums: inputEnumTypes,
+                clients: inputClients,
                 constants: inputLiteralTypes));
 
             mockGenerator.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
