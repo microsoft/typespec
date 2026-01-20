@@ -799,7 +799,23 @@ public class ClassType implements IType, ConvertToJsonTypeTrait, ConvertFromJson
 
     @Override
     public String convertFromJsonType(String variableName) {
-        return "";
+        // TODO (weidxu): it may be better to refactor it to type initialization, similar as
+        // defaultValueExpressionConverter
+        if (this == ClassType.INTEGER_AS_STRING) {
+            return variableName + " == null ? null : Integer.parseInt(" + variableName + ")";
+        } else if (this == ClassType.LONG_AS_STRING) {
+            return variableName + " == null ? null : Long.parseInt(" + variableName + ")";
+        } else if (this == ClassType.DATE_TIME) {
+            return variableName + " == null ? null : OffsetDateTime.parse(" + variableName + ")";
+        } else if (this == ClassType.DATE_TIME_RFC_1123) {
+            return variableName + " == null ? null : new DateTimeRfc1123(" + variableName + ")";
+        } else if (this == ClassType.DURATION) {
+            return variableName + " == null ? null : Duration.parse(" + variableName + ")";
+        } else if (this == ClassType.URL) {
+            return variableName + " == null ? null : new URL(" + variableName + ")";
+        } else {
+            return convertToClientType(variableName);
+        }
     }
 
     public static class Builder {

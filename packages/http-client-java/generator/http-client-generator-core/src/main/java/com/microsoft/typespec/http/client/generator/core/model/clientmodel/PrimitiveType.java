@@ -320,7 +320,13 @@ public class PrimitiveType implements IType, ConvertToJsonTypeTrait, ConvertFrom
 
     @Override
     public String convertFromJsonType(String variableName) {
-        return "";
+        if (this == PrimitiveType.INT_AS_STRING) {
+            return variableName + " == null ? null : Integer.parseInt(" + variableName + ")";
+        } else if (this == PrimitiveType.LONG_AS_STRING) {
+            return variableName + " == null ? null : Long.parseInt(" + variableName + ")";
+        } else {
+            return convertToClientType(variableName);
+        }
     }
 
     private static class Builder {
