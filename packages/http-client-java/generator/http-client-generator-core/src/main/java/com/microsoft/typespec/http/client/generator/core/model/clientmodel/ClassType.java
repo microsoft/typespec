@@ -794,7 +794,7 @@ public class ClassType implements IType, ConvertToJsonTypeTrait, ConvertFromJson
         String expression = convertFromClientType(variableName);
         return serializationValueGetterModifier != null
             ? serializationValueGetterModifier.apply(expression)
-            : variableName;
+            : expression;
     }
 
     @Override
