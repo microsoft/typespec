@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -24,5 +25,26 @@ public class ConvertToJsonTypeTraitTests {
         Assertions.assertEquals("var == null ? null : DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(var)",
             ClassType.DATE_TIME.convertToJsonType("var"));
         Assertions.assertEquals("CoreUtils.durationToStringWithDays(var)", ClassType.DURATION.convertToJsonType("var"));
+    }
+
+    @Test
+    public void testEnumConversion() {
+        ClientEnumValue enumValue = new ClientEnumValue("VALUE_ONE", "ValueOne", "ValueOne");
+
+        EnumType.Builder enumTypeBuilder = new EnumType.Builder().name("SampleEnum")
+            .elementType(ClassType.STRING)
+            .values(List.of(enumValue))
+            .expandable(true);
+
+        Assertions.assertEquals("var == null ? null : var.toString()",
+            enumTypeBuilder.build().convertToJsonType("var"));
+
+        enumTypeBuilder.expandable(false);
+        Assertions.assertEquals("var == null ? null : var.toString()",
+            enumTypeBuilder.build().convertToJsonType("var"));
+
+        enumTypeBuilder.elementType(ClassType.INTEGER);
+        Assertions.assertEquals("var == null ? null : var.toInteger()",
+            enumTypeBuilder.build().convertToJsonType("var"));
     }
 }
