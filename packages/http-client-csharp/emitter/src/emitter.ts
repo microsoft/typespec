@@ -51,6 +51,18 @@ function findProjectRoot(path: string): string | undefined {
 /**
  * Creates a code model by executing the full emission logic.
  * This function can be called by downstream emitters to generate a code model and collect diagnostics.
+ * 
+ * @example
+ * ```typescript
+ * import { createCodeModel } from "@typespec/http-client-csharp";
+ * 
+ * export async function $onEmit(context: EmitContext<MyEmitterOptions>) {
+ *   const [, diagnostics] = await createCodeModel(context);
+ *   // Process diagnostics as needed
+ *   context.program.reportDiagnostics(diagnostics);
+ * }
+ * ```
+ * 
  * @param context - The emit context
  * @returns A tuple containing void and any diagnostics that were generated during the emission
  * @beta
