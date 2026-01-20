@@ -39,7 +39,7 @@ describe("Next link operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -93,7 +93,7 @@ describe("Next link operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -138,7 +138,7 @@ describe("Next link operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -174,7 +174,7 @@ describe("Next link operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -208,7 +208,7 @@ describe("Next link operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -256,7 +256,7 @@ describe("Continuation token operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -291,7 +291,7 @@ describe("Continuation token operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -327,7 +327,7 @@ describe("Continuation token operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -363,7 +363,7 @@ describe("Continuation token operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -399,7 +399,7 @@ describe("Continuation token operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -453,7 +453,7 @@ describe("PageSize parameter operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -491,7 +491,7 @@ describe("PageSize parameter operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 

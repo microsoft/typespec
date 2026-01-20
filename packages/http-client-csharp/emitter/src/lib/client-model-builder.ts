@@ -7,6 +7,7 @@ import {
   SdkHttpOperation,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
+import { Diagnostic } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
@@ -23,10 +24,10 @@ import {
 /**
  * Creates the code model from the SDK context.
  * @param sdkContext - The SDK context
- * @returns The code model
+ * @returns A tuple containing the code model and any diagnostics that were generated
  * @beta
  */
-export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
+export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, readonly Diagnostic[]] {
   const sdkPackage = sdkContext.sdkPackage;
 
   // TO-DO: Consider exposing the namespace hierarchy in the code model https://github.com/microsoft/typespec/issues/8332
@@ -60,7 +61,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
 
-  return clientModel;
+  return [clientModel, sdkContext.logger.getDiagnostics()];
 }
 
 /**

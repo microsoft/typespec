@@ -3,6 +3,7 @@
 
 import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
 import {
+  Diagnostic,
   EmitContext,
   getDirectoryPath,
   joinPaths,
@@ -48,17 +49,23 @@ function findProjectRoot(path: string): string | undefined {
 }
 
 /**
- * The entry point for the emitter. This function is called by the typespec compiler.
+ * Creates a code model by executing the full emission logic.
+ * This function can be called by downstream emitters to generate a code model and collect diagnostics.
  * @param context - The emit context
+ * @returns A tuple containing void and any diagnostics that were generated during the emission
  * @beta
  */
-export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
+export async function createCodeModel(
+  context: EmitContext<CSharpEmitterOptions>,
+): Promise<[void, readonly Diagnostic[]]> {
   const program: Program = context.program;
   const options = resolveOptions(context);
   const outputFolder = context.emitterOutputDir;
 
   /* set the log level. */
-  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
+  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO, true);
+
+  const diagnostics: Diagnostic[] = [];
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
@@ -70,12 +77,15 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       ),
       logger,
     );
-    program.reportDiagnostics(sdkContext.diagnostics);
+    diagnostics.push(...sdkContext.diagnostics);
 
-    let root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    diagnostics.push(...modelDiagnostics);
 
     if (root) {
-      root = options["update-code-model"](root, sdkContext);
+      const updatedRoot = options["update-code-model"](root, sdkContext);
+      diagnostics.push(...logger.getDiagnostics());
+
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
@@ -83,9 +93,9 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
 
       // emit tspCodeModel.json
-      await writeCodeModel(sdkContext, root, outputFolder);
+      await writeCodeModel(sdkContext, updatedRoot, outputFolder);
 
-      const namespace = root.name;
+      const namespace = updatedRoot.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
       //emit configuration.json
@@ -133,6 +143,18 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
     }
   }
+
+  return [undefined as void, diagnostics];
+}
+
+/**
+ * The entry point for the emitter. This function is called by the typespec compiler.
+ * @param context - The emit context
+ * @beta
+ */
+export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
+  const [, diagnostics] = await createCodeModel(context);
+  context.program.reportDiagnostics(diagnostics);
 }
 
 export function createConfiguration(

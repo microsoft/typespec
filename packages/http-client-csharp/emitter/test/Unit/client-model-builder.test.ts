@@ -58,7 +58,7 @@ describe("fixNamingConflicts", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     // Find the real enum
     const realEnum = root.enums.find(
@@ -142,7 +142,7 @@ describe("fixNamingConflicts", () => {
       namespace: targetNamespace,
     } as any);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     // Get all ErrorResponse models - fixNamingConflicts should have resolved the conflicts
     const errorModels = root.models.filter(
@@ -194,7 +194,7 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     // The root apiVersions should include the version from the Versions enum
     // which is defined in the default namespace with version "2023-01-01-preview"
@@ -228,7 +228,7 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     // The root apiVersions should include all versions from the TestVersions enum
     strictEqual(root.apiVersions.length, 3, "Root apiVersions should have 3 versions");
@@ -247,7 +247,7 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     // Single service client should have apiVersions from the @versioned decorator
     ok(root.apiVersions.length > 0, "Root apiVersions should not be empty for single service");
@@ -299,7 +299,7 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     ok(root.apiVersions.length === 0, "Root apiVersions should be empty for multiservice");
 
@@ -358,7 +358,7 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     ok(root.apiVersions.length === 0, "Root apiVersions should be empty for multiservice");
   });
@@ -415,7 +415,7 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     ok(
       root.apiVersions.length === 0,

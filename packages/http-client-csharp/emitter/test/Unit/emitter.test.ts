@@ -58,7 +58,7 @@ describe("$onEmit tests", () => {
     }));
 
     vi.mock("../../src/lib/client-model-builder.js", () => ({
-      createModel: vi.fn().mockReturnValue({ Name: "TestNamespace" }),
+      createModel: vi.fn().mockReturnValue([{ name: "TestNamespace" }, []]),
     }));
 
     program = {

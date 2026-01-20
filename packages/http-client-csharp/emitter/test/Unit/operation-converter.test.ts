@@ -35,7 +35,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -106,7 +106,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -176,7 +176,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -231,7 +231,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -275,7 +275,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -314,7 +314,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);
@@ -346,7 +346,7 @@ describe("Operation Converter", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
+        const [root] = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
         strictEqual(root.clients[0].methods.length, 1);

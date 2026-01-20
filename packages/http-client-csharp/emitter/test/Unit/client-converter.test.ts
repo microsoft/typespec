@@ -28,7 +28,7 @@ describe("isMultiServiceClient", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     ok(client, "Client should exist");
@@ -81,7 +81,7 @@ describe("isMultiServiceClient", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     strictEqual(root.name, "Service.MultiService", "Root namespace should be Service.MultiService");
 
     const client = root.clients[0];
@@ -147,7 +147,7 @@ describe("isMultiServiceClient", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     strictEqual(root.name, "Service.MultiService", "Root namespace should be Service.MultiService");
 
     const client = root.clients[0];
@@ -219,7 +219,7 @@ describe("isMultiServiceClient", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     strictEqual(root.name, "Service.MultiService", "Root namespace should be Service.MultiService");
 
     const clients = root.clients;

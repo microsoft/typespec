@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { DiagnosticReport, NoTarget, Program, Tracer } from "@typespec/compiler";
+import { Diagnostic, DiagnosticReport, NoTarget, Program, Tracer } from "@typespec/compiler";
 import {
+  createDiagnostic,
   DiagnosticMessagesMap,
   getTracer,
   reportDiagnostic as libReportDiagnostic,
@@ -17,11 +18,22 @@ export class Logger {
   private tracer: Tracer;
   private level: LoggerLevel;
   private program: Program;
+  private collectedDiagnostics: Diagnostic[] | undefined;
 
-  public constructor(program: Program, level: LoggerLevel) {
+  public constructor(program: Program, level: LoggerLevel, collectDiagnostics: boolean = false) {
     this.tracer = getTracer(program);
     this.level = level;
     this.program = program;
+    this.collectedDiagnostics = collectDiagnostics ? [] : undefined;
+  }
+
+  /**
+   * Get collected diagnostics. Only available if the logger was created with collectDiagnostics=true.
+   * @returns The collected diagnostics.
+   * @beta
+   */
+  public getDiagnostics(): readonly Diagnostic[] {
+    return this.collectedDiagnostics ?? [];
   }
 
   trace(level: LoggerLevel, message: string): void {
@@ -63,7 +75,13 @@ export class Logger {
   reportDiagnostic<C extends keyof DiagnosticMessagesMap, M extends keyof DiagnosticMessagesMap[C]>(
     diag: DiagnosticReport<DiagnosticMessagesMap, C, M>,
   ): void {
-    libReportDiagnostic(this.program, diag);
+    if (this.collectedDiagnostics) {
+      // In collecting mode, store the diagnostic instead of reporting it
+      this.collectedDiagnostics.push(createDiagnostic(diag));
+    } else {
+      // In normal mode, report the diagnostic directly
+      libReportDiagnostic(this.program, diag);
+    }
   }
 
   warn(message: string): void {
