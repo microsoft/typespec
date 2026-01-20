@@ -12,7 +12,7 @@ import java.util.function.Function;
 /**
  * A basic type used by a client.
  */
-public class PrimitiveType implements IType, ConvertToJsonTypeTrait {
+public class PrimitiveType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonTypeTrait {
     public static final PrimitiveType VOID = new Builder().name("void").nullableType(ClassType.VOID).build();
 
     public static final PrimitiveType BOOLEAN = new Builder().name("boolean")
@@ -50,6 +50,7 @@ public class PrimitiveType implements IType, ConvertToJsonTypeTrait {
 
     public static final PrimitiveType LONG = new Builder().prototypeAsLong().build();
 
+    // JSON type is STRING
     public static final PrimitiveType INT_AS_STRING = new Builder().name("int")
         .nullableType(ClassType.INTEGER_AS_STRING)
         .defaultValueExpressionConverter(
@@ -63,6 +64,7 @@ public class PrimitiveType implements IType, ConvertToJsonTypeTrait {
         .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, Integer::valueOf)")
         .build();
 
+    // JSON type is STRING
     public static final PrimitiveType LONG_AS_STRING = new Builder().prototypeAsLong()
         .nullableType(ClassType.LONG_AS_STRING)
         .defaultValueExpressionConverter(defaultValueExpression -> "Long.parseLong(\"" + defaultValueExpression + "\")")
@@ -99,12 +101,15 @@ public class PrimitiveType implements IType, ConvertToJsonTypeTrait {
         .xmlElementDeserializationMethod("getStringElement().charAt(0)")
         .build();
 
+    // JSON type is NUMERIC, client type is OffsetDateTime
     public static final PrimitiveType UNIX_TIME_LONG
         = new Builder().prototypeAsLong().nullableType(ClassType.UNIX_TIME_LONG).build();
 
+    // JSON type is NUMERIC, client type is Duration
     public static final PrimitiveType DURATION_LONG
         = new Builder().prototypeAsLong().nullableType(ClassType.DURATION_LONG).build();
 
+    // JSON type is NUMERIC, client type is Duration
     public static final PrimitiveType DURATION_DOUBLE
         = new Builder().prototypeAsDouble().nullableType(ClassType.DURATION_DOUBLE).build();
 
@@ -305,11 +310,17 @@ public class PrimitiveType implements IType, ConvertToJsonTypeTrait {
 
     @Override
     public String convertToJsonType(String variableName) {
+        String expression = convertFromClientType(variableName);
         if (wrapSerializationWithObjectsToString) {
-            return "Objects.toString(" + variableName + ", null)";
+            return "Objects.toString(" + expression + ", null)";
         } else {
-            return variableName;
+            return expression;
         }
+    }
+
+    @Override
+    public String convertFromJsonType(String variableName) {
+        return "";
     }
 
     private static class Builder {

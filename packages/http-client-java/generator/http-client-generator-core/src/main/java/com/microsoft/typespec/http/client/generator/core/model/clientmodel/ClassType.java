@@ -26,7 +26,7 @@ import java.util.function.Function;
 /**
  * The details of a class type that is used by a client.
  */
-public class ClassType implements IType, ConvertToJsonTypeTrait {
+public class ClassType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonTypeTrait {
     private static ClassType withClientCoreReplacement(String azureClass, String clientCoreClass) {
         return withClientCoreAndVNextReplacement(azureClass, clientCoreClass, clientCoreClass);
     }
@@ -282,6 +282,7 @@ public class ClassType implements IType, ConvertToJsonTypeTrait {
     public static final ClassType POLLER_FLUX = new ClassType("com.azure.core.util.polling", "PollerFlux");
 
     // Complex mapped types
+    // JSON type is STRING, wire type is Base64Url/Base64Uri, client type is byte[]
     public static final ClassType BASE_64_URL
         = withClientCoreReplacementBuilder("com.azure.core.util.Base64Url", "io.clientcore.core.utils.Base64Uri", false)
             .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
@@ -310,6 +311,7 @@ public class ClassType implements IType, ConvertToJsonTypeTrait {
             .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, BinaryData::fromObject)")
             .build();
 
+    // JSON type is STRING, wire type is DateTimeRfc1123, client type is OffsetDateTime
     public static final ClassType DATE_TIME_RFC_1123
         = withClientCoreReplacementBuilder("com.azure.core.util.DateTimeRfc1123",
             "io.clientcore.core.utils.DateTimeRfc1123", false)
@@ -497,8 +499,11 @@ public class ClassType implements IType, ConvertToJsonTypeTrait {
         .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, OffsetDateTime::parse)")
         .build();
 
+    // JSON type is NUMERIC, client type is OffsetDateTime
     public static final ClassType UNIX_TIME_LONG = new ClassType.Builder(false).prototypeAsLong().build();
+    // JSON type is NUMERIC, client type is Duration
     public static final ClassType DURATION_LONG = new ClassType.Builder(false).prototypeAsLong().build();
+    // JSON type is NUMERIC, client type is Duration
     public static final ClassType DURATION_DOUBLE = new ClassType.Builder(false).prototypeAsDouble().build();
 
     public static final ClassType URL = new Builder(false)
@@ -786,9 +791,15 @@ public class ClassType implements IType, ConvertToJsonTypeTrait {
 
     @Override
     public String convertToJsonType(String variableName) {
+        String expression = convertFromClientType(variableName);
         return serializationValueGetterModifier != null
-            ? serializationValueGetterModifier.apply(variableName)
+            ? serializationValueGetterModifier.apply(expression)
             : variableName;
+    }
+
+    @Override
+    public String convertFromJsonType(String variableName) {
+        return "";
     }
 
     public static class Builder {
