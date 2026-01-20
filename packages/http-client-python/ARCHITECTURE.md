@@ -547,7 +547,6 @@ npm run regenerate
 - Inspect enhanced YAML after preprocessing
 - Check generated files in output directory
 
-
 ## Additional Resources
 
 - [Contributing Guide](./CONTRIBUTING.md)
