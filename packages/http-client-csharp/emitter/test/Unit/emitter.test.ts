@@ -179,6 +179,59 @@ describe("$onEmit tests", () => {
   });
 });
 
+describe("createCodeModel tests", () => {
+  let runner: TestHost;
+  let program: Program;
+
+  beforeEach(async () => {
+    vi.restoreAllMocks();
+    runner = await createEmitterTestHost();
+  });
+
+  it("should return diagnostics array from createCodeModel", async () => {
+    program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const { createCodeModel } = await import("../../src/emitter.js");
+    const [, diagnostics] = await createCodeModel(context);
+    
+    // Verify that diagnostics is an array
+    expect(Array.isArray(diagnostics)).toBe(true);
+    // Diagnostics array should be defined (may be empty or have diagnostics)
+    expect(diagnostics).toBeDefined();
+  });
+
+  it("should collect diagnostics from createModel in createCodeModel", async () => {
+    program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const { createCodeModel } = await import("../../src/emitter.js");
+    const [, diagnostics] = await createCodeModel(context);
+    
+    // The function should return diagnostics even if empty
+    expect(diagnostics).toBeDefined();
+    expect(Array.isArray(diagnostics)).toBe(true);
+  });
+});
+
 describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;

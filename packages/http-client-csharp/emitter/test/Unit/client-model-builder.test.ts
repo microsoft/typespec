@@ -441,3 +441,62 @@ describe("parseApiVersions", () => {
     ok(barClient.apiVersions.includes("bv2"), "Bar client should include bv2");
   });
 });
+
+describe("createModel diagnostic collection", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("should return a tuple with CodeModel and diagnostics array", async () => {
+    const program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context, true); // Enable diagnostic collection
+    const result = createModel(sdkContext);
+    
+    // Verify the result is a tuple
+    ok(Array.isArray(result), "Result should be an array (tuple)");
+    strictEqual(result.length, 2, "Result should have exactly 2 elements");
+    
+    const [codeModel, diagnostics] = result;
+    
+    // Verify the code model
+    ok(codeModel, "CodeModel should be defined");
+    strictEqual(codeModel.name, "Azure.Csharp.Testing", "CodeModel name should be Azure.Csharp.Testing");
+    
+    // Verify diagnostics is an array
+    ok(Array.isArray(diagnostics), "Diagnostics should be an array");
+  });
+
+  it("should collect diagnostics when using diagnostic collection mode", async () => {
+    const program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context, true); // Enable diagnostic collection
+    const [, diagnostics] = createModel(sdkContext);
+    
+    // Verify diagnostics array exists (may be empty or contain diagnostics)
+    ok(diagnostics !== undefined, "Diagnostics should not be undefined");
+    ok(Array.isArray(diagnostics), "Diagnostics should be an array");
+  });
+});
