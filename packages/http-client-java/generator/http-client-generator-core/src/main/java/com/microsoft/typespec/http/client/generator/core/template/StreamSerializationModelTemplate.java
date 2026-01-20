@@ -15,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvertFromJsonTypeTrait;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvertToJsonTypeTrait;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
@@ -1648,13 +1649,17 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                             propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
                     } else {
                         // wireType need to be converted from String
-                        String conversionExpress = wireElementType.defaultValueExpression("valueAsString")
-                            .replace("\"valueAsString\"", "valueAsString");
-                        deserializationBlock.line(
-                            "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.stream(%1$s.split(\"%2$s\", -1)).map(valueAsString -> %3$s).collect(Collectors.toList()));",
-                            propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter(),
-                            conversionExpress);
-
+                        if (wireElementType instanceof ConvertFromJsonTypeTrait) {
+                            String conversionExpress
+                                = ((ConvertFromJsonTypeTrait) wireElementType).convertFromJsonType("valueAsString");
+                            deserializationBlock.line(
+                                "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.stream(%1$s.split(\"%2$s\", -1)).map(valueAsString -> %3$s).collect(Collectors.toList()));",
+                                propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter(),
+                                conversionExpress);
+                        } else {
+                            throw new RuntimeException("Unable to convert type " + wireElementType
+                                + " from String for ArrayEncoding serialization.");
+                        }
                     }
                 }
 
