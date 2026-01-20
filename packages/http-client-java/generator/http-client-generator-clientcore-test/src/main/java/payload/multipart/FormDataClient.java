@@ -68,6 +68,72 @@ public final class FormDataClient {
     }
 
     /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWireNameWithResponse(MultiPartRequestWithWireName body, RequestContext requestContext) {
+        // Operation 'withWireName' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.withWireName", requestContext,
+            updatedContext -> this.serviceClient.withWireNameWithResponse(body, updatedContext));
+    }
+
+    /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withWireName(MultiPartRequestWithWireName body) {
+        withWireNameWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> optionalPartsWithResponse(MultiPartOptionalRequest body, RequestContext requestContext) {
+        // Operation 'optionalParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.optionalParts", requestContext,
+            updatedContext -> this.serviceClient.optionalPartsWithResponse(body, updatedContext));
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void optionalParts(MultiPartOptionalRequest body) {
+        optionalPartsWithResponse(body, RequestContext.none());
+    }
+
+    /**
      * Test content-type: multipart/form-data for mixed scenarios.
      * 
      * @param body The body parameter.

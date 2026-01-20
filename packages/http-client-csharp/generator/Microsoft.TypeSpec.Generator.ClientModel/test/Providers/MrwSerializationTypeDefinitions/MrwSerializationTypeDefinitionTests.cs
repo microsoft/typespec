@@ -1240,5 +1240,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             // Verify that dictionary deserialization includes value model deserialization
             Assert.IsTrue(methodBody.Contains("ValueModel"));
         }
+
+        [Test]
+        public void TestSerializationTypeNameMatchesModelProviderName()
+        {
+            // This test validates that MrwSerializationTypeDefinition.BuildName() uses _model.Name
+            // Create a simple model
+            var inputModel = InputFactory.Model("testModel");
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // The serialization type name should match the model provider name
+            Assert.AreEqual(model.Name, serialization.Name, 
+                "Serialization type name should match ModelProvider name");
+            
+            // The deserialization method should also use the model provider name
+            var deserializationMethod = serialization.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+            Assert.AreEqual($"Deserialize{model.Name}", deserializationMethod.Signature.Name,
+                "Deserialization method name should use ModelProvider name");
+        }
     }
 }
