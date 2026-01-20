@@ -547,24 +547,6 @@ npm run regenerate
 - Inspect enhanced YAML after preprocessing
 - Check generated files in output directory
 
-### Common Tasks
-
-**Add new template**:
-
-1. Create `.jinja2` file in `codegen/templates/`
-2. Create serializer in `codegen/serializers/`
-3. Register in `JinjaSerializer`
-
-**Add new type mapping**:
-
-1. Update `emitter/src/types.ts` (TypeScript)
-2. Update `generator/pygen/preprocess/python_mappings.py` (Python)
-
-**Handle new operation type**:
-
-1. Update `emitter/src/http.ts`
-2. Update `generator/pygen/codegen/models/`
-3. Create/update template
 
 ## Additional Resources
 
