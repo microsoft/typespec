@@ -220,6 +220,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
 
+            typeProvider.Update(methods: typeProvider.FilterCustomizedMethods(typeProvider.Methods));
+
             Assert.AreEqual(0, typeProvider.Methods.Count);
         }
 
@@ -239,6 +241,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
 
+            typeProvider.Update(constructors: typeProvider.FilterCustomizedConstructors(typeProvider.Constructors));
+
             Assert.AreEqual(0, typeProvider.Constructors.Count);
         }
 
@@ -257,6 +261,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
 
+            typeProvider.Update(properties: typeProvider.FilterCustomizedProperties(typeProvider.Properties));
+
             Assert.AreEqual(0, typeProvider.Properties.Count);
         }
 
@@ -274,7 +280,75 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
 
+            typeProvider.Update(fields: typeProvider.FilterCustomizedFields(typeProvider.Fields));
+
             Assert.AreEqual(0, typeProvider.Fields.Count);
+        }
+
+        [Test]
+        public async Task MultipleVisitorsMutateMember()
+        {
+            var typeProvider = new TestTypeProvider();
+            var methodProvider = new MethodProvider(
+                new MethodSignature("OriginalMethod", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("param1", $"", typeof(float))]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+            typeProvider.Update(methods: [methodProvider], reset: true);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var visitor1 = new RenameMethodVisitor("OriginalMethod", "TestMethod");
+            var visitor2 = new ChangeParameterTypeVisitor("TestMethod", typeof(int));
+
+            visitor1.VisitLibrary(generator.Object.OutputLibrary);
+            visitor2.VisitLibrary(generator.Object.OutputLibrary);
+
+            typeProvider.Update(methods: typeProvider.FilterCustomizedMethods(typeProvider.Methods));
+
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+        }
+
+        private class RenameMethodVisitor : LibraryVisitor
+        {
+            private readonly string _originalName;
+            private readonly string _newName;
+
+            public RenameMethodVisitor(string originalName, string newName)
+            {
+                _originalName = originalName;
+                _newName = newName;
+            }
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name == _originalName)
+                {
+                    method.Signature.Update(name: _newName);
+                }
+                return method; // Return method even if not renamed, to allow further visiting (though logic here seems to not matter much as LibraryVisitor base is used or visitor logic)
+            }
+        }
+
+        private class ChangeParameterTypeVisitor : LibraryVisitor
+        {
+            private readonly string _methodName;
+            private readonly System.Type _newType;
+
+            public ChangeParameterTypeVisitor(string methodName, System.Type newType)
+            {
+                _methodName = methodName;
+                _newType = newType;
+            }
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name == _methodName)
+                {
+                    method.Signature.Parameters[0].Update(type: _newType);
+                }
+                return method;
+            }
         }
 
 
