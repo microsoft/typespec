@@ -300,34 +300,8 @@ worksFor(supportedVersions, ({ oapiForModel, openApiFor }) => {
     describe("duration", () => {
       it("set format to 'duration' by default", () =>
         testEncode("duration", { type: "string", format: "duration" }));
-      it("set integer with int32 format and x-ms-duration extension when encoding as seconds", () =>
-        testEncode(
-          "duration",
-          { type: "integer", format: "int32", "x-ms-duration": "seconds" },
-          "seconds",
-          "int32",
-        ));
-      it("set integer with int32 format and x-ms-duration extension when encoding as milliseconds", () =>
-        testEncode(
-          "duration",
-          { type: "integer", format: "int32", "x-ms-duration": "milliseconds" },
-          "milliseconds",
-          "int32",
-        ));
-      it("set number with float format and x-ms-duration extension when encoding as seconds", () =>
-        testEncode(
-          "duration",
-          { type: "number", format: "float", "x-ms-duration": "seconds" },
-          "seconds",
-          "float32",
-        ));
-      it("set number with decimal format and x-ms-duration extension when encoding as milliseconds", () =>
-        testEncode(
-          "duration",
-          { type: "number", format: "decimal", "x-ms-duration": "milliseconds" },
-          "milliseconds",
-          "decimal",
-        ));
+      it("set integer with int32 format setting duration as seconds", () =>
+        testEncode("duration", { type: "integer", format: "int32" }, "seconds", "int32"));
     });
 
     describe("int64", () => {

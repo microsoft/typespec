@@ -19,11 +19,6 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
   const decorators: TypeSpecDecorator[] = [];
 
   for (const key of Object.keys(element)) {
-    // Skip x-ms-duration as it's handled separately for duration encoding
-    if (key === "x-ms-duration") {
-      continue;
-    }
-
     if (isExtensionKey(key)) {
       decorators.push({
         name: extensionDecoratorName,
@@ -171,6 +166,13 @@ export function getDecoratorsForSchema(
     return decorators;
   }
 
+  // Handle x-ms-duration extension with @encode decorator
+  // Add this before getExtensions so the order is @encode first, then @extension
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    decorators.push(...getDurationSchemaDecorators(schema));
+  }
+
   decorators.push(...getExtensions(schema));
 
   // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
@@ -209,12 +211,6 @@ export function getDecoratorsForSchema(
 
   if (formatToUse === "unixtime") {
     decorators.push(...getUnixtimeSchemaDecorators(typeForFormat));
-  }
-
-  // Handle x-ms-duration extension with @encode decorator
-  const xmsDuration = (schema as any)["x-ms-duration"];
-  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
-    decorators.push(...getDurationSchemaDecorators(schema));
   }
 
   switch (effectiveType) {

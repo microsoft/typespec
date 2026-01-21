@@ -138,9 +138,10 @@ describe("converts top-level schemas", () => {
       });
 
       const scalars = serviceNamespace.scalars;
-      /* @encode("seconds", int32) scalar DurationIntSeconds extends duration; */
+      /* @extension("x-ms-duration", "seconds") @encode("seconds", int32) scalar DurationIntSeconds extends duration; */
       expect(scalars.get("DurationIntSeconds")?.baseScalar?.name).toBe("duration");
       expectDecorators(scalars.get("DurationIntSeconds")!.decorators, [
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
         { name: "encode", args: ["seconds", { kind: "Scalar", name: "int32" }] },
       ]);
     });
@@ -157,9 +158,10 @@ describe("converts top-level schemas", () => {
       });
 
       const scalars = serviceNamespace.scalars;
-      /* @encode("milliseconds", int32) scalar DurationIntMilliseconds extends duration; */
+      /* @extension("x-ms-duration", "milliseconds") @encode("milliseconds", int32) scalar DurationIntMilliseconds extends duration; */
       expect(scalars.get("DurationIntMilliseconds")?.baseScalar?.name).toBe("duration");
       expectDecorators(scalars.get("DurationIntMilliseconds")!.decorators, [
+        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
         { name: "encode", args: ["milliseconds", { kind: "Scalar", name: "int32" }] },
       ]);
     });
@@ -192,9 +194,10 @@ describe("converts top-level schemas", () => {
       });
 
       const scalars = serviceNamespace.scalars;
-      /* @encode("seconds", float32) scalar DurationFloatSeconds extends duration; */
+      /* @extension("x-ms-duration", "seconds") @encode("seconds", float32) scalar DurationFloatSeconds extends duration; */
       expect(scalars.get("DurationFloatSeconds")?.baseScalar?.name).toBe("duration");
       expectDecorators(scalars.get("DurationFloatSeconds")!.decorators, [
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
         { name: "encode", args: ["seconds", { kind: "Scalar", name: "float32" }] },
       ]);
     });
@@ -211,9 +214,10 @@ describe("converts top-level schemas", () => {
       });
 
       const scalars = serviceNamespace.scalars;
-      /* @encode("milliseconds", float32) scalar DurationFloatMilliseconds extends duration; */
+      /* @extension("x-ms-duration", "milliseconds") @encode("milliseconds", float32) scalar DurationFloatMilliseconds extends duration; */
       expect(scalars.get("DurationFloatMilliseconds")?.baseScalar?.name).toBe("duration");
       expectDecorators(scalars.get("DurationFloatMilliseconds")!.decorators, [
+        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
         { name: "encode", args: ["milliseconds", { kind: "Scalar", name: "float32" }] },
       ]);
     });
@@ -246,9 +250,10 @@ describe("converts top-level schemas", () => {
       });
 
       const scalars = serviceNamespace.scalars;
-      /* @encode("seconds", decimal) scalar DurationDecimalSeconds extends duration; */
+      /* @extension("x-ms-duration", "seconds") @encode("seconds", decimal) scalar DurationDecimalSeconds extends duration; */
       expect(scalars.get("DurationDecimalSeconds")?.baseScalar?.name).toBe("duration");
       expectDecorators(scalars.get("DurationDecimalSeconds")!.decorators, [
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
         { name: "encode", args: ["seconds", { kind: "Scalar", name: "decimal" }] },
       ]);
     });
@@ -265,9 +270,10 @@ describe("converts top-level schemas", () => {
       });
 
       const scalars = serviceNamespace.scalars;
-      /* @encode("milliseconds", decimal) scalar DurationDecimalMilliseconds extends duration; */
+      /* @extension("x-ms-duration", "milliseconds") @encode("milliseconds", decimal) scalar DurationDecimalMilliseconds extends duration; */
       expect(scalars.get("DurationDecimalMilliseconds")?.baseScalar?.name).toBe("duration");
       expectDecorators(scalars.get("DurationDecimalMilliseconds")!.decorators, [
+        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
         { name: "encode", args: ["milliseconds", { kind: "Scalar", name: "decimal" }] },
       ]);
     });

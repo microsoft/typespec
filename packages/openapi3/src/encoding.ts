@@ -39,24 +39,6 @@ export function applyEncoding(
       encodeData.encoding,
       newType.format,
     );
-
-    // Check if the original typespecType (before encoding) is duration with seconds or milliseconds encoding
-    // If so, add the x-ms-duration extension
-    const originalType = typespecType.kind === "Scalar" ? typespecType : typespecType.type;
-    if (originalType.kind === "Scalar") {
-      // Walk up the scalar chain to find the base type
-      let currentScalar: Scalar | undefined = originalType;
-      while (currentScalar) {
-        if (currentScalar.name === "duration") {
-          if (encodeData.encoding === "seconds" || encodeData.encoding === "milliseconds") {
-            (targetObject as any)["x-ms-duration"] = encodeData.encoding;
-          }
-          break;
-        }
-        currentScalar = currentScalar.baseScalar;
-      }
-    }
-
     return targetObject;
   }
 
