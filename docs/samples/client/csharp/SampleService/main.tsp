@@ -145,7 +145,7 @@ model Thing {
 
   @doc("required nullable collection")
   requiredNullableList: int32[] | null;
-  
+
   /**
    * This tests:
    * - Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.
@@ -155,7 +155,7 @@ model Thing {
    * - **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.
    * - *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.
    */
-  propertyWithSpecialDocs: string
+  propertyWithSpecialDocs: string;
 }
 
 @doc("A model with a few required nullable properties")
