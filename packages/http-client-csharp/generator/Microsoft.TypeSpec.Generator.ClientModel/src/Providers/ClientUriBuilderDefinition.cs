@@ -364,7 +364,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         stringBuilder.Append(Literal('=')).Terminate(),
                         stringBuilder.Append(valueParameter).Terminate()
                     },
-
                     // Query string exists - update or append parameter
                     new MethodBodyStatement[]
                     {
@@ -402,7 +401,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 stringBuilder.Invoke("Remove", globalStart, new BinaryOperatorExpression("-", globalEnd, globalStart)).Terminate(),
                                 stringBuilder.Invoke("Insert", globalStart, valueParameter).Terminate()
                             },
-                            
                             // Parameter doesn't exist - append new parameter
                             new MethodBodyStatement[]
                             {
