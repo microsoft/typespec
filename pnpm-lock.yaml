@@ -85,8 +85,8 @@ importers:
         specifier: ~4.3.0
         version: 4.3.0(prettier@3.7.4)(typescript@5.9.3)
       prettier-plugin-sh:
-        specifier: ^0.17.4
-        version: 0.17.4(prettier@3.7.4)
+        specifier: ^0.18.0
+        version: 0.18.0(prettier@3.7.4)
       rimraf:
         specifier: ~6.1.2
         version: 6.1.2
@@ -11273,11 +11273,11 @@ packages:
       vue-tsc:
         optional: true
 
-  prettier-plugin-sh@0.17.4:
-    resolution: {integrity: sha512-aAVKXZ7GTEMZdZsIPSwMwddwPvt2ibMbRGd4OJAP0G7QoeYZV+mPNg2Oln3R53sZ4PVjeAA7Xzi/PuI0QlHHfQ==}
+  prettier-plugin-sh@0.18.0:
+    resolution: {integrity: sha512-cW1XL27FOJQ/qGHOW6IHwdCiNWQsAgK+feA8V6+xUTaH0cD3Mh+tFAtBvEEWvuY6hTDzRV943Fzeii+qMOh7nQ==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
-      prettier: ^3.0.3
+      prettier: ^3.6.0
 
   prettier@3.7.4:
     resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
@@ -25241,7 +25241,7 @@ snapshots:
       prettier: 3.7.4
       typescript: 5.9.3
 
-  prettier-plugin-sh@0.17.4(prettier@3.7.4):
+  prettier-plugin-sh@0.18.0(prettier@3.7.4):
     dependencies:
       '@reteps/dockerfmt': 0.3.6
       prettier: 3.7.4

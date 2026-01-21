@@ -138,6 +138,174 @@ Expected response body:
 }
 ```
 
+### Encode_Array_Property_enumCommaDelimited
+
+- Endpoint: `post /encode/array/property/enum/comma-delimited`
+
+Test operation with request and response model contains an enum array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_enumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/enum/newline-delimited`
+
+Test operation with request and response model contains an enum array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_enumPipeDelimited
+
+- Endpoint: `post /encode/array/property/enum/pipe-delimited`
+
+Test operation with request and response model contains an enum array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_enumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/enum/space-delimited`
+
+Test operation with request and response model contains an enum array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumCommaDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/comma-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/newline-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_extensibleEnumPipeDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/pipe-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/space-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
 ### Encode_Array_Property_newlineDelimited
 
 - Endpoint: `post /encode/array/property/newline-delimited`
@@ -3619,6 +3787,18 @@ Send
 
 ```json
 { "SameAsModel": "ok" }
+```
+
+### SpecialWords_ModelProperties_withList
+
+- Endpoint: `get /special-words/model-properties/list`
+
+Verify that a property can be named "list", which is a reserved word in many languages like Python.
+
+Send
+
+```json
+{ "list": "ok" }
 ```
 
 ### SpecialWords_Models_and

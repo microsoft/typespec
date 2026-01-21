@@ -70,6 +70,8 @@ export async function getCompilerOptions(
     resolvedOptions.listFiles = true;
   } else if (args["dry-run"]) {
     resolvedOptions.dryRun = true;
+  } else if (args["ignore-deprecated"]) {
+    resolvedOptions.ignoreDeprecated = true;
   }
 
   return diagnostics.wrap(

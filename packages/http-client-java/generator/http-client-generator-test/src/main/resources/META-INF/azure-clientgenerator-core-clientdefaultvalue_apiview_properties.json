@@ -1,0 +1,25 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueAsyncClient": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueAsyncClient.getHeaderParameter": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getHeaderParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueAsyncClient.getHeaderParameterWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getHeaderParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueAsyncClient.getOperationParameter": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getOperationParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueAsyncClient.getOperationParameterWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getOperationParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueAsyncClient.getPathParameter": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getPathParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueAsyncClient.getPathParameterWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getPathParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueAsyncClient.putModelProperty": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.putModelProperty",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueAsyncClient.putModelPropertyWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.putModelProperty",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClient": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClient.getHeaderParameter": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getHeaderParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClient.getHeaderParameterWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getHeaderParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClient.getOperationParameter": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getOperationParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClient.getOperationParameterWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getOperationParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClient.getPathParameter": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getPathParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClient.getPathParameterWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.getPathParameter",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClient.putModelProperty": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.putModelProperty",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClient.putModelPropertyWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.putModelProperty",
+    "azure.clientgenerator.core.clientdefaultvalue.ClientDefaultValueClientBuilder": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue",
+    "azure.clientgenerator.core.clientdefaultvalue.models.ModelWithDefaultValues": "_Specs_.Azure.ClientGenerator.Core.ClientDefaultValue.ModelWithDefaultValues"
+  }
+}
