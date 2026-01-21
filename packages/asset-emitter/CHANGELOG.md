@@ -1,5 +1,9 @@
 # Changelog - @typespec/asset-emitter
 
+## 0.79.0
+
+No changes, version bump only.
+
 ## 0.78.0
 
 ### Bump dependencies

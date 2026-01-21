@@ -1,5 +1,9 @@
 # Changelog - @typespec/http-client-js
 
+## 0.14.0
+
+No changes, version bump only.
+
 ## 0.13.0
 
 ### Bump dependencies

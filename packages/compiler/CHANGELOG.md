@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 1.9.0
+
+### Bug Fixes
+
+- [#9342](https://github.com/microsoft/typespec/pull/9342) Ensuring ignore-deprecated gets resolved.
+
+
 ## 1.8.0
 
 ### Features

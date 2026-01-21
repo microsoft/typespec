@@ -1,5 +1,9 @@
 # Change Log - typespec-vscode
 
+## 1.9.0
+
+No changes, version bump only.
+
 ## 1.8.0
 
 ### Bump dependencies

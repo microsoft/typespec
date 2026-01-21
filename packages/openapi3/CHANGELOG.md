@@ -1,5 +1,12 @@
 # Change Log - @typespec/openapi3
 
+## 1.9.0
+
+### Bug Fixes
+
+- [#9410](https://github.com/microsoft/typespec/pull/9410) importer - null reference exception if member schema cannot be resolved
+
+
 ## 1.8.0
 
 ### Features
