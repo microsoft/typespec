@@ -4,6 +4,7 @@ trigger:
   branches:
     include:
       - main
+      - test/vscode-e2e-repro
       # For patch releases
       - release/*
   paths:
@@ -49,24 +50,24 @@ extends:
           image: $(LINUXVMIMAGE)
           os: linux
 
-        jobs:
-          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
-            parameters:
-              artifactName: npm-packages-stable
-              tag: latest
-              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_stable.PUBLISH_PKG_ANY'])
+        # jobs:
+        #   - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
+        #     parameters:
+        #       artifactName: npm-packages-stable
+        #       tag: latest
+        #       condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_stable.PUBLISH_PKG_ANY'])
 
-          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
-            parameters:
-              dependsOn: publish_npm_latest
-              artifactName: npm-packages-next
-              tag: next
-              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_next.PUBLISH_PKG_ANY'])
+        #   - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
+        #     parameters:
+        #       dependsOn: publish_npm_latest
+        #       artifactName: npm-packages-next
+        #       tag: next
+        #       condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_next.PUBLISH_PKG_ANY'])
 
-          - template: /eng/tsp-core/pipelines/jobs/create-github-release.yml
-            parameters:
-              dependsOn: publish_npm_latest
-              artifactName: npm-packages-stable
+        #   - template: /eng/tsp-core/pipelines/jobs/create-github-release.yml
+        #     parameters:
+        #       dependsOn: publish_npm_latest
+        #       artifactName: npm-packages-stable
 
       - stage: publish_vscode
         displayName: Publish VSCode extension
