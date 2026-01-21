@@ -10,6 +10,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 {
     public class DocHelpers
     {
+        // Pre-compiled regex patterns for better performance
+        private static readonly Regex NumberedListRegex = new Regex(@"^\d+\.\s", RegexOptions.Compiled);
+        private static readonly Regex NumberedListCaptureRegex = new Regex(@"^\d+\.\s+(.*)", RegexOptions.Compiled);
+        private static readonly Regex BoldItalicRegex = new Regex(@"\*\*\*([^*]+?)\*\*\*", RegexOptions.Compiled);
+        private static readonly Regex BoldRegex = new Regex(@"\*\*([^*]+?)\*\*", RegexOptions.Compiled);
+        private static readonly Regex ItalicRegex = new Regex(@"(?<!\*)\*([^*]+?)\*(?!\*)", RegexOptions.Compiled);
+
         public static string? GetDescription(string? summary, string? doc)
         {
             var description = (summary, doc) switch
@@ -65,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     listItems.Add(ConvertInlineMarkdown(trimmedLine.Substring(2)));
                 }
                 // Check for numbered list item (e.g., "1. ", "2. ")
-                else if (Regex.IsMatch(trimmedLine, @"^\d+\.\s"))
+                else if (NumberedListRegex.IsMatch(trimmedLine))
                 {
                     if (!inList || listType != "number")
                     {
@@ -79,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         listType = "number";
                     }
                     // Remove the number prefix and add to list items
-                    var match = Regex.Match(trimmedLine, @"^\d+\.\s+(.*)");
+                    var match = NumberedListCaptureRegex.Match(trimmedLine);
                     listItems.Add(ConvertInlineMarkdown(match.Groups[1].Value));
                 }
                 else
@@ -141,13 +148,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return text;
 
             // Handle ***bold italic*** (must be done before ** and *)
-            text = Regex.Replace(text, @"\*\*\*([^*]+?)\*\*\*", "<b><i>$1</i></b>");
+            text = BoldItalicRegex.Replace(text, "<b><i>$1</i></b>");
 
             // Handle **bold**
-            text = Regex.Replace(text, @"\*\*([^*]+?)\*\*", "<b>$1</b>");
+            text = BoldRegex.Replace(text, "<b>$1</b>");
 
             // Handle *italic* (but not already processed bold markers)
-            text = Regex.Replace(text, @"(?<!\*)\*([^*]+?)\*(?!\*)", "<i>$1</i>");
+            text = ItalicRegex.Replace(text, "<i>$1</i>");
 
             return text;
         }
