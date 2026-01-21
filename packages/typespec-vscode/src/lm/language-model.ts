@@ -23,8 +23,7 @@ export async function sendLmChatRequest(
   /** Only for logging purpose */
   id?: string,
 ): Promise<string | undefined> {
-  const debug = debugLoggers.lm;
-  const logEnabled = debug.enabled;
+  const logEnabled = debugLoggers.lm.enabled;
   const lmLog = (item: LogItem) => {
     if (logEnabled || item.level === "error" || item.level === "warning") {
       logger.log(
