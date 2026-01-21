@@ -1138,7 +1138,7 @@ export function createServer(
           compilerHost,
           emitterProvider,
           linterProvider,
-          log: logCompileConfig,
+          log,
         });
         return CompletionList.create(items);
       }
