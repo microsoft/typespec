@@ -469,6 +469,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statement;
         }
 
+        private static ValueExpression GetQueryParameterStringExpression(
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            SerializationFormat? serializationFormat)
+        {
+            return paramType?.Equals(typeof(string)) == true
+                ? valueExpression
+                : GetParameterValueExpression(valueExpression, serializationFormat);
+        }
+
         private static MethodBodyStatement BuildUpdateQueryStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
@@ -476,10 +486,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression valueExpression,
             SerializationFormat? serializationFormat)
         {
-            var toStringExpression = paramType?.Equals(typeof(string)) == true
-                ? valueExpression
-                : GetParameterValueExpression(valueExpression, serializationFormat);
-
+            var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
             var parameterName = inputQueryParameter.SerializedName;
 
             return uri.UpdateQuery(Literal(parameterName), toStringExpression).Terminate();
@@ -494,10 +501,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (paramType?.IsCollection != true)
             {
-                var toStringExpression = paramType?.Equals(typeof(string)) == true
-                    ? valueExpression
-                    : GetParameterValueExpression(valueExpression, serializationFormat);
-
+                var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
                 return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
             }
 

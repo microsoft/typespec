@@ -354,48 +354,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var body = new MethodBodyStatement[]
             {
                 MethodBodyStatement.Empty,
-                // Check if we have any query string
-                new IfStatement(stringBuilder.Length().Equal(pathLength))
-                {
-                    // No query string exists, append the parameter
-                    stringBuilder.Append(Literal('?')).Terminate(),
-                    stringBuilder.Append(nameParameter).Terminate(),
-                    stringBuilder.Append(Literal('=')).Terminate(),
-                    stringBuilder.Append(valueParameter).Terminate()
-                },
                 new IfElseStatement(
-                    // Check if parameter already exists in query string
-                    stringBuilder.Invoke("ToString").Invoke("Contains", new BinaryOperatorExpression("+", nameParameter, Literal("="))),
-                    // Update existing parameter
+                    stringBuilder.Length().Equal(pathLength),
+                    // No query string exists - add first parameter
                     new MethodBodyStatement[]
                     {
-                        Declare("currentQuery", typeof(string), stringBuilder.Invoke("ToString", [new BinaryOperatorExpression("+", pathLength, Int(1)), new BinaryOperatorExpression("-", new BinaryOperatorExpression("-", stringBuilder.Length(), pathLength), Int(1))]), out var currentQuery),
-                        Declare("searchPattern", typeof(string), new BinaryOperatorExpression("+", nameParameter, Literal("=")), out var searchPattern),
-                        Declare("paramIndex", typeof(int), currentQuery.Invoke("IndexOf", searchPattern), out var paramIndex),
-                        Declare("valueStartIndex", typeof(int), new BinaryOperatorExpression("+", paramIndex, searchPattern.Property("Length")), out var valueStartIndex),
-                        Declare("valueEndIndex", typeof(int), currentQuery.Invoke("IndexOf", Literal('&'), valueStartIndex), out var valueEndIndex),
-                        new IfStatement(valueEndIndex.Equal(Literal(-1)))
-                        {
-                            valueEndIndex.Assign(currentQuery.Property("Length")).Terminate()
-                        },
-                        Declare("newQuery", typeof(string),
-                            new BinaryOperatorExpression("+",
-                                new BinaryOperatorExpression("+",
-                                    currentQuery.Invoke("Substring", Literal(0), valueStartIndex),
-                                    valueParameter),
-                                currentQuery.Invoke("Substring", valueEndIndex)),
-                            out var newQuery),
-                        // Replace the query portion in the StringBuilder
-                        stringBuilder.Remove(new BinaryOperatorExpression("+", pathLength, Int(1)), new BinaryOperatorExpression("-", new BinaryOperatorExpression("-", stringBuilder.Length(), pathLength), Int(1))).Terminate(),
-                        stringBuilder.Append(newQuery).Terminate()
-                    },
-                    // Append new parameter
-                    new MethodBodyStatement[]
-                    {
-                        stringBuilder.Append(Literal('&')).Terminate(),
+                        stringBuilder.Append(Literal('?')).Terminate(),
                         stringBuilder.Append(nameParameter).Terminate(),
                         stringBuilder.Append(Literal('=')).Terminate(),
                         stringBuilder.Append(valueParameter).Terminate()
+                    },
+
+                    // Query string exists - update or append parameter
+                    new MethodBodyStatement[]
+                    {
+                        Declare("queryStartIndex", typeof(int), new BinaryOperatorExpression("+", pathLength, Int(1)), out var queryStartIndex),
+                        Declare("searchPattern", typeof(string), new BinaryOperatorExpression("+", nameParameter, Literal("=")), out var searchPattern),
+                        Declare("queryString", typeof(string), stringBuilder.Invoke("ToString", queryStartIndex, new BinaryOperatorExpression("-", stringBuilder.Length(), queryStartIndex)), out var queryString),
+
+                        Declare("paramStartIndex", typeof(int), Literal(-1), out var paramStartIndex),
+                        new IfStatement(queryString.Invoke("StartsWith", searchPattern))
+                        {
+                            paramStartIndex.Assign(Literal(0)).Terminate()
+                        },
+                        new IfStatement(paramStartIndex.Equal(Literal(-1)))
+                        {
+                            Declare("prefixedIndex", typeof(int), queryString.Invoke("IndexOf", new BinaryOperatorExpression("+", Literal("&"), searchPattern)), out var prefixedIndex),
+                            new IfStatement(prefixedIndex.GreaterThanOrEqual(Literal(0)))
+                            {
+                                paramStartIndex.Assign(new BinaryOperatorExpression("+", prefixedIndex, Int(1))).Terminate()
+                            }
+                        },
+
+                        new IfElseStatement(
+                            paramStartIndex.GreaterThanOrEqual(Literal(0)),
+                            // Parameter exists - replace its value
+                            new MethodBodyStatement[]
+                            {
+                                Declare("valueStartIndex", typeof(int), new BinaryOperatorExpression("+", paramStartIndex, searchPattern.Property("Length")), out var valueStartIndex),
+                                Declare("valueEndIndex", typeof(int), queryString.Invoke("IndexOf", Literal('&'), valueStartIndex), out var valueEndIndex),
+                                new IfStatement(valueEndIndex.Equal(Literal(-1)))
+                                {
+                                    valueEndIndex.Assign(queryString.Property("Length")).Terminate()
+                                },
+                                Declare("globalStart", typeof(int), new BinaryOperatorExpression("+", queryStartIndex, valueStartIndex), out var globalStart),
+                                Declare("globalEnd", typeof(int), new BinaryOperatorExpression("+", queryStartIndex, valueEndIndex), out var globalEnd),
+                                stringBuilder.Invoke("Remove", globalStart, new BinaryOperatorExpression("-", globalEnd, globalStart)).Terminate(),
+                                stringBuilder.Invoke("Insert", globalStart, valueParameter).Terminate()
+                            },
+                            
+                            // Parameter doesn't exist - append new parameter
+                            new MethodBodyStatement[]
+                            {
+                                new InvokeMethodExpression(null, AppendQueryMethodName, [nameParameter, valueParameter, Literal(false)]).Terminate()
+                            }
+                        )
                     }
                 )
             };

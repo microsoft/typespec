@@ -132,27 +132,41 @@ namespace SampleTypeSpec
                 PathAndQuery.Append('=');
                 PathAndQuery.Append(value);
             }
-            if (PathAndQuery.ToString().Contains(name + "="))
-            {
-                string currentQuery = PathAndQuery.ToString(_pathLength + 1, PathAndQuery.Length - _pathLength - 1);
-                string searchPattern = name + "=";
-                int paramIndex = currentQuery.IndexOf(searchPattern);
-                int valueStartIndex = paramIndex + searchPattern.Length;
-                int valueEndIndex = currentQuery.IndexOf('&', valueStartIndex);
-                if (valueEndIndex == -1)
-                {
-                    valueEndIndex = currentQuery.Length;
-                }
-                string newQuery = currentQuery.Substring(0, valueStartIndex) + value + currentQuery.Substring(valueEndIndex);
-                PathAndQuery.Remove(_pathLength + 1, PathAndQuery.Length - _pathLength - 1);
-                PathAndQuery.Append(newQuery);
-            }
             else
             {
-                PathAndQuery.Append('&');
-                PathAndQuery.Append(name);
-                PathAndQuery.Append('=');
-                PathAndQuery.Append(value);
+                int queryStartIndex = _pathLength + 1;
+                string searchPattern = name + "=";
+                string queryString = PathAndQuery.ToString(queryStartIndex, PathAndQuery.Length - queryStartIndex);
+                int paramStartIndex = -1;
+                if (queryString.StartsWith(searchPattern))
+                {
+                    paramStartIndex = 0;
+                }
+                if (paramStartIndex == -1)
+                {
+                    int prefixedIndex = queryString.IndexOf("&" + searchPattern);
+                    if (prefixedIndex >= 0)
+                    {
+                        paramStartIndex = prefixedIndex + 1;
+                    }
+                }
+                if (paramStartIndex >= 0)
+                {
+                    int valueStartIndex = paramStartIndex + searchPattern.Length;
+                    int valueEndIndex = queryString.IndexOf('&', valueStartIndex);
+                    if (valueEndIndex == -1)
+                    {
+                        valueEndIndex = queryString.Length;
+                    }
+                    int globalStart = queryStartIndex + valueStartIndex;
+                    int globalEnd = queryStartIndex + valueEndIndex;
+                    PathAndQuery.Remove(globalStart, globalEnd - globalStart);
+                    PathAndQuery.Insert(globalStart, value);
+                }
+                else
+                {
+                    AppendQuery(name, value, false);
+                }
             }
         }
 
