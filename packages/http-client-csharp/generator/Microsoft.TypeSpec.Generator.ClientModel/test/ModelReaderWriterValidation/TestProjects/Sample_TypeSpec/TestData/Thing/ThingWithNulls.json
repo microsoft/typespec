@@ -13,5 +13,6 @@
   "optionalLiteralFloat": 4.56,
   "optionalLiteralBool": false,
   "requiredNullableString": null,
-  "extra": "stuff"
+  "extra": "stuff",
+  "propertyWithSpecialDocs": "someValue"
 }
