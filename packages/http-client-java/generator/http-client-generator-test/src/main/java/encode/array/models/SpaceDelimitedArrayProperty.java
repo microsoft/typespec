@@ -79,12 +79,12 @@ public final class SpaceDelimitedArrayProperty implements JsonSerializable<Space
                 reader.nextToken();
 
                 if ("value".equals(fieldName)) {
-                    String valueEncodedAsString = reader.getString();
-                    value = valueEncodedAsString == null
-                        ? null
-                        : valueEncodedAsString.isEmpty()
+                    value = reader.getNullable(nonNullReader -> {
+                        String valueEncodedAsString = nonNullReader.getString();
+                        return valueEncodedAsString.isEmpty()
                             ? new LinkedList<>()
                             : new LinkedList<>(Arrays.asList(valueEncodedAsString.split(" ", -1)));
+                    });
                 } else {
                     reader.skipChildren();
                 }
