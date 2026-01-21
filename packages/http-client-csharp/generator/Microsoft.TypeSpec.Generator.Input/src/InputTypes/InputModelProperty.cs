@@ -18,7 +18,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isHttpMetadata,
             bool isApiVersion,
             InputConstant? defaultValue,
-            InputSerializationOptions serializationOptions)
+            InputSerializationOptions serializationOptions,
+            string? encode = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
@@ -30,11 +31,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsDiscriminator = isDiscriminator;
             IsHttpMetadata = isHttpMetadata;
             SerializationOptions = serializationOptions;
+            Encode = encode;
         }
 
         public bool IsDiscriminator { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
         public bool IsHttpMetadata { get; internal set; }
+        public string? Encode { get; internal set; }
 
         /// <summary>
         /// Updates the properties of the input model property.

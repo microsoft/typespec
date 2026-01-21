@@ -5,34 +5,155 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Encode._Array
 {
+    /// <summary> The CommaDelimitedArrayProperty. </summary>
     public partial class CommaDelimitedArrayProperty : IJsonModel<CommaDelimitedArrayProperty>
     {
-        internal CommaDelimitedArrayProperty() => throw null;
+        /// <summary> Initializes a new instance of <see cref="CommaDelimitedArrayProperty"/> for deserialization. </summary>
+        internal CommaDelimitedArrayProperty()
+        {
+        }
 
-        void IJsonModel<CommaDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        void IJsonModel<CommaDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<CommaDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(CommaDelimitedArrayProperty)} does not support writing '{format}' format.");
+            }
+            writer.WritePropertyName("value"u8);
+            writer.WriteStringValue(string.Join(",", Value));
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
 
-        CommaDelimitedArrayProperty IJsonModel<CommaDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        CommaDelimitedArrayProperty IJsonModel<CommaDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
-        protected virtual CommaDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual CommaDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<CommaDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(CommaDelimitedArrayProperty)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeCommaDelimitedArrayProperty(document.RootElement, options);
+        }
 
-        BinaryData IPersistableModel<CommaDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static CommaDelimitedArrayProperty DeserializeCommaDelimitedArrayProperty(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            IList<string> value = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("value"u8))
+                {
+                    string stringValue = prop.Value.GetString();
+                    value = string.IsNullOrEmpty(stringValue) ? new List<string>() : new List<string>(stringValue.Split(','));
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            return new CommaDelimitedArrayProperty(value, additionalBinaryDataProperties);
+        }
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<CommaDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
-        CommaDelimitedArrayProperty IPersistableModel<CommaDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<CommaDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, Encode_ArrayContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(CommaDelimitedArrayProperty)} does not support writing '{options.Format}' format.");
+            }
+        }
 
-        protected virtual CommaDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        CommaDelimitedArrayProperty IPersistableModel<CommaDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
-        string IPersistableModel<CommaDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual CommaDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<CommaDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeCommaDelimitedArrayProperty(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(CommaDelimitedArrayProperty)} does not support reading '{options.Format}' format.");
+            }
+        }
 
-        public static implicit operator BinaryContent(CommaDelimitedArrayProperty commaDelimitedArrayProperty) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<CommaDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        public static explicit operator CommaDelimitedArrayProperty(ClientResult result) => throw null;
+        /// <param name="commaDelimitedArrayProperty"> The <see cref="CommaDelimitedArrayProperty"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(CommaDelimitedArrayProperty commaDelimitedArrayProperty)
+        {
+            if (commaDelimitedArrayProperty == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(commaDelimitedArrayProperty, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="CommaDelimitedArrayProperty"/> from. </param>
+        public static explicit operator CommaDelimitedArrayProperty(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeCommaDelimitedArrayProperty(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
     }
 }

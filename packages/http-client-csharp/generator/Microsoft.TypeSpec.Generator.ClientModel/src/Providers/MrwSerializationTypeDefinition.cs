@@ -1290,11 +1290,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool useCustomDeserializationHook = false;
             var serializationFormat = wireInfo.SerializationFormat;
             var propertyVarReference = variableExpression;
-            var deserializationStatements = new MethodBodyStatement[2]
+
+            MethodBodyStatement[] deserializationStatements;
+
+            // Check for encoded arrays and use custom deserialization logic
+            if (!string.IsNullOrEmpty(wireInfo.Encode) && (propertyType.IsList || propertyType.IsArray))
             {
-                DeserializeValue(propertyType, jsonProperty.Value(), serializationFormat, out ValueExpression value),
-                propertyVarReference.Assign(value).Terminate()
-            };
+                deserializationStatements = CreateEncodedArrayDeserializationStatements(
+                    propertyType,
+                    propertyVarReference,
+                    jsonProperty,
+                    wireInfo.Encode);
+            }
+            else
+            {
+                deserializationStatements = new MethodBodyStatement[2]
+                {
+                    DeserializeValue(propertyType, jsonProperty.Value(), serializationFormat, out ValueExpression value),
+                    propertyVarReference.Assign(value).Terminate()
+                };
+            }
 
             foreach (var attribute in serializationAttributes)
             {
@@ -1634,6 +1649,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Generate the serialization statements for the property
             var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
 
+            // Check for encoded arrays and override the serialization statement
+            if (!string.IsNullOrEmpty(wireInfo.Encode) && (propertyType.IsList || propertyType.IsArray))
+            {
+                serializationStatement = CreateEncodedArraySerializationStatement(
+                    propertyType,
+                    propertyExpression,
+                    wireInfo.Encode);
+            }
+
             // Check for custom serialization hooks
             foreach (var attribute in _model.CustomCodeView?.Attributes
                          .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
@@ -1808,6 +1832,137 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 },
                 _utf8JsonWriterSnippet.WriteEndArray()
             };
+        }
+
+        private MethodBodyStatement CreateEncodedArraySerializationStatement(
+            CSharpType propertyType,
+            ValueExpression propertyExpression,
+            string encoding)
+        {
+            // Get the delimiter based on the encoding type
+            var delimiter = encoding switch
+            {
+                "commaDelimited" => ",",
+                "spaceDelimited" => " ",
+                "pipeDelimited" => "|",
+                "newlineDelimited" => "\n",
+                _ => throw new InvalidOperationException($"Unknown array encoding: {encoding}")
+            };
+
+            // Get element type for string conversion
+            var elementType = propertyType.IsArray ? propertyType.ElementType : propertyType.Arguments[0];
+
+            // Build the serialization expression based on element type
+            ValueExpression stringJoinExpression;
+            if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(string))
+            {
+                // For string arrays, use string.Join directly
+                // string.Join(",", array)
+                stringJoinExpression = Static<string>().Invoke(nameof(string.Join), Literal(delimiter), propertyExpression);
+            }
+            else
+            {
+                // For non-string arrays, convert each element to string first
+                // string.Join(",", array.Select(x => x?.ToString() ?? ""))
+                var x = new VariableExpression(typeof(object), "x");
+                var selectExpression = propertyExpression.Invoke("Select",
+                    new FuncExpression([x.Declaration], new TernaryConditionalExpression(
+                        x.Equal(Null),
+                        Literal(""),
+                        x.Invoke("ToString"))));
+                stringJoinExpression = Static<string>().Invoke(nameof(string.Join), Literal(delimiter), selectExpression);
+            }
+
+            // writer.WriteStringValue(stringJoinExpression)
+            return _utf8JsonWriterSnippet.WriteStringValue(stringJoinExpression);
+        }
+
+        private MethodBodyStatement[] CreateEncodedArrayDeserializationStatements(
+            CSharpType propertyType,
+            VariableExpression variableExpression,
+            ScopedApi<JsonProperty> jsonProperty,
+            string encoding)
+        {
+            var delimiter = encoding switch
+            {
+                "commaDelimited" => ",",
+                "spaceDelimited" => " ",
+                "pipeDelimited" => "|",
+                "newlineDelimited" => "\n",
+                _ => throw new InvalidOperationException($"Unknown array encoding: {encoding}")
+            };
+            var elementType = propertyType.IsArray ? propertyType.ElementType : propertyType.Arguments[0];
+            var delimiterChar = Literal(delimiter.ToCharArray()[0]);
+            var isStringElement = elementType.IsFrameworkType && elementType.FrameworkType == typeof(string);
+
+            var getStringStatement = Declare("stringValue", typeof(string), jsonProperty.Value().GetString(), out var stringValueVar);
+            var isNullOrEmptyCheck = Static<string>().Invoke("IsNullOrEmpty", stringValueVar);
+
+            MethodBodyStatement createArrayStatement;
+
+            if (isStringElement)
+            {
+                var splitResult = stringValueVar.Invoke("Split", delimiterChar);
+                if (propertyType.IsArray)
+                {
+                    var emptyExpression = new NewArrayExpression(elementType);
+                    var conditionalExpression = new TernaryConditionalExpression(
+                        isNullOrEmptyCheck, emptyExpression, splitResult);
+                    createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
+                }
+                else if (propertyType.IsList)
+                {
+                    var emptyExpression = New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType));
+                    var populatedExpression = New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), splitResult);
+                    var conditionalExpression = new TernaryConditionalExpression(
+                        isNullOrEmptyCheck, emptyExpression, populatedExpression);
+                    createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
+                }
+                else
+                {
+                    var listExpression = New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), splitResult);
+                    var conditionalExpression = new TernaryConditionalExpression(
+                        isNullOrEmptyCheck, New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType)), listExpression);
+                    createArrayStatement = variableExpression.Assign(New.Instance(propertyType, conditionalExpression)).Terminate();
+                }
+            }
+            else
+            {
+                var splitExpression = new TernaryConditionalExpression(
+                    isNullOrEmptyCheck,
+                    new NewArrayExpression(typeof(string)),
+                    stringValueVar.Invoke("Split", delimiterChar));
+
+                var s = new VariableExpression(typeof(string), "s");
+                var trimmedS = s.Invoke("Trim");
+
+                var parseExpression = elementType.IsFrameworkType
+                    ? elementType.FrameworkType.Name switch
+                    {
+                        nameof(Int32) => Static<int>().Invoke("Parse", trimmedS),
+                        nameof(Int64) => Static<long>().Invoke("Parse", trimmedS),
+                        nameof(Double) => Static<double>().Invoke("Parse", trimmedS),
+                        nameof(Single) => Static<float>().Invoke("Parse", trimmedS),
+                        nameof(Boolean) => Static<bool>().Invoke("Parse", trimmedS),
+                        _ => throw new InvalidOperationException($"Unsupported primitive type: {elementType.FrameworkType}")
+                    }
+                    : Static(elementType).Invoke("Parse", trimmedS); // Custom types
+
+                var selectExpression = splitExpression.Invoke("Select",
+                    new FuncExpression([s.Declaration], parseExpression));
+
+                var finalExpression = propertyType.IsArray
+                    ? selectExpression.Invoke("ToArray")
+                    : propertyType.IsList
+                        ? New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), selectExpression)
+                        : New.Instance(propertyType, selectExpression);
+                createArrayStatement = variableExpression.Assign(finalExpression).Terminate();
+            }
+            return
+            [
+                getStringStatement,
+                createArrayStatement
+            ];
         }
 
         private MethodBodyStatement CreateDictionarySerialization(

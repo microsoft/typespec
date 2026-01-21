@@ -3,17 +3,51 @@
 #nullable disable
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Encode._Array
 {
+    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class EncodeArrayModelFactory
     {
-        public static CommaDelimitedArrayProperty CommaDelimitedArrayProperty(IEnumerable<string> value = default) => throw null;
+        /// <summary> The CommaDelimitedArrayProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Array.CommaDelimitedArrayProperty"/> instance for mocking. </returns>
+        public static CommaDelimitedArrayProperty CommaDelimitedArrayProperty(IEnumerable<string> value = default)
+        {
+            value ??= new ChangeTrackingList<string>();
 
-        public static SpaceDelimitedArrayProperty SpaceDelimitedArrayProperty(IEnumerable<string> value = default) => throw null;
+            return new CommaDelimitedArrayProperty(value.ToList(), additionalBinaryDataProperties: null);
+        }
 
-        public static PipeDelimitedArrayProperty PipeDelimitedArrayProperty(IEnumerable<string> value = default) => throw null;
+        /// <summary> The SpaceDelimitedArrayProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Array.SpaceDelimitedArrayProperty"/> instance for mocking. </returns>
+        public static SpaceDelimitedArrayProperty SpaceDelimitedArrayProperty(IEnumerable<string> value = default)
+        {
+            value ??= new ChangeTrackingList<string>();
 
-        public static NewlineDelimitedArrayProperty NewlineDelimitedArrayProperty(IEnumerable<string> value = default) => throw null;
+            return new SpaceDelimitedArrayProperty(value.ToList(), additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The PipeDelimitedArrayProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Array.PipeDelimitedArrayProperty"/> instance for mocking. </returns>
+        public static PipeDelimitedArrayProperty PipeDelimitedArrayProperty(IEnumerable<string> value = default)
+        {
+            value ??= new ChangeTrackingList<string>();
+
+            return new PipeDelimitedArrayProperty(value.ToList(), additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The NewlineDelimitedArrayProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Array.NewlineDelimitedArrayProperty"/> instance for mocking. </returns>
+        public static NewlineDelimitedArrayProperty NewlineDelimitedArrayProperty(IEnumerable<string> value = default)
+        {
+            value ??= new ChangeTrackingList<string>();
+
+            return new NewlineDelimitedArrayProperty(value.ToList(), additionalBinaryDataProperties: null);
+        }
     }
 }

@@ -46,7 +46,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 isHttpMetadata: false,
                 isApiVersion: false,
                 defaultValue: null,
-                serializationOptions: null!);
+                serializationOptions: null!,
+                encode: null);
             resolver.AddReference(id, property);
 
             string? kind = null;
@@ -63,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isDiscriminator = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
+            string? encode = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -81,7 +83,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
-                    || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions);
+                    || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
+                    || reader.TryReadString("encode", ref encode);
 
                 if (!isKnownProperty)
                 {
@@ -103,6 +106,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.SerializedName = serializedName ?? serializationOptions?.Json?.Name ?? name;
             property.IsApiVersion = isApiVersion;
             property.DefaultValue = defaultValue;
+            property.Encode = encode;
 
             return property;
         }
