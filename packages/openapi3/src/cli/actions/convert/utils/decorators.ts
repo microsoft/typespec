@@ -19,6 +19,11 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
   const decorators: TypeSpecDecorator[] = [];
 
   for (const key of Object.keys(element)) {
+    // Skip x-ms-duration as it's handled separately for duration encoding
+    if (key === "x-ms-duration") {
+      continue;
+    }
+
     if (isExtensionKey(key)) {
       decorators.push({
         name: extensionDecoratorName,
@@ -206,8 +211,9 @@ export function getDecoratorsForSchema(
     decorators.push(...getUnixtimeSchemaDecorators(typeForFormat));
   }
 
-  // Handle duration format with @encode decorator
-  if (formatToUse === "duration" && typeForFormat === "number") {
+  // Handle x-ms-duration extension with @encode decorator
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
     decorators.push(...getDurationSchemaDecorators(schema));
   }
 
@@ -330,11 +336,53 @@ function getUnixtimeSchemaDecorators(effectiveType: string | undefined) {
 function getDurationSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
-  // For number type with duration format, encode as seconds with float32 by default
-  // This matches the expected behavior in the issue description
+  // Get the x-ms-duration value (seconds or milliseconds)
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (!xmsDuration || (xmsDuration !== "seconds" && xmsDuration !== "milliseconds")) {
+    return decorators;
+  }
+
+  // Determine the encoding type based on the schema's format
+  let encodingType = "float32"; // default
+  const format = schema.format ?? "";
+
+  if (schema.type === "integer") {
+    // For integer types, use the specific format or default to integer
+    switch (format) {
+      case "int8":
+      case "int16":
+      case "int32":
+      case "int64":
+      case "uint8":
+      case "uint16":
+      case "uint32":
+      case "uint64":
+        encodingType = format;
+        break;
+      default:
+        encodingType = "integer";
+    }
+  } else if (schema.type === "number") {
+    // For number types, use the specific format or default to float32
+    switch (format) {
+      case "decimal":
+      case "decimal128":
+        encodingType = format;
+        break;
+      case "double":
+        encodingType = "float64";
+        break;
+      case "float":
+        encodingType = "float32";
+        break;
+      default:
+        encodingType = "float32";
+    }
+  }
+
   decorators.push({
     name: "encode",
-    args: [createTSValue(`"seconds"`), createTSValue("float32")],
+    args: [createTSValue(`"${xmsDuration}"`), createTSValue(encodingType)],
   });
 
   return decorators;

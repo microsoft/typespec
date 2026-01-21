@@ -535,6 +535,13 @@ export function getTypeSpecPrimitiveFromSchema(schema: SupportedOpenAPISchema): 
 
 function getIntegerType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
+
+  // Check for x-ms-duration extension
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    return "duration";
+  }
+
   switch (format) {
     case "int8":
     case "int16":
@@ -556,6 +563,13 @@ function getIntegerType(schema: SupportedOpenAPISchema): string {
 
 function getNumberType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
+
+  // Check for x-ms-duration extension
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    return "duration";
+  }
+
   switch (format) {
     case "decimal":
     case "decimal128":
@@ -564,8 +578,6 @@ function getNumberType(schema: SupportedOpenAPISchema): string {
       return "float64";
     case "float":
       return "float32";
-    case "duration":
-      return "duration";
     default:
       // Could be either 'float' or 'numeric' - add FIXME?
       return "numeric";
