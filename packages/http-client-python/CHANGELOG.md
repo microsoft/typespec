@@ -1,5 +1,16 @@
 # Change Log - @typespec/http-client-python
 
+## 0.25.0
+
+### Features
+
+- [#9407](https://github.com/microsoft/typespec/pull/9407) Support enum type for array encode
+
+### Bug Fixes
+
+- [#9417](https://github.com/microsoft/typespec/pull/9417) support "apiVersions" of TCGC metadata
+
+
 ## 0.24.1
 
 ### Bug Fixes
