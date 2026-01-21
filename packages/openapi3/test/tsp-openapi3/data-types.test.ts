@@ -140,9 +140,10 @@ describe("converts top-level schemas", () => {
       const scalars = serviceNamespace.scalars;
       /* @extension("x-ms-duration", "seconds") @encode("seconds", int32) scalar DurationIntSeconds extends duration; */
       expect(scalars.get("DurationIntSeconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
       expectDecorators(scalars.get("DurationIntSeconds")!.decorators, [
-        { name: "extension", args: ["x-ms-duration", "seconds"] },
         { name: "encode", args: ["seconds", { kind: "Scalar", name: "int32" }] },
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
       ]);
     });
 
@@ -160,9 +161,10 @@ describe("converts top-level schemas", () => {
       const scalars = serviceNamespace.scalars;
       /* @extension("x-ms-duration", "milliseconds") @encode("milliseconds", int32) scalar DurationIntMilliseconds extends duration; */
       expect(scalars.get("DurationIntMilliseconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
       expectDecorators(scalars.get("DurationIntMilliseconds")!.decorators, [
-        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
         { name: "encode", args: ["milliseconds", { kind: "Scalar", name: "int32" }] },
+        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
       ]);
     });
 
@@ -196,9 +198,10 @@ describe("converts top-level schemas", () => {
       const scalars = serviceNamespace.scalars;
       /* @extension("x-ms-duration", "seconds") @encode("seconds", float32) scalar DurationFloatSeconds extends duration; */
       expect(scalars.get("DurationFloatSeconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
       expectDecorators(scalars.get("DurationFloatSeconds")!.decorators, [
-        { name: "extension", args: ["x-ms-duration", "seconds"] },
         { name: "encode", args: ["seconds", { kind: "Scalar", name: "float32" }] },
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
       ]);
     });
 
@@ -216,9 +219,10 @@ describe("converts top-level schemas", () => {
       const scalars = serviceNamespace.scalars;
       /* @extension("x-ms-duration", "milliseconds") @encode("milliseconds", float32) scalar DurationFloatMilliseconds extends duration; */
       expect(scalars.get("DurationFloatMilliseconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
       expectDecorators(scalars.get("DurationFloatMilliseconds")!.decorators, [
-        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
         { name: "encode", args: ["milliseconds", { kind: "Scalar", name: "float32" }] },
+        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
       ]);
     });
 
@@ -252,9 +256,10 @@ describe("converts top-level schemas", () => {
       const scalars = serviceNamespace.scalars;
       /* @extension("x-ms-duration", "seconds") @encode("seconds", decimal) scalar DurationDecimalSeconds extends duration; */
       expect(scalars.get("DurationDecimalSeconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
       expectDecorators(scalars.get("DurationDecimalSeconds")!.decorators, [
-        { name: "extension", args: ["x-ms-duration", "seconds"] },
         { name: "encode", args: ["seconds", { kind: "Scalar", name: "decimal" }] },
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
       ]);
     });
 
@@ -272,9 +277,10 @@ describe("converts top-level schemas", () => {
       const scalars = serviceNamespace.scalars;
       /* @extension("x-ms-duration", "milliseconds") @encode("milliseconds", decimal) scalar DurationDecimalMilliseconds extends duration; */
       expect(scalars.get("DurationDecimalMilliseconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
       expectDecorators(scalars.get("DurationDecimalMilliseconds")!.decorators, [
-        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
         { name: "encode", args: ["milliseconds", { kind: "Scalar", name: "decimal" }] },
+        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
       ]);
     });
   });

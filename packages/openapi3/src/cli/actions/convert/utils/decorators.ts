@@ -166,13 +166,6 @@ export function getDecoratorsForSchema(
     return decorators;
   }
 
-  // Handle x-ms-duration extension with @encode decorator
-  // Add this before getExtensions so the order is @encode first, then @extension
-  const xmsDuration = (schema as any)["x-ms-duration"];
-  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
-    decorators.push(...getDurationSchemaDecorators(schema));
-  }
-
   decorators.push(...getExtensions(schema));
 
   // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
@@ -180,6 +173,13 @@ export function getDecoratorsForSchema(
   const effectiveType = Array.isArray(schema.type)
     ? schema.type.find((t) => t !== "null")
     : schema.type;
+
+  // Handle x-ms-duration extension with @encode decorator
+  // Must be after effectiveType extraction to handle type arrays correctly
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    decorators.push(...getDurationSchemaDecorators(schema, effectiveType));
+  }
 
   // Handle unixtime format with @encode decorator
   // Check both direct format and format from anyOf/oneOf members
@@ -329,7 +329,10 @@ function getUnixtimeSchemaDecorators(effectiveType: string | undefined) {
   return decorators;
 }
 
-function getDurationSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
+function getDurationSchemaDecorators(
+  schema: OpenAPI3Schema | OpenAPISchema3_1,
+  effectiveType: string | undefined,
+) {
   const decorators: TypeSpecDecorator[] = [];
 
   // Get the x-ms-duration value (seconds or milliseconds)
@@ -338,11 +341,11 @@ function getDurationSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) 
     return decorators;
   }
 
-  // Determine the encoding type based on the schema's format
+  // Determine the encoding type based on the schema's format and type
   let encodingType = "float32"; // default
   const format = schema.format ?? "";
 
-  if (schema.type === "integer") {
+  if (effectiveType === "integer") {
     // For integer types, use the specific format or default to integer
     switch (format) {
       case "int8":
@@ -358,7 +361,7 @@ function getDurationSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) 
       default:
         encodingType = "integer";
     }
-  } else if (schema.type === "number") {
+  } else if (effectiveType === "number") {
     // For number types, use the specific format or default to float32
     switch (format) {
       case "decimal":
