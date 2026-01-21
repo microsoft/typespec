@@ -1658,7 +1658,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                                 deserializationBlock.line("String %1$s = nonNullReader.getString();",
                                     propertyStringVariableName);
                                 deserializationBlock.line(
-                                    "%1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.stream(%1$s.split(\"%2$s\", -1)).map(valueAsString -> %3$s).collect(Collectors.toList()));",
+                                    "return %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.stream(%1$s.split(\"%2$s\", -1)).map(valueAsString -> %3$s).collect(Collectors.toList()));",
                                     propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter(),
                                     conversionExpress);
                             });
