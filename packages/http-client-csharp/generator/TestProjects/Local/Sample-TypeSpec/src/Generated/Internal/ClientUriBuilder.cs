@@ -127,10 +127,7 @@ namespace SampleTypeSpec
         {
             if (PathAndQuery.Length == _pathLength)
             {
-                PathAndQuery.Append('?');
-                PathAndQuery.Append(name);
-                PathAndQuery.Append('=');
-                PathAndQuery.Append(value);
+                AppendQuery(name, value, false);
             }
             else
             {
