@@ -1412,12 +1412,6 @@ export function createServer(
     host.log(log);
   }
 
-  function logCompileConfig(logMessage: ServerLog) {
-    if (debugLoggers.compileConfig.enabled) {
-      log(logMessage);
-    }
-  }
-
   function sendDiagnostics(document: TextDocument, diagnostics: VSDiagnostic[]) {
     host.sendDiagnostics({
       uri: document.uri,
