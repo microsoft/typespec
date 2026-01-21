@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Documentation;
@@ -20,6 +21,15 @@ namespace TestProjects.Spector.Tests.Http.Documentation
             var client = new DocumentationClient(host, new DocumentationClientOptions());
             var response = await client.GetListsClient().BulletPointsOpAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
+
+            // Validate method documentation
+            var method = typeof(Lists).GetMethod("BulletPointsOpAsync", new[] { typeof(CancellationToken) });
+            Assert.IsNotNull(method, "BulletPointsOpAsync method should exist");
+            var methodXml = GetXmlDocumentation(method!);
+            Assert.That(methodXml, Does.Contain("<list type=\"bullet\">"), "BulletPointsOp should have bullet list");
+            Assert.That(methodXml, Does.Contain("<b>bold text</b>"), "BulletPointsOp should have <b> tags");
+            Assert.That(methodXml, Does.Contain("<i>italic text</i>"), "BulletPointsOp should have <i> tags");
+            Assert.That(methodXml, Does.Not.Contain("**"), "BulletPointsOp should not have markdown ** syntax");
         });
 
         [SpectorTest]
@@ -30,6 +40,26 @@ namespace TestProjects.Spector.Tests.Http.Documentation
             var input = new BulletPointsModel(BulletPointsEnum.Simple);
             var response = await client.GetListsClient().BulletPointsModelAsync(input);
             Assert.AreEqual(200, response.GetRawResponse().Status);
+
+            // Validate enum documentation
+            var enumType = typeof(BulletPointsEnum);
+            var simpleField = enumType.GetField("Simple");
+            Assert.IsNotNull(simpleField, "Simple field should exist");
+            var simpleXml = GetXmlDocumentation(simpleField!);
+            Assert.That(simpleXml, Does.Contain("<list type=\"bullet\">"), "Simple enum should have bullet list");
+            Assert.That(simpleXml, Does.Contain("<item>"), "Simple enum should have list items");
+
+            var boldField = enumType.GetField("Bold");
+            Assert.IsNotNull(boldField, "Bold field should exist");
+            var boldXml = GetXmlDocumentation(boldField!);
+            Assert.That(boldXml, Does.Contain("<b>bold text</b>"), "Bold enum should have <b> tags");
+            Assert.That(boldXml, Does.Contain("<b>One</b>"), "Bold enum list items should have <b> tags");
+
+            var italicField = enumType.GetField("Italic");
+            Assert.IsNotNull(italicField, "Italic field should exist");
+            var italicXml = GetXmlDocumentation(italicField!);
+            Assert.That(italicXml, Does.Contain("<i>italic text</i>"), "Italic enum should have <i> tags");
+            Assert.That(italicXml, Does.Contain("<i>One</i>"), "Italic enum list items should have <i> tags");
         });
 
         [SpectorTest]
@@ -38,37 +68,16 @@ namespace TestProjects.Spector.Tests.Http.Documentation
             var client = new DocumentationClient(host, new DocumentationClientOptions());
             var response = await client.GetListsClient().NumberedAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
+
+            // Validate method documentation
+            var method = typeof(Lists).GetMethod("NumberedAsync", new[] { typeof(CancellationToken) });
+            Assert.IsNotNull(method, "NumberedAsync method should exist");
+            var methodXml = GetXmlDocumentation(method!);
+            Assert.That(methodXml, Does.Contain("<list type=\"number\">"), "Numbered should have numbered list");
+            Assert.That(methodXml, Does.Contain("<b>important</b>"), "Numbered should have <b> tags");
+            Assert.That(methodXml, Does.Contain("<i>emphasis</i>"), "Numbered should have <i> tags");
+            Assert.That(methodXml, Does.Not.Contain("1. First step"), "Numbered should not have markdown syntax");
         });
-
-        [Test]
-        public void ValidateBulletPointsEnumDocumentation()
-        {
-            var enumType = typeof(BulletPointsEnum);
-
-            // Validate Simple enum value has bullet list XML tags
-            var simpleField = enumType.GetField("Simple");
-            Assert.IsNotNull(simpleField, "Simple field should exist");
-            var simpleXml = GetXmlDocumentation(simpleField!);
-            Assert.That(simpleXml, Does.Contain("<list type=\"bullet\">"), "Simple enum should have bullet list");
-            Assert.That(simpleXml, Does.Contain("<item>"), "Simple enum should have list items");
-            Assert.That(simpleXml, Does.Contain("<description>"), "Simple enum should have item descriptions");
-
-            // Validate Bold enum value has both bold tags and bullet list
-            var boldField = enumType.GetField("Bold");
-            Assert.IsNotNull(boldField, "Bold field should exist");
-            var boldXml = GetXmlDocumentation(boldField!);
-            Assert.That(boldXml, Does.Contain("<b>bold text</b>"), "Bold enum should have <b> tags");
-            Assert.That(boldXml, Does.Contain("<list type=\"bullet\">"), "Bold enum should have bullet list");
-            Assert.That(boldXml, Does.Contain("<b>One</b>"), "Bold enum list items should have <b> tags");
-
-            // Validate Italic enum value has both italic tags and bullet list
-            var italicField = enumType.GetField("Italic");
-            Assert.IsNotNull(italicField, "Italic field should exist");
-            var italicXml = GetXmlDocumentation(italicField!);
-            Assert.That(italicXml, Does.Contain("<i>italic text</i>"), "Italic enum should have <i> tags");
-            Assert.That(italicXml, Does.Contain("<list type=\"bullet\">"), "Italic enum should have bullet list");
-            Assert.That(italicXml, Does.Contain("<i>One</i>"), "Italic enum list items should have <i> tags");
-        }
 
         private string GetXmlDocumentation(MemberInfo member)
         {

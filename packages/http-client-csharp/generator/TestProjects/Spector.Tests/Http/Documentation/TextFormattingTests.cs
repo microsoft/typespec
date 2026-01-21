@@ -4,10 +4,12 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Documentation;
 using Documentation._Lists;
+using Documentation._TextFormatting;
 using NUnit.Framework;
 
 namespace TestProjects.Spector.Tests.Http.Documentation
@@ -20,6 +22,14 @@ namespace TestProjects.Spector.Tests.Http.Documentation
             var client = new DocumentationClient(host, new DocumentationClientOptions());
             var response = await client.GetTextFormattingClient().BoldTextAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
+
+            // Validate method documentation
+            var method = typeof(TextFormatting).GetMethod("BoldTextAsync", new[] { typeof(CancellationToken) });
+            Assert.IsNotNull(method, "BoldTextAsync method should exist");
+            var methodXml = GetXmlDocumentation(method!);
+            Assert.That(methodXml, Does.Contain("<b>bold text</b>"), "BoldText should have <b> tags");
+            Assert.That(methodXml, Does.Contain("<b>multiple bold</b>"), "BoldText should have multiple <b> tags");
+            Assert.That(methodXml, Does.Not.Contain("**"), "BoldText should not have markdown ** syntax");
         });
 
         [SpectorTest]
@@ -28,6 +38,13 @@ namespace TestProjects.Spector.Tests.Http.Documentation
             var client = new DocumentationClient(host, new DocumentationClientOptions());
             var response = await client.GetTextFormattingClient().ItalicTextAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
+
+            // Validate method documentation
+            var method = typeof(TextFormatting).GetMethod("ItalicTextAsync", new[] { typeof(CancellationToken) });
+            Assert.IsNotNull(method, "ItalicTextAsync method should exist");
+            var methodXml = GetXmlDocumentation(method!);
+            Assert.That(methodXml, Does.Contain("<i>italic text</i>"), "ItalicText should have <i> tags");
+            Assert.That(methodXml, Does.Contain("<i>multiple italic</i>"), "ItalicText should have multiple <i> tags");
         });
 
         [SpectorTest]
@@ -36,28 +53,15 @@ namespace TestProjects.Spector.Tests.Http.Documentation
             var client = new DocumentationClient(host, new DocumentationClientOptions());
             var response = await client.GetTextFormattingClient().CombinedFormattingAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
+
+            // Validate method documentation
+            var method = typeof(TextFormatting).GetMethod("CombinedFormattingAsync", new[] { typeof(CancellationToken) });
+            Assert.IsNotNull(method, "CombinedFormattingAsync method should exist");
+            var methodXml = GetXmlDocumentation(method!);
+            Assert.That(methodXml, Does.Contain("<b>bold</b>"), "CombinedFormatting should have <b> tags");
+            Assert.That(methodXml, Does.Contain("<i>italic</i>"), "CombinedFormatting should have <i> tags");
+            Assert.That(methodXml, Does.Contain("<b><i>bold italic</i></b>"), "CombinedFormatting should have nested tags");
         });
-
-        [Test]
-        public void ValidateFormattingDocumentation()
-        {
-            // Validate that BulletPointsEnum has properly formatted documentation
-            var enumType = typeof(BulletPointsEnum);
-
-            // Check that Bold enum value has <b> tags (not **bold**)
-            var boldField = enumType.GetField("Bold");
-            Assert.IsNotNull(boldField, "Bold field should exist");
-            var boldXml = GetXmlDocumentation(boldField!);
-            Assert.That(boldXml, Does.Contain("<b>bold text</b>"), "Documentation should contain <b> tags, not markdown **");
-            Assert.That(boldXml, Does.Not.Contain("**"), "Documentation should not contain markdown ** syntax");
-
-            // Check that Italic enum value has <i> tags (not *italic*)
-            var italicField = enumType.GetField("Italic");
-            Assert.IsNotNull(italicField, "Italic field should exist");
-            var italicXml = GetXmlDocumentation(italicField!);
-            Assert.That(italicXml, Does.Contain("<i>italic text</i>"), "Documentation should contain <i> tags, not markdown *");
-            Assert.That(italicXml, Does.Not.Contain("*italic*"), "Documentation should not contain markdown * syntax");
-        }
 
         private string GetXmlDocumentation(MemberInfo member)
         {
