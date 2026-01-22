@@ -68,6 +68,10 @@ export function $onValidate(program: Program) {
         if (isTemplateDeclaration(model)) {
           return;
         }
+        // Model expression should just inherit their validation from the their parent type
+        if (!model.name) {
+          return;
+        }
         addNamespaceDependency(model.namespace, model.sourceModel);
         addNamespaceDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
@@ -532,6 +536,14 @@ function validateReference(program: Program, source: Type | Type[], target: Type
   }
 
   switch (target.kind) {
+    case "Model":
+      // For anonymous model expressions (inline models), validate their properties
+      if (!target.name) {
+        for (const prop of target.properties.values()) {
+          validateReference(program, source, prop.type);
+        }
+      }
+      break;
     case "Union":
       if (typeof target.name !== "string") {
         for (const variant of target.variants.values()) {

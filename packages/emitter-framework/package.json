@@ -77,7 +77,7 @@
     "@typespec/compiler": "workspace:^",
     "concurrently": "^9.1.2",
     "pathe": "^2.0.3",
-    "prettier": "~3.7.4",
+    "prettier": "~3.8.0",
     "tree-sitter-c-sharp": "^0.23.0",
     "tree-sitter-java": "^0.23.2",
     "tree-sitter-javascript": "^0.25.0",
