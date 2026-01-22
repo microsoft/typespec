@@ -536,6 +536,14 @@ function validateReference(program: Program, source: Type | Type[], target: Type
   }
 
   switch (target.kind) {
+    case "Model":
+      // For anonymous model expressions (inline models), validate their properties
+      if (!target.name) {
+        for (const prop of target.properties.values()) {
+          validateReference(program, source, prop.type);
+        }
+      }
+      break;
     case "Union":
       if (typeof target.name !== "string") {
         for (const variant of target.variants.values()) {

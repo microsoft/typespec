@@ -14,6 +14,7 @@ describe("versioning: incompatible use of decorators", () => {
   beforeEach(async () => {
     runner = await Tester.import(...imports).createInstance();
   });
+
   it("emit diagnostic when version enum has duplicate values", async () => {
     const diagnostics = await runner.diagnose(`
     @versioned(Versions)
@@ -1072,6 +1073,113 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing type 'VersionedLib.Foo' removed in version 'l2' but version used is 'l2'.",
+      });
+    });
+  });
+
+  describe("nested expressions", () => {
+    it("a model declaration should be the boundary for checking", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        @added(Versions.v3)
+        model A { b: B }
+        
+        model B { c: C }
+      
+        @added(Versions.v3)
+        model C { }
+      `,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+      });
+    });
+
+    describe("report issues inside model expression under model", () => {
+      it("when base model is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        @added(Versions.v2)
+        model A {
+          prop: { b: B }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
+      });
+
+      it("when parent property is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        model A {
+         @added(Versions.v2)
+          prop: { b: B }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
+      });
+    });
+
+    describe("report issues inside nested model expression under model", () => {
+      it("when base model is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        @added(Versions.v2)
+        model A {
+          prop: { nested: { b: B } }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
+      });
+
+      it("when top parent property is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        model A {
+          @added(Versions.v2)
+          prop: { nested: { b: B } }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
+      });
+
+      it("when parent property is added before", async () => {
+        const diagnostics = await runner.diagnose(
+          `
+        @added(Versions.v3)
+        model B {}
+      
+        model A {
+          prop: { @added(Versions.v2) nested: { b: B } }
+        }
+      `,
+        );
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+        });
       });
     });
   });
