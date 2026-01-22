@@ -364,6 +364,17 @@ function getDurationSchemaDecorators(
   } else if (effectiveType === "number") {
     // For number types, use the specific format or default to float32
     switch (format) {
+      case "int8":
+      case "int16":
+      case "int32":
+      case "int64":
+      case "uint8":
+      case "uint16":
+      case "uint32":
+      case "uint64":
+        // Number type can have integer formats (e.g., type: number, format: int64)
+        encodingType = format;
+        break;
       case "decimal":
       case "decimal128":
         encodingType = format;

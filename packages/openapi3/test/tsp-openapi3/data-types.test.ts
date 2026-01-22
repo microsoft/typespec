@@ -226,6 +226,27 @@ describe("converts top-level schemas", () => {
       ]);
     });
 
+    it("number with int64 format and x-ms-duration: seconds -> duration with @encode(seconds, int64)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          DurationInt64Seconds: {
+            type: "number",
+            format: "int64",
+            "x-ms-duration": "seconds",
+          } as any,
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* @extension("x-ms-duration", "seconds") @encode("seconds", int64) scalar DurationInt64Seconds extends duration; */
+      expect(scalars.get("DurationInt64Seconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
+      expectDecorators(scalars.get("DurationInt64Seconds")!.decorators, [
+        { name: "encode", args: ["seconds", { kind: "Scalar", name: "int64" }] },
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
+      ]);
+    });
+
     it("number with decimal format and no extension -> decimal (no encoding)", async () => {
       const serviceNamespace = await tspForOpenAPI3({
         schemas: {
