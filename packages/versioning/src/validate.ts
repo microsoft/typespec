@@ -68,6 +68,10 @@ export function $onValidate(program: Program) {
         if (isTemplateDeclaration(model)) {
           return;
         }
+        // Model expression should just inherit their validation from the their parent type
+        if (!model.name) {
+          return;
+        }
         addNamespaceDependency(model.namespace, model.sourceModel);
         addNamespaceDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {

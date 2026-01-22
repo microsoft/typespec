@@ -234,6 +234,20 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("succeed when intersecting model in operation response", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model A { b: B }
+
+        @added(Versions.v2)
+        model B {}
+
+        @added(Versions.v2)
+        op test(): A & { foo: "bar" };
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("succeed if versions are compatible in interface", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
