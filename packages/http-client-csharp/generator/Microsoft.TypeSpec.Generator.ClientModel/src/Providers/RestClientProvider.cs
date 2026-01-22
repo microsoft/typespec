@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
+        private const string MaxPageSizeParameterName = "maxpagesize";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -222,7 +223,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (reinjectedParamsMap.Count > 0)
                 {
-                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
+                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap, isNextLinkRequest: true));
                 }
             }
             else
@@ -417,7 +418,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -426,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
                     continue;
 
-                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation);
+                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation, isNextLinkRequest);
                 if (queryStatement != null)
                 {
                     statements.Add(queryStatement);
@@ -440,7 +441,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
             Dictionary<string, ParameterProvider> paramMap,
-            InputOperation operation)
+            InputOperation operation,
+            bool isNextLinkRequest = false)
         {
             GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var serializationFormat, out var valueExpression);
             if (valueExpression == null)
@@ -448,7 +450,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
+            // Determine if we should update existing parameters or always append
+            bool shouldUpdateExisting = isNextLinkRequest &&
+                                      ShouldSkipReinjectedParameter(inputQueryParameter.SerializedName) &&
+                                      paramType?.IsCollection != true;
+
+            MethodBodyStatement statement = shouldUpdateExisting
+                ? BuildUpdateQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat)
+                : BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
 
             // Apply null check if needed
             if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
@@ -460,6 +469,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statement;
         }
 
+        private static ValueExpression GetQueryParameterStringExpression(
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            SerializationFormat? serializationFormat)
+        {
+            return paramType?.Equals(typeof(string)) == true
+                ? valueExpression
+                : GetParameterValueExpression(valueExpression, serializationFormat);
+        }
+
+        private static MethodBodyStatement BuildUpdateQueryStatement(
+            ScopedApi uri,
+            InputQueryParameter inputQueryParameter,
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            SerializationFormat? serializationFormat)
+        {
+            var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
+            var parameterName = inputQueryParameter.SerializedName;
+
+            return uri.UpdateQuery(Literal(parameterName), toStringExpression).Terminate();
+        }
+
         private static MethodBodyStatement BuildAppendQueryStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
@@ -467,13 +499,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression valueExpression,
             SerializationFormat? serializationFormat)
         {
-            // Handle non-collection parameters
             if (paramType?.IsCollection != true)
             {
-                var toStringExpression = paramType?.Equals(typeof(string)) == true
-                    ? valueExpression
-                    : GetParameterValueExpression(valueExpression, serializationFormat);
-
+                var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
                 return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
             }
 
@@ -800,6 +828,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             parameterProvider = null;
             return false;
+        }
+
+        private static bool ShouldSkipReinjectedParameter(string parameterName)
+        {
+            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase);
+            // In the future, we can extend this to check multiple parameters
         }
 
         private static List<int> GetSuccessStatusCodes(InputOperation operation)
