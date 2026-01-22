@@ -41,7 +41,7 @@
     "@typespec/library-linter": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "eslint": "^9.39.2",
-    "prettier": "~3.7.4",
+    "prettier": "~3.8.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.15"
   },
