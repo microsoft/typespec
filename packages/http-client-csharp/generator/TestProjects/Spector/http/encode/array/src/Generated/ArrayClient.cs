@@ -4,43 +4,18 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Encode._Array._Property;
 
 namespace Encode._Array
 {
-    /// <summary> Test for encode decorator on array. </summary>
     public partial class ArrayClient
     {
-        private readonly Uri _endpoint;
-        private Property _cachedProperty;
+        public ArrayClient() : this(new Uri("http://localhost:3000"), new ArrayClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of ArrayClient. </summary>
-        public ArrayClient() : this(new Uri("http://localhost:3000"), new ArrayClientOptions())
-        {
-        }
+        public ArrayClient(Uri endpoint, ArrayClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of ArrayClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public ArrayClient(Uri endpoint, ArrayClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new ArrayClientOptions();
-
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(ArrayClient).Assembly) }, Array.Empty<PipelinePolicy>());
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of Property. </summary>
-        public virtual Property GetPropertyClient()
-        {
-            return Volatile.Read(ref _cachedProperty) ?? Interlocked.CompareExchange(ref _cachedProperty, new Property(Pipeline, _endpoint), null) ?? _cachedProperty;
-        }
+        public virtual Property GetPropertyClient() => throw null;
     }
 }

@@ -5,155 +5,34 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Encode._Array
 {
-    /// <summary> The PipeDelimitedArrayProperty. </summary>
     public partial class PipeDelimitedArrayProperty : IJsonModel<PipeDelimitedArrayProperty>
     {
-        /// <summary> Initializes a new instance of <see cref="PipeDelimitedArrayProperty"/> for deserialization. </summary>
-        internal PipeDelimitedArrayProperty()
-        {
-        }
+        internal PipeDelimitedArrayProperty() => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<PipeDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
+        void IJsonModel<PipeDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<PipeDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(PipeDelimitedArrayProperty)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("value"u8);
-            writer.WriteStringValue(string.Join("|", Value));
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
-        }
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        PipeDelimitedArrayProperty IJsonModel<PipeDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        PipeDelimitedArrayProperty IJsonModel<PipeDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual PipeDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<PipeDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(PipeDelimitedArrayProperty)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializePipeDelimitedArrayProperty(document.RootElement, options);
-        }
+        protected virtual PipeDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static PipeDelimitedArrayProperty DeserializePipeDelimitedArrayProperty(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            IList<string> value = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("value"u8))
-                {
-                    string stringValue = prop.Value.GetString();
-                    value = string.IsNullOrEmpty(stringValue) ? new List<string>() : new List<string>(stringValue.Split('|'));
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new PipeDelimitedArrayProperty(value, additionalBinaryDataProperties);
-        }
+        BinaryData IPersistableModel<PipeDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<PipeDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<PipeDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, Encode_ArrayContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(PipeDelimitedArrayProperty)} does not support writing '{options.Format}' format.");
-            }
-        }
+        PipeDelimitedArrayProperty IPersistableModel<PipeDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        PipeDelimitedArrayProperty IPersistableModel<PipeDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        protected virtual PipeDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual PipeDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<PipeDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializePipeDelimitedArrayProperty(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(PipeDelimitedArrayProperty)} does not support reading '{options.Format}' format.");
-            }
-        }
+        string IPersistableModel<PipeDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<PipeDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        public static implicit operator BinaryContent(PipeDelimitedArrayProperty pipeDelimitedArrayProperty) => throw null;
 
-        /// <param name="pipeDelimitedArrayProperty"> The <see cref="PipeDelimitedArrayProperty"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(PipeDelimitedArrayProperty pipeDelimitedArrayProperty)
-        {
-            if (pipeDelimitedArrayProperty == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(pipeDelimitedArrayProperty, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PipeDelimitedArrayProperty"/> from. </param>
-        public static explicit operator PipeDelimitedArrayProperty(ClientResult result)
-        {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializePipeDelimitedArrayProperty(document.RootElement, ModelSerializationExtensions.WireOptions);
-        }
+        public static explicit operator PipeDelimitedArrayProperty(ClientResult result) => throw null;
     }
 }

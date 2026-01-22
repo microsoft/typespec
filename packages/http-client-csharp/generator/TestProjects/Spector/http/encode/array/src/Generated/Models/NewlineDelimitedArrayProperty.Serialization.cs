@@ -5,155 +5,34 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Encode._Array
 {
-    /// <summary> The NewlineDelimitedArrayProperty. </summary>
     public partial class NewlineDelimitedArrayProperty : IJsonModel<NewlineDelimitedArrayProperty>
     {
-        /// <summary> Initializes a new instance of <see cref="NewlineDelimitedArrayProperty"/> for deserialization. </summary>
-        internal NewlineDelimitedArrayProperty()
-        {
-        }
+        internal NewlineDelimitedArrayProperty() => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<NewlineDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
+        void IJsonModel<NewlineDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<NewlineDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(NewlineDelimitedArrayProperty)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("value"u8);
-            writer.WriteStringValue(string.Join("\n", Value));
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
-        }
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        NewlineDelimitedArrayProperty IJsonModel<NewlineDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        NewlineDelimitedArrayProperty IJsonModel<NewlineDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual NewlineDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<NewlineDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(NewlineDelimitedArrayProperty)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeNewlineDelimitedArrayProperty(document.RootElement, options);
-        }
+        protected virtual NewlineDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static NewlineDelimitedArrayProperty DeserializeNewlineDelimitedArrayProperty(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            IList<string> value = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("value"u8))
-                {
-                    string stringValue = prop.Value.GetString();
-                    value = string.IsNullOrEmpty(stringValue) ? new List<string>() : new List<string>(stringValue.Split('\n'));
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new NewlineDelimitedArrayProperty(value, additionalBinaryDataProperties);
-        }
+        BinaryData IPersistableModel<NewlineDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<NewlineDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<NewlineDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, Encode_ArrayContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(NewlineDelimitedArrayProperty)} does not support writing '{options.Format}' format.");
-            }
-        }
+        NewlineDelimitedArrayProperty IPersistableModel<NewlineDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        NewlineDelimitedArrayProperty IPersistableModel<NewlineDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        protected virtual NewlineDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual NewlineDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<NewlineDelimitedArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeNewlineDelimitedArrayProperty(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(NewlineDelimitedArrayProperty)} does not support reading '{options.Format}' format.");
-            }
-        }
+        string IPersistableModel<NewlineDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<NewlineDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        public static implicit operator BinaryContent(NewlineDelimitedArrayProperty newlineDelimitedArrayProperty) => throw null;
 
-        /// <param name="newlineDelimitedArrayProperty"> The <see cref="NewlineDelimitedArrayProperty"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(NewlineDelimitedArrayProperty newlineDelimitedArrayProperty)
-        {
-            if (newlineDelimitedArrayProperty == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(newlineDelimitedArrayProperty, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="NewlineDelimitedArrayProperty"/> from. </param>
-        public static explicit operator NewlineDelimitedArrayProperty(ClientResult result)
-        {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeNewlineDelimitedArrayProperty(document.RootElement, ModelSerializationExtensions.WireOptions);
-        }
+        public static explicit operator NewlineDelimitedArrayProperty(ClientResult result) => throw null;
     }
 }

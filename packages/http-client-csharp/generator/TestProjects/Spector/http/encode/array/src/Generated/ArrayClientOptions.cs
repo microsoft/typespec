@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace Encode._Array
 {
-    /// <summary> Client options for <see cref="ArrayClient"/>. </summary>
     public partial class ArrayClientOptions : ClientPipelineOptions
     {
     }

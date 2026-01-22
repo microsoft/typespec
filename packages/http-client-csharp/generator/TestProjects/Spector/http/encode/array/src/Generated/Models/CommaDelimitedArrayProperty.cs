@@ -2,38 +2,14 @@
 
 #nullable disable
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Encode._Array
 {
-    /// <summary> The CommaDelimitedArrayProperty. </summary>
     public partial class CommaDelimitedArrayProperty
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        public CommaDelimitedArrayProperty(IEnumerable<string> value) => throw null;
 
-        /// <summary> Initializes a new instance of <see cref="CommaDelimitedArrayProperty"/>. </summary>
-        /// <param name="value"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        public CommaDelimitedArrayProperty(IEnumerable<string> value)
-        {
-            Argument.AssertNotNull(value, nameof(value));
-
-            Value = value.ToList();
-        }
-
-        /// <summary> Initializes a new instance of <see cref="CommaDelimitedArrayProperty"/>. </summary>
-        /// <param name="value"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal CommaDelimitedArrayProperty(IList<string> value, IDictionary<string, BinaryData> additionalBinaryDataProperties)
-        {
-            Value = value;
-            _additionalBinaryDataProperties = additionalBinaryDataProperties;
-        }
-
-        /// <summary> Gets the Value. </summary>
-        public IList<string> Value { get; }
+        public IList<string> Value => throw null;
     }
 }
