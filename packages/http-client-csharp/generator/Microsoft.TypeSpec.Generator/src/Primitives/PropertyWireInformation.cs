@@ -14,8 +14,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsNullable { get; }
         public bool IsDiscriminator { get; }
         public bool IsHttpMetadata { get; }
+        public bool IsApiVersion { get; }
         internal FormattableString? Description { get; }
-        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, bool isHttpMetadata)
+        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, bool isHttpMetadata, bool isApiVersion)
             : base(serializationFormat, serializedName)
         {
             IsRequired = isRequired;
@@ -23,6 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             IsNullable = isNullable;
             IsDiscriminator = isDiscriminator;
             IsHttpMetadata = isHttpMetadata;
+            IsApiVersion = isApiVersion;
         }
 
         /// <summary>
@@ -40,6 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             IsNullable = inputProperty.Type is InputNullableType;
             IsDiscriminator = modelProperty != null && modelProperty.IsDiscriminator;
             Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc);
+            IsApiVersion = inputProperty.IsApiVersion;
         }
     }
 }

@@ -63,9 +63,15 @@ function fromSdkClient(
     client.namespace,
   );
 
+  const isMultiService = isMultiServiceClient(client);
+  const clientName =
+    !client.parent && isMultiService && !client.name.toLowerCase().endsWith("client")
+      ? `${client.name}Client`
+      : client.name;
+
   inputClient = {
     kind: "client",
-    name: client.name,
+    name: clientName,
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
@@ -79,7 +85,7 @@ function fromSdkClient(
     apiVersions: client.apiVersions,
     parent: undefined,
     children: undefined,
-    isMultiServiceClient: isMultiServiceClient(client),
+    isMultiServiceClient: isMultiService,
   };
 
   sdkContext.__typeCache.updateSdkClientReferences(client, inputClient);
