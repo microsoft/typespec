@@ -544,9 +544,9 @@ const XmlSecondPage = `
 </PetListResult>
 `;
 
-Scenarios.Payload_Pageable_XmlPagination_list = passOnSuccess([
+Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
   {
-    uri: "/payload/pageable/xml/list",
+    uri: "/payload/pageable/xml/list-with-continuation",
     method: "get",
     request: {},
     response: {
@@ -583,7 +583,7 @@ Scenarios.Payload_Pageable_XmlPagination_list = passOnSuccess([
     kind: "MockApiDefinition",
   },
   {
-    uri: "/payload/pageable/xml/list",
+    uri: "/payload/pageable/xml/list-with-continuation",
     method: "get",
     request: { query: { marker: "page2" } },
     response: {

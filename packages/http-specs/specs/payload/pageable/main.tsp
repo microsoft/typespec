@@ -4,7 +4,7 @@ import "@typespec/xml";
 
 using Http;
 using Spector;
-using TypeSpec.Xml;
+using Xml;
 
 /**
  * Test for pageable payload.
@@ -571,9 +571,9 @@ namespace XmlPagination {
     </PetListResult>
     ```
     """)
-  @route("/list")
+  @route("/list-with-continuation")
   @list
-  op list(@continuationToken @query marker?: string): {
+  op listWithContinuation(@continuationToken @query marker?: string): {
     @header("content-type") contentType: "application/xml";
     @body body: XmlPetListResult;
   };
