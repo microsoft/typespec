@@ -39,6 +39,18 @@ Expect error code 403 and error body:
 
 Expects header 'Authorization': 'SharedAccessKey valid-key'
 
+### Authentication_Noauth_Union_validNoAuth
+
+- Endpoint: `get /authentication/noauth/union/valid`
+
+Expects no authentication. The server accepts requests without any authentication header.
+
+### Authentication_Noauth_Union_validToken
+
+- Endpoint: `get /authentication/noauth/union/validtoken`
+
+Expects header 'authorization': 'Bearer https://security.microsoft.com/.default'
+
 ### Authentication_OAuth2_invalid
 
 - Endpoint: `get /authentication/oauth2/invalid`
@@ -70,6 +82,292 @@ Expects header 'x-ms-api-key': 'valid-key'
 - Endpoint: `get /authentication/union/validtoken`
 
 Expects header 'authorization': 'Bearer https://security.microsoft.com/.default'
+
+### Documentation_Lists_bulletPointsOp
+
+- Endpoint: `get /documentation/lists/bullet-points/op`
+
+Test simple bullet points in documentation.
+Expected behavior: Should render properly formatted bullet lists.
+
+### Documentation_Lists_numbered
+
+- Endpoint: `get /documentation/lists/numbered`
+
+Test numbered lists.
+Expected behavior: Should render numbered list properly.
+
+### Documentation_TextFormatting_boldText
+
+- Endpoint: `get /documentation/text-formatting/bold`
+
+Expected behavior: Text between \*\* should render as bold.
+
+### Documentation_TextFormatting_combinedFormatting
+
+- Endpoint: `get /documentation/text-formatting/combined`
+
+Test combined bold and italic formatting.
+Expected behavior: Should handle nested and combined formatting.
+
+### Documentation_TextFormatting_italicText
+
+- Endpoint: `get /documentation/text-formatting/italic`
+
+Test italic text formatting using _single asterisks_.
+Expected behavior: Text between \* should render as italic.
+
+### Encode_Array_Property_commaDelimited
+
+- Endpoint: `post /encode/array/property/comma-delimited`
+
+Test operation with request and response model contains a string array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_enumCommaDelimited
+
+- Endpoint: `post /encode/array/property/enum/comma-delimited`
+
+Test operation with request and response model contains an enum array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_enumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/enum/newline-delimited`
+
+Test operation with request and response model contains an enum array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_enumPipeDelimited
+
+- Endpoint: `post /encode/array/property/enum/pipe-delimited`
+
+Test operation with request and response model contains an enum array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_enumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/enum/space-delimited`
+
+Test operation with request and response model contains an enum array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumCommaDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/comma-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/newline-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_extensibleEnumPipeDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/pipe-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/space-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+### Encode_Array_Property_newlineDelimited
+
+- Endpoint: `post /encode/array/property/newline-delimited`
+
+Test operation with request and response model contains a string array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_pipeDelimited
+
+- Endpoint: `post /encode/array/property/pipe-delimited`
+
+Test operation with request and response model contains a string array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_spaceDelimited
+
+- Endpoint: `post /encode/array/property/space-delimited`
+
+Test operation with request and response model contains a string array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
 
 ### Encode_Bytes_Header_base64
 
@@ -1230,6 +1528,12 @@ Second request path:
 /optional/foo
 ```
 
+### Parameters_Query_Constant_post
+
+- Endpoint: `post /parameters/query/constant`
+
+Expect to handle a constant value for query and mock api returns nothing
+
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -1988,6 +2292,98 @@ Content-Disposition: form-data; name="picture"; filename="<any-or-no-name-is-ok>
 Content-Type: application/octet-stream
 
 {…file content of .png file…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_optionalParts
+
+- Endpoint: `post /multipart/form-data/optional-parts`
+
+Please send request three times:
+
+- First time with only id
+- Second time with only profileImage
+- Third time with both id and profileImage
+
+Expect requests (
+
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+  If there are duplicated filename in same fieldName, server can't parse them all.
+  ):
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345--
+```
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream
+
+{…file content of .jpg file…}
+--abcde12345--
+```
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream
+
+{…file content of .jpg file…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_withWireName
+
+- Endpoint: `post /multipart/form-data/mixed-parts-with-wire-name`
+
+Expect request with wire names (
+
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+  If there are duplicated filename in same fieldName, server can't parse them all.
+  ):
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream;
+
+{…file content of .jpg file…}
 --abcde12345--
 ```
 
@@ -3358,6 +3754,29 @@ Expected header parameters:
 
 Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
 
+### SpecialWords_ModelProperties_dictMethods
+
+- Endpoint: `get /special-words/model-properties/dict-methods`
+
+Verify that model properties can use names that are Python dict methods. These names (keys, items, values, etc.) may conflict with Python's dict class methods.
+
+Send
+
+```json
+{
+  "keys": "ok",
+  "items": "ok",
+  "values": "ok",
+  "popitem": "ok",
+  "clear": "ok",
+  "update": "ok",
+  "setdefault": "ok",
+  "pop": "ok",
+  "get": "ok",
+  "copy": "ok"
+}
+```
+
 ### SpecialWords_ModelProperties_sameAsModel
 
 - Endpoint: `get /special-words/model-properties/same-as-model`
@@ -3368,6 +3787,18 @@ Send
 
 ```json
 { "SameAsModel": "ok" }
+```
+
+### SpecialWords_ModelProperties_withList
+
+- Endpoint: `get /special-words/model-properties/list`
+
+Verify that a property can be named "list", which is a reserved word in many languages like Python.
+
+Send
+
+```json
+{ "list": "ok" }
 ```
 
 ### SpecialWords_Models_and

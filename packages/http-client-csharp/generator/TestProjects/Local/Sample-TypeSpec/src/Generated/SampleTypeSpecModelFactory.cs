@@ -28,8 +28,12 @@ namespace SampleTypeSpec
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="propertyWithSpecialDocs">
+        /// This tests:
+        /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
+        /// </param>
         /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(string rename = default, BinaryData requiredUnion = default, string requiredNullableString = default, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
+        public static Thing Thing(string rename = default, BinaryData requiredUnion = default, string requiredNullableString = default, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string propertyWithSpecialDocs = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();
@@ -51,6 +55,7 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList.ToList(),
                 requiredNullableList.ToList(),
+                propertyWithSpecialDocs,
                 additionalBinaryDataProperties: null);
         }
 
@@ -229,6 +234,46 @@ namespace SampleTypeSpec
         public static AnotherDynamicModel AnotherDynamicModel(string bar = default)
         {
             return new AnotherDynamicModel(bar, default);
+        }
+
+        /// <summary>
+        /// Base animal with discriminator
+        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Pet"/> and <see cref="SampleTypeSpec.Dog"/>.
+        /// </summary>
+        /// <param name="kind"> The kind of animal. </param>
+        /// <param name="name"> Name of the animal. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Animal"/> instance for mocking. </returns>
+        public static Animal Animal(string kind = default, string name = default)
+        {
+            return new UnknownAnimal(kind, name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> Pet is a discriminated animal. </summary>
+        /// <param name="name"> Name of the animal. </param>
+        /// <param name="trained"> Whether the pet is trained. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Pet"/> instance for mocking. </returns>
+        public static Pet Pet(string name = default, bool trained = default)
+        {
+            return new Pet("pet", name, additionalBinaryDataProperties: null, trained);
+        }
+
+        /// <summary> Dog is a specific type of pet with hierarchy building. </summary>
+        /// <param name="name"> Name of the animal. </param>
+        /// <param name="trained"> Whether the pet is trained. </param>
+        /// <param name="breed"> The breed of the dog. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Dog"/> instance for mocking. </returns>
+        public static Dog Dog(string name = default, bool trained = default, string breed = default)
+        {
+            return new Dog("pet", name, additionalBinaryDataProperties: null, trained, breed);
+        }
+
+        /// <summary> The GetWidgetMetricsResponse. </summary>
+        /// <param name="numSold"></param>
+        /// <param name="averagePrice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResponse"/> instance for mocking. </returns>
+        public static GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
+        {
+            return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
         }
     }
 }

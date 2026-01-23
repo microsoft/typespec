@@ -1,5 +1,100 @@
 # Change Log - @typespec/http-client-python
 
+## 0.25.0
+
+### Features
+
+- [#9407](https://github.com/microsoft/typespec/pull/9407) Support enum type for array encode
+
+### Bug Fixes
+
+- [#9417](https://github.com/microsoft/typespec/pull/9417) support "apiVersions" of TCGC metadata
+
+
+## 0.24.1
+
+### Bug Fixes
+
+- [#9298](https://github.com/microsoft/typespec/pull/9298) Fix clients with `NoAuth` credentials to have optional generated `credential` parameters
+
+
+## 0.24.0
+
+### Features
+
+- [#9257](https://github.com/microsoft/typespec/pull/9257) Support multi-service scenario.
+- [#9272](https://github.com/microsoft/typespec/pull/9272) Support lro-paging operation
+
+### Bump dependencies
+
+- [#9335](https://github.com/microsoft/typespec/pull/9335) Bump tcgc dep to `0.63.4`
+- [#9245](https://github.com/microsoft/typespec/pull/9245) Bump generated code's dependency on `azure-core` to `1.37.0`
+
+### Bug Fixes
+
+- [#9256](https://github.com/microsoft/typespec/pull/9256) Fix syntax error when model property is named "list" by using type alias to avoid naming conflicts
+- [#9255](https://github.com/microsoft/typespec/pull/9255) Fix import error about apiversion validation for nested operation groups
+- [#9014](https://github.com/microsoft/typespec/pull/9014) Fix import when body parameter is union of models
+- [#9334](https://github.com/microsoft/typespec/pull/9334) Fix linting errors caused by too many vars, next-mypy issues
+
+
+## 0.23.1
+
+### Bug Fixes
+
+- [#9219](https://github.com/microsoft/typespec/pull/9219) fix client default value for special headers
+- [#9222](https://github.com/microsoft/typespec/pull/9222) Persist mutations to mutable properties when accessed via attribute syntax
+- [#9206](https://github.com/microsoft/typespec/pull/9206) Remove `# nosec` comments from Python SDK to avoid security confusion
+
+
+## 0.23.0
+
+### Features
+
+- [#9146](https://github.com/microsoft/typespec/pull/9146) Support encode for array of string in serialization and deserialization
+
+### Bug Fixes
+
+- [#8927](https://github.com/microsoft/typespec/pull/8927) Fix bad indent
+
+
+## 0.22.0
+
+### Features
+
+- [#8767](https://github.com/microsoft/typespec/pull/8767) Support SDK users defined customized serialization/deserialization function for external models
+
+### Bug Fixes
+
+- [#9017](https://github.com/microsoft/typespec/pull/9017) Keep original client name for backcompat reasons when the name is only padded for tsp generations
+- [#9129](https://github.com/microsoft/typespec/pull/9129) Fix for optional properties in flatten model to keep compatibility
+- [#9144](https://github.com/microsoft/typespec/pull/9144) Fix multipart when files part is optional
+- [#9138](https://github.com/microsoft/typespec/pull/9138) Fix serialization name for multipart
+
+
+## 0.21.0
+
+### Features
+
+- [#9112](https://github.com/microsoft/typespec/pull/9112) Support customized http method to call next link for paging operation
+
+### Bug Fixes
+
+- [#9108](https://github.com/microsoft/typespec/pull/9108) fix logic about which scenario to add msrest as dependency
+- [#9107](https://github.com/microsoft/typespec/pull/9107) Fix @override to avoid duplicated subscriptionId or api-version signatures
+
+
+## 0.20.3
+
+### Bump dependencies
+
+- [#8992](https://github.com/microsoft/typespec/pull/8992) Bump typespec dependency
+
+### Bug Fixes
+
+- [#8948](https://github.com/microsoft/typespec/pull/8948) Fix subscriptionId missing for override
+
+
 ## 0.20.2
 
 ### Bug Fixes

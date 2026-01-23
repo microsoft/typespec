@@ -1,8 +1,9 @@
 import { readdirSync } from "fs";
-import { rm } from "fs/promises";
 import fs, { rmSync, writeFileSync } from "node:fs";
+import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { Locator, Page } from "playwright";
+import { expect } from "vitest";
 import { RunOptions, runOrExit } from "../../../../internal-build-utils/dist/src/index.js";
 import { CaseScreenshot, npxCmd, repoRoot, retry, tempDir } from "./utils";
 
@@ -26,24 +27,18 @@ export async function preContrastResult(
   } catch (e) {
     await cs.screenshot(page, "error");
     app.close();
-    throw new Error(errorMessage);
+    throw new Error(`${errorMessage} - Timed out waiting for text: "${text}" - ${e}`);
   }
 }
 
 /**
  * Results comparison
- * @param res List of expected files
+ * @param exected List of expected files
  * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
  */
-export async function contrastResult(res: string[], dir: string, cs: CaseScreenshot) {
-  let resLength = 0;
-  if (fs.existsSync(dir)) {
-    resLength = fs.readdirSync(dir).length;
-    await rm(cs.caseDir, { recursive: true });
-  }
-  if (resLength !== res.length) {
-    throw new Error("Failed to matches all files");
-  }
+export async function expectFilesInDir(exected: string[], dir: string) {
+  const results = await readdir(dir);
+  expect(results).toEqual(exected);
 }
 
 /**
@@ -148,8 +143,10 @@ export async function packPackages() {
   const outputFolder = path.join(repoRoot, "/temp/artifacts");
   const files = readdirSync(outputFolder);
 
-  function resolvePackage(start: string) {
-    const pkgName = files.find((x: string) => x.startsWith(start));
+  function resolvePackage(start: string, notStart?: string): string {
+    const pkgName = files.find(
+      (x: string) => x.startsWith(start) && (!notStart || !x.startsWith(notStart)),
+    );
     if (pkgName === undefined) {
       throw new Error(`Cannot resolve package starting with "${start}"`);
     }
@@ -160,7 +157,13 @@ export async function packPackages() {
     "@typespec/compiler": resolvePackage("typespec-compiler-"),
     "@typespec/openapi3": resolvePackage("typespec-openapi3-"),
     "@typespec/http": resolvePackage("typespec-http-"),
+    "@typespec/http-client": resolvePackage("typespec-http-client-", "typespec-http-client-js-"),
     "@typespec/http-client-js": resolvePackage("typespec-http-client-js-"),
+    "@typespec/streams": resolvePackage("typespec-streams-"),
+    "@typespec/rest": resolvePackage("typespec-rest-"),
+    "@typespec/emitter-framework": resolvePackage("typespec-emitter-framework-"),
+    "@typespec/openapi": resolvePackage("typespec-openapi-"),
+    "@typespec/asset-emitter": resolvePackage("typespec-asset-emitter-"),
   };
 }
 
@@ -188,15 +191,22 @@ export async function packagesInstall(packages: { [x: string]: string }, testTyp
       "@typespec/http": packages["@typespec/http"],
       "@typespec/openapi3": packages["@typespec/openapi3"],
       "@typespec/http-client-js": packages["@typespec/http-client-js"],
+      "@typespec/streams": packages["@typespec/streams"],
+      "@typespec/rest": packages["@typespec/rest"],
+      "@typespec/emitter-framework": packages["@typespec/emitter-framework"],
+      "@typespec/openapi": packages["@typespec/openapi"],
+      "@typespec/asset-emitter": packages["@typespec/asset-emitter"],
     },
     private: true,
+    overrides: {
+      // override to make sure to use local http-client package, otherwise it will be installed from npm registry and may
+      // cause issues from different version (i.e. multiple version alloy libraries being complained)
+      "@typespec/http-client": packages["@typespec/http-client"],
+    },
   };
   writeFileSync(path.join(testCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
 
   await runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: testCurrentDir });
-  await runTypeSpec(packages["@typespec/http"], ["install"], { cwd: testCurrentDir });
-  await runTypeSpec(packages["@typespec/openapi3"], ["install"], { cwd: testCurrentDir });
-  await runTypeSpec(packages["@typespec/http-client-js"], ["install"], { cwd: testCurrentDir });
 }
 
 /**

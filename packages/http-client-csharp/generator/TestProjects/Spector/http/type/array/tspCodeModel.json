@@ -823,7 +823,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.Int32Value.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -832,7 +832,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "82",
@@ -1092,7 +1093,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.Int64Value.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -1101,7 +1102,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "98",
@@ -1361,7 +1363,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.BooleanValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -1370,7 +1372,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "114",
@@ -1630,7 +1633,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.StringValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -1639,7 +1642,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "130",
@@ -1899,7 +1903,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.Float32Value.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -1908,7 +1912,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "146",
@@ -2176,7 +2181,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.DatetimeValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -2185,7 +2190,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "163",
@@ -2453,7 +2459,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.DurationValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -2462,7 +2468,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "180",
@@ -2722,7 +2729,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.UnknownValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -2731,7 +2738,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "196",
@@ -2980,7 +2988,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.ModelValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -2989,7 +2997,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "210",
@@ -3254,7 +3263,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableFloatValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -3263,7 +3272,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "227",
@@ -3528,7 +3538,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableInt32Value.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -3537,7 +3547,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "244",
@@ -3802,7 +3813,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableBooleanValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -3811,7 +3822,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "261",
@@ -4076,7 +4088,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableStringValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -4085,7 +4097,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "278",
@@ -4346,7 +4359,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Array.endpoint"
+              "crossLanguageDefinitionId": "Type.Array.NullableModelValue.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -4355,9 +4368,11 @@
           "apiVersions": [],
           "parent": {
             "$ref": "62"
-          }
+          },
+          "isMultiServiceClient": false
         }
-      ]
+      ],
+      "isMultiServiceClient": false
     }
   ]
 }

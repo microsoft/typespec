@@ -97,6 +97,9 @@ public final class BuiltinAsyncClient {
      *         unknownDurationFormat: String (Optional)
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
+     *         commaDeliminatedArray (Optional): [
+     *             String (Optional)
+     *         ]
      *     }
      *     uuid: String (Required)
      * }
@@ -159,6 +162,9 @@ public final class BuiltinAsyncClient {
      *         unknownDurationFormat: String (Optional)
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
+     *         commaDeliminatedArray (Optional): [
+     *             String (Optional)
+     *         ]
      *     }
      *     uuid: String (Required)
      * }
@@ -238,5 +244,25 @@ public final class BuiltinAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return readWithResponse(queryParam, queryParamEncoded, requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(Builtin.class));
+    }
+
+    /**
+     * The write operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> write(Builtin body) {
+        // Generated convenience method for writeWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return writeWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

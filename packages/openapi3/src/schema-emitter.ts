@@ -40,10 +40,8 @@ import {
   getFormat,
   getMaxItems,
   getMaxLength,
-  getMaxValue,
   getMinItems,
   getMinLength,
-  getMinValue,
   getNamespaceFullName,
   getPattern,
   getSummary,
@@ -70,6 +68,8 @@ import { getOneOf, getRef } from "./decorators.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import { getMaxValueAsJson, getMinValueAsJson } from "./range.js";
+import { SSEModule } from "./sse-module.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import { CommonOpenAPI3Schema, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "./types.js";
 import {
@@ -92,13 +92,18 @@ export class OpenAPI3SchemaEmitterBase<
   protected _options: ResolvedOpenAPI3EmitterOptions;
   protected _jsonSchemaModule: JsonSchemaModule | undefined;
   protected _xmlModule: XmlModule | undefined;
+  protected _sseModule: SSEModule | undefined;
 
   constructor(
     emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
     visibilityUsage: VisibilityUsageTracker,
     options: ResolvedOpenAPI3EmitterOptions,
-    optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
+    optionalDependencies: {
+      jsonSchemaModule?: JsonSchemaModule;
+      xmlModule?: XmlModule;
+      sseModule?: SSEModule;
+    },
   ) {
     super(emitter);
     this._metadataInfo = metadataInfo;
@@ -106,6 +111,7 @@ export class OpenAPI3SchemaEmitterBase<
     this._options = options;
     this._jsonSchemaModule = optionalDependencies.jsonSchemaModule;
     this._xmlModule = optionalDependencies.xmlModule;
+    this._sseModule = optionalDependencies.sseModule;
   }
 
   modelDeclarationReferenceContext(model: Model, name: string): Context {
@@ -434,6 +440,7 @@ export class OpenAPI3SchemaEmitterBase<
     if (isReadonlyProperty(program, prop)) {
       additionalProps.readOnly = true;
     }
+    this.#applyExternalDocs(prop, additionalProps);
 
     // Attach any additional OpenAPI extensions
     attachExtensions(program, prop, additionalProps);
@@ -625,15 +632,31 @@ export class OpenAPI3SchemaEmitterBase<
     let schema: any;
     if (union.options.envelope === "none") {
       const items = new ArrayBuilder();
+
+      // Add named variants to the oneOf array
       for (const variant of union.variants.values()) {
         items.push(this.emitter.emitTypeReference(variant));
       }
+
+      // Add default variant to the oneOf array if it exists
+      if (union.defaultVariant) {
+        items.push(this.emitter.emitTypeReference(union.defaultVariant));
+      }
+
+      // Build discriminator mapping
+      const mapping = this.getDiscriminatorMapping(union.variants);
+
+      // For default variant in versions < 3.2, add it to the mapping with its discriminator value
+      if (union.defaultVariant) {
+        this.#addDefaultVariantToMapping(union, mapping);
+      }
+
       schema = {
         type: "object",
         oneOf: items,
         discriminator: {
           propertyName: union.options.discriminatorPropertyName,
-          mapping: this.getDiscriminatorMapping(union.variants),
+          mapping,
         },
       };
     } else {
@@ -661,6 +684,35 @@ export class OpenAPI3SchemaEmitterBase<
     }
 
     return this.applyConstraints(union.type, schema);
+  }
+
+  #addDefaultVariantToMapping(union: DiscriminatedUnion, mapping: Record<string, string>) {
+    if (!union.defaultVariant || union.defaultVariant.kind !== "Model") {
+      return;
+    }
+
+    // Try to get the discriminator property value from the default variant
+    const discriminatorProp = union.defaultVariant.properties.get(
+      union.options.discriminatorPropertyName,
+    );
+    if (discriminatorProp) {
+      const discriminatorValue = this.#getStringValueFromType(discriminatorProp.type);
+      if (discriminatorValue) {
+        const ref = this.emitter.emitTypeReference(union.defaultVariant);
+        compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
+        mapping[discriminatorValue] = (ref.value as any).$ref;
+      }
+    }
+  }
+
+  #getStringValueFromType(type: Type): string | undefined {
+    if (type.kind === "String") {
+      return type.value;
+    }
+    if (type.kind === "EnumMember") {
+      return typeof type.value === "string" ? type.value : type.name;
+    }
+    return undefined;
   }
 
   getDiscriminatorMapping(variants: Map<string, Type>) {
@@ -797,8 +849,8 @@ export class OpenAPI3SchemaEmitterBase<
 
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
-    applyConstraint(getMinValue, "minimum");
-    applyConstraint(getMaxValue, "maximum");
+    applyConstraint(getMinValueAsJson, "minimum");
+    applyConstraint(getMaxValueAsJson, "maximum");
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");

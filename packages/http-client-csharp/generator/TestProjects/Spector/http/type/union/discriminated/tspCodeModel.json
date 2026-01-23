@@ -400,7 +400,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Union.Discriminated.endpoint"
+              "crossLanguageDefinitionId": "Type.Union.Discriminated.Envelope.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -446,7 +446,7 @@
                   "serverUrlTemplate": "{endpoint}",
                   "skipUrlEncoding": false,
                   "readOnly": false,
-                  "crossLanguageDefinitionId": "Type.Union.Discriminated.endpoint"
+                  "crossLanguageDefinitionId": "Type.Union.Discriminated.Envelope.Object.endpoint"
                 }
               ],
               "initializedBy": 0,
@@ -809,7 +809,7 @@
                       "serverUrlTemplate": "{endpoint}",
                       "skipUrlEncoding": false,
                       "readOnly": false,
-                      "crossLanguageDefinitionId": "Type.Union.Discriminated.endpoint"
+                      "crossLanguageDefinitionId": "Type.Union.Discriminated.Envelope.Object.Default.endpoint"
                     }
                   ],
                   "initializedBy": 0,
@@ -818,7 +818,8 @@
                   "apiVersions": [],
                   "parent": {
                     "$ref": "43"
-                  }
+                  },
+                  "isMultiServiceClient": false
                 },
                 {
                   "$id": "68",
@@ -1172,7 +1173,7 @@
                       "serverUrlTemplate": "{endpoint}",
                       "skipUrlEncoding": false,
                       "readOnly": false,
-                      "crossLanguageDefinitionId": "Type.Union.Discriminated.endpoint"
+                      "crossLanguageDefinitionId": "Type.Union.Discriminated.Envelope.Object.CustomProperties.endpoint"
                     }
                   ],
                   "initializedBy": 0,
@@ -1181,11 +1182,14 @@
                   "apiVersions": [],
                   "parent": {
                     "$ref": "43"
-                  }
+                  },
+                  "isMultiServiceClient": false
                 }
-              ]
+              ],
+              "isMultiServiceClient": false
             }
-          ]
+          ],
+          "isMultiServiceClient": false
         },
         {
           "$id": "89",
@@ -1222,7 +1226,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Union.Discriminated.endpoint"
+              "crossLanguageDefinitionId": "Type.Union.Discriminated.NoEnvelope.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -1585,7 +1589,7 @@
                   "serverUrlTemplate": "{endpoint}",
                   "skipUrlEncoding": false,
                   "readOnly": false,
-                  "crossLanguageDefinitionId": "Type.Union.Discriminated.endpoint"
+                  "crossLanguageDefinitionId": "Type.Union.Discriminated.NoEnvelope.Default.endpoint"
                 }
               ],
               "initializedBy": 0,
@@ -1594,7 +1598,8 @@
               "apiVersions": [],
               "parent": {
                 "$ref": "89"
-              }
+              },
+              "isMultiServiceClient": false
             },
             {
               "$id": "114",
@@ -1948,7 +1953,7 @@
                   "serverUrlTemplate": "{endpoint}",
                   "skipUrlEncoding": false,
                   "readOnly": false,
-                  "crossLanguageDefinitionId": "Type.Union.Discriminated.endpoint"
+                  "crossLanguageDefinitionId": "Type.Union.Discriminated.NoEnvelope.CustomDiscriminator.endpoint"
                 }
               ],
               "initializedBy": 0,
@@ -1957,11 +1962,14 @@
               "apiVersions": [],
               "parent": {
                 "$ref": "89"
-              }
+              },
+              "isMultiServiceClient": false
             }
-          ]
+          ],
+          "isMultiServiceClient": false
         }
-      ]
+      ],
+      "isMultiServiceClient": false
     }
   ]
 }

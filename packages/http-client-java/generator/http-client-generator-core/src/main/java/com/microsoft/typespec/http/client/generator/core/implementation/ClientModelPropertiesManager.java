@@ -5,15 +5,11 @@ package com.microsoft.typespec.http.client.generator.core.implementation;
 
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.getClientModel;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.xml.XmlReader;
-import com.azure.xml.XmlSerializable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Manages metadata about properties in a {@link ClientModel} and how they correlate with model class generation.
@@ -128,6 +125,14 @@ public final class ClientModelPropertiesManager {
             xmlRootElementNamespace = model.getXmlNamespace();
         }
 
+        Set<String> thisModelPropertySerializeNames = model.getProperties()
+            .stream()
+            // discriminator property is known to be redefined in subclass
+            .filter(property -> !property.isPolymorphicDiscriminator())
+            .map(ClientModelProperty::getSerializedName)
+            .filter(name -> Objects.nonNull(name) && !name.isEmpty())
+            .collect(Collectors.toSet());
+
         for (ClientModelProperty property : ClientModelUtil.getParentProperties(model)) {
             // Ignore additional properties from parent types as it will be handled specifically in the subtype.
             if (property.isAdditionalProperties()) {
@@ -140,6 +145,11 @@ public final class ClientModelPropertiesManager {
             }
 
             if (!property.isPolymorphicDiscriminator()) {
+                if (thisModelPropertySerializeNames.contains(property.getSerializedName())) {
+                    // skip the property from parent that is overwritten in this model
+                    continue;
+                }
+
                 superPropertyConsumer(property, superRequiredProperties, superConstructorProperties,
                     superReadOnlyProperties, superSetterProperties, settings);
                 hasRequiredProperties |= property.isRequired();
@@ -382,6 +392,11 @@ public final class ClientModelPropertiesManager {
     /**
      * Consumes each constructor {@link ClientModelProperty property} defined by super classes of the
      * {@link #getModel() model}.
+     * <p>
+     * This is part of the properties from superclass that would appear in the constructor of this model.
+     * This is not the same as the constructor parameters in super class.
+     * Duplicated properties from superclass (that would be overwritten by properties of this model)
+     * only appears once, in "constructorProperties", not in "superConstructorProperties".
      *
      * @param consumer The {@link ClientModelProperty} consumer.
      */
@@ -525,7 +540,7 @@ public final class ClientModelPropertiesManager {
     }
 
     /**
-     * Gets the variable name for {@link JsonReader#getFieldName()} in {@link JsonSerializable#fromJson(JsonReader)}
+     * Gets the variable name for {@code JsonReader#getFieldName()} in {@code JsonSerializable#fromJson(JsonReader)}
      * implementations.
      * <p>
      * This is used instead of a static variable name as deserialization maintains holders for required properties which
@@ -540,7 +555,7 @@ public final class ClientModelPropertiesManager {
     }
 
     /**
-     * Gets the variable name for {@link XmlReader#getElementName()} in {@link XmlSerializable#fromXml(XmlReader)}
+     * Gets the variable name for {@code XmlReader#getElementName()} in {@code XmlSerializable#fromXml(XmlReader)}
      * implementations.
      * <p>
      * This is used instead of a static variable name as deserialization maintains holders for required properties which

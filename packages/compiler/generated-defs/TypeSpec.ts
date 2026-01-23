@@ -1,5 +1,6 @@
 import type {
   DecoratorContext,
+  DecoratorValidatorCallbacks,
   Enum,
   EnumValue,
   Interface,
@@ -9,6 +10,7 @@ import type {
   Numeric,
   Operation,
   Scalar,
+  ScalarValue,
   Type,
   Union,
   UnionVariant,
@@ -69,7 +71,7 @@ export type MediaTypeHintDecorator = (
   context: DecoratorContext,
   target: Model | Scalar | Enum | Union,
   mediaType: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify how to encode the target type.
@@ -101,7 +103,7 @@ export type EncodeDecorator = (
   target: Scalar | ModelProperty,
   encodingOrEncodeAs: Scalar | string | EnumValue,
   encodedAs?: Scalar,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Attach a documentation string. Content support CommonMark markdown formatting.
@@ -119,17 +121,23 @@ export type DocDecorator = (
   target: Type,
   doc: string,
   formatArgs?: Type,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Returns the model with required properties removed.
  */
-export type WithOptionalPropertiesDecorator = (context: DecoratorContext, target: Model) => void;
+export type WithOptionalPropertiesDecorator = (
+  context: DecoratorContext,
+  target: Model,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Returns the model with non-updateable properties removed.
  */
-export type WithUpdateablePropertiesDecorator = (context: DecoratorContext, target: Model) => void;
+export type WithUpdateablePropertiesDecorator = (
+  context: DecoratorContext,
+  target: Model,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Returns the model with the given properties omitted.
@@ -140,7 +148,7 @@ export type WithoutOmittedPropertiesDecorator = (
   context: DecoratorContext,
   target: Model,
   omit: Type,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Returns the model with only the given properties included.
@@ -151,12 +159,15 @@ export type WithPickedPropertiesDecorator = (
   context: DecoratorContext,
   target: Model,
   pick: Type,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Returns the model with any default values removed.
  */
-export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: Model) => void;
+export type WithoutDefaultValuesDecorator = (
+  context: DecoratorContext,
+  target: Model,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Set the visibility of key properties in a model if not already set.
@@ -177,7 +188,7 @@ export type WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
   visibility: EnumValue,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Typically a short, single-line description.
@@ -189,7 +200,11 @@ export type WithDefaultKeyVisibilityDecorator = (
  * model Pet {}
  * ```
  */
-export type SummaryDecorator = (context: DecoratorContext, target: Type, summary: string) => void;
+export type SummaryDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  summary: string,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Attach a documentation string to describe the successful return types of an operation.
@@ -206,7 +221,7 @@ export type ReturnsDocDecorator = (
   context: DecoratorContext,
   target: Operation,
   doc: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Attach a documentation string to describe the error return types of an operation.
@@ -223,7 +238,7 @@ export type ErrorsDocDecorator = (
   context: DecoratorContext,
   target: Operation,
   doc: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Mark this namespace as describing a service and configure service properties.
@@ -244,7 +259,7 @@ export type ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
   options?: ServiceOptions,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this model is an error type. Operations return error types when the operation has failed.
@@ -258,7 +273,10 @@ export type ServiceDecorator = (
  * }
  * ```
  */
-export type ErrorDecorator = (context: DecoratorContext, target: Model) => void;
+export type ErrorDecorator = (
+  context: DecoratorContext,
+  target: Model,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
@@ -276,7 +294,7 @@ export type FormatDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   format: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the the pattern this string should respect using simple regular expression syntax.
@@ -301,7 +319,7 @@ export type PatternDecorator = (
   target: Scalar | ModelProperty,
   pattern: string,
   validationMessage?: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the minimum length this string type should be.
@@ -317,7 +335,7 @@ export type MinLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   value: Numeric,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the maximum length this string type should be.
@@ -333,7 +351,7 @@ export type MaxLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   value: Numeric,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the minimum number of items this array should have.
@@ -349,7 +367,7 @@ export type MinItemsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
   value: Numeric,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the maximum number of items this array should have.
@@ -365,7 +383,7 @@ export type MaxItemsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
   value: Numeric,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the minimum value this numeric type should be.
@@ -380,8 +398,8 @@ export type MaxItemsDecorator = (
 export type MinValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric,
-) => void;
+  value: Numeric | ScalarValue | ScalarValue | ScalarValue | ScalarValue | ScalarValue,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the maximum value this numeric type should be.
@@ -396,8 +414,8 @@ export type MinValueDecorator = (
 export type MaxValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric,
-) => void;
+  value: Numeric | ScalarValue | ScalarValue | ScalarValue | ScalarValue | ScalarValue,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the minimum value this numeric type should be, exclusive of the given
@@ -413,8 +431,8 @@ export type MaxValueDecorator = (
 export type MinValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric,
-) => void;
+  value: Numeric | ScalarValue | ScalarValue | ScalarValue | ScalarValue | ScalarValue,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the maximum value this numeric type should be, exclusive of the given
@@ -430,8 +448,8 @@ export type MinValueExclusiveDecorator = (
 export type MaxValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric,
-) => void;
+  value: Numeric | ScalarValue | ScalarValue | ScalarValue | ScalarValue | ScalarValue,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Mark this value as a secret value that should be treated carefully to avoid exposure
@@ -445,7 +463,7 @@ export type MaxValueExclusiveDecorator = (
 export type SecretDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty | Model | Union | Enum,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
@@ -456,7 +474,7 @@ export type TagDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
   tag: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specifies how a templated type should name their instances.
@@ -477,7 +495,7 @@ export type FriendlyNameDecorator = (
   target: Type,
   name: string,
   formatArgs?: Type,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Mark a model property as the key to identify instances of that type
@@ -494,7 +512,7 @@ export type KeyDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   altName?: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify this operation is an overload of the given operation.
@@ -513,7 +531,7 @@ export type OverloadDecorator = (
   context: DecoratorContext,
   target: Operation,
   overloadbase: Operation,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Provide an alternative name for this type when serialized to the given mime type.
@@ -540,7 +558,7 @@ export type EncodedNameDecorator = (
   target: Type,
   mimeType: string,
   name: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this union is discriminated.
@@ -602,7 +620,7 @@ export type DiscriminatedDecorator = (
   context: DecoratorContext,
   target: Union,
   options?: DiscriminatedOptions,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the property to be used to discriminate this type.
@@ -621,7 +639,7 @@ export type DiscriminatorDecorator = (
   context: DecoratorContext,
   target: Model,
   propertyName: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Provide an example value for a data type.
@@ -642,7 +660,7 @@ export type ExampleDecorator = (
   target: Model | Enum | Scalar | Union | ModelProperty | UnionVariant,
   example: unknown,
   options?: ExampleOptions,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Provide example values for an operation's parameters and corresponding return type.
@@ -660,12 +678,15 @@ export type OpExampleDecorator = (
   target: Operation,
   example: OperationExample,
   options?: ExampleOptions,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Mark this operation as a `list` operation that returns a paginated list of items.
  */
-export type ListDecorator = (context: DecoratorContext, target: Operation) => void;
+export type ListDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Pagination property defining the number of items to skip.
@@ -678,7 +699,10 @@ export type ListDecorator = (context: DecoratorContext, target: Operation) => vo
  * @list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
  * ```
  */
-export type OffsetDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type OffsetDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Pagination property defining the page index.
@@ -691,7 +715,10 @@ export type OffsetDecorator = (context: DecoratorContext, target: ModelProperty)
  * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
  * ```
  */
-export type PageIndexDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type PageIndexDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the pagination parameter that controls the maximum number of items to include in a page.
@@ -704,7 +731,10 @@ export type PageIndexDecorator = (context: DecoratorContext, target: ModelProper
  * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
  * ```
  */
-export type PageSizeDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type PageSizeDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the the property that contains the array of page items.
@@ -717,7 +747,10 @@ export type PageSizeDecorator = (context: DecoratorContext, target: ModelPropert
  * @list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
  * ```
  */
-export type PageItemsDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type PageItemsDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Pagination property defining the token to get to the next page.
@@ -732,7 +765,10 @@ export type PageItemsDecorator = (context: DecoratorContext, target: ModelProper
  * @list op listPets(@continuationToken continuationToken: string): Page<Pet>;
  * ```
  */
-export type ContinuationTokenDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type ContinuationTokenDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Pagination property defining a link to the next page.
@@ -751,7 +787,10 @@ export type ContinuationTokenDecorator = (context: DecoratorContext, target: Mod
  * @list op listPets(): Page<Pet>;
  * ```
  */
-export type NextLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type NextLinkDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Pagination property defining a link to the previous page.
@@ -770,7 +809,10 @@ export type NextLinkDecorator = (context: DecoratorContext, target: ModelPropert
  * @list op listPets(): Page<Pet>;
  * ```
  */
-export type PrevLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type PrevLinkDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Pagination property defining a link to the first page.
@@ -789,7 +831,10 @@ export type PrevLinkDecorator = (context: DecoratorContext, target: ModelPropert
  * @list op listPets(): Page<Pet>;
  * ```
  */
-export type FirstLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type FirstLinkDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Pagination property defining a link to the last page.
@@ -808,14 +853,21 @@ export type FirstLinkDecorator = (context: DecoratorContext, target: ModelProper
  * @list op listPets(): Page<Pet>;
  * ```
  */
-export type LastLinkDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type LastLinkDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * A debugging decorator used to inspect a type.
  *
  * @param text Custom text to log
  */
-export type InspectTypeDecorator = (context: DecoratorContext, target: Type, text: string) => void;
+export type InspectTypeDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  text: string,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * A debugging decorator used to inspect a type name.
@@ -826,7 +878,7 @@ export type InspectTypeNameDecorator = (
   context: DecoratorContext,
   target: Type,
   text: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Sets the visibility modifiers that are active on a property, indicating that it is only considered to be present
@@ -878,7 +930,7 @@ export type VisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   ...visibilities: EnumValue[]
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Indicates that a property is not visible in the given visibility class.
@@ -900,7 +952,7 @@ export type InvisibleDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   visibilityClass: Enum,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Removes visibility modifiers from a property.
@@ -925,7 +977,7 @@ export type RemoveVisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   ...visibilities: EnumValue[]
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Removes properties that do not have at least one of the given visibility modifiers
@@ -974,7 +1026,7 @@ export type WithVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
   ...visibilities: EnumValue[]
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Declares the visibility constraint of the parameters of a given operation.
@@ -990,7 +1042,7 @@ export type ParameterVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
   ...visibilities: EnumValue[]
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Declares the visibility constraint of the return type of a given operation.
@@ -1006,7 +1058,7 @@ export type ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
   ...visibilities: EnumValue[]
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Declares the default visibility modifiers for a visibility class.
@@ -1022,7 +1074,7 @@ export type DefaultVisibilityDecorator = (
   context: DecoratorContext,
   target: Enum,
   ...visibilities: EnumValue[]
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Applies the given visibility filter to the properties of the target model.
@@ -1057,7 +1109,7 @@ export type WithVisibilityFilterDecorator = (
   target: Model,
   filter: VisibilityFilter,
   nameTemplate?: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Transforms the `target` model to include only properties that are visible during the
@@ -1095,7 +1147,7 @@ export type WithLifecycleUpdateDecorator = (
   context: DecoratorContext,
   target: Model,
   nameTemplate?: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecDecorators = {
   mediaTypeHint: MediaTypeHintDecorator;

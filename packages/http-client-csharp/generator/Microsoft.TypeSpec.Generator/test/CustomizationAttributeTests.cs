@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Customizations;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
-using SampleTypeSpec;
 
 namespace Microsoft.TypeSpec.Generator.Tests
 {

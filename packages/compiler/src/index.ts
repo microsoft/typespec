@@ -77,6 +77,8 @@ export {
   getMaxValueAsNumeric,
   getMaxValueExclusive,
   getMaxValueExclusiveAsNumeric,
+  getMaxValueExclusiveForScalar,
+  getMaxValueForScalar,
   getMinItems,
   getMinItemsAsNumeric,
   getMinLength,
@@ -85,6 +87,8 @@ export {
   getMinValueAsNumeric,
   getMinValueExclusive,
   getMinValueExclusiveAsNumeric,
+  getMinValueExclusiveForScalar,
+  getMinValueForScalar,
   type Discriminator,
 } from "./core/intrinsic-type-state.js";
 export {
@@ -240,7 +244,10 @@ export const $decorators = {
 
 export { applyCodeFix, applyCodeFixes } from "./core/code-fixes.js";
 export { createAddDecoratorCodeFix } from "./core/compiler-code-fixes/create-add-decorator/create-add-decorator.codefix.js";
-export { createSuppressCodeFix } from "./core/compiler-code-fixes/suppress.codefix.js";
+export {
+  createSuppressCodeFix,
+  createSuppressCodeFixes,
+} from "./core/compiler-code-fixes/suppress.codefix.js";
 export {
   ensureTrailingDirectorySeparator,
   getAnyExtensionFromPath,
@@ -318,6 +325,7 @@ export type {
   DecoratorContext,
   DecoratorFunction,
   DecoratorImplementations,
+  DecoratorValidatorCallbacks,
   DeprecatedDirective,
   Diagnostic,
   DiagnosticCreator,

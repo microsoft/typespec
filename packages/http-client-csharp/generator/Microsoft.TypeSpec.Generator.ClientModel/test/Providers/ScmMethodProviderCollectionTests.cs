@@ -167,6 +167,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
         }
 
+        // Validate that spread model correctly instantiates optional dictionary properties
+        [Test]
+        public async Task SpreadModelWithOptionalDictionaryIsNotNull()
+        {
+            var spreadModelWithDict = InputFactory.Model(
+                "spreadModelWithDict",
+                usage: InputModelTypeUsage.Spread,
+                properties:
+                [
+                    InputFactory.Property("query", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false),
+                    InputFactory.Property("filter", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false),
+                    InputFactory.Property("requiredParam", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                InputFactory.Operation(
+                    "CreateMessage",
+                    parameters:
+                    [
+                        InputFactory.BodyParameter(
+                            "spread",
+                            spreadModelWithDict,
+                            isRequired: true,
+                            scope: InputParameterScope.Spread),
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("query", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter("filter", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter("requiredParam", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Spread)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m => m.Signature.Parameters.All(p => p.Name != "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            var asyncConvenienceMethod = convenienceMethods.FirstOrDefault(m => m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(asyncConvenienceMethod);
+
+            var methodBody = asyncConvenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
         [Test]
         public void ListMethodWithNoPaging()
         {
@@ -800,12 +849,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             if (inputType is InputArrayType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using string content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
             }
             else if (inputType is InputDictionaryType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using string content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
             }
             else
             {
@@ -1099,79 +1148,141 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void CorrespondingMethodParamsMapParametersCorrectly()
+        public async Task CollectionResultDefinitionAddedEvenWhenPagingMethodsCustomized()
         {
-            // Create method parameters that will be used in correspondingMethodParams
-            var nameMethodParam = InputFactory.MethodParameter("name", InputPrimitiveType.String, isRequired: true);
-            var ageMethodParam = InputFactory.MethodParameter("age", InputPrimitiveType.Int32, isRequired: true);
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["items"],
+                null,
+                null);
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
 
-            // Create protocol parameters with correspondingMethodParams set
-            var nameQueryParam = InputFactory.QueryParameter(
-                "queryName",
-                InputPrimitiveType.String,
-                isRequired: true,
-                serializedName: "queryName",
-                correspondingMethodParams: [nameMethodParam]);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("Test", operation, pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
-            var ageHeaderParam = InputFactory.HeaderParameter(
-                "x-age",
-                InputPrimitiveType.Int32,
-                isRequired: true,
-                serializedName: "x-age",
-                correspondingMethodParams: [ageMethodParam]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel],
+                clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            // Verify CollectionResultDefinition is still added even though methods are customized
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition);
+            Assert.IsNotNull(collectionResultDefinition, "CollectionResultDefinition should be added even when paging methods are customized");
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(DateTimeOffset))]
+        public void ListOfPrimitivesUsesUtf8JsonReader(Type elementType)
+        {
+            InputType inputElementType = elementType switch
+            {
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(float) => InputPrimitiveType.Float32,
+                { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                _ => throw new ArgumentException("Unsupported type")
+            };
 
             var inputOperation = InputFactory.Operation(
-                "TestOperation",
-                parameters: [nameQueryParam, ageHeaderParam],
-                responses: [InputFactory.OperationResponse([200])]);
+                "GetList",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Array(inputElementType))]);
 
-            var inputServiceMethod = InputFactory.BasicServiceMethod(
-                "TestOperation",
-                inputOperation,
-                parameters: [nameMethodParam, ageMethodParam]);
-
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetList", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator();
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(client);
 
             var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
             Assert.IsNotNull(methodCollection);
 
             var convenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "options")
-                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+                   && m.Signature.Name == "GetList");
             Assert.IsNotNull(convenienceMethod);
 
-            // Verify the body contains calls with the correct parameter mapping
-            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("name"), "Body should contain 'name' parameter");
-            Assert.IsTrue(bodyString.Contains("age"), "Body should contain 'age' parameter");
+            var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(elementType.Name), generatedCode);
+        }
+
+        [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(BinaryData))]
+        public void ListOfValueTypeUsesJsonDoc(Type elementType)
+        {
+            InputType inputElementType = elementType switch
+            {
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
+                _ => throw new ArgumentException("Unsupported type")
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetList",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Array(inputElementType))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetList", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetList");
+            Assert.IsNotNull(convenienceMethod);
+
+            var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(elementType.Name), generatedCode);
         }
 
         [Test]
-        public void CorrespondingMethodParamsFallbackToNameMatching()
+        public void TestDeserializeReadOnlyMemResponse()
         {
-            // Create parameters without correspondingMethodParams to test fallback
-            var nameMethodParam = InputFactory.MethodParameter("name", InputPrimitiveType.String, isRequired: true);
-
-            var nameQueryParam = InputFactory.QueryParameter("name", InputPrimitiveType.String, isRequired: true);
-            // Note: CorrespondingMethodParams is intentionally not set to test fallback
-
             var inputOperation = InputFactory.Operation(
-                "TestOperation",
-                parameters: [nameQueryParam],
-                responses: [InputFactory.OperationResponse([200])]);
+                "GetList",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Array(InputPrimitiveType.Int32))]);
 
-            var inputServiceMethod = InputFactory.BasicServiceMethod(
-                "TestOperation",
-                inputOperation,
-                parameters: [nameMethodParam]);
-
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetList", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
-            MockHelpers.LoadMockGenerator();
+            MockHelpers.LoadMockGenerator(
+                clients: () => [inputClient],
+                createCSharpTypeCore: input =>
+                {
+                    if (input is InputArrayType inputArrayType)
+                    {
+                        // Simulate a ReadOnlyMemory type
+                        return new CSharpType(typeof(ReadOnlyMemory<int>));
+                    }
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                },
+                createCSharpTypeCoreFallback: input => input is InputArrayType);
+
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
 
@@ -1180,226 +1291,92 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var convenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "options")
-                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+                   && m.Signature.Name == "GetList");
             Assert.IsNotNull(convenienceMethod);
 
-            // Verify the parameter is still correctly mapped via name matching
-            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("name"), "Body should contain 'name' parameter via fallback name matching");
+            var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), generatedCode);
         }
 
-        [Test]
-        public void CorrespondingMethodParamsWithBodyParameter()
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(DateTimeOffset))]
+        public void DictionaryOfPrimitivesUsesUtf8JsonReader(Type valueType)
         {
-            // Test that correspondingMethodParams works with body parameters
-            var valueMethodParam = InputFactory.MethodParameter("value", InputPrimitiveType.String, isRequired: true);
-
-            var bodyParam = InputFactory.BodyParameter(
-                "body",
-                InputPrimitiveType.String,
-                isRequired: true,
-                serializedName: "body",
-                correspondingMethodParams: [valueMethodParam]);
+            InputType inputValueType = valueType switch
+            {
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(float) => InputPrimitiveType.Float32,
+                { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                _ => throw new ArgumentException("Unsupported type")
+            };
 
             var inputOperation = InputFactory.Operation(
-                "TestOperation",
-                parameters: [bodyParam],
-                responses: [InputFactory.OperationResponse([200])]);
+                "GetDict",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Dictionary(inputValueType))]);
 
-            var inputServiceMethod = InputFactory.BasicServiceMethod(
-                "TestOperation",
-                inputOperation,
-                parameters: [valueMethodParam]);
-
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetDict", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator();
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(client);
 
             var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
             Assert.IsNotNull(methodCollection);
 
             var convenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "options")
-                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+                   && m.Signature.Name == "GetDict");
             Assert.IsNotNull(convenienceMethod);
 
-            // Verify body parameter mapping works correctly
-            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("content") || bodyString.Contains("value"),
-                "Body should contain content conversion or value parameter");
+            var actualCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
         }
 
-        [Test]
-        public void CorrespondingMethodParamsWithMultipleParameterTypes()
+        [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(BinaryData))]
+        public void DictionaryOfValueTypeUsesJsonDoc(Type valueType)
         {
-            // Test complex scenario with query, path, header, and body parameters
-            var nameMethodParam = InputFactory.MethodParameter("name", InputPrimitiveType.String, isRequired: true);
-            var idMethodParam = InputFactory.MethodParameter("id", InputPrimitiveType.Int32, isRequired: true);
-            var tokenMethodParam = InputFactory.MethodParameter("token", InputPrimitiveType.String, isRequired: true);
-            var dataMethodParam = InputFactory.MethodParameter("data", InputPrimitiveType.String, isRequired: true);
-
-            var queryParam = InputFactory.QueryParameter(
-                "q",
-                InputPrimitiveType.String,
-                isRequired: true,
-                serializedName: "q",
-                correspondingMethodParams: [nameMethodParam]);
-
-            var pathParam = InputFactory.PathParameter(
-                "id",
-                InputPrimitiveType.Int32,
-                isRequired: true,
-                serializedName: "id",
-                correspondingMethodParams: [idMethodParam]);
-
-            var headerParam = InputFactory.HeaderParameter(
-                "x-token",
-                InputPrimitiveType.String,
-                isRequired: true,
-                serializedName: "x-token",
-                correspondingMethodParams: [tokenMethodParam]);
-
-            var bodyParam = InputFactory.BodyParameter(
-                "body",
-                InputPrimitiveType.String,
-                isRequired: true,
-                serializedName: "body",
-                correspondingMethodParams: [dataMethodParam]);
+            InputType inputValueType = valueType switch
+            {
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
+                _ => throw new ArgumentException("Unsupported type")
+            };
 
             var inputOperation = InputFactory.Operation(
-                "ComplexOperation",
-                parameters: [pathParam, queryParam, headerParam, bodyParam],
-                responses: [InputFactory.OperationResponse([200])]);
+                "GetDict",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Dictionary(inputValueType))]);
 
-            var inputServiceMethod = InputFactory.BasicServiceMethod(
-                "ComplexOperation",
-                inputOperation,
-                parameters: [idMethodParam, nameMethodParam, tokenMethodParam, dataMethodParam]);
-
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetDict", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator();
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(client);
-
-            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
-            Assert.IsNotNull(methodCollection);
-            Assert.AreEqual(4, methodCollection.Count); // 2 protocol + 2 convenience methods
-
-            var convenienceMethod = methodCollection.FirstOrDefault(m
-                => !m.Signature.Parameters.Any(p => p.Name == "options")
-                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
-            Assert.IsNotNull(convenienceMethod);
-
-            // Verify all parameters are present
-            var convenienceParams = convenienceMethod!.Signature.Parameters;
-            Assert.AreEqual(5, convenienceParams.Count); // 4 params + cancellation token
-            Assert.IsTrue(convenienceParams.Any(p => p.Name == "id"));
-            Assert.IsTrue(convenienceParams.Any(p => p.Name == "name"));
-            Assert.IsTrue(convenienceParams.Any(p => p.Name == "token"));
-            Assert.IsTrue(convenienceParams.Any(p => p.Name == "data"));
-        }
-
-        [Test]
-        public void CorrespondingMethodParamsWithModelTypeParameter()
-        {
-            // Create a model with properties that include HTTP metadata (header, query) and body
-            var headerProperty = InputFactory.Property(
-                "apiKey",
-                InputPrimitiveType.String,
-                isRequired: true,
-                isReadOnly: false,
-                isHttpMetadata: true,
-                serializedName: "x-api-key");
-
-            var queryProperty = InputFactory.Property(
-                "filter",
-                InputPrimitiveType.String,
-                isRequired: true,
-                isReadOnly: false,
-                isHttpMetadata: true,
-                serializedName: "filter");
-
-            var bodyProperty = InputFactory.Property(
-                "data",
-                InputPrimitiveType.String,
-                isRequired: true,
-                isReadOnly: false,
-                serializedName: "data");
-
-            var requestModel = InputFactory.Model(
-                "RequestModel",
-                properties: [headerProperty, queryProperty, bodyProperty]);
-
-            // Create method parameter with the model type
-            var requestMethodParam = InputFactory.MethodParameter(
-                "request",
-                requestModel,
-                isRequired: true);
-
-            // Create protocol parameters that map to model properties
-            var headerParam = InputFactory.HeaderParameter(
-                "x-api-key",
-                InputPrimitiveType.String,
-                isRequired: true,
-                serializedName: "x-api-key",
-                correspondingMethodParams: [requestMethodParam]);
-
-            var queryParam = InputFactory.QueryParameter(
-                "filter",
-                InputPrimitiveType.String,
-                isRequired: true,
-                serializedName: "filter",
-                correspondingMethodParams: [requestMethodParam]);
-
-            var bodyParam = InputFactory.BodyParameter(
-                "body",
-                requestModel,
-                isRequired: true,
-                serializedName: "body",
-                correspondingMethodParams: [requestMethodParam]);
-
-            var inputOperation = InputFactory.Operation(
-                "ModelParamOperation",
-                parameters: [headerParam, queryParam, bodyParam],
-                responses: [InputFactory.OperationResponse([200])]);
-
-            var inputServiceMethod = InputFactory.BasicServiceMethod(
-                "ModelParamOperation",
-                inputOperation,
-                parameters: [requestMethodParam]);
-
-            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-
-            MockHelpers.LoadMockGenerator();
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.IsNotNull(client);
 
             var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
             Assert.IsNotNull(methodCollection);
 
             var convenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "options")
-                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+                   && m.Signature.Name == "GetDict");
             Assert.IsNotNull(convenienceMethod);
 
-            // Verify the convenience method has the model parameter
-            var convenienceParams = convenienceMethod!.Signature.Parameters;
-            Assert.AreEqual(2, convenienceParams.Count); // request + cancellation token
-            Assert.IsTrue(convenienceParams.Any(p => p.Name == "request"));
+            var actualCode = convenienceMethod!.BodyStatements!.ToDisplayString();
 
-            // Verify the body accesses model properties when calling the protocol method
-            var bodyString = convenienceMethod.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("request"), "Body should reference the 'request' parameter");
-
-            // Verify that the convenience method accesses properties from the model parameter
-            // e.g., request.ApiKey for header, request.Filter for query
-            Assert.IsTrue(bodyString.Contains("request.ApiKey") || bodyString.Contains("request.apiKey"),
-                "Body should access the ApiKey property of the request parameter");
-            Assert.IsTrue(bodyString.Contains("request.Filter") || bodyString.Contains("request.filter"),
-                "Body should access the Filter property of the request parameter");
+            Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
         }
+
     }
 }

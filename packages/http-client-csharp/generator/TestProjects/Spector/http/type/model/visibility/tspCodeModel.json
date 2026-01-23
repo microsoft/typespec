@@ -1428,7 +1428,8 @@
       "initializedBy": 1,
       "decorators": [],
       "crossLanguageDefinitionId": "Type.Model.Visibility",
-      "apiVersions": []
+      "apiVersions": [],
+      "isMultiServiceClient": false
     }
   ]
 }

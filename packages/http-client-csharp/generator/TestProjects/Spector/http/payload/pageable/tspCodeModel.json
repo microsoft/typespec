@@ -1118,7 +1118,8 @@
                     "next"
                   ],
                   "responseLocation": "Body"
-                }
+                },
+                "pageSizeParameterSegments": []
               }
             },
             {
@@ -1219,7 +1220,8 @@
                     "next"
                   ],
                   "responseLocation": "Body"
-                }
+                },
+                "pageSizeParameterSegments": []
               }
             },
             {
@@ -1323,7 +1325,8 @@
                     "next"
                   ],
                   "responseLocation": "Body"
-                }
+                },
+                "pageSizeParameterSegments": []
               }
             }
           ],
@@ -1356,7 +1359,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Payload.Pageable.endpoint"
+              "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -1612,7 +1615,8 @@
                         "nextToken"
                       ],
                       "responseLocation": "Body"
-                    }
+                    },
+                    "pageSizeParameterSegments": []
                   }
                 },
                 {
@@ -1854,7 +1858,8 @@
                         "nextToken"
                       ],
                       "responseLocation": "Body"
-                    }
+                    },
+                    "pageSizeParameterSegments": []
                   }
                 },
                 {
@@ -2108,7 +2113,8 @@
                         "next-token"
                       ],
                       "responseLocation": "Header"
-                    }
+                    },
+                    "pageSizeParameterSegments": []
                   }
                 },
                 {
@@ -2362,7 +2368,8 @@
                         "next-token"
                       ],
                       "responseLocation": "Header"
-                    }
+                    },
+                    "pageSizeParameterSegments": []
                   }
                 },
                 {
@@ -2607,7 +2614,8 @@
                         "nextToken"
                       ],
                       "responseLocation": "Body"
-                    }
+                    },
+                    "pageSizeParameterSegments": []
                   }
                 },
                 {
@@ -2852,7 +2860,8 @@
                         "nextToken"
                       ],
                       "responseLocation": "Body"
-                    }
+                    },
+                    "pageSizeParameterSegments": []
                   }
                 }
               ],
@@ -2885,7 +2894,7 @@
                   "serverUrlTemplate": "{endpoint}",
                   "skipUrlEncoding": false,
                   "readOnly": false,
-                  "crossLanguageDefinitionId": "Payload.Pageable.endpoint"
+                  "crossLanguageDefinitionId": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.endpoint"
                 }
               ],
               "initializedBy": 0,
@@ -2894,9 +2903,11 @@
               "apiVersions": [],
               "parent": {
                 "$ref": "81"
-              }
+              },
+              "isMultiServiceClient": false
             }
-          ]
+          ],
+          "isMultiServiceClient": false
         },
         {
           "$id": "199",
@@ -2996,7 +3007,8 @@
               "pagingMetadata": {
                 "itemPropertySegments": [
                   "pets"
-                ]
+                ],
+                "pageSizeParameterSegments": []
               }
             },
             {
@@ -3137,6 +3149,9 @@
               "pagingMetadata": {
                 "itemPropertySegments": [
                   "pets"
+                ],
+                "pageSizeParameterSegments": [
+                  "pageSize"
                 ]
               }
             }
@@ -3170,7 +3185,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Payload.Pageable.endpoint"
+              "crossLanguageDefinitionId": "Payload.Pageable.PageSize.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -3179,9 +3194,11 @@
           "apiVersions": [],
           "parent": {
             "$ref": "77"
-          }
+          },
+          "isMultiServiceClient": false
         }
-      ]
+      ],
+      "isMultiServiceClient": false
     }
   ]
 }

@@ -366,7 +366,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Serialization.EncodedName.Json.endpoint"
+              "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -375,9 +375,11 @@
           "apiVersions": [],
           "parent": {
             "$ref": "8"
-          }
+          },
+          "isMultiServiceClient": false
         }
-      ]
+      ],
+      "isMultiServiceClient": false
     }
   ]
 }

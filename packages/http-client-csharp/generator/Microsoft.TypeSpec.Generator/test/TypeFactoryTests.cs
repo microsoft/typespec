@@ -4,8 +4,10 @@
 using System;
 using System.Net;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -190,6 +192,114 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var actual = CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(input);
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public async Task CreateEnum_WithVisitor_ChangesNamespaceToModels()
+        {
+            // Arrange - Create a fixed enum
+            var input = InputFactory.StringEnum(
+                "TestEnum",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: false);
+
+            await MockHelpers.LoadMockGeneratorAsync(inputEnumTypes: [input]);
+
+            // Create a visitor that modifies the namespace
+            var visitor = new NamespaceModifyingVisitor();
+            CodeModelGenerator.Instance.AddVisitor(visitor);
+
+            var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
+
+            Assert.IsNotNull(enumProvider);
+            Assert.IsTrue(enumProvider!.Type.Namespace.EndsWith(".SomeOtherNamespace"));
+            Assert.IsTrue(enumProvider is FixedEnumProvider);
+            Assert.IsNotNull(enumProvider.ExtensibleEnumView);
+            Assert.IsNull(enumProvider.CustomCodeView);
+        }
+
+        [Test]
+        public async Task CreateEnum_WithCustomCodeAsExtensible_ReturnsExtensibleEnum()
+        {
+            // Arrange - Create a fixed enum in input
+            var inputEnum = InputFactory.StringEnum(
+                "CustomizedEnum",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: false);
+
+            // Load compilation with custom code that changes the enum to extensible (struct)
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputEnumTypes: [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Create a visitor that modifies the namespace
+            var visitor = new NamespaceModifyingVisitor();
+            CodeModelGenerator.Instance.AddVisitor(visitor);
+
+            var result = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
+
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<ExtensibleEnumProvider>(result);
+            Assert.IsTrue(result!.Type.Namespace.EndsWith(".SomeOtherNamespace"));
+        }
+
+        [Test]
+        public void CreateEnum_FixedEnumWithoutVisitorsOrCustomCode_ReturnsFixedEnum()
+        {
+            // Arrange - Create a fixed enum
+            var input = InputFactory.StringEnum(
+                "PlainFixedEnum",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: false);
+
+            // Act - Create enum without any visitors or custom code modifications
+            var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
+
+            // Assert
+            Assert.IsNotNull(enumProvider);
+            Assert.IsInstanceOf<FixedEnumProvider>(enumProvider);
+            Assert.IsFalse(enumProvider!.IsExtensible);
+        }
+
+        [Test]
+        public void CreateEnum_ExtensibleEnumWithoutVisitorsOrCustomCode_ReturnsExtensibleEnum()
+        {
+            // Arrange - Create an extensible enum
+            var input = InputFactory.StringEnum(
+                "PlainExtensibleEnum",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true);
+
+            // Act - Create enum without any visitors or custom code modifications
+            var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
+
+            // Assert
+            Assert.IsNotNull(enumProvider);
+            Assert.IsInstanceOf<ExtensibleEnumProvider>(enumProvider);
+            Assert.IsTrue(enumProvider!.IsExtensible);
+        }
+
+        /// <summary>
+        /// Test visitor that modifies enum namespaces to end with ".Models"
+        /// </summary>
+        private class NamespaceModifyingVisitor : LibraryVisitor
+        {
+            protected internal override EnumProvider? PreVisitEnum(InputEnumType enumType, EnumProvider? type)
+            {
+                if (type == null)
+                    return type;
+
+                // Create a new enum provider with modified namespace
+                // replace ".Models" with ".SomeOtherNamespace"
+                var updatedNamespace = type.Type.Namespace.Replace(".Models", ".SomeOtherNamespace");
+                type.Update(@namespace: updatedNamespace);
+
+                return type;
+            }
         }
     }
 }

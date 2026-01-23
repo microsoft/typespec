@@ -224,7 +224,8 @@
       "initializedBy": 1,
       "decorators": [],
       "crossLanguageDefinitionId": "Parameters.Path",
-      "apiVersions": []
+      "apiVersions": [],
+      "isMultiServiceClient": false
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/mutator-framework",
-  "version": "0.12.0",
+  "version": "0.15.0",
   "type": "module",
   "main": "dist/src/index.js",
   "repository": {
@@ -34,9 +34,9 @@
     "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~24.9.1",
+    "@types/node": "~25.0.2",
     "@typespec/compiler": "workspace:^",
     "concurrently": "^9.1.2",
-    "prettier": "~3.6.2"
+    "prettier": "~3.8.0"
   }
 }

@@ -51,4 +51,14 @@ public class FluentUtilsTests {
         Assertions.assertEquals(Arrays.asList("odata.properties", "virtualNetworkSubnetId"), FluentUtils
             .splitFlattenedSerializedName("odata.properties".replace(".", "\\\\.") + ".virtualNetworkSubnetId"));
     }
+
+    @Test
+    public void testReservedClassName() {
+        // other reserved name should already be handled by CodeNamer
+        final String innerSuffix = "Inner";
+        Assertions.assertEquals("ContextModel",
+            FluentUtils.resourceModelInterfaceClassType("Context" + innerSuffix).getName());
+        Assertions.assertEquals("ResponseModel",
+            FluentUtils.resourceModelInterfaceClassType("Response" + innerSuffix).getName());
+    }
 }

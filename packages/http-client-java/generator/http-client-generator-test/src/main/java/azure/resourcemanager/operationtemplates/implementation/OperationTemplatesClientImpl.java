@@ -5,6 +5,7 @@
 package azure.resourcemanager.operationtemplates.implementation;
 
 import azure.resourcemanager.operationtemplates.fluent.CheckNameAvailabilitiesClient;
+import azure.resourcemanager.operationtemplates.fluent.LroPagingsClient;
 import azure.resourcemanager.operationtemplates.fluent.LroesClient;
 import azure.resourcemanager.operationtemplates.fluent.OperationTemplatesClient;
 import azure.resourcemanager.operationtemplates.fluent.OperationsClient;
@@ -172,6 +173,20 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
     }
 
     /**
+     * The LroPagingsClient object to access its operations.
+     */
+    private final LroPagingsClient lroPagings;
+
+    /**
+     * Gets the LroPagingsClient object to access its operations.
+     * 
+     * @return the LroPagingsClient object.
+     */
+    public LroPagingsClient getLroPagings() {
+        return this.lroPagings;
+    }
+
+    /**
      * The OptionalBodiesClient object to access its operations.
      */
     private final OptionalBodiesClient optionalBodies;
@@ -206,6 +221,7 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
         this.operations = new OperationsClientImpl(this);
         this.checkNameAvailabilities = new CheckNameAvailabilitiesClientImpl(this);
         this.lroes = new LroesClientImpl(this);
+        this.lroPagings = new LroPagingsClientImpl(this);
         this.optionalBodies = new OptionalBodiesClientImpl(this);
     }
 

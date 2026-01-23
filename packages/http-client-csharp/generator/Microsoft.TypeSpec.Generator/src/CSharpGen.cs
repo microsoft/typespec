@@ -67,10 +67,24 @@ namespace Microsoft.TypeSpec.Generator
                 visitor.VisitLibrary(output);
             }
 
+            foreach (var typeProvider in output.TypeProviders)
+            {
+                // Update the type with the potentially modified members, filtering out customized members
+                // after the visitors have been applied so that the filtering is done against the final version.
+                typeProvider.Update(
+                    typeProvider.FilterCustomizedMethods(typeProvider.Methods),
+                    typeProvider.FilterCustomizedConstructors(typeProvider.Constructors),
+                    typeProvider.FilterCustomizedProperties(typeProvider.Properties),
+                    typeProvider.FilterCustomizedFields(typeProvider.Fields));
+            }
+
             LoggingHelpers.LogElapsedTime("All visitors have been applied");
 
             foreach (var outputType in output.TypeProviders)
             {
+                // Ensure back-compatibility processing is done after all visitors have run
+                outputType.ProcessTypeForBackCompatibility();
+
                 var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
 

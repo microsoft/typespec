@@ -420,7 +420,8 @@
       "crossLanguageDefinitionId": "Versioning.MadeOptional",
       "apiVersions": [
         "v1"
-      ]
+      ],
+      "isMultiServiceClient": false
     }
   ]
 }

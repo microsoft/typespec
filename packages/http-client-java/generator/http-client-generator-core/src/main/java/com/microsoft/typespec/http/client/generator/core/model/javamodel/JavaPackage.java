@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -44,6 +43,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -382,7 +382,8 @@ public class JavaPackage {
         }
 
         // TODO(weidxu): remove in future, when "apiview_properties.json" file is not needed
-        filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_apiview_properties.json";
+        filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_apiview_properties"
+            + (suffix == null ? "" : "_" + suffix) + ".json";
         if (!CoreUtils.isNullOrEmpty(typeSpecMetadata.getCrossLanguageDefinitions())) {
             String flavor = typeSpecMetadata.getFlavor();
             StringBuilder sb

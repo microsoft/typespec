@@ -72,6 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool modelAsStruct = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
+            InputExternalTypeMetadata? external = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -92,6 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("discriminatedSubtypes", options, ref discriminatedSubtypes)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
+                    || reader.TryReadComplexType("external", options, ref external)
                     || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct); // TODO -- change this to fetch from the decorator list instead when the decorator is ready
 
                 if (!isKnownProperty)
@@ -138,6 +140,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     MarkModelsAsDynamicRecursive(model, []);
                 }
             }
+            model.External = external;
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)
@@ -158,6 +161,24 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (inputType is InputModelType modelType)
             {
                 modelType.IsDynamicModel = true;
+
+                // Mark all derived/discriminated models as dynamic
+                foreach (var derivedModel in modelType.DerivedModels)
+                {
+                    MarkModelsAsDynamicRecursive(derivedModel, visited);
+                }
+                foreach (var discriminatedModel in modelType.DiscriminatedSubtypes.Values)
+                {
+                    MarkModelsAsDynamicRecursive(discriminatedModel, visited);
+                }
+
+                // Mark the base discriminated model as dynamic
+                var baseModel = modelType.BaseModel;
+                if (baseModel?.DiscriminatorProperty != null || baseModel?.DiscriminatorValue != null)
+                {
+                    MarkModelsAsDynamicRecursive(baseModel, visited);
+                }
+
                 foreach (var property in modelType.Properties)
                 {
                     switch (property.Type)

@@ -4,7 +4,6 @@
 
 package azure.clientgenerator.core.alternatetype;
 
-import azure.clientgenerator.core.alternatetype.externaltype.models.Feature;
 import azure.clientgenerator.core.alternatetype.externaltype.models.ModelWithFeatureProperty;
 import azure.clientgenerator.core.alternatetype.implementation.ExternalTypesImpl;
 import com.azure.core.annotation.Generated;
@@ -17,6 +16,7 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.models.GeoObject;
 import com.azure.core.util.BinaryData;
 
 /**
@@ -197,10 +197,10 @@ public final class AlternateTypeClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Feature getModel() {
+    public GeoObject getModel() {
         // Generated convenience method for getModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getModelWithResponse(requestOptions).getValue().toObject(Feature.class);
+        return getModelWithResponse(requestOptions).getValue().toObject(GeoObject.class);
     }
 
     /**
@@ -216,7 +216,7 @@ public final class AlternateTypeClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putModel(Feature body) {
+    public void putModel(GeoObject body) {
         // Generated convenience method for putModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
         putModelWithResponse(BinaryData.fromObject(body), requestOptions).getValue();

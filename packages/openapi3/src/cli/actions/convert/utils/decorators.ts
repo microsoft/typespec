@@ -9,7 +9,8 @@ import {
   OpenAPISchema3_2,
   Refable,
 } from "../../../../types.js";
-import { TSValue, TypeSpecDecorator } from "../interfaces.js";
+import { stringLiteral } from "../generators/common.js";
+import { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
 
 const validLocations = ["header", "query", "path"];
 const extensionDecoratorName = "extension";
@@ -29,8 +30,8 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
   return decorators;
 }
 function normalizeObjectValue(source: unknown): string | number | object | TSValue {
-  if (typeof source === "object") {
-    const result = createTSValueFromObjectValue(source as object);
+  if (source !== null && typeof source === "object") {
+    const result = createTSValueFromObjectValue(source);
     if (result) {
       return result;
     }
@@ -93,7 +94,7 @@ function createTSValueFromObjectValue(value: object): TSValue | undefined {
   return undefined;
 }
 export function normalizeObjectValueToTSValueExpression(value: any): string {
-  if (typeof value === "object" && !Array.isArray(value)) {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
     return `#{${Object.entries(value)
       .map(([key, v]) => {
         return `${printIdentifier(key, "disallow-reserved")}: ${normalizeObjectValueToTSValueExpression(v)}`;
@@ -101,6 +102,8 @@ export function normalizeObjectValueToTSValueExpression(value: any): string {
       .join(", ")}}`;
   } else if (Array.isArray(value)) {
     return `#[${value.map((v) => normalizeObjectValueToTSValueExpression(v)).join(", ")}]`;
+  } else if (typeof value === "string") {
+    return stringLiteral(value);
   } else return `${JSON.stringify(value)}`;
 }
 
@@ -171,9 +174,43 @@ export function getDecoratorsForSchema(
     ? schema.type.find((t) => t !== "null")
     : schema.type;
 
+  // Handle x-ms-duration extension with @encode decorator
+  // Must be after effectiveType extraction to handle type arrays correctly
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    decorators.push(...getDurationSchemaDecorators(schema, effectiveType));
+  }
+
   // Handle unixtime format with @encode decorator
-  if (schema.format === "unixtime") {
-    decorators.push(...getUnixtimeSchemaDecorators(effectiveType));
+  // Check both direct format and format from anyOf/oneOf members
+  let formatToUse = schema.format;
+  let typeForFormat = effectiveType;
+
+  // If format is not directly on the schema, check anyOf/oneOf members for unixtime format
+  if (!formatToUse) {
+    const unionMembers = schema.anyOf || schema.oneOf;
+    if (unionMembers) {
+      for (const member of unionMembers) {
+        if ("$ref" in member) continue;
+        // Check if this is a non-null member with unixtime format
+        if (member.format === "unixtime" && member.type !== "null") {
+          formatToUse = member.format;
+          // Extract effective type from member (handle type arrays)
+          const memberType = Array.isArray(member.type)
+            ? member.type.find((t) => t !== "null")
+            : member.type;
+          // Only use if we found a valid type
+          if (memberType) {
+            typeForFormat = memberType;
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  if (formatToUse === "unixtime") {
+    decorators.push(...getUnixtimeSchemaDecorators(typeForFormat));
   }
 
   switch (effectiveType) {
@@ -215,6 +252,22 @@ export function getDecoratorsForSchema(
   }
 
   return decorators;
+}
+
+export function getDirectivesForSchema(
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+): TypeSpecDirective[] {
+  const directives: TypeSpecDirective[] = [];
+
+  if ("$ref" in schema) {
+    return directives;
+  }
+
+  if (schema.deprecated) {
+    directives.push({ name: "deprecated", message: "deprecated" });
+  }
+
+  return directives;
 }
 
 function createTSValue(value: string): TSValue {
@@ -276,6 +329,75 @@ function getUnixtimeSchemaDecorators(effectiveType: string | undefined) {
   return decorators;
 }
 
+function getDurationSchemaDecorators(
+  schema: OpenAPI3Schema | OpenAPISchema3_1,
+  effectiveType: string | undefined,
+) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // Get the x-ms-duration value (seconds or milliseconds)
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (!xmsDuration || (xmsDuration !== "seconds" && xmsDuration !== "milliseconds")) {
+    return decorators;
+  }
+
+  // Determine the encoding type based on the schema's format and type
+  let encodingType = "float32"; // default
+  const format = schema.format ?? "";
+
+  if (effectiveType === "integer") {
+    // For integer types, use the specific format or default to integer
+    switch (format) {
+      case "int8":
+      case "int16":
+      case "int32":
+      case "int64":
+      case "uint8":
+      case "uint16":
+      case "uint32":
+      case "uint64":
+        encodingType = format;
+        break;
+      default:
+        encodingType = "integer";
+    }
+  } else if (effectiveType === "number") {
+    // For number types, use the specific format or default to float32
+    switch (format) {
+      case "int8":
+      case "int16":
+      case "int32":
+      case "int64":
+      case "uint8":
+      case "uint16":
+      case "uint32":
+      case "uint64":
+        // Number type can have integer formats (e.g., type: number, format: int64)
+        encodingType = format;
+        break;
+      case "decimal":
+      case "decimal128":
+        encodingType = format;
+        break;
+      case "double":
+        encodingType = "float64";
+        break;
+      case "float":
+        encodingType = "float32";
+        break;
+      default:
+        encodingType = "float32";
+    }
+  }
+
+  decorators.push({
+    name: "encode",
+    args: [createTSValue(`"${xmsDuration}"`), createTSValue(encodingType)],
+  });
+
+  return decorators;
+}
+
 const knownStringFormats = new Set([
   "binary",
   "byte",
@@ -303,6 +425,14 @@ function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
 
   if (typeof schema.format === "string" && !knownStringFormats.has(schema.format)) {
     decorators.push({ name: "format", args: [schema.format] });
+  }
+
+  // Handle contentEncoding: base64 for OpenAPI 3.1+ (indicates binary data encoded as base64 string)
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    decorators.push({
+      name: "encode",
+      args: [createTSValue(`"base64"`), createTSValue("string")],
+    });
   }
 
   return decorators;

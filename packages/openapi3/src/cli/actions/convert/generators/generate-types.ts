@@ -535,6 +535,13 @@ export function getTypeSpecPrimitiveFromSchema(schema: SupportedOpenAPISchema): 
 
 function getIntegerType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
+
+  // Check for x-ms-duration extension
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    return "duration";
+  }
+
   switch (format) {
     case "int8":
     case "int16":
@@ -556,6 +563,13 @@ function getIntegerType(schema: SupportedOpenAPISchema): string {
 
 function getNumberType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
+
+  // Check for x-ms-duration extension
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    return "duration";
+  }
+
   switch (format) {
     case "decimal":
     case "decimal128":
@@ -572,6 +586,12 @@ function getNumberType(schema: SupportedOpenAPISchema): string {
 
 function getStringType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
+
+  // Handle contentEncoding: base64 for OpenAPI 3.1+ (indicates binary data encoded as base64 string)
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    return "bytes";
+  }
+
   let type = "string";
   switch (format) {
     case "binary":

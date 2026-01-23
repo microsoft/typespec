@@ -27,33 +27,37 @@ Before you begin, ensure you have the following installed:
 
 ## Getting Started
 
-### 1. Clone the Repository
+### 1. Fork and Clone the Repository
+
+First, create a fork of the repository on GitHub, then clone your fork:
 
 ```bash
-git clone https://github.com/microsoft/typespec.git
-cd typespec/packages/http-client-csharp
+git clone https://github.com/YOUR_USERNAME/typespec.git
 ```
+
+Replace `YOUR_USERNAME` with your GitHub username.
 
 ### 2. Install Dependencies
 
-From the repository root:
+Navigate to the project directory and install the package dependencies:
 
 ```bash
+cd packages/http-client-csharp
 npm ci
 ```
 
 ### 3. Build the C# Package
 
 ```bash
-cd packages/http-client-csharp
 npm run build
 ```
 
-This command runs:
-
-- `npm run build:emitter` - Builds the TypeScript emitter
-- `npm run build:generator` - Builds the .NET generator
-- `npm run extract-api` - Extracts API documentation
+> [!NOTE]
+> This command runs:
+>
+> - `npm run build:emitter` - Builds the TypeScript emitter
+> - `npm run build:generator` - Builds the .NET generator
+> - `npm run extract-api` - Extracts API documentation
 
 ### 4. Verify Installation
 
@@ -74,41 +78,41 @@ The C# HTTP client package consists of two main components:
 
 ### Making Changes
 
-1. **Create a fork** of the repository and clone it:
+1. **Create a feature branch** for your changes:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/typespec.git
-   cd typespec
    git checkout -b feature/your-feature-name
    ```
 
 2. **Make your changes** to the codebase
 
 3. **Build your changes**:
-
-   ```bash
-   # Build emitter only
-   npm run build:emitter
-   
-   # Build generator only
-   npm run build:generator
-   
-   # Build everything
-   npm run build
-   ```
+   - Build everything:
+     ```bash
+     npm run build
+     ```
+   - Build emitter only:
+     ```bash
+     npm run build:emitter
+     ```
+   - Build generator only:
+     ```bash
+     npm run build:generator
+     ```
 
 4. **Test your changes**:
-
-   ```bash
-   # Test emitter only
-   npm run test:emitter
-   
-   # Test generator only
-   npm run test:generator
-   
-   # Test everything
-   npm run test
-   ```
+   - Run all tests:
+     ```bash
+     npm run test
+     ```
+   - Test emitter only:
+     ```bash
+     npm run test:emitter
+     ```
+   - Test generator only:
+     ```bash
+     npm run test:generator
+     ```
 
 ### Code Style and Linting
 
@@ -122,54 +126,76 @@ The C# HTTP client package consists of two main components:
 
 The package includes both TypeScript (emitter) and C# (generator) tests:
 
-```bash
-# Run all tests
-npm run test
+- Run all tests:
 
-# Run emitter tests only (TypeScript/Vitest)
-npm run test:emitter
+  ```bash
+  npm run test
+  ```
 
-# Run generator tests only (.NET)
-npm run test:generator
+- Run emitter tests only (TypeScript/Vitest):
 
-# Run tests with coverage
-npm run test:ci
+  ```bash
+  npm run test:emitter
+  ```
 
-# Run tests with UI (emitter only)
-npm run test:ui
-```
+- Run generator tests only (.NET):
 
-> **Note**: Some tests may require a full workspace build (`pnpm build` from repository root) to resolve all dependencies before running successfully.
+  ```bash
+  npm run test:generator
+  ```
+
+- Run tests with coverage:
+
+  ```bash
+  npm run test:ci
+  ```
+
+- Run tests with UI (emitter only):
+  ```bash
+  npm run test:ui
+  ```
 
 ### Integration Testing with Spector
 
 The package uses the Spector test framework for end-to-end testing of generated code:
 
-```bash
-# Run Spector tests (requires PowerShell)
-./eng/scripts/Test-Spector.ps1
+- Run Spector tests (requires PowerShell):
 
-# Run Spector tests with filter
-./eng/scripts/Test-Spector.ps1 -filter "specific-test-name"
+  ```bash
+  ./eng/scripts/Test-Spector.ps1
+  ```
 
-# Get Spector test coverage
-./eng/scripts/Get-Spector-Coverage.ps1
-```
+- Run Spector tests with filter:
+
+  ```bash
+  ./eng/scripts/Test-Spector.ps1 -filter "specific-test-name"
+  ```
+
+- Get Spector test coverage:
+  ```bash
+  ./eng/scripts/Get-Spector-Coverage.ps1
+  ```
 
 ### Test Project Generation
 
 Generate test projects to validate the emitter and generator:
 
-```bash
-# Generate all test projects (requires PowerShell)
-./eng/scripts/Generate.ps1
+- Generate all test projects (requires PowerShell):
 
-# Generate specific test project
-./eng/scripts/Generate.ps1 -filter "project-name"
+  ```bash
+  ./eng/scripts/Generate.ps1
+  ```
 
-# Generate with stubbed mode disabled
-./eng/scripts/Generate.ps1 -Stubbed $false
-```
+- Generate specific test project:
+
+  ```bash
+  ./eng/scripts/Generate.ps1 -filter "project-name"
+  ```
+
+- Generate with stubbed mode disabled:
+  ```bash
+  ./eng/scripts/Generate.ps1 -Stubbed $false
+  ```
 
 ## Code Generation
 
@@ -177,18 +203,16 @@ Generate test projects to validate the emitter and generator:
 
 To regenerate test projects after making changes:
 
-**Generate projects**:
-
 ```bash
 ./eng/scripts/Generate.ps1
 ```
 
 ### Regenerating Azure Libraries
 
-To regenerate azure libraries using your local changes, run:
+To regenerate Azure libraries using your local changes:
 
 ```bash
-   ./eng/scripts/RegenPreview.ps1 <path-to-clone-of-azure-sdk-for-net>
+./eng/scripts/RegenPreview.ps1 <path-to-clone-of-azure-sdk-for-net>
 ```
 
 This will regenerate all the Azure libraries and allow you to view any potential diffs your changes may cause. For more information on the script's usage, see [RegenPreview](./eng/scripts/docs/RegenPreview.md).

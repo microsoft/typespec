@@ -1005,7 +1005,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.Query.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -1014,7 +1014,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "67"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "97",
@@ -1736,7 +1737,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.Property.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -1745,7 +1746,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "67"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "133",
@@ -2123,7 +2125,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.Header.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -2132,7 +2134,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "67"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "159",
@@ -2821,7 +2824,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.RequestBody.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -2830,7 +2833,8 @@
           "apiVersions": [],
           "parent": {
             "$ref": "67"
-          }
+          },
+          "isMultiServiceClient": false
         },
         {
           "$id": "203",
@@ -3365,7 +3369,7 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Encode.Bytes.endpoint"
+              "crossLanguageDefinitionId": "Encode.Bytes.ResponseBody.endpoint"
             }
           ],
           "initializedBy": 0,
@@ -3374,9 +3378,11 @@
           "apiVersions": [],
           "parent": {
             "$ref": "67"
-          }
+          },
+          "isMultiServiceClient": false
         }
-      ]
+      ],
+      "isMultiServiceClient": false
     }
   ]
 }
