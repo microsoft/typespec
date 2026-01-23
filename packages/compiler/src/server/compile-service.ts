@@ -339,7 +339,10 @@ export function createCompileService({
    */
   async function getMainFileForDocument(path: string) {
     if (path.startsWith("untitled:")) {
-      logDebug({ level: "debug", message: `untitled document treated as its own main file: ${path}` });
+      logDebug({
+        level: "debug",
+        message: `untitled document treated as its own main file: ${path}`,
+      });
       return path;
     }
 

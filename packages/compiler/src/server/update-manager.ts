@@ -1,6 +1,5 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { getEnvironmentVariable } from "../utils/misc.js";
 import { debugLoggers } from "./constants.js";
 import { ServerLog } from "./types.js";
 

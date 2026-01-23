@@ -144,7 +144,7 @@
         // Enable debug logging for specific areas using DEBUG environment variable
         // Examples:
         //   "DEBUG": "typespec:server_compile"           - Enable server compilation debug logs
-        //   "DEBUG": "typespec:lm"                       - Enable Language Model debug logs  
+        //   "DEBUG": "typespec:lm"                       - Enable Language Model debug logs
         //   "DEBUG": "typespec:*"                        - Enable all typespec debug logs
         //   "DEBUG": "typespec:server_compile,typespec:compile_config" - Enable multiple areas
         //"DEBUG": "typespec:server_compile,typespec:update_manager,typespec:compile_config,typespec:lm",

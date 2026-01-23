@@ -8,7 +8,6 @@ import {
   Program,
   ServerLog,
 } from "../index.js";
-import { getEnvironmentVariable } from "../utils/misc.js";
 import { debugLoggers } from "./constants.js";
 import { trackActionFunc } from "./server-track-action-task.js";
 import { UpdateManager } from "./update-manager.js";
@@ -46,9 +45,7 @@ export class ServerCompileManager {
     private log: (log: ServerLog) => void,
   ) {
     const debug = debugLoggers.serverCompile;
-    this.logDebug = debug.enabled
-      ? (msg) => this.log({ level: "debug", message: msg })
-      : () => {};
+    this.logDebug = debug.enabled ? (msg) => this.log({ level: "debug", message: msg }) : () => {};
   }
 
   async compile(
