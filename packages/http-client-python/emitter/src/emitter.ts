@@ -228,7 +228,10 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       const commandFlags = Object.entries(commandArgs)
         .map(([key, value]) => `--${key}=${value}`)
         .join(" ");
-      const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
+      let command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
+      command = command.replace(/\\\\/g, "/");
+      // Write command to alpha/command.txt for debugging/profiling purposes
+      fs.writeFileSync(path.join(root, "alpha", "command.txt"), command);
       Profiler.measure("execSync:run_tsp.py", () => execSync(command));
 
       const blackExcludeDirs = [

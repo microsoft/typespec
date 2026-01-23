@@ -10,6 +10,7 @@ import yaml
 
 from .. import Plugin
 from ..utils import parse_args
+from ..timing_utils import Profiler
 from .models.code_model import CodeModel
 from .serializers import JinjaSerializer
 
@@ -70,18 +71,28 @@ class CodeGenerator(Plugin):
 
     def process(self) -> bool:
         # List the input file, should be only one
-        yaml_data = self.get_yaml()
+        yaml_data = Profiler.measure('CodeGenerator.get_yaml', lambda: self.get_yaml())
 
-        self.sort_exceptions(yaml_data)
+        Profiler.measure('CodeGenerator.sort_exceptions', lambda: self.sort_exceptions(yaml_data))
 
         if self.options["azure-arm"]:
-            self.remove_cloud_errors(yaml_data)
+            Profiler.measure('CodeGenerator.remove_cloud_errors', lambda: self.remove_cloud_errors(yaml_data))
 
-        code_model = CodeModel(yaml_data=yaml_data, options=self.options)
+        code_model = Profiler.measure(
+            'CodeGenerator.CodeModel_init',
+            lambda: CodeModel(yaml_data=yaml_data, options=self.options)
+        )
+        
         if self.options["flavor"] != "azure" and any(client.lro_operations for client in code_model.clients):
             raise ValueError("Only support LROs for Azure SDKs")
-        serializer = self.get_serializer(code_model)
-        serializer.serialize()
+        
+        serializer = Profiler.measure(
+            'CodeGenerator.get_serializer',
+            lambda: self.get_serializer(code_model)
+        )
+        
+        Profiler.measure('CodeGenerator.serializer.serialize', lambda: serializer.serialize())
+        
         return True
 
 

@@ -13,6 +13,7 @@ from typing import Any, Iterator, Optional, Union
 
 import yaml
 from .utils import TYPESPEC_PACKAGE_MODE, VALID_PACKAGE_MODE
+from .timing_utils import Profiler
 
 from ._version import VERSION
 
@@ -299,13 +300,13 @@ class YamlUpdatePlugin(Plugin):
 
     def process(self) -> bool:
         # List the input file, should be only one
-        yaml_data = self.get_yaml()
+        yaml_data = Profiler.measure('PreProcessPlugin.get_yaml', lambda: self.get_yaml())
 
-        self.update_yaml(yaml_data)
+        Profiler.measure('PreProcessPlugin.update_yaml', lambda: self.update_yaml(yaml_data))
 
-        yaml_string = yaml.safe_dump(yaml_data)
+        yaml_string = Profiler.measure('PreProcessPlugin.yaml_safe_dump', lambda: yaml.safe_dump(yaml_data))
 
-        self.write_yaml(yaml_string)
+        Profiler.measure('PreProcessPlugin.write_yaml', lambda: self.write_yaml(yaml_string))
         return True
 
     @abstractmethod
