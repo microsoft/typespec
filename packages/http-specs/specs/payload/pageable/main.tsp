@@ -529,12 +529,12 @@ namespace XmlPagination {
   @scenario
   @scenarioDoc("""
     Test case for XML pagination with continuation token. Continuation token is passed in the request query and response body.
-    
+
     Two requests need to be tested.
-    
+
     1. Initial request:
     Expected route: /payload/pageable/xml/list
-    
+
     Expected response body:
     ```xml
     <PetListResult>
@@ -551,10 +551,10 @@ namespace XmlPagination {
       <NextMarker>page2</NextMarker>
     </PetListResult>
     ```
-    
+
     2. Next page request:
     Expected route: /payload/pageable/xml/list?marker=page2
-    
+
     Expected response body:
     ```xml
     <PetListResult>
@@ -577,6 +577,58 @@ namespace XmlPagination {
     @header("content-type") contentType: "application/xml";
     @body body: XmlPetListResult;
   };
+
+  @scenario
+  @scenarioDoc("""
+    Test case for XML pagination with next link.
+
+    Two requests need to be tested.
+
+    1. Initial request:
+    Expected route: /payload/pageable/xml/list-with-next-link
+
+    Expected response body:
+    ```xml
+    <PetListResult>
+      <Pets>
+        <Pet>
+          <Id>1</Id>
+          <Name>dog</Name>
+        </Pet>
+        <Pet>
+          <Id>2</Id>
+          <Name>cat</Name>
+        </Pet>
+      </Pets>
+      <NextLink>http://[host]:[port]/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
+    </PetListResult>
+    ```
+
+    2. Next page request:
+    Expected route: /payload/pageable/xml/list-with-next-link/nextPage
+
+    Expected response body:
+    ```xml
+    <PetListResult>
+      <Pets>
+        <Pet>
+          <Id>3</Id>
+          <Name>bird</Name>
+        </Pet>
+        <Pet>
+          <Id>4</Id>
+          <Name>fish</Name>
+        </Pet>
+      </Pets>
+    </PetListResult>
+    ```
+    """)
+  @route("/list-with-next-link")
+  @list
+  op listWithNextLink(): {
+    @header("content-type") contentType: "application/xml";
+    @body body: XmlPetListResultWithNextLink;
+  };
 }
 
 @doc("The XML response for listing pets.")
@@ -589,4 +641,16 @@ model XmlPetListResult {
   @continuationToken
   @name("NextMarker")
   nextMarker?: string;
+}
+
+@doc("The XML response for listing pets with next link.")
+@name("PetListResult")
+model XmlPetListResultWithNextLink {
+  @pageItems
+  @name("Pets")
+  pets: XmlPet[];
+
+  @nextLink
+  @name("NextLink")
+  nextLink?: url;
 }

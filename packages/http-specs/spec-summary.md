@@ -2835,9 +2835,9 @@ Two requests need to be tested.
 }
 ```
 
-### Payload_Pageable_XmlPagination_list
+### Payload_Pageable_XmlPagination_listWithContinuation
 
-- Endpoint: `get /payload/pageable/xml/list`
+- Endpoint: `get /payload/pageable/xml/list-with-continuation`
 
 Test case for XML pagination with continuation token. Continuation token is passed in the request query and response body.
 
@@ -2866,6 +2866,55 @@ Expected response body:
 
 2. Next page request:
    Expected route: /payload/pageable/xml/list?marker=page2
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+```
+
+### Payload_Pageable_XmlPagination_listWithNextLink
+
+- Endpoint: `get /payload/pageable/xml/list-with-next-link`
+
+Test case for XML pagination with next link.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/xml/list-with-next-link
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextLink>http://[host]:[port]/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
+</PetListResult>
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/xml/list-with-next-link/nextPage
 
 Expected response body:
 

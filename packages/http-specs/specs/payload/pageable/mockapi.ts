@@ -513,7 +513,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
     },
   ]);
 
-const XmlFirstPage = `
+const XmlContTokenFirstPage = `
 <PetListResult>
   <Pets>
     <Pet>
@@ -529,7 +529,7 @@ const XmlFirstPage = `
 </PetListResult>
 `;
 
-const XmlSecondPage = `
+const XmlContTokenSecondPage = `
 <PetListResult>
   <Pets>
     <Pet>
@@ -544,6 +544,7 @@ const XmlSecondPage = `
 </PetListResult>
 `;
 
+
 Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
   {
     uri: "/payload/pageable/xml/list-with-continuation",
@@ -551,7 +552,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
     request: {},
     response: {
       status: 200,
-      body: xml(XmlFirstPage),
+      body: xml(XmlContTokenFirstPage),
       headers: {
         "content-type": "application/xml",
       },
@@ -563,7 +564,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
         case undefined:
           return {
             status: 200,
-            body: xml(XmlFirstPage),
+            body: xml(XmlContTokenFirstPage),
             headers: {
               "content-type": "application/xml",
             },
@@ -571,7 +572,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
         case "page2":
           return {
             status: 200,
-            body: xml(XmlSecondPage),
+            body: xml(XmlContTokenSecondPage),
             headers: {
               "content-type": "application/xml",
             },
@@ -588,7 +589,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
     request: { query: { marker: "page2" } },
     response: {
       status: 200,
-      body: xml(XmlSecondPage),
+      body: xml(XmlContTokenSecondPage),
       headers: {
         "content-type": "application/xml",
       },
@@ -600,7 +601,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
         case undefined:
           return {
             status: 200,
-            body: xml(XmlFirstPage),
+            body: xml(XmlContTokenFirstPage),
             headers: {
               "content-type": "application/xml",
             },
@@ -608,7 +609,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
         case "page2":
           return {
             status: 200,
-            body: xml(XmlSecondPage),
+            body: xml(XmlContTokenSecondPage),
             headers: {
               "content-type": "application/xml",
             },
@@ -616,6 +617,75 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
         default:
           throw new ValidationError("Unsupported marker", `"undefined" | "page2"`, marker);
       }
+    },
+    kind: "MockApiDefinition",
+  },
+]);
+
+const xmlNextLinkFirstPage = (baseUrl: string) => `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextLink>${baseUrl}/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
+</PetListResult>
+`;
+
+const XmlNextLinkSecondPage = `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+`;
+
+Scenarios.Payload_Pageable_XmlPagination_listWithNextLink = passOnSuccess([
+  {
+    uri: "/payload/pageable/xml/list-with-next-link",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: xml(xmlNextLinkFirstPage("PLACEHOLDER_BASE_URL")),
+      headers: {
+        "content-type": "application/xml",
+      },
+    },
+    handler: (req: MockRequest) => {
+      return {
+        status: 200,
+        body: xml(xmlNextLinkFirstPage(req.baseUrl)),
+        headers: {
+          "content-type": "application/xml",
+        },
+      };
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/xml/list-with-next-link/nextPage",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: xml(XmlNextLinkSecondPage),
+      headers: {
+        "content-type": "application/xml",
+      },
     },
     kind: "MockApiDefinition",
   },
