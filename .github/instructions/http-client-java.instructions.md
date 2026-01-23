@@ -16,6 +16,7 @@ Steps:
 5. Commit the changes to `package.json` and `package-lock.json`.
 6. If there is an update to the `http-specs` or `azure-http-specs` libraries, run `Generate.ps1` in `generator/http-client-generator-test` and commit the generated changes in that folder.
 7. If there is an update to the `http-specs` library, run `Generate.ps1` in `generator/http-client-generator-clientcore-test` and commit the generated changes in that folder.
+8. Call `pnpm chronus add @typespec/http-client-java`, select "Bump dependencies" in terminal, then input a summary in terminal. Commit the new md file in ".chronus" folder of repository root.
 
 # Prepare for minor/patch release
 
@@ -45,3 +46,4 @@ Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 9. Start Spector server by `npm run spector-start`.
 10. Run the tests (`mvn test`). Make sure all tests pass.
 11. Stop Spector server by `npm run spector-stop`.
+12. Call `pnpm chronus add @typespec/http-client-java`, select "Internal" in terminal, then input a summary in terminal. Commit the new md file in ".chronus" folder of repository root.
