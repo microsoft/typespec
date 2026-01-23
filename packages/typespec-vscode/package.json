@@ -310,9 +310,7 @@
     "vscode-languageclient": "~9.0.1",
     "which": "^6.0.0",
     "yaml": "~2.8.2",
-    "@types/debug": "~4.1.12"
-  },
-  "dependencies": {
+    "@types/debug": "~4.1.12",
     "debug": "~4.4.0"
   }
 }

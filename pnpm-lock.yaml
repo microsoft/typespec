@@ -2361,10 +2361,6 @@ importers:
         version: link:../typespec-vscode
 
   packages/typespec-vscode:
-    dependencies:
-      debug:
-        specifier: ~4.4.0
-        version: 4.4.3(supports-color@8.1.1)
     devDependencies:
       '@types/cross-spawn':
         specifier: ~6.0.6
@@ -2420,6 +2416,9 @@ importers:
       cross-spawn:
         specifier: ^7.0.6
         version: 7.0.6
+      debug:
+        specifier: ~4.4.0
+        version: 4.4.3(supports-color@8.1.1)
       esbuild:
         specifier: ^0.27.0
         version: 0.27.1
