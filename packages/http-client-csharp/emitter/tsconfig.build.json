@@ -1,13 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "noEmit": false,
-    "rootDir": "../",
-    "outDir": "../dist",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "declaration": true,
-    "declarationMap": true
-  },
   "references": [],
   "include": ["../emitter/src/", "../emitter/test/", "../generated-defs/**/*.ts"]
 }

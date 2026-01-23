@@ -6,6 +6,5 @@
     "tsBuildInfoFile": "temp/.tsbuildinfo",
     "types": ["multer"],
     "allowJs": true
-  },
-  "include": ["specs/**/*.ts", "specs/**/*.js"]
+  }
 }
