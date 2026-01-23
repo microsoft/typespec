@@ -113,3 +113,9 @@ async def test_request_header_nested_response_body(client: PageableClient):
 async def test_list_without_continuation(client: PageableClient):
     result = [p async for p in client.page_size.list_without_continuation()]
     assert_result(result)
+
+
+@pytest.mark.asyncio
+async def test_xml_pagination_list(client: PageableClient):
+    result = [p async for p in client.xml_pagination.list()]
+    assert_result(result)

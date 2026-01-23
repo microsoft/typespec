@@ -81,3 +81,8 @@ def test_request_header_nested_response_body(client: PageableClient):
 def test_list_without_continuation(client: PageableClient):
     result = list(client.page_size.list_without_continuation())
     assert_result(result)
+
+
+def test_xml_pagination_list(client: PageableClient):
+    result = list(client.xml_pagination.list())
+    assert_result(result)
