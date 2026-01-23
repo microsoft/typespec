@@ -83,6 +83,6 @@ def test_list_without_continuation(client: PageableClient):
     assert_result(result)
 
 
-def test_xml_pagination_list(client: PageableClient):
-    result = list(client.xml_pagination.list())
+def test_xml_pagination_list_with_next_link(client: PageableClient):
+    result = list(client.xml_pagination.list_with_next_link())
     assert_result(result)
