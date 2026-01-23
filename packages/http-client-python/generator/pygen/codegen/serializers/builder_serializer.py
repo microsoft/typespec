@@ -1375,7 +1375,10 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
     def _extract_data_callback(self, builder: PagingOperationType) -> list[str]:  # pylint: disable=too-many-statements
         retval = [f"{'async ' if self.async_mode else ''}def extract_data(pipeline_response):"]
         response = builder.responses[0]
-        deserialized = "pipeline_response.http_response.json()"
+        if builder.is_xml_paging:
+            deserialized = "ET.fromstring(pipeline_response.http_response.text())"
+        else:
+            deserialized = "pipeline_response.http_response.json()"
         if self.code_model.options["models-mode"] == "msrest":
             suffix = ".http_response" if hasattr(builder, "initial_operation") else ""
             deserialize_type = response.serialization_type(serialize_namespace=self.serialize_namespace)
@@ -1395,6 +1398,10 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         item_name = builder.item_name
         if self.code_model.options["models-mode"] == "msrest":
             access = f".{item_name}"
+        elif builder.is_xml_paging:
+            # For XML, use .find() to navigate the element tree
+            item_name_array = item_name.split(".")
+            access = "".join([f'.find("{i}")' for i in item_name_array])
         else:
             item_name_array = item_name.split(".")
             access = (
@@ -1412,11 +1419,17 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         retval.append("    if cls:")
         retval.append("        list_of_elem = cls(list_of_elem) # type: ignore")
 
+        cont_token_expr: Optional[str] = None  # For XML, we need to extract find() result first
         if builder.has_continuation_token:
             location = builder.continuation_token.get("output", {}).get("location")
             wire_name = builder.continuation_token.get("output", {}).get("wireName") or ""
             if location == "header":
                 cont_token_property = f'pipeline_response.http_response.headers.get("{wire_name}") or None'
+            elif builder.is_xml_paging:
+                wire_name_array = wire_name.split(".")
+                wire_name_call = "".join([f'.find("{i}")' for i in wire_name_array])
+                cont_token_expr = f"deserialized{wire_name_call}"
+                cont_token_property = "_cont_token_elem.text if _cont_token_elem is not None else None"
             else:
                 wire_name_array = wire_name.split(".")
                 wire_name_call = (
@@ -1429,6 +1442,11 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
                 cont_token_property = "None"
             elif self.code_model.options["models-mode"] == "msrest":
                 cont_token_property = f"deserialized.{next_link_name} or None"
+            elif builder.is_xml_paging:
+                next_link_name_array = next_link_name.split(".")
+                access = "".join([f'.find("{i}")' for i in next_link_name_array])
+                cont_token_expr = f"deserialized{access}"
+                cont_token_property = "_cont_token_elem.text if _cont_token_elem is not None else None"
             elif builder.next_link_is_nested:
                 next_link_name_array = next_link_name.split(".")
                 access = (
@@ -1439,6 +1457,8 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             else:
                 cont_token_property = f'deserialized.get("{next_link_name}") or None'
         list_type = "AsyncList" if self.async_mode else "iter"
+        if cont_token_expr:
+            retval.append(f"    _cont_token_elem = {cont_token_expr}")
         retval.append(f"    return {cont_token_property}, {list_type}(list_of_elem)")
         return retval
 
