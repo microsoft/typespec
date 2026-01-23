@@ -225,13 +225,23 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       }
       commandArgs["output-folder"] = outputDir;
       commandArgs["tsp-file"] = yamlPath;
+
+      // Write command to alpha/command.txt for debugging/profiling purposes
+      const commandFlagsRecorded = Object.entries(commandArgs)
+        .map(([key, value]) => {
+          if (key === "tsp-file") {
+            return `--${key}=C:/dev/typespec/packages/http-client-python/alpha/output.yaml`;
+          }
+          return `--${key}=${value}`;
+        })
+        .join(" ");
+      const commandRecorded = `Copy-Item "C:/dev/typespec/packages/http-client-python/alpha/output copy.yaml" -Destination "C:/dev/typespec/packages/http-client-python/alpha/output.yaml" ; ${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlagsRecorded}`;
+      fs.writeFileSync(path.join(root, "alpha", "command.txt"), commandRecorded);
+
       const commandFlags = Object.entries(commandArgs)
         .map(([key, value]) => `--${key}=${value}`)
         .join(" ");
-      let command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
-      command = command.replace(/\\\\/g, "/");
-      // Write command to alpha/command.txt for debugging/profiling purposes
-      fs.writeFileSync(path.join(root, "alpha", "command.txt"), command);
+      const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
       Profiler.measure("execSync:run_tsp.py", () => execSync(command));
 
       const blackExcludeDirs = [

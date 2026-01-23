@@ -15,26 +15,31 @@ import { Profiler } from "./profiler.js";
 ### 2. Wrap Functions to Measure
 
 **For synchronous functions:**
+
 ```typescript
 // Instead of:
 const yamlMap = emitCodeModel(sdkContext);
 
 // Use:
-const yamlMap = Profiler.measure('emitCodeModel', () => emitCodeModel(sdkContext));
+const yamlMap = Profiler.measure("emitCodeModel", () => emitCodeModel(sdkContext));
 ```
 
 **For async functions:**
+
 ```typescript
 // Instead of:
 const sdkContext = await createPythonSdkContext(context);
 
 // Use:
-const sdkContext = await Profiler.measureAsync('createPythonSdkContext', () => createPythonSdkContext(context));
+const sdkContext = await Profiler.measureAsync("createPythonSdkContext", () =>
+  createPythonSdkContext(context),
+);
 ```
 
 **For code blocks (manual start/stop):**
+
 ```typescript
-const stopTimer = Profiler.start('walkThroughNodes');
+const stopTimer = Profiler.start("walkThroughNodes");
 // ... your code here ...
 walkThroughNodes(yamlMap);
 // ... more code ...
@@ -44,6 +49,7 @@ stopTimer(); // Records the time
 ### 3. Print Summary
 
 At the end of your main function, call:
+
 ```typescript
 Profiler.printSummary();
 ```
@@ -57,24 +63,26 @@ import { Profiler } from "./profiler.js";
 
 async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   // clean all cache to make sure emitter could work in watch mode
-  Profiler.measure('cleanAllCache', () => cleanAllCache());
+  Profiler.measure("cleanAllCache", () => cleanAllCache());
 
   const program = context.program;
-  
-  const sdkContext = await Profiler.measureAsync('createPythonSdkContext', 
-    () => createPythonSdkContext(context));
-  
+
+  const sdkContext = await Profiler.measureAsync("createPythonSdkContext", () =>
+    createPythonSdkContext(context),
+  );
+
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
-  
-  Profiler.measure('addDefaultOptions', () => addDefaultOptions(sdkContext));
-  
-  const yamlMap = Profiler.measure('emitCodeModel', () => emitCodeModel(sdkContext));
-  
-  const parsedYamlMap = Profiler.measure('walkThroughNodes', () => walkThroughNodes(yamlMap));
 
-  const yamlPath = await Profiler.measureAsync('saveCodeModelAsYaml', 
-    () => saveCodeModelAsYaml("python-yaml-path", parsedYamlMap));
+  Profiler.measure("addDefaultOptions", () => addDefaultOptions(sdkContext));
+
+  const yamlMap = Profiler.measure("emitCodeModel", () => emitCodeModel(sdkContext));
+
+  const parsedYamlMap = Profiler.measure("walkThroughNodes", () => walkThroughNodes(yamlMap));
+
+  const yamlPath = await Profiler.measureAsync("saveCodeModelAsYaml", () =>
+    saveCodeModelAsYaml("python-yaml-path", parsedYamlMap),
+  );
 
   // ... rest of the function ...
 

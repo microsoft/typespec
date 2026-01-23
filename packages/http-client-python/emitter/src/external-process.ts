@@ -21,7 +21,14 @@ export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Pro
   await mkdir(tspCodeGenTempDir, { recursive: true });
   const filename = createTempPath(".yaml", name);
   const yamlStr = jsyaml.dump(codemodel);
-  await writeFile(joinPaths("C:/dev/typespec/packages/http-client-python", "alpha", "output.yaml"), yamlStr);
+  await writeFile(
+    joinPaths("C:/dev/typespec/packages/http-client-python", "alpha", "output.yaml"),
+    yamlStr,
+  );
+  await writeFile(
+    joinPaths("C:/dev/typespec/packages/http-client-python", "alpha", "output copy.yaml"),
+    yamlStr,
+  );
   await writeFile(filename, yamlStr);
 
   return filename;
