@@ -532,28 +532,21 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def update_yaml(self, yaml_data: dict[str, Any]) -> None:
         """Convert in place the YAML str."""
-        Profiler.measure(
-            'PreProcessPlugin.update_types',
-            lambda: self.update_types(yaml_data["types"])
-        )
-        
+        Profiler.measure("PreProcessPlugin.update_types", lambda: self.update_types(yaml_data["types"]))
+
         yaml_data["types"] += KNOWN_TYPES.values()
-        
+
         for i, client in enumerate(yaml_data["clients"]):
+            Profiler.measure(f"PreProcessPlugin.update_client[{i}]", lambda c=client: self.update_client(c))
+
             Profiler.measure(
-                f'PreProcessPlugin.update_client[{i}]',
-                lambda c=client: self.update_client(c)
+                f"PreProcessPlugin.update_operation_groups[{i}]",
+                lambda c=client: self.update_operation_groups(yaml_data, c),
             )
-            
-            Profiler.measure(
-                f'PreProcessPlugin.update_operation_groups[{i}]',
-                lambda c=client: self.update_operation_groups(yaml_data, c)
-            )
-        
+
         if yaml_data.get("namespace"):
             yaml_data["namespace"] = Profiler.measure(
-                'PreProcessPlugin.pad_builtin_namespaces',
-                lambda: pad_builtin_namespaces(yaml_data["namespace"])
+                "PreProcessPlugin.pad_builtin_namespaces", lambda: pad_builtin_namespaces(yaml_data["namespace"])
             )
 
 

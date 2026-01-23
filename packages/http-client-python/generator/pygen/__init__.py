@@ -300,13 +300,13 @@ class YamlUpdatePlugin(Plugin):
 
     def process(self) -> bool:
         # List the input file, should be only one
-        yaml_data = Profiler.measure('PreProcessPlugin.get_yaml', lambda: self.get_yaml())
+        yaml_data = Profiler.measure("PreProcessPlugin.get_yaml", lambda: self.get_yaml())
 
-        Profiler.measure('PreProcessPlugin.update_yaml', lambda: self.update_yaml(yaml_data))
+        Profiler.measure("PreProcessPlugin.update_yaml", lambda: self.update_yaml(yaml_data))
 
-        yaml_string = Profiler.measure('PreProcessPlugin.yaml_safe_dump', lambda: yaml.safe_dump(yaml_data))
+        yaml_string = Profiler.measure("PreProcessPlugin.yaml_safe_dump", lambda: yaml.safe_dump(yaml_data))
 
-        Profiler.measure('PreProcessPlugin.write_yaml', lambda: self.write_yaml(yaml_string))
+        Profiler.measure("PreProcessPlugin.write_yaml", lambda: self.write_yaml(yaml_string))
         return True
 
     @abstractmethod

@@ -28,6 +28,7 @@ T = TypeVar("T")
 @dataclass
 class TimingEntry:
     """Stores timing information for a labeled operation."""
+
     total_ms: float = 0.0
     call_count: int = 0
     min_ms: float = float("inf")
@@ -136,8 +137,7 @@ class ProfilerClass:
 
         # Print header
         header = (
-            f"{'Label':<45} {'Total(ms)':>12} {'Calls':>8} "
-            f"{'Avg(ms)':>12} {'Min(ms)':>10} {'Max(ms)':>10} {'%':>8}"
+            f"{'Label':<45} {'Total(ms)':>12} {'Calls':>8} " f"{'Avg(ms)':>12} {'Min(ms)':>10} {'Max(ms)':>10} {'%':>8}"
         )
         print(header)
         print("-" * 100)
