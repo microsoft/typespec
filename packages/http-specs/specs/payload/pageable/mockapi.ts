@@ -6,6 +6,7 @@ import {
   passOnSuccess,
   ScenarioMockApi,
   ValidationError,
+  xml,
 } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
@@ -511,3 +512,111 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
       kind: "MockApiDefinition",
     },
   ]);
+
+const XmlFirstPage = `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextMarker>page2</NextMarker>
+</PetListResult>
+`;
+
+const XmlSecondPage = `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+`;
+
+Scenarios.Payload_Pageable_XmlPagination_list = passOnSuccess([
+  {
+    uri: "/payload/pageable/xml/list",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: xml(XmlFirstPage),
+      headers: {
+        "content-type": "application/xml",
+      },
+    },
+    handler: (req: MockRequest) => {
+      const marker = req.query?.marker;
+
+      switch (marker) {
+        case undefined:
+          return {
+            status: 200,
+            body: xml(XmlFirstPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        case "page2":
+          return {
+            status: 200,
+            body: xml(XmlSecondPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        default:
+          throw new ValidationError("Unsupported marker", `"undefined" | "page2"`, marker);
+      }
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/xml/list",
+    method: "get",
+    request: { query: { marker: "page2" } },
+    response: {
+      status: 200,
+      body: xml(XmlSecondPage),
+      headers: {
+        "content-type": "application/xml",
+      },
+    },
+    handler: (req: MockRequest) => {
+      const marker = req.query?.marker;
+
+      switch (marker) {
+        case undefined:
+          return {
+            status: 200,
+            body: xml(XmlFirstPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        case "page2":
+          return {
+            status: 200,
+            body: xml(XmlSecondPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        default:
+          throw new ValidationError("Unsupported marker", `"undefined" | "page2"`, marker);
+      }
+    },
+    kind: "MockApiDefinition",
+  },
+]);

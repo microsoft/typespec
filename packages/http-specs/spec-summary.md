@@ -2835,6 +2835,55 @@ Two requests need to be tested.
 }
 ```
 
+### Payload_Pageable_XmlPagination_list
+
+- Endpoint: `get /payload/pageable/xml/list`
+
+Test case for XML pagination with continuation token. Continuation token is passed in the request query and response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/xml/list
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextMarker>page2</NextMarker>
+</PetListResult>
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/xml/list?marker=page2
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+```
+
 ### Payload_Xml_ModelWithArrayOfModelValue_get
 
 - Endpoint: `get /payload/xml/modelWithArrayOfModel`
