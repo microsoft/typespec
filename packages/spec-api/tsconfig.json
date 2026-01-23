@@ -5,5 +5,6 @@
     "outDir": "dist",
     "tsBuildInfoFile": "temp/.tsbuildinfo",
     "types": ["multer"]
-  }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }
