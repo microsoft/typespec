@@ -72,7 +72,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     @property
     def next_variable_name(self) -> str:
         return "_continuation_token" if self.has_continuation_token else "next_link"
-    
+
     @property
     def is_xml_paging(self) -> bool:
         try:
