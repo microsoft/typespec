@@ -29,7 +29,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputFactory.Property("optionalProp2", InputFactory.Array(InputPrimitiveType.String), isRequired: false)
             ]);
 
-        public RestClientProviderTests()
+        [SetUp]
+        public void Setup()
         {
             MockHelpers.LoadMockGenerator();
         }
@@ -104,7 +105,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
         public void TestGetMethodParameters(InputServiceMethod inputServiceMethod)
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience, clientProvider!);
 
             Assert.IsTrue(methodParameters.Count > 0);
 
@@ -139,7 +144,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [TestCase]
         public void TestGetMethodParameters_ProperOrdering()
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(ServiceMethodWithMixedParamOrdering, ScmMethodKind.Convenience);
+            var inputClient = InputFactory.Client("TestClient", methods: [ServiceMethodWithMixedParamOrdering]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(ServiceMethodWithMixedParamOrdering, ScmMethodKind.Convenience, clientProvider!);
 
             Assert.AreEqual(ServiceMethodWithMixedParamOrdering.Parameters.Count, methodParameters.Count);
 
@@ -152,7 +161,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("optionalHeader", methodParameters[5].Name);
             Assert.AreEqual("optionalContentType", methodParameters[6].Name);
 
-            var orderedPathParams = RestClientProvider.GetMethodParameters(ServiceMethodWithOnlyPathParams, ScmMethodKind.Convenience);
+            inputClient = InputFactory.Client("TestClient", methods: [ServiceMethodWithOnlyPathParams]);
+            clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+
+            var orderedPathParams = RestClientProvider.GetMethodParameters(ServiceMethodWithOnlyPathParams, ScmMethodKind.Convenience, clientProvider!);
             Assert.AreEqual(ServiceMethodWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
             Assert.AreEqual("c", orderedPathParams[0].Name);
             Assert.AreEqual("a", orderedPathParams[1].Name);
@@ -185,7 +198,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "TestClient",
                 methods: [testServiceMethod]);
             var clientProvider = new ClientProvider(client);
-            var parameters = RestClientProvider.GetMethodParameters(testServiceMethod, ScmMethodKind.Convenience);
+            Assert.IsNotNull(clientProvider);
+
+            var parameters = RestClientProvider.GetMethodParameters(testServiceMethod, ScmMethodKind.Convenience, clientProvider!);
             Assert.IsNotNull(parameters);
 
             if (isRequired)
@@ -761,8 +776,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter("readOnlyBody", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Body, isReadOnly: true),
                     InputFactory.MethodParameter("normalBody", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Body)
                 ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
 
-            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Protocol);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Protocol, clientProvider!);
 
             // Verify read-only parameters are filtered out
             Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyPath"));
@@ -793,8 +811,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter("readOnlyHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header, isReadOnly: true),
                     InputFactory.MethodParameter("normalHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header)
                 ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
 
-            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience, clientProvider!);
 
             // Verify read-only parameters are filtered out
             Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyQuery"));
@@ -829,8 +850,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter("normalHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header),
                     InputFactory.MethodParameter("normalBody", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Body)
                 ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
 
-            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience, clientProvider!);
 
             Assert.AreEqual(4, methodParameters.Count); // Only non-readonly parameters
             Assert.IsTrue(methodParameters.Any(p => p.Name == "normalPath"));
@@ -839,6 +863,151 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsTrue(methodParameters.Any(p => p.Name == "normalBody"));
             Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyQuery"));
             Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyHeader"));
+        }
+
+        [Test]
+        public void MultiServiceCombinedClient_GeneratesExpectedRestClient()
+        {
+            // Setup multiservice client with multiple API version enums and operations
+            List<string> serviceAVersions = ["1.0", "2.0"];
+            List<string> serviceBVersions = ["3.0", "4.0"];
+
+            var serviceAEnumValues = serviceAVersions.Select(a => (a, a));
+            var serviceBEnumValues = serviceBVersions.Select(a => (a, a));
+
+            var serviceAEnum = InputFactory.StringEnum(
+                "ServiceVersionA",
+                serviceAEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceA");
+            var serviceBEnum = InputFactory.StringEnum(
+                "ServiceVersionB",
+                serviceBEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceB");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            // Create operations with namespace set to each service
+            var serviceAOperation = InputFactory.Operation(
+                "ServiceAOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceA");
+
+            var serviceBOperation = InputFactory.Operation(
+                "ServiceBOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceB");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceAMethod", serviceAOperation),
+                    InputFactory.BasicServiceMethod("ServiceBMethod", serviceBOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceAEnum, serviceBEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var restClient = clientProvider!.RestClient;
+            Assert.IsNotNull(restClient);
+
+            var writer = new TypeProviderWriter(restClient);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultiServiceCombinedClient_WithThreeServices_GeneratesExpectedRestClient()
+        {
+            // Setup multiservice combined client with three different services (KeyVault, Storage, Compute)
+            List<string> keyVaultVersions = ["7.4", "7.5"];
+            List<string> storageVersions = ["2023-01-01", "2024-01-01"];
+            List<string> computeVersions = ["2023-07-01", "2024-03-01", "2024-07-01"];
+
+            var keyVaultEnumValues = keyVaultVersions.Select(a => (a, a));
+            var storageEnumValues = storageVersions.Select(a => (a, a));
+            var computeEnumValues = computeVersions.Select(a => (a, a));
+
+            var keyVaultEnum = InputFactory.StringEnum(
+                "KeyVaultVersion",
+                keyVaultEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.KeyVault");
+            var storageEnum = InputFactory.StringEnum(
+                "StorageVersion",
+                storageEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.Storage");
+            var computeEnum = InputFactory.StringEnum(
+                "ComputeVersion",
+                computeEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.Compute");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            // Create operations with namespace set to each service
+            var keyVaultOperation = InputFactory.Operation(
+                "KeyVaultOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.KeyVault");
+
+            var storageOperation = InputFactory.Operation(
+                "StorageOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.Storage");
+
+            var computeOperation = InputFactory.Operation(
+                "ComputeOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.Compute");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("KeyVaultMethod", keyVaultOperation),
+                    InputFactory.BasicServiceMethod("StorageMethod", storageOperation),
+                    InputFactory.BasicServiceMethod("ComputeMethod", computeOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. keyVaultVersions, .. storageVersions, .. computeVersions],
+                clients: () => [client],
+                inputEnums: () => [keyVaultEnum, storageEnum, computeEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var restClient = clientProvider!.RestClient;
+            Assert.IsNotNull(restClient);
+
+            var writer = new TypeProviderWriter(restClient);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
 
