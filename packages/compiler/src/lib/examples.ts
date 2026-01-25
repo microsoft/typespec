@@ -171,7 +171,11 @@ function serializeScalarValueAsJson(
     case "duration":
       return ScalarSerializers.duration((value.value.args[0] as any).value, encodeAs);
     case "bytes":
-      return ScalarSerializers.bytes((value.value.args[0] as any).value, encodeAs);
+      return ScalarSerializers.bytes(
+        (value.value.args[0] as any).value,
+        (value.value.args[1] as any).value,
+        encodeAs,
+      );
   }
 }
 
@@ -226,18 +230,28 @@ const ScalarSerializers = {
         return duration.toString();
     }
   },
-  bytes: (value: string, encodeAs: EncodeData | undefined): unknown => {
-    if (encodeAs === undefined) {
-      return value;
+  bytes: (
+    value: string,
+    encoding: string | undefined,
+    encodeAs: EncodeData | undefined,
+  ): unknown => {
+    let encoded: Uint8Array;
+    switch (encoding) {
+      case "utf8":
+      default: // defaults to UTF-8
+        encoded = new TextEncoder().encode(value);
+        break;
     }
 
-    switch (encodeAs.encoding) {
-      case "base64":
-      case "base64url":
-        const encodedArray = new TextEncoder().encode(value);
-        /** FIXME: Remove this polyfill when Node.js LTS supports {@link Uint8Array.toBase64} natively. */
-        return uint8ArrayToBase64(encodedArray, { alphabet: encodeAs.encoding });
+    if (encodeAs !== undefined) {
+      switch (encodeAs.encoding) {
+        case "base64":
+        case "base64url":
+          /** FIXME: Remove this polyfill when Node.js LTS supports {@link Uint8Array.toBase64} natively. */
+          return uint8ArrayToBase64(encoded, { alphabet: encodeAs.encoding });
+      }
     }
+
     return value;
   },
 };

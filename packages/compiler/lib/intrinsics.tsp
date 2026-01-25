@@ -9,14 +9,17 @@ namespace TypeSpec;
  */
 scalar bytes {
   /**
-   * Create a byte array from a string.
-   * @example
+   * Create a byte array from a string with the specified encoding.
    *
+   * @param value The string value to encode
+   * @param encoding The encoding to use. Defaults to "utf8" if not specified.
+   *
+   * @example
    * ```tsp
-   * const bytes = bytes.fromString("TypeSpec");
+   * const bytes = bytes.fromString("TypeSpec", "utf8");
    * ```
    */
-  init fromString(value: string);
+  init fromString(value: string, encoding?: "utf8");
 }
 
 /**

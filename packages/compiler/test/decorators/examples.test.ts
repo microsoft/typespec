@@ -471,12 +471,16 @@ describe("json serialization of examples", () => {
             expect: "hello⛳❤️🧀",
           },
           {
+            value: `bytes.fromString("hello⛳❤️🧀", "utf8")`,
+            expect: "hello⛳❤️🧀",
+          },
+          {
             value: `bytes.fromString("hello⛳❤️🧀")`,
             expect: "aGVsbG/im7PinaTvuI/wn6eA",
             encode: `@encode("base64", string)`,
           },
           {
-            value: `bytes.fromString("hello⛳❤️🧀")`,
+            value: `bytes.fromString("hello⛳❤️🧀", "utf8")`,
             expect: "aGVsbG_im7PinaTvuI_wn6eA",
             encode: `@encode("base64url", string)`,
           },
