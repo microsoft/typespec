@@ -173,7 +173,7 @@ function serializeScalarValueAsJson(
     case "bytes":
       return ScalarSerializers.bytes(
         (value.value.args[0] as any).value,
-        (value.value.args[1] as any).value,
+        (value.value.args[1] as any)?.value,
         encodeAs,
       );
   }
@@ -243,16 +243,13 @@ const ScalarSerializers = {
         break;
     }
 
-    if (encodeAs !== undefined) {
-      switch (encodeAs.encoding) {
-        case "base64":
-        case "base64url":
-          /** FIXME: Remove this polyfill when Node.js LTS supports {@link Uint8Array.toBase64} natively. */
-          return uint8ArrayToBase64(encoded, { alphabet: encodeAs.encoding });
-      }
+    switch (encodeAs?.encoding) {
+      /** FIXME: Remove this polyfill when Node.js LTS supports {@link Uint8Array.toBase64} natively. */
+      case "base64url":
+        return uint8ArrayToBase64(encoded, { alphabet: encodeAs.encoding });
     }
-
-    return value;
+    // defaluts to base64
+    return uint8ArrayToBase64(encoded, { alphabet: "base64" });
   },
 };
 

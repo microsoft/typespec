@@ -10,9 +10,10 @@ namespace TypeSpec;
 scalar bytes {
   /**
    * Create a byte array from a string with the specified encoding.
+   * Defaults to be encoded in `base64`.
    *
    * @param value The string value to encode
-   * @param encoding The encoding to use. Defaults to "utf8" if not specified.
+   * @param encoding The encoding to use. Defaults to `utf8` if not specified.
    *
    * @example
    * ```tsp

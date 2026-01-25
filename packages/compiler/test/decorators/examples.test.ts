@@ -468,11 +468,11 @@ describe("json serialization of examples", () => {
         [
           {
             value: `bytes.fromString("hello⛳❤️🧀")`,
-            expect: "hello⛳❤️🧀",
+            expect: "aGVsbG/im7PinaTvuI/wn6eA",
           },
           {
             value: `bytes.fromString("hello⛳❤️🧀", "utf8")`,
-            expect: "hello⛳❤️🧀",
+            expect: "aGVsbG/im7PinaTvuI/wn6eA",
           },
           {
             value: `bytes.fromString("hello⛳❤️🧀")`,
