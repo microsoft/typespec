@@ -1,5 +1,16 @@
 # Change Log - @typespec/http-client-python
 
+## 0.26.0
+
+### Features
+
+- [#9456](https://github.com/microsoft/typespec/pull/9456) Add support for xml paging
+
+### Bump dependencies
+
+- [#9449](https://github.com/microsoft/typespec/pull/9449) Bump TCGC 0.64.3
+
+
 ## 0.25.0
 
 ### Features
