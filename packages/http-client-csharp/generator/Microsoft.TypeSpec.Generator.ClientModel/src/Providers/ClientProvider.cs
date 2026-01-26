@@ -399,7 +399,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. fields];
         }
 
-        private List<FieldProvider> BuildAdditionalClientFields()
+        private IReadOnlyList<FieldProvider> BuildAdditionalClientFields()
         {
             var fields = new List<FieldProvider>();
             bool builtApiVersionFields = false;
