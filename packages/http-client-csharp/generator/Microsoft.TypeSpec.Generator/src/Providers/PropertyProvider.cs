@@ -39,6 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }
         public bool IsRef { get; private set; }
+        public SerializationFormat SerializationFormat => _serializationFormat;
 
         /// <summary>
         /// Converts this property to a parameter.
@@ -91,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             EnclosingType = enclosingType;
-            _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
+            _serializationFormat = GetSerializationFormat(inputProperty);
             _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
@@ -333,6 +334,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // rebuild the docs if they are not provided
                 BuildDocs();
             }
+        }
+
+        private SerializationFormat GetSerializationFormat(InputProperty inputProperty)
+        {
+            // Handle array encoding from InputModelProperty
+            if (inputProperty is InputModelProperty modelProperty &&
+                inputProperty.Type is InputArrayType &&
+                !string.IsNullOrEmpty(modelProperty.Encode))
+            {
+                return modelProperty.Encode switch
+                {
+                    "commaDelimited" => SerializationFormat.Array_CommaDelimited,
+                    "spaceDelimited" => SerializationFormat.Array_SpaceDelimited,
+                    "pipeDelimited" => SerializationFormat.Array_PipeDelimited,
+                    "newlineDelimited" => SerializationFormat.Array_NewlineDelimited,
+                    _ => CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type)
+                };
+            }
+
+            // Use default serialization format logic
+            return CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
         }
     }
 }

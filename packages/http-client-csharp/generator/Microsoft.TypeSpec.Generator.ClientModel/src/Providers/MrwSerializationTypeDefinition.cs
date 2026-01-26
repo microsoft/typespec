@@ -969,7 +969,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
                     var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
                     {
-                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes)
+                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, parameter.Property)
                     };
                     propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
@@ -1285,7 +1285,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyWireInformation wireInfo,
             VariableExpression variableExpression,
             ScopedApi<JsonProperty> jsonProperty,
-            IEnumerable<AttributeStatement> serializationAttributes)
+            IEnumerable<AttributeStatement> serializationAttributes,
+            PropertyProvider? propertyProvider = null)
         {
             bool useCustomDeserializationHook = false;
             var serializationFormat = wireInfo.SerializationFormat;
@@ -1294,13 +1295,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement[] deserializationStatements;
 
             // Check for encoded arrays and use custom deserialization logic
-            if (!string.IsNullOrEmpty(wireInfo.Encode) && (propertyType.IsList || propertyType.IsArray))
+            if (propertyProvider != null && IsArrayEncodingFormat(propertyProvider.SerializationFormat) && (propertyType.IsList || propertyType.IsArray))
             {
+                var arrayEncoding = GetArrayEncodingString(propertyProvider.SerializationFormat);
                 deserializationStatements = CreateEncodedArrayDeserializationStatements(
                     propertyType,
                     propertyVarReference,
                     jsonProperty,
-                    wireInfo.Encode);
+                    arrayEncoding);
             }
             else
             {
@@ -1618,7 +1620,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property));
+                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property));
             }
 
             foreach (var field in _model.CanonicalView.Fields)
@@ -1638,7 +1640,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyWireInformation wireInfo,
             CSharpType propertyType,
             string propertyName,
-            MemberExpression propertyExpression)
+            MemberExpression propertyExpression,
+            PropertyProvider? propertyProvider = null)
         {
             var propertySerializationName = wireInfo.SerializedName;
             var propertySerializationFormat = wireInfo.SerializationFormat;
@@ -1650,12 +1653,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
 
             // Check for encoded arrays and override the serialization statement
-            if (!string.IsNullOrEmpty(wireInfo.Encode) && (propertyType.IsList || propertyType.IsArray))
+            if (propertyProvider != null && IsArrayEncodingFormat(propertyProvider.SerializationFormat) && (propertyType.IsList || propertyType.IsArray))
             {
+                var arrayEncoding = GetArrayEncodingString(propertyProvider.SerializationFormat);
                 serializationStatement = CreateEncodedArraySerializationStatement(
                     propertyType,
                     propertyExpression,
-                    wireInfo.Encode);
+                    arrayEncoding);
             }
 
             // Check for custom serialization hooks
@@ -2417,6 +2421,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    provider is ModelProvider modelProvider
                 ? GetDeserializationMethodInvocationForType(modelProvider, jsonElementVariable, dataVariable, optionsVariable)
                 : modelType.Deserialize(jsonElementVariable, null, optionsVariable);
+        }
+
+        private static bool IsArrayEncodingFormat(SerializationFormat format)
+        {
+            return format is SerializationFormat.Array_CommaDelimited or
+                   SerializationFormat.Array_SpaceDelimited or
+                   SerializationFormat.Array_PipeDelimited or
+                   SerializationFormat.Array_NewlineDelimited;
+        }
+
+        private static string GetArrayEncodingString(SerializationFormat format)
+        {
+            return format switch
+            {
+                SerializationFormat.Array_CommaDelimited => "commaDelimited",
+                SerializationFormat.Array_SpaceDelimited => "spaceDelimited",
+                SerializationFormat.Array_PipeDelimited => "pipeDelimited",
+                SerializationFormat.Array_NewlineDelimited => "newlineDelimited",
+                _ => throw new ArgumentException($"Unsupported array encoding format: {format}")
+            };
         }
     }
 }
