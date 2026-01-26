@@ -1,4 +1,34 @@
-{% macro wrap_string(string, wrapstring, width=95) %}{{ string | replace("\\", "\\\\") | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring)}}{% endmacro %}
+{% macro wrap_string(string, wrapstring, width=95) %}
+{%- set normalized_string = string -%}
+{# Normalize multi-line descriptions by collapsing internal newlines to spaces, but preserve special blocks #}
+{%- if '\n* ' not in string -%}
+    {%- if '.. code-block::' in string -%}
+        {# Split at code block and only normalize the prose before it #}
+        {%- set parts = string.split('.. code-block::') -%}
+        {%- set prose = parts[0].rstrip() -%}
+        {%- set code_block = '.. code-block::' + parts[1:] | join('.. code-block::') -%}
+        {%- if '\n\n' not in prose -%}
+            {%- set normalized_lines = [] -%}
+            {%- for line in prose.split('\n') -%}
+                {%- set stripped = line.strip() -%}
+                {%- if stripped -%}
+                    {%- set _ = normalized_lines.append(stripped) -%}
+                {%- endif -%}
+            {%- endfor -%}
+            {%- set normalized_string = normalized_lines | join(' ') + '\n\n' + code_block -%}
+        {%- endif -%}
+    {%- elif '\n\n' not in string -%}
+        {%- set normalized_lines = [] -%}
+        {%- for line in string.split('\n') -%}
+            {%- set stripped = line.strip() -%}
+            {%- if stripped -%}
+                {%- set _ = normalized_lines.append(stripped) -%}
+            {%- endif -%}
+        {%- endfor -%}
+        {%- set normalized_string = normalized_lines | join(' ') -%}
+    {%- endif -%}
+{%- endif -%}
+{{ normalized_string | replace("\\", "\\\\") | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring)}}{% endmacro %}
 
 {% macro description(builder, serializer) %}
 {% set example_template = serializer.example_template(builder) %}
