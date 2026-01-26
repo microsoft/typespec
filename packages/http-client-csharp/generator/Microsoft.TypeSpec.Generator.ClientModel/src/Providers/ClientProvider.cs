@@ -26,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private record AuthFields(FieldProvider AuthField);
         private record ApiKeyFields(FieldProvider AuthField, FieldProvider AuthorizationHeaderField, FieldProvider? AuthorizationApiKeyPrefixField) : AuthFields(AuthField);
         private record OAuth2Fields(FieldProvider AuthField, FieldProvider AuthorizationScopesField) : AuthFields(AuthField);
+        private record ApiVersionFields(FieldProvider Field, PropertyProvider? CorrespondingOptionsProperty, string? ServiceNamespace);
 
         private const string AuthorizationHeaderConstName = "AuthorizationHeader";
         private const string AuthorizationApiKeyPrefixConstName = "AuthorizationApiKeyPrefix";
@@ -48,12 +49,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly ApiKeyFields? _apiKeyAuthFields;
         private readonly OAuth2Fields? _oauth2Fields;
 
-        private FieldProvider? _apiVersionField;
+        private IReadOnlyList<ApiVersionFields>? _apiVersionFields;
         private readonly Lazy<IReadOnlyList<ParameterProvider>> _subClientInternalConstructorParams;
         private readonly Lazy<IReadOnlyList<ClientProvider>> _subClients;
         private RestClientProvider? _restClient;
         private readonly IReadOnlyList<InputParameter> _allClientParameters;
-        private Lazy<IReadOnlyList<FieldProvider>> _additionalClientFields;
+        private readonly Lazy<IReadOnlyList<FieldProvider>> _additionalClientFields;
 
         private Dictionary<InputOperation, ScmMethodProviderCollection>? _methodCache;
         private Dictionary<InputOperation, ScmMethodProviderCollection> MethodCache => _methodCache ??= [];
@@ -382,7 +383,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<FieldProvider> BuildAdditionalClientFields()
         {
             var fields = new List<FieldProvider>();
-            // Add optional client parameters as fields
+            bool builtApiVersionFields = false;
+
             foreach (var p in _allClientParameters)
             {
                 if (p is not InputEndpointParameter || p is InputEndpointParameter endpointParameter && !endpointParameter.IsEndpoint)
@@ -391,30 +393,85 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ? ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
                         : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(p.Type);
 
-                    if (type != null)
+                    if (type is null)
                     {
-                        FieldProvider field = new(
+                        continue;
+                    }
+
+                    var wireInfo = new PropertyWireInformation(
+                        ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(p.Type),
+                        p.IsRequired,
+                        false,
+                        p.Type is InputNullableType,
+                        false,
+                        p.SerializedName,
+                        false,
+                        p.IsApiVersion);
+
+                    if (p.IsApiVersion && !builtApiVersionFields)
+                    {
+                        _apiVersionFields = BuildApiVersionFields(p, type, wireInfo);
+                        fields.AddRange(_apiVersionFields.Select(f => f.Field).OrderBy(f => f.Name));
+                        builtApiVersionFields = true;
+                    }
+                    else
+                    {
+                        var field = new FieldProvider(
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             type.WithNullable(!p.IsRequired),
                             "_" + p.Name.ToVariableName(),
                             this,
-                            wireInfo: new PropertyWireInformation(
-                                ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(p.Type),
-                                p.IsRequired,
-                                false,
-                                p.Type is InputNullableType,
-                                false,
-                                p.SerializedName,
-                                false));
-                        if (p.IsApiVersion)
-                        {
-                            _apiVersionField = field;
-                        }
+                            wireInfo: wireInfo);
                         fields.Add(field);
                     }
                 }
             }
+
             return fields;
+        }
+
+        private List<ApiVersionFields> BuildApiVersionFields(
+            InputParameter inputParameter,
+            CSharpType type,
+            PropertyWireInformation wireInfo)
+        {
+            var fieldType = type.WithNullable(!inputParameter.IsRequired);
+            string fieldName = "_" + inputParameter.Name.ToVariableName();
+
+            if (ClientOptions?.VersionProperties is { } versionProperties)
+            {
+                var propertyCount = versionProperties.Count;
+                var fields = new List<ApiVersionFields>(propertyCount);
+
+                foreach (var (enumProvider, property) in versionProperties)
+                {
+                    var name = propertyCount > 1
+                        ? "_" + property.Name.ToVariableName()
+                        : fieldName;
+
+                    var field = new FieldProvider(
+                        FieldModifiers.Private | FieldModifiers.ReadOnly,
+                        fieldType,
+                        name,
+                        this,
+                        wireInfo: wireInfo);
+
+                    fields.Add(new ApiVersionFields(field, property, enumProvider.InputNamespace));
+                }
+
+                return fields;
+            }
+            else
+            {
+                var field = new FieldProvider(
+                    FieldModifiers.Private | FieldModifiers.ReadOnly,
+                    fieldType,
+                    fieldName,
+                    this,
+                    wireInfo: wireInfo);
+
+                return [new ApiVersionFields(field, null, null)];
+            }
         }
 
         protected override PropertyProvider[] BuildProperties()
@@ -709,16 +766,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryPolicies)).Terminate());
 
-            var clientOptionsPropertyDict = clientOptionsProvider.Properties.ToDictionary(p => p.Name.ToIdentifierName());
             foreach (var f in Fields)
             {
-                if (f == _apiVersionField && clientOptionsProvider.VersionProperty != null)
+                var fieldInfo = _apiVersionFields?.FirstOrDefault(fieldInfo => fieldInfo.Field == f);
+                if (fieldInfo?.CorrespondingOptionsProperty != null)
                 {
-                    body.Add(f.Assign(clientOptionsParameter.Property(clientOptionsProvider.VersionProperty.Name)).Terminate());
-                }
-                else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out var optionsProperty))
-                {
-                    clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out optionsProperty);
+                    body.Add(f.Assign(clientOptionsParameter.Property(fieldInfo.CorrespondingOptionsProperty.Name)).Terminate());
                 }
             }
 
@@ -809,6 +862,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     else if (parentClientFields.TryGetValue(param.Name, out var parentField))
                     {
                         subClientConstructorArgs.Add(parentField);
+                    }
+                    else if (param.Field?.WireInfo?.IsApiVersion == true)
+                    {
+                        var correspondingApiVersionField = _apiVersionFields?
+                            .FirstOrDefault(fieldData => fieldData.ServiceNamespace?.Equals(subClient._inputClient.Namespace) == true);
+                        if (correspondingApiVersionField != null)
+                        {
+                            subClientConstructorArgs.Add(correspondingApiVersionField.Field);
+                        }
                     }
                 }
 

@@ -1,7 +1,7 @@
 ---
-changeKind: fix
+changeKind: dependencies
 packages:
   - "@typespec/http-client-python"
 ---
 
-support "apiVersions" of TCGC metadata
+Bump TCGC 0.64.3

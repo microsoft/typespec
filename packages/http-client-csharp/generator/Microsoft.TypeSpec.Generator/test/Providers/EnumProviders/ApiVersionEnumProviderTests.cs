@@ -143,5 +143,73 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.AreEqual(new LiteralExpression(2), provider.EnumValues[2].Field.InitializationValue);
             Assert.AreEqual(apiVersions[2], provider.EnumValues[2].Value);
         }
+
+        [Test]
+        public void MultiServiceClient_WithMultipleApiVersionEnums_GeneratesCorrectEnumNames()
+        {
+            // Setup multiservice client with multiple API version enums from different services
+            var keyVaultEnum = InputFactory.StringEnum(
+                "KeyVaultVersion",
+                [("7.4", "7.4"), ("7.5", "7.5")],
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.KeyVault");
+            var storageEnum = InputFactory.StringEnum(
+                "StorageVersion",
+                [("2023-01-01", "2023-01-01"), ("2024-01-01", "2024-01-01")],
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.Storage");
+
+            var client = InputFactory.Client("TestClient", isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                inputEnumTypes: [keyVaultEnum, storageEnum],
+                inputClients: [client]);
+
+            // Create enum providers for each API version enum
+            var mockDeclaringType = new Mock<TypeProvider>();
+            mockDeclaringType.Protected().Setup<string>("BuildName").Returns("TestClientOptions");
+            mockDeclaringType.Protected().Setup<string>("BuildNamespace").Returns("Sample");
+
+            var keyVaultEnumType = EnumProvider.Create(keyVaultEnum, mockDeclaringType.Object);
+            Assert.IsTrue(keyVaultEnumType is ApiVersionEnumProvider);
+            var keyVaultProvider = (ApiVersionEnumProvider)keyVaultEnumType;
+
+            var storageEnumType = EnumProvider.Create(storageEnum, mockDeclaringType.Object);
+            Assert.IsTrue(storageEnumType is ApiVersionEnumProvider);
+            var storageProvider = (ApiVersionEnumProvider)storageEnumType;
+
+            // Verify enum names follow the multiservice naming pattern: Service{ServiceName}Version
+            Assert.AreEqual("ServiceKeyVaultVersion", keyVaultProvider.Name);
+            Assert.AreEqual("ServiceStorageVersion", storageProvider.Name);
+        }
+
+        [Test]
+        public void MultiServiceClient_WithOneApiVersionEnums_GeneratesCorrectEnumNames()
+        {
+            // Setup multiservice client with multiple API version enums from different services
+            var keyVaultEnum = InputFactory.StringEnum(
+                "KeyVaultVersion",
+                [("7.4", "7.4"), ("7.5", "7.5")],
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.KeyVault");
+
+            var client = InputFactory.Client("TestClient", isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                inputEnumTypes: [keyVaultEnum],
+                inputClients: [client]);
+
+            // Create enum providers for each API version enum
+            var mockDeclaringType = new Mock<TypeProvider>();
+            mockDeclaringType.Protected().Setup<string>("BuildName").Returns("TestClientOptions");
+            mockDeclaringType.Protected().Setup<string>("BuildNamespace").Returns("Sample");
+
+            var keyVaultEnumType = EnumProvider.Create(keyVaultEnum, mockDeclaringType.Object);
+            Assert.IsTrue(keyVaultEnumType is ApiVersionEnumProvider);
+            var keyVaultProvider = (ApiVersionEnumProvider)keyVaultEnumType;
+
+            // Verify enum names follow the multiservice naming pattern: Service{ServiceName}Version
+            Assert.AreEqual("ServiceVersion", keyVaultProvider.Name);
+        }
     }
 }

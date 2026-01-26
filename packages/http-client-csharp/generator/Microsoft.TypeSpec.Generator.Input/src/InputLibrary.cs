@@ -42,6 +42,8 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         private bool? _hasMultipartFormDataOperation;
         public bool HasMultipartFormDataOperation => _hasMultipartFormDataOperation ??= GetHasMultipartFormDataOperation();
+        private bool? _hasMultiServiceClient;
+        public bool HasMultiServiceClient => _hasMultiServiceClient ??= GetHasMultiServiceClient();
 
         private bool GetHasMultipartFormDataOperation()
         {
@@ -53,6 +55,19 @@ namespace Microsoft.TypeSpec.Generator.Input
                     {
                         return true;
                     }
+                }
+            }
+
+            return false;
+        }
+
+        private bool GetHasMultiServiceClient()
+        {
+            foreach (var client in InputNamespace.Clients)
+            {
+                if (client.IsMultiServiceClient)
+                {
+                    return true;
                 }
             }
 
