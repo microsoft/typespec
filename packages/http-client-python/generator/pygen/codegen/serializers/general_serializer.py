@@ -28,7 +28,7 @@ VERSION_MAP = {
     "corehttp": "1.0.0b6",
 }
 
-MIN_PYTHON_VERSION = "3.9"
+MIN_PYTHON_VERSION = "3.10"
 MAX_PYTHON_VERSION = "3.13"
 
 

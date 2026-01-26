@@ -1,5 +1,5 @@
 [MASTER]
-py-version=3.9
+py-version=3.10
 ignore-patterns=test_*,conftest,setup
 reports=no
 

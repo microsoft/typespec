@@ -32,10 +32,7 @@ from specialwords._utils.model_base import (
     _deserialize,
 )
 
-if sys.version_info >= (3, 9):
-    from collections.abc import MutableMapping
-else:
-    from typing import MutableMapping  # type: ignore  # pylint: disable=ungrouped-imports
+from collections.abc import MutableMapping
 JSON = MutableMapping[str, Any]  # pylint: disable=unsubscriptable-object
 
 
