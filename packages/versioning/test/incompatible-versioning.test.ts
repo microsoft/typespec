@@ -68,8 +68,7 @@ describe("versioning: validate incompatible references", () => {
   });
 
   describe("operation", () => {
-    // TODO See: https://github.com/microsoft/typespec/issues/2695
-    it.skip("emit diagnostic when unversioned op has a versioned model as a parameter", async () => {
+    it("emit diagnostic when unversioned op has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Foo {}
@@ -111,8 +110,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    // TODO See: https://github.com/microsoft/typespec/issues/2695
-    it.skip("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
+    it("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Foo {}
@@ -1092,6 +1090,17 @@ describe("versioning: validate incompatible references", () => {
       );
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
+      });
+    });
+
+    describe("succeed when annotations are correctly defined", () => {
+      it("on property inside model expression", async () => {
+        const diagnostics = await runner.diagnose(`
+          @added(Versions.v3)
+          model A {}
+          model B { prop: { @added(Versions.v3) a: A }}
+        `);
+        expectDiagnosticEmpty(diagnostics);
       });
     });
 
