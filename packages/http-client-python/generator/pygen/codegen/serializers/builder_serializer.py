@@ -1372,9 +1372,9 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
     def _function_def(self) -> str:
         return "def"
 
-    def _extract_data_callback(
+    def _extract_data_callback(  # pylint: disable=too-many-statements,too-many-branches
         self, builder: PagingOperationType
-    ) -> list[str]:  # pylint: disable=too-many-statements,too-many-branches
+    ) -> list[str]:
         retval = [f"{'async ' if self.async_mode else ''}def extract_data(pipeline_response):"]
         response = builder.responses[0]
         if builder.is_xml_paging:
