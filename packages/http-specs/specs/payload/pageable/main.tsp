@@ -529,12 +529,12 @@ namespace XmlPagination {
   @scenario
   @scenarioDoc("""
     Test case for XML pagination with continuation token. Continuation token is passed in the request query and response body.
-
+    
     Two requests need to be tested.
-
+    
     1. Initial request:
     Expected route: /payload/pageable/xml/list
-
+    
     Expected response body:
     ```xml
     <PetListResult>
@@ -551,10 +551,10 @@ namespace XmlPagination {
       <NextMarker>page2</NextMarker>
     </PetListResult>
     ```
-
+    
     2. Next page request:
     Expected route: /payload/pageable/xml/list?marker=page2
-
+    
     Expected response body:
     ```xml
     <PetListResult>
@@ -581,12 +581,12 @@ namespace XmlPagination {
   @scenario
   @scenarioDoc("""
     Test case for XML pagination with next link.
-
+    
     Two requests need to be tested.
-
+    
     1. Initial request:
     Expected route: /payload/pageable/xml/list-with-next-link
-
+    
     Expected response body:
     ```xml
     <PetListResult>
@@ -603,10 +603,10 @@ namespace XmlPagination {
       <NextLink>http://[host]:[port]/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
     </PetListResult>
     ```
-
+    
     2. Next page request:
     Expected route: /payload/pageable/xml/list-with-next-link/nextPage
-
+    
     Expected response body:
     ```xml
     <PetListResult>

@@ -544,7 +544,6 @@ const XmlContTokenSecondPage = `
 </PetListResult>
 `;
 
-
 Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
   {
     uri: "/payload/pageable/xml/list-with-continuation",
