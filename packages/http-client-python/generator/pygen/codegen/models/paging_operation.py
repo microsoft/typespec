@@ -76,7 +76,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     @property
     def is_xml_paging(self) -> bool:
         try:
-            return self.responses[0].item_type.xml_metadata is not None
+            return bool(self.responses[0].item_type.xml_metadata)
         except KeyError:
             return False
 
