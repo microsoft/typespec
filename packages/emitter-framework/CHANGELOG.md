@@ -1,5 +1,9 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.16.0
+
+No changes, version bump only.
+
 ## 0.15.0
 
 ### Features

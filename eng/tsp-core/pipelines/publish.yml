@@ -4,6 +4,7 @@ trigger:
   branches:
     include:
       - main
+      - test/vscode-e2e-repro
       # For patch releases
       - release/*
   paths:
@@ -39,73 +40,73 @@ extends:
             parameters:
               azLogin: true
 
-      - stage: publish_npm
-        displayName: Publish Npm Packages
-        dependsOn: build
-        condition: or(eq('true', dependencies.build.outputs['build.pack_npm_packages_stable.PUBLISH_PKG_ANY']), eq('true', dependencies.build.outputs['build.pack_npm_packages_next.PUBLISH_PKG_ANY']))
+      # - stage: publish_npm
+      #   displayName: Publish Npm Packages
+      #   dependsOn: build
+      #   condition: or(eq('true', dependencies.build.outputs['build.pack_npm_packages_stable.PUBLISH_PKG_ANY']), eq('true', dependencies.build.outputs['build.pack_npm_packages_next.PUBLISH_PKG_ANY']))
 
-        pool:
-          name: $(LINUXPOOL)
-          image: $(LINUXVMIMAGE)
-          os: linux
+      #   pool:
+      #     name: $(LINUXPOOL)
+      #     image: $(LINUXVMIMAGE)
+      #     os: linux
 
-        jobs:
-          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
-            parameters:
-              artifactName: npm-packages-stable
-              tag: latest
-              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_stable.PUBLISH_PKG_ANY'])
+      #   jobs:
+      #     - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
+      #       parameters:
+      #         artifactName: npm-packages-stable
+      #         tag: latest
+      #         condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_stable.PUBLISH_PKG_ANY'])
 
-          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
-            parameters:
-              dependsOn: publish_npm_latest
-              artifactName: npm-packages-next
-              tag: next
-              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_next.PUBLISH_PKG_ANY'])
+      #     - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
+      #       parameters:
+      #         dependsOn: publish_npm_latest
+      #         artifactName: npm-packages-next
+      #         tag: next
+      #         condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_next.PUBLISH_PKG_ANY'])
 
-          - template: /eng/tsp-core/pipelines/jobs/create-github-release.yml
-            parameters:
-              dependsOn: publish_npm_latest
-              artifactName: npm-packages-stable
+      #     - template: /eng/tsp-core/pipelines/jobs/create-github-release.yml
+      #       parameters:
+      #         dependsOn: publish_npm_latest
+      #         artifactName: npm-packages-stable
 
-      - stage: publish_vscode
-        displayName: Publish VSCode extension
-        dependsOn: build
-        jobs:
-          - template: /eng/tsp-core/pipelines/jobs/publish-vscode.yml
+      # - stage: publish_vscode
+      #   displayName: Publish VSCode extension
+      #   dependsOn: build
+      #   jobs:
+      #     - template: /eng/tsp-core/pipelines/jobs/publish-vscode.yml
 
-      - stage: publish_vs
-        displayName: Publish VS extension
-        dependsOn: build
-        jobs:
-          - template: /eng/tsp-core/pipelines/jobs/publish-vs.yml
+      # - stage: publish_vs
+      #   displayName: Publish VS extension
+      #   dependsOn: build
+      #   jobs:
+      #     - template: /eng/tsp-core/pipelines/jobs/publish-vs.yml
 
-      - template: /eng/tsp-core/pipelines/stages/sign-publish-tsp-cli.yml@self
+      # - template: /eng/tsp-core/pipelines/stages/sign-publish-tsp-cli.yml@self
 
-      - stage: docker
-        displayName: Docker
-        dependsOn: []
-        jobs:
-          - job: docker
-            displayName: Build and publish
-            variables:
-              imageName: "azsdkengsys.azurecr.io/typespec"
-            pool:
-              name: $(LINUXPOOL)
-              image: $(LINUXVMIMAGE)
-              os: linux
-            steps:
-              - task: Docker@1
-                displayName: login
-                inputs:
-                  azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
-                  azureContainerRegistry: azsdkengsys.azurecr.io
-                  command: login
+      # - stage: docker
+      #   displayName: Docker
+      #   dependsOn: []
+      #   jobs:
+      #     - job: docker
+      #       displayName: Build and publish
+      #       variables:
+      #         imageName: "azsdkengsys.azurecr.io/typespec"
+      #       pool:
+      #         name: $(LINUXPOOL)
+      #         image: $(LINUXVMIMAGE)
+      #         os: linux
+      #       steps:
+      #         - task: Docker@1
+      #           displayName: login
+      #           inputs:
+      #             azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
+      #             azureContainerRegistry: azsdkengsys.azurecr.io
+      #             command: login
 
-              - script: |
-                  docker build -f ./docker/Dockerfile \
-                    -t $(imageName):latest \
-                    .
-                displayName: "Build"
-              - script: docker push $(imageName) --all-tags
-                displayName: "Push"
+      #         - script: |
+      #             docker build -f ./docker/Dockerfile \
+      #               -t $(imageName):latest \
+      #               .
+      #           displayName: "Build"
+      #         - script: docker push $(imageName) --all-tags
+      #           displayName: "Push"

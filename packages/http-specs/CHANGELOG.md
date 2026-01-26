@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.32
+
+### Features
+
+- [#9390](https://github.com/microsoft/typespec/pull/9390) Add array encoding test for enum and extensible enum arrays.
+
+
 ## 0.1.0-alpha.31
 
 ### Features
