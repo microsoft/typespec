@@ -12,8 +12,9 @@ def method_signature_and_response_type_annotation_template(
     *,
     method_signature: str,
     response_type_annotation: str,
+    pylint_disable: str = "",
 ) -> str:
-    return f"{method_signature} -> {response_type_annotation}:"
+    return f"{method_signature} -> {response_type_annotation}:{pylint_disable}"
 
 
 def extract_sample_name(file_path: str) -> str:

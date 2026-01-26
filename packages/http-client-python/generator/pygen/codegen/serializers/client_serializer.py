@@ -18,9 +18,6 @@ class ClientSerializer:
         self.serialize_namespace = serialize_namespace
 
     def _init_signature(self, async_mode: bool) -> str:
-        pylint_disable = ""
-        if not self.client.parameters.credential:
-            pylint_disable = "  # pylint: disable=missing-client-constructor-parameter-credential"
         return self.parameter_serializer.serialize_method(
             function_def="def",
             method_name="__init__",
@@ -28,14 +25,17 @@ class ClientSerializer:
             method_param_signatures=self.client.parameters.method_signature(
                 async_mode, serialize_namespace=self.serialize_namespace
             ),
-            pylint_disable=pylint_disable,
         )
 
     def init_signature_and_response_type_annotation(self, async_mode: bool) -> str:
         init_signature = self._init_signature(async_mode)
+        pylint_disable = ""
+        if not self.client.parameters.credential:
+            pylint_disable = "  # pylint: disable=missing-client-constructor-parameter-credential"
         return utils.method_signature_and_response_type_annotation_template(
             method_signature=init_signature,
             response_type_annotation="None",
+            pylint_disable=pylint_disable,
         )
 
     def pop_kwargs_from_signature(self) -> list[str]:

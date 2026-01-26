@@ -229,10 +229,9 @@ class ParameterSerializer:
         method_name: str,
         need_self_param: bool,
         method_param_signatures: list[str],
-        pylint_disable: str = "",
     ):
         lines: list[str] = []
-        first_line = f"{function_def} {method_name}({pylint_disable}"
+        first_line = f"{function_def} {method_name}("
         lines.append(first_line)
         if need_self_param:
             lines.append("    self,")

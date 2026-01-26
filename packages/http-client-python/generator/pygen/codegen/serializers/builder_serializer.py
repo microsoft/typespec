@@ -243,7 +243,6 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
             method_param_signatures=builder.method_signature(
                 self.async_mode, serialize_namespace=self.serialize_namespace
             ),
-            pylint_disable=builder.pylint_disable(self.async_mode),
         )
 
     def method_signature_and_response_type_annotation(
@@ -260,6 +259,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
         return decorators_str + utils.method_signature_and_response_type_annotation_template(
             method_signature=method_signature,
             response_type_annotation=response_type_annotation,
+            pylint_disable=builder.pylint_disable(self.async_mode),
         )
 
     def description_and_summary(self, builder: BuilderType) -> list[str]:
