@@ -19,6 +19,9 @@ class ExtendedEnvBuilder(venv.EnvBuilder):
 
     def __init__(self, *args, **kwargs):
         self.context = None
+        if sys.version_info < (3, 9, 0):
+            # Not supported on Python 3.8, and we don't need it
+            kwargs.pop("upgrade_deps", None)
         super().__init__(*args, **kwargs)
 
     def ensure_directories(self, env_dir):

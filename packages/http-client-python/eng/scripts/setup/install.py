@@ -7,9 +7,9 @@
 # --------------------------------------------------------------------------
 import sys
 
-if not sys.version_info >= (3, 10, 0):
+if not sys.version_info >= (3, 9, 0):
     print(
-        "Warning: Autorest for Python extension requires Python 3.10 at least. We will run your code with Pyodide since your Python version isn't adequate."
+        "Warning: Autorest for Python extension requires Python 3.9 at least. We will run your code with Pyodide since your Python version isn't adequate."
     )
     sys.exit(2)  # Exit code 2 for inadequate environment
 
@@ -32,7 +32,7 @@ except (ImportError, ModuleNotFoundError):
     sys.exit(2)  # Exit code 2 for inadequate environment
 
 
-# Now we have a package manager (uv or pip) and Py >= 3.10, go to work
+# Now we have a package manager (uv or pip) and Py >= 3.9, go to work
 # At this point, both Python and package manager are confirmed to be available
 # Any failures from here should fail the npm install, not fallback to Pyodide
 
