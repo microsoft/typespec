@@ -1,7 +1,8 @@
 {% macro wrap_string(string, wrapstring, width=95) %}
 {%- set normalized_string = string -%}
 {# Normalize multi-line descriptions by collapsing internal newlines to spaces, but preserve special blocks #}
-{%- if '\n* ' not in string -%}
+{# Skip normalization for pre-formatted content (strings starting with whitespace like code examples) #}
+{%- if '\n* ' not in string and string == string.lstrip() -%}
     {%- if '.. code-block::' in string -%}
         {# Split at code block and only normalize the prose before it #}
         {%- set parts = string.split('.. code-block::') -%}
