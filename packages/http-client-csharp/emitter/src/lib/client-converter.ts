@@ -11,6 +11,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
+import { createDiagnostic } from "./lib.js";
 import { InputParameterScope } from "../type/input-parameter-scope.js";
 import {
   InputClient,
@@ -136,11 +137,13 @@ function fromSdkClient(
       .replace("http://", "")
       .split("/")[0];
     if (!/^\{\w+\}$/.test(endpointExpr)) {
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-endpoint-url",
-        format: { endpoint: type.serverUrl },
-        target: NoTarget,
-      });
+      sdkContext.__diagnostics.push(
+        createDiagnostic({
+          code: "unsupported-endpoint-url",
+          format: { endpoint: type.serverUrl },
+          target: NoTarget,
+        }),
+      );
       return [];
     }
     const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);

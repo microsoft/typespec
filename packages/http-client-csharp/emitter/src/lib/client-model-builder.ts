@@ -74,7 +74,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
 
-  return [clientModel, sdkContext.logger.getDiagnostics()];
+  return [clientModel, sdkContext.__diagnostics];
 }
 
 /**

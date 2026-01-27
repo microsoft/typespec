@@ -21,6 +21,7 @@ import {
   tspOutputFileName,
 } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
+import { createDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
@@ -105,7 +106,8 @@ export async function createCodeModel(
       // Use the provided callback or default to identity function
       const updateCodeModelFn = updateCodeModel ?? ((model: CodeModel) => model);
       const updatedRoot = updateCodeModelFn(root, sdkContext);
-      diagnostics.push(...logger.getDiagnostics());
+      // Collect any diagnostics added during the callback execution
+      diagnostics.push(...sdkContext.__diagnostics);
 
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
@@ -228,15 +230,17 @@ export async function _validateDotNetSdk(
     return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
   } catch (error: any) {
     if (error && "code" in error && error["code"] === "ENOENT") {
-      sdkContext.logger.reportDiagnostic({
-        code: "invalid-dotnet-sdk-dependency",
-        messageId: "missing",
-        format: {
-          dotnetMajorVersion: `${minMajorVersion}`,
-          downloadUrl: "https://dotnet.microsoft.com/",
-        },
-        target: NoTarget,
-      });
+      sdkContext.__diagnostics.push(
+        createDiagnostic({
+          code: "invalid-dotnet-sdk-dependency",
+          messageId: "missing",
+          format: {
+            dotnetMajorVersion: `${minMajorVersion}`,
+            downloadUrl: "https://dotnet.microsoft.com/",
+          },
+          target: NoTarget,
+        }),
+      );
     }
     return false;
   }
@@ -256,21 +260,29 @@ function validateDotNetSdkVersionCore(
       return false;
     }
     if (major < minMajorVersion) {
-      sdkContext.logger.reportDiagnostic({
-        code: "invalid-dotnet-sdk-dependency",
-        messageId: "invalidVersion",
-        format: {
-          installedVersion: version,
-          dotnetMajorVersion: `${minMajorVersion}`,
-          downloadUrl: "https://dotnet.microsoft.com/",
-        },
-        target: NoTarget,
-      });
+      sdkContext.__diagnostics.push(
+        createDiagnostic({
+          code: "invalid-dotnet-sdk-dependency",
+          messageId: "invalidVersion",
+          format: {
+            installedVersion: version,
+            dotnetMajorVersion: `${minMajorVersion}`,
+            downloadUrl: "https://dotnet.microsoft.com/",
+          },
+          target: NoTarget,
+        }),
+      );
       return false;
     }
     return true;
   } else {
-    sdkContext.logger.error("Cannot get the installed .NET SDK version.");
+    sdkContext.__diagnostics.push(
+      createDiagnostic({
+        code: "general-error",
+        format: { message: "Cannot get the installed .NET SDK version." },
+        target: NoTarget,
+      }),
+    );
     return false;
   }
 }

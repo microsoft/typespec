@@ -21,6 +21,7 @@ import {
   isHttpMetadata,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
+import { createDiagnostic } from "./lib.js";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -130,11 +131,13 @@ export function fromSdkType<T extends SdkType>(
       retVar = fromSdkDurationType(sdkContext, sdkType);
       break;
     case "tuple":
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-sdk-type",
-        format: { sdkType: "tuple" },
-        target: sdkType.__raw ?? NoTarget,
-      });
+      sdkContext.__diagnostics.push(
+        createDiagnostic({
+          code: "unsupported-sdk-type",
+          format: { sdkType: "tuple" },
+          target: sdkType.__raw ?? NoTarget,
+        }),
+      );
       const tupleType: InputPrimitiveType = {
         kind: "unknown",
         name: "tuple",
@@ -150,11 +153,13 @@ export function fromSdkType<T extends SdkType>(
       retVar = fromSdkEndpointType();
       break;
     case "credential":
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-sdk-type",
-        format: { sdkType: "credential" },
-        target: sdkType.__raw ?? NoTarget,
-      });
+      sdkContext.__diagnostics.push(
+        createDiagnostic({
+          code: "unsupported-sdk-type",
+          format: { sdkType: "credential" },
+          target: sdkType.__raw ?? NoTarget,
+        }),
+      );
       const credentialType: InputPrimitiveType = {
         kind: "unknown",
         name: "credential",

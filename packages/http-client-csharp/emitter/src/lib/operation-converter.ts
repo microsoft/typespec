@@ -29,6 +29,7 @@ import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
+import { createDiagnostic } from "./lib.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
 import { InputConstant } from "../type/input-constant.js";
@@ -135,11 +136,13 @@ export function fromSdkServiceMethod(
       method = lroPagingMethod;
       break;
     default:
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-service-method",
-        format: { methodKind: methodKind },
-        target: NoTarget,
-      });
+      sdkContext.__diagnostics.push(
+        createDiagnostic({
+          code: "unsupported-service-method",
+          format: { methodKind: methodKind },
+          target: NoTarget,
+        }),
+      );
       method = undefined;
       break;
   }
@@ -164,13 +167,15 @@ export function fromSdkServiceMethodOperation(
 
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
-    sdkContext.logger.reportDiagnostic({
-      code: "unsupported-patch-convenience-method",
-      format: {
-        methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
-      },
-      target: method.__raw ?? NoTarget,
-    });
+    sdkContext.__diagnostics.push(
+      createDiagnostic({
+        code: "unsupported-patch-convenience-method",
+        format: {
+          methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: method.__raw ?? NoTarget,
+      }),
+    );
     generateConvenience = false;
   }
 
@@ -268,11 +273,13 @@ function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInK
     case "bigint":
       return "int64";
     default:
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-default-value-type",
-        format: { valueType: typeof value },
-        target: NoTarget,
-      });
+      sdkContext.__diagnostics.push(
+        createDiagnostic({
+          code: "unsupported-default-value-type",
+          format: { valueType: typeof value },
+          target: NoTarget,
+        }),
+      );
       return "unknown";
   }
 }
@@ -348,11 +355,13 @@ function fromSdkOperationParameters(
   const parameters: InputHttpParameter[] = [];
   for (const p of operation.parameters) {
     if (p.kind === "cookie") {
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-cookie-parameter",
-        format: { parameterName: p.name, path: operation.path },
-        target: NoTarget,
-      });
+      sdkContext.__diagnostics.push(
+        createDiagnostic({
+          code: "unsupported-cookie-parameter",
+          format: { parameterName: p.name, path: operation.path },
+          target: NoTarget,
+        }),
+      );
       return parameters;
     }
     const param = fromParameter(sdkContext, p, rootApiVersions);
@@ -395,11 +404,13 @@ export function fromParameter(
       parameter = fromBodyParameter(sdkContext, p, rootApiVersions);
       break;
     default:
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-parameter-kind",
-        format: { parameterKind },
-        target: p.__raw ?? NoTarget,
-      });
+      sdkContext.__diagnostics.push(
+        createDiagnostic({
+          code: "unsupported-parameter-kind",
+          format: { parameterKind },
+          target: p.__raw ?? NoTarget,
+        }),
+      );
       parameter = undefined;
       break;
   }
@@ -794,13 +805,15 @@ function getResponseLocation(
   }
 
   if (isHttpMetadata(context, p)) {
-    context.logger.reportDiagnostic({
-      code: "unsupported-continuation-location",
-      format: {
-        crossLanguageDefinitionId: method.crossLanguageDefinitionId,
-      },
-      target: NoTarget,
-    });
+    context.__diagnostics.push(
+      createDiagnostic({
+        code: "unsupported-continuation-location",
+        format: {
+          crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: NoTarget,
+      }),
+    );
     return ResponseLocation.None;
   }
 

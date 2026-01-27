@@ -1,13 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { Diagnostic, DiagnosticReport, NoTarget, Program, Tracer } from "@typespec/compiler";
-import {
-  createDiagnostic,
-  DiagnosticMessagesMap,
-  getTracer,
-  reportDiagnostic as libReportDiagnostic,
-} from "./lib.js";
+import { Diagnostic, Program, Tracer } from "@typespec/compiler";
+import { getTracer } from "./lib.js";
 import { LoggerLevel } from "./logger-level.js";
 
 /**
@@ -18,22 +13,21 @@ export class Logger {
   private tracer: Tracer;
   private level: LoggerLevel;
   private program: Program;
-  private collectedDiagnostics: Diagnostic[] | undefined;
 
   public constructor(program: Program, level: LoggerLevel, collectDiagnostics: boolean = false) {
     this.tracer = getTracer(program);
     this.level = level;
     this.program = program;
-    this.collectedDiagnostics = collectDiagnostics ? [] : undefined;
   }
 
   /**
    * Get collected diagnostics. Only available if the logger was created with collectDiagnostics=true.
    * @returns The collected diagnostics.
    * @beta
+   * @deprecated This method is deprecated and will be removed. Use sdkContext.__diagnostics instead.
    */
   public getDiagnostics(): readonly Diagnostic[] {
-    return this.collectedDiagnostics ?? [];
+    return [];
   }
 
   trace(level: LoggerLevel, message: string): void {
@@ -70,33 +64,5 @@ export class Logger {
     if (this.level === LoggerLevel.VERBOSE) {
       this.tracer.trace(LoggerLevel.VERBOSE, message);
     }
-  }
-
-  reportDiagnostic<C extends keyof DiagnosticMessagesMap, M extends keyof DiagnosticMessagesMap[C]>(
-    diag: DiagnosticReport<DiagnosticMessagesMap, C, M>,
-  ): void {
-    if (this.collectedDiagnostics) {
-      // In collecting mode, store the diagnostic instead of reporting it
-      this.collectedDiagnostics.push(createDiagnostic(diag));
-    } else {
-      // In normal mode, report the diagnostic directly
-      libReportDiagnostic(this.program, diag);
-    }
-  }
-
-  warn(message: string): void {
-    this.reportDiagnostic({
-      code: "general-warning",
-      format: { message: message },
-      target: NoTarget,
-    });
-  }
-
-  error(message: string): void {
-    this.reportDiagnostic({
-      code: "general-error",
-      format: { message: message },
-      target: NoTarget,
-    });
   }
 }

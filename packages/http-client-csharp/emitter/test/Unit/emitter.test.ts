@@ -271,6 +271,8 @@ describe("Test _validateDotNetSdk", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const result = await _validateDotNetSdk(sdkContext, minVersion);
+    // Report collected diagnostics to program
+    program.reportDiagnostics(sdkContext.__diagnostics);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
@@ -329,6 +331,8 @@ describe("Test _validateDotNetSdk", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const result = await _validateDotNetSdk(sdkContext, minVersion);
+    // Report collected diagnostics to program
+    program.reportDiagnostics(sdkContext.__diagnostics);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(

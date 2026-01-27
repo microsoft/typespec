@@ -2,8 +2,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
-import { resolvePath } from "@typespec/compiler";
+import { NoTarget, resolvePath } from "@typespec/compiler";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
+import { createDiagnostic } from "./lib/lib.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
@@ -73,7 +74,13 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
   function handleObject(obj: any, id: string | undefined, stack: any[]): any {
     if (stack.includes(obj)) {
       // we have a cyclical reference, we should not continue
-      context.logger.warn(`Cyclical reference detected in the code model (id: ${id}).`);
+      context.__diagnostics.push(
+        createDiagnostic({
+          code: "general-warning",
+          format: { message: `Cyclical reference detected in the code model (id: ${id}).` },
+          target: NoTarget,
+        }),
+      );
       return undefined;
     }
 

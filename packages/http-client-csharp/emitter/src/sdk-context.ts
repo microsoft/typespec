@@ -14,7 +14,7 @@ import {
   SdkServiceMethod,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
-import { Type } from "@typespec/compiler";
+import { Diagnostic, Type } from "@typespec/compiler";
 import { Logger } from "./lib/logger.js";
 import { CSharpEmitterOptions } from "./options.js";
 import { InputOperation } from "./type/input-operation.js";
@@ -37,6 +37,7 @@ import { OperationResponse } from "./type/operation-response.js";
 export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
   logger: Logger;
   __typeCache: SdkTypeCache;
+  __diagnostics: Diagnostic[];
 }
 
 /**
@@ -53,6 +54,7 @@ export function createCSharpEmitterContext<
     ...context,
     logger,
     __typeCache: new SdkTypeCache(),
+    __diagnostics: [],
   };
 }
 
