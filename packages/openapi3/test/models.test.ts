@@ -291,12 +291,11 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
       `model Test { minDate: utcDateTime = utcDateTime.now(); }`,
     );
 
-    expect((res as any).components?.schemas?.Test?.properties?.minDate.default).toEqual(
-      "Mon, 01 Jan 2024 11:32:00 GMT",
-    );
+    expect((res as any).components?.schemas?.Test?.properties?.minDate.default).toEqual(undefined);
     expectDiagnostics(diagnostics, {
-      code: "default-not-supported",
-      message: "",
+      code: "@typespec/openapi3/default-not-supported",
+      message:
+        "Default value is not supported in OpenAPI 3.0 Cannot serialize scalar 'utcDateTime' with constructor 'now'. Supported constructors: fromISO",
     });
   });
 

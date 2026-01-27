@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-[API] `serializeValueAsJson` throws a `UnsupportedScalarConstructorError` for unsupported sclar constructor instead of crashing
+[API] `serializeValueAsJson` throws a `UnsupportedScalarConstructorError` for unsupported scalar constructor instead of crashing
