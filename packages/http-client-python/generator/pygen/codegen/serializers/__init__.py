@@ -595,43 +595,42 @@ class JinjaSerializer(ReaderAndWriter):
     def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
         out_path = self._generated_tests_samples_folder("generated_tests")
+
+        # Phase 1: Generate all content (CPU-bound)
+        files_to_write: list[tuple[Path, str]] = []
+
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
-        self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
+        files_to_write.append((out_path / "conftest.py", general_serializer.serialize_conftest()))
+
         if not self.code_model.options["azure-arm"]:
             for async_mode in (True, False):
                 async_suffix = "_async" if async_mode else ""
                 general_serializer.async_mode = async_mode
-                self.write_file(
+                files_to_write.append((
                     out_path / f"testpreparer{async_suffix}.py",
                     general_serializer.serialize_testpreparer(),
-                )
+                ))
 
-        # Collect all test generation tasks
-        test_tasks = []
+        # Generate test files - reuse serializer per operation group, toggle async_mode
         for client in self.code_model.clients:
             for og in client.operation_groups:
-                for async_mode in (True, False):
-                    test_tasks.append((client, og, async_mode))
-
-        def generate_and_write_single_test(task):
-            client, og, async_mode = task
-            try:
+                # Create serializer once per operation group
                 test_serializer = TestSerializer(self.code_model, env, client=client, operation_group=og)
-                test_serializer.async_mode = async_mode
-                content = test_serializer.serialize_test()
-                output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
-                self.write_file(output_path, content)
-                return None
-            except Exception as e:  # pylint: disable=broad-except
-                return f"error happens in test generation for operation group {og.class_name}: {e}"
+                for async_mode in (True, False):
+                    try:
+                        test_serializer.async_mode = async_mode
+                        content = test_serializer.serialize_test()
+                        output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
+                        files_to_write.append((output_path, content))
+                    except Exception as e:  # pylint: disable=broad-except
+                        _LOGGER.error(f"error happens in test generation for operation group {og.class_name}: {e}")
 
-        # Process tests in parallel using ThreadPoolExecutor
+        # Phase 2: Write all files (I/O-bound, threading helps here)
+        def write_single_file(item: tuple[Path, str]) -> None:
+            path, content = item
+            self.write_file(path, content)
+
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            results = list(executor.map(generate_and_write_single_test, test_tasks))
-
-        # Log errors
-        for error in results:
-            if error:
-                _LOGGER.error(error)
+            executor.map(write_single_file, files_to_write)
 
         self.code_model.for_test = False
