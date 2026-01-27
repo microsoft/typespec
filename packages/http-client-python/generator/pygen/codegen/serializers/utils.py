@@ -17,14 +17,6 @@ def get_sub_type(param_type: ModelType) -> ModelType:
     return param_type
 
 
-def get_model_type(param_type: BaseType) -> Optional[ModelType]:
-    if isinstance(param_type, ModelType):
-        return param_type
-    if isinstance(param_type, CombinedType):
-        return param_type.target_model_subtype((ModelType,))
-    return None
-
-
 def method_signature_and_response_type_annotation_template(
     *,
     method_signature: str,
@@ -69,3 +61,21 @@ def _improve_json_string(template_representation: str) -> Any:
 def json_dumps_template(template_representation: Any) -> Any:
     # only for template use, since it wraps everything in strings
     return _improve_json_string(json.dumps(template_representation, indent=4))
+
+
+def create_fake_value(param_type: BaseType) -> Any:
+    """Create a fake value for a parameter type by getting its JSON template representation.
+
+    This function generates a fake value suitable for samples and tests.
+
+    :param param_type: The parameter type to create a fake value for.
+    :return: A string representation of the fake value.
+    """
+    if isinstance(param_type, ModelType):
+        model_type = param_type
+    elif isinstance(param_type, CombinedType):
+        model_type = param_type.target_model_subtype((ModelType,))
+    else:
+        model_type = None
+    resolved_type = get_sub_type(model_type) if model_type else param_type
+    return json_dumps_template(resolved_type.get_json_template_representation())

@@ -16,7 +16,7 @@ from ..models import (
     OperationType,
     FileImport,
 )
-from .utils import json_dumps_template, get_sub_type, get_model_type
+from .utils import create_fake_value
 
 
 def is_lro(operation_type: str) -> bool:
@@ -227,9 +227,7 @@ class TestSerializer(TestGeneralSerializer):
         operation_params = {}
         required_params = [p for p in operation.parameters.method if not p.optional]
         for param in required_params:
-            model_type = get_model_type(param.type)
-            param_type = get_sub_type(model_type) if model_type else param.type
-            operation_params[param.client_name] = json_dumps_template(param_type.get_json_template_representation())
+            operation_params[param.client_name] = create_fake_value(param.type)
         return operation_params
 
     def get_test(self) -> Test:

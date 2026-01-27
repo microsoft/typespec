@@ -20,7 +20,7 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
-from .utils import json_dumps_template, get_sub_type, get_model_type
+from .utils import create_fake_value
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -108,11 +108,7 @@ class SampleSerializer(BaseSerializer):
             if not param.optional:
                 param_value = self.sample_params.get(param.wire_name)
                 if not param_value:
-                    model_type = get_model_type(param.type)
-                    param_type = get_sub_type(model_type) if model_type else param.type
-                    operation_params[param.client_name] = json_dumps_template(
-                        param_type.get_json_template_representation()
-                    )
+                    operation_params[param.client_name] = create_fake_value(param.type)
                 else:
                     operation_params[param.client_name] = self.handle_param(param, param_value)
         return operation_params
