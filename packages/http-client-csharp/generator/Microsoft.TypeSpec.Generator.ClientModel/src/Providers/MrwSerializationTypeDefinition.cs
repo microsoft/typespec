@@ -1007,10 +1007,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var binaryDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
                     _additionalBinaryDataProperty.Value.Type.ElementType, jsonProperty.Value(), _dataParameter.As<BinaryData>(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
-                // Use the backing field's variable expression to match what was declared in GetPropertyVariableDeclarations
-                var backingField = _additionalBinaryDataProperty.Value.BackingField!;
+                // Check if the property itself is in the constructor parameters (it would have been declared with property's variable name)
+                // Otherwise, use the backing field's variable expression
+                var isPropertyParameter = SerializationConstructor.Signature.Parameters.Any(p => p.Property == _additionalBinaryDataProperty.Value);
+                var variableExpressionProvider = isPropertyParameter
+                    ? (object)_additionalBinaryDataProperty.Value
+                    : _additionalBinaryDataProperty.Value.BackingField!;
+                var variableExpression = isPropertyParameter
+                    ? _additionalBinaryDataProperty.Value.AsVariableExpression
+                    : _additionalBinaryDataProperty.Value.BackingField!.AsVariableExpression;
+                var dictionaryType = isPropertyParameter
+                    ? _additionalBinaryDataProperty.Value.Type
+                    : _additionalBinaryDataProperty.Value.BackingField!.Type;
                 propertyDeserializationStatements.Add(
-                    backingField.AsVariableExpression.AsDictionary(backingField.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
+                    variableExpression.AsDictionary(dictionaryType).Add(jsonProperty.Name(), binaryDataDeserializationValue));
             }
             else if (_jsonPatchProperty != null)
             {
