@@ -99,7 +99,8 @@ namespace Payload.Xml
             using MemoryStream stream = new MemoryStream(256);
             using (XmlWriter writer = XmlWriter.Create(stream))
             {
-                Write(writer, options);
+                string nameHint = (options as ModelReaderWriterXmlOptions)?.NameHint;
+                Write(writer, options, nameHint);
             }
             return new BinaryData(stream.ToArray());
         }

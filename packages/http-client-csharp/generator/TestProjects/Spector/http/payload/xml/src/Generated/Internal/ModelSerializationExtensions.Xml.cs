@@ -30,27 +30,13 @@ namespace Payload.Xml
         {
             switch (value)
             {
-                case IXmlSerializable serializable:
-                    serializable.Write(writer, nameHint);
-                    break;
                 case IPersistableModel<T> persistableModel:
-                    BinaryData data = ModelReaderWriter.Write(persistableModel, options ?? WireOptions, PayloadXmlContext.Default);
+                    var xmlOptions = new ModelReaderWriterXmlOptions(options?.Format ?? "X", nameHint);
+                    BinaryData data = ModelReaderWriter.Write(persistableModel, xmlOptions, PayloadXmlContext.Default);
                     using (Stream stream = data.ToStream())
                     {
                         XElement element = XElement.Load(stream, LoadOptions.None);
-                        if (nameHint is null)
-                        {
-                            element.WriteTo(writer);
-                        }
-                        else
-                        {
-                            writer.WriteStartElement(nameHint);
-                            foreach (var node in element.Nodes())
-                            {
-                                node.WriteTo(writer);
-                            }
-                            writer.WriteEndElement();
-                        }
+                        element.WriteTo(writer);
                     }
                     break;
                 default:
