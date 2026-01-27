@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
+import { Profiler } from "./profiler.js";
 import { runPython3 } from "./run-python3.js";
 import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
@@ -125,17 +126,21 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
 
 async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   // clean all cache to make sure emitter could work in watch mode
-  cleanAllCache();
+  Profiler.measure("cleanAllCache", () => cleanAllCache());
 
   const program = context.program;
-  const sdkContext = await createPythonSdkContext(context);
+  const sdkContext = await Profiler.measureAsync("createPythonSdkContext", () =>
+    createPythonSdkContext(context),
+  );
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
-  addDefaultOptions(sdkContext);
-  const yamlMap = emitCodeModel(sdkContext);
-  const parsedYamlMap = walkThroughNodes(yamlMap);
+  Profiler.measure("addDefaultOptions", () => addDefaultOptions(sdkContext));
+  const yamlMap = Profiler.measure("emitCodeModel", () => emitCodeModel(sdkContext));
+  const parsedYamlMap = Profiler.measure("walkThroughNodes", () => walkThroughNodes(yamlMap));
 
-  const yamlPath = await saveCodeModelAsYaml("python-yaml-path", parsedYamlMap);
+  const yamlPath = await Profiler.measureAsync("saveCodeModelAsYaml", () =>
+    saveCodeModelAsYaml("python-yaml-path", parsedYamlMap),
+  );
   const resolvedOptions = sdkContext.emitContext.options;
   const commandArgs: Record<string, string> = {};
   if (resolvedOptions["packaging-files-config"]) {
@@ -176,7 +181,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
 
     if (resolvedOptions["use-pyodide"]) {
       // here we run with pyodide
-      const pyodide = await setupPyodideCall(root);
+      const pyodide = await Profiler.measureAsync("setupPyodideCall", () => setupPyodideCall(root));
       // create the output folder if not exists
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
@@ -202,7 +207,9 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
             black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
       
           await main()`;
-      await pyodide.runPythonAsync(pythonCode, { globals });
+      await Profiler.measureAsync("pyodide.runPythonAsync", () =>
+        pyodide.runPythonAsync(pythonCode, { globals }),
+      );
     } else {
       // here we run with native python
       let venvPath = path.join(root, "venv");
@@ -218,11 +225,24 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       }
       commandArgs["output-folder"] = outputDir;
       commandArgs["tsp-file"] = yamlPath;
+
+      // Write command to alpha/command.txt for debugging/profiling purposes
+      const commandFlagsRecorded = Object.entries(commandArgs)
+        .map(([key, value]) => {
+          if (key === "tsp-file") {
+            return `--${key}=C:/dev/typespec/packages/http-client-python/alpha/output.yaml`;
+          }
+          return `--${key}=${value}`;
+        })
+        .join(" ");
+      const commandRecorded = `Copy-Item "C:/dev/typespec/packages/http-client-python/alpha/output copy.yaml" -Destination "C:/dev/typespec/packages/http-client-python/alpha/output.yaml" ; ${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlagsRecorded}`;
+      fs.writeFileSync(path.join(root, "alpha", "command.txt"), commandRecorded);
+
       const commandFlags = Object.entries(commandArgs)
         .map(([key, value]) => `--${key}=${value}`)
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
-      execSync(command);
+      Profiler.measure("execSync:run_tsp.py", () => execSync(command));
 
       const blackExcludeDirs = [
         "__pycache__/",
@@ -247,11 +267,18 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         "TempTypeSpecFiles/",
       ];
       const excludePattern = blackExcludeDirs.join("|");
-      execSync(
-        `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
+      Profiler.measure("execSync:black", () =>
+        execSync(
+          `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
+        ),
       );
-      checkForPylintIssues(outputDir, excludePattern);
+      Profiler.measure("checkForPylintIssues", () =>
+        checkForPylintIssues(outputDir, excludePattern),
+      );
     }
+
+    // Print profiler summary at the end
+    Profiler.printSummary();
   }
 }
 

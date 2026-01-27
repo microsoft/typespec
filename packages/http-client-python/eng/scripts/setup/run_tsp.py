@@ -9,10 +9,17 @@ import logging
 from pathlib import Path
 from pygen import preprocess, codegen
 from pygen.utils import parse_args
+from pygen.timing_utils import Profiler
 
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 _LOGGER = logging.getLogger(__name__)
+
+# Configure logging to see timing information
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 if __name__ == "__main__":
     venv_path = _ROOT_DIR / "venv"
@@ -36,5 +43,17 @@ if __name__ == "__main__":
 
     # pre-process
     args, unknown_args = parse_args()
-    preprocess.PreProcessPlugin(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
-    codegen.CodeGenerator(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
+    
+    # Process with profiling
+    Profiler.measure(
+        'PreProcessPlugin.process',
+        lambda: preprocess.PreProcessPlugin(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
+    )
+    
+    Profiler.measure(
+        'CodeGenerator.process',
+        lambda: codegen.CodeGenerator(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
+    )
+    
+    # Print profiling summary
+    Profiler.print_summary()

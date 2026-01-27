@@ -23,6 +23,7 @@ from ..models import (
     ModelType,
     EnumType,
 )
+from ...timing_utils import Profiler
 from .enum_serializer import EnumSerializer
 from .general_serializer import GeneralSerializer
 from .model_init_serializer import ModelInitSerializer
@@ -148,6 +149,8 @@ class JinjaSerializer(ReaderAndWriter):
         )
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
+        sample_count = 0
+        test_count = 0
         for client_namespace, client_namespace_type in self.code_model.client_namespace_types.items():
             generation_path = self.code_model.get_generation_dir(client_namespace)
             if client_namespace == "":
@@ -172,9 +175,17 @@ class JinjaSerializer(ReaderAndWriter):
                 # add generated samples and generated tests
                 if self.code_model.options["show-operations"] and self.code_model.has_operations:
                     if self.code_model.options["generate-sample"]:
-                        self._serialize_and_write_sample(env)
+                        Profiler.measure(
+                            f"JinjaSerializer._serialize_and_write_sample[{sample_count}]",
+                            lambda: self._serialize_and_write_sample(env),
+                        )
+                        sample_count += 1
                     if self.code_model.options["generate-test"]:
-                        self._serialize_and_write_test(env)
+                        Profiler.measure(
+                            f"JinjaSerializer._serialize_and_write_test[{test_count}]",
+                            lambda: self._serialize_and_write_test(env),
+                        )
+                        test_count += 1
 
                 # add _metadata.json
                 if self.code_model.metadata:

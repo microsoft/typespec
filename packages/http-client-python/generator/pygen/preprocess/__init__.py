@@ -8,6 +8,7 @@ import copy
 from typing import Callable, Any, Optional
 
 from ..utils import to_snake_case, extract_original_name
+from ..timing_utils import Profiler
 from .helpers import (
     add_redefined_builtin_info,
     pad_builtin_namespaces,
@@ -531,13 +532,22 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     def update_yaml(self, yaml_data: dict[str, Any]) -> None:
         """Convert in place the YAML str."""
-        self.update_types(yaml_data["types"])
+        Profiler.measure("PreProcessPlugin.update_types", lambda: self.update_types(yaml_data["types"]))
+
         yaml_data["types"] += KNOWN_TYPES.values()
-        for client in yaml_data["clients"]:
-            self.update_client(client)
-            self.update_operation_groups(yaml_data, client)
+
+        for i, client in enumerate(yaml_data["clients"]):
+            Profiler.measure(f"PreProcessPlugin.update_client[{i}]", lambda c=client: self.update_client(c))
+
+            Profiler.measure(
+                f"PreProcessPlugin.update_operation_groups[{i}]",
+                lambda c=client: self.update_operation_groups(yaml_data, c),
+            )
+
         if yaml_data.get("namespace"):
-            yaml_data["namespace"] = pad_builtin_namespaces(yaml_data["namespace"])
+            yaml_data["namespace"] = Profiler.measure(
+                "PreProcessPlugin.pad_builtin_namespaces", lambda: pad_builtin_namespaces(yaml_data["namespace"])
+            )
 
 
 if __name__ == "__main__":
