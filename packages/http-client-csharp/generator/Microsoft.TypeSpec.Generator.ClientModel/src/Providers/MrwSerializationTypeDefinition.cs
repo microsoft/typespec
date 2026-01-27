@@ -1007,8 +1007,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var binaryDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
                     _additionalBinaryDataProperty.Value.Type.ElementType, jsonProperty.Value(), _dataParameter.As<BinaryData>(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
+                // Use the backing field's variable expression to match what was declared in GetPropertyVariableDeclarations
+                var backingField = _additionalBinaryDataProperty.Value.BackingField!;
                 propertyDeserializationStatements.Add(
-                    _additionalBinaryDataProperty.Value.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Value.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
+                    backingField.AsVariableExpression.AsDictionary(backingField.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
             }
             else if (_jsonPatchProperty != null)
             {
