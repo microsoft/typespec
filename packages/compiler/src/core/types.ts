@@ -1450,6 +1450,8 @@ export type Expression =
   | AnyKeywordNode
   | FunctionTypeExpressionNode;
 
+export type ParenthesizedExpression = Expression & { readonly parenthesized: true };
+
 export type ReferenceExpression =
   | TypeReferenceNode
   | MemberExpressionNode

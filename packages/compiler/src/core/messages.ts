@@ -556,6 +556,12 @@ const diagnostics = {
       unassignable: paramMessage`Implementation of '${"name"}' returned ${"entityKind"} '${"return"}', which is not assignable to the declared return type '${"type"}'.`,
     },
   },
+  "fn-in-union-expression": {
+    severity: "error",
+    messages: {
+      default: "Function types in anonymous union expressions must be parenthesized.",
+    },
+  },
   "missing-implementation": {
     severity: "error",
     messages: {

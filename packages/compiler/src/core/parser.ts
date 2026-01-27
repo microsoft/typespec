@@ -77,6 +77,7 @@ import {
   ObjectLiteralSpreadPropertyNode,
   OperationSignature,
   OperationStatementNode,
+  ParenthesizedExpression,
   ParseOptions,
   PositionDetail,
   ScalarConstructorNode,
@@ -1285,6 +1286,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       options.push(expr);
     }
 
+    for (const fnVariant of options.filter((n) => n.kind === SyntaxKind.FunctionTypeExpression)) {
+      if (!(fnVariant as ParenthesizedExpression).parenthesized) {
+        error({
+          code: "fn-in-union-expression",
+          target: fnVariant,
+        });
+      }
+    }
+
     return {
       kind: SyntaxKind.UnionExpression,
       options,
@@ -1765,12 +1775,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseParenthesizedExpression(): Expression {
+  function parseParenthesizedExpression(): ParenthesizedExpression {
     const pos = tokenPos();
     parseExpected(Token.OpenParen);
     const expr = parseExpression();
     parseExpected(Token.CloseParen);
-    return { ...expr, ...finishNode(pos) };
+    return { parenthesized: true, ...expr, ...finishNode(pos) };
   }
 
   function parseTupleExpression(): TupleExpressionNode {
