@@ -7,6 +7,23 @@ import json
 from typing import Optional, Any
 from pathlib import Path
 
+from ..models import ModelType, BaseType, CombinedType
+
+
+def get_sub_type(param_type: ModelType) -> ModelType:
+    if param_type.discriminated_subtypes:
+        for item in param_type.discriminated_subtypes.values():
+            return get_sub_type(item)
+    return param_type
+
+
+def get_model_type(param_type: BaseType) -> Optional[ModelType]:
+    if isinstance(param_type, ModelType):
+        return param_type
+    if isinstance(param_type, CombinedType):
+        return param_type.target_model_subtype((ModelType,))
+    return None
+
 
 def method_signature_and_response_type_annotation_template(
     *,

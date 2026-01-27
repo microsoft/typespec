@@ -20,6 +20,7 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
+from .utils import json_dumps_template, get_sub_type, get_model_type
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -102,14 +103,18 @@ class SampleSerializer(BaseSerializer):
             for p in (self.operation.parameters.positional + self.operation.parameters.keyword_only)
             if not p.client_default_value
         ]
-        failure_info = "fail to find required param named {}"
         operation_params = {}
         for param in params:
             if not param.optional:
                 param_value = self.sample_params.get(param.wire_name)
                 if not param_value:
-                    raise Exception(failure_info.format(param.client_name))  # pylint: disable=broad-exception-raised
-                operation_params[param.client_name] = self.handle_param(param, param_value)
+                    model_type = get_model_type(param.type)
+                    param_type = get_sub_type(model_type) if model_type else param.type
+                    operation_params[param.client_name] = json_dumps_template(
+                        param_type.get_json_template_representation()
+                    )
+                else:
+                    operation_params[param.client_name] = self.handle_param(param, param_value)
         return operation_params
 
     def _operation_group_name(self) -> str:
