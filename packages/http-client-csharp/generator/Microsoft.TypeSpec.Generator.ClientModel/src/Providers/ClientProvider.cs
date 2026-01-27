@@ -95,6 +95,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
+            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
 
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
@@ -329,6 +330,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
             return null;
+        }
+
+        internal bool IsMultiServiceClient { get; }
+
+        internal FieldProvider? GetApiVersionFieldForService(string? serviceNamespace)
+        {
+            if (_apiVersionFields == null || _apiVersionFields.Count == 0)
+            {
+                return null;
+            }
+
+            if (_apiVersionFields.Count == 1 || string.IsNullOrEmpty(serviceNamespace))
+            {
+                return _apiVersionFields[0].Field;
+            }
+
+            return _apiVersionFields.FirstOrDefault(
+                f => string.Equals(f.ServiceNamespace, serviceNamespace, StringComparison.OrdinalIgnoreCase))?.Field;
         }
 
         /// <summary>
