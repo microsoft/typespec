@@ -1892,13 +1892,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
             {
-                // For string enum arrays, convert each enum to string first
+                // For string enum arrays, convert each enum to string
                 var x = new VariableExpression(typeof(object), "x");
                 var selectExpression = propertyExpression.Invoke("Select",
                     new FuncExpression([x.Declaration], new TernaryConditionalExpression(
                         x.Equal(Null),
                         Literal(""),
-                        x.Invoke("ToString"))));
+                        x.Invoke("ToSerialString"))));
                 stringJoinExpression = Static<string>().Invoke(nameof(string.Join), Literal(delimiter), selectExpression);
             }
             else
