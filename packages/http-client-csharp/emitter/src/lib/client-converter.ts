@@ -131,13 +131,14 @@ function fromSdkClient(
   }
 
   function fromSdkEndpointType(type: SdkEndpointType): InputEndpointParameter[] {
+    const diagnostics = sdkContext.__diagnostics!;
     // TODO: support free-style endpoint url with multiple parameters
     const endpointExpr = type.serverUrl
       .replace("https://", "")
       .replace("http://", "")
       .split("/")[0];
     if (!/^\{\w+\}$/.test(endpointExpr)) {
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "unsupported-endpoint-url",
           format: { endpoint: type.serverUrl },

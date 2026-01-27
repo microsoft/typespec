@@ -33,6 +33,7 @@ export async function writeCodeModel(
  * @param codeModel - The code model to build
  */
 function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
+  const diagnostics = context.__diagnostics!;
   const objectsIds = new Map<any, string>();
   const stack: any[] = [];
 
@@ -74,7 +75,7 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
   function handleObject(obj: any, id: string | undefined, stack: any[]): any {
     if (stack.includes(obj)) {
       // we have a cyclical reference, we should not continue
-      context.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "general-warning",
           format: { message: `Cyclical reference detected in the code model (id: ${id}).` },

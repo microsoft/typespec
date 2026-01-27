@@ -7,7 +7,7 @@ import {
   SdkHttpOperation,
   SdkPackage,
 } from "@azure-tools/typespec-client-generator-core";
-import { NoTarget } from "@typespec/compiler";
+import { createDiagnosticCollector, DiagnosticCollector, NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { createDiagnostic } from "./lib.js";
@@ -18,6 +18,7 @@ export function processServiceAuthentication(
   sdkContext: CSharpEmitterContext,
   sdkPackage: SdkPackage<SdkHttpOperation>,
 ): InputAuth | undefined {
+  const diagnostics = sdkContext.__diagnostics!;
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
   for (const client of sdkPackage.clients) {
     for (const parameter of client.clientInitialization.parameters) {
@@ -35,9 +36,9 @@ export function processServiceAuthentication(
   const inputAuth: InputAuth = {};
 
   if (authClientParameter.type.kind === "credential") {
-    const auth = processAuthType(sdkContext, authClientParameter.type);
+    const auth = processAuthType(sdkContext, authClientParameter.type, diagnostics);
     if (!auth && authClientParameter.type.scheme.type !== "noAuth") {
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "unsupported-auth",
           messageId: "onlyUnsupportedAuthProvided",
@@ -53,7 +54,7 @@ export function processServiceAuthentication(
   let containsNoAuth = false;
   for (const authType of authClientParameter.type.variantTypes) {
     containsNoAuth = containsNoAuth || authType.scheme.type === "noAuth";
-    const auth = processAuthType(sdkContext, authType);
+    const auth = processAuthType(sdkContext, authType, diagnostics);
     if (auth?.apiKey) {
       inputAuth.apiKey = auth.apiKey;
     }
@@ -67,7 +68,7 @@ export function processServiceAuthentication(
   }
 
   if (!inputAuth?.apiKey && !inputAuth?.oAuth2) {
-    sdkContext.__diagnostics.push(
+    diagnostics.add(
       createDiagnostic({
         code: "unsupported-auth",
         messageId: "onlyUnsupportedAuthProvided",
@@ -82,12 +83,13 @@ export function processServiceAuthentication(
 function processAuthType(
   sdkContext: CSharpEmitterContext,
   credentialType: SdkCredentialType,
+  diagnostics: DiagnosticCollector,
 ): InputAuth | undefined {
   const scheme = credentialType.scheme;
   switch (scheme.type) {
     case "apiKey":
       if (scheme.in !== "header") {
-        sdkContext.__diagnostics.push(
+        diagnostics.add(
           createDiagnostic({
             code: "unsupported-auth",
             format: {
@@ -105,7 +107,7 @@ function processAuthType(
       const schemeOrApiKeyPrefix = scheme.scheme;
       switch (schemeOrApiKeyPrefix) {
         case "Basic":
-          sdkContext.__diagnostics.push(
+          diagnostics.add(
             createDiagnostic({
               code: "unsupported-auth",
               format: { message: `${schemeOrApiKeyPrefix} auth method is currently not supported.` },
@@ -132,7 +134,7 @@ function processAuthType(
       }
     }
     default:
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "unsupported-auth",
           format: { message: `un-supported authentication scheme ${scheme.type}` },

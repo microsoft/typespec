@@ -7,7 +7,7 @@ import {
   SdkHttpOperation,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
@@ -28,9 +28,7 @@ import {
  * @example
  * ```typescript
  * import { createModel } from "@typespec/http-client-csharp";
- * import { Logger } from "@typespec/http-client-csharp/lib/logger";
  * 
- * const logger = new Logger(program, LoggerLevel.INFO, true); // Enable diagnostic collection
  * const sdkContext = createCSharpEmitterContext(context, logger);
  * const [codeModel, diagnostics] = createModel(sdkContext);
  * // Process the code model and handle diagnostics
@@ -41,6 +39,10 @@ import {
  * @beta
  */
 export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  // Attach diagnostics collector to context for helper functions to use
+  sdkContext.__diagnostics = diagnostics;
+  
   const sdkPackage = sdkContext.sdkPackage;
 
   // TO-DO: Consider exposing the namespace hierarchy in the code model https://github.com/microsoft/typespec/issues/8332
@@ -74,7 +76,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
 
-  return [clientModel, sdkContext.__diagnostics];
+  return diagnostics.wrap(clientModel);
 }
 
 /**

@@ -1,6 +1,6 @@
 vi.resetModules();
 
-import { EmitContext, Program } from "@typespec/compiler";
+import { createDiagnosticCollector, EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { statSync } from "fs";
@@ -270,9 +270,11 @@ describe("Test _validateDotNetSdk", () => {
     (execAsync as Mock).mockRejectedValueOnce(error);
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
+    // Set up diagnostic collector for the test
+    sdkContext.__diagnostics = createDiagnosticCollector();
     const result = await _validateDotNetSdk(sdkContext, minVersion);
     // Report collected diagnostics to program
-    program.reportDiagnostics(sdkContext.__diagnostics);
+    program.reportDiagnostics(sdkContext.__diagnostics.diagnostics);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
@@ -330,9 +332,11 @@ describe("Test _validateDotNetSdk", () => {
     });
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
+    // Set up diagnostic collector for the test
+    sdkContext.__diagnostics = createDiagnosticCollector();
     const result = await _validateDotNetSdk(sdkContext, minVersion);
     // Report collected diagnostics to program
-    program.reportDiagnostics(sdkContext.__diagnostics);
+    program.reportDiagnostics(sdkContext.__diagnostics.diagnostics);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(

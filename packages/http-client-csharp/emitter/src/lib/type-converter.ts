@@ -22,6 +22,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
 import { createDiagnostic } from "./lib.js";
+import { DiagnosticCollector } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -77,6 +78,7 @@ export function fromSdkType<T extends SdkType>(
   sdkProperty?: SdkModelPropertyTypeBase,
   namespace?: string,
 ): InputReturnType<T> {
+  const diagnostics = sdkContext.__diagnostics!;
   let retVar = sdkContext.__typeCache.types.get(sdkType);
   if (retVar) {
     return retVar as any;
@@ -131,7 +133,7 @@ export function fromSdkType<T extends SdkType>(
       retVar = fromSdkDurationType(sdkContext, sdkType);
       break;
     case "tuple":
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "unsupported-sdk-type",
           format: { sdkType: "tuple" },
@@ -153,7 +155,7 @@ export function fromSdkType<T extends SdkType>(
       retVar = fromSdkEndpointType();
       break;
     case "credential":
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "unsupported-sdk-type",
           format: { sdkType: "credential" },

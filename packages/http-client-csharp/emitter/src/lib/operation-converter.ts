@@ -73,6 +73,7 @@ export function fromSdkServiceMethod(
   rootApiVersions: string[],
   namespace: string,
 ): InputServiceMethod | undefined {
+  const diagnostics = sdkContext.__diagnostics!;
   let method = sdkContext.__typeCache.methods.get(sdkMethod);
   if (method) {
     return method;
@@ -136,7 +137,7 @@ export function fromSdkServiceMethod(
       method = lroPagingMethod;
       break;
     default:
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "unsupported-service-method",
           format: { methodKind: methodKind },
@@ -160,6 +161,7 @@ export function fromSdkServiceMethodOperation(
   uri: string,
   rootApiVersions: string[],
 ): InputOperation {
+  const diagnostics = sdkContext.__diagnostics!;
   let operation = sdkContext.__typeCache.operations.get(method.operation);
   if (operation) {
     return operation;
@@ -167,7 +169,7 @@ export function fromSdkServiceMethodOperation(
 
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
-    sdkContext.__diagnostics.push(
+    diagnostics.add(
       createDiagnostic({
         code: "unsupported-patch-convenience-method",
         format: {
@@ -263,6 +265,7 @@ function createServiceMethod<T extends InputServiceMethod>(
 }
 
 function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInKinds {
+  const diagnostics = sdkContext.__diagnostics!;
   switch (typeof value) {
     case "string":
       return "string";
@@ -273,7 +276,7 @@ function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInK
     case "bigint":
       return "int64";
     default:
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "unsupported-default-value-type",
           format: { valueType: typeof value },
@@ -352,10 +355,11 @@ function fromSdkOperationParameters(
   operation: SdkHttpOperation,
   rootApiVersions: string[],
 ): InputHttpParameter[] {
+  const diagnostics = sdkContext.__diagnostics!;
   const parameters: InputHttpParameter[] = [];
   for (const p of operation.parameters) {
     if (p.kind === "cookie") {
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "unsupported-cookie-parameter",
           format: { parameterName: p.name, path: operation.path },
@@ -384,6 +388,7 @@ export function fromParameter(
   p: SdkHttpParameter | SdkModelPropertyType,
   rootApiVersions: string[],
 ): InputHttpParameter | undefined {
+  const diagnostics = sdkContext.__diagnostics!;
   let parameter = sdkContext.__typeCache.operationParameters.get(p);
   if (parameter) {
     return parameter;
@@ -404,7 +409,7 @@ export function fromParameter(
       parameter = fromBodyParameter(sdkContext, p, rootApiVersions);
       break;
     default:
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "unsupported-parameter-kind",
           format: { parameterKind },
@@ -800,12 +805,13 @@ function getResponseLocation(
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   p: SdkServiceResponseHeader | SdkModelPropertyType,
 ): ResponseLocation {
+  const diagnostics = context.__diagnostics!;
   if (p.kind === "responseheader") {
     return ResponseLocation.Header;
   }
 
   if (isHttpMetadata(context, p)) {
-    context.__diagnostics.push(
+    diagnostics.add(
       createDiagnostic({
         code: "unsupported-continuation-location",
         format: {

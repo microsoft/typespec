@@ -107,7 +107,9 @@ export async function createCodeModel(
       const updateCodeModelFn = updateCodeModel ?? ((model: CodeModel) => model);
       const updatedRoot = updateCodeModelFn(root, sdkContext);
       // Collect any diagnostics added during the callback execution
-      diagnostics.push(...sdkContext.__diagnostics);
+      if (sdkContext.__diagnostics) {
+        diagnostics.push(...sdkContext.__diagnostics.diagnostics);
+      }
 
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
@@ -225,12 +227,13 @@ export async function _validateDotNetSdk(
   sdkContext: CSharpEmitterContext,
   minMajorVersion: number,
 ): Promise<boolean> {
+  const diagnostics = sdkContext.__diagnostics!;
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
     return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
   } catch (error: any) {
     if (error && "code" in error && error["code"] === "ENOENT") {
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "invalid-dotnet-sdk-dependency",
           messageId: "missing",
@@ -251,6 +254,7 @@ function validateDotNetSdkVersionCore(
   version: string,
   minMajorVersion: number,
 ): boolean {
+  const diagnostics = sdkContext.__diagnostics!;
   if (version) {
     const dotIndex = version.indexOf(".");
     const firstPart = dotIndex === -1 ? version : version.substring(0, dotIndex);
@@ -260,7 +264,7 @@ function validateDotNetSdkVersionCore(
       return false;
     }
     if (major < minMajorVersion) {
-      sdkContext.__diagnostics.push(
+      diagnostics.add(
         createDiagnostic({
           code: "invalid-dotnet-sdk-dependency",
           messageId: "invalidVersion",
@@ -276,7 +280,7 @@ function validateDotNetSdkVersionCore(
     }
     return true;
   } else {
-    sdkContext.__diagnostics.push(
+    diagnostics.add(
       createDiagnostic({
         code: "general-error",
         format: { message: "Cannot get the installed .NET SDK version." },
