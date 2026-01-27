@@ -26,6 +26,7 @@ import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
+import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
@@ -57,18 +58,24 @@ function findProjectRoot(path: string): string | undefined {
  * import { createCodeModel } from "@typespec/http-client-csharp";
  * 
  * export async function $onEmit(context: EmitContext<MyEmitterOptions>) {
- *   const [, diagnostics] = await createCodeModel(context);
+ *   const updateCodeModel = (model: CodeModel, context: CSharpEmitterContext) => {
+ *     // Customize the code model here
+ *     return model;
+ *   };
+ *   const [, diagnostics] = await createCodeModel(context, updateCodeModel);
  *   // Process diagnostics as needed
  *   context.program.reportDiagnostics(diagnostics);
  * }
  * ```
  * 
  * @param context - The emit context
+ * @param updateCodeModel - Optional callback to modify the code model before emission. Defaults to identity function.
  * @returns A tuple containing void and any diagnostics that were generated during the emission
  * @beta
  */
 export async function createCodeModel(
   context: EmitContext<CSharpEmitterOptions>,
+  updateCodeModel?: (model: CodeModel, context: CSharpEmitterContext) => CodeModel,
 ): Promise<[void, readonly Diagnostic[]]> {
   const program: Program = context.program;
   const options = resolveOptions(context);
@@ -95,7 +102,9 @@ export async function createCodeModel(
     diagnostics.push(...modelDiagnostics);
 
     if (root) {
-      const updatedRoot = options["update-code-model"](root, sdkContext);
+      // Use the provided callback or default to identity function
+      const updateCodeModelFn = updateCodeModel ?? ((model: CodeModel) => model);
+      const updatedRoot = updateCodeModelFn(root, sdkContext);
       diagnostics.push(...logger.getDiagnostics());
 
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
@@ -165,7 +174,8 @@ export async function createCodeModel(
  * @beta
  */
 export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
-  const [, diagnostics] = await createCodeModel(context);
+  const options = resolveOptions(context);
+  const [, diagnostics] = await createCodeModel(context, options["update-code-model"]);
   context.program.reportDiagnostics(diagnostics);
 }
 
