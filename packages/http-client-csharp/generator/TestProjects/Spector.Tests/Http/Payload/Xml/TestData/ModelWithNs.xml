@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mymodel:ModelWithNs xmlns:mymodel="http://www.contoso.com/books.dtd"
+    xmlns:ns1="https://example.com/ns1" ns1:name="testName">
+    <ns2:age xmlns:ns2="https://example.com/ns2">25</ns2:age>
+    <foo:items xmlns:foo="http://www.contoso.com/anotherbook.dtd">
+        <string>item1</string>
+        <string>item2</string>
+    </foo:items>
+    <bar:AnotherModel xmlns:bar="http://www.contoso.com/anothermodel.dtd">
+        <name>nestedName</name>
+        <age>42</age>
+    </bar:AnotherModel>
+    <moreModels>
+        <ns1:AnotherModelWithNs xmlns:ns1="http://www.example.com/namespace">
+            <foo>anotherValue</foo>
+        </ns1:AnotherModelWithNs>
+    </moreModels>
+    <ns1:AnotherModelWithNs xmlns:ns1="http://www.example.com/namespace">
+        <foo>unwrappedValue1</foo>
+    </ns1:AnotherModelWithNs>
+    <ns1:AnotherModelWithNs xmlns:ns1="http://www.example.com/namespace">
+        <foo>unwrappedValue2</foo>
+    </ns1:AnotherModelWithNs>
+</mymodel:ModelWithNs>

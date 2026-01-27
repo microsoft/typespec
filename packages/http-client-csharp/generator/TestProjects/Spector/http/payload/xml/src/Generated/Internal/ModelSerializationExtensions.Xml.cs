@@ -6,6 +6,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
@@ -15,6 +16,20 @@ namespace Payload.Xml
 {
     internal static partial class ModelSerializationExtensions
     {
+        internal static readonly XmlWriterSettings XmlWriterSettings = new()
+        {
+            Encoding = new UTF8Encoding(false)
+        };
+
+        private static readonly XmlReaderSettings XmlReaderSettings = new()
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            MaxCharactersInDocument = 30_000_000, // ~ 30 MB
+            IgnoreProcessingInstructions = true,
+            IgnoreComments = true,
+        };
+
         public static void WriteStringValue(this XmlWriter writer, DateTimeOffset value, string format) =>
             writer.WriteValue(TypeFormatters.ToString(value, format));
 
@@ -26,17 +41,27 @@ namespace Payload.Xml
             writer.WriteValue(TypeFormatters.ToString(value, format));
         }
 
-        public static void WriteObjectValue<T>(this XmlWriter writer, T value, ModelReaderWriterOptions options = null, string nameHint = null)
+        public static void WriteObjectValue<T>(this XmlWriter writer, T value, ModelReaderWriterOptions options = null)
         {
             switch (value)
             {
+                //case IXmlSerializable xmlSerializable:
+                //    xmlSerializable.Write(writer, null);
+                //    break;
                 case IPersistableModel<T> persistableModel:
-                    var xmlOptions = new ModelReaderWriterXmlOptions(options?.Format ?? "X", nameHint);
-                    BinaryData data = ModelReaderWriter.Write(persistableModel, xmlOptions, PayloadXmlContext.Default);
+                    BinaryData data = ModelReaderWriter.Write(persistableModel, options ?? ModelSerializationExtensions.WireOptions, PayloadXmlContext.Default);
                     using (Stream stream = data.ToStream())
                     {
-                        XElement element = XElement.Load(stream, LoadOptions.None);
-                        element.WriteTo(writer);
+                        using (XmlReader reader = XmlReader.Create(stream, XmlReaderSettings))
+                        {
+                            reader.MoveToContent();
+                            reader.ReadStartElement();
+
+                            while (reader.NodeType != XmlNodeType.EndElement)
+                            {
+                                writer.WriteNode(reader, defattr: true);
+                            }
+                        }
                     }
                     break;
                 default:

@@ -4,7 +4,10 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using NUnit.Framework;
 using Payload.Xml;
 
@@ -429,5 +432,311 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
             Assert.IsTrue(nameIndex < barIndex, "Base class 'name' should come before derived 'bar'");
             Assert.IsTrue(ageIndex < barIndex, "Base class 'age' should come before derived 'bar'");
         }
+
+        #region AnotherModelWithNs Tests
+
+        private static string AnotherModelWithNsTestData => File.ReadAllText(
+            Path.Combine(Path.GetDirectoryName(typeof(XmlTests).Assembly.Location)!, "Http", "Payload", "Xml", "TestData", "AnotherModelWithNs.xml"));
+
+        [Test]
+        public void AnotherModelWithNs_DeserializesFromTestData()
+        {
+            // Arrange
+            var options = new ModelReaderWriterOptions("X");
+            var testData = BinaryData.FromString(AnotherModelWithNsTestData);
+
+            // Act - Deserialize
+            var model = ModelReaderWriter.Read<AnotherModelWithNs>(testData, options);
+
+            // Assert - Validate model
+            Assert.IsNotNull(model);
+            Assert.AreEqual("testValue", model!.Foo);
+
+            // Act - Serialize back
+            BinaryData serialized = ModelReaderWriter.Write(model, options);
+
+            // Assert - Compare XML (semantic comparison)
+            var originalXml = LoadXml(AnotherModelWithNsTestData);
+            var serializedXml = LoadXml(serialized);
+            AssertXmlEqual(originalXml, serializedXml);
+        }
+
+        [Test]
+        public void AnotherModelWithNs_SerializesWithNamespace()
+        {
+            // Arrange
+            var model = new AnotherModelWithNs("testValue");
+
+            // Act - Serialize
+            var options = new ModelReaderWriterOptions("X");
+            BinaryData serialized = ModelReaderWriter.Write(model, options);
+
+            // Assert - Compare XML with expected test data
+            var expectedXml = LoadXml(AnotherModelWithNsTestData);
+            var serializedXml = LoadXml(serialized);
+            AssertXmlEqual(expectedXml, serializedXml);
+
+            // Act - Deserialize back
+            var deserialized = ModelReaderWriter.Read<AnotherModelWithNs>(serialized, options);
+
+            // Assert - Validate model matches original
+            Assert.IsNotNull(deserialized);
+            Assert.AreEqual(model.Foo, deserialized!.Foo);
+        }
+
+        #endregion
+
+        #region ModelWithNs Tests
+
+        private static string ModelWithNsTestData => File.ReadAllText(
+            Path.Combine(Path.GetDirectoryName(typeof(XmlTests).Assembly.Location)!, "Http", "Payload", "Xml", "TestData", "ModelWithNs.xml"));
+
+        [Test]
+        public void ModelWithNs_DeserializesFromTestData()
+        {
+            // Arrange
+            var options = new ModelReaderWriterOptions("X");
+            var testData = BinaryData.FromString(ModelWithNsTestData);
+
+            // Act - Deserialize
+            var model = ModelReaderWriter.Read<ModelWithNs>(testData, options);
+
+            // Assert - Validate model
+            Assert.IsNotNull(model);
+            Assert.AreEqual("testName", model!.Name);
+            Assert.AreEqual(25, model.Age);
+            Assert.AreEqual(2, model.Items.Count);
+            Assert.AreEqual("item1", model.Items[0]);
+            Assert.AreEqual("item2", model.Items[1]);
+            Assert.AreEqual("nestedName", model.AnotherModel.Name);
+            Assert.AreEqual(42, model.AnotherModel.Age);
+            Assert.AreEqual(1, model.MoreModels.Count);
+            Assert.AreEqual("anotherValue", model.MoreModels[0].Foo);
+            Assert.AreEqual(2, model.UnwrappedModels.Count);
+            Assert.AreEqual("unwrappedValue1", model.UnwrappedModels[0].Foo);
+            Assert.AreEqual("unwrappedValue2", model.UnwrappedModels[1].Foo);
+
+            // Act - Serialize back
+            BinaryData serialized = ModelReaderWriter.Write(model, options);
+
+            // Assert - Compare XML (semantic comparison)
+            var originalXml = LoadXml(ModelWithNsTestData);
+            var serializedXml = LoadXml(serialized);
+            AssertXmlEqual(originalXml, serializedXml);
+        }
+
+        [Test]
+        public void ModelWithNs_SerializesWithNamespaces()
+        {
+            // Arrange
+            var simpleModel = new SimpleModel("nestedName", 42);
+            var anotherModel = new AnotherModelWithNs("anotherValue");
+            var unwrappedModel1 = new AnotherModelWithNs("unwrappedValue1");
+            var unwrappedModel2 = new AnotherModelWithNs("unwrappedValue2");
+            var model = new ModelWithNs(
+                "testName",
+                25,
+                new[] { "item1", "item2" },
+                simpleModel,
+                new[] { anotherModel },
+                new[] { unwrappedModel1, unwrappedModel2 }
+            );
+
+            // Act - Serialize
+            var options = new ModelReaderWriterOptions("X");
+            BinaryData serialized = ModelReaderWriter.Write(model, options);
+            string xml = serialized.ToString();
+
+            // Assert - Validate XML structure with all namespaces
+            Assert.IsTrue(xml.Contains("http://www.contoso.com/books.dtd"),
+                          $"Expected mymodel namespace URI. Actual: {xml}");
+            Assert.IsTrue(xml.Contains("https://example.com/ns1"),
+                          $"Expected ns1 namespace URI. Actual: {xml}");
+            Assert.IsTrue(xml.Contains("https://example.com/ns2"),
+                          $"Expected ns2 namespace URI. Actual: {xml}");
+            Assert.IsTrue(xml.Contains("http://www.contoso.com/anotherbook.dtd"),
+                          $"Expected foo namespace URI. Actual: {xml}");
+            Assert.IsTrue(xml.Contains("http://www.contoso.com/anothermodel.dtd"),
+                          $"Expected bar namespace URI. Actual: {xml}");
+            Assert.IsTrue(xml.Contains("http://www.example.com/namespace"),
+                          $"Expected unwrapped namespace URI. Actual: {xml}");
+
+            // Act - Deserialize back
+            var deserialized = ModelReaderWriter.Read<ModelWithNs>(serialized, options);
+
+            // Assert - Validate model matches original
+            Assert.IsNotNull(deserialized);
+            Assert.AreEqual(model.Name, deserialized!.Name);
+            Assert.AreEqual(model.Age, deserialized.Age);
+            Assert.AreEqual(model.Items.Count, deserialized.Items.Count);
+            Assert.AreEqual(model.Items[0], deserialized.Items[0]);
+            Assert.AreEqual(model.Items[1], deserialized.Items[1]);
+            Assert.AreEqual(model.AnotherModel.Name, deserialized.AnotherModel.Name);
+            Assert.AreEqual(model.AnotherModel.Age, deserialized.AnotherModel.Age);
+            Assert.AreEqual(model.MoreModels.Count, deserialized.MoreModels.Count);
+            Assert.AreEqual(model.MoreModels[0].Foo, deserialized.MoreModels[0].Foo);
+            Assert.AreEqual(model.UnwrappedModels.Count, deserialized.UnwrappedModels.Count);
+            Assert.AreEqual(model.UnwrappedModels[0].Foo, deserialized.UnwrappedModels[0].Foo);
+            Assert.AreEqual(model.UnwrappedModels[1].Foo, deserialized.UnwrappedModels[1].Foo);
+        }
+
+        [Test]
+        public void ModelWithNs_NestedModelSerializesContentOnly()
+        {
+            // This test verifies that when a nested model is serialized via WriteObjectValue,
+            // only the content is written (not a duplicate wrapper element)
+            var simpleModel = new SimpleModel("testName", 99);
+            var anotherModel = new AnotherModelWithNs("testFoo");
+            var unwrappedModel = new AnotherModelWithNs("unwrappedFoo");
+            var model = new ModelWithNs(
+                "rootName",
+                50,
+                new[] { "a" },
+                simpleModel,
+                new[] { anotherModel },
+                new[] { unwrappedModel }
+            );
+
+            var options = new ModelReaderWriterOptions("X");
+            BinaryData serialized = ModelReaderWriter.Write(model, options);
+            string xml = serialized.ToString();
+
+            // The nested SimpleModel should NOT have its own <SimpleModel> wrapper inside the <bar:AnotherModel> wrapper
+            // It should just have <name> and <age> directly inside the parent's wrapper
+            Assert.IsTrue(xml.Contains("AnotherModel"), "Should find AnotherModel element");
+
+            // Should not have duplicate nesting like <bar:AnotherModel><SimpleModel>...</SimpleModel></bar:AnotherModel>
+            Assert.IsFalse(xml.Contains("><SimpleModel><name>"), 
+                $"Nested model should not have duplicate wrapper. XML: {xml}");
+        }
+
+        #endregion
+
+        #region ExtendingModelWithNs Tests
+
+        private static string ExtendingModelWithNsTestData => File.ReadAllText(
+            Path.Combine(Path.GetDirectoryName(typeof(XmlTests).Assembly.Location)!, "Http", "Payload", "Xml", "TestData", "ExtendingModelWithNs.xml"));
+
+        [Test]
+        public void ExtendingModelWithNs_DeserializesFromTestData()
+        {
+            // Arrange
+            var options = new ModelReaderWriterOptions("X");
+            var testData = BinaryData.FromString(ExtendingModelWithNsTestData);
+
+            // Act - Deserialize
+            var model = ModelReaderWriter.Read<ExtendingModelWithNs>(testData, options);
+
+            // Assert - Validate model (including inherited property)
+            Assert.IsNotNull(model);
+            Assert.AreEqual("testFooValue", model!.Foo);
+            Assert.AreEqual(42, model.Bar);
+
+            // Act - Serialize back
+            BinaryData serialized = ModelReaderWriter.Write(model, options);
+
+            // Assert - Compare XML (semantic comparison)
+            var originalXml = LoadXml(ExtendingModelWithNsTestData);
+            var serializedXml = LoadXml(serialized);
+            AssertXmlEqual(originalXml, serializedXml);
+        }
+
+        [Test]
+        public void ExtendingModelWithNs_SerializesWithNamespace()
+        {
+            // Arrange
+            var model = new ExtendingModelWithNs("testFooValue", 42);
+
+            // Act - Serialize
+            var options = new ModelReaderWriterOptions("X");
+            BinaryData serialized = ModelReaderWriter.Write(model, options);
+
+            // Assert - Compare XML with expected test data
+            var expectedXml = LoadXml(ExtendingModelWithNsTestData);
+            var serializedXml = LoadXml(serialized);
+            AssertXmlEqual(expectedXml, serializedXml);
+
+            // Act - Deserialize back
+            var deserialized = ModelReaderWriter.Read<ExtendingModelWithNs>(serialized, options);
+
+            // Assert - Validate model matches original
+            Assert.IsNotNull(deserialized);
+            Assert.AreEqual(model.Foo, deserialized!.Foo);
+            Assert.AreEqual(model.Bar, deserialized.Bar);
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        /// <summary>
+        /// Loads XML from a string, handling XML declaration.
+        /// </summary>
+        private static XElement LoadXml(string xmlContent)
+        {
+            return XDocument.Parse(xmlContent).Root!;
+        }
+
+        /// <summary>
+        /// Loads XML from BinaryData, handling BOM and encoding.
+        /// </summary>
+        private static XElement LoadXml(BinaryData data)
+        {
+            using var stream = data.ToStream();
+            return XDocument.Load(stream).Root!;
+        }
+
+        /// <summary>
+        /// Performs semantic XML comparison, ignoring whitespace and attribute order.
+        /// </summary>
+        private static void AssertXmlEqual(XElement expected, XElement actual)
+        {
+            // Compare element names (including namespace)
+            Assert.AreEqual(expected.Name, actual.Name,
+                $"Element names differ. Expected: {expected.Name}, Actual: {actual.Name}");
+
+            // Compare attributes (order-independent)
+            var expectedAttrs = expected.Attributes()
+                .Where(a => !a.IsNamespaceDeclaration)
+                .OrderBy(a => a.Name.ToString())
+                .ToList();
+            var actualAttrs = actual.Attributes()
+                .Where(a => !a.IsNamespaceDeclaration)
+                .OrderBy(a => a.Name.ToString())
+                .ToList();
+
+            Assert.AreEqual(expectedAttrs.Count, actualAttrs.Count,
+                $"Attribute count differs for element {expected.Name}. Expected: {expectedAttrs.Count}, Actual: {actualAttrs.Count}");
+
+            for (int i = 0; i < expectedAttrs.Count; i++)
+            {
+                Assert.AreEqual(expectedAttrs[i].Name, actualAttrs[i].Name,
+                    $"Attribute name differs. Expected: {expectedAttrs[i].Name}, Actual: {actualAttrs[i].Name}");
+                Assert.AreEqual(expectedAttrs[i].Value, actualAttrs[i].Value,
+                    $"Attribute value differs for {expectedAttrs[i].Name}. Expected: {expectedAttrs[i].Value}, Actual: {actualAttrs[i].Value}");
+            }
+
+            // Compare text content (if no child elements)
+            if (!expected.HasElements && !actual.HasElements)
+            {
+                Assert.AreEqual(expected.Value.Trim(), actual.Value.Trim(),
+                    $"Text content differs for element {expected.Name}. Expected: {expected.Value.Trim()}, Actual: {actual.Value.Trim()}");
+                return;
+            }
+
+            // Compare child elements
+            var expectedChildren = expected.Elements().ToList();
+            var actualChildren = actual.Elements().ToList();
+
+            Assert.AreEqual(expectedChildren.Count, actualChildren.Count,
+                $"Child element count differs for {expected.Name}. Expected: {expectedChildren.Count}, Actual: {actualChildren.Count}");
+
+            for (int i = 0; i < expectedChildren.Count; i++)
+            {
+                AssertXmlEqual(expectedChildren[i], actualChildren[i]);
+            }
+        }
+
+        #endregion
     }
 }

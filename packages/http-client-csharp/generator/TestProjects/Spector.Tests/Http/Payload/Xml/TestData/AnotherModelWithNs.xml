@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ns1:AnotherModelWithNs xmlns:ns1="http://www.example.com/namespace">
+    <foo>testValue</foo>
+</ns1:AnotherModelWithNs>

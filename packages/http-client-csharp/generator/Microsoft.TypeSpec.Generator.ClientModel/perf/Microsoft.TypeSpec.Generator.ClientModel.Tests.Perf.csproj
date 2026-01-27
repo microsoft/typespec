@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Override target framework to match Payload.Xml project -->
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TestProjects\Spector\http\payload\xml\src\Payload.Xml.csproj" />
+  </ItemGroup>
+
+</Project>

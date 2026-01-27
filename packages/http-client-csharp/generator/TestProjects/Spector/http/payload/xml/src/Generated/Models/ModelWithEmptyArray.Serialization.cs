@@ -21,11 +21,17 @@ namespace Payload.Xml
         {
         }
 
-        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint = null)
+        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
-            writer.WriteStartElement(nameHint ?? "ModelWithEmptyArray");
+            if (nameHint != null)
+            {
+                writer.WriteStartElement(nameHint);
+            }
             XmlModelWriteCore(writer, options);
-            writer.WriteEndElement();
+            if (nameHint != null)
+            {
+                writer.WriteEndElement();
+            }
         }
 
         /// <summary> Writes the XML content of this model without the root element wrapper. </summary>
@@ -41,7 +47,9 @@ namespace Payload.Xml
             writer.WriteStartElement("items");
             foreach (SimpleModel item in Items)
             {
-                writer.WriteObjectValue(item, options, "SimpleModel");
+                writer.WriteStartElement("SimpleModel");
+                writer.WriteObjectValue(item, options);
+                writer.WriteEndElement();
             }
             writer.WriteEndElement();
         }
@@ -84,10 +92,9 @@ namespace Payload.Xml
                 throw new FormatException($"The model {nameof(ModelWithEmptyArray)} does not support writing '{format}' format.");
             }
             using MemoryStream stream = new MemoryStream(256);
-            using (XmlWriter writer = XmlWriter.Create(stream))
+            using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
             {
-                string nameHint = (options as ModelReaderWriterXmlOptions)?.NameHint;
-                Write(writer, options, nameHint);
+                Write(writer, options, "ModelWithEmptyArray");
             }
             return new BinaryData(stream.ToArray());
         }

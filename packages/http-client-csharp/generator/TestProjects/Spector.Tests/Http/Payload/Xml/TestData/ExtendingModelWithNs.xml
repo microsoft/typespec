@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<newNs:ExtendingModelWithNs xmlns:newNs="http://www.example.com/namespace">
+    <foo>testFooValue</foo>
+    <bar>42</bar>
+</newNs:ExtendingModelWithNs>
