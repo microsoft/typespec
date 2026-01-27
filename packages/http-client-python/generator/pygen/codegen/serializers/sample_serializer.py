@@ -20,6 +20,7 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
+from .utils import create_fake_value
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -97,19 +98,14 @@ class SampleSerializer(BaseSerializer):
 
     # prepare operation parameters
     def _operation_params(self) -> dict[str, Any]:
-        params = [
-            p
-            for p in (self.operation.parameters.positional + self.operation.parameters.keyword_only)
-            if not p.client_default_value
-        ]
-        failure_info = "fail to find required param named {}"
         operation_params = {}
-        for param in params:
-            if not param.optional:
+        for param in (self.operation.parameters.positional + self.operation.parameters.keyword_only):
+            if not param.optional and not param.client_default_value:
                 param_value = self.sample_params.get(param.wire_name)
                 if not param_value:
-                    raise Exception(failure_info.format(param.client_name))  # pylint: disable=broad-exception-raised
-                operation_params[param.client_name] = self.handle_param(param, param_value)
+                    operation_params[param.client_name] = create_fake_value(param.type)
+                else:
+                    operation_params[param.client_name] = self.handle_param(param, param_value)
         return operation_params
 
     def _operation_group_name(self) -> str:

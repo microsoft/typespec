@@ -613,26 +613,25 @@ class JinjaSerializer(ReaderAndWriter):
                 for async_mode in (True, False):
                     test_tasks.append((client, og, async_mode))
 
-        def generate_single_test(task):
+        def generate_and_write_single_test(task):
             client, og, async_mode = task
             try:
                 test_serializer = TestSerializer(self.code_model, env, client=client, operation_group=og)
                 test_serializer.async_mode = async_mode
                 content = test_serializer.serialize_test()
                 output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
-                return (output_path, content, None)
+                self.write_file(output_path, content)
+                return None
             except Exception as e:  # pylint: disable=broad-except
-                return (None, None, f"error happens in test generation for operation group {og.class_name}: {e}")
+                return f"error happens in test generation for operation group {og.class_name}: {e}"
 
         # Process tests in parallel using ThreadPoolExecutor
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            results = list(executor.map(generate_single_test, test_tasks))
+            results = list(executor.map(generate_and_write_single_test, test_tasks))
 
-        # Write files and log errors
-        for output_path, content, error in results:
+        # Log errors
+        for error in results:
             if error:
                 _LOGGER.error(error)
-            else:
-                self.write_file(output_path, content)
 
         self.code_model.for_test = False

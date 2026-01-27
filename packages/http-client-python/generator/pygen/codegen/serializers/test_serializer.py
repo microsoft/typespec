@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Optional
+from typing import Any
 from jinja2 import Environment
 
 from .import_serializer import FileImportSerializer
@@ -14,12 +14,9 @@ from ..models import (
     OperationGroup,
     Client,
     OperationType,
-    ModelType,
-    BaseType,
-    CombinedType,
     FileImport,
 )
-from .utils import json_dumps_template
+from .utils import create_fake_value
 
 
 def is_lro(operation_type: str) -> bool:
@@ -226,26 +223,11 @@ class TestSerializer(TestGeneralSerializer):
                 queue.extend([current + [og] for og in current[-1].operation_groups])
         return result
 
-    def get_sub_type(self, param_type: ModelType) -> ModelType:
-        if param_type.discriminated_subtypes:
-            for item in param_type.discriminated_subtypes.values():
-                return self.get_sub_type(item)
-        return param_type
-
-    def get_model_type(self, param_type: BaseType) -> Optional[ModelType]:
-        if isinstance(param_type, ModelType):
-            return param_type
-        if isinstance(param_type, CombinedType):
-            return param_type.target_model_subtype((ModelType,))
-        return None
-
     def get_operation_params(self, operation: OperationType) -> dict[str, Any]:
         operation_params = {}
         required_params = [p for p in operation.parameters.method if not p.optional]
         for param in required_params:
-            model_type = self.get_model_type(param.type)
-            param_type = self.get_sub_type(model_type) if model_type else param.type
-            operation_params[param.client_name] = json_dumps_template(param_type.get_json_template_representation())
+            operation_params[param.client_name] = create_fake_value(param.type)
         return operation_params
 
     def get_test(self) -> Test:
