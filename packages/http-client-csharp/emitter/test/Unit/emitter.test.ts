@@ -1,6 +1,6 @@
 vi.resetModules();
 
-import { createDiagnosticCollector, EmitContext, Program } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { statSync } from "fs";
@@ -236,7 +236,7 @@ describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;
   const minVersion = 8;
-  let _validateDotNetSdk: (arg0: any, arg1: number) => Promise<boolean>;
+  let _validateDotNetSdk: (arg0: any, arg1: number) => Promise<[boolean, readonly Diagnostic[]]>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -270,11 +270,9 @@ describe("Test _validateDotNetSdk", () => {
     (execAsync as Mock).mockRejectedValueOnce(error);
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    // Set up diagnostic collector for the test
-    sdkContext.__diagnostics = createDiagnosticCollector();
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
+    const [result, diagnostics] = await _validateDotNetSdk(sdkContext, minVersion);
     // Report collected diagnostics to program
-    program.reportDiagnostics(sdkContext.__diagnostics.diagnostics);
+    program.reportDiagnostics(diagnostics);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
@@ -332,11 +330,9 @@ describe("Test _validateDotNetSdk", () => {
     });
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    // Set up diagnostic collector for the test
-    sdkContext.__diagnostics = createDiagnosticCollector();
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
+    const [result, diagnostics] = await _validateDotNetSdk(sdkContext, minVersion);
     // Report collected diagnostics to program
-    program.reportDiagnostics(sdkContext.__diagnostics.diagnostics);
+    program.reportDiagnostics(diagnostics);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(

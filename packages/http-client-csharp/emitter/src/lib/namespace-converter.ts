@@ -1,10 +1,12 @@
 import { SdkHttpOperation, SdkNamespace } from "@azure-tools/typespec-client-generator-core";
+import { DiagnosticCollector } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputNamespace } from "../type/input-type.js";
 
 export function fromSdkNamespaces(
   sdkContext: CSharpEmitterContext,
   namespaces: SdkNamespace<SdkHttpOperation>[],
+  diagnostics: DiagnosticCollector,
 ): InputNamespace[] {
   const inputNamespaces: InputNamespace[] = [];
   for (const namespace of namespaces) {

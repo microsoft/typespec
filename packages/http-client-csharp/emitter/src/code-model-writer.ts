@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
-import { NoTarget, resolvePath } from "@typespec/compiler";
+import { DiagnosticCollector, NoTarget, resolvePath } from "@typespec/compiler";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { createDiagnostic } from "./lib/lib.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
@@ -20,10 +20,11 @@ export async function writeCodeModel(
   context: CSharpEmitterContext,
   codeModel: CodeModel,
   outputFolder: string,
+  diagnostics: DiagnosticCollector,
 ) {
   await context.program.host.writeFile(
     resolvePath(outputFolder, tspOutputFileName),
-    prettierOutput(JSON.stringify(buildJson(context, codeModel), transformJSONProperties, 2)),
+    prettierOutput(JSON.stringify(buildJson(context, codeModel, diagnostics), transformJSONProperties, 2)),
   );
 }
 
@@ -31,9 +32,9 @@ export async function writeCodeModel(
  * This function builds a json from code model with refs and ids in it.
  * @param context - The CSharp emitter context
  * @param codeModel - The code model to build
+ * @param diagnostics - The diagnostic collector
  */
-function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
-  const diagnostics = context.__diagnostics!;
+function buildJson(context: CSharpEmitterContext, codeModel: CodeModel, diagnostics: DiagnosticCollector): any {
   const objectsIds = new Map<any, string>();
   const stack: any[] = [];
 

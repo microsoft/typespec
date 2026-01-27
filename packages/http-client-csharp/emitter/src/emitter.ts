@@ -3,7 +3,9 @@
 
 import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
 import {
+  createDiagnosticCollector,
   Diagnostic,
+  DiagnosticCollector,
   EmitContext,
   getDirectoryPath,
   joinPaths,
@@ -106,10 +108,6 @@ export async function createCodeModel(
       // Use the provided callback or default to identity function
       const updateCodeModelFn = updateCodeModel ?? ((model: CodeModel) => model);
       const updatedRoot = updateCodeModelFn(root, sdkContext);
-      // Collect any diagnostics added during the callback execution
-      if (sdkContext.__diagnostics) {
-        diagnostics.push(...sdkContext.__diagnostics.diagnostics);
-      }
 
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
@@ -118,7 +116,9 @@ export async function createCodeModel(
       }
 
       // emit tspCodeModel.json
-      await writeCodeModel(sdkContext, updatedRoot, outputFolder);
+      const writeDiagnostics = createDiagnosticCollector();
+      await writeCodeModel(sdkContext, updatedRoot, outputFolder, writeDiagnostics);
+      diagnostics.push(...writeDiagnostics.diagnostics);
 
       const namespace = updatedRoot.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
@@ -148,7 +148,8 @@ export async function createCodeModel(
           debug: options.debug ?? false,
         });
         if (result.exitCode !== 0) {
-          const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+          const [isValid, validationDiagnostics] = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+          diagnostics.push(...validationDiagnostics);
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) {
             throw new Error(
@@ -157,7 +158,8 @@ export async function createCodeModel(
           }
         }
       } catch (error: any) {
-        const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+        const [isValid, validationDiagnostics] = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+        diagnostics.push(...validationDiagnostics);
         // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
         if (isValid) throw new Error(error);
       }
@@ -220,17 +222,17 @@ export function createConfiguration(
  * Report diagnostic if dotnet sdk is not installed or its version does not meet prerequisite
  * @param sdkContext - The SDK context
  * @param minVersionRequisite - The minimum required major version
- * @param logger - The logger
+ * @returns A tuple containing whether the SDK is valid and any diagnostics
  * @internal
  */
 export async function _validateDotNetSdk(
   sdkContext: CSharpEmitterContext,
   minMajorVersion: number,
-): Promise<boolean> {
-  const diagnostics = sdkContext.__diagnostics!;
+): Promise<[boolean, readonly Diagnostic[]]> {
+  const diagnostics = createDiagnosticCollector();
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
+    return diagnostics.wrap(validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion, diagnostics));
   } catch (error: any) {
     if (error && "code" in error && error["code"] === "ENOENT") {
       diagnostics.add(
@@ -245,7 +247,7 @@ export async function _validateDotNetSdk(
         }),
       );
     }
-    return false;
+    return diagnostics.wrap(false);
   }
 }
 
@@ -253,8 +255,8 @@ function validateDotNetSdkVersionCore(
   sdkContext: CSharpEmitterContext,
   version: string,
   minMajorVersion: number,
+  diagnostics: DiagnosticCollector,
 ): boolean {
-  const diagnostics = sdkContext.__diagnostics!;
   if (version) {
     const dotIndex = version.indexOf(".");
     const firstPart = dotIndex === -1 ? version : version.substring(0, dotIndex);

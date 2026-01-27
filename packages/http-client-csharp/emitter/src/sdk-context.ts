@@ -37,7 +37,6 @@ import { OperationResponse } from "./type/operation-response.js";
 export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
   logger: Logger;
   __typeCache: SdkTypeCache;
-  __diagnostics?: DiagnosticCollector;
 }
 
 /**

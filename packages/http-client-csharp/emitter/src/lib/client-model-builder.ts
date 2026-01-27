@@ -7,7 +7,7 @@ import {
   SdkHttpOperation,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, DiagnosticCollector } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
@@ -40,15 +40,12 @@ import {
  */
 export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  // Attach diagnostics collector to context for helper functions to use
-  sdkContext.__diagnostics = diagnostics;
-  
   const sdkPackage = sdkContext.sdkPackage;
 
   // TO-DO: Consider exposing the namespace hierarchy in the code model https://github.com/microsoft/typespec/issues/8332
-  fromSdkNamespaces(sdkContext, sdkPackage.namespaces);
+  fromSdkNamespaces(sdkContext, sdkPackage.namespaces, diagnostics);
   // TO-DO: Consider using the TCGC model + enum cache once https://github.com/Azure/typespec-azure/issues/3180 is resolved
-  navigateModels(sdkContext);
+  navigateModels(sdkContext, diagnostics);
 
   const types = Array.from(sdkContext.__typeCache.types.values());
   const [models, enums] = [
@@ -58,7 +55,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
 
   const rootClients = sdkPackage.clients;
   const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
-  const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
+  const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions, diagnostics);
 
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
@@ -73,7 +70,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     constants: constants,
     models: models,
     clients: inputClients,
-    auth: processServiceAuthentication(sdkContext, sdkPackage),
+    auth: diagnostics.pipe(processServiceAuthentication(sdkContext, sdkPackage)),
   };
 
   return diagnostics.wrap(clientModel);
@@ -168,11 +165,11 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
   }
 }
 
-function navigateModels(sdkContext: CSharpEmitterContext) {
+function navigateModels(sdkContext: CSharpEmitterContext, diagnostics: DiagnosticCollector) {
   for (const m of sdkContext.sdkPackage.models) {
-    fromSdkType(sdkContext, m);
+    fromSdkType(sdkContext, m, diagnostics);
   }
   for (const e of sdkContext.sdkPackage.enums) {
-    fromSdkType(sdkContext, e);
+    fromSdkType(sdkContext, e, diagnostics);
   }
 }

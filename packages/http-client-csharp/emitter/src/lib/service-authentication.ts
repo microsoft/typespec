@@ -7,7 +7,7 @@ import {
   SdkHttpOperation,
   SdkPackage,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, DiagnosticCollector, NoTarget } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, DiagnosticCollector, NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { createDiagnostic } from "./lib.js";
@@ -17,8 +17,8 @@ import { InputOAuth2Flow } from "../type/input-oauth2-auth.js";
 export function processServiceAuthentication(
   sdkContext: CSharpEmitterContext,
   sdkPackage: SdkPackage<SdkHttpOperation>,
-): InputAuth | undefined {
-  const diagnostics = sdkContext.__diagnostics!;
+): [InputAuth | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
   for (const client of sdkPackage.clients) {
     for (const parameter of client.clientInitialization.parameters) {
@@ -30,7 +30,7 @@ export function processServiceAuthentication(
   }
 
   if (!authClientParameter) {
-    return undefined;
+    return diagnostics.wrap(undefined);
   }
 
   const inputAuth: InputAuth = {};
@@ -46,9 +46,9 @@ export function processServiceAuthentication(
         }),
       );
 
-      return inputAuth;
+      return diagnostics.wrap(inputAuth);
     }
-    return auth;
+    return diagnostics.wrap(auth);
   }
 
   let containsNoAuth = false;
@@ -64,7 +64,7 @@ export function processServiceAuthentication(
   }
 
   if (containsNoAuth && !inputAuth.apiKey && !inputAuth.oAuth2) {
-    return undefined;
+    return diagnostics.wrap(undefined);
   }
 
   if (!inputAuth?.apiKey && !inputAuth?.oAuth2) {
@@ -77,7 +77,7 @@ export function processServiceAuthentication(
     );
   }
 
-  return inputAuth;
+  return diagnostics.wrap(inputAuth);
 }
 
 function processAuthType(
