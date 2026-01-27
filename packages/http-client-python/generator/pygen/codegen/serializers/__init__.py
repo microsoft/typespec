@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 import logging
 import json
+import concurrent.futures
 from collections import namedtuple
 import re
 from typing import Any, Optional, Union
@@ -538,6 +539,10 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_sample(self, env: Environment):
         out_path = self._generated_tests_samples_folder("generated_samples")
+        sample_additional_folder = self.sample_additional_folder
+
+        # Collect all sample work items
+        sample_tasks = []
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
@@ -545,24 +550,36 @@ class JinjaSerializer(ReaderAndWriter):
                     if not samples or operation.name.startswith("_"):
                         continue
                     for value in samples.values():
-                        file = value.get("x-ms-original-file", "sample.json")
-                        file_name = to_snake_case(extract_sample_name(file)) + ".py"
-                        try:
-                            self.write_file(
-                                out_path / self.sample_additional_folder / _sample_output_path(file) / file_name,
-                                SampleSerializer(
-                                    code_model=self.code_model,
-                                    env=env,
-                                    operation_group=op_group,
-                                    operation=operation,
-                                    sample=value,
-                                    file_name=file_name,
-                                ).serialize(),
-                            )
-                        except Exception as e:  # pylint: disable=broad-except
-                            # sample generation shall not block code generation, so just log error
-                            log_error = f"error happens in sample {file}: {e}"
-                            _LOGGER.error(log_error)
+                        sample_tasks.append((op_group, operation, value))
+
+        def generate_single_sample(task):
+            op_group, operation, sample_value = task
+            file = sample_value.get("x-ms-original-file", "sample.json")
+            file_name = to_snake_case(extract_sample_name(file)) + ".py"
+            try:
+                content = SampleSerializer(
+                    code_model=self.code_model,
+                    env=env,
+                    operation_group=op_group,
+                    operation=operation,
+                    sample=sample_value,
+                    file_name=file_name,
+                ).serialize()
+                output_path = out_path / sample_additional_folder / _sample_output_path(file) / file_name
+                return (output_path, content, None)
+            except Exception as e:  # pylint: disable=broad-except
+                return (None, None, f"error happens in sample {file}: {e}")
+
+        # Process samples in parallel using ThreadPoolExecutor
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = list(executor.map(generate_single_sample, sample_tasks))
+
+        # Write files and log errors
+        for output_path, content, error in results:
+            if error:
+                _LOGGER.error(error)
+            else:
+                self.write_file(output_path, content)
 
     def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
@@ -578,18 +595,33 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_testpreparer(),
                 )
 
+        # Collect all test generation tasks
+        test_tasks = []
         for client in self.code_model.clients:
             for og in client.operation_groups:
-                test_serializer = TestSerializer(self.code_model, env, client=client, operation_group=og)
                 for async_mode in (True, False):
-                    try:
-                        test_serializer.async_mode = async_mode
-                        self.write_file(
-                            out_path / f"{to_snake_case(test_serializer.test_class_name)}.py",
-                            test_serializer.serialize_test(),
-                        )
-                    except Exception as e:  # pylint: disable=broad-except
-                        # test generation shall not block code generation, so just log error
-                        log_error = f"error happens in test generation for operation group {og.class_name}: {e}"
-                        _LOGGER.error(log_error)
+                    test_tasks.append((client, og, async_mode))
+
+        def generate_single_test(task):
+            client, og, async_mode = task
+            try:
+                test_serializer = TestSerializer(self.code_model, env, client=client, operation_group=og)
+                test_serializer.async_mode = async_mode
+                content = test_serializer.serialize_test()
+                output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
+                return (output_path, content, None)
+            except Exception as e:  # pylint: disable=broad-except
+                return (None, None, f"error happens in test generation for operation group {og.class_name}: {e}")
+
+        # Process tests in parallel using ThreadPoolExecutor
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = list(executor.map(generate_single_test, test_tasks))
+
+        # Write files and log errors
+        for output_path, content, error in results:
+            if error:
+                _LOGGER.error(error)
+            else:
+                self.write_file(output_path, content)
+
         self.code_model.for_test = False
