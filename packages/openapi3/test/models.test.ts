@@ -2,6 +2,7 @@ import { DiagnosticTarget } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
+import { emitOpenApiWithDiagnostics } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
@@ -283,6 +284,20 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
     );
 
     expect(res.schemas.Test.properties.minDate.default).toEqual("Mon, 01 Jan 2024 11:32:00 GMT");
+  });
+
+  it("throw warning for scalar constructor that don't have equivalent", async () => {
+    const [res, diagnostics] = await emitOpenApiWithDiagnostics(
+      `model Test { minDate: utcDateTime = utcDateTime.now(); }`,
+    );
+
+    expect((res as any).components?.schemas?.Test?.properties?.minDate.default).toEqual(
+      "Mon, 01 Jan 2024 11:32:00 GMT",
+    );
+    expectDiagnostics(diagnostics, {
+      code: "default-not-supported",
+      message: "",
+    });
   });
 
   it("object value used as a default value", async () => {

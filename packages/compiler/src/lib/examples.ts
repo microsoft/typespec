@@ -13,6 +13,22 @@ import {
 import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
 
 /**
+ * Error thrown when a scalar value cannot be serialized because it uses an unsupported constructor.
+ */
+export class UnsupportedScalarConstructorError extends Error {
+  constructor(
+    public readonly scalarName: string,
+    public readonly constructorName: string,
+    public readonly supportedConstructors: readonly string[],
+  ) {
+    super(
+      `Cannot serialize scalar '${scalarName}' with constructor '${constructorName}'. Supported constructors: ${supportedConstructors.join(", ")}`,
+    );
+    this.name = "UnsupportedScalarConstructorError";
+  }
+}
+
+/**
  * Serialize the given TypeSpec value as a JSON object using the given type and its encoding annotations.
  * The Value MUST be assignable to the given type.
  */
@@ -159,15 +175,30 @@ function serializeScalarValueAsJson(
 
   switch (result.scalar.name) {
     case "utcDateTime":
-      return ScalarSerializers.utcDateTime((value.value.args[0] as any as any).value, encodeAs);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.utcDateTime((value.value.args[0] as any).value, encodeAs);
+      }
+      throw new UnsupportedScalarConstructorError("utcDateTime", value.value.name, ["fromISO"]);
     case "offsetDateTime":
-      return ScalarSerializers.offsetDateTime((value.value.args[0] as any).value, encodeAs);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.offsetDateTime((value.value.args[0] as any).value, encodeAs);
+      }
+      throw new UnsupportedScalarConstructorError("offsetDateTime", value.value.name, ["fromISO"]);
     case "plainDate":
-      return ScalarSerializers.plainDate((value.value.args[0] as any).value);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.plainDate((value.value.args[0] as any).value);
+      }
+      throw new UnsupportedScalarConstructorError("plainDate", value.value.name, ["fromISO"]);
     case "plainTime":
-      return ScalarSerializers.plainTime((value.value.args[0] as any).value);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.plainTime((value.value.args[0] as any).value);
+      }
+      throw new UnsupportedScalarConstructorError("plainTime", value.value.name, ["fromISO"]);
     case "duration":
-      return ScalarSerializers.duration((value.value.args[0] as any).value, encodeAs);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.duration((value.value.args[0] as any).value, encodeAs);
+      }
+      throw new UnsupportedScalarConstructorError("duration", value.value.name, ["fromISO"]);
   }
 }
 
