@@ -98,14 +98,9 @@ class SampleSerializer(BaseSerializer):
 
     # prepare operation parameters
     def _operation_params(self) -> dict[str, Any]:
-        params = [
-            p
-            for p in (self.operation.parameters.positional + self.operation.parameters.keyword_only)
-            if not p.client_default_value
-        ]
         operation_params = {}
-        for param in params:
-            if not param.optional:
+        for param in (self.operation.parameters.positional + self.operation.parameters.keyword_only):
+            if not param.optional and not param.client_default_value:
                 param_value = self.sample_params.get(param.wire_name)
                 if not param_value:
                     operation_params[param.client_name] = create_fake_value(param.type)
