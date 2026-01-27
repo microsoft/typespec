@@ -1260,8 +1260,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 "Deserialization method name should use ModelProvider name");
         }
 
-        [Test]
-        public void TestArrayOfExtensibleStringEnum_UsesCorrectSerialization()
+        private static MrwSerializationTypeDefinition CreateModelWithExtensibleStringEnumCollection()
         {
             // Create an extensible string enum
             var inputEnum = InputFactory.StringEnum(
@@ -1287,9 +1286,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(model);
             var serialization = model!.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition) as MrwSerializationTypeDefinition;
             Assert.IsNotNull(serialization);
+            return serialization!;
+        }
+
+        [Test]
+        public void TestArrayOfExtensibleStringEnum_UsesCorrectSerialization()
+        {
+            var serialization = CreateModelWithExtensibleStringEnumCollection();
 
             // Get the serialization method
-            var serializationMethod = serialization!.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
+            var serializationMethod = serialization.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
             var methodBody = serializationMethod.BodyStatements!.ToDisplayString();
 
             // For extensible string enums, serialization should use ToString(), not ToSerialString()
@@ -1302,33 +1308,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestArrayOfExtensibleStringEnum_UsesCorrectDeserialization()
         {
-            // Create an extensible string enum
-            var inputEnum = InputFactory.StringEnum(
-                "TestEnum",
-                [
-                    ("one", "value1"),
-                    ("two", "value2")
-                ],
-                isExtensible: true);
-
-            // Create a model with a collection property of the extensible enum
-            var properties = new List<InputModelProperty>
-            {
-                InputFactory.Property("enumCollection", InputFactory.Array(inputEnum), isRequired: true)
-            };
-
-            var inputModel = InputFactory.Model("TestModel", properties: properties);
-            var generator = MockHelpers.LoadMockGenerator(
-                inputModels: () => [inputModel],
-                inputEnums: () => [inputEnum]);
-
-            var model = generator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider) as ModelProvider;
-            Assert.IsNotNull(model);
-            var serialization = model!.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition) as MrwSerializationTypeDefinition;
-            Assert.IsNotNull(serialization);
+            var serialization = CreateModelWithExtensibleStringEnumCollection();
 
             // Get the deserialization method
-            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var deserializationMethod = serialization.BuildDeserializationMethod();
             Assert.IsNotNull(deserializationMethod);
             var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
 
