@@ -1259,5 +1259,84 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual($"Deserialize{model.Name}", deserializationMethod.Signature.Name,
                 "Deserialization method name should use ModelProvider name");
         }
+
+        [Test]
+        public void TestArrayOfExtensibleStringEnum_UsesCorrectSerialization()
+        {
+            // Create an extensible string enum
+            var inputEnum = InputFactory.StringEnum(
+                "TestEnum",
+                [
+                    ("one", "value1"),
+                    ("two", "value2")
+                ],
+                isExtensible: true);
+
+            // Create a model with a collection property of the extensible enum
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("enumCollection", InputFactory.Array(inputEnum), isRequired: true)
+            };
+
+            var inputModel = InputFactory.Model("TestModel", properties: properties);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                inputEnums: () => [inputEnum]);
+
+            var model = generator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider) as ModelProvider;
+            Assert.IsNotNull(model);
+            var serialization = model!.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition) as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            // Get the serialization method
+            var serializationMethod = serialization!.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
+            var methodBody = serializationMethod.BodyStatements!.ToDisplayString();
+
+            // For extensible string enums, serialization should use ToString(), not ToSerialString()
+            Assert.IsTrue(methodBody.Contains("item.ToString()"),
+                $"Serialization of extensible string enum in collection should use ToString(). Actual: {methodBody}");
+            Assert.IsFalse(methodBody.Contains("ToSerialString"),
+                $"Serialization of extensible string enum in collection should NOT use ToSerialString(). Actual: {methodBody}");
+        }
+
+        [Test]
+        public void TestArrayOfExtensibleStringEnum_UsesCorrectDeserialization()
+        {
+            // Create an extensible string enum
+            var inputEnum = InputFactory.StringEnum(
+                "TestEnum",
+                [
+                    ("one", "value1"),
+                    ("two", "value2")
+                ],
+                isExtensible: true);
+
+            // Create a model with a collection property of the extensible enum
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("enumCollection", InputFactory.Array(inputEnum), isRequired: true)
+            };
+
+            var inputModel = InputFactory.Model("TestModel", properties: properties);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                inputEnums: () => [inputEnum]);
+
+            var model = generator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider) as ModelProvider;
+            Assert.IsNotNull(model);
+            var serialization = model!.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition) as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            // Get the deserialization method
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+            var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
+
+            // For extensible string enums, deserialization should use constructor, not ToTestEnum() extension method
+            Assert.IsTrue(methodBody.Contains("new global::Sample.Models.TestEnum"),
+                $"Deserialization of extensible string enum in collection should use constructor. Actual: {methodBody}");
+            Assert.IsFalse(methodBody.Contains("ToTestEnum()"),
+                $"Deserialization of extensible string enum in collection should NOT use ToTestEnum() extension. Actual: {methodBody}");
+        }
     }
 }
