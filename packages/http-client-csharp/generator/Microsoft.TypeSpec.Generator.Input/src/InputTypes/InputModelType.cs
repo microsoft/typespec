@@ -98,7 +98,13 @@ namespace Microsoft.TypeSpec.Generator.Input
 
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
 
+                InputModelTypeUsage usage = Usage;
+                if (!usage.HasFlag(InputModelTypeUsage.Xml))
+                {
+                    usage |= InputModelTypeUsage.Json;
+                }
                 var cleanBaseName = Name.ToIdentifierName();
+
                 _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
                 new InputModelType(
                     $"Unknown{cleanBaseName}",
@@ -108,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     null,
                     null,
                     $"Unknown variant of {cleanBaseName}",
-                    Usage | InputModelTypeUsage.Json,
+                    usage,
                     [],
                     this,
                     [],
