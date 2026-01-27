@@ -29,6 +29,13 @@ export class UnsupportedScalarConstructorError extends Error {
 }
 
 export interface ValueJsonSerializers {
+  /** Custom handler to serialize a scalar value
+   * @param value The scalar value to serialize
+   * @param type The type of the scalar value in the current context
+   * @param encodeAs The encoding information for the scalar value, if any
+   * @param originalFn The original serialization function to fall back to. Throws `UnsupportedScalarConstructorError` if the scalar constructor is not supported.
+   * @returns The serialized value
+   */
   serializeScalarValue?: (
     value: ScalarValue,
     type: Type,
