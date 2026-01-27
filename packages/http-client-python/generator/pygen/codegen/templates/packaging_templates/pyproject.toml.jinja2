@@ -116,6 +116,13 @@ pytyped = ["py.typed"]
 {{ key }} = {{ val|tojson }}
 {% endfor %}
 {% endif %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('tool.azure-sdk-conda') %}
+
+[tool.azure-sdk-conda]
+{% for key, val in KEEP_FIELDS.get('tool.azure-sdk-conda').items() %}
+{{ key }} = {{ val|tojson }}
+{% endfor %}
+{% endif %}
 {% if KEEP_FIELDS and KEEP_FIELDS.get('packaging') %}
 
 [packaging]

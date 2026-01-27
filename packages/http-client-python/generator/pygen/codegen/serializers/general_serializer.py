@@ -75,9 +75,12 @@ class GeneralSerializer(BaseSerializer):
             # If parsing the pyproject.toml fails, we assume the it does not exist or is incorrectly formatted.
             return result
 
-        # Keep "azure-sdk-build" and "packaging" configuration
-        if "tool" in loaded_pyproject_toml and "azure-sdk-build" in loaded_pyproject_toml["tool"]:
-            result["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
+        # Keep "azure-sdk-build", "azure-sdk-conda", and "packaging" configuration
+        if "tool" in loaded_pyproject_toml:
+            if "azure-sdk-build" in loaded_pyproject_toml["tool"]:
+                result["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
+            if "azure-sdk-conda" in loaded_pyproject_toml["tool"]:
+                result["KEEP_FIELDS"]["tool.azure-sdk-conda"] = loaded_pyproject_toml["tool"]["azure-sdk-conda"]
         if "packaging" in loaded_pyproject_toml:
             result["KEEP_FIELDS"]["packaging"] = loaded_pyproject_toml["packaging"]
 
