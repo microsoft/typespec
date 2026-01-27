@@ -3,7 +3,7 @@
 {%- set is_sphinx_doc = doc_string.strip().startswith(':ivar') or doc_string.strip().startswith(':vartype') or doc_string.strip().startswith(':param') or doc_string.strip().startswith(':type') -%}
 {# Custom handling for bullet points - normalization is now done in preprocessing #}
 {% set enable_custom_handling = "\n* " in doc_string or doc_string.startswith("* ") %}
-{# Normalize multi-line descriptions by collapsing internal newlines to spaces, but preserve special blocks #}
+{# Normalize multi-line descriptions by collapsing internal new_lines to spaces, but preserve special blocks #}
 {%- if not enable_custom_handling -%}
     {%- if '.. code-block::' in doc_string -%}
         {# Split at code block and only normalize the prose before it #}
@@ -63,9 +63,9 @@
             {%- set stripped_line = line.strip() -%}
             {%- set line_indent = '' if stripped_line.startswith(':') or loop.index == 1 else (base_indent + ' ') -%}
             {%- set wrapped = (line_indent + stripped_line) | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string) -%}
-            {%- for wline in wrapped.split('\n') -%}
+            {%- for w_line in wrapped.split('\n') -%}
                 {%- set prefix = "" if loop.index == 1 else " " -%}
-                {%- set _ = result_lines.append(prefix + wline) -%}
+                {%- set _ = result_lines.append(prefix + w_line) -%}
             {%- endfor -%}
         {%- else -%}
             {# Do not add continuous blank lines #}
