@@ -52,6 +52,7 @@ import {
   ExternKeywordNode,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
+  FunctionTypeExpressionNode,
   IdentifierContext,
   IdentifierKind,
   IdentifierNode,
@@ -1389,6 +1390,23 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
   }
 
+  function parseFunctionTypeExpression(): FunctionTypeExpressionNode {
+    const pos = tokenPos();
+    parseExpected(Token.FnKeyword);
+    const { items: parameters } = parseFunctionParameters();
+
+    const optionalReturnType = parseOptional(Token.EqualsGreaterThan);
+
+    const returnType = optionalReturnType ? parseMixedConstraint() : undefined;
+
+    return {
+      kind: SyntaxKind.FunctionTypeExpression,
+      parameters,
+      returnType,
+      ...finishNode(pos),
+    };
+  }
+
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"],
   ): TypeReferenceNode {
@@ -1668,6 +1686,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       switch (token()) {
         case Token.TypeOfKeyword:
           return parseTypeOfExpression();
+        case Token.FnKeyword:
+          return parseFunctionTypeExpression();
         case Token.Identifier:
           return parseCallOrReferenceExpression();
         case Token.StringLiteral:
@@ -3021,6 +3041,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.parameters) ||
         visitNode(cb, node.returnType)
       );
+    case SyntaxKind.FunctionTypeExpression:
+      return visitEach(cb, node.parameters) || visitNode(cb, node.returnType);
     case SyntaxKind.FunctionParameter:
       return visitNode(cb, node.id) || visitNode(cb, node.type);
     case SyntaxKind.TypeReference:

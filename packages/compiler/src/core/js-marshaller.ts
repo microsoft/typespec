@@ -10,11 +10,12 @@ import type {
   ObjectValue,
   ObjectValuePropertyDescriptor,
   Scalar,
+  TemplateValue,
   Type,
   Value,
 } from "./types.js";
 
-export function marshalTypeForJs<T extends Value>(
+export function marshalTypeForJs<T extends Value | TemplateValue>(
   value: T,
   valueConstraint: Type | undefined,
 ): MarshalledValue<T> {
@@ -29,6 +30,7 @@ export function marshalTypeForJs<T extends Value>(
     case "ArrayValue":
       return arrayValueToJs(value) as any;
     case "NullValue":
+    case "TemplateValue":
       return null as any;
     case "ScalarValue":
     case "EnumValue":

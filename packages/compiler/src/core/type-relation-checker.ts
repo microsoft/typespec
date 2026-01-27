@@ -24,6 +24,7 @@ import {
   DiagnosticReport,
   Entity,
   Enum,
+  FunctionType,
   IndeterminateEntity,
   MixedFunctionParameter,
   MixedParameterConstraint,
@@ -75,7 +76,9 @@ interface TypeRelationError {
     | "missing-index"
     | "property-required"
     | "missing-property"
-    | "unexpected-property";
+    | "unexpected-property"
+    | "parameter-required";
+  messageId?: string;
   message: string;
   children: readonly TypeRelationError[];
   target: Entity | Node;
@@ -99,7 +102,6 @@ const ReflectionNameToKind = {
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",
-  Function: "Function",
 } as const satisfies Record<string, Type["kind"]>;
 
 type ReflectionTypeName = keyof typeof ReflectionNameToKind;
@@ -279,7 +281,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     }
 
     if (isReflectionType(target)) {
-      return isTypeAssignableToReflectionType(source, target, diagnosticTarget, relationCache);
+      return source.kind === ReflectionNameToKind[target.name]
+        ? [Related.true, []]
+        : [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
@@ -355,6 +359,8 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       return isAssignableToUnion(source, target, diagnosticTarget, relationCache);
     } else if (target.kind === "Enum") {
       return isAssignableToEnum(source, target, diagnosticTarget);
+    } else if (target.kind === "FunctionType") {
+      return isAssignableToFunctionType(source, target, diagnosticTarget, relationCache);
     }
 
     return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
@@ -539,152 +545,234 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     if (target.kind === "Number") {
       return source.kind === "Number" && target.value === source.value;
     }
+
     return undefined;
   }
 
-  function isTypeAssignableToReflectionType(
+  function isAssignableToFunctionType(
     source: Type,
-    target: Model & { name: ReflectionTypeName },
+    target: FunctionType,
     diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>,
   ): [Related, readonly TypeRelationError[]] {
-    if (target.name === "Function") {
-      if (source.kind !== "Function") return [Related.false, []];
-
-      compilerAssert(
-        target.isFinished && target.templateMapper,
-        "Unexpected unfinished/uninstantiated Function reflection type.",
-      );
-
-      const mappedTypes = [...target.templateMapper.map];
-      const parametersType = mappedTypes.find(([k]) => k.node.id.sv === "Parameters")?.[1];
-      const returnType = mappedTypes.find(([k]) => k.node.id.sv === "ReturnType")?.[1];
-
-      compilerAssert(
-        parametersType && returnType,
-        "Function reflection type missing template parameters.",
-      );
-
-      // Check that target parameters assignable to source parameters
-
-      if (!isTypeAssignableTo(source.returnType, returnType, diagnosticTarget)) {
-        return [Related.false, []];
-      }
-
-      const parametersTypeAsType =
-        parametersType.entityKind === "Indeterminate" ? parametersType.type : parametersType;
-
-      compilerAssert(
-        parametersTypeAsType.entityKind !== "Value",
-        "Unexpected Parameters of Function reflection model being a Value.",
-      );
-
-      const isArray =
-        parametersTypeAsType.kind === "Model" && isArrayModelType(program, parametersTypeAsType);
-
-      compilerAssert(
-        isArray || parametersTypeAsType.kind === "Tuple",
-        "Expected Function Parameters to be an Array or Tuple type.",
-      );
-
-      const [parametersAssignable, parameterErrors] = areParametersAssignable(
-        parametersTypeAsType,
-        source.parameters,
-        diagnosticTarget,
-        relationCache,
-      );
-
-      if (!parametersAssignable) {
-        return [Related.false, parameterErrors];
-      }
-
-      return [Related.true, []];
-    } else {
-      return [source.kind === ReflectionNameToKind[target.name] ? Related.true : Related.false, []];
+    if (source.kind !== "FunctionType") {
+      return [Related.false, [createUnassignableDiagnostic(source, target, source)]];
     }
+
+    const { parameters: sourceParameters, returnType: sourceReturnType } = source;
+    const { parameters: targetParameters, returnType: targetReturnType } = target;
+
+    // Check that target parameters assignable to source parameters (contravariant relation)
+    const [parametersAssignable, parameterErrors] = areParametersAssignable(
+      targetParameters,
+      sourceParameters,
+      diagnosticTarget,
+      relationCache,
+    );
+
+    // Check that source return type is assignable to target return type (covariant relation)
+    const [returnTypeAssignable, returnTypeErrors] = isAssignableToMixedParameterConstraint(
+      sourceReturnType,
+      targetReturnType,
+      diagnosticTarget,
+      relationCache,
+    );
+
+    const related = returnTypeAssignable === Related.true && parametersAssignable === Related.true;
+
+    return related
+      ? [Related.true, []]
+      : [
+          Related.false,
+          wrapUnassignableErrors(source, target, [...parameterErrors, ...returnTypeErrors]),
+        ];
   }
 
+  /**
+   * Checks if a set of source parameter constraints are assignable to a set of target parameter constraints.
+   *
+   * This function assumes the directionality of source -> target has already been adjusted for contravariance. To check if
+   * a function F1 is assignable to F2, check that F2.parameters are assignable to F1.parameters.
+   *
+   * @param sourceParameters
+   * @param targetParameters
+   * @param diagnosticTarget
+   * @param relationCache
+   */
   function areParametersAssignable(
-    sourceParametersType: ArrayModelType | Tuple,
+    sourceParameters: readonly MixedFunctionParameter[],
     targetParameters: readonly MixedFunctionParameter[],
     diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>,
   ): [Related, readonly TypeRelationError[]] {
-    if (sourceParametersType.kind === "Model") {
-      // Source is array, so indexer value must be assignable to all target parameters
+    const queue = sourceParameters.slice();
+    const errors: TypeRelationError[] = [];
 
-      const errors: TypeRelationError[] = [];
-      let related = Related.true;
+    for (const targetParam of targetParameters) {
+      if (targetParam.rest) {
+        // Target is a rest parameter, so all remaining source parameters must be assignable to the rest parameter type.
+        const restElementType = getArrayElementType(targetParam.type);
 
-      const sourceParameterIndexerValue = sourceParametersType.indexer.value;
-      for (const parameter of targetParameters) {
-        if (parameter.rest) {
-          const [assignable, innerErrors] = isTypeAssignableToInternal(
-            sourceParametersType,
-            parameter.type,
-            diagnosticTarget,
-            relationCache,
-          );
+        for (const sourceParam of queue) {
+          if (sourceParam.rest) {
+            // Source is also a rest parameter, so its element type must be assignable to the target rest element type.
+            const sourceRestElementType = getArrayElementType(sourceParam.type);
 
-          if (!assignable) {
-            related = Related.false;
+            const [assignable, innerErrors] = isTypeAssignableToInternal(
+              sourceRestElementType,
+              restElementType,
+              diagnosticTarget,
+              relationCache,
+            );
+
+            // Assignability check can terminate here, since nothing can follow a rest parameter.
+            return assignable === Related.true
+              ? [Related.true, []]
+              : [Related.false, [...errors, ...innerErrors]];
+          } else {
+            const [assignable, innerErrors] = isTypeAssignableToInternal(
+              sourceParam.type,
+              restElementType,
+              diagnosticTarget,
+              relationCache,
+            );
+
+            if (!assignable) {
+              errors.push(...innerErrors);
+            }
+          }
+        }
+
+        // Assignability check can again terminate here, because the target parameter was a rest parameter and we have drained
+        // both source and target parameters.
+        return errors.length === 0 ? [Related.true, []] : [Related.false, errors];
+      } else {
+        // Target is not a rest parameter.
+        const nextSourceParam = queue.shift();
+
+        if (!nextSourceParam) {
+          if (!targetParam.optional) {
+            // No more source params, but target param is required.
             errors.push(
-              ...wrapUnassignableErrors(sourceParametersType, parameter.type, innerErrors),
+              createTypeRelationError({
+                code: "parameter-required",
+                messageId: "missing",
+                format: {
+                  paramName: targetParam.name,
+                },
+                diagnosticTarget,
+              }),
             );
           }
         } else {
-          const [assignable, innerErrors] = isTypeAssignableToInternal(
-            sourceParameterIndexerValue,
-            parameter.type,
-            diagnosticTarget,
-            relationCache,
-          );
-          if (!assignable) {
-            related = Related.false;
-            errors.push(
-              ...wrapUnassignableErrors(sourceParameterIndexerValue, parameter.type, innerErrors),
+          if (nextSourceParam.rest) {
+            if (!targetParam.optional) {
+              // Rest parameters are effectively optional for satisfying non-rest target parameters, so this is an error.
+              errors.push(
+                createTypeRelationError({
+                  code: "parameter-required",
+                  messageId: "rest-to-required",
+                  format: {
+                    paramName: nextSourceParam.name,
+                  },
+                  diagnosticTarget,
+                }),
+              );
+            }
+            // Source is a rest parameter, so its element type must be assignable to the target parameter type.
+            const sourceRestElementType = getArrayElementType(nextSourceParam.type);
+            const [assignable, innerErrors] = isTypeAssignableToInternal(
+              sourceRestElementType,
+              targetParam.type,
+              diagnosticTarget,
+              relationCache,
             );
+
+            if (!assignable) {
+              errors.push(...innerErrors);
+            }
+
+            queue.unshift(nextSourceParam); // Put it back since it can be used for subsequent target parameters as well.
+          } else {
+            if (nextSourceParam.optional && !targetParam.optional) {
+              // Source parameter is optional and cannot satisfy required target parameter.
+              errors.push(
+                createTypeRelationError({
+                  code: "parameter-required",
+                  format: {
+                    paramName: nextSourceParam.name,
+                  },
+                  diagnosticTarget,
+                }),
+              );
+            }
+
+            // Source is a normal parameter
+            const [assignable, innerErrors] = isTypeAssignableToInternal(
+              nextSourceParam.type,
+              targetParam.type,
+              diagnosticTarget,
+              relationCache,
+            );
+
+            if (!assignable) {
+              errors.push(...innerErrors);
+            }
           }
         }
       }
+    }
 
-      return [related, errors];
-    } else {
-      // Source is a tuple, so we have to zip the parameters together and check each one for assignability against the
-      // corresponding constraint type.
+    // Unused source parameters must all be optional or rest parameters.
+    // for (const remainingSourceParam of queue) {
+    //   if (!remainingSourceParam.optional && !remainingSourceParam.rest) {
+    //     errors.push(
+    //       createTypeRelationError({
+    //         code: "parameter-required",
+    //         format: {
+    //           paramName: remainingSourceParam.name,
+    //         },
+    //         diagnosticTarget,
+    //       }),
+    //     );
+    //   }
+    // }
 
-      const errors: TypeRelationError[] = [];
-      let related = Related.true;
+    return errors.length === 0 ? [Related.true, []] : [Related.false, errors];
 
-      const sourceParameters = sourceParametersType.values;
-      let sourceIndex = 0;
-      let targetIndex = 0;
+    function getArrayElementType(constraint: MixedParameterConstraint): MixedParameterConstraint {
+      // There are two cases:
+      // - constraint has `type` only: there's only a type constraint
+      // - constraint has `valueType` only: there's only a value constraint
 
-      while (sourceIndex < sourceParameters.length) {
-        if (targetIndex >= targetParameters.length) {
-          // More sources than targets
-          related = Related.false;
-          errors.push(
-            createTypeRelationError({
-              code: "missing-property",
-              format: {
-                propertyName: `parameter at index ${sourceIndex}`,
-                sourceType: getTypeName(sourceParametersType),
-                targetType: `(${targetParameters.map((constraint) => getEntityName(constraint.type)).join(", ")})`,
-              },
-              diagnosticTarget,
-            }),
-          );
-          sourceIndex++;
-          continue;
-        }
+      compilerAssert(
+        (constraint.type || constraint.valueType) && (!constraint.type || !constraint.valueType),
+        "Mixed parameter rest constraint cannot have both type and value constraints.",
+      );
 
-        const sourceParameter = sourceParameters[sourceIndex];
-        const targetParameter = targetParameters[targetIndex];
+      if (constraint.type) {
+        compilerAssert(
+          constraint.type.kind === "Model" && isArrayModelType(program, constraint.type),
+          "Expected rest parameter type constraint to be an array type.",
+        );
+        return {
+          entityKind: "MixedParameterConstraint",
+          node: constraint.node,
+          type: constraint.type.indexer.value,
+        };
+      } else {
+        compilerAssert(
+          constraint.valueType &&
+            constraint.valueType.kind === "Model" &&
+            isArrayModelType(program, constraint.valueType),
+          "Mixed parameter rest constraint must have either type or value constraint.",
+        );
 
-        if (targetParameter.rest) {
-        } else {
-        }
+        return {
+          entityKind: "MixedParameterConstraint",
+          node: constraint.node,
+          valueType: constraint.valueType.indexer.value,
+        };
       }
     }
   }
@@ -1068,10 +1156,14 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
 }
 
 // #region Helpers
-interface TypeRelationeErrorInit<C extends TypeRelationError["code"]> {
+interface TypeRelationErrorInit<
+  C extends TypeRelationError["code"],
+  M extends keyof CompilerDiagnostics[C],
+> {
   code: C;
+  messageId?: M;
   diagnosticTarget: Entity | Node;
-  format: DiagnosticReport<CompilerDiagnostics, C, "default">["format"];
+  format: DiagnosticReport<CompilerDiagnostics, C, M>["format"];
   details?: string;
   skipIfFirst?: boolean;
 }
@@ -1100,15 +1192,20 @@ function wrapUnassignablePropertyErrors(
   error.children = errors;
   return [error];
 }
-function createTypeRelationError<const C extends TypeRelationError["code"]>({
+function createTypeRelationError<
+  const C extends TypeRelationError["code"],
+  M extends keyof CompilerDiagnostics[C] = "default",
+>({
   code,
+  messageId,
   format,
   details,
   diagnosticTarget,
   skipIfFirst,
-}: TypeRelationeErrorInit<C>): TypeRelationError {
+}: TypeRelationErrorInit<C, M>): TypeRelationError {
   const diag = createDiagnostic({
     code: code as any,
+    messageId,
     format: format,
     target: NoTarget,
   });

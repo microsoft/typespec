@@ -13,11 +13,13 @@ import {
   BasicTestRunner,
   TestHost,
   createTestHost,
+  createTestRunner,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
+import { defineTest } from "../test-utils.js";
 
 /** Helper to assert a function declaration was bound to the js implementation */
 function expectFunction(ns: Namespace, name: string, impl: any) {
@@ -229,8 +231,8 @@ describe("compiler: checker: functions", () => {
         message: "Expected at least 2 arguments, but got 1.",
       });
 
-      strictEqual(p.defaultValue?.entityKind, "Value");
-      strictEqual(p.defaultValue.valueKind, "UnknownValue");
+      // Because the const is invalid (transposed to null in the checker), we expect no default value.
+      strictEqual(p.defaultValue, undefined);
     });
 
     it("errors if too many args", async () => {
@@ -1186,5 +1188,215 @@ describe("compiler: checker: functions", () => {
 
       strictEqual(aProp.type, bProp.type);
     });
+  });
+
+  describe("assignability of functions to fn types", () => {
+    let runner: BasicTestRunner;
+
+    beforeEach(() => {
+      testHost.addJsFile("test.js", {
+        $functions: {
+          "": {
+            testFn(_ctx: FunctionContext, a: string): string {
+              return a;
+            },
+          },
+        },
+      });
+      runner = createTestWrapper(testHost, {
+        autoImports: ["./test.js"],
+      });
+    });
+
+    it("can be assigned to a Function type", async () => {
+      const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+        extern fn testFn(a: string): string;
+
+        const f: fn(arg: never) => unknown = testFn;
+        
+        model Observer {
+          @test p: fn(arg: never) => unknown = f;
+        }
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+      expectDiagnosticEmpty(diagnostics);
+
+      strictEqual(p.defaultValue?.entityKind, "Value");
+      strictEqual(p.defaultValue?.valueKind, "Function");
+      strictEqual(p.defaultValue?.name, "testFn");
+    });
+
+    it("can be assigned to a function type with specified parameters", async () => {
+      const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+        extern fn testFn(a: string): string;
+
+        const f: fn(arg: string) => unknown = testFn;
+
+        model Observer {
+          @test p: fn(arg: string) => unknown = f;
+        }
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+      expectDiagnosticEmpty(diagnostics);
+
+      strictEqual(p.defaultValue?.entityKind, "Value");
+      strictEqual(p.defaultValue?.valueKind, "Function");
+      strictEqual(p.defaultValue?.name, "testFn");
+    });
+
+    it("can be assigned to a function type with specified return type", async () => {
+      const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+        extern fn testFn(a: string): string;
+
+        const f: fn(arg: never) => string = testFn;
+
+        // model Observer {
+        //   @test p: fn(arg: never) => string = f;
+        // }
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+      expectDiagnosticEmpty(diagnostics);
+
+      // strictEqual(p.defaultValue?.entityKind, "Value");
+      // strictEqual(p.defaultValue?.valueKind, "Function");
+      // strictEqual(p.defaultValue?.name, "testFn");
+    });
+
+    it("errors when assigned to function type with incompatible parameters", async () => {
+      const diagnostics = await runner.diagnose(`
+        extern fn testFn(a: string): string;
+
+        const f: fn(arg: numeric) => string = testFn;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message:
+          "Type 'fn (a: string) => string' is not assignable to type 'fn (arg: numeric) => string'\n  Type 'numeric' is not assignable to type 'string'",
+      });
+    });
+
+    it("errors when assigned to function type with incompatible return type", async () => {
+      const diagnostics = await runner.diagnose(`
+        extern fn testFn(a: string): string;
+
+        const f: fn(arg: never) => int32 = testFn;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message:
+          "Type 'fn (a: string) => string' is not assignable to type 'fn (arg: never) => int32'\n  Type 'string' is not assignable to type 'int32'",
+      });
+    });
+  });
+
+  describe("function type assignability", () => {
+    const { diagnose: diagnoseFunctionAssignment } = defineTest(
+      async (source: string, target: string) => {
+        const runner = await createTestRunner();
+
+        const diagnostics = await runner.diagnose(`
+          alias Source = ${source};
+          alias Target = ${target};
+
+          model Expect<T extends Target> {}
+
+          alias Test = Expect<Source>;
+        `);
+        return [undefined, diagnostics];
+      },
+    );
+
+    function expectAssignmentOk(source: string, target: string) {
+      it(`allows assignment from '${source}' to '${target}'`, async () => {
+        const diagnostics = await diagnoseFunctionAssignment(source, target);
+
+        expectDiagnosticEmpty(diagnostics);
+      });
+    }
+
+    function expectAssignmentErrors(source: string, target: string) {
+      it(`disallows assignment from '${source}' to '${target}'`, async () => {
+        const diagnostics = await diagnoseFunctionAssignment(source, target);
+
+        expectDiagnostics(diagnostics, { code: "invalid-argument" });
+      });
+    }
+
+    // Simple valid assignments
+    expectAssignmentOk("fn()", "fn()");
+    expectAssignmentOk("fn(a: string)", "fn(a: string)");
+    expectAssignmentOk("fn() => string", "fn() => string");
+    expectAssignmentOk("fn(a: string, b: int32) => boolean", "fn(a: string, b: int32) => boolean");
+    expectAssignmentOk("fn() => { x: string }", "fn() => Reflection.Model");
+
+    // Parameter contravariance
+    expectAssignmentOk("fn(a: unknown)", "fn(a: string)"); // string -> unknown
+    expectAssignmentOk("fn(a: string | int32)", "fn(a: string)"); // string -> string | int32
+    expectAssignmentOk("fn(a: Reflection.Model)", "fn(a: { x: string })"); // ModelWithId -> Model
+
+    expectAssignmentOk("fn() => string", "fn() => unknown");
+    expectAssignmentOk("fn() => { x: string }", "fn() => Reflection.Model");
+
+    expectAssignmentErrors("fn() => string", "fn() => int32");
+    expectAssignmentErrors("fn(a: string)", "fn(a: unknown)"); // unknown -> string
+    expectAssignmentErrors("fn(a: string)", "fn(a: string | int32)"); // string | int32 -> string
+    expectAssignmentErrors("fn(a: { x: string })", "fn(a: Reflection.Model)"); // Model -> ModelWithId
+
+    expectAssignmentErrors("fn() => unknown", "fn() => string");
+    expectAssignmentErrors("fn() => Reflection.Model", "fn() => { x: string }");
+
+    // T | valueof T mixed constraints
+    expectAssignmentOk("fn(a: unknown | valueof unknown)", "fn(a: string | valueof string)");
+    expectAssignmentOk("fn() => string | valueof string", "fn() => unknown | valueof unknown");
+    expectAssignmentOk("fn() => valueof string", "fn() => string | valueof string");
+    expectAssignmentOk("fn() => string", "fn() => string | valueof string");
+
+    expectAssignmentErrors("fn(a: string | valueof string)", "fn(a: valueof unknown)");
+    expectAssignmentErrors("fn() => valueof unknown", "fn() => string | valueof string");
+
+    // Parameter arity
+    expectAssignmentOk("fn()", "fn()");
+    expectAssignmentOk("fn()", "fn(a: string)"); // Ok -- source ignores the parameter from the target
+    expectAssignmentOk("fn(a: string)", "fn(a: string, b: int32)");
+
+    expectAssignmentErrors("fn(a: string)", "fn()"); // Not ok -- source requires a parameter that target doesn't provide
+    expectAssignmentErrors("fn(a: string, b: int32)", "fn(a: string)");
+
+    // Optional parameters
+    expectAssignmentOk("fn()", "fn(a?: string)"); // ok -- source ignores the parameter if provided
+    expectAssignmentOk("fn(a?: string)", "fn(a: string)"); // ok -- target always provides optional param
+    expectAssignmentOk("fn(a: string, b?: int32)", "fn(a: string, b: int32)");
+    expectAssignmentOk("fn(a?: string)", "fn()"); // ok - source doesn't require the parameter
+
+    expectAssignmentErrors("fn(a: string)", "fn()"); // not ok -- source requires param that target doesn't provide
+    expectAssignmentErrors("fn(a: string)", "fn(a?: string)"); // not ok -- source requires param that target may not provide
+    expectAssignmentErrors("fn(a: string, b: int32)", "fn(a: string, b?: int32)");
+
+    // Rest parameters
+    expectAssignmentOk("fn(...args: string[])", "fn(...args: string[])");
+    expectAssignmentOk("fn(...args: unknown[])", "fn(...args: string[])");
+    expectAssignmentOk("fn(...args: valueof string[])", "fn(...args: valueof string[])");
+
+    expectAssignmentErrors("fn(...args: string[])", "fn(...args: unknown[])");
+    expectAssignmentErrors("fn(...args: string[])", "fn(...args: valueof string[])");
+
+    // Rest parameters cannot satisfy required params
+    expectAssignmentErrors("fn(a: string)", "fn(...args: string[])");
+    expectAssignmentErrors("fn(a: string, b: int32)", "fn(...args: unknown[])");
+    expectAssignmentErrors("fn(a: string)", "fn(...args: valueof string[])");
+    expectAssignmentErrors("fn(a: string, b: int32)", "fn(...args: valueof unknown[])");
+
+    // Rest parameters can satisfy optional params
+    expectAssignmentOk("fn()", "fn(...args: string[])");
+    expectAssignmentOk("fn(a?: string)", "fn(...args: string[])");
+    expectAssignmentOk("fn(a: unknown, b?: unknown)", "fn(a: string, ...args: int32[])"); // string -> unknown, int32? -> unknown?
+    expectAssignmentOk("fn()", "fn(...args: valueof string[])");
+    expectAssignmentOk("fn(a?: valueof string)", "fn(...args: valueof string[])");
+    expectAssignmentOk(
+      "fn(a: valueof unknown, b?: valueof unknown)",
+      "fn(a: valueof string, ...args: valueof int32[])",
+    ); // string -> unknown, int32? -> unknown?
   });
 });

@@ -733,7 +733,7 @@ export interface Decorator extends BaseType {
  * The type of a Function in TypeSpec.
  */
 export interface FunctionType extends BaseType {
-  kind: "Function";
+  kind: "FunctionType";
 
   /**
    * The parameter constraints of the function.
@@ -749,7 +749,10 @@ export interface FunctionType extends BaseType {
 /**
  * A function (`fn`) declared in the TypeSpec program.
  */
-export interface FunctionValue extends BaseValue {
+export interface FunctionValue<
+  Parameters extends unknown[] = unknown[],
+  ReturnType = unknown,
+> extends BaseValue {
   valueKind: "Function";
   node?: FunctionDeclarationStatementNode;
   /**
@@ -773,13 +776,13 @@ export interface FunctionValue extends BaseValue {
    *
    * WARNING: Calling the implementation function directly is dangerous. It assumes that you have marshaled the arguments
    * to JS values correctly and that you will handle the return value appropriately. Constructing the correct context
-   * is your responsibility (use the `call
+   * is your responsibility (use the `call` methods of `FunctionContext` or `DeclarationContext` to create the context for you).
    *
    * @param ctx - The FunctionContext providing information about the call site.
    * @param args - The arguments passed to the function.
    * @returns The return value of the function, which is arbitrary.
    */
-  implementation: (ctx: FunctionContext, ...args: unknown[]) => unknown;
+  implementation: (ctx: FunctionContext, ...args: Parameters) => ReturnType;
 }
 
 export interface FunctionParameterBase extends BaseType {
@@ -1152,6 +1155,7 @@ export enum SyntaxKind {
   ConstStatement,
   CallExpression,
   ScalarConstructor,
+  FunctionTypeExpression,
 }
 
 export const enum NodeFlags {
@@ -1443,7 +1447,8 @@ export type Expression =
   | StringTemplateExpressionNode
   | VoidKeywordNode
   | NeverKeywordNode
-  | AnyKeywordNode;
+  | AnyKeywordNode
+  | FunctionTypeExpressionNode;
 
 export type ReferenceExpression =
   | TypeReferenceNode
@@ -1806,10 +1811,11 @@ export interface FunctionParameterNode extends BaseNode {
 }
 
 /**
- * Represent a function declaration
+ * The syntax representing a function value declaration.
+ *
  * @example
  * ```typespec
- * extern fn camelCase(value: StringLiteral): StringLiteral;
+ * extern fn camelCase(value: valueof string): valueof string;
  * ```
  */
 export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationNode {
@@ -1819,6 +1825,20 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
   readonly parameters: FunctionParameterNode[];
   readonly returnType?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+}
+
+/**
+ * The syntax representing a function type expression.
+ *
+ * @example
+ * ```typespec
+ * fn(value: valueof string): valueof string
+ * ```
+ */
+export interface FunctionTypeExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.FunctionTypeExpression;
+  readonly parameters: FunctionParameterNode[];
+  readonly returnType?: Expression;
 }
 
 export interface IdentifierContext {

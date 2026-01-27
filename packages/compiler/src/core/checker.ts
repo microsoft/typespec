@@ -73,6 +73,8 @@ import {
   FunctionDeclarationStatementNode,
   FunctionParameter,
   FunctionParameterNode,
+  FunctionType,
+  FunctionTypeExpressionNode,
   FunctionValue,
   IdentifierKind,
   IdentifierNode,
@@ -606,7 +608,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     constraint?: CheckValueConstraint,
   ): Value | null {
     const initial = checkNode(node, mapper, constraint);
-    if (initial === null) {
+    // Transpose errorType to null here for guaranteed compatibility with contexts where a value is required.
+    if (initial === null || initial === errorType) {
       return null;
     }
     let entity: Type | Value | null;
@@ -881,6 +884,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkDecoratorDeclaration(node, mapper);
       case SyntaxKind.FunctionDeclarationStatement:
         return checkFunctionDeclaration(node, mapper);
+      case SyntaxKind.FunctionTypeExpression:
+        return checkFunctionTypeExpression(node, mapper);
       case SyntaxKind.TypeReference:
         return checkTypeOrValueReference(node, mapper);
       case SyntaxKind.TemplateArgument:
@@ -1976,9 +1981,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         entityKind: "Value",
         valueKind: "Function",
         name,
-        // TODO/witemple - what should the type of this be?
         type: createAndFinishType({
-          kind: "Function",
+          kind: "FunctionType",
           parameters,
           returnType,
         }),
@@ -2000,6 +2004,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     links.value = functionValue;
 
     return functionValue;
+  }
+
+  function checkFunctionTypeExpression(
+    node: FunctionTypeExpressionNode,
+    mapper: TypeMapper | undefined,
+  ): FunctionType {
+    const parameters = node.parameters.map((param) => checkFunctionParameter(param, mapper, true));
+    const returnType: MixedParameterConstraint = node.returnType
+      ? getParamConstraintEntityForNode(node.returnType, mapper)
+      : {
+          entityKind: "MixedParameterConstraint",
+          type: unknownType,
+        };
+
+    return createAndFinishType({
+      kind: "FunctionType",
+      node,
+      parameters,
+      returnType,
+    });
   }
 
   function checkFunctionParameter(

@@ -1,6 +1,5 @@
 import { Temporal } from "temporal-polyfill";
 import { ignoreDiagnostics } from "../core/diagnostics.js";
-import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
 import { getProperty } from "../core/semantic-walker.js";
 import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
@@ -61,15 +60,8 @@ export function serializeValueAsJson(
       return serializeObjectValueAsJson(program, value, type, diagnosticTarget);
     case "ScalarValue":
       return serializeScalarValueAsJson(program, value, type, encodeAs);
-    case "Function": {
-      // TODO/witemple improve diagnostic for unserializable values
-      reportDiagnostic(program, {
-        code: "unknown-value",
-        messageId: "in-json",
-        target: diagnosticTarget ?? value,
-      });
-      return null;
-    }
+    case "Function":
+      throw new Error("TODO/witemple");
   }
 }
 

@@ -86,12 +86,12 @@ export function navigateType(
  * @param options Scope options
  * @returns wrapped listeners that that can be used with `navigateType`
  */
-export function scopeNavigationToNamespace<T extends TypeListeners>(
+export function scopeNavigationToNamespace<T extends SemanticNodeListener>(
   namespace: Namespace,
   listeners: T,
   options: NamespaceNavigationOptions = {},
 ): T {
-  const wrappedListeners: TypeListeners = {};
+  const wrappedListeners: SemanticNodeListener = {};
   for (const [name, callback] of Object.entries(listeners)) {
     wrappedListeners[name as any as keyof TypeListeners] = (x) => {
       if (x !== namespace && "namespace" in x) {
@@ -110,7 +110,7 @@ export function scopeNavigationToNamespace<T extends TypeListeners>(
 
 export function navigateTypesInNamespace(
   namespace: Namespace,
-  listeners: TypeListeners,
+  listeners: SemanticNodeListener,
   options: NamespaceNavigationOptions & NavigationOptions = {},
 ) {
   navigateType(namespace, scopeNavigationToNamespace(namespace, listeners, options), options);
@@ -400,11 +400,11 @@ function navigateScalarConstructor(type: ScalarConstructor, context: NavigationC
   if (context.emit("scalarConstructor", type) === ListenerFlow.NoRecursion) return;
 }
 
-function navigateFunctionDeclaration(type: FunctionValue, context: NavigationContext) {
-  if (checkVisited(context.visited, type)) {
+function navigateFunctionDeclaration(value: FunctionValue, context: NavigationContext) {
+  if (checkVisited(context.visited, value)) {
     return;
   }
-  if (context.emit("function", type) === ListenerFlow.NoRecursion) return;
+  if (context.emit("function", value) === ListenerFlow.NoRecursion) return;
 }
 
 function navigateTypeInternal(entity: Type | Value, context: NavigationContext) {
@@ -441,6 +441,7 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
       case "ScalarConstructor":
         return navigateScalarConstructor(entity, context);
       case "FunctionParameter":
+      case "FunctionType":
       case "Boolean":
       case "EnumMember":
       case "Intrinsic":

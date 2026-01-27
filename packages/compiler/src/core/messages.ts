@@ -441,6 +441,14 @@ const diagnostics = {
       default: paramMessage`Property '${"propName"}' is required in type '${"targetType"}' but here is optional.`,
     },
   },
+  "parameter-required": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Parameter '${"paramName"}' is required, but optional in the target function.`,
+      missing: paramMessage`Parameter '${"paramName"}' is required, but missing in the target function.`,
+      "rest-to-required": paramMessage`Parameter '${"paramName"}' is required and not satisfied by a rest parameter, as rest parameters are effectively optional.`,
+    },
+  },
   "value-in-type": {
     severity: "error",
     messages: {

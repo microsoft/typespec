@@ -149,7 +149,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
   },
 
   // Don't want to expose those for now
-  Function: null,
+  FunctionType: null,
   Intrinsic: null,
 });
 
