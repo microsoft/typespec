@@ -124,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
             var options = ScmKnownParameters.RequestOptions;
-            var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest);
+            var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, ClientProvider);
 
             if (isNextLinkRequest)
             {
@@ -418,7 +418,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
+        private List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -437,7 +437,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static MethodBodyStatement? BuildQueryParameterStatement(
+        private MethodBodyStatement? BuildQueryParameterStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
             Dictionary<string, ParameterProvider> paramMap,
@@ -744,10 +744,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
+        private void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
             type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             serializationFormat = null;
+
+            if (inputParam.IsApiVersion && ClientProvider.IsMultiServiceClient)
+            {
+                var apiVersionField = ClientProvider.GetApiVersionFieldForService(operation.Namespace);
+                if (apiVersionField != null)
+                {
+                    type = apiVersionField.Type;
+                    serializationFormat = apiVersionField.WireInfo?.SerializationFormat;
+                    valueExpression = apiVersionField;
+                    return;
+                }
+            }
+
             if (inputParam.Scope == InputParameterScope.Constant && !(operation.IsMultipartFormData && inputParam is InputHeaderParameter headerParameter && headerParameter.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
@@ -868,7 +881,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return NextMethodCache[operation];
         }
 
-        internal static List<ParameterProvider> GetMethodParameters(InputServiceMethod serviceMethod, ScmMethodKind methodType)
+        internal static List<ParameterProvider> GetMethodParameters(
+            InputServiceMethod serviceMethod,
+            ScmMethodKind methodType,
+            ClientProvider client)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -921,7 +937,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (inputParam.IsApiVersion && inputParam.DefaultValue != null)
+                if (inputParam.IsApiVersion && (inputParam.DefaultValue != null || client.IsMultiServiceClient))
                 {
                     continue;
                 }

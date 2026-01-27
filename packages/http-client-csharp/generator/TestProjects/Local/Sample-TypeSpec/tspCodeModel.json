@@ -4347,7 +4347,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.sayHi",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -4578,7 +4579,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -4823,7 +4825,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": false,
             "crossLanguageDefinitionId": "SampleTypeSpec.noContentType",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -4987,7 +4990,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.helloDemo2",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -5113,7 +5117,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -5286,7 +5291,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -5455,7 +5461,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.topAction",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -5571,7 +5578,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": false,
             "crossLanguageDefinitionId": "SampleTypeSpec.topAction2",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -5697,7 +5705,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": false,
             "crossLanguageDefinitionId": "SampleTypeSpec.patchAction",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -5890,7 +5899,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -6491,7 +6501,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -6622,7 +6633,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.addTimeHeader",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -6756,7 +6768,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -6883,7 +6896,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -6985,7 +6999,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.getUnknownValue",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -7111,7 +7126,8 @@
             "generateProtocolMethod": false,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -7210,7 +7226,8 @@
             "generateProtocolMethod": false,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.stillConvenient",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [],
           "response": {},
@@ -7276,7 +7293,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.headAsBoolean",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -7390,7 +7408,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -7477,7 +7496,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -7579,7 +7599,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithStringNextLink",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -7701,7 +7722,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -7859,7 +7881,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -7985,7 +8008,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithPaging",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -8182,7 +8206,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.EmbeddedParameters",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -8300,7 +8325,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.DynamicModelOperation",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
@@ -8507,7 +8533,8 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updatePetAsAnimal",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
@@ -8668,7 +8695,8 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updateDogAsAnimal",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
@@ -8870,7 +8898,8 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updatePetAsPet",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
@@ -9031,7 +9060,8 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updateDogAsPet",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
@@ -9233,7 +9263,8 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.updateDogAsDog",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
@@ -9415,7 +9446,8 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.getWidgetMetrics",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
