@@ -296,10 +296,10 @@ describe("Test _validateDotNetSdk", () => {
     });
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
+    const [result, diagnostics] = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
-    strictEqual(program.diagnostics.length, 0);
+    strictEqual(diagnostics.length, 0);
   });
 
   it("should return true for installed SDK version whose major greaters than min supported version", async () => {
@@ -313,10 +313,10 @@ describe("Test _validateDotNetSdk", () => {
     });
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
+    const [result, diagnostics] = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
-    strictEqual(program.diagnostics.length, 0);
+    strictEqual(diagnostics.length, 0);
   });
 
   it("should return false and report diagnostic for invalid .NET SDK version", async () => {
