@@ -8,7 +8,7 @@
 
 ### Bump dependencies
 
-- [#9449](https://github.com/microsoft/typespec/pull/9449) Bump TCGC 0.64.3
+- [#9464](https://github.com/microsoft/typespec/pull/9464) Bump TCGC 0.64.4
 
 
 ## 0.25.0
