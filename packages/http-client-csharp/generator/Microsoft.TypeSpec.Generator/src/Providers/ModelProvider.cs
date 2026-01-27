@@ -427,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // the derived model has a discriminator with a different C# name but the same wire name
             HashSet<string> baseDiscriminatorSerializedNames = EnumerateBaseModels()
                 .SelectMany(m => m.Properties)
-                .Where(p => p is InputModelProperty modelProperty && modelProperty.IsDiscriminator)
+                .Where(p => p.IsDiscriminator)
                 .Select(p => p.SerializedName)
                 .ToHashSet();
             for (int i = 0; i < propertiesCount; i++)
