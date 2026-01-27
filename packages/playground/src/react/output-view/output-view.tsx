@@ -159,7 +159,7 @@ function fallbackRender({ error, resetErrorBoundary }: FallbackProps) {
   return (
     <div role="alert" className={style["viewer-error"]}>
       <h2>Something went wrong:</h2>
-      <div style={{ color: "red" }}>{error.toString()}</div>
+      <div style={{ color: "red" }}>{String(error)}</div>
       <Button onClick={resetErrorBoundary}>Try again</Button>
     </div>
   );
