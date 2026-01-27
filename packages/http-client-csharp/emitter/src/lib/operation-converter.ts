@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  getClientNamespace,
   getHttpOperationParameter,
   isHttpMetadata,
   SdkBodyParameter,
@@ -198,6 +199,9 @@ export function fromSdkServiceMethodOperation(
     decorators: method.decorators,
     examples: method.operation.examples
       ? fromSdkHttpExamples(sdkContext, method.operation.examples)
+      : undefined,
+    namespace: method.__raw?.namespace
+      ? getClientNamespace(sdkContext, method.__raw.namespace)
       : undefined,
   };
 

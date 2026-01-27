@@ -75,7 +75,7 @@ public final class ListsImpl {
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/documentation/lists/bullet-points/model",
-            expectedStatusCodes = { 204 })
+            expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<Void> bulletPointsModel(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType,

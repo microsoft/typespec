@@ -849,12 +849,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             if (inputType is InputArrayType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using string content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
             }
             else if (inputType is InputDictionaryType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using string content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
             }
             else
             {
@@ -1222,7 +1222,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(convenienceMethod);
 
             var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
-            
+
             Assert.AreEqual(Helpers.GetExpectedFromFile(elementType.Name), generatedCode);
         }
 
@@ -1339,7 +1339,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(convenienceMethod);
 
             var actualCode = convenienceMethod!.BodyStatements!.ToDisplayString();
-            
+
             Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
         }
 
