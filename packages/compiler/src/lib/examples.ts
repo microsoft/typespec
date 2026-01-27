@@ -28,6 +28,15 @@ export class UnsupportedScalarConstructorError extends Error {
   }
 }
 
+export interface ValueJsonSerializers {
+  serializeScalarValue?: (
+    value: ScalarValue,
+    type: Type,
+    encodeAs: EncodeData | undefined,
+    originalFn: (value: ScalarValue, type: Type, encodeAs: EncodeData | undefined) => unknown,
+  ) => unknown;
+}
+
 /**
  * Serialize the given TypeSpec value as a JSON object using the given type and its encoding annotations.
  * The Value MUST be assignable to the given type.
@@ -37,9 +46,16 @@ export function serializeValueAsJson(
   value: Value,
   type: Type,
   encodeAs?: EncodeData,
+  handlers?: ValueJsonSerializers,
 ): unknown {
   if (type.kind === "ModelProperty") {
-    return serializeValueAsJson(program, value, type.type, encodeAs ?? getEncode(program, type));
+    return serializeValueAsJson(
+      program,
+      value,
+      type.type,
+      encodeAs ?? getEncode(program, type),
+      handlers,
+    );
   }
   switch (value.valueKind) {
     case "NullValue":
@@ -64,7 +80,7 @@ export function serializeValueAsJson(
     case "ObjectValue":
       return serializeObjectValueAsJson(program, value, type);
     case "ScalarValue":
-      return serializeScalarValueAsJson(program, value, type, encodeAs);
+      return serializeScalarValueAsJson(program, value, type, encodeAs, handlers);
   }
 }
 
@@ -165,7 +181,17 @@ function serializeScalarValueAsJson(
   value: ScalarValue,
   type: Type,
   encodeAs: EncodeData | undefined,
+  handlers?: ValueJsonSerializers,
 ): unknown {
+  if (handlers?.serializeScalarValue) {
+    return handlers.serializeScalarValue(
+      value,
+      type,
+      encodeAs,
+      serializeScalarValueAsJson.bind(null, program, value, type, encodeAs, undefined),
+    );
+  }
+
   const result = resolveKnownScalar(program, value.scalar);
   if (result === undefined) {
     return serializeValueAsJson(program, value.value.args[0], value.value.args[0].type);
