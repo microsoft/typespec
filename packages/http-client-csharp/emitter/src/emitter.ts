@@ -169,7 +169,7 @@ export async function createCodeModel(
     }
   }
 
-  return [undefined as void, diagnostics];
+  return [void 0, diagnostics];
 }
 
 /**
