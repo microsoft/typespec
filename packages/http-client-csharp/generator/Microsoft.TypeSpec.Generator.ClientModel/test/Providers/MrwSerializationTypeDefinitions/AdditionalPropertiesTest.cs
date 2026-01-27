@@ -159,5 +159,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 yield return new TestCaseData(new InputUnionType("union", [InputPrimitiveType.String, InputPrimitiveType.Float64]));
             }
         }
+
+        [Test]
+        public void TestAdditionalPropertiesVariableNameConsistency()
+        {
+            // This test validates the fix for the bug where the variable name was inconsistent
+            // when a property with backing field _additionalBinaryDataProperties exists
+            // The variable declaration should use the same name as the variable usage
+            var inputModel = InputFactory.Model("TestModel",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)],
+                additionalProperties: InputPrimitiveType.Any);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+            var serializations = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serializations);
+
+            var deserializationMethod = serializations!.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBodyString = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            // Check that the variable is declared
+            var hasDeclaration = methodBodyString.Contains("IDictionary<string, global::System.BinaryData> additionalProperties = new")
+                || methodBodyString.Contains("IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new");
+
+            Assert.IsTrue(hasDeclaration, "Expected to find variable declaration for additional properties");
+
+            // Determine which variable name was declared
+            var usesPropertyName = methodBodyString.Contains("IDictionary<string, global::System.BinaryData> additionalProperties = new");
+            var usesFieldName = methodBodyString.Contains("IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new");
+
+            // Check that the same variable name is used consistently in Add calls
+            if (usesPropertyName)
+            {
+                // If declared as additionalProperties, it should be used as additionalProperties
+                Assert.IsTrue(methodBodyString.Contains("additionalProperties.Add(prop.Name,"),
+                    "Variable declared as 'additionalProperties' should be used with the same name");
+                // And should NOT be used with a different name
+                Assert.IsFalse(methodBodyString.Contains("additionalBinaryDataProperties.Add(prop.Name,"),
+                    "Variable declared as 'additionalProperties' should not be referenced as 'additionalBinaryDataProperties'");
+            }
+            else if (usesFieldName)
+            {
+                // If declared as additionalBinaryDataProperties, it should be used as additionalBinaryDataProperties
+                Assert.IsTrue(methodBodyString.Contains("additionalBinaryDataProperties.Add(prop.Name,"),
+                    "Variable declared as 'additionalBinaryDataProperties' should be used with the same name");
+                // And should NOT be used with a different name
+                Assert.IsFalse(methodBodyString.Contains("additionalProperties.Add(prop.Name,") && !methodBodyString.Contains("IDictionary<string, global::System.BinaryData> additionalProperties = new"),
+                    "Variable declared as 'additionalBinaryDataProperties' should not be referenced as 'additionalProperties'");
+            }
+        }
     }
 }
