@@ -13,6 +13,10 @@ namespace Versioning.Removed
     {
         internal ModelV2() => throw null;
 
+        protected virtual ModelV2 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator ModelV2(ClientResult result) => throw null;
+
         void IJsonModel<ModelV2>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace Versioning.Removed
 
         ModelV2 IPersistableModel<ModelV2>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual ModelV2 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<ModelV2>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ModelV2 modelV2) => throw null;
-
-        public static explicit operator ModelV2(ClientResult result) => throw null;
     }
 }

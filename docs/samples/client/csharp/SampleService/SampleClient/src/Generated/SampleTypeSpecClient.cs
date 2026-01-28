@@ -35,6 +35,7 @@ namespace SampleTypeSpec
         private AnimalOperations _cachedAnimalOperations;
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
+        private PlantOperations _cachedPlantOperations;
         private Metrics _cachedMetrics;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
@@ -3033,6 +3034,110 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <summary>
+        /// [Protocol Method] Get an advanced XML model with various property types
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetXmlAdvancedModel(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method GetXmlAdvancedModel.");
+                using PipelineMessage message = CreateGetXmlAdvancedModelRequest(options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetXmlAdvancedModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetXmlAdvancedModel.");
+            }
+        }
+
+        /// <summary>
+        /// [Protocol Method] Get an advanced XML model with various property types
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetXmlAdvancedModelAsync(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method GetXmlAdvancedModelAsync.");
+                using PipelineMessage message = CreateGetXmlAdvancedModelRequest(options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetXmlAdvancedModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetXmlAdvancedModelAsync.");
+            }
+        }
+
+        /// <summary> Get an advanced XML model with various property types. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<XmlAdvancedModel> GetXmlAdvancedModel(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method GetXmlAdvancedModel.");
+                ClientResult result = GetXmlAdvancedModel(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetXmlAdvancedModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetXmlAdvancedModel.");
+            }
+        }
+
+        /// <summary> Get an advanced XML model with various property types. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<XmlAdvancedModel>> GetXmlAdvancedModelAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method GetXmlAdvancedModelAsync.");
+                ClientResult result = await GetXmlAdvancedModelAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetXmlAdvancedModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetXmlAdvancedModelAsync.");
+            }
+        }
+
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()
         {
@@ -3049,6 +3154,12 @@ namespace SampleTypeSpec
         public virtual DogOperations GetDogOperationsClient()
         {
             return Volatile.Read(ref _cachedDogOperations) ?? Interlocked.CompareExchange(ref _cachedDogOperations, new DogOperations(Pipeline, _endpoint), null) ?? _cachedDogOperations;
+        }
+
+        /// <summary> Initializes a new instance of PlantOperations. </summary>
+        public virtual PlantOperations GetPlantOperationsClient()
+        {
+            return Volatile.Read(ref _cachedPlantOperations) ?? Interlocked.CompareExchange(ref _cachedPlantOperations, new PlantOperations(Pipeline, _endpoint), null) ?? _cachedPlantOperations;
         }
 
         /// <summary> Initializes a new instance of Metrics. </summary>

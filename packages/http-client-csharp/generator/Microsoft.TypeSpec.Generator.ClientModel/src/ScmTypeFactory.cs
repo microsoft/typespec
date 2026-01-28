@@ -143,7 +143,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         {
             switch (inputType)
             {
-                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
+                case InputModelType inputModel when (inputModel.Usage & (InputModelTypeUsage.Json | InputModelTypeUsage.Xml)) != 0:
                     if (typeProvider is ModelProvider modelProvider)
                     {
                         return [new MrwSerializationTypeDefinition(inputModel, modelProvider)];
