@@ -1374,5 +1374,50 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     ],
                     parameters: [endpointParameter, enumApiVersionParameter]));
         }
+
+        [Test]
+        public void ValidateOptionalContentTypeHeader()
+        {
+            // Test that optional Content-Type header is treated as optional parameter, not as constant
+            var bodyModel = InputFactory.Model("BodyModel", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+            ]);
+            
+            var contentTypeParameter = InputFactory.HeaderParameter(
+                "contentType",
+                InputFactory.Literal.String("application/json"),
+                isRequired: false, // Optional
+                defaultValue: InputFactory.Constant.String("application/json"),
+                serializedName: "Content-Type",
+                isContentType: true,
+                scope: InputParameterScope.Constant);
+                
+            var bodyParameter = InputFactory.BodyParameter("body", bodyModel, isRequired: false);
+            
+            var inputServiceMethod = InputFactory.BasicServiceMethod("TestMethod",
+                InputFactory.Operation("TestOperation",
+                    parameters:
+                    [
+                        contentTypeParameter,
+                        bodyParameter
+                    ],
+                    responses:
+                    [
+                        InputFactory.OperationResponse([204])
+                    ]));
+                    
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            
+            // Print the actual output for manual verification
+            TestContext.Out.WriteLine("=== Generated Code ===");
+            TestContext.Out.WriteLine(file.Content);
+            
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

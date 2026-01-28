@@ -841,6 +841,12 @@ function getParameterScope(
     return InputParameterScope.Method;
   }
 
+  // Optional Content-Type headers should be Method scope, not Constant
+  // even if they have a constant type, so they can be conditionally set
+  if (type.kind === "constant" && p.optional && isContentType(p)) {
+    return InputParameterScope.Method;
+  }
+
   return type.kind === "constant"
     ? InputParameterScope.Constant
     : p.isApiVersionParam
