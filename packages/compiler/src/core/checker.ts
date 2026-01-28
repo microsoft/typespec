@@ -1480,7 +1480,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (sym.flags & SymbolFlags.Function) {
-      // TODO/witemple - have to recheck fn every time we see it because we don't cache values
       return getValueForNode(sym.declarations[0], mapper);
     }
 
@@ -4488,7 +4487,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return getDefaultFunctionResult(target.returnType);
     }
 
-    // TODO/witemple
     const functionReturn = target.implementation(ctx, ...resolvedArgs);
 
     const returnIsEntity =
@@ -4543,8 +4541,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  // TODO/witemple
-  function getDefaultFunctionResult(constraint: MixedParameterConstraint): Type | Value | null {
+  /**
+   * Produces the default function result when a function call cannot be completed.
+   *
+   * This produces `null` if the function has a value type constraint but no type constraint, `errorType`
+   * otherwise (if the function _could_ return a Type).
+   *
+   * @param constraint - The function return constraint.
+   * @returns
+   */
+  function getDefaultFunctionResult(constraint: MixedParameterConstraint): Type | null {
     if (constraint.valueType && !constraint.type) {
       return null;
     } else {
