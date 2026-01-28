@@ -479,7 +479,7 @@ function fromHeaderParameter(
   p: SdkHeaderParameter,
   rootApiVersions: string[],
 ): InputHeaderParameter {
-  const parameterType = fromSdkType(sdkContext, p.type, p);
+  const parameterType = fromSdkType(sdkContext, p.type);
 
   const retVar: InputHeaderParameter = {
     kind: "header",
