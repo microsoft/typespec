@@ -265,6 +265,7 @@ class TestSerializer(TestGeneralSerializer):
     def serialize_test(self) -> str:
         return self.env.get_template("test.py.jinja2").render(
             imports=self.import_test,
-            code_model=self.code_model,
+            is_azure_arm=self.code_model.options["azure-arm"],
+            license_header=self.code_model.license_header,
             test=self.get_test(),
         )
