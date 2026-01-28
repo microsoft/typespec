@@ -308,15 +308,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Add API version parameters that need to be preserved across pagination requests
-            foreach (var param in operation.Parameters)
+            var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
+            if (apiVersionParam != null && !reinjectedParamsMap.ContainsKey(apiVersionParam.Name))
             {
-                if (param.IsApiVersion && !reinjectedParamsMap.ContainsKey(param.Name))
+                var createdParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(apiVersionParam);
+                if (createdParam != null && paramMap.TryGetValue(createdParam.Name, out var paramInSignature))
                 {
-                    var apiVersionParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
-                    if (apiVersionParam != null && paramMap.TryGetValue(apiVersionParam.Name, out var paramInSignature))
-                    {
-                        reinjectedParamsMap[param.Name] = paramInSignature;
-                    }
+                    reinjectedParamsMap[apiVersionParam.Name] = paramInSignature;
                 }
             }
 
