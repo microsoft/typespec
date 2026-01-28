@@ -154,23 +154,23 @@ class JinjaSerializer(ReaderAndWriter):
         for client_namespace, client_namespace_type in self.code_model.client_namespace_types.items():
             generation_path = self.code_model.get_generation_dir(client_namespace)
             if client_namespace == "":
-                if self.code_model.options["basic-setup-py"]:
-                    # Write the setup file
-                    self.write_file(generation_path / Path("setup.py"), general_serializer.serialize_setup_file())
-                elif not self.code_model.options["keep-setup-py"]:
-                    # remove setup.py file
-                    self.remove_file(generation_path / Path("setup.py"))
+                # if self.code_model.options["basic-setup-py"]:
+                #     # Write the setup file
+                #     self.write_file(generation_path / Path("setup.py"), general_serializer.serialize_setup_file())
+                # elif not self.code_model.options["keep-setup-py"]:
+                #     # remove setup.py file
+                #     self.remove_file(generation_path / Path("setup.py"))
 
-                # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
-                if self.code_model.options.get("package-mode"):
-                    self._serialize_and_write_package_files()
+                # # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
+                # if self.code_model.options.get("package-mode"):
+                #     self._serialize_and_write_package_files()
 
-                # write apiview-properties.json
-                if self.code_model.options.get("emit-cross-language-definition-file"):
-                    self.write_file(
-                        self._root_of_sdk / Path("apiview-properties.json"),
-                        general_serializer.serialize_cross_language_definition_file(),
-                    )
+                # # write apiview-properties.json
+                # if self.code_model.options.get("emit-cross-language-definition-file"):
+                #     self.write_file(
+                #         self._root_of_sdk / Path("apiview-properties.json"),
+                #         general_serializer.serialize_cross_language_definition_file(),
+                #     )
 
                 # add generated samples and generated tests
                 if self.code_model.options["show-operations"] and self.code_model.has_operations:
@@ -187,57 +187,57 @@ class JinjaSerializer(ReaderAndWriter):
                         )
                         test_count += 1
 
-                # add _metadata.json
-                if self.code_model.metadata:
-                    self.write_file(
-                        self._root_of_sdk / "_metadata.json",
-                        json.dumps(self.code_model.metadata, indent=2),
-                    )
-            elif client_namespace_type.clients:
-                # add clients folder if there are clients in this namespace
-                self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
-            else:
-                # add pkgutil init file if no clients in this namespace
-                self.write_file(
-                    generation_path / Path("__init__.py"),
-                    general_serializer.serialize_pkgutil_init_file(),
-                )
+                # # add _metadata.json
+                # if self.code_model.metadata:
+                #     self.write_file(
+                #         self._root_of_sdk / "_metadata.json",
+                #         json.dumps(self.code_model.metadata, indent=2),
+                #     )
+            # elif client_namespace_type.clients:
+            #     # add clients folder if there are clients in this namespace
+            #     self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
+            # else:
+            #     # add pkgutil init file if no clients in this namespace
+            #     self.write_file(
+            #         generation_path / Path("__init__.py"),
+            #         general_serializer.serialize_pkgutil_init_file(),
+                # )
 
-            # _utils/py.typed/_types.py/_validation.py
-            # is always put in top level namespace
-            if self.code_model.is_top_namespace(client_namespace):
-                self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
+            # # _utils/py.typed/_types.py/_validation.py
+            # # is always put in top level namespace
+            # if self.code_model.is_top_namespace(client_namespace):
+            #     self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
 
-            # add models folder if there are models in this namespace
-            if (
-                self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums
-            ) and self.code_model.options["models-mode"]:
-                self._serialize_and_write_models_folder(
-                    env=env,
-                    namespace=client_namespace,
-                    models=client_namespace_type.models,
-                    enums=client_namespace_type.enums,
-                )
+            # # add models folder if there are models in this namespace
+            # if (
+            #     self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums
+            # ) and self.code_model.options["models-mode"]:
+            #     self._serialize_and_write_models_folder(
+            #         env=env,
+            #         namespace=client_namespace,
+            #         models=client_namespace_type.models,
+            #         enums=client_namespace_type.enums,
+            #     )
 
-            if not self.code_model.options["models-mode"]:
-                # keep models file if users ended up just writing a models file
-                model_path = generation_path / Path("models.py")
-                if self.read_file(model_path):
-                    self.write_file(model_path, self.read_file(model_path))
+            # if not self.code_model.options["models-mode"]:
+            #     # keep models file if users ended up just writing a models file
+            #     model_path = generation_path / Path("models.py")
+            #     if self.read_file(model_path):
+            #         self.write_file(model_path, self.read_file(model_path))
 
-            # add operations folder if there are operations in this namespace
-            if client_namespace_type.operation_groups:
-                self._serialize_and_write_operations_folder(
-                    client_namespace_type.operation_groups, env=env, namespace=client_namespace
-                )
+            # # add operations folder if there are operations in this namespace
+            # if client_namespace_type.operation_groups:
+            #     self._serialize_and_write_operations_folder(
+            #         client_namespace_type.operation_groups, env=env, namespace=client_namespace
+            #     )
 
-            # if there are only operations under this namespace, we need to add general __init__.py into `aio` folder
-            # to make sure all generated files could be packed into .zip/.whl/.tgz package
-            if not client_namespace_type.clients and client_namespace_type.operation_groups and self.has_aio_folder:
-                self.write_file(
-                    generation_path / Path("aio/__init__.py"),
-                    general_serializer.serialize_pkgutil_init_file(),
-                )
+            # # if there are only operations under this namespace, we need to add general __init__.py into `aio` folder
+            # # to make sure all generated files could be packed into .zip/.whl/.tgz package
+            # if not client_namespace_type.clients and client_namespace_type.operation_groups and self.has_aio_folder:
+            #     self.write_file(
+            #         generation_path / Path("aio/__init__.py"),
+            #         general_serializer.serialize_pkgutil_init_file(),
+            #     )
 
     # path where README.md is
     @property
