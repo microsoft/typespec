@@ -14,9 +14,9 @@ namespace Response.Redirect;
 @scenarioDoc("""
   Test case for 302 redirect response.
   
-  Verify that the client can handle a 302 redirect response with a Location header.
-  This is commonly used in OAuth-style authorization flows where the service redirects
-  users to a mobile operator's network for authentication.
+  Verify that the client can receive and process a 302 redirect response with a Location header.
+  This is commonly used in OAuth-style authorization flows where the service provides a redirect
+  URI that the application can use to navigate users to the mobile operator's network for authentication.
   
   Expected status code 302 and response headers:
   - Location: /redirected
