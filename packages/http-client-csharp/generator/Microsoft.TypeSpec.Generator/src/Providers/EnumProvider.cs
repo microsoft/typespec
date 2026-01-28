@@ -32,10 +32,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _inputType = input;
             _deprecated = input?.Deprecation;
             IsExtensible = input?.IsExtensible ?? false;
+            InputNamespace = input?.Namespace;
         }
 
         internal EnumProvider? FixedEnumView { get; set; }
         internal EnumProvider? ExtensibleEnumView { get; set; }
+
+        public string? InputNamespace { get; }
 
         public bool IsExtensible { get; }
         private bool? _isIntValue;

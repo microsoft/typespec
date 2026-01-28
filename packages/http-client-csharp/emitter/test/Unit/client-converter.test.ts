@@ -251,3 +251,209 @@ describe("isMultiServiceClient", () => {
     }
   });
 });
+
+describe("client name suffix", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("should append Client suffix to multi-service root client without suffix", async () => {
+    const program = await typeSpecCompile(
+      `
+        @versioned(VersionsA)
+        namespace ServiceA {
+          enum VersionsA {
+            av1,
+          }
+
+          @route("/test")
+          op testOne(@query("api-version") apiVersion: VersionsA): void;
+        }
+
+        @versioned(VersionsB)
+        namespace ServiceB {
+          enum VersionsB {
+            bv1,
+          }
+
+          @route("/test")
+          op testTwo(@query("api-version") apiVersion: VersionsB): void;
+        }
+
+        @client({
+          name: "Combined",
+          service: [ServiceA, ServiceB],
+        })
+        namespace Service.MultiService {}
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const client = root.clients[0];
+    ok(client, "Client should exist");
+    strictEqual(
+      client.name,
+      "CombinedClient",
+      "Multi-service root client should have Client suffix appended",
+    );
+  });
+
+  it("should not duplicate Client suffix for multi-service root client already ending with Client", async () => {
+    const program = await typeSpecCompile(
+      `
+        @versioned(VersionsA)
+        namespace ServiceA {
+          enum VersionsA {
+            av1,
+          }
+
+          @route("/test")
+          op testOne(@query("api-version") apiVersion: VersionsA): void;
+        }
+
+        @versioned(VersionsB)
+        namespace ServiceB {
+          enum VersionsB {
+            bv1,
+          }
+
+          @route("/test")
+          op testTwo(@query("api-version") apiVersion: VersionsB): void;
+        }
+
+        @client({
+          name: "CombinedClient",
+          service: [ServiceA, ServiceB],
+        })
+        namespace Service.MultiService {}
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const client = root.clients[0];
+    ok(client, "Client should exist");
+    strictEqual(
+      client.name,
+      "CombinedClient",
+      "Multi-service root client already ending with Client should not have suffix duplicated",
+    );
+  });
+
+  it("should not duplicate Client suffix with different casing", async () => {
+    const program = await typeSpecCompile(
+      `
+        @versioned(VersionsA)
+        namespace ServiceA {
+          enum VersionsA {
+            av1,
+          }
+
+          @route("/test")
+          op testOne(@query("api-version") apiVersion: VersionsA): void;
+        }
+
+        @versioned(VersionsB)
+        namespace ServiceB {
+          enum VersionsB {
+            bv1,
+          }
+
+          @route("/test")
+          op testTwo(@query("api-version") apiVersion: VersionsB): void;
+        }
+
+        @client({
+          name: "CombinedCLIENT",
+          service: [ServiceA, ServiceB],
+        })
+        namespace Service.MultiService {}
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const client = root.clients[0];
+    ok(client, "Client should exist");
+    strictEqual(
+      client.name,
+      "CombinedCLIENT",
+      "Multi-service root client ending with CLIENT (uppercase) should not have suffix duplicated",
+    );
+  });
+
+  it("should not append Client suffix to sub-clients of multi-service client", async () => {
+    const program = await typeSpecCompile(
+      `
+        @versioned(VersionsA)
+        namespace ServiceA {
+          enum VersionsA {
+            av1,
+          }
+
+          @route("/a")
+          interface AI {
+            @route("test")
+            op aTest(): void;
+          }
+        }
+
+        @versioned(VersionsB)
+        namespace ServiceB {
+          enum VersionsB {
+            bv1,
+          }
+
+          @route("/b")
+          interface BI {
+            @route("test")
+            op bTest(): void;
+          }
+        }
+
+        @client({
+          name: "Combined",
+          service: [ServiceA, ServiceB],
+        })
+        @useDependency(ServiceA.VersionsA.av1, ServiceB.VersionsB.bv1)
+        namespace Service.MultiService {}
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const client = root.clients[0];
+    ok(client, "Client should exist");
+    strictEqual(
+      client.name,
+      "CombinedClient",
+      "Multi-service root client should have Client suffix appended",
+    );
+
+    // Verify sub-clients do NOT have Client suffix appended
+    ok(client.children, "Client should have children");
+    ok(client.children.length > 0, "Client should have at least one child");
+    for (const childClient of client.children) {
+      strictEqual(
+        childClient.name.endsWith("Client"),
+        false,
+        `Child client '${childClient.name}' should not have Client suffix`,
+      );
+    }
+  });
+});
