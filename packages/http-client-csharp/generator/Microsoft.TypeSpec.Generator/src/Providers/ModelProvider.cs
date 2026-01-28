@@ -644,31 +644,41 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
         {
+            // Only handle the case of changing modifiers on abstract base types
+            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                return [.. originalConstructors];
+            }
+
             if (LastContractView?.Constructors == null || LastContractView.Constructors.Count == 0)
             {
                 return [.. originalConstructors];
             }
 
             List<ConstructorProvider> constructors = [.. originalConstructors];
-            HashSet<ConstructorSignature> currentConstructorSignatures = new List<ConstructorProvider>([.. originalConstructors, .. CustomCodeView?.Constructors ?? []])
-               .Select(c => c.Signature)
-               .ToHashSet(ConstructorSignatureComparer.Instance);
 
+            // Check if the last contract had a public constructor with matching parameters
             foreach (var previousConstructor in LastContractView.Constructors)
             {
-                // Skip if the previous constructor already exists in the current version
-                if (currentConstructorSignatures.Contains(previousConstructor.Signature))
+                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
                 {
                     continue;
                 }
 
-                // Check if this is a public constructor that's missing in the current version
-                if (previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                // Find a matching constructor in the current version by parameter signature
+                for (int i = 0; i < constructors.Count; i++)
                 {
-                    // Try to create a backward-compatible constructor that delegates to an existing constructor
-                    if (TryBuildBackwardCompatibleConstructor(previousConstructor, constructors, out var backCompatConstructor))
+                    var currentConstructor = constructors[i];
+
+                    // Check if parameters match (same count and types)
+                    if (ParametersMatch(currentConstructor.Signature.Parameters, previousConstructor.Signature.Parameters))
                     {
-                        constructors.Add(backCompatConstructor);
+                        // Change the modifier from private protected to public
+                        if (currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) &&
+                            currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                        {
+                            currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                        }
                     }
                 }
             }
@@ -676,106 +686,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. constructors];
         }
 
-        private bool TryBuildBackwardCompatibleConstructor(
-            ConstructorProvider previousConstructor,
-            List<ConstructorProvider> currentConstructors,
-            [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ConstructorProvider? backCompatConstructor)
+        private bool ParametersMatch(IReadOnlyList<ParameterProvider> params1, IReadOnlyList<ParameterProvider> params2)
         {
-            backCompatConstructor = null;
-
-            // Find a constructor in the current version that we can delegate to
-            ConstructorProvider? targetConstructor = null;
-            foreach (var currentConstructor in currentConstructors)
-            {
-                // Look for a constructor with at least as many parameters as the previous one
-                if (currentConstructor.Signature.Parameters.Count >= previousConstructor.Signature.Parameters.Count)
-                {
-                    targetConstructor = currentConstructor;
-                    break;
-                }
-            }
-
-            if (targetConstructor == null)
+            if (params1.Count != params2.Count)
             {
                 return false;
             }
 
-            // Build the backward-compatible constructor signature
-            var backCompatSignature = new ConstructorSignature(
-                Type,
-                $"Initializes a new instance of {Type:C}",
-                MethodSignatureModifiers.Public,
-                previousConstructor.Signature.Parameters);
-
-            // Build the body that delegates to the target constructor
-            var delegationArguments = new List<ValueExpression>();
-            var targetParams = targetConstructor.Signature.Parameters;
-            var previousParams = previousConstructor.Signature.Parameters.ToDictionary(p => p.Name);
-
-            foreach (var targetParam in targetParams)
+            for (int i = 0; i < params1.Count; i++)
             {
-                if (previousParams.TryGetValue(targetParam.Name, out var previousParam))
+                if (!params1[i].Type.AreNamesEqual(params2[i].Type) || params1[i].Name != params2[i].Name)
                 {
-                    // Use the parameter from the previous constructor (implicitly converted to VariableExpression)
-                    delegationArguments.Add(previousParam);
-                }
-                else
-                {
-                    // Use default value for the new parameter
-                    delegationArguments.Add(Literal(null));
+                    return false;
                 }
             }
-
-            // Create the initializer that calls the target constructor
-            var initializer = new ConstructorInitializer(true, delegationArguments);
-
-            backCompatConstructor = new ConstructorProvider(
-                signature: backCompatSignature,
-                bodyStatements: new MethodBodyStatement[] { MethodBodyStatement.Empty },
-                this);
-
-            // Update the signature to include the initializer
-            backCompatConstructor.Signature.Update(initializer: initializer);
 
             return true;
-        }
-
-        private class ConstructorSignatureComparer : IEqualityComparer<ConstructorSignature>
-        {
-            public static readonly ConstructorSignatureComparer Instance = new();
-
-            public bool Equals(ConstructorSignature? x, ConstructorSignature? y)
-            {
-                if (ReferenceEquals(x, y))
-                    return true;
-                if (x is null || y is null)
-                    return false;
-
-                // Compare modifiers
-                if (x.Modifiers != y.Modifiers)
-                    return false;
-
-                // Compare parameter count
-                if (x.Parameters.Count != y.Parameters.Count)
-                    return false;
-
-                // Compare each parameter
-                for (int i = 0; i < x.Parameters.Count; i++)
-                {
-                    var xParam = x.Parameters[i];
-                    var yParam = y.Parameters[i];
-
-                    if (!xParam.Type.AreNamesEqual(yParam.Type) || xParam.Name != yParam.Name)
-                        return false;
-                }
-
-                return true;
-            }
-
-            public int GetHashCode(ConstructorSignature obj)
-            {
-                return HashCode.Combine(obj.Modifiers, obj.Parameters.Count);
-            }
         }
 
         private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization(bool includeAllHierarchyDiscriminator = false)

@@ -1762,35 +1762,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_MissingPublicParameterlessConstructor()
-        {
-            var inputModel = InputFactory.Model(
-                "SearchIndexerDataIdentity",
-                properties:
-                [
-                    InputFactory.Property("oDataType", InputPrimitiveType.String, isRequired: true)
-                ],
-                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output);
-
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [inputModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "SearchIndexerDataIdentity") as ModelProvider;
-
-            Assert.IsNotNull(modelProvider);
-
-            // Call ProcessTypeForBackCompatibility to apply backward compatibility logic
-            modelProvider!.ProcessTypeForBackCompatibility();
-
-            // Check that a public parameterless constructor is present
-            var publicParameterlessConstructor = modelProvider.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 0);
-            Assert.IsNotNull(publicParameterlessConstructor, "Missing public parameterless constructor from backward compatibility");
-        }
-
-        [Test]
-        public async Task BackCompat_MissingPublicConstructorWithParameter()
+        public async Task BackCompat_AbstractTypeConstructorAccessibility()
         {
             var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
             var derivedInputModel = InputFactory.Model(
@@ -1806,8 +1778,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 properties:
                 [
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
-                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.Property("newProp", InputPrimitiveType.Int32, isRequired: true) // New property added
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
 
@@ -1819,14 +1790,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.IsNotNull(modelProvider);
 
-            // Call ProcessTypeForBackCompatibility to apply backward compatibility logic
-            modelProvider!.ProcessTypeForBackCompatibility();
+            // Without ProcessTypeForBackCompatibility, constructor should be private protected
+            var privateProtectedConstructor = modelProvider!.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) 
+                    && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)
+                    && c.Signature.Parameters.Count == 1);
+            Assert.IsNotNull(privateProtectedConstructor, "Expected a private protected constructor before back compat processing");
 
-            // Check that a public constructor with one parameter (baseProp only) is present for backward compatibility
-            var publicConstructorWithOneParam = modelProvider.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
-            Assert.IsNotNull(publicConstructorWithOneParam, "Missing public constructor with one parameter from backward compatibility");
-            Assert.AreEqual("baseProp", publicConstructorWithOneParam!.Signature.Parameters[0].Name);
+            // Call ProcessTypeForBackCompatibility to apply backward compatibility logic
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            // After ProcessTypeForBackCompatibility, constructor should be public to match last contract
+            var publicConstructor = modelProvider.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) 
+                    && c.Signature.Parameters.Count == 1);
+            Assert.IsNotNull(publicConstructor, "Constructor modifier should be changed to public for backward compatibility");
+            Assert.AreEqual("baseProp", publicConstructor!.Signature.Parameters[0].Name);
         }
     }
 }

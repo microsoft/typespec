@@ -216,15 +216,17 @@ public class BaseModel
 
 ### Model Constructors
 
-The generator maintains backward compatibility for model constructors to prevent breaking changes when new properties are added or when constructors are modified.
+The generator maintains backward compatibility for model constructors on abstract base types to prevent breaking changes when constructor accessibility changes.
 
-#### Scenario: Missing Public Constructor
+#### Scenario: Public Constructor on Abstract Base Type
 
-**Description:** When a public constructor exists in the previous version but is missing in the newly generated code, the generator automatically adds the missing constructor to maintain backward compatibility. This commonly occurs with:
-- Parameterless public constructors on abstract base models
-- Public constructors when new required properties are added to a model
+**Description:** When an abstract base type had a public constructor in the previous version, but the current TypeSpec generation would create a `private protected` constructor, the generator automatically changes the modifier to `public` to maintain backward compatibility.
 
-**Example - Parameterless Constructor:**
+This commonly occurs when:
+- Migrating from autorest-generated code to TypeSpec-generated code
+- Abstract base types with discriminators had public parameterless constructors in previous versions
+
+**Example:**
 
 Previous version had a public parameterless constructor:
 
@@ -238,7 +240,7 @@ public abstract partial class SearchIndexerDataIdentity
 }
 ```
 
-Current TypeSpec would generate only constructors with parameters:
+Current TypeSpec would generate a private protected constructor:
 
 ```csharp
 public abstract partial class SearchIndexerDataIdentity
@@ -252,17 +254,25 @@ public abstract partial class SearchIndexerDataIdentity
 }
 ```
 
-**Generated Compatibility Constructor:**
+**Generated Compatibility Result:**
+
+When a matching public constructor exists in the last contract, the modifier is changed from `private protected` to `public`:
 
 ```csharp
-/// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
-public SearchIndexerDataIdentity() : this(odataType: default)
+public abstract partial class SearchIndexerDataIdentity
 {
+    /// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+    /// <param name="odataType"> A URI fragment specifying the type of identity. </param>
+    public SearchIndexerDataIdentity(string odataType)
+    {
+        OdataType = odataType;
+    }
 }
 ```
 
 **Key Points:**
 
-- The missing public constructor is automatically generated
-- It delegates to an existing constructor, providing default values for any new parameters
-- This prevents breaking changes for code that uses the parameterless constructor
+- Only applies to abstract base types
+- The constructor must have matching parameters (same count, types, and names)
+- The modifier is changed from `private protected` to `public`
+- No additional constructors are generated; only the accessibility is adjusted
