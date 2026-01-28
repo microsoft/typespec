@@ -24,6 +24,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
         private const string MaxPageSizeParameterName = "maxpagesize";
+        private const string ApiVersionParameterName = "api-version";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -302,6 +303,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (pageSizeParam != null && paramMap.TryGetValue(pageSizeParam.Name, out var paramInSignature))
                     {
                         reinjectedParamsMap[pageSizeParameter.Name] = paramInSignature;
+                    }
+                }
+            }
+
+            // Add API version parameters that need to be preserved across pagination requests
+            foreach (var param in operation.Parameters)
+            {
+                if (param.IsApiVersion && !reinjectedParamsMap.ContainsKey(param.Name))
+                {
+                    var apiVersionParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
+                    if (apiVersionParam != null && paramMap.TryGetValue(apiVersionParam.Name, out var paramInSignature))
+                    {
+                        reinjectedParamsMap[param.Name] = paramInSignature;
                     }
                 }
             }
@@ -845,7 +859,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool ShouldSkipReinjectedParameter(string parameterName)
         {
-            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase);
+            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase) ||
+                   parameterName.Equals(ApiVersionParameterName, StringComparison.OrdinalIgnoreCase);
             // In the future, we can extend this to check multiple parameters
         }
 
