@@ -1374,53 +1374,5 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     ],
                     parameters: [endpointParameter, enumApiVersionParameter]));
         }
-
-        [Test]
-        public void ValidateOptionalContentTypeHeader()
-        {
-            // Test that optional Content-Type header with Constant scope is handled correctly
-            var bodyModel = InputFactory.Model("BodyModel", properties:
-            [
-                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
-            ]);
-            
-            var contentTypeParameter = InputFactory.HeaderParameter(
-                "contentType",
-                InputFactory.Literal.String("application/json"),
-                isRequired: false, // Optional
-                defaultValue: InputFactory.Constant.String("application/json"),
-                serializedName: "Content-Type",
-                isContentType: true,
-                scope: InputParameterScope.Constant); // Constant scope for optional Content-Type
-                
-            var bodyParameter = InputFactory.BodyParameter("body", bodyModel, isRequired: false);
-            
-            var inputServiceMethod = InputFactory.BasicServiceMethod("TestMethod",
-                InputFactory.Operation("TestOperation",
-                    parameters:
-                    [
-                        contentTypeParameter,
-                        bodyParameter
-                    ],
-                    responses:
-                    [
-                        InputFactory.OperationResponse([204])
-                    ]));
-                    
-            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            var clientProvider = new ClientProvider(inputClient);
-            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
-            var writer = new TypeProviderWriter(restClientProvider);
-            var file = writer.Write();
-            
-            TestContext.Out.WriteLine("=== Generated Code ===");
-            TestContext.Out.WriteLine(file.Content);
-
-            // Verify that contentType parameter is included as a method parameter (not treated as constant)
-            Assert.IsTrue(file.Content.Contains("string contentType"),
-                "Content-Type should be a method parameter for optional body");
-            Assert.IsTrue(file.Content.Contains("contentType != null"),
-                "Content-Type should be conditionally set when optional");
-        }
     }
 }

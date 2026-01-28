@@ -761,7 +761,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            if (inputParam.Scope == InputParameterScope.Constant && !(inputParam is InputHeaderParameter headerParameter && headerParameter.IsContentType && (!inputParam.IsRequired || operation.IsMultipartFormData)))
+            if (inputParam.Scope == InputParameterScope.Constant && !(operation.IsMultipartFormData && inputParam is InputHeaderParameter headerParameter && headerParameter.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
                 serializationFormat = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type);
@@ -925,14 +925,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (inputParam.Scope != InputParameterScope.Method)
                 {
-                    // Allow optional Content-Type headers to be included as method parameters
-                    // even though they have Constant scope
-                    bool isOptionalContentType = inputParam is InputHeaderParameter headerParam &&
-                                                  headerParam.IsContentType &&
-                                                  !inputParam.IsRequired;
-
-                    if (!isOptionalContentType &&
-                        inputParam is not InputBodyParameter &&
+                    if (inputParam is not InputBodyParameter &&
                         !(inputParam is InputMethodParameter { Location: InputRequestLocation.Body }))
                     {
                         continue;
