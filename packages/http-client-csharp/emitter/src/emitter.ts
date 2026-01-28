@@ -80,14 +80,13 @@ export async function createCodeModel(
   context: EmitContext<CSharpEmitterOptions>,
   updateCodeModel?: (model: CodeModel, context: CSharpEmitterContext) => CodeModel,
 ): Promise<[void, readonly Diagnostic[]]> {
+  const diagnostics = createDiagnosticCollector();
   const program: Program = context.program;
   const options = resolveOptions(context);
   const outputFolder = context.emitterOutputDir;
 
   /* set the log level. */
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO, true);
-
-  const diagnostics: Diagnostic[] = [];
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
@@ -99,10 +98,11 @@ export async function createCodeModel(
       ),
       logger,
     );
-    diagnostics.push(...sdkContext.diagnostics);
+    for (const diag of sdkContext.diagnostics) {
+      diagnostics.add(diag);
+    }
 
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    diagnostics.push(...modelDiagnostics);
+    const root = diagnostics.pipe(createModel(sdkContext));
 
     if (root) {
       // Use the provided callback or default to identity function
@@ -116,8 +116,9 @@ export async function createCodeModel(
       }
 
       // emit tspCodeModel.json
-      const writeDiagnostics = await writeCodeModel(sdkContext, updatedRoot, outputFolder);
-      diagnostics.push(...writeDiagnostics);
+      for (const diag of await writeCodeModel(sdkContext, updatedRoot, outputFolder)) {
+        diagnostics.add(diag);
+      }
 
       const namespace = updatedRoot.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
@@ -147,8 +148,7 @@ export async function createCodeModel(
           debug: options.debug ?? false,
         });
         if (result.exitCode !== 0) {
-          const [isValid, validationDiagnostics] = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
-          diagnostics.push(...validationDiagnostics);
+          const isValid = diagnostics.pipe(await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion));
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) {
             throw new Error(
@@ -157,8 +157,7 @@ export async function createCodeModel(
           }
         }
       } catch (error: any) {
-        const [isValid, validationDiagnostics] = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
-        diagnostics.push(...validationDiagnostics);
+        const isValid = diagnostics.pipe(await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion));
         // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
         if (isValid) throw new Error(error);
       }
@@ -170,7 +169,7 @@ export async function createCodeModel(
     }
   }
 
-  return [void 0, diagnostics];
+  return diagnostics.wrap(void 0);
 }
 
 /**
