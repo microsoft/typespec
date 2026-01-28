@@ -197,6 +197,7 @@ function fromSdkModelType(
     discriminatorValue: modelType.discriminatorValue,
     decorators: decorators,
     external: fromSdkExternalTypeInfo(modelType),
+    serializationOptions: modelType.serializationOptions,
   } as InputModelType;
 
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
