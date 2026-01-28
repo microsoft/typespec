@@ -1045,7 +1045,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.extend([f"    {l}" for l in response_read])
         retval.append("    map_error(status_code=response.status_code, response=response, error_map=error_map)")
         error_model = ""
-        if builder.non_default_errors and self.code_model.options["models-mode"]:
+        if (  # pylint: disable=too-many-nested-blocks
+            builder.non_default_errors and self.code_model.options["models-mode"]
+        ):
             error_model = ", model=error"
             condition = "if"
             retval.append("    error = None")
@@ -1062,9 +1064,11 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
                         if self.code_model.options["models-mode"] == "dpg":
-                            retval.append(
-                                f"        error = _failsafe_deserialize({type_annotation},{pylint_disable}\n  response)"
-                            )
+                            if xml_serializable(str(e.default_content_type)):
+                                fn = "_failsafe_deserialize_xml"
+                            else:
+                                fn = "_failsafe_deserialize"
+                            retval.append(f"        error = {fn}({type_annotation},{pylint_disable}\n  response)")
                         else:
                             retval.extend(
                                 [
@@ -1130,9 +1134,14 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if builder.non_default_errors:
                 retval.append("    else:")
             if self.code_model.options["models-mode"] == "dpg":
+                default_exception = next(e for e in builder.exceptions if "default" in e.status_codes and e.type)
+                if xml_serializable(str(default_exception.default_content_type)):
+                    fn = "_failsafe_deserialize_xml"
+                else:
+                    fn = "_failsafe_deserialize"
                 retval.extend(
                     [
-                        f"{indent}error = _failsafe_deserialize(",
+                        f"{indent}error = {fn}(",
                         f"{indent}    {default_error_deserialization}",
                         f"{indent}    response,",
                         f"{indent})",
