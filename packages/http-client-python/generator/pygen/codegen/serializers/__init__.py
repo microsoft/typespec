@@ -619,11 +619,18 @@ class JinjaSerializer(ReaderAndWriter):
                 for async_mode in (True, False):
                     try:
                         test_serializer.async_mode = async_mode
-                        content = test_serializer.serialize_test()
+                        async_suffix = "async" if async_mode else "sync"
+                        content = Profiler.measure(
+                            f"serialize_test[{og.class_name}_{async_suffix}]",
+                            lambda: test_serializer.serialize_test(),
+                        )
                         output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
                         files_to_write.append((output_path, content))
+                        break
                     except Exception as e:  # pylint: disable=broad-except
                         _LOGGER.error(f"error happens in test generation for operation group {og.class_name}: {e}")
+                break
+            break
 
         # Phase 2: Write all files (I/O-bound, threading helps here)
         def write_single_file(item: tuple[Path, str]) -> None:
