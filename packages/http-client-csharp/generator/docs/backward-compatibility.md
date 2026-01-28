@@ -223,6 +223,7 @@ The generator maintains backward compatibility for model constructors on abstrac
 **Description:** When an abstract base type had a public constructor in the previous version, but the current TypeSpec generation would create a `private protected` constructor, the generator automatically changes the modifier to `public` to maintain backward compatibility.
 
 This commonly occurs when:
+
 - Migrating from autorest-generated code to TypeSpec-generated code
 - Abstract base types with discriminators had public parameterless constructors in previous versions
 
