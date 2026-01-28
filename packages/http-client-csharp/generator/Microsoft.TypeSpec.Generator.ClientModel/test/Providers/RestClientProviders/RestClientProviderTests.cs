@@ -1374,5 +1374,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     ],
                     parameters: [endpointParameter, enumApiVersionParameter]));
         }
+
+        [Test]
+        public void TestApiVersionParameterReinjectedInCreateNextRequestMethod()
+        {
+            // Create API version parameter marked with IsApiVersion = true
+            var apiVersionParam = InputFactory.QueryParameter("apiVersion", InputPrimitiveType.String, 
+                isRequired: true, serializedName: "api-version", isApiVersion: true);
+            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32, 
+                isRequired: false, serializedName: "maxpagesize");
+            
+            List<InputParameter> parameters =
+            [
+                apiVersionParam,
+                pageSizeParam,
+            ];
+            
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("apiVersion", InputPrimitiveType.String, isRequired: true, 
+                    location: InputRequestLocation.Query, serializedName: "api-version"),
+                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false, 
+                    location: InputRequestLocation.Query, serializedName: "maxpagesize"),
+            ];
+            
+            var inputModel = InputFactory.Model("Item", properties:
+            [
+                InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+            
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], 
+                InputResponseLocation.Body, reinjectedParameters: []);
+            
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "PagedItems",
+                    properties: [
+                        InputFactory.Property("value", InputFactory.Array(inputModel)), 
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url)
+                    ]));
+            
+            var operation = InputFactory.Operation("listItems", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "listItems",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: methodParameters);
+            
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            
+            Assert.That(file.Content, Contains.Substring("api-version"));
+            Assert.That(file.Content, Contains.Substring("maxpagesize"));
+        }
     }
 }
