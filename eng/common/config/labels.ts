@@ -11,7 +11,7 @@ export const AreaLabels = defineLabels({
     color: "453261",
     description: "Issues for @typespec/compiler",
   },
-  "compiler:emitter-framework": {
+  "emitter-framework": {
     color: "453261",
     description: "Issues for the emitter framework",
   },
