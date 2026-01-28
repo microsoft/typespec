@@ -23,22 +23,14 @@ class {{ test.test_class_name }}({{ test.base_test_class_name }}):
         self.client = self.create_mgmt_client({{ test.client_name }})
         {% endif %}
 {% endif %}
+{% if is_azure_arm %}
 {% for testcase in test.testcases %}
-    {% if is_azure_arm %}
     @{{ test.preparer_name }}(location=AZURE_LOCATION)
-    {% else %}
-    @{{ test.preparer_name }}()
-    {% endif %}
     @recorded_by_proxy{{ async_suffix }}
-    {% if is_azure_arm %}
     {{ async }}def test_{{ testcase.name }}(self, resource_group):
-    {% else %}
-    {{ async }}def test_{{ testcase.name }}(self, {{ prefix_lower }}_endpoint):
-        {{ client_var }} = self.{{ test.create_client_name }}(endpoint={{ prefix_lower }}_endpoint)
-    {% endif %}
         {{testcase.response }}{{ client_var }}{{ testcase.operation_group_prefix }}.{{ testcase.operation.name }}(
             {% for key, value in testcase.params.items() %}
-            {% if is_azure_arm and key == "resource_group_name" %}
+            {% if key == "resource_group_name" %}
             {{ key }}=resource_group.name,
             {% else %}
             {{ key }}={{ value|indent(12) }},
@@ -50,3 +42,20 @@ class {{ test.test_class_name }}({{ test.base_test_class_name }}):
         # ...
 
 {% endfor %}
+{% else %}
+{% for testcase in test.testcases %}
+    @{{ test.preparer_name }}()
+    @recorded_by_proxy{{ async_suffix }}
+    {{ async }}def test_{{ testcase.name }}(self, {{ prefix_lower }}_endpoint):
+        {{ client_var }} = self.{{ test.create_client_name }}(endpoint={{ prefix_lower }}_endpoint)
+        {{testcase.response }}{{ client_var }}{{ testcase.operation_group_prefix }}.{{ testcase.operation.name }}(
+            {% for key, value in testcase.params.items() %}
+            {{ key }}={{ value|indent(12) }},
+            {% endfor %}
+        ){{ testcase.operation_suffix }}
+        {{ testcase.extra_operation }}
+        # please add some check logic here by yourself
+        # ...
+
+{% endfor %}
+{% endif %}
