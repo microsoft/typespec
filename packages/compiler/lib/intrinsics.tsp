@@ -7,7 +7,21 @@ namespace TypeSpec;
 /**
  * Represent a byte array
  */
-scalar bytes;
+scalar bytes {
+  /**
+   * Create a byte array from a string with the specified encoding.
+   * Defaults to be encoded in `base64`.
+   *
+   * @param value The string value to encode
+   * @param encoding The encoding to use. Defaults to `utf8` if not specified.
+   *
+   * @example
+   * ```tsp
+   * const bytes = bytes.fromString("TypeSpec", "utf8");
+   * ```
+   */
+  init fromString(value: string, encoding?: "utf8");
+}
 
 /**
  * A numeric type
