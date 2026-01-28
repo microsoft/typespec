@@ -111,9 +111,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
 
-            // All models are given a usage of JSON so that they can be persisted regardless of whether
-            // they are used in requests or responses.
-            model.Usage = parsedUsage | InputModelTypeUsage.Json;
+            if (!parsedUsage.HasFlag(InputModelTypeUsage.Xml))
+            {
+                parsedUsage |= InputModelTypeUsage.Json;
+            }
+            model.Usage = parsedUsage;
             model.DiscriminatorValue = discriminatorValue;
             model.DiscriminatorProperty = discriminatorProperty;
             model.AdditionalProperties = additionalProperties;
