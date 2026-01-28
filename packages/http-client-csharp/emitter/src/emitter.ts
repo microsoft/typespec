@@ -116,9 +116,8 @@ export async function createCodeModel(
       }
 
       // emit tspCodeModel.json
-      const writeDiagnostics = createDiagnosticCollector();
-      await writeCodeModel(sdkContext, updatedRoot, outputFolder, writeDiagnostics);
-      diagnostics.push(...writeDiagnostics.diagnostics);
+      const writeDiagnostics = await writeCodeModel(sdkContext, updatedRoot, outputFolder);
+      diagnostics.push(...writeDiagnostics);
 
       const namespace = updatedRoot.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);

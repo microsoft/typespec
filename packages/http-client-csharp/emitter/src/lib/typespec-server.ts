@@ -38,7 +38,7 @@ export function resolveServers(
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(sdkContext, getClientType(sdkContext, prop), diagnostics);
+        : diagnostics.pipe(fromSdkType(sdkContext, getClientType(sdkContext, prop)));
 
       if (value) {
         defaultValue = {

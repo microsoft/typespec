@@ -7,7 +7,7 @@ import {
   SdkHttpOperation,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic, DiagnosticCollector } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
@@ -43,9 +43,9 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   const sdkPackage = sdkContext.sdkPackage;
 
   // TO-DO: Consider exposing the namespace hierarchy in the code model https://github.com/microsoft/typespec/issues/8332
-  fromSdkNamespaces(sdkContext, sdkPackage.namespaces, diagnostics);
+  diagnostics.pipe(fromSdkNamespaces(sdkContext, sdkPackage.namespaces));
   // TO-DO: Consider using the TCGC model + enum cache once https://github.com/Azure/typespec-azure/issues/3180 is resolved
-  navigateModels(sdkContext, diagnostics);
+  diagnostics.pipe(navigateModels(sdkContext));
 
   const types = Array.from(sdkContext.__typeCache.types.values());
   const [models, enums] = [
@@ -55,7 +55,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
 
   const rootClients = sdkPackage.clients;
   const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
-  const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions, diagnostics);
+  const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
 
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
@@ -165,11 +165,13 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
   }
 }
 
-function navigateModels(sdkContext: CSharpEmitterContext, diagnostics: DiagnosticCollector) {
+function navigateModels(sdkContext: CSharpEmitterContext): [void, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   for (const m of sdkContext.sdkPackage.models) {
-    fromSdkType(sdkContext, m, diagnostics);
+    diagnostics.pipe(fromSdkType(sdkContext, m));
   }
   for (const e of sdkContext.sdkPackage.enums) {
-    fromSdkType(sdkContext, e, diagnostics);
+    diagnostics.pipe(fromSdkType(sdkContext, e));
   }
+  return diagnostics.wrap(undefined as void);
 }

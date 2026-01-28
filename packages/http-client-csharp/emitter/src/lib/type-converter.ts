@@ -20,9 +20,8 @@ import {
   getAccessOverride,
   isHttpMetadata,
 } from "@azure-tools/typespec-client-generator-core";
-import { Model, NoTarget } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, Model, NoTarget } from "@typespec/compiler";
 import { createDiagnostic } from "./lib.js";
-import { DiagnosticCollector } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -75,39 +74,39 @@ type InputReturnType<T extends SdkType> = T extends { kind: "nullable" }
 export function fromSdkType<T extends SdkType>(
   sdkContext: CSharpEmitterContext,
   sdkType: T,
-  diagnostics: DiagnosticCollector,
   sdkProperty?: SdkModelPropertyTypeBase,
   namespace?: string,
-): InputReturnType<T> {
+): [InputReturnType<T>, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   let retVar = sdkContext.__typeCache.types.get(sdkType);
   if (retVar) {
-    return retVar as any;
+    return diagnostics.wrap(retVar as any);
   }
 
   switch (sdkType.kind) {
     case "nullable":
       const nullableType: InputNullableType = {
         kind: "nullable",
-        type: fromSdkType(sdkContext, sdkType.type, diagnostics, sdkProperty, namespace),
+        type: diagnostics.pipe(fromSdkType(sdkContext, sdkType.type, sdkProperty, namespace)),
         namespace: sdkType.namespace,
         external: fromSdkExternalTypeInfo(sdkType),
       };
       retVar = nullableType;
       break;
     case "model":
-      retVar = fromSdkModelType(sdkContext, sdkType, diagnostics);
+      retVar = diagnostics.pipe(fromSdkModelType(sdkContext, sdkType));
       break;
     case "enum":
-      retVar = fromSdkEnumType(sdkContext, sdkType, diagnostics);
+      retVar = diagnostics.pipe(fromSdkEnumType(sdkContext, sdkType));
       break;
     case "enumvalue":
-      retVar = fromSdkEnumValueType(sdkContext, sdkType, diagnostics);
+      retVar = diagnostics.pipe(fromSdkEnumValueType(sdkContext, sdkType));
       break;
     case "dict":
-      retVar = fromSdkDictionaryType(sdkContext, sdkType, diagnostics);
+      retVar = diagnostics.pipe(fromSdkDictionaryType(sdkContext, sdkType));
       break;
     case "array":
-      retVar = fromSdkArrayType(sdkContext, sdkType, diagnostics);
+      retVar = diagnostics.pipe(fromSdkArrayType(sdkContext, sdkType));
       break;
     case "constant":
       if (
@@ -117,20 +116,20 @@ export function fromSdkType<T extends SdkType>(
         sdkType.valueType.kind !== "boolean"
       ) {
         // turn the constant into an extensible enum
-        retVar = createEnumType(sdkContext, sdkType, namespace!, diagnostics);
+        retVar = diagnostics.pipe(createEnumType(sdkContext, sdkType, namespace!));
       } else {
-        retVar = fromSdkConstantType(sdkContext, sdkType, diagnostics);
+        retVar = diagnostics.pipe(fromSdkConstantType(sdkContext, sdkType));
       }
       break;
     case "union":
-      retVar = fromUnionType(sdkContext, sdkType, diagnostics);
+      retVar = diagnostics.pipe(fromUnionType(sdkContext, sdkType));
       break;
     case "utcDateTime":
     case "offsetDateTime":
-      retVar = fromSdkDateTimeType(sdkContext, sdkType, diagnostics);
+      retVar = diagnostics.pipe(fromSdkDateTimeType(sdkContext, sdkType));
       break;
     case "duration":
-      retVar = fromSdkDurationType(sdkContext, sdkType, diagnostics);
+      retVar = diagnostics.pipe(fromSdkDurationType(sdkContext, sdkType));
       break;
     case "tuple":
       diagnostics.add(
@@ -172,20 +171,20 @@ export function fromSdkType<T extends SdkType>(
       retVar = credentialType;
       break;
     default:
-      retVar = fromSdkBuiltInType(sdkContext, sdkType, diagnostics);
+      retVar = diagnostics.pipe(fromSdkBuiltInType(sdkContext, sdkType));
       break;
   }
 
   sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
   // we have to cast to any because TypeScript's type narrowing does not automatically infer the return type for conditional types
-  return retVar as any;
+  return diagnostics.wrap(retVar as any);
 }
 
 function fromSdkModelType(
   sdkContext: CSharpEmitterContext,
   modelType: SdkModelType,
-  diagnostics: DiagnosticCollector,
-): InputModelType {
+): [InputModelType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   // get all unique decorators for the model type from the namespace level and the model level
   let decorators: DecoratorInfo[] = modelType.decorators;
   const namespace = sdkContext.__typeCache.namespaces.get(modelType.namespace);
@@ -210,12 +209,12 @@ function fromSdkModelType(
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
 
   inputModelType.additionalProperties = modelType.additionalProperties
-    ? fromSdkType(sdkContext, modelType.additionalProperties, diagnostics)
+    ? diagnostics.pipe(fromSdkType(sdkContext, modelType.additionalProperties))
     : undefined;
 
   const properties: InputModelProperty[] = [];
   for (const property of modelType.properties) {
-    const ourProperty = fromSdkModelProperty(sdkContext, property, modelType, diagnostics);
+    const ourProperty = diagnostics.pipe(fromSdkModelProperty(sdkContext, property, modelType));
 
     if (ourProperty) {
       properties.push(ourProperty);
@@ -223,11 +222,11 @@ function fromSdkModelType(
   }
 
   inputModelType.discriminatorProperty = modelType.discriminatorProperty
-    ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty, modelType, diagnostics)
+    ? diagnostics.pipe(fromSdkModelProperty(sdkContext, modelType.discriminatorProperty, modelType))
     : undefined;
 
   inputModelType.baseModel = modelType.baseModel
-    ? fromSdkType(sdkContext, modelType.baseModel, diagnostics)
+    ? diagnostics.pipe(fromSdkType(sdkContext, modelType.baseModel))
     : undefined;
 
   inputModelType.properties = properties;
@@ -236,26 +235,26 @@ function fromSdkModelType(
     const discriminatedSubtypes: Record<string, InputModelType> = {};
     for (const key in modelType.discriminatedSubtypes) {
       const subtype = modelType.discriminatedSubtypes[key];
-      discriminatedSubtypes[key] = fromSdkType(sdkContext, subtype, diagnostics);
+      discriminatedSubtypes[key] = diagnostics.pipe(fromSdkType(sdkContext, subtype));
     }
     inputModelType.discriminatedSubtypes = discriminatedSubtypes;
   }
 
-  return inputModelType;
+  return diagnostics.wrap(inputModelType);
 }
 
 function fromSdkModelProperty(
   sdkContext: CSharpEmitterContext,
   sdkProperty: SdkModelPropertyType,
   sdkModel: SdkModelType,
-  diagnostics: DiagnosticCollector,
-): InputModelProperty | undefined {
+): [InputModelProperty | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   // TODO -- this returns undefined because some properties we do not support yet.
   let property = sdkContext.__typeCache.properties.get(sdkProperty) as
     | InputModelProperty
     | undefined;
   if (property) {
-    return property;
+    return diagnostics.wrap(property);
   }
 
   const serializedName =
@@ -268,7 +267,7 @@ function fromSdkModelProperty(
     serializedName: serializedName,
     summary: sdkProperty.summary,
     doc: sdkProperty.doc,
-    type: fromSdkType(sdkContext, sdkProperty.type, diagnostics, sdkProperty, sdkModel.namespace),
+    type: diagnostics.pipe(fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel.namespace)),
     optional: sdkProperty.optional,
     readOnly: isReadOnly(sdkProperty),
     discriminator: sdkProperty.discriminator,
@@ -284,19 +283,20 @@ function fromSdkModelProperty(
     sdkContext.__typeCache.updateSdkPropertyReferences(sdkProperty, property);
   }
 
-  return property;
+  return diagnostics.wrap(property);
 }
 
-function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType, diagnostics: DiagnosticCollector): InputEnumType {
-  return createEnumType(sdkContext, enumType, enumType.namespace, diagnostics);
+function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType): [InputEnumType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  return diagnostics.wrap(diagnostics.pipe(createEnumType(sdkContext, enumType, enumType.namespace)));
 }
 
 function createEnumType(
   sdkContext: CSharpEmitterContext,
   sdkType: SdkConstantType | SdkEnumType,
   namespace: string,
-  diagnostics: DiagnosticCollector,
-): InputEnumType {
+): [InputEnumType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const values: InputEnumValueType[] = [];
 
   const inputEnumType: InputEnumType = {
@@ -305,8 +305,8 @@ function createEnumType(
     crossLanguageDefinitionId: sdkType.kind === "enum" ? sdkType.crossLanguageDefinitionId : "",
     valueType:
       sdkType.kind === "enum"
-        ? (fromSdkType(sdkContext, sdkType.valueType, diagnostics) as InputPrimitiveType)
-        : fromSdkBuiltInType(sdkContext, sdkType.valueType, diagnostics),
+        ? (diagnostics.pipe(fromSdkType(sdkContext, sdkType.valueType)) as InputPrimitiveType)
+        : diagnostics.pipe(fromSdkBuiltInType(sdkContext, sdkType.valueType)),
     values: values,
     // constantType.access, TODO - constant type now does not have access. TCGC will add it later
     access:
@@ -327,118 +327,119 @@ function createEnumType(
 
   if (sdkType.kind === "enum") {
     for (const v of sdkType.values) {
-      values.push(createEnumValueType(sdkContext, v, inputEnumType, diagnostics));
+      values.push(diagnostics.pipe(createEnumValueType(sdkContext, v, inputEnumType)));
     }
   } else {
-    values.push(createEnumValueType(sdkContext, sdkType, inputEnumType, diagnostics));
+    values.push(diagnostics.pipe(createEnumValueType(sdkContext, sdkType, inputEnumType)));
   }
 
-  return inputEnumType;
+  return diagnostics.wrap(inputEnumType);
 }
 
 function fromSdkDateTimeType(
   sdkContext: CSharpEmitterContext,
   dateTimeType: SdkDateTimeType,
-  diagnostics: DiagnosticCollector,
-): InputDateTimeType {
-  return {
+): [InputDateTimeType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  return diagnostics.wrap({
     kind: dateTimeType.kind,
     name: dateTimeType.name,
     encode: dateTimeType.encode,
-    wireType: fromSdkType(sdkContext, dateTimeType.wireType, diagnostics),
+    wireType: diagnostics.pipe(fromSdkType(sdkContext, dateTimeType.wireType)),
     crossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
-    baseType: dateTimeType.baseType ? fromSdkType(sdkContext, dateTimeType.baseType, diagnostics) : undefined,
+    baseType: dateTimeType.baseType ? diagnostics.pipe(fromSdkType(sdkContext, dateTimeType.baseType)) : undefined,
     decorators: dateTimeType.decorators,
     external: fromSdkExternalTypeInfo(dateTimeType),
-  };
+  });
 }
 
 function fromSdkDurationType(
   sdkContext: CSharpEmitterContext,
   durationType: SdkDurationType,
-  diagnostics: DiagnosticCollector,
-): InputDurationType {
-  return {
+): [InputDurationType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  return diagnostics.wrap({
     kind: durationType.kind,
     name: durationType.name,
     encode: durationType.encode,
-    wireType: fromSdkType(sdkContext, durationType.wireType, diagnostics),
+    wireType: diagnostics.pipe(fromSdkType(sdkContext, durationType.wireType)),
     crossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
-    baseType: durationType.baseType ? fromSdkType(sdkContext, durationType.baseType, diagnostics) : undefined,
+    baseType: durationType.baseType ? diagnostics.pipe(fromSdkType(sdkContext, durationType.baseType)) : undefined,
     decorators: durationType.decorators,
     external: fromSdkExternalTypeInfo(durationType),
-  };
+  });
 }
 
 function fromSdkBuiltInType(
   sdkContext: CSharpEmitterContext,
   builtInType: SdkBuiltInType,
-  diagnostics: DiagnosticCollector,
-): InputPrimitiveType {
-  return {
+): [InputPrimitiveType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  return diagnostics.wrap({
     kind: builtInType.kind,
     name: builtInType.name,
     encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined,
     crossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
-    baseType: builtInType.baseType ? fromSdkType(sdkContext, builtInType.baseType, diagnostics) : undefined,
+    baseType: builtInType.baseType ? diagnostics.pipe(fromSdkType(sdkContext, builtInType.baseType)) : undefined,
     decorators: builtInType.decorators,
     external: fromSdkExternalTypeInfo(builtInType),
-  };
+  });
 }
 
-function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType, diagnostics: DiagnosticCollector): InputUnionType {
+function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): [InputUnionType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const variantTypes: InputType[] = [];
   for (const value of union.variantTypes) {
-    const variantType = fromSdkType(sdkContext, value, diagnostics);
+    const variantType = diagnostics.pipe(fromSdkType(sdkContext, value));
     variantTypes.push(variantType);
   }
 
-  return {
+  return diagnostics.wrap({
     kind: "union",
     name: union.name,
     variantTypes: variantTypes,
     namespace: union.namespace,
     decorators: union.decorators,
     external: fromSdkExternalTypeInfo(union),
-  };
+  });
 }
 
 function fromSdkConstantType(
   sdkContext: CSharpEmitterContext,
   constantType: SdkConstantType,
-  diagnostics: DiagnosticCollector,
-): InputLiteralType {
+): [InputLiteralType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const literalType = {
     kind: constantType.kind,
     name: constantType.name,
     namespace: "", // constantType.namespace, TODO - constant type now does not have namespace. TCGC will add it later
     access: undefined, // constantType.access, TODO - constant type now does not have access. TCGC will add it later
     usage: UsageFlags.None, // constantType.usage, TODO - constant type now does not have usage. TCGC will add it later
-    valueType: fromSdkType(sdkContext, constantType.valueType, diagnostics),
+    valueType: diagnostics.pipe(fromSdkType(sdkContext, constantType.valueType)),
     value: constantType.value,
     decorators: constantType.decorators,
   };
 
   sdkContext.__typeCache.updateConstantCache(constantType, literalType);
 
-  return literalType;
+  return diagnostics.wrap(literalType);
 }
 
 function fromSdkEnumValueType(
   sdkContext: CSharpEmitterContext,
   enumValueType: SdkEnumValueType,
-  diagnostics: DiagnosticCollector,
-): InputEnumValueType {
-  return createEnumValueType(sdkContext, enumValueType, enumValueType.enumType, diagnostics);
+): [InputEnumValueType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  return diagnostics.wrap(diagnostics.pipe(createEnumValueType(sdkContext, enumValueType, enumValueType.enumType)));
 }
 
 function createEnumValueType(
   sdkContext: CSharpEmitterContext,
   sdkType: SdkEnumValueType | SdkConstantType,
   enumType: InputEnumType,
-  diagnostics: DiagnosticCollector,
-): InputEnumValueType {
-  return {
+): [InputEnumValueType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  return diagnostics.wrap({
     kind: "enumvalue",
     name:
       sdkType.kind === "constant"
@@ -448,41 +449,41 @@ function createEnumValueType(
         : sdkType.name,
     value: typeof sdkType.value === "boolean" ? (sdkType.value ? 1 : 0) : sdkType.value,
     valueType:
-      sdkType.kind === "constant" ? sdkType.valueType : fromSdkType(sdkContext, sdkType.valueType, diagnostics),
+      sdkType.kind === "constant" ? sdkType.valueType : diagnostics.pipe(fromSdkType(sdkContext, sdkType.valueType)),
     enumType: enumType,
     summary: sdkType.summary,
     doc: sdkType.doc,
     decorators: sdkType.decorators,
-  };
+  });
 }
 
 function fromSdkDictionaryType(
   sdkContext: CSharpEmitterContext,
   dictionaryType: SdkDictionaryType,
-  diagnostics: DiagnosticCollector,
-): InputDictionaryType {
-  return {
+): [InputDictionaryType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  return diagnostics.wrap({
     kind: "dict",
-    keyType: fromSdkType(sdkContext, dictionaryType.keyType, diagnostics),
-    valueType: fromSdkType(sdkContext, dictionaryType.valueType, diagnostics),
+    keyType: diagnostics.pipe(fromSdkType(sdkContext, dictionaryType.keyType)),
+    valueType: diagnostics.pipe(fromSdkType(sdkContext, dictionaryType.valueType)),
     decorators: dictionaryType.decorators,
     external: fromSdkExternalTypeInfo(dictionaryType),
-  };
+  });
 }
 
 function fromSdkArrayType(
   sdkContext: CSharpEmitterContext,
   arrayType: SdkArrayType,
-  diagnostics: DiagnosticCollector,
-): InputArrayType {
-  return {
+): [InputArrayType, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  return diagnostics.wrap({
     kind: "array",
     name: arrayType.name,
-    valueType: fromSdkType(sdkContext, arrayType.valueType, diagnostics),
+    valueType: diagnostics.pipe(fromSdkType(sdkContext, arrayType.valueType)),
     crossLanguageDefinitionId: arrayType.crossLanguageDefinitionId,
     decorators: arrayType.decorators,
     external: fromSdkExternalTypeInfo(arrayType),
-  };
+  });
 }
 
 function fromSdkEndpointType(): InputPrimitiveType {

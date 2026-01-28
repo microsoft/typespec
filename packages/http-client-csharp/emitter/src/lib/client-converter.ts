@@ -9,7 +9,7 @@ import {
   SdkHttpOperation,
   SdkMethodParameter,
 } from "@azure-tools/typespec-client-generator-core";
-import { DiagnosticCollector, NoTarget } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { createDiagnostic } from "./lib.js";
 import { InputParameterScope } from "../type/input-parameter-scope.js";
@@ -33,26 +33,26 @@ export function fromSdkClients(
   sdkContext: CSharpEmitterContext,
   clients: SdkClientType[],
   rootApiVersions: string[],
-  diagnostics: DiagnosticCollector,
-): InputClient[] {
+): [InputClient[], readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const inputClients: InputClient[] = [];
   for (const client of clients) {
-    const inputClient = fromSdkClient(sdkContext, client, rootApiVersions, diagnostics);
+    const inputClient = diagnostics.pipe(fromSdkClient(sdkContext, client, rootApiVersions));
     inputClients.push(inputClient);
   }
 
-  return inputClients;
+  return diagnostics.wrap(inputClients);
 }
 
 function fromSdkClient(
   sdkContext: CSharpEmitterContext,
   client: SdkClientType,
   rootApiVersions: string[],
-  diagnostics: DiagnosticCollector,
-): InputClient {
+): [InputClient, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   let inputClient: InputClient | undefined = sdkContext.__typeCache.clients.get(client);
   if (inputClient) {
-    return inputClient;
+    return diagnostics.wrap(inputClient);
   }
   const endpointParameter = client.clientInitialization.parameters.find(
     (p) => p.kind === "endpoint",
@@ -60,12 +60,11 @@ function fromSdkClient(
   const uri = getMethodUri(endpointParameter);
 
   // Convert all clientInitialization parameters
-  const clientParameters = fromSdkClientInitializationParameters(
+  const clientParameters = diagnostics.pipe(fromSdkClientInitializationParameters(
     sdkContext,
     client.clientInitialization.parameters,
     client.namespace,
-    diagnostics,
-  );
+  ));
 
   inputClient = {
     kind: "client",
@@ -74,7 +73,7 @@ function fromSdkClient(
     doc: client.doc,
     summary: client.summary,
     methods: client.methods
-      .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions, client.namespace, diagnostics))
+      .map((m) => diagnostics.pipe(fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions, client.namespace)))
       .filter((m) => m !== undefined),
     parameters: clientParameters,
     initializedBy: client.clientInitialization.initializedBy,
@@ -90,51 +89,53 @@ function fromSdkClient(
 
   // fill parent
   if (client.parent) {
-    inputClient.parent = fromSdkClient(sdkContext, client.parent, rootApiVersions, diagnostics);
+    inputClient.parent = diagnostics.pipe(fromSdkClient(sdkContext, client.parent, rootApiVersions));
   }
   // fill children
   if (client.children) {
     inputClient.children = client.children.map((c) =>
-      fromSdkClient(sdkContext, c, rootApiVersions, diagnostics),
+      diagnostics.pipe(fromSdkClient(sdkContext, c, rootApiVersions)),
     );
   }
 
-  return inputClient;
+  return diagnostics.wrap(inputClient);
 
   function fromSdkClientInitializationParameters(
     sdkContext: CSharpEmitterContext,
     parameters: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[],
     namespace: string,
-    diagnostics: DiagnosticCollector,
-  ): InputParameter[] {
+  ): [InputParameter[], readonly Diagnostic[]] {
+    const diagnostics = createDiagnosticCollector();
     const inputParameters: InputParameter[] = [];
 
     for (const param of parameters) {
       if (param.kind === "endpoint") {
         // Convert endpoint parameters
-        const endpointParams = fromSdkEndpointParameter(param, diagnostics);
+        const endpointParams = diagnostics.pipe(fromSdkEndpointParameter(param));
         inputParameters.push(...endpointParams);
       } else if (param.kind === "method") {
         // Convert method parameters
-        const methodParam = fromMethodParameter(sdkContext, param, namespace, diagnostics);
+        const methodParam = diagnostics.pipe(fromMethodParameter(sdkContext, param, namespace));
         inputParameters.push(methodParam);
       }
       // Note: credential parameters are handled separately in service-authentication.ts
       // and are not included in the client parameters list
     }
 
-    return inputParameters;
+    return diagnostics.wrap(inputParameters);
   }
 
-  function fromSdkEndpointParameter(p: SdkEndpointParameter, diagnostics: DiagnosticCollector): InputEndpointParameter[] {
+  function fromSdkEndpointParameter(p: SdkEndpointParameter): [InputEndpointParameter[], readonly Diagnostic[]] {
+    const diagnostics = createDiagnosticCollector();
     if (p.type.kind === "union") {
-      return fromSdkEndpointType(p.type.variantTypes[0], diagnostics);
+      return diagnostics.wrap(diagnostics.pipe(fromSdkEndpointType(p.type.variantTypes[0])));
     } else {
-      return fromSdkEndpointType(p.type, diagnostics);
+      return diagnostics.wrap(diagnostics.pipe(fromSdkEndpointType(p.type)));
     }
   }
 
-  function fromSdkEndpointType(type: SdkEndpointType, diagnostics: DiagnosticCollector): InputEndpointParameter[] {
+  function fromSdkEndpointType(type: SdkEndpointType): [InputEndpointParameter[], readonly Diagnostic[]] {
+    const diagnostics = createDiagnosticCollector();
     // TODO: support free-style endpoint url with multiple parameters
     const endpointExpr = type.serverUrl
       .replace("https://", "")
@@ -148,7 +149,7 @@ function fromSdkClient(
           target: NoTarget,
         }),
       );
-      return [];
+      return diagnostics.wrap([]);
     }
     const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);
 
@@ -162,7 +163,7 @@ function fromSdkClient(
             crossLanguageDefinitionId:
               parameter.type.kind === "string" ? "TypeSpec.string" : "TypeSpec.url",
           }
-        : fromSdkType(sdkContext, parameter.type, diagnostics); // TODO: consolidate with converter.fromSdkEndpointType
+        : diagnostics.pipe(fromSdkType(sdkContext, parameter.type)); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         kind: "endpoint",
         name: parameter.name,
@@ -174,19 +175,18 @@ function fromSdkClient(
         optional: parameter.optional,
         scope: InputParameterScope.Client,
         isEndpoint: isEndpoint,
-        defaultValue: getParameterDefaultValue(
+        defaultValue: diagnostics.pipe(getParameterDefaultValue(
           sdkContext,
           parameter.clientDefaultValue,
           parameterType,
-          diagnostics,
-        ),
+        )),
         serverUrlTemplate: type.serverUrl,
         skipUrlEncoding: false,
         readOnly: isReadOnly(parameter),
         crossLanguageDefinitionId: parameter.crossLanguageDefinitionId,
       });
     }
-    return parameters;
+    return diagnostics.wrap(parameters);
   }
 }
 

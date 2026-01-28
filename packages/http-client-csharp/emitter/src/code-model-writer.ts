@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
-import { DiagnosticCollector, NoTarget, resolvePath } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, NoTarget, resolvePath } from "@typespec/compiler";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { createDiagnostic } from "./lib/lib.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
@@ -20,25 +20,26 @@ export async function writeCodeModel(
   context: CSharpEmitterContext,
   codeModel: CodeModel,
   outputFolder: string,
-  diagnostics: DiagnosticCollector,
-) {
+): Promise<readonly Diagnostic[]> {
+  const diagnostics = createDiagnosticCollector();
   await context.program.host.writeFile(
     resolvePath(outputFolder, tspOutputFileName),
-    prettierOutput(JSON.stringify(buildJson(context, codeModel, diagnostics), transformJSONProperties, 2)),
+    prettierOutput(JSON.stringify(diagnostics.pipe(buildJson(context, codeModel)), transformJSONProperties, 2)),
   );
+  return diagnostics.diagnostics;
 }
 
 /**
  * This function builds a json from code model with refs and ids in it.
  * @param context - The CSharp emitter context
  * @param codeModel - The code model to build
- * @param diagnostics - The diagnostic collector
  */
-function buildJson(context: CSharpEmitterContext, codeModel: CodeModel, diagnostics: DiagnosticCollector): any {
+function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): [any, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const objectsIds = new Map<any, string>();
   const stack: any[] = [];
 
-  return doBuildJson(codeModel, stack);
+  return diagnostics.wrap(doBuildJson(codeModel, stack));
 
   function doBuildJson(obj: any, stack: any[]): any {
     // check if this is a primitive type or null or undefined
