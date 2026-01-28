@@ -859,7 +859,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 foreach (var statusCode in response.StatusCodes)
                 {
-                    if (statusCode >= 200 && statusCode < 300)
+                    if (statusCode >= 200 && statusCode < 400)
                     {
                         statusCodes.Add(statusCode);
                     }
