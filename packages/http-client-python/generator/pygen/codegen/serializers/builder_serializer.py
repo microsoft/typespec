@@ -1045,7 +1045,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.extend([f"    {l}" for l in response_read])
         retval.append("    map_error(status_code=response.status_code, response=response, error_map=error_map)")
         error_model = ""
-        if builder.non_default_errors and self.code_model.options["models-mode"]:
+        if builder.non_default_errors and self.code_model.options["models-mode"]: # pylint: disable=too-many-nested-blocks
             error_model = ", model=error"
             condition = "if"
             retval.append("    error = None")
@@ -1066,9 +1066,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                                 fn = "_failsafe_deserialize_xml"
                             else:
                                 fn = "_failsafe_deserialize"
-                            retval.append(
-                                f"        error = {fn}({type_annotation},{pylint_disable}\n  response)"
-                            )
+                            retval.append(f"        error = {fn}({type_annotation},{pylint_disable}\n  response)")
                         else:
                             retval.extend(
                                 [
