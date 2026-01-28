@@ -84,16 +84,6 @@ describe("$onEmit tests", () => {
     $onEmit = (await import("../../src/emitter.js")).$onEmit;
   });
 
-  it("should apply the update-code-model callback just once", async () => {
-    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
-    const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {
-      return model;
-    });
-    context.options["update-code-model"] = updateCallback;
-    await $onEmit(context);
-    expect(updateCallback).toHaveBeenCalledTimes(1);
-  });
-
   it("should apply sdk-context-options", async () => {
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
     const additionalDecorators = ["Decorator1", "Decorator2"];

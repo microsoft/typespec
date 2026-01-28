@@ -20,13 +20,11 @@ export async function writeCodeModel(
   context: CSharpEmitterContext,
   codeModel: CodeModel,
   outputFolder: string,
-): Promise<[void, readonly Diagnostic[]]> {
-  const diagnostics = createDiagnosticCollector();
+) {
   await context.program.host.writeFile(
     resolvePath(outputFolder, tspOutputFileName),
     prettierOutput(JSON.stringify(buildJson(context, codeModel), transformJSONProperties, 2)),
   );
-  return diagnostics.wrap(undefined);
 }
 
 /**

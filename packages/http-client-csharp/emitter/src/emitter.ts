@@ -60,24 +60,18 @@ function findProjectRoot(path: string): string | undefined {
  * import { createCodeModel } from "@typespec/http-client-csharp";
  * 
  * export async function $onEmit(context: EmitContext<MyEmitterOptions>) {
- *   const updateCodeModel = (model: CodeModel, context: CSharpEmitterContext) => {
- *     // Customize the code model here
- *     return model;
- *   };
- *   const [, diagnostics] = await createCodeModel(context, updateCodeModel);
+ *   const [, diagnostics] = await createCodeModel(context);
  *   // Process diagnostics as needed
  *   context.program.reportDiagnostics(diagnostics);
  * }
  * ```
  * 
  * @param context - The emit context
- * @param updateCodeModel - Optional callback to modify the code model before emission. Defaults to identity function.
  * @returns A tuple containing void and any diagnostics that were generated during the emission
  * @beta
  */
 export async function createCodeModel(
   context: EmitContext<CSharpEmitterOptions>,
-  updateCodeModel?: (model: CodeModel, context: CSharpEmitterContext) => CodeModel,
 ): Promise<[void, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const program: Program = context.program;
@@ -104,10 +98,6 @@ export async function createCodeModel(
     const root = diagnostics.pipe(createModel(sdkContext));
 
     if (root) {
-      // Use the provided callback or default to identity function
-      const updateCodeModelFn = updateCodeModel ?? ((model: CodeModel) => model);
-      const updatedRoot = updateCodeModelFn(root, sdkContext);
-
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
@@ -115,9 +105,9 @@ export async function createCodeModel(
       }
 
       // emit tspCodeModel.json
-      diagnostics.pipe(await writeCodeModel(sdkContext, updatedRoot, outputFolder));
+      await writeCodeModel(sdkContext, root, outputFolder);
 
-      const namespace = updatedRoot.name;
+      const namespace = root.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
       //emit configuration.json
@@ -175,8 +165,7 @@ export async function createCodeModel(
  * @beta
  */
 export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
-  const options = resolveOptions(context);
-  const [, diagnostics] = await createCodeModel(context, options["update-code-model"]);
+  const [, diagnostics] = await createCodeModel(context);
   context.program.reportDiagnostics(diagnostics);
 }
 
@@ -187,7 +176,6 @@ export function createConfiguration(
 ): Configuration {
   const skipKeys = [
     "new-project",
-    "update-code-model",
     "sdk-context-options",
     "save-inputs",
     "generator-name",
