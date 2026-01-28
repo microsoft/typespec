@@ -1760,5 +1760,73 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 return [new Mock<TypeProvider>() { CallBase = true }.Object];
             }
         }
+
+        [Test]
+        public async Task BackCompat_MissingPublicParameterlessConstructor()
+        {
+            var inputModel = InputFactory.Model(
+                "SearchIndexerDataIdentity",
+                properties:
+                [
+                    InputFactory.Property("oDataType", InputPrimitiveType.String, isRequired: true)
+                ],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "SearchIndexerDataIdentity") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+
+            // Call ProcessTypeForBackCompatibility to apply backward compatibility logic
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            // Check that a public parameterless constructor is present
+            var publicParameterlessConstructor = modelProvider.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 0);
+            Assert.IsNotNull(publicParameterlessConstructor, "Missing public parameterless constructor from backward compatibility");
+        }
+
+        [Test]
+        public async Task BackCompat_MissingPublicConstructorWithParameter()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("newProp", InputPrimitiveType.Int32, isRequired: true) // New property added
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+
+            // Call ProcessTypeForBackCompatibility to apply backward compatibility logic
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            // Check that a public constructor with one parameter (baseProp only) is present for backward compatibility
+            var publicConstructorWithOneParam = modelProvider.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) && c.Signature.Parameters.Count == 1);
+            Assert.IsNotNull(publicConstructorWithOneParam, "Missing public constructor with one parameter from backward compatibility");
+            Assert.AreEqual("baseProp", publicConstructorWithOneParam!.Signature.Parameters[0].Name);
+        }
     }
 }

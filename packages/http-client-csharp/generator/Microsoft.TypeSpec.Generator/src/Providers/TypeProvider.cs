@@ -565,16 +565,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void ProcessTypeForBackCompatibility()
         {
-            if (LastContractView?.Methods == null || LastContractView?.Methods.Count == 0)
+            var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
+            var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
+
+            if (!hasMethods && !hasConstructors)
             {
                 return;
             }
 
-            Update(methods: BuildMethodsForBackCompatibility(Methods));
+            var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
+            var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
+
+            Update(methods: newMethods, constructors: newConstructors);
         }
 
         protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
             => [.. originalMethods];
+
+        protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
+            => [.. originalConstructors];
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
