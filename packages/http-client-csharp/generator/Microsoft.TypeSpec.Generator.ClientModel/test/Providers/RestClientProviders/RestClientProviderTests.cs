@@ -150,6 +150,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier302Field.Type.Name);
             Assert.AreEqual("_pipelineMessageClassifier302", pipelineMessageClassifier302Field.Name);
             Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier302Field.Modifiers);
+
+            // Validate that the CreateRequest method uses the classifier
+            var createRequestMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateRedirect302Request");
+            Assert.IsNotNull(createRequestMethod, "CreateRedirect302Request method should exist");
+
+            var bodyStatements = createRequestMethod?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements, "Method body statements should not be null");
+
+            // Verify that the classifier property is referenced in the CreateRequest method body
+            ValidateResponseClassifier(bodyStatements!, "302");
         }
 
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
