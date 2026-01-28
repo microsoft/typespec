@@ -652,6 +652,68 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this);
         }
 
+        protected internal override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
+        {
+            // Only handle the case of changing modifiers on abstract base types
+            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                return [.. originalConstructors];
+            }
+
+            if (LastContractView?.Constructors == null || LastContractView.Constructors.Count == 0)
+            {
+                return [.. originalConstructors];
+            }
+
+            List<ConstructorProvider> constructors = [.. originalConstructors];
+
+            // Check if the last contract had a public constructor with matching parameters
+            foreach (var previousConstructor in LastContractView.Constructors)
+            {
+                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
+                // Find a matching constructor in the current version by parameter signature
+                for (int i = 0; i < constructors.Count; i++)
+                {
+                    var currentConstructor = constructors[i];
+
+                    // Check if parameters match (same count and types)
+                    if (ParametersMatch(currentConstructor.Signature.Parameters, previousConstructor.Signature.Parameters))
+                    {
+                        // Change the modifier from private protected to public
+                        if (currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) &&
+                            currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                        {
+                            currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                        }
+                    }
+                }
+            }
+
+            return [.. constructors];
+        }
+
+        private bool ParametersMatch(IReadOnlyList<ParameterProvider> params1, IReadOnlyList<ParameterProvider> params2)
+        {
+            if (params1.Count != params2.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < params1.Count; i++)
+            {
+                if (!params1[i].Type.AreNamesEqual(params2[i].Type) || params1[i].Name != params2[i].Name)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization(bool includeAllHierarchyDiscriminator = false)
         {
             var properties = new Stack<List<PropertyProvider>>();

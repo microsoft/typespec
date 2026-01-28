@@ -9,6 +9,7 @@
   - [Model Properties](#model-properties)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
+  - [Model Constructors](#model-constructors)
 
 ## Overview
 
@@ -212,3 +213,67 @@ public class BaseModel
     public string CommonProperty { get; set; }
 }
 ```
+
+### Model Constructors
+
+The generator maintains backward compatibility for model constructors on abstract base types to prevent breaking changes when constructor accessibility changes.
+
+#### Scenario: Public Constructor on Abstract Base Type
+
+**Description:** When an abstract base type had a public constructor in the previous version, but the current TypeSpec generation would create a `private protected` constructor, the generator automatically changes the modifier to `public` to maintain backward compatibility.
+
+This commonly occurs when:
+
+- Migrating from autorest-generated code to TypeSpec-generated code
+- Abstract base types with discriminators had public parameterless constructors in previous versions
+
+**Example:**
+
+Previous version had a public parameterless constructor:
+
+```csharp
+public abstract partial class SearchIndexerDataIdentity
+{
+    /// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+    public SearchIndexerDataIdentity()
+    {
+    }
+}
+```
+
+Current TypeSpec would generate a private protected constructor:
+
+```csharp
+public abstract partial class SearchIndexerDataIdentity
+{
+    /// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+    /// <param name="odataType"> A URI fragment specifying the type of identity. </param>
+    private protected SearchIndexerDataIdentity(string odataType)
+    {
+        OdataType = odataType;
+    }
+}
+```
+
+**Generated Compatibility Result:**
+
+When a matching public constructor exists in the last contract, the modifier is changed from `private protected` to `public`:
+
+```csharp
+public abstract partial class SearchIndexerDataIdentity
+{
+    /// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+    /// <param name="odataType"> A URI fragment specifying the type of identity. </param>
+    public SearchIndexerDataIdentity(string odataType)
+    {
+        OdataType = odataType;
+    }
+}
+```
+
+**Key Points:**
+
+- Only applies to abstract base types
+- The constructor must have matching parameters (same count, types, and names)
+- The modifier is changed from `private protected` to `public`
+- No additional constructors are generated; only the accessibility is adjusted
