@@ -98,35 +98,15 @@ This separation allows for language-specific code generation while maintaining a
 
 **Location**: `packages/http-client-python/emitter/src/`
 
-The emitter is written in TypeScript and serves as the bridge between TypeSpec and Python code generation.
+The emitter bridges TypeSpec and Python code generation.
 
 #### Key Files
 
-- **`emitter.ts`**: Entry point for the emitter
-  - Implements `$onEmit()` function called by TypeSpec compiler
-  - Creates SDK context using `@azure-tools/typespec-client-generator-core`
-  - Processes options and generates YAML code model
-  - Invokes Python generator
-
-- **`code-model.ts`**: Builds the intermediate code model
-  - Processes clients, operation groups, and operations
-  - Handles HTTP methods (basic, LRO, paging, LRO+paging)
-  - Extracts models and types from TypeSpec definitions
-
-- **`types.ts`**: Type system mapping
-  - Maps TypeSpec types to Python types
-  - Handles primitives, models, enums, unions, etc.
-  - Manages type references and dependencies
-
-- **`http.ts`**: HTTP operation processing
-  - Handles different operation types (GET, POST, etc.)
-  - Processes request/response structures
-  - Manages headers, parameters, and body
-
-- **`lib.ts`**: Shared utilities and types
-  - Common types and interfaces
-  - Diagnostic reporting
-  - SDK context management
+- **`emitter.ts`**: Entry point that implements `$onEmit()`, creates SDK context, and invokes the Python generator
+- **`code-model.ts`**: Builds the intermediate code model from TypeSpec (clients, operations, models, types)
+- **`types.ts`**: Maps TypeSpec types to Python types
+- **`http.ts`**: Processes HTTP operations and request/response structures
+- **`lib.ts`**: Shared utilities, types, and diagnostic reporting
 
 #### Responsibilities
 
@@ -141,171 +121,29 @@ The emitter is written in TypeScript and serves as the bridge between TypeSpec a
 
 **Location**: `packages/http-client-python/generator/pygen/`
 
-The generator is written in Python and transforms the YAML code model into Python SDK code.
-
-#### Structure
-
-```
-pygen/
-├── __init__.py                            # Entry point, options management
-├── preprocess/                            # Step 1: Preprocessing
-│   ├── __init__.py                        # Main preprocessing logic
-│   ├── helpers.py                         # Helper functions (padding, naming)
-│   └── python_mappings.py                 # Reserved words, type mappings
-├── codegen/                               # Step 2: Code generation
-│   ├── __init__.py                        # Main code generation orchestrator
-│   ├── models/                            # Python data models for code elements
-│   │   ├── code_model.py                  # Root code model
-│   │   ├── client.py                      # Client classes
-│   │   ├── operation.py                   # Operations
-│   │   ├── operation_group.py             # Operation groups
-│   │   ├── model_type.py                  # Model types
-│   │   ├── enum_type.py                   # Enum types
-│   │   ├── parameter.py                   # Parameters
-│   │   ├── request_builder.py             # Request builders
-│   │   └── ...                            # Other model types
-│   ├── serializers/                       # Jinja2-based serializers
-│   │   ├── __init__.py                    # JinjaSerializer orchestrator
-│   │   ├── client_serializer.py           # Client generation
-│   │   ├── model_serializer.py            # Model generation
-│   │   ├── enum_serializer.py             # Enum generation
-│   │   ├── operations_init_serializer.py  # Operations
-│   │   ├── request_builders_serializer.py # Builders
-│   │   └── ...                            # Other serializers
-│   └── templates/                         # Jinja2 templates
-│       ├── client.py.jinja2
-│       ├── model_dpg.py.jinja2
-│       ├── enum.py.jinja2
-│       ├── operation.py.jinja2
-│       ├── request_builder.py.jinja2
-│       └── ...
-└── utils.py                               # Shared utilities
-```
+The generator transforms the YAML code model into Python SDK code through two stages:
 
 #### Step 1: Preprocess
 
-**Location**: `pygen/preprocess/`
+Enhances the YAML with Python-specific information:
+- Converts names to `snake_case` and pads Python reserved words
+- Adds Python type hints and handles optional/required parameters
+- Creates overloads for different content types (JSON, binary, multipart)
+- Converts Markdown to reStructuredText for docstrings
 
-The preprocessing stage enhances the YAML with Python-specific information.
-
-**Key Operations**:
-
-1. **Naming Conventions**
-   - Convert names to `snake_case`
-   - Pad Python reserved words (e.g., `class` → `class_property`)
-   - Handle special characters and built-in names
-
-2. **Type Enhancement**
-   - Add Python type hints
-   - Handle optional/required parameters
-   - Map types to Python equivalents
-
-3. **Body Parameter Overloads**
-   - Add overloads for JSON body parameters
-   - Support binary payloads
-   - Handle multipart form data
-
-4. **Description Formatting**
-   - Convert Markdown to reStructuredText
-   - Format docstrings
-
-**Key Classes**:
-
-- `PreProcessPlugin`: Main preprocessing plugin
-- Methods:
-  - `update_types()`: Process model and enum types
-  - `update_client()`: Process client configuration
-  - `update_operation()`: Process operations
-  - `update_parameter()`: Process parameters
-  - `pad_reserved_words()`: Handle reserved word conflicts
+**Main class**: `PreProcessPlugin` in `preprocess/__init__.py`
 
 #### Step 2: Codegen
 
-**Location**: `pygen/codegen/`
+Transforms the enhanced YAML into Python files using a three-layer architecture:
 
-The code generation stage transforms the enhanced YAML into Python files.
+1. **Models** (`codegen/models/`): Python classes that parse YAML into structured objects (CodeModel, Client, Operation, ModelType, EnumType, etc.)
 
-##### Models (`codegen/models/`)
+2. **Serializers** (`codegen/serializers/`): Orchestrate code generation using Jinja2 templates (JinjaSerializer, ClientSerializer, ModelSerializer, etc.)
 
-Python classes that represent code elements. These provide a structured, object-oriented view of the code to generate.
+3. **Templates** (`codegen/templates/`): Jinja2 templates defining Python code structure (`.jinja2` files for clients, models, enums, operations, etc.)
 
-**Key Models**:
-
-- **`CodeModel`**: Root model containing all clients, types, and operations
-- **`Client`**: Represents a client class with operations and configuration
-- **`Operation`**: Represents a single operation (method)
-- **`OperationGroup`**: Groups related operations
-- **`ModelType`**: Represents data models (classes)
-- **`EnumType`**: Represents enumerations
-- **`Parameter`**: Represents method parameters
-- **`RequestBuilder`**: Represents HTTP request builders
-- **`Property`**: Represents model properties
-
-Each model class:
-
-- Parses YAML data into Python objects
-- Provides properties and methods for accessing information
-- Contains logic for naming, imports, and dependencies
-
-##### Serializers (`codegen/serializers/`)
-
-Serializers use Jinja2 templates to render Python code files.
-
-**Key Serializers**:
-
-- **`JinjaSerializer`**: Main orchestrator
-  - Manages the overall serialization process
-  - Determines which files to generate
-  - Coordinates between different serializers
-
-- **`ClientSerializer`**: Generates client classes
-  - Main client class with methods
-  - Configuration class
-  - Client initialization
-
-- **`ModelSerializer`**: Generates model classes
-  - Two modes: DPG (dict-based) and MSRest (class-based)
-  - Serialization/deserialization logic
-  - Property accessors
-
-- **`EnumSerializer`**: Generates enum classes
-  - String-based enumerations
-  - Value mappings
-
-- **`OperationGroupsSerializer`**: Generates operation group classes
-  - Groups related operations
-  - Mixin classes for client
-
-- **`RequestBuildersSerializer`**: Generates request builders
-  - Low-level HTTP request construction
-  - Parameter handling
-
-- **`TypesSerializer`**: Generates type hint files
-  - Type aliases
-  - Protocol definitions
-
-- **`SampleSerializer`**: Generates sample code
-- **`TestSerializer`**: Generates test files
-
-##### Templates (`codegen/templates/`)
-
-Jinja2 templates define the structure of generated Python files.
-
-**Key Templates**:
-
-- **`client.py.jinja2`**: Client class template
-- **`model_dpg.py.jinja2`**: DPG model template (dict-based)
-- **`model_msrest.py.jinja2`**: MSRest model template (class-based)
-- **`enum.py.jinja2`**: Enum template
-- **`operation.py.jinja2`**: Operation method template
-- **`operation_group.py.jinja2`**: Operation group template
-- **`request_builder.py.jinja2`**: Request builder template
-- **`config.py.jinja2`**: Client configuration template
-- **`types.py.jinja2`**: Type hints template
-- **`__init__.py.jinja2`**: Package initialization template
-
-Templates receive model objects and render them using Jinja2 syntax:
-
+**Example template usage**:
 ```python
 {% for operation in operation_group.operations %}
 def {{ operation.name }}(self, {{ operation.parameters }}):
