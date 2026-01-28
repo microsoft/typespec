@@ -1378,7 +1378,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void ValidateOptionalContentTypeHeader()
         {
-            // Test that optional Content-Type header with Method scope is handled correctly
+            // Test that optional Content-Type header with Constant scope is handled correctly
             var bodyModel = InputFactory.Model("BodyModel", properties:
             [
                 InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
@@ -1391,7 +1391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 defaultValue: InputFactory.Constant.String("application/json"),
                 serializedName: "Content-Type",
                 isContentType: true,
-                scope: InputParameterScope.Method); // Method scope for optional Content-Type
+                scope: InputParameterScope.Constant); // Constant scope for optional Content-Type
                 
             var bodyParameter = InputFactory.BodyParameter("body", bodyModel, isRequired: false);
             
@@ -1415,10 +1415,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             
             TestContext.Out.WriteLine("=== Generated Code ===");
             TestContext.Out.WriteLine(file.Content);
-            
-            // Verify that contentType parameter is included as a method parameter
-            Assert.IsTrue(file.Content.Contains("string contentType"), 
+
+            // Verify that contentType parameter is included as a method parameter (not treated as constant)
+            Assert.IsTrue(file.Content.Contains("string contentType"),
                 "Content-Type should be a method parameter for optional body");
+            Assert.IsTrue(file.Content.Contains("contentType != null"),
+                "Content-Type should be conditionally set when optional");
         }
     }
 }

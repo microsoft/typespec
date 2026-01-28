@@ -479,7 +479,7 @@ function fromHeaderParameter(
   p: SdkHeaderParameter,
   rootApiVersions: string[],
 ): InputHeaderParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputHeaderParameter = {
     kind: "header",
@@ -838,12 +838,6 @@ function getParameterScope(
     if (type.kind === "model" && p.type !== p.correspondingMethodParams[0]?.type) {
       return InputParameterScope.Spread;
     }
-    return InputParameterScope.Method;
-  }
-
-  // Optional Content-Type headers should be Method scope, not Constant
-  // even if they have a constant type, so they can be conditionally set
-  if (type.kind === "constant" && p.optional && isContentType(p)) {
     return InputParameterScope.Method;
   }
 

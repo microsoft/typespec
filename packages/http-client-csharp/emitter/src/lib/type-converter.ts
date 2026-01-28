@@ -107,8 +107,18 @@ export function fromSdkType<T extends SdkType>(
       retVar = fromSdkArrayType(sdkContext, sdkType);
       break;
     case "constant":
+      // Don't transform optional Content-Type headers into enums - keep them as constants
+      const isContentTypeHeader =
+        sdkProperty &&
+        "kind" in sdkProperty &&
+        sdkProperty.kind === "header" &&
+        "serializedName" in sdkProperty &&
+        typeof sdkProperty.serializedName === "string" &&
+        sdkProperty.serializedName.toLocaleLowerCase() === "content-type";
+
       if (
         sdkProperty &&
+        !isContentTypeHeader &&
         (sdkProperty.optional || sdkProperty?.type.kind === "nullable") &&
         sdkProperty?.type.kind !== "boolean" &&
         sdkType.valueType.kind !== "boolean"

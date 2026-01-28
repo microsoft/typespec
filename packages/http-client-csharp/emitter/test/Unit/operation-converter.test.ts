@@ -368,7 +368,7 @@ describe("Operation Converter", () => {
     });
 
     describe("Optional Content-Type header", () => {
-      it("Optional body should have Content-Type with Method scope", async () => {
+      it("Optional body should have Content-Type remain as Constant (not transformed to enum)", async () => {
         const program = await typeSpecCompile(
           `
           model BodyModel {
@@ -400,7 +400,8 @@ describe("Operation Converter", () => {
         strictEqual(contentTypeParam.kind, "header");
         strictEqual(contentTypeParam.serializedName, "Content-Type");
         strictEqual(contentTypeParam.optional, true, "Content-Type should be optional");
-        strictEqual(contentTypeParam.scope, "Method", "Content-Type should have Method scope for optional body");
+        strictEqual(contentTypeParam.scope, "Constant", "Content-Type should remain Constant scope");
+        strictEqual(contentTypeParam.type.kind, "constant", "Content-Type should remain a constant type, not transformed to enum");
       });
 
       it("Required body should have Content-Type with Constant scope", async () => {
@@ -436,6 +437,7 @@ describe("Operation Converter", () => {
         strictEqual(contentTypeParam.serializedName, "Content-Type");
         strictEqual(contentTypeParam.optional, false, "Content-Type should be required");
         strictEqual(contentTypeParam.scope, "Constant", "Content-Type should have Constant scope for required body");
+        strictEqual(contentTypeParam.type.kind, "constant", "Content-Type should be a constant type");
       });
     });
   });
