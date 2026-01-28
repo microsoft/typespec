@@ -378,12 +378,10 @@ Process labels
 
 Misc labels
 
-| Name                       | Color   | Description           |
-| -------------------------- | ------- | --------------------- |
-| `1_0_E2E`                  | #5319E7 |                       |
-| `Client Emitter Migration` | #FD92F0 |                       |
-| `good first issue`         | #7057ff | Good for newcomers    |
-| `mq`                       | #0969da | Good candidate for MQ |
+| Name               | Color   | Description           |
+| ------------------ | ------- | --------------------- |
+| `good first issue` | #7057ff | Good for newcomers    |
+| `mq`               | #0969da | Good candidate for MQ |
 
 <!-- LABEL GENERATED REF END -->
 
