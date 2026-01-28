@@ -9,6 +9,7 @@
   - [Model Properties](#model-properties)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
+  - [Model Constructors](#model-constructors)
 
 ## Overview
 
@@ -212,3 +213,56 @@ public class BaseModel
     public string CommonProperty { get; set; }
 }
 ```
+
+### Model Constructors
+
+The generator maintains backward compatibility for model constructors to prevent breaking changes when new properties are added or when constructors are modified.
+
+#### Scenario: Missing Public Constructor
+
+**Description:** When a public constructor exists in the previous version but is missing in the newly generated code, the generator automatically adds the missing constructor to maintain backward compatibility. This commonly occurs with:
+- Parameterless public constructors on abstract base models
+- Public constructors when new required properties are added to a model
+
+**Example - Parameterless Constructor:**
+
+Previous version had a public parameterless constructor:
+
+```csharp
+public abstract partial class SearchIndexerDataIdentity
+{
+    /// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+    public SearchIndexerDataIdentity()
+    {
+    }
+}
+```
+
+Current TypeSpec would generate only constructors with parameters:
+
+```csharp
+public abstract partial class SearchIndexerDataIdentity
+{
+    /// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+    /// <param name="odataType"> A URI fragment specifying the type of identity. </param>
+    private protected SearchIndexerDataIdentity(string odataType)
+    {
+        OdataType = odataType;
+    }
+}
+```
+
+**Generated Compatibility Constructor:**
+
+```csharp
+/// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+public SearchIndexerDataIdentity() : this(odataType: default)
+{
+}
+```
+
+**Key Points:**
+
+- The missing public constructor is automatically generated
+- It delegates to an existing constructor, providing default values for any new parameters
+- This prevents breaking changes for code that uses the parameterless constructor
