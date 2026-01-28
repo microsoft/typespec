@@ -29,7 +29,7 @@ class {{ test.test_class_name }}({{ test.base_test_class_name }}):
     {{ async }}def test_{{ testcase.name }}(self, resource_group):
         {{testcase.response }}{{ client_var }}{{ testcase.operation_group_prefix }}.{{ testcase.operation.name }}(
             {% for key, value in testcase.params.items() %}
-            {{ key }}={{ value|indent(12) }},
+            {{ key }}={{ value }},
             {% endfor %}
         ){{ testcase.operation_suffix }}
         {{ testcase.extra_operation }}
@@ -45,7 +45,7 @@ class {{ test.test_class_name }}({{ test.base_test_class_name }}):
         {{ client_var }} = self.{{ test.create_client_name }}(endpoint={{ prefix_lower }}_endpoint)
         {{testcase.response }}{{ client_var }}{{ testcase.operation_group_prefix }}.{{ testcase.operation.name }}(
             {% for key, value in testcase.params.items() %}
-            {{ key }}={{ value|indent(12) }},
+            {{ key }}={{ value }},
             {% endfor %}
         ){{ testcase.operation_suffix }}
         {{ testcase.extra_operation }}

@@ -612,6 +612,8 @@ class JinjaSerializer(ReaderAndWriter):
                 ))
 
         # Generate test files - reuse serializer per operation group, toggle async_mode
+        # Cache import_test per (client.name, async_mode) since it's expensive to compute
+        import_test_cache: dict[tuple[str, bool], str] = {}
         for client in self.code_model.clients:
             for og in client.operation_groups:
                 # Create serializer once per operation group
@@ -619,6 +621,10 @@ class JinjaSerializer(ReaderAndWriter):
                 for async_mode in (True, False):
                     try:
                         test_serializer.async_mode = async_mode
+                        cache_key = (client.name, async_mode)
+                        if cache_key not in import_test_cache:
+                            import_test_cache[cache_key] = test_serializer.get_import_test()
+                        test_serializer.import_test = import_test_cache[cache_key]
                         async_suffix = "async" if async_mode else "sync"
                         content = Profiler.measure(
                             f"serialize_test[{og.class_name}_{async_suffix}]",

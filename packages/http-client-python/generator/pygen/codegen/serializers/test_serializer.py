@@ -175,9 +175,17 @@ class TestSerializer(TestGeneralSerializer):
         super().__init__(code_model, env, async_mode=async_mode)
         self.client = client
         self.operation_group = operation_group
+        self._import_test: str = ""
 
     @property
-    def import_test(self) -> FileImportSerializer:
+    def import_test(self) -> str:
+        return self._import_test
+
+    @import_test.setter
+    def import_test(self, value: str) -> None:
+        self._import_test = value
+
+    def get_import_test(self) -> str:
         imports = self.init_file_import()
         test_name = TestName(self.code_model, self.client.name, async_mode=self.async_mode)
         async_suffix = "_async" if self.async_mode else ""
@@ -198,7 +206,7 @@ class TestSerializer(TestGeneralSerializer):
         )
         if self.code_model.options["azure-arm"]:
             self.add_import_client(imports)
-        return FileImportSerializer(imports, self.async_mode)
+        return str(FileImportSerializer(imports, self.async_mode))
 
     @property
     def breadth_search_operation_group(self) -> list[list[OperationGroup]]:
