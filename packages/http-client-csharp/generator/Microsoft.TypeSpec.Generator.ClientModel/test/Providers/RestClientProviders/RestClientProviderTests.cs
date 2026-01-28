@@ -102,6 +102,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsFalse(propertyHash.ContainsKey("PipelineMessageClassifier204"));
         }
 
+        [Test]
+        public void Validate3xxRedirectStatusCode()
+        {
+            // Test that 3xx status codes (like 302 redirect) are handled correctly
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestRedirect",
+                InputFactory.Operation(
+                    "Redirect302",
+                    responses:
+                    [
+                        InputFactory.OperationResponse(
+                            statusCodes: [302],
+                            headers:
+                            [
+                                new InputOperationResponseHeader(
+                                    "location",
+                                    "location",
+                                    "Location header for redirect",
+                                    null,
+                                    InputPrimitiveType.String)
+                            ])
+                    ]));
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClient = clientProvider.RestClient;
+
+            Assert.IsNotNull(restClient);
+
+            // Validate that the classifier for 302 status code exists
+            Dictionary<string, PropertyProvider> propertyHash = restClient.Properties.ToDictionary(p => p.Name);
+            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier302"), 
+                "PipelineMessageClassifier302 should be present for 302 redirect");
+
+            var pipelineMessageClassifier302 = propertyHash["PipelineMessageClassifier302"];
+            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier302.Type.Name);
+            Assert.AreEqual("PipelineMessageClassifier302", pipelineMessageClassifier302.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier302.Modifiers);
+
+            // Validate that fields are created correctly
+            Dictionary<string, FieldProvider> fieldHash = restClient.Fields.ToDictionary(f => f.Name);
+            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier302"), 
+                "_pipelineMessageClassifier302 field should be present for 302 redirect");
+
+            var pipelineMessageClassifier302Field = fieldHash["_pipelineMessageClassifier302"];
+            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier302Field.Type.Name);
+            Assert.AreEqual("_pipelineMessageClassifier302", pipelineMessageClassifier302Field.Name);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier302Field.Modifiers);
+        }
+
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
         public void TestGetMethodParameters(InputServiceMethod inputServiceMethod)
         {
