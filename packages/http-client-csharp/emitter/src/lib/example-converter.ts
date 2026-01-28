@@ -16,7 +16,7 @@ import {
   SdkUnionExampleValue,
   SdkUnknownExampleValue,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, DiagnosticCollector } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayExampleValue,
@@ -48,12 +48,13 @@ import { fromSdkType } from "./type-converter.js";
 export function fromSdkHttpExamples(
   sdkContext: CSharpEmitterContext,
   examples: SdkHttpOperationExample[],
-): InputHttpOperationExample[] {
+): [InputHttpOperationExample[], readonly Diagnostic[]] {
   // Create a diagnostics collector for internal use
   // Any errors in examples won't prevent the code model from being generated
   const diagnostics = createDiagnosticCollector();
   
-  return examples.map((example) => fromSdkHttpExample(example));
+  const result = examples.map((example) => fromSdkHttpExample(example));
+  return diagnostics.wrap(result);
 
   function fromSdkHttpExample(example: SdkHttpOperationExample): InputHttpOperationExample {
     return {

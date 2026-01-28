@@ -7,7 +7,7 @@ import {
   SdkHttpOperation,
   SdkPackage,
 } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic, DiagnosticCollector, NoTarget } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { createDiagnostic } from "./lib.js";
@@ -36,7 +36,7 @@ export function processServiceAuthentication(
   const inputAuth: InputAuth = {};
 
   if (authClientParameter.type.kind === "credential") {
-    const auth = processAuthType(sdkContext, authClientParameter.type, diagnostics);
+    const auth = diagnostics.pipe(processAuthType(sdkContext, authClientParameter.type));
     if (!auth && authClientParameter.type.scheme.type !== "noAuth") {
       diagnostics.add(
         createDiagnostic({
@@ -54,7 +54,7 @@ export function processServiceAuthentication(
   let containsNoAuth = false;
   for (const authType of authClientParameter.type.variantTypes) {
     containsNoAuth = containsNoAuth || authType.scheme.type === "noAuth";
-    const auth = processAuthType(sdkContext, authType, diagnostics);
+    const auth = diagnostics.pipe(processAuthType(sdkContext, authType));
     if (auth?.apiKey) {
       inputAuth.apiKey = auth.apiKey;
     }
@@ -83,8 +83,8 @@ export function processServiceAuthentication(
 function processAuthType(
   sdkContext: CSharpEmitterContext,
   credentialType: SdkCredentialType,
-  diagnostics: DiagnosticCollector,
-): InputAuth | undefined {
+): [InputAuth | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const scheme = credentialType.scheme;
   switch (scheme.type) {
     case "apiKey":
@@ -98,11 +98,11 @@ function processAuthType(
             target: credentialType.__raw ?? NoTarget,
           }),
         );
-        return undefined;
+        return diagnostics.wrap(undefined);
       }
-      return { apiKey: { name: scheme.name, in: scheme.in } } as InputAuth;
+      return diagnostics.wrap({ apiKey: { name: scheme.name, in: scheme.in } } as InputAuth);
     case "oauth2":
-      return processOAuth2(scheme);
+      return diagnostics.wrap(processOAuth2(scheme));
     case "http": {
       const schemeOrApiKeyPrefix = scheme.scheme;
       switch (schemeOrApiKeyPrefix) {
@@ -114,23 +114,23 @@ function processAuthType(
               target: credentialType.__raw ?? NoTarget,
             }),
           );
-          return undefined;
+          return diagnostics.wrap(undefined);
         case "Bearer":
-          return {
+          return diagnostics.wrap({
             apiKey: {
               name: "Authorization",
               in: "header",
               prefix: "Bearer",
             },
-          };
+          });
         default:
-          return {
+          return diagnostics.wrap({
             apiKey: {
               name: "Authorization",
               in: "header",
               prefix: schemeOrApiKeyPrefix,
             },
-          };
+          });
       }
     }
     default:
@@ -141,7 +141,7 @@ function processAuthType(
           target: credentialType.__raw ?? NoTarget,
         }),
       );
-      return undefined;
+      return diagnostics.wrap(undefined);
   }
 }
 

@@ -470,7 +470,7 @@ describe("createModel diagnostic collection", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createCSharpSdkContext(context, true); // Enable diagnostic collection
+    const sdkContext = await createCSharpSdkContext(context);
     const result = createModel(sdkContext);
     
     // Verify the result is a tuple
@@ -500,7 +500,7 @@ describe("createModel diagnostic collection", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createCSharpSdkContext(context, true); // Enable diagnostic collection
+    const sdkContext = await createCSharpSdkContext(context);
     const [, diagnostics] = createModel(sdkContext);
     
     // Verify diagnostics array exists (may be empty or contain diagnostics)

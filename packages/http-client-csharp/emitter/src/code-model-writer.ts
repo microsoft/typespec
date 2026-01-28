@@ -20,13 +20,13 @@ export async function writeCodeModel(
   context: CSharpEmitterContext,
   codeModel: CodeModel,
   outputFolder: string,
-): Promise<readonly Diagnostic[]> {
+): Promise<[void, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   await context.program.host.writeFile(
     resolvePath(outputFolder, tspOutputFileName),
-    prettierOutput(JSON.stringify(diagnostics.pipe(buildJson(context, codeModel)), transformJSONProperties, 2)),
+    prettierOutput(JSON.stringify(buildJson(context, codeModel), transformJSONProperties, 2)),
   );
-  return diagnostics.diagnostics;
+  return diagnostics.wrap(undefined);
 }
 
 /**
@@ -34,12 +34,11 @@ export async function writeCodeModel(
  * @param context - The CSharp emitter context
  * @param codeModel - The code model to build
  */
-function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): [any, readonly Diagnostic[]] {
-  const diagnostics = createDiagnosticCollector();
+function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
   const objectsIds = new Map<any, string>();
   const stack: any[] = [];
 
-  return diagnostics.wrap(doBuildJson(codeModel, stack));
+  return doBuildJson(codeModel, stack);
 
   function doBuildJson(obj: any, stack: any[]): any {
     // check if this is a primitive type or null or undefined
@@ -77,13 +76,7 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): [any, r
   function handleObject(obj: any, id: string | undefined, stack: any[]): any {
     if (stack.includes(obj)) {
       // we have a cyclical reference, we should not continue
-      diagnostics.add(
-        createDiagnostic({
-          code: "general-warning",
-          format: { message: `Cyclical reference detected in the code model (id: ${id}).` },
-          target: NoTarget,
-        }),
-      );
+      context.logger.warn(`Cyclical reference detected in the code model (id: ${id}).`);
       return undefined;
     }
 

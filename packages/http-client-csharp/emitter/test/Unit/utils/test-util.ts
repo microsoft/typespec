@@ -119,25 +119,13 @@ export function createEmitterContext(
 /* We always need to pass in the emitter name now that it is required so making a helper to do this. */
 export async function createCSharpSdkContext(
   program: EmitContext<CSharpEmitterOptions>,
-  sdkContextOptionsOrCollectDiagnostics: CreateSdkContextOptions | boolean = {},
-  sdkContextOptions?: CreateSdkContextOptions,
+  sdkContextOptions: CreateSdkContextOptions = {},
 ): Promise<CSharpEmitterContext> {
-  // Handle backward compatibility - if second param is boolean, it's collectDiagnostics
-  let collectDiagnostics = false;
-  let options: CreateSdkContextOptions = {};
-
-  if (typeof sdkContextOptionsOrCollectDiagnostics === "boolean") {
-    collectDiagnostics = sdkContextOptionsOrCollectDiagnostics;
-    options = sdkContextOptions ?? {};
-  } else {
-    options = sdkContextOptionsOrCollectDiagnostics;
-  }
-
   const createSdkContext = await getCreateSdkContext();
-  const context = await createSdkContext(program, "@typespec/http-client-csharp", options);
+  const context = await createSdkContext(program, "@typespec/http-client-csharp", sdkContextOptions);
   const Logger = await getLogger();
   return createCSharpEmitterContext(
     context,
-    new Logger(program.program, LoggerLevel.INFO, collectDiagnostics),
+    new Logger(program.program, LoggerLevel.INFO),
   );
 }

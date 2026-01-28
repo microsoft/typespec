@@ -212,7 +212,7 @@ export function fromSdkServiceMethodOperation(
     crossLanguageDefinitionId: method.crossLanguageDefinitionId,
     decorators: method.decorators,
     examples: method.operation.examples
-      ? fromSdkHttpExamples(sdkContext, method.operation.examples)
+      ? diagnostics.pipe(fromSdkHttpExamples(sdkContext, method.operation.examples))
       : undefined,
   };
 

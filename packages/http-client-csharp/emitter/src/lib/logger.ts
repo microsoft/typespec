@@ -14,20 +14,10 @@ export class Logger {
   private level: LoggerLevel;
   private program: Program;
 
-  public constructor(program: Program, level: LoggerLevel, collectDiagnostics: boolean = false) {
+  public constructor(program: Program, level: LoggerLevel) {
     this.tracer = getTracer(program);
     this.level = level;
     this.program = program;
-  }
-
-  /**
-   * Get collected diagnostics. Only available if the logger was created with collectDiagnostics=true.
-   * @returns The collected diagnostics.
-   * @beta
-   * @deprecated This method is deprecated and will be removed. Use sdkContext.__diagnostics instead.
-   */
-  public getDiagnostics(): readonly Diagnostic[] {
-    return [];
   }
 
   trace(level: LoggerLevel, message: string): void {
@@ -64,5 +54,9 @@ export class Logger {
     if (this.level === LoggerLevel.VERBOSE) {
       this.tracer.trace(LoggerLevel.VERBOSE, message);
     }
+  }
+
+  warn(message: string): void {
+    this.tracer.trace("warning", message);
   }
 }

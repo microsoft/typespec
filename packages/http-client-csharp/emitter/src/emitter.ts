@@ -5,7 +5,6 @@ import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-gener
 import {
   createDiagnosticCollector,
   Diagnostic,
-  DiagnosticCollector,
   EmitContext,
   getDirectoryPath,
   joinPaths,
@@ -86,7 +85,7 @@ export async function createCodeModel(
   const outputFolder = context.emitterOutputDir;
 
   /* set the log level. */
-  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO, true);
+  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
@@ -116,9 +115,7 @@ export async function createCodeModel(
       }
 
       // emit tspCodeModel.json
-      for (const diag of await writeCodeModel(sdkContext, updatedRoot, outputFolder)) {
-        diagnostics.add(diag);
-      }
+      diagnostics.pipe(await writeCodeModel(sdkContext, updatedRoot, outputFolder));
 
       const namespace = updatedRoot.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
@@ -169,7 +166,7 @@ export async function createCodeModel(
     }
   }
 
-  return diagnostics.wrap(void 0);
+  return diagnostics.wrap(undefined);
 }
 
 /**
@@ -230,7 +227,7 @@ export async function _validateDotNetSdk(
   const diagnostics = createDiagnosticCollector();
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    return diagnostics.wrap(validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion, diagnostics));
+    return diagnostics.wrap(diagnostics.pipe(validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion)));
   } catch (error: any) {
     if (error && "code" in error && error["code"] === "ENOENT") {
       diagnostics.add(
@@ -253,15 +250,15 @@ function validateDotNetSdkVersionCore(
   sdkContext: CSharpEmitterContext,
   version: string,
   minMajorVersion: number,
-  diagnostics: DiagnosticCollector,
-): boolean {
+): [boolean, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   if (version) {
     const dotIndex = version.indexOf(".");
     const firstPart = dotIndex === -1 ? version : version.substring(0, dotIndex);
     const major = Number(firstPart);
 
     if (isNaN(major)) {
-      return false;
+      return diagnostics.wrap(false);
     }
     if (major < minMajorVersion) {
       diagnostics.add(
@@ -276,9 +273,9 @@ function validateDotNetSdkVersionCore(
           target: NoTarget,
         }),
       );
-      return false;
+      return diagnostics.wrap(false);
     }
-    return true;
+    return diagnostics.wrap(true);
   } else {
     diagnostics.add(
       createDiagnostic({
@@ -287,7 +284,7 @@ function validateDotNetSdkVersionCore(
         target: NoTarget,
       }),
     );
-    return false;
+    return diagnostics.wrap(false);
   }
 }
 
