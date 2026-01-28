@@ -366,5 +366,77 @@ describe("Operation Converter", () => {
         strictEqual(response.bodyType, undefined);
       });
     });
+
+    describe("Optional Content-Type header", () => {
+      it("Optional body should have Content-Type with Method scope", async () => {
+        const program = await typeSpecCompile(
+          `
+          model BodyModel {
+            name: string;
+          }
+          
+          @post
+          op withOptionalBody(@body body?: BodyModel): void;
+          `,
+          runner,
+        );
+        const context = createEmitterContext(program);
+        const sdkContext = await createCSharpSdkContext(context);
+        const root = createModel(sdkContext);
+
+        strictEqual(root.clients.length, 1);
+        strictEqual(root.clients[0].methods.length, 1);
+
+        const method = root.clients[0].methods[0];
+        ok(method);
+        
+        // validate operation
+        const operation = method.operation;
+        ok(operation);
+        
+        // Find Content-Type parameter
+        const contentTypeParam = operation.parameters.find((p) => p.name === "contentType");
+        ok(contentTypeParam, "Content-Type parameter should exist");
+        strictEqual(contentTypeParam.kind, "header");
+        strictEqual(contentTypeParam.serializedName, "Content-Type");
+        strictEqual(contentTypeParam.optional, true, "Content-Type should be optional");
+        strictEqual(contentTypeParam.scope, "Method", "Content-Type should have Method scope for optional body");
+      });
+
+      it("Required body should have Content-Type with Constant scope", async () => {
+        const program = await typeSpecCompile(
+          `
+          model BodyModel {
+            name: string;
+          }
+          
+          @post
+          op withRequiredBody(@body body: BodyModel): void;
+          `,
+          runner,
+        );
+        const context = createEmitterContext(program);
+        const sdkContext = await createCSharpSdkContext(context);
+        const root = createModel(sdkContext);
+
+        strictEqual(root.clients.length, 1);
+        strictEqual(root.clients[0].methods.length, 1);
+
+        const method = root.clients[0].methods[0];
+        ok(method);
+        
+        // validate operation
+        const operation = method.operation;
+        ok(operation);
+        
+        // Find Content-Type parameter
+        const contentTypeParam = operation.parameters.find((p) => p.name === "contentType");
+        ok(contentTypeParam, "Content-Type parameter should exist");
+        strictEqual(contentTypeParam.kind, "header");
+        strictEqual(contentTypeParam.serializedName, "Content-Type");
+        strictEqual(contentTypeParam.optional, false, "Content-Type should be required");
+        strictEqual(contentTypeParam.scope, "Constant", "Content-Type should have Constant scope for required body");
+      });
+    });
   });
 });
