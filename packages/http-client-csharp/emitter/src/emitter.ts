@@ -60,18 +60,24 @@ function findProjectRoot(path: string): string | undefined {
  * import { createCodeModel } from "@typespec/http-client-csharp";
  * 
  * export async function $onEmit(context: EmitContext<MyEmitterOptions>) {
- *   const [, diagnostics] = await createCodeModel(context);
+ *   const updateCodeModel = (model: CodeModel, context: CSharpEmitterContext) => {
+ *     // Customize the code model here
+ *     return model;
+ *   };
+ *   const [, diagnostics] = await createCodeModel(context, updateCodeModel);
  *   // Process diagnostics as needed
  *   context.program.reportDiagnostics(diagnostics);
  * }
  * ```
  * 
  * @param context - The emit context
+ * @param updateCodeModel - Optional callback to modify the code model before emission
  * @returns A tuple containing void and any diagnostics that were generated during the emission
  * @beta
  */
 export async function createCodeModel(
   context: EmitContext<CSharpEmitterOptions>,
+  updateCodeModel?: (model: CodeModel, context: CSharpEmitterContext) => CodeModel,
 ): Promise<[void, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const program: Program = context.program;
@@ -98,6 +104,9 @@ export async function createCodeModel(
     const root = diagnostics.pipe(createModel(sdkContext));
 
     if (root) {
+      // Apply optional code model update callback
+      const updatedRoot = updateCodeModel ? updateCodeModel(root, sdkContext) : root;
+
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
@@ -105,9 +114,9 @@ export async function createCodeModel(
       }
 
       // emit tspCodeModel.json
-      await writeCodeModel(sdkContext, root, outputFolder);
+      await writeCodeModel(sdkContext, updatedRoot, outputFolder);
 
-      const namespace = root.name;
+      const namespace = updatedRoot.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
       //emit configuration.json

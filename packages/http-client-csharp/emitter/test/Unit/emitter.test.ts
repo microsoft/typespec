@@ -19,6 +19,10 @@ import {
 describe("$onEmit tests", () => {
   let program: Program;
   let $onEmit: (arg0: EmitContext<CSharpEmitterOptions>) => any;
+  let createCodeModel: (
+    context: EmitContext<CSharpEmitterOptions>,
+    updateCodeModel?: (model: CodeModel, context: any) => CodeModel,
+  ) => any;
   beforeEach(async () => {
     // Reset the dynamically imported module to ensure a clean state
     vi.resetModules();
@@ -79,9 +83,20 @@ describe("$onEmit tests", () => {
       reportDiagnostics: vi.fn(),
     } as unknown as Program;
 
-    // dynamically import the module to get the $onEmit function
+    // dynamically import the module to get the $onEmit and createCodeModel functions
     // we avoid importing it at the top to allow mocking of dependencies
-    $onEmit = (await import("../../src/emitter.js")).$onEmit;
+    const emitterModule = await import("../../src/emitter.js");
+    $onEmit = emitterModule.$onEmit;
+    createCodeModel = emitterModule.createCodeModel;
+  });
+
+  it("should apply the updateCodeModel callback", async () => {
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {
+      return model;
+    });
+    await createCodeModel(context, updateCallback);
+    expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 
   it("should apply sdk-context-options", async () => {
