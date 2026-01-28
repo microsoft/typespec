@@ -70,11 +70,22 @@ class TestCase:
         operation: OperationType,
         *,
         async_mode: bool = False,
+        is_azure_arm: bool = False,
     ) -> None:
         self.operation_groups = operation_groups
-        self.params = params
+        self._params = params
         self.operation = operation
         self.async_mode = async_mode
+        self.is_azure_arm = is_azure_arm
+
+    @property
+    def params(self) -> dict[str, Any]:
+        if self.is_azure_arm:
+            return {
+                k: ("resource_group.name" if k == "resource_group_name" else v)
+                for k, v in self._params.items()
+            }
+        return self._params
 
     @property
     def name(self) -> str:
@@ -242,6 +253,7 @@ class TestSerializer(TestGeneralSerializer):
                     params=operation_params,
                     operation=operation,
                     async_mode=self.async_mode,
+                    is_azure_arm=self.code_model.options["azure-arm"],
                 )
                 testcases.append(testcase)
         if not testcases:

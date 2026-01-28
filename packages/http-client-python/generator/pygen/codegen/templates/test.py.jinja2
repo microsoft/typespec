@@ -22,19 +22,14 @@ class {{ test.test_class_name }}({{ test.base_test_class_name }}):
         {% else %}
         self.client = self.create_mgmt_client({{ test.client_name }})
         {% endif %}
-{% endif %}
-{% if is_azure_arm %}
+
 {% for testcase in test.testcases %}
     @{{ test.preparer_name }}(location=AZURE_LOCATION)
     @recorded_by_proxy{{ async_suffix }}
     {{ async }}def test_{{ testcase.name }}(self, resource_group):
         {{testcase.response }}{{ client_var }}{{ testcase.operation_group_prefix }}.{{ testcase.operation.name }}(
             {% for key, value in testcase.params.items() %}
-            {% if key == "resource_group_name" %}
-            {{ key }}=resource_group.name,
-            {% else %}
             {{ key }}={{ value|indent(12) }},
-            {% endif %}
             {% endfor %}
         ){{ testcase.operation_suffix }}
         {{ testcase.extra_operation }}
