@@ -1,5 +1,28 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.31
+
+### Features
+
+- [#9299](https://github.com/microsoft/typespec/pull/9299) Add test for services that accept `NoAuth` unioned with other auth type
+
+### Bug Fixes
+
+- [#9200](https://github.com/microsoft/typespec/pull/9200) Fix bulletPointsModel API signature to match runtime behavior - changed response type to OkResponse and updated request body structure
+
+
+## 0.1.0-alpha.30
+
+### Features
+
+- [#8836](https://github.com/microsoft/typespec/pull/8836) Add case for constant query
+- [#9139](https://github.com/microsoft/typespec/pull/9139) Add new test case for multipart
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
 ## 0.1.0-alpha.29
 
 ### Features

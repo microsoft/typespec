@@ -7,6 +7,7 @@
     "specialwords.ParametersClient": "SpecialWords.Parameters",
     "specialwords.SpecialWordsClientBuilder": "SpecialWords",
     "specialwords.modelproperties.DictMethods": "SpecialWords.ModelProperties.DictMethods",
+    "specialwords.modelproperties.ModelWithList": "SpecialWords.ModelProperties.ModelWithList",
     "specialwords.modelproperties.SameAsModel": "SpecialWords.ModelProperties.SameAsModel",
     "specialwords.models.And": "SpecialWords.Models.and",
     "specialwords.models.As": "SpecialWords.Models.as",

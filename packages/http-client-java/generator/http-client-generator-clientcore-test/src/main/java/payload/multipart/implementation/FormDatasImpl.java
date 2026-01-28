@@ -19,7 +19,9 @@ import payload.multipart.BinaryArrayPartsRequest;
 import payload.multipart.ComplexPartsRequest;
 import payload.multipart.JsonPartRequest;
 import payload.multipart.MultiBinaryPartsRequest;
+import payload.multipart.MultiPartOptionalRequest;
 import payload.multipart.MultiPartRequest;
+import payload.multipart.MultiPartRequestWithWireName;
 import payload.multipart.formdata.AnonymousModelRequest;
 
 /**
@@ -77,6 +79,26 @@ public final class FormDatasImpl {
         @UnexpectedResponseExceptionDetail
         Response<Void> basic(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
             @BodyParam("multipart/form-data") MultiPartRequest body, RequestContext requestContext);
+
+        // @Multipart not supported by RestProxy
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/multipart/form-data/mixed-parts-with-wire-name",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> withWireName(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") MultiPartRequestWithWireName body, RequestContext requestContext);
+
+        // @Multipart not supported by RestProxy
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/multipart/form-data/optional-parts",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> optionalParts(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") MultiPartOptionalRequest body, RequestContext requestContext);
 
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(
@@ -154,6 +176,44 @@ public final class FormDatasImpl {
             updatedContext -> {
                 final String contentType = "multipart/form-data";
                 return service.basic(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
+    }
+
+    /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWireNameWithResponse(MultiPartRequestWithWireName body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.withWireName", requestContext,
+            updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.withWireName(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> optionalPartsWithResponse(MultiPartOptionalRequest body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Payload.MultiPart.FormData.optionalParts", requestContext,
+            updatedContext -> {
+                final String contentType = "multipart/form-data";
+                return service.optionalParts(this.client.getEndpoint(), contentType, body, updatedContext);
             });
     }
 

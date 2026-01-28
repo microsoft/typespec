@@ -10,7 +10,7 @@ import {
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { compilerAssert, ignoreDiagnostics, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
@@ -1152,14 +1152,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (node) {
       const deprecationDetails = getDeprecationDetails(program, node);
       if (deprecationDetails) {
-        reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+        reportDeprecated(program, deprecationDetails.message, target, reportCheckerDiagnostic);
         return;
       }
     }
 
     const deprecationDetails = getDeprecationDetails(program, type);
     if (deprecationDetails) {
-      reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+      reportDeprecated(program, deprecationDetails.message, target, reportCheckerDiagnostic);
     }
   }
 
@@ -6674,25 +6674,6 @@ function getDocContent(content: readonly DocContent[]) {
   return docs.join("");
 }
 
-function reportDeprecation(
-  program: Program,
-  target: DiagnosticTarget,
-  message: string,
-  reportFunc: (d: Diagnostic) => void,
-): void {
-  if (program.compilerOptions.ignoreDeprecated !== true) {
-    reportFunc(
-      createDiagnostic({
-        code: "deprecated",
-        format: {
-          message,
-        },
-        target,
-      }),
-    );
-  }
-}
-
 function applyDecoratorToType(
   program: Program,
   decApp: DecoratorApplication,
@@ -6711,12 +6692,7 @@ function applyDecoratorToType(
   if (decApp.definition) {
     const deprecation = getDeprecationDetails(program, decApp.definition);
     if (deprecation !== undefined) {
-      reportDeprecation(
-        program,
-        decApp.node ?? target,
-        deprecation.message,
-        program.reportDiagnostic,
-      );
+      reportDeprecated(program, deprecation.message, decApp.node ?? target);
     }
   }
 

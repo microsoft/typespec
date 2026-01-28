@@ -39,6 +39,18 @@ Expect error code 403 and error body:
 
 Expects header 'Authorization': 'SharedAccessKey valid-key'
 
+### Authentication_Noauth_Union_validNoAuth
+
+- Endpoint: `get /authentication/noauth/union/valid`
+
+Expects no authentication. The server accepts requests without any authentication header.
+
+### Authentication_Noauth_Union_validToken
+
+- Endpoint: `get /authentication/noauth/union/validtoken`
+
+Expects header 'authorization': 'Bearer https://security.microsoft.com/.default'
+
 ### Authentication_OAuth2_invalid
 
 - Endpoint: `get /authentication/oauth2/invalid`
@@ -123,6 +135,174 @@ Expected response body:
 ```json
 {
   "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_enumCommaDelimited
+
+- Endpoint: `post /encode/array/property/enum/comma-delimited`
+
+Test operation with request and response model contains an enum array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_enumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/enum/newline-delimited`
+
+Test operation with request and response model contains an enum array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_enumPipeDelimited
+
+- Endpoint: `post /encode/array/property/enum/pipe-delimited`
+
+Test operation with request and response model contains an enum array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_enumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/enum/space-delimited`
+
+Test operation with request and response model contains an enum array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumCommaDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/comma-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/newline-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_extensibleEnumPipeDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/pipe-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/space-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
 }
 ```
 
@@ -2655,6 +2835,104 @@ Two requests need to be tested.
 }
 ```
 
+### Payload_Pageable_XmlPagination_listWithContinuation
+
+- Endpoint: `get /payload/pageable/xml/list-with-continuation`
+
+Test case for XML pagination with continuation token. Continuation token is passed in the request query and response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/xml/list
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextMarker>page2</NextMarker>
+</PetListResult>
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/xml/list?marker=page2
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+```
+
+### Payload_Pageable_XmlPagination_listWithNextLink
+
+- Endpoint: `get /payload/pageable/xml/list-with-next-link`
+
+Test case for XML pagination with next link.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/xml/list-with-next-link
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextLink>http://[host]:[port]/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
+</PetListResult>
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/xml/list-with-next-link/nextPage
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+```
+
 ### Payload_Xml_ModelWithArrayOfModelValue_get
 
 - Endpoint: `get /payload/xml/modelWithArrayOfModel`
@@ -3607,6 +3885,18 @@ Send
 
 ```json
 { "SameAsModel": "ok" }
+```
+
+### SpecialWords_ModelProperties_withList
+
+- Endpoint: `get /special-words/model-properties/list`
+
+Verify that a property can be named "list", which is a reserved word in many languages like Python.
+
+Send
+
+```json
+{ "list": "ok" }
 ```
 
 ### SpecialWords_Models_and

@@ -599,7 +599,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string uri = "",
             string path = "",
             string httpMethod = "GET",
-            bool generateConvenienceMethod = true)
+            bool generateConvenienceMethod = true,
+            string? ns = null)
         {
             return new InputOperation(
                 name,
@@ -618,7 +619,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 true,
                 generateConvenienceMethod,
-                name);
+                name,
+                ns);
         }
 
         public static InputPagingServiceMetadata NextLinkPagingMetadata(
@@ -668,7 +670,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null, InputClientInitializedBy initializedBy = InputClientInitializedBy.Default)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null, InputClientInitializedBy initializedBy = InputClientInitializedBy.Default, bool? isMultiServiceClient = false)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -678,6 +680,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
                 string.Empty,
                 doc ?? $"{name} description",
+                isMultiServiceClient ?? false,
                 methods is null ? [] : [.. methods],
                 parameters is null ? [] : [.. parameters],
                 parent,
