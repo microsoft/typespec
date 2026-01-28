@@ -235,7 +235,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange",
-            "decorators": []
+            "decorators": [],
+            "namespace": "Response.StatusCodeRange"
           },
           "parameters": [],
           "response": {},
@@ -272,7 +273,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCode404",
-            "decorators": []
+            "decorators": [],
+            "namespace": "Response.StatusCodeRange"
           },
           "parameters": [],
           "response": {},

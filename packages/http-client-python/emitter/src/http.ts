@@ -142,7 +142,15 @@ function getWireNameFromPropertySegments(
   if (segments[0].kind === "property") {
     return segments
       .filter((s) => s.kind === "property")
-      .map((s) => s.serializationOptions.json?.name ?? "")
+      .map((s) => {
+        if (s.serializationOptions.json) {
+          return s.serializationOptions.json.name;
+        }
+        if (s.serializationOptions.xml) {
+          return s.serializationOptions.xml.name;
+        }
+        return "";
+      })
       .join(".");
   }
 
