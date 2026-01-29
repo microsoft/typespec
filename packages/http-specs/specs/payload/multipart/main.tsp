@@ -611,19 +611,8 @@ namespace FormData {
 
   @route("/file")
   namespace File {
-    model FileWithSpecificContentType extends TypeSpec.Http.File {
+    model FileWithRequiredFilename extends TypeSpec.Http.File<"image/png"> {
       filename: string;
-      contentType: "image/png";
-    }
-
-    model FileWithMultipleContentTypes extends TypeSpec.Http.File {
-      filename: string;
-      contentType: "image/png" | "image/jpeg";
-    }
-
-    model FileWithRequiredMetadata extends TypeSpec.Http.File {
-      filename: string;
-      contentType: string;
     }
 
     @scenario
@@ -647,17 +636,16 @@ namespace FormData {
     op uploadFileSpecificContentType(
       @header contentType: "multipart/form-data",
       @multipartBody body: {
-        file: HttpPart<FileWithSpecificContentType>;
+        file: HttpPart<TypeSpec.Http.File<"image/png">>;
       },
     ): NoContentResponse;
 
     @scenario
     @scenarioDoc("""
-      Test File type in multipart form data with multiple allowed content types.
-      Client should send image/png.
+      Test File type in multipart form data with required filename.
       Expected request:
       ```
-      POST /multipart/form-data/file/multiple-content-types HTTP/1.1
+      POST /multipart/form-data/file/required-filename HTTP/1.1
       Content-Type: multipart/form-data; boundary=abcde12345
       
       --abcde12345
@@ -669,36 +657,11 @@ namespace FormData {
       ```
       """)
     @post
-    @route("/multiple-content-types")
-    op uploadFileMultipleContentTypes(
+    @route("/required-filename")
+    op uploadFileRequiredFilename(
       @header contentType: "multipart/form-data",
       @multipartBody body: {
-        file: HttpPart<FileWithMultipleContentTypes>;
-      },
-    ): NoContentResponse;
-
-    @scenario
-    @scenarioDoc("""
-      Test File type in multipart form data with required content type metadata.
-      Expected request:
-      ```
-      POST /multipart/form-data/file/required-content-type HTTP/1.1
-      Content-Type: multipart/form-data; boundary=abcde12345
-      
-      --abcde12345
-      Content-Disposition: form-data; name="file"; filename="image.png"
-      Content-Type: application/octet-stream
-      
-      {…file content of image.png…}
-      --abcde12345--
-      ```
-      """)
-    @post
-    @route("/required-content-type")
-    op uploadFileRequiredContentType(
-      @header contentType: "multipart/form-data",
-      @multipartBody body: {
-        file: HttpPart<FileWithRequiredMetadata>;
+        file: HttpPart<FileWithRequiredFilename>;
       },
     ): NoContentResponse;
 
@@ -728,7 +691,7 @@ namespace FormData {
     op uploadFileArray(
       @header contentType: "multipart/form-data",
       @multipartBody body: {
-        files: HttpPart<FileWithSpecificContentType>[];
+        files: HttpPart<TypeSpec.Http.File<"image/png">>[];
       },
     ): NoContentResponse;
   }
