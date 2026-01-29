@@ -39,6 +39,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
         [Test]
         public void TopParameterRenamedToMaxCountInPagingOperation()
         {
@@ -68,6 +69,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.Contains("maxCount", parameterNames, "Should contain 'maxCount' parameter");
             Assert.IsFalse(parameterNames.Contains("top"), "Should not contain 'top' parameter after renaming");
         }
+        
         [Test]
         public void NoNextLinkOrContinuationTokenOfT()
         {
