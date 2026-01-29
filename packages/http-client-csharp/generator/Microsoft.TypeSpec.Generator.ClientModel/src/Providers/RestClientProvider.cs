@@ -26,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string MaxPageSizeParameterName = "maxpagesize";
         private const string TopParameterName = "top";
         private const string MaxCountParameterName = "maxCount";
+        private const string ApiVersionParameterName = "api-version";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -308,6 +309,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
+            // Add API version parameters that need to be preserved across pagination requests
+            var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
+            if (apiVersionParam != null && !reinjectedParamsMap.ContainsKey(apiVersionParam.Name))
+            {
+                var createdParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(apiVersionParam);
+                if (createdParam != null && paramMap.TryGetValue(createdParam.Name, out var paramInSignature))
+                {
+                    reinjectedParamsMap[apiVersionParam.Name] = paramInSignature;
+                }
+            }
+
             return reinjectedParamsMap;
         }
 
@@ -454,7 +466,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Determine if we should update existing parameters or always append
             bool shouldUpdateExisting = isNextLinkRequest &&
-                                      ShouldSkipReinjectedParameter(inputQueryParameter.SerializedName) &&
+                                      ShouldUpdateReinjectedParameter(inputQueryParameter.SerializedName) &&
                                       paramType?.IsCollection != true;
 
             MethodBodyStatement statement = shouldUpdateExisting
@@ -845,9 +857,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
-        private static bool ShouldSkipReinjectedParameter(string parameterName)
+        private static bool ShouldUpdateReinjectedParameter(string parameterName)
         {
-            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase);
+            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase) ||
+                   parameterName.Equals(ApiVersionParameterName, StringComparison.OrdinalIgnoreCase);
             // In the future, we can extend this to check multiple parameters
         }
 
@@ -861,7 +874,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 foreach (var statusCode in response.StatusCodes)
                 {
-                    if (statusCode >= 200 && statusCode < 300)
+                    if (statusCode >= 200 && statusCode < 400)
                     {
                         statusCodes.Add(statusCode);
                     }

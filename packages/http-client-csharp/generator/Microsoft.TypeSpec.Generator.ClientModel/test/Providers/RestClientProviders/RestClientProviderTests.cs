@@ -102,6 +102,66 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsFalse(propertyHash.ContainsKey("PipelineMessageClassifier204"));
         }
 
+        [Test]
+        public void Validate3xxRedirectStatusCode()
+        {
+            // Test that 3xx status codes (like 302 redirect) are handled correctly
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestRedirect",
+                InputFactory.Operation(
+                    "Redirect302",
+                    responses:
+                    [
+                        InputFactory.OperationResponse(
+                            statusCodes: [302],
+                            headers:
+                            [
+                                new InputOperationResponseHeader(
+                                    "location",
+                                    "location",
+                                    "Location header for redirect",
+                                    null,
+                                    InputPrimitiveType.String)
+                            ])
+                    ]));
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClient = clientProvider.RestClient;
+
+            Assert.IsNotNull(restClient);
+
+            // Validate that the classifier for 302 status code exists
+            Dictionary<string, PropertyProvider> propertyHash = restClient.Properties.ToDictionary(p => p.Name);
+            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier302"), 
+                "PipelineMessageClassifier302 should be present for 302 redirect");
+
+            var pipelineMessageClassifier302 = propertyHash["PipelineMessageClassifier302"];
+            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier302.Type.Name);
+            Assert.AreEqual("PipelineMessageClassifier302", pipelineMessageClassifier302.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier302.Modifiers);
+
+            // Validate that fields are created correctly
+            Dictionary<string, FieldProvider> fieldHash = restClient.Fields.ToDictionary(f => f.Name);
+            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier302"), 
+                "_pipelineMessageClassifier302 field should be present for 302 redirect");
+
+            var pipelineMessageClassifier302Field = fieldHash["_pipelineMessageClassifier302"];
+            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier302Field.Type.Name);
+            Assert.AreEqual("_pipelineMessageClassifier302", pipelineMessageClassifier302Field.Name);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier302Field.Modifiers);
+
+            // Validate that the CreateRequest method uses the classifier
+            var createRequestMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateRedirect302Request");
+            Assert.IsNotNull(createRequestMethod, "CreateRedirect302Request method should exist");
+
+            var bodyStatements = createRequestMethod?.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(bodyStatements, "Method body statements should not be null");
+
+            // Verify that the classifier property is referenced in the CreateRequest method body
+            ValidateResponseClassifier(bodyStatements!, "302");
+        }
+
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
         public void TestGetMethodParameters(InputServiceMethod inputServiceMethod)
         {
@@ -1373,6 +1433,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                                 uri: "{endpoint}/{apiVersion}"))
                     ],
                     parameters: [endpointParameter, enumApiVersionParameter]));
+        }
+
+        [Test]
+        public void TestApiVersionParameterReinjectedInCreateNextRequestMethod()
+        {
+            // Create API version parameter marked with IsApiVersion = true
+            var apiVersionParam = InputFactory.QueryParameter("apiVersion", InputPrimitiveType.String, 
+                isRequired: true, serializedName: "api-version", isApiVersion: true);
+            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32, 
+                isRequired: false, serializedName: "maxpagesize");
+            
+            List<InputParameter> parameters =
+            [
+                apiVersionParam,
+                pageSizeParam,
+            ];
+            
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("apiVersion", InputPrimitiveType.String, isRequired: true, 
+                    location: InputRequestLocation.Query, serializedName: "api-version"),
+                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false, 
+                    location: InputRequestLocation.Query, serializedName: "maxpagesize"),
+            ];
+            
+            var inputModel = InputFactory.Model("Item", properties:
+            [
+                InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+            
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], 
+                InputResponseLocation.Body, reinjectedParameters: []);
+            
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "PagedItems",
+                    properties: [
+                        InputFactory.Property("value", InputFactory.Array(inputModel)), 
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url)
+                    ]));
+            
+            var operation = InputFactory.Operation("listItems", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "listItems",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: methodParameters);
+            
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            
+            Assert.That(file.Content, Contains.Substring("api-version"));
+            Assert.That(file.Content, Contains.Substring("maxpagesize"));
         }
     }
 }
