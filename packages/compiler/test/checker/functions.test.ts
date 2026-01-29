@@ -1250,16 +1250,16 @@ describe("compiler: checker: functions", () => {
 
         const f: fn(arg: never) => string = testFn;
 
-        // model Observer {
-        //   @test p: fn(arg: never) => string = f;
-        // }
+        model Observer {
+          @test p: fn(arg: never) => string = f;
+        }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
       expectDiagnosticEmpty(diagnostics);
 
-      // strictEqual(p.defaultValue?.entityKind, "Value");
-      // strictEqual(p.defaultValue?.valueKind, "Function");
-      // strictEqual(p.defaultValue?.name, "testFn");
+      strictEqual(p.defaultValue?.entityKind, "Value");
+      strictEqual(p.defaultValue?.valueKind, "Function");
+      strictEqual(p.defaultValue?.name, "testFn");
     });
 
     it("errors when assigned to function type with incompatible parameters", async () => {
