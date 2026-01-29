@@ -54,7 +54,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly bool _isMultiLevelDiscriminator;
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
+        private readonly CSharpType _additionalObjectPropsFieldType = typeof(IDictionary<string, object>);
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
+        private Lazy<bool> _useObjectAdditionalProperties;
         private FieldProvider? _rawDataField;
         private List<FieldProvider>? _additionalPropertyFields;
         private List<PropertyProvider>? _additionalPropertyProperties;
@@ -68,6 +70,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _inputModel = inputModel;
             _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
+            _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
 
             if (_inputModel.BaseModel is not null)
             {
@@ -125,7 +128,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
         private List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
-        protected internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
+        protected internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p =>
+            p.Type.ElementType.Equals(_additionalPropsUnknownType) ||
+            (p.Type.ElementType.IsFrameworkType && p.Type.ElementType.FrameworkType == typeof(object)));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
@@ -367,55 +372,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var name = !containsAdditionalTypeProperties
                     ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName
                     : RawDataField.Name.ToIdentifierName();
+
+                // Use object type if backward compatibility requires it, otherwise use BinaryData type
+                var propertyType = _useObjectAdditionalProperties.Value ? _additionalObjectPropsFieldType : additionalPropsType;
                 var type = !_inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
-                    ? additionalPropsType.OutputType
-                    : additionalPropsType;
+                    ? propertyType.OutputType
+                    : propertyType;
 
-                // Check for backward compatibility: if LastContract has an object-typed AdditionalProperties
-                var hasObjectAdditionalPropertiesInLastContract = CheckForObjectAdditionalPropertiesInLastContract(name);
-                if (hasObjectAdditionalPropertiesInLastContract)
+                var assignment = type.IsReadOnlyDictionary
+                    ? new ExpressionPropertyBody(New.ReadOnlyDictionary(type.Arguments[0], type.ElementType, RawDataField))
+                    : new ExpressionPropertyBody(RawDataField);
+                var property = new PropertyProvider(
+                    null,
+                    MethodSignatureModifiers.Public,
+                    type,
+                    name,
+                    assignment,
+                    this)
                 {
-                    // Generate the object-typed property for backward compatibility
-                    var objectDictType = new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(object));
-                    var objectType = !_inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
-                        ? objectDictType.OutputType
-                        : objectDictType;
-                    var objectAssignment = objectType.IsReadOnlyDictionary
-                        ? new ExpressionPropertyBody(New.ReadOnlyDictionary(objectType.Arguments[0], objectType.ElementType, RawDataField))
-                        : new ExpressionPropertyBody(RawDataField);
-                    var objectProperty = new PropertyProvider(
-                        null,
-                        MethodSignatureModifiers.Public,
-                        objectType,
-                        name,
-                        objectAssignment,
-                        this)
-                    {
-                        BackingField = RawDataField,
-                        IsAdditionalProperties = true
-                    };
-                    properties.Add(objectProperty);
-
-                    // Don't add the BinaryData property to avoid conflict
-                }
-                else
-                {
-                    var assignment = type.IsReadOnlyDictionary
-                        ? new ExpressionPropertyBody(New.ReadOnlyDictionary(type.Arguments[0], type.ElementType, RawDataField))
-                        : new ExpressionPropertyBody(RawDataField);
-                    var property = new PropertyProvider(
-                        null,
-                        MethodSignatureModifiers.Public,
-                        type,
-                        name,
-                        assignment,
-                        this)
-                    {
-                        BackingField = RawDataField,
-                        IsAdditionalProperties = true
-                    };
-                    properties.Add(property);
-                }
+                    BackingField = RawDataField,
+                    IsAdditionalProperties = true
+                };
+                properties.Add(property);
             }
 
             return properties;
@@ -1177,9 +1155,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             modifiers |= FieldModifiers.ReadOnly;
 
+            // Use object type for backward compatibility if needed, otherwise use BinaryData
+            var fieldType = _useObjectAdditionalProperties.Value ? _additionalObjectPropsFieldType : _additionalBinaryDataPropsFieldType;
+
             var rawDataField = new FieldProvider(
                 modifiers: modifiers,
-                type: _additionalBinaryDataPropsFieldType,
+                type: fieldType,
                 description: FormattableStringHelpers.FromString(AdditionalBinaryDataPropsFieldDescription),
                 name: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName,
                 enclosingType: this);
@@ -1206,15 +1187,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             };
         }
 
-        private bool CheckForObjectAdditionalPropertiesInLastContract(string propertyName)
+        /// <summary>
+        /// Determines whether to use object type for AdditionalProperties based on backward compatibility requirements.
+        /// Checks if the last contract (previous version) had an AdditionalProperties property of type IDictionary&lt;string, object&gt;.
+        /// </summary>
+        /// <returns>True if object type should be used for backward compatibility; otherwise false (uses BinaryData).</returns>
+        private bool ShouldUseObjectAdditionalProperties()
         {
-            if (LastContractView == null)
+            if (LastContractView == null || _inputModel.AdditionalProperties == null)
             {
                 return false;
             }
 
-            // Check if the property exists in the last contract by name (may not have IsAdditionalProperties set)
-            var lastContractProperty = LastContractView.Properties.FirstOrDefault(p => p.Name == propertyName);
+            // Check if the property exists in the last contract by name
+            var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
+                p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (lastContractProperty == null)
             {
@@ -1229,7 +1216,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var valueType = propertyType.Arguments[1];
 
                 // Check if key is string and value is object
-                if (keyType.FrameworkType == typeof(string) && valueType.FrameworkType == typeof(object))
+                if (keyType.IsFrameworkType && keyType.FrameworkType == typeof(string) &&
+                    valueType.IsFrameworkType && valueType.FrameworkType == typeof(object))
                 {
                     return true;
                 }
