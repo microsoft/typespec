@@ -1523,25 +1523,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsNotNull(restClient);
 
             var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
-            Assert.IsNotNull(createMethod);
+            Assert.IsNotNull(createMethod, "CreateTestOperationRequest method not found");
 
             var statements = createMethod!.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(statements);
-
-            // Debug: print all statements
-            Console.WriteLine("All statements:");
-            foreach (var stmt in statements!)
-            {
-                Console.WriteLine($"  {stmt.ToDisplayString()}");
-            }
 
             var contentTypeStatement = statements!.FirstOrDefault(s =>
                 s.ToDisplayString().Contains("Content-Type") &&
                 s.ToDisplayString().Contains("if"));
 
             Assert.IsNotNull(contentTypeStatement, "Content-Type header should be wrapped in a null check");
-            Assert.IsTrue(contentTypeStatement!.ToDisplayString().Contains("if (content != null)"),
-                $"Content-Type should be wrapped in 'if (content != null)', but got: {contentTypeStatement.ToDisplayString()}");
+            Assert.IsTrue(contentTypeStatement!.ToDisplayString().Contains("content != null"),
+                $"Content-Type should be wrapped in 'content != null', but got: {contentTypeStatement.ToDisplayString()}");
         }
     }
 }

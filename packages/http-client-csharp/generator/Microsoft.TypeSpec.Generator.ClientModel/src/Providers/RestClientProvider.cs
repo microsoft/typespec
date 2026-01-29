@@ -259,10 +259,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                var contentParam = signature.Parameters.FirstOrDefault(
-                    p => ReferenceEquals(p, ScmKnownParameters.RequestContent) ||
-                         ReferenceEquals(p, ScmKnownParameters.OptionalRequestContent) ||
-                         ReferenceEquals(p, ScmKnownParameters.NullableRequiredRequestContent));
+                var contentParam = signature.Parameters.FirstOrDefault(p => p.Name == "content" && p.Location == ParameterLocation.Body);
                 statements.AddRange(AppendHeaderParameters(request, operation, paramMap, contentParam: contentParam));
                 statements.AddRange(GetSetContent(request, signature.Parameters));
             }
@@ -429,10 +426,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
                 }
-                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
-                else if (inputHeaderParameter.IsContentType && contentParam != null &&
-                         (ReferenceEquals(contentParam, ScmKnownParameters.OptionalRequestContent) ||
-                          ReferenceEquals(contentParam, ScmKnownParameters.NullableRequiredRequestContent)))
+                // If this is a Content-Type header and there's a content parameter (which could be null), wrap in content null check
+                else if (inputHeaderParameter.IsContentType && contentParam != null)
                 {
                     statement = new IfStatement(((ValueExpression)contentParam).NotEqual(Null)) { statement };
                 }
