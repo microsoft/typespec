@@ -1213,9 +1213,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            // Check if the property exists in the last contract
-            var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
-                p.Name == propertyName && p.IsAdditionalProperties);
+            // Check if the property exists in the last contract by name (may not have IsAdditionalProperties set)
+            var lastContractProperty = LastContractView.Properties.FirstOrDefault(p => p.Name == propertyName);
 
             if (lastContractProperty == null)
             {
