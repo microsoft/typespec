@@ -723,21 +723,6 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       }
     }
 
-    // Unused source parameters must all be optional or rest parameters.
-    // for (const remainingSourceParam of queue) {
-    //   if (!remainingSourceParam.optional && !remainingSourceParam.rest) {
-    //     errors.push(
-    //       createTypeRelationError({
-    //         code: "parameter-required",
-    //         format: {
-    //           paramName: remainingSourceParam.name,
-    //         },
-    //         diagnosticTarget,
-    //       }),
-    //     );
-    //   }
-    // }
-
     return errors.length === 0 ? [Related.true, []] : [Related.false, errors];
 
     function getArrayElementType(constraint: MixedParameterConstraint): MixedParameterConstraint {
