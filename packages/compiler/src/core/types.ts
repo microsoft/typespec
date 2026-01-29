@@ -2603,16 +2603,18 @@ export interface TypeSpecLibrary<
  */
 export type EmitOptionsFor<C> = C extends TypeSpecLibrary<infer _T, infer E> ? E : never;
 
-export interface DecoratorContext {
+/**
+ * Base context passed to JavaScript implementations of invocable constructs (decorators, functions).
+ */
+export interface InvocationContext {
+  /**
+   * The current TypeSpec Program.
+   */
   program: Program;
 
   /**
-   * Point to the decorator target
-   */
-  decoratorTarget: DiagnosticTarget;
-
-  /**
    * Helper to get the target for a given argument index.
+   *
    * @param argIndex Argument index in the decorator call.
    * @example
    * ```tsp
@@ -2623,21 +2625,6 @@ export interface DecoratorContext {
    * - `getArgumentTarget(1)` -> target for 123
    */
   getArgumentTarget(argIndex: number): DiagnosticTarget | undefined;
-
-  /**
-   * Helper to call a decorator implementation from within another decorator implementation.
-   *
-   * This function is identical to `callDecorator`.
-   *
-   * @param decorator The decorator function to call.
-   * @param target The target to which the decorator is applied.
-   * @param args Arguments to pass to the decorator.
-   */
-  call<T extends Type, A extends any[], R>(
-    decorator: (context: DecoratorContext, target: T, ...args: A) => R,
-    target: T,
-    ...args: A
-  ): R;
 
   /**
    * Helper to call a decorator implementation from within another decorator implementation.
@@ -2664,52 +2651,40 @@ export interface DecoratorContext {
 }
 
 /**
- * Context passed to function implementations.
+ * Context passed to decorator implementations.
  */
-export interface FunctionContext {
-  /**
-   * The TypeSpec Program in which the function is evaluated.
-   */
+export interface DecoratorContext extends InvocationContext {
   program: Program;
 
   /**
-   * The function call diagnostic target.
+   * The diagnostic target for the decorator application.
    */
-  functionCallTarget: DiagnosticTarget;
+  decoratorTarget: DiagnosticTarget;
 
   /**
-   * Helper to get the target for a given argument index.
-   * @param argIndex Argument index in the function call.
-   * @example
-   * ```tsp
-   * foo("bar", 123):
-   * ```
-   * - `getArgumentTarget(0)` -> target for "bar"
-   * - `getArgumentTarget(1)` -> target for 123
-   */
-  getArgumentTarget(argIndex: number): DiagnosticTarget | undefined;
-
-  /**
-   * Helper to call a decorator implementation from within a function implementation.
+   * Helper to call a decorator implementation from within another decorator implementation.
+   *
+   * This function is identical to `callDecorator`.
+   *
    * @param decorator The decorator function to call.
    * @param target The target to which the decorator is applied.
    * @param args Arguments to pass to the decorator.
    */
-  callDecorator<T extends Type, A extends any[], R>(
+  call<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,
     target: T,
     ...args: A
   ): R;
+}
 
+/**
+ * Context passed to function implementations.
+ */
+export interface FunctionContext extends InvocationContext {
   /**
-   * Helper to call a function implementation from within another function implementation.
-   * @param func The function implementation to call.
-   * @param args Arguments to pass to the function.
+   * The function call diagnostic target.
    */
-  callFunction<A extends any[], R>(
-    func: (context: FunctionContext, ...args: A) => R,
-    ...args: A
-  ): R;
+  functionCallTarget: DiagnosticTarget;
 }
 
 export interface EmitContext<TOptions extends object = Record<string, never>> {
