@@ -5,7 +5,6 @@
 # --------------------------------------------------------------------------
 import logging
 import json
-import concurrent.futures
 from collections import namedtuple
 import re
 from typing import Any, Optional, Union
@@ -596,13 +595,9 @@ class JinjaSerializer(ReaderAndWriter):
                         files_to_write,
                     )
 
-        # Phase 2: Write all files (I/O-bound, threading helps here)
-        def write_single_file(item: tuple[Path, str]) -> None:
-            path, content = item
+        # Phase 2: Write all files
+        for path, content in files_to_write:
             self.write_file(path, content)
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(write_single_file, files_to_write)
 
     def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
@@ -645,12 +640,8 @@ class JinjaSerializer(ReaderAndWriter):
                 except Exception as e:  # pylint: disable=broad-except
                     _LOGGER.error("error happens in test generation for operation group %s: %s", og.class_name, e)
 
-        # Phase 2: Write all files (I/O-bound, threading helps here)
-        def write_single_file(item: tuple[Path, str]) -> None:
-            path, content = item
+        # Phase 2: Write all files
+        for path, content in files_to_write:
             self.write_file(path, content)
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(write_single_file, files_to_write)
 
         self.code_model.for_test = False
