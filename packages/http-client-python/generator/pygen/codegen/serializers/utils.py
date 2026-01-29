@@ -71,7 +71,7 @@ def create_fake_value(param_type: BaseType) -> Any:
     :param param_type: The parameter type to create a fake value for.
     :return: A string representation of the fake value.
     """
-    
+
     model_type: Optional[ModelType] = None
     if isinstance(param_type, ModelType):
         model_type = param_type
@@ -88,4 +88,4 @@ def hash_file_import(file_import: FileImport) -> str:
     :return: A string representing the hash of the FileImport object.
     """
 
-    return "".join(sorted(list(set([str(hash(i)) for i in file_import.imports]))))
+    return "".join(sorted({str(hash(i)) for i in file_import.imports}))

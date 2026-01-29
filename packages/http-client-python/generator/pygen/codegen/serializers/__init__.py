@@ -533,6 +533,43 @@ class JinjaSerializer(ReaderAndWriter):
     def _generated_tests_samples_folder(self, folder_name: str) -> Path:
         return self._root_of_sdk / folder_name
 
+    def _process_operation_samples(
+        self,
+        samples: dict,
+        env: Environment,
+        op_group,
+        operation,
+        import_sample_cache: dict[tuple[str, str], str],
+        out_path: Path,
+        sample_additional_folder: Path,
+        files_to_write: list[tuple[Path, str]],
+    ) -> None:
+        """Process samples for a single operation."""
+        for sample_value in samples.values():
+            file = sample_value.get("x-ms-original-file", "sample.json")
+            file_name = to_snake_case(extract_sample_name(file)) + ".py"
+            try:
+                sample_ser = SampleSerializer(
+                    code_model=self.code_model,
+                    env=env,
+                    operation_group=op_group,
+                    operation=operation,
+                    sample=sample_value,
+                    file_name=file_name,
+                )
+                file_import = sample_ser.get_file_import()
+                imports_hash_string = hash_file_import(file_import)
+                cache_key = (op_group.client.client_namespace, imports_hash_string)
+                if cache_key not in import_sample_cache:
+                    import_sample_cache[cache_key] = sample_ser.get_imports_from_file_import(file_import)
+                sample_ser.imports = import_sample_cache[cache_key]
+
+                content = sample_ser.serialize()
+                output_path = out_path / sample_additional_folder / _sample_output_path(file) / file_name
+                files_to_write.append((output_path, content))
+            except Exception as e:  # pylint: disable=broad-except
+                _LOGGER.error("error happens in sample %s: %s", file, e)
+
     def _serialize_and_write_sample(self, env: Environment):
         out_path = self._generated_tests_samples_folder("generated_samples")
         sample_additional_folder = self.sample_additional_folder
@@ -548,30 +585,16 @@ class JinjaSerializer(ReaderAndWriter):
                     samples = operation.yaml_data.get("samples")
                     if not samples or operation.name.startswith("_"):
                         continue
-                    for sample_value in samples.values():
-                        file = sample_value.get("x-ms-original-file", "sample.json")
-                        file_name = to_snake_case(extract_sample_name(file)) + ".py"
-                        try:
-                            sample_ser = SampleSerializer(
-                                code_model=self.code_model,
-                                env=env,
-                                operation_group=op_group,
-                                operation=operation,
-                                sample=sample_value,
-                                file_name=file_name,
-                            )
-                            file_import = sample_ser.get_file_import()
-                            imports_hash_string = hash_file_import(file_import)
-                            cache_key = (op_group.client.client_namespace, imports_hash_string)
-                            if cache_key not in import_sample_cache:
-                                import_sample_cache[cache_key] = sample_ser.get_imports_from_file_import(file_import)
-                            sample_ser.imports = import_sample_cache[cache_key]
-
-                            content = sample_ser.serialize()
-                            output_path = out_path / sample_additional_folder / _sample_output_path(file) / file_name
-                            files_to_write.append((output_path, content))
-                        except Exception as e:  # pylint: disable=broad-except
-                            _LOGGER.error(f"error happens in sample {file}: {e}")
+                    self._process_operation_samples(
+                        samples,
+                        env,
+                        op_group,
+                        operation,
+                        import_sample_cache,
+                        out_path,
+                        sample_additional_folder,
+                        files_to_write,
+                    )
 
         # Phase 2: Write all files (I/O-bound, threading helps here)
         def write_single_file(item: tuple[Path, str]) -> None:
@@ -609,8 +632,8 @@ class JinjaSerializer(ReaderAndWriter):
             for og in client.operation_groups:
                 # Create serializer once per operation group
                 test_serializer = TestSerializer(self.code_model, env, client=client, operation_group=og)
-                for async_mode in (True, False):
-                    try:
+                try:
+                    for async_mode in (True, False):
                         test_serializer.async_mode = async_mode
                         cache_key = (client.name, async_mode)
                         if cache_key not in import_test_cache:
@@ -619,8 +642,8 @@ class JinjaSerializer(ReaderAndWriter):
                         content = test_serializer.serialize_test()
                         output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
                         files_to_write.append((output_path, content))
-                    except Exception as e:  # pylint: disable=broad-except
-                        _LOGGER.error(f"error happens in test generation for operation group {og.class_name}: {e}")
+                except Exception as e:  # pylint: disable=broad-except
+                    _LOGGER.error("error happens in test generation for operation group %s: %s", og.class_name, e)
 
         # Phase 2: Write all files (I/O-bound, threading helps here)
         def write_single_file(item: tuple[Path, str]) -> None:
