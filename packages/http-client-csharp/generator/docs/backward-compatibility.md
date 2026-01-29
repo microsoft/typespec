@@ -160,13 +160,13 @@ Previous version generated with object type:
 public partial class MyModel
 {
     private readonly IDictionary<string, object> _additionalBinaryDataProperties;
-    
+
     public MyModel(string name, IDictionary<string, object> additionalProperties)
     {
         Name = name;
         _additionalBinaryDataProperties = additionalProperties;
     }
-    
+
     public string Name { get; set; }
     public IDictionary<string, object> AdditionalProperties { get; }
 }
@@ -178,13 +178,13 @@ Current TypeSpec would generate with BinaryData:
 public partial class MyModel
 {
     private readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
-    
+
     public MyModel(string name, IDictionary<string, BinaryData> additionalProperties)
     {
         Name = name;
         _additionalBinaryDataProperties = additionalProperties;
     }
-    
+
     public string Name { get; set; }
     public IDictionary<string, BinaryData> AdditionalProperties { get; }
 }
@@ -198,13 +198,13 @@ When the last contract had `IDictionary<string, object>`, the generator preserve
 public partial class MyModel
 {
     private readonly IDictionary<string, object> _additionalBinaryDataProperties;
-    
+
     public MyModel(string name, IDictionary<string, object> additionalProperties)
     {
         Name = name;
         _additionalBinaryDataProperties = additionalProperties;
     }
-    
+
     public string Name { get; set; }
     public IDictionary<string, object> AdditionalProperties { get; }
 }
