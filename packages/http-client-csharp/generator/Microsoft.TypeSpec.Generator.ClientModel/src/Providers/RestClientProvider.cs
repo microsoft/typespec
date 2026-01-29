@@ -877,7 +877,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return false;
         }
-                                      
 
         private static List<int> GetSuccessStatusCodes(InputOperation operation)
         {
