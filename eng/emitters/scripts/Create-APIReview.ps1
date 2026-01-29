@@ -27,7 +27,7 @@ function Get-ApiViewBearerToken()
     try {
         $tokenResponse = az account get-access-token --resource "api://apiview" --output json 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to acquire access token: $tokenResponse"
+            Write-Error "Failed to acquire access token. Please ensure Azure CLI is authenticated and has access to the APIView resource."
             return $null
         }
         return ($tokenResponse | ConvertFrom-Json).accessToken
