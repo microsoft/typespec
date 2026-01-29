@@ -1,10 +1,14 @@
 ---
-title: Performance reporting
+title: Performance Reporting
 ---
 
-# Performance reporting
+The TypeSpec compiler can report performance statistics after compilation, helping you identify bottlenecks and optimize your build process. Enable this feature by passing the `--stats` flag to the CLI:
 
-TypeSpec compiler can report performance statistics after a compilation. This can be enabled by passing `--stats` to the CLI.
+```bash
+tsp compile . --stats
+```
+
+<!-- cspell:disable -->
 
 ```ansi frame="terminal"
 tsp compile . --stats
@@ -25,51 +29,67 @@ Compiler statistics:
     [90mlinter[39m: [32m0ms[39m
 ```
 
-Since TypeSpec 1.9.0 emitters can now also report their own performance statistics which will then be displayed in the same report.
+<!-- cspell:enable -->
 
-Reporting performance in an emitter can be done using the `EmitContext.perf` API. There is a few approaches depending on the use case:
+The report includes:
 
-## 1. `startTimer`
+- **Complexity metrics**: Number of types created and finished during compilation
+- **Performance breakdown**: Time spent in each compilation phase (loading, resolving, type-checking, validation, and linting)
 
-This approach is useful when you want to start a timer at one point in your code and stop it later.
+## Emitter Performance Reporting
+
+:::note[Since TypeSpec 1.9.0]
+:::
+Emitters can report their own performance statistics, which are displayed alongside the compiler metrics in the same report.
+
+Use the `EmitContext.perf` API to instrument your emitter code. The API provides several methods depending on your use case.
+
+### `startTimer` - Manual Timer Control
+
+Best for when the start and stop points are in different parts of your code, or when you need conditional timing:
 
 ```ts
 const timer = context.perf.startTimer("my-task");
-// ... do some work
+
+// ... do some work across multiple statements
+
 timer.stop();
 ```
 
-## 2. `time`
+### `time` - Synchronous Function Timing
 
-This approach is useful when you have a synchronous function and want to measure its execution time.
+Best for wrapping synchronous code blocks. Returns the result of the callback function:
 
 ```ts
-context.perf.time("my-task", () => {
+const result = context.perf.time("my-task", () => {
   // ... do some work
+  return computedValue;
 });
 ```
 
-## 3. `timeAsync`
+### `timeAsync` - Asynchronous Function Timing
 
-This approach is useful when you have an asynchronous function and want to measure its execution time.
+Best for wrapping async operations. Returns a promise with the callback's result:
 
 ```ts
-await context.perf.timeAsync("my-task", async () => {
-  // ... do some work
+const result = await context.perf.timeAsync("my-task", async () => {
+  // ... do some async work
+  return await fetchData();
 });
 ```
 
-## 4. `reportTime`
+### `reportTime` - Report Pre-measured Duration
 
-This approach is useful when you already have the duration of a task and want to report it directly.
-You can then use the `perf` utilities to measure the duration in that task.
+Best when you already have timing data from another source (e.g., a child process or external tool):
 
-```ts title=emit.ts
+```ts title="emit.ts"
 const { duration } = runTask();
-context.perf.reportTime("my-task", durationInMs);
+context.perf.reportTime("my-task", duration);
 ```
 
-```ts title=task-runner.ts
+You can use the standalone `perf` utilities to measure duration in code that doesn't have access to the emit context:
+
+```ts title="task-runner.ts"
 import { perf } from "@typespec/compiler/utils";
 
 function runTask(): { duration: number } {
@@ -79,21 +99,30 @@ function runTask(): { duration: number } {
 }
 ```
 
-## Example
+## Complete Example
+
+Here's how to instrument a typical emitter with multiple phases:
 
 ```ts
-export function $onEmit(context: EmitContext) {
+import { EmitContext } from "@typespec/compiler";
+
+export async function $onEmit(context: EmitContext) {
+  // Manual timer for the preparation phase
   const timer = context.perf.startTimer("prepare");
   prepare();
   timer.stop();
 
+  // Wrap synchronous rendering with automatic timing
   const renderResult = context.perf.time("render", () => render());
 
-  context.perf.timeAsync("write", () => writeOutput(renderResult));
+  // Wrap async file writing with automatic timing
+  await context.perf.timeAsync("write", async () => writeOutput(renderResult));
 }
 ```
 
-Which would result in the following
+Running `tsp compile . --stats` with this instrumented emitter produces:
+
+<!-- cspell:disable -->
 
 ```ansi frame="terminal"
 tsp compile . --stats
@@ -118,3 +147,7 @@ Compiler statistics:
         [90mrender[39m: [32m28ms[39m
         [90mwrite[39m: [32m51ms[39m
 ```
+
+<!-- cspell:enable -->
+
+The emitter's custom metrics (`prepare`, `render`, `write`) appear nested under the emitter name, giving you a clear breakdown of where time is spent during code generation.
