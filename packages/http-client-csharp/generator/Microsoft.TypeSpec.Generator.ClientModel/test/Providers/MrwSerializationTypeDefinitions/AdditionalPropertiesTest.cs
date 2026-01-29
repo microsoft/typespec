@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -158,6 +159,82 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 // union additional properties
                 yield return new TestCaseData(new InputUnionType("union", [InputPrimitiveType.String, InputPrimitiveType.Float64]));
             }
+        }
+
+        [Test]
+        public async Task TestBuildDeserializationMethod_WithObjectAdditionalPropertiesBackwardCompatibility()
+        {
+            // Create a model with unknown additional properties
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true)],
+                additionalProperties: InputPrimitiveType.Any);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+            Assert.IsNotNull(model, "Model should be created");
+
+            var serializations = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serializations, "Serialization provider should exist");
+
+            var deserializationMethod = serializations!.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod?.BodyStatements;
+            Assert.IsNotNull(methodBody);
+
+            var methodBodyString = methodBody!.ToDisplayString();
+
+            // Verify that object type is used in deserialization for backward compatibility
+            Assert.IsTrue(methodBodyString.Contains("global::System.Collections.Generic.IDictionary<string, object> additionalProperties"),
+                "Should use IDictionary<string, object> for backward compatibility");
+
+            // Verify that additionalProperties variable is used in the return statement
+            Assert.IsTrue(methodBodyString.Contains("additionalProperties"),
+                "Return statement should use additionalProperties");
+
+            // Verify that the GetObject() method is used for object deserialization
+            Assert.IsTrue(methodBodyString.Contains("prop.Value.GetObject()"),
+                "Should use GetObject() for deserializing object values");
+        }
+
+        [Test]
+        public async Task TestBuildJsonModelWriteCore_WithObjectAdditionalPropertiesBackwardCompatibility()
+        {
+            // Create a model with unknown additional properties
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true)],
+                additionalProperties: InputPrimitiveType.Any);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+            Assert.IsNotNull(model, "Model should be created");
+
+            var serializations = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serializations, "Serialization provider should exist");
+
+            var writeCoreMethod = serializations!.BuildJsonModelWriteCoreMethod();
+            Assert.IsNotNull(writeCoreMethod);
+
+            var methodBody = writeCoreMethod?.BodyStatements;
+            Assert.IsNotNull(methodBody);
+
+            var methodBodyString = methodBody!.ToDisplayString();
+
+            // Verify that AdditionalProperties property is serialized
+            var additionalPropertiesProperty = model.Properties.FirstOrDefault(p => p.Name == "AdditionalProperties");
+            Assert.IsNotNull(additionalPropertiesProperty, "AdditionalProperties property should exist");
+
+            var expectedSerializationStatement = $"foreach (var item in {additionalPropertiesProperty!.Name})";
+            Assert.IsTrue(methodBodyString.Contains(expectedSerializationStatement),
+                "Serialization should iterate over AdditionalProperties");
         }
     }
 }
