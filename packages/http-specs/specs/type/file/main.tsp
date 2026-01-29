@@ -1,12 +1,15 @@
 import "@typespec/http";
 import "@typespec/spector";
 
-using TypeSpec.Http;
+using Http;
 using Spector;
 
 @doc("Test for File type usage in request and response bodies")
 @scenarioService("/type/file")
 namespace Type.File;
+
+// Note: Using TypeSpec.Http.File fully qualified because "File" in the namespace name
+// would shadow the File type from the Http namespace.
 
 // Define custom File types for testing
 model PngImageFile extends TypeSpec.Http.File {
