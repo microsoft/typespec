@@ -370,21 +370,52 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var type = !_inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? additionalPropsType.OutputType
                     : additionalPropsType;
-                var assignment = type.IsReadOnlyDictionary
-                    ? new ExpressionPropertyBody(New.ReadOnlyDictionary(type.Arguments[0], type.ElementType, RawDataField))
-                    : new ExpressionPropertyBody(RawDataField);
-                var property = new PropertyProvider(
-                    null,
-                    MethodSignatureModifiers.Public,
-                    type,
-                    name,
-                    assignment,
-                    this)
+
+                // Check for backward compatibility: if LastContract has an object-typed AdditionalProperties
+                var hasObjectAdditionalPropertiesInLastContract = CheckForObjectAdditionalPropertiesInLastContract(name);
+                if (hasObjectAdditionalPropertiesInLastContract)
                 {
-                    BackingField = RawDataField,
-                    IsAdditionalProperties = true
-                };
-                properties.Add(property);
+                    // Generate the object-typed property for backward compatibility
+                    var objectDictType = new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(object));
+                    var objectType = !_inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
+                        ? objectDictType.OutputType
+                        : objectDictType;
+                    var objectAssignment = objectType.IsReadOnlyDictionary
+                        ? new ExpressionPropertyBody(New.ReadOnlyDictionary(objectType.Arguments[0], objectType.ElementType, RawDataField))
+                        : new ExpressionPropertyBody(RawDataField);
+                    var objectProperty = new PropertyProvider(
+                        null,
+                        MethodSignatureModifiers.Public,
+                        objectType,
+                        name,
+                        objectAssignment,
+                        this)
+                    {
+                        BackingField = RawDataField,
+                        IsAdditionalProperties = true
+                    };
+                    properties.Add(objectProperty);
+
+                    // Don't add the BinaryData property to avoid conflict
+                }
+                else
+                {
+                    var assignment = type.IsReadOnlyDictionary
+                        ? new ExpressionPropertyBody(New.ReadOnlyDictionary(type.Arguments[0], type.ElementType, RawDataField))
+                        : new ExpressionPropertyBody(RawDataField);
+                    var property = new PropertyProvider(
+                        null,
+                        MethodSignatureModifiers.Public,
+                        type,
+                        name,
+                        assignment,
+                        this)
+                    {
+                        BackingField = RawDataField,
+                        IsAdditionalProperties = true
+                    };
+                    properties.Add(property);
+                }
             }
 
             return properties;
@@ -1173,6 +1204,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ when type.IsDictionary => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0]), ReplaceUnverifiableType(type.Arguments[1])]),
                 _ => CSharpType.FromUnion([type])
             };
+        }
+
+        private bool CheckForObjectAdditionalPropertiesInLastContract(string propertyName)
+        {
+            if (LastContractView == null)
+            {
+                return false;
+            }
+
+            // Check if the property exists in the last contract
+            var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
+                p.Name == propertyName && p.IsAdditionalProperties);
+
+            if (lastContractProperty == null)
+            {
+                return false;
+            }
+
+            // Check if it's IDictionary<string, object>
+            var propertyType = lastContractProperty.Type;
+            if (propertyType.IsDictionary && propertyType.Arguments.Count == 2)
+            {
+                var keyType = propertyType.Arguments[0];
+                var valueType = propertyType.Arguments[1];
+
+                // Check if key is string and value is object
+                if (keyType.FrameworkType == typeof(string) && valueType.FrameworkType == typeof(object))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static string BuildAdditionalTypePropertiesFieldName(CSharpType additionalPropertiesValueType)
