@@ -8,18 +8,6 @@ using Spector;
 @scenarioService("/type/file")
 namespace Type.File;
 
-// Note: Using TypeSpec.Http.File fully qualified because "File" in the namespace name
-// would shadow the File type from the Http namespace.
-
-// Define custom File types for testing
-model PngImageFile extends TypeSpec.Http.File {
-  contentType: "image/png";
-}
-
-model ImageFile extends TypeSpec.Http.File {
-  contentType: "image/png" | "image/jpeg";
-}
-
 /**
  * Test File as request and response body with specific content type
  */
@@ -34,7 +22,7 @@ namespace Body {
     """)
   @post
   @route("/request/specific-content-type")
-  op uploadFileSpecificContentType(@bodyRoot file: PngImageFile): NoContentResponse;
+  op uploadFileSpecificContentType(@bodyRoot file: Http.File<"image/png">): NoContentResponse;
 
   @scenario
   @scenarioDoc("""
@@ -45,7 +33,7 @@ namespace Body {
     """)
   @get
   @route("/response/specific-content-type")
-  op downloadFileSpecificContentType(): PngImageFile;
+  op downloadFileSpecificContentType(): Http.File<"image/png">;
 
   @scenario
   @scenarioDoc("""
@@ -57,7 +45,9 @@ namespace Body {
     """)
   @post
   @route("/request/multiple-content-types")
-  op uploadFileMultipleContentTypes(@bodyRoot file: ImageFile): NoContentResponse;
+  op uploadFileMultipleContentTypes(
+    @bodyRoot file: Http.File<"image/png" | "image/jpeg">,
+  ): NoContentResponse;
 
   @scenario
   @scenarioDoc("""
@@ -69,7 +59,7 @@ namespace Body {
     """)
   @get
   @route("/response/multiple-content-types")
-  op downloadFileMultipleContentTypes(): ImageFile;
+  op downloadFileMultipleContentTypes(): Http.File<"image/png" | "image/jpeg">;
 
   @scenario
   @scenarioDoc("""
@@ -80,7 +70,7 @@ namespace Body {
     """)
   @post
   @route("/request/default-content-type")
-  op uploadFileDefaultContentType(@bodyRoot file: TypeSpec.Http.File): NoContentResponse;
+  op uploadFileDefaultContentType(@bodyRoot file: Http.File): NoContentResponse;
 
   @scenario
   @scenarioDoc("""
@@ -91,132 +81,5 @@ namespace Body {
     """)
   @get
   @route("/response/default-content-type")
-  op downloadFileDefaultContentType(): TypeSpec.Http.File;
-}
-
-/**
- * Test File in multipart form data scenarios
- */
-@route("/multipart")
-namespace MultiPart {
-  model FileWithSpecificContentType extends TypeSpec.Http.File {
-    filename: string;
-    contentType: "image/png";
-  }
-
-  model FileWithMultipleContentTypes extends TypeSpec.Http.File {
-    filename: string;
-    contentType: "image/png" | "image/jpeg";
-  }
-
-  model FileWithRequiredMetadata extends TypeSpec.Http.File {
-    filename: string;
-    contentType: string;
-  }
-
-  @scenario
-  @scenarioDoc("""
-    Test File type in multipart form data with specific content type.
-    Expected request:
-    ```
-    POST /multipart/specific-content-type HTTP/1.1
-    Content-Type: multipart/form-data; boundary=abcde12345
-    
-    --abcde12345
-    Content-Disposition: form-data; name="file"; filename="image.png"
-    Content-Type: image/png
-    
-    {…file content of image.png…}
-    --abcde12345--
-    ```
-    """)
-  @post
-  @route("/specific-content-type")
-  op uploadFileSpecificContentType(
-    @header contentType: "multipart/form-data",
-    @multipartBody body: {
-      file: HttpPart<FileWithSpecificContentType>;
-    },
-  ): NoContentResponse;
-
-  @scenario
-  @scenarioDoc("""
-    Test File type in multipart form data with multiple allowed content types.
-    Client should send image/png.
-    Expected request:
-    ```
-    POST /multipart/multiple-content-types HTTP/1.1
-    Content-Type: multipart/form-data; boundary=abcde12345
-    
-    --abcde12345
-    Content-Disposition: form-data; name="file"; filename="image.png"
-    Content-Type: image/png
-    
-    {…file content of image.png…}
-    --abcde12345--
-    ```
-    """)
-  @post
-  @route("/multiple-content-types")
-  op uploadFileMultipleContentTypes(
-    @header contentType: "multipart/form-data",
-    @multipartBody body: {
-      file: HttpPart<FileWithMultipleContentTypes>;
-    },
-  ): NoContentResponse;
-
-  @scenario
-  @scenarioDoc("""
-    Test File type in multipart form data with required content type metadata.
-    Expected request:
-    ```
-    POST /multipart/required-content-type HTTP/1.1
-    Content-Type: multipart/form-data; boundary=abcde12345
-    
-    --abcde12345
-    Content-Disposition: form-data; name="file"; filename="image.png"
-    Content-Type: application/octet-stream
-    
-    {…file content of image.png…}
-    --abcde12345--
-    ```
-    """)
-  @post
-  @route("/required-content-type")
-  op uploadFileRequiredContentType(
-    @header contentType: "multipart/form-data",
-    @multipartBody body: {
-      file: HttpPart<FileWithRequiredMetadata>;
-    },
-  ): NoContentResponse;
-
-  @scenario
-  @scenarioDoc("""
-    Test multiple File instances in multipart form data.
-    Expected request:
-    ```
-    POST /multipart/file-array HTTP/1.1
-    Content-Type: multipart/form-data; boundary=abcde12345
-    
-    --abcde12345
-    Content-Disposition: form-data; name="files"; filename="image1.png"
-    Content-Type: image/png
-    
-    {…file content of image.png…}
-    --abcde12345
-    Content-Disposition: form-data; name="files"; filename="image2.png"
-    Content-Type: image/png
-    
-    {…file content of image.png…}
-    --abcde12345--
-    ```
-    """)
-  @post
-  @route("/file-array")
-  op uploadFileArray(
-    @header contentType: "multipart/form-data",
-    @multipartBody body: {
-      files: HttpPart<FileWithSpecificContentType>[];
-    },
-  ): NoContentResponse;
+  op downloadFileDefaultContentType(): Http.File;
 }
