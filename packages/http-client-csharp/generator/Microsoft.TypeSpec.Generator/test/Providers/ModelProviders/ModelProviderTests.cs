@@ -1760,5 +1760,52 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 return [new Mock<TypeProvider>() { CallBase = true }.Object];
             }
         }
+
+        [Test]
+        public async Task BackCompat_AbstractTypeConstructorAccessibility()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+
+            // Without ProcessTypeForBackCompatibility, constructor should be private protected
+            var privateProtectedConstructor = modelProvider!.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) 
+                    && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)
+                    && c.Signature.Parameters.Count == 1);
+            Assert.IsNotNull(privateProtectedConstructor, "Expected a private protected constructor before back compat processing");
+
+            // Call ProcessTypeForBackCompatibility to apply backward compatibility logic
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            // After ProcessTypeForBackCompatibility, constructor should be public to match last contract
+            var publicConstructor = modelProvider.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) 
+                    && c.Signature.Parameters.Count == 1);
+            Assert.IsNotNull(publicConstructor, "Constructor modifier should be changed to public for backward compatibility");
+            Assert.AreEqual("baseProp", publicConstructor!.Signature.Parameters[0].Name);
+        }
     }
 }

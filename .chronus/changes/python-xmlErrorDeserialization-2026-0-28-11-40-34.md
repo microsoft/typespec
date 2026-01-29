@@ -1,7 +1,7 @@
 ---
-changeKind: feature
+changeKind: fix
 packages:
   - "@typespec/http-client-python"
 ---
 
-Add support for xml paging
+`_failsafe_deserialize_xml` xml errors

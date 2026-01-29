@@ -448,7 +448,19 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             elif self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
             if self.default_error_deserialization(serialize_namespace) or self.non_default_errors:
-                file_import.add_submodule_import(relative_path, "_failsafe_deserialize", ImportType.LOCAL)
+                xml_non_default_errors = any(
+                    xml_serializable(str(e.default_content_type)) for e in self.non_default_errors
+                )
+                try:
+                    default_error = next(e for e in self.exceptions if "default" in e.status_codes and e.type)
+                except StopIteration:
+                    default_error = None
+                if xml_non_default_errors or (
+                    default_error and xml_serializable(str(default_error.default_content_type))
+                ):
+                    file_import.add_submodule_import(relative_path, "_failsafe_deserialize_xml", ImportType.LOCAL)
+                else:
+                    file_import.add_submodule_import(relative_path, "_failsafe_deserialize", ImportType.LOCAL)
         return file_import
 
     def get_response_from_status(self, status_code: Optional[Union[str, int]]) -> ResponseType:

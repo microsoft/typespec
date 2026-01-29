@@ -1,7 +1,7 @@
 ---
-changeKind: dependencies
+changeKind: fix
 packages:
   - "@typespec/http-client-python"
 ---
 
-Bump TCGC 0.64.3
+Fix additional indentation issues
