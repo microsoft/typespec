@@ -493,6 +493,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(publicCtor);
             // The public ctor should not have an odataType parameter
             Assert.IsFalse(publicCtor!.Signature.Parameters.Any(p => p.Name.Equals("odataType", System.StringComparison.OrdinalIgnoreCase)));
+
+            // Verify the correct discriminator value is passed to the base class
+            var init = publicCtor.Signature.Initializer;
+            Assert.IsNotNull(init);
+            var expression = init!.Arguments[0] as ScopedApi;
+            Assert.IsNotNull(expression);
+            var original = expression!.Original as LiteralExpression;
+            Assert.IsNotNull(original);
+            Assert.AreEqual("#Microsoft.Skills.Util.ContentUnderstandingSkill", original!.Literal);
         }
 
         // This test validates that a derived model does not re-declare the discriminator property
@@ -536,6 +545,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(publicCtor);
             // The public ctor should not have an odataType parameter
             Assert.IsFalse(publicCtor!.Signature.Parameters.Any(p => p.Name.Equals("odataType", System.StringComparison.OrdinalIgnoreCase)));
+
+            // Verify the correct discriminator value is passed to the base class
+            var init = publicCtor.Signature.Initializer;
+            Assert.IsNotNull(init);
+            var expression = init!.Arguments[0] as ScopedApi;
+            Assert.IsNotNull(expression);
+            var original = expression!.Original as LiteralExpression;
+            Assert.IsNotNull(original);
+            Assert.AreEqual("#Microsoft.Skills.Util.ContentUnderstandingSkill", original!.Literal);
         }
     }
 }
