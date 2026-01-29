@@ -1833,7 +1833,7 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
  *
  * @example
  * ```typespec
- * fn(value: valueof string): valueof string
+ * fn(value: valueof string) => valueof string
  * ```
  */
 export interface FunctionTypeExpressionNode extends BaseNode {
