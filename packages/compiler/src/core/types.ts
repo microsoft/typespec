@@ -775,7 +775,7 @@ export interface FunctionValue<
    *
    * WARNING: Calling the implementation function directly is dangerous. It assumes that you have marshaled the arguments
    * to JS values correctly and that you will handle the return value appropriately. Constructing the correct context
-   * is your responsibility (use the `call` methods of `FunctionContext` or `DeclarationContext` to create the context for you).
+   * is your responsibility (use the `call` methods of `FunctionContext` or `DecoratorContext` to create the context for you).
    *
    * @param ctx - The FunctionContext providing information about the call site.
    * @param args - The arguments passed to the function.
