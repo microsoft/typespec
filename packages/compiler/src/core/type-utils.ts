@@ -65,7 +65,7 @@ export function isArrayModelType(program: Program, type: Model): type is ArrayMo
 export function isArrayModelType(type: Model): type is ArrayModelType;
 export function isArrayModelType(programOrType: Program | Model, maybeType?: Model): boolean {
   const type = maybeType ?? (programOrType as Model);
-  return Boolean(type.indexer && type.indexer.key.name === "integer");
+  return type?.indexer?.key?.name === "integer";
 }
 
 /**
