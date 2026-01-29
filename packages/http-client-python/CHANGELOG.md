@@ -1,5 +1,14 @@
 # Change Log - @typespec/http-client-python
 
+## 0.26.1
+
+### Bug Fixes
+
+- [#9482](https://github.com/microsoft/typespec/pull/9482) Don't remove azure-sdk tool definitions from pyproject.toml
+- [#9466](https://github.com/microsoft/typespec/pull/9466) Fix additional indentation issues
+- [#9488](https://github.com/microsoft/typespec/pull/9488) `_failsafe_deserialize_xml` xml errors
+
+
 ## 0.26.0
 
 ### Features
