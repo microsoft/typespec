@@ -163,7 +163,7 @@ Scenarios.Type_File_Body_uploadFileDefaultContentType = passOnSuccess({
   method: "post",
   request: {
     body: {
-      contentType: "application/octet-stream",
+      contentType: "image/png",
       rawContent: pngFile,
     },
   },
@@ -171,15 +171,8 @@ Scenarios.Type_File_Body_uploadFileDefaultContentType = passOnSuccess({
     status: 204,
   },
   handler(req: MockRequest) {
-    // Content-Type should be application/octet-stream or not specified
-    const contentType = req.headers["content-type"];
-    if (contentType && contentType !== "application/octet-stream") {
-      throw new ValidationError(
-        "Expected content-type to be application/octet-stream or not specified",
-        "application/octet-stream",
-        contentType,
-      );
-    }
+    // File type accepts any content type, but for testing we expect image/png
+    req.expect.containsHeader("content-type", "image/png");
     checkFileContent(req, pngFile);
     return { status: 204 };
   },
@@ -194,15 +187,16 @@ Scenarios.Type_File_Body_downloadFileDefaultContentType = passOnSuccess({
   response: {
     status: 200,
     body: {
-      contentType: "application/octet-stream",
+      contentType: "image/png",
       rawContent: pngFile,
     },
   },
   handler(req: MockRequest) {
+    // File type accepts any content type, but for testing we return image/png
     return {
       status: 200,
       body: {
-        contentType: "application/octet-stream",
+        contentType: "image/png",
         rawContent: pngFile,
       },
     };

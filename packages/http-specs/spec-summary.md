@@ -5276,10 +5276,11 @@ Expect to handle an unknown value. Mock api expect to receive 'Weekend'
 
 - Endpoint: `get /type/file/body/response/default-content-type`
 
-Test File type as response body with unspecified content type (defaults to application/octet-stream).
+Test File type as response body with unspecified content type.
+The File type accepts any content type. For testing, server will return image/png.
 Expected response:
 
-- Content-Type header: application/octet-stream
+- Content-Type header: image/png
 - Body: binary content matching packages/http-specs/assets/image.png
 
 ### Type_File_Body_downloadFileJsonContentType
@@ -5317,10 +5318,11 @@ Expected response:
 
 - Endpoint: `post /type/file/body/request/default-content-type`
 
-Test File type as request body with unspecified content type (defaults to application/octet-stream).
+Test File type as request body with unspecified content type.
+The File type accepts any content type. For testing, sender will use image/png.
 Expected request:
 
-- Content-Type header: application/octet-stream (or not specified)
+- Content-Type header: image/png
 - Body: binary content matching packages/http-specs/assets/image.png
 
 ### Type_File_Body_uploadFileJsonContentType

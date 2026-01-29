@@ -85,9 +85,10 @@ namespace Body {
 
   @scenario
   @scenarioDoc("""
-    Test File type as request body with unspecified content type (defaults to application/octet-stream).
+    Test File type as request body with unspecified content type.
+    The File type accepts any content type. For testing, sender will use image/png.
     Expected request:
-    - Content-Type header: application/octet-stream (or not specified)
+    - Content-Type header: image/png
     - Body: binary content matching packages/http-specs/assets/image.png
     """)
   @post
@@ -96,9 +97,10 @@ namespace Body {
 
   @scenario
   @scenarioDoc("""
-    Test File type as response body with unspecified content type (defaults to application/octet-stream).
+    Test File type as response body with unspecified content type.
+    The File type accepts any content type. For testing, server will return image/png.
     Expected response:
-    - Content-Type header: application/octet-stream
+    - Content-Type header: image/png
     - Body: binary content matching packages/http-specs/assets/image.png
     """)
   @get
