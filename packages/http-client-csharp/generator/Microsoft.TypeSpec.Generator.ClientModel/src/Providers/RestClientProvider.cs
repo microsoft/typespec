@@ -24,6 +24,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
         private const string MaxPageSizeParameterName = "maxpagesize";
+        private const string TopParameterName = "top";
+        private const string MaxCountParameterName = "maxCount";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -940,6 +942,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParam.IsApiVersion && (inputParam.DefaultValue != null || client.IsMultiServiceClient))
                 {
                     continue;
+                }
+
+                // For paging operations, rename "top" parameter to "maxCount"
+                if (serviceMethod is InputPagingServiceMethod &&
+                    string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                {
+                    inputParam.Update(name: MaxCountParameterName);
                 }
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
