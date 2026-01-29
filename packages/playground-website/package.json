@@ -70,9 +70,9 @@
     "@typespec/streams": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "@typespec/xml": "workspace:^",
-    "es-module-shims": "~2.7.0",
-    "react": "~18.3.1",
-    "react-dom": "~18.3.1"
+    "es-module-shims": "~2.8.0",
+    "react": "~19.2.3",
+    "react-dom": "~19.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -92,7 +92,7 @@
     "typescript": "~5.9.2",
     "vite": "^7.2.7",
     "vite-plugin-dts": "4.5.4",
-    "vite-plugin-node-polyfills": "^0.24.0",
+    "vite-plugin-node-polyfills": "^0.25.0",
     "vitest": "^4.0.15"
   }
 }

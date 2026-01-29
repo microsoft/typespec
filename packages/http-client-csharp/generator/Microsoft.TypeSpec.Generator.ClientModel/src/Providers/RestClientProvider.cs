@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
+        private const string MaxPageSizeParameterName = "maxpagesize";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -48,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
+        protected override string BuildName() => ClientProvider.Name;
 
         protected override string BuildNamespace() => ClientProvider.Type.Namespace;
 
@@ -123,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
             var options = ScmKnownParameters.RequestOptions;
-            var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest);
+            var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, ClientProvider);
 
             if (isNextLinkRequest)
             {
@@ -222,7 +223,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (reinjectedParamsMap.Count > 0)
                 {
-                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
+                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap, isNextLinkRequest: true));
                 }
             }
             else
@@ -417,7 +418,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -426,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
                     continue;
 
-                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation);
+                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation, isNextLinkRequest);
                 if (queryStatement != null)
                 {
                     statements.Add(queryStatement);
@@ -436,11 +437,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static MethodBodyStatement? BuildQueryParameterStatement(
+        private MethodBodyStatement? BuildQueryParameterStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
             Dictionary<string, ParameterProvider> paramMap,
-            InputOperation operation)
+            InputOperation operation,
+            bool isNextLinkRequest = false)
         {
             GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var serializationFormat, out var valueExpression);
             if (valueExpression == null)
@@ -448,7 +450,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
+            // Determine if we should update existing parameters or always append
+            bool shouldUpdateExisting = isNextLinkRequest &&
+                                      ShouldSkipReinjectedParameter(inputQueryParameter.SerializedName) &&
+                                      paramType?.IsCollection != true;
+
+            MethodBodyStatement statement = shouldUpdateExisting
+                ? BuildUpdateQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat)
+                : BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
 
             // Apply null check if needed
             if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
@@ -460,6 +469,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statement;
         }
 
+        private static ValueExpression GetQueryParameterStringExpression(
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            SerializationFormat? serializationFormat)
+        {
+            return paramType?.Equals(typeof(string)) == true
+                ? valueExpression
+                : GetParameterValueExpression(valueExpression, serializationFormat);
+        }
+
+        private static MethodBodyStatement BuildUpdateQueryStatement(
+            ScopedApi uri,
+            InputQueryParameter inputQueryParameter,
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            SerializationFormat? serializationFormat)
+        {
+            var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
+            var parameterName = inputQueryParameter.SerializedName;
+
+            return uri.UpdateQuery(Literal(parameterName), toStringExpression).Terminate();
+        }
+
         private static MethodBodyStatement BuildAppendQueryStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
@@ -467,13 +499,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression valueExpression,
             SerializationFormat? serializationFormat)
         {
-            // Handle non-collection parameters
             if (paramType?.IsCollection != true)
             {
-                var toStringExpression = paramType?.Equals(typeof(string)) == true
-                    ? valueExpression
-                    : GetParameterValueExpression(valueExpression, serializationFormat);
-
+                var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
                 return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
             }
 
@@ -716,10 +744,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
+        private void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
             type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             serializationFormat = null;
+
+            if (inputParam.IsApiVersion && ClientProvider.IsMultiServiceClient)
+            {
+                var apiVersionField = ClientProvider.GetApiVersionFieldForService(operation.Namespace);
+                if (apiVersionField != null)
+                {
+                    type = apiVersionField.Type;
+                    serializationFormat = apiVersionField.WireInfo?.SerializationFormat;
+                    valueExpression = apiVersionField;
+                    return;
+                }
+            }
+
             if (inputParam.Scope == InputParameterScope.Constant && !(operation.IsMultipartFormData && inputParam is InputHeaderParameter headerParameter && headerParameter.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
@@ -802,6 +843,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
+        private static bool ShouldSkipReinjectedParameter(string parameterName)
+        {
+            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase);
+            // In the future, we can extend this to check multiple parameters
+        }
+
         private static List<int> GetSuccessStatusCodes(InputOperation operation)
         {
             HashSet<int> statusCodes = [];
@@ -834,7 +881,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return NextMethodCache[operation];
         }
 
-        internal static List<ParameterProvider> GetMethodParameters(InputServiceMethod serviceMethod, ScmMethodKind methodType)
+        internal static List<ParameterProvider> GetMethodParameters(
+            InputServiceMethod serviceMethod,
+            ScmMethodKind methodType,
+            ClientProvider client)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -883,6 +933,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 if (inputParam is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
+                {
+                    continue;
+                }
+
+                if (inputParam.IsApiVersion && (inputParam.DefaultValue != null || client.IsMultiServiceClient))
                 {
                     continue;
                 }

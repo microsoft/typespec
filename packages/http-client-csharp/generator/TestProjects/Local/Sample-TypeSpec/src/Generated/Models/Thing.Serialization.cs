@@ -127,6 +127,8 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredNullableList"u8);
             }
+            writer.WritePropertyName("propertyWithSpecialDocs"u8);
+            writer.WriteStringValue(PropertyWithSpecialDocs);
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -185,6 +187,7 @@ namespace SampleTypeSpec
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
             IList<int> requiredNullableList = default;
+            string propertyWithSpecialDocs = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -318,6 +321,11 @@ namespace SampleTypeSpec
                     requiredNullableList = array;
                     continue;
                 }
+                if (prop.NameEquals("propertyWithSpecialDocs"u8))
+                {
+                    propertyWithSpecialDocs = prop.Value.GetString();
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
@@ -340,6 +348,7 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList ?? new ChangeTrackingList<int>(),
                 requiredNullableList,
+                propertyWithSpecialDocs,
                 additionalBinaryDataProperties);
         }
 
