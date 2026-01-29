@@ -259,7 +259,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                statements.AddRange(AppendHeaderParameters(request, operation, paramMap));
+                var contentParam = signature.Parameters.FirstOrDefault(
+                    p => ReferenceEquals(p, ScmKnownParameters.RequestContent) ||
+                         ReferenceEquals(p, ScmKnownParameters.OptionalRequestContent) ||
+                         ReferenceEquals(p, ScmKnownParameters.NullableRequiredRequestContent));
+                statements.AddRange(AppendHeaderParameters(request, operation, paramMap, contentParam: contentParam));
                 statements.AddRange(GetSetContent(request, signature.Parameters));
             }
 
@@ -377,7 +381,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             throw new InvalidOperationException($"Unexpected status codes for operation {operation.Name}");
         }
 
-        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLink = false)
+        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLink = false, ParameterProvider? contentParam = null)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -424,6 +428,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    (type is { IsValueType: false, IsFrameworkType: true } && type.FrameworkType != typeof(string))))
                 {
                     statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
+                }
+                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
+                else if (inputHeaderParameter.IsContentType && contentParam != null &&
+                         (ReferenceEquals(contentParam, ScmKnownParameters.OptionalRequestContent) ||
+                          ReferenceEquals(contentParam, ScmKnownParameters.NullableRequiredRequestContent)))
+                {
+                    statement = new IfStatement(((ValueExpression)contentParam).NotEqual(Null)) { statement };
                 }
 
                 statements.Add(statement);

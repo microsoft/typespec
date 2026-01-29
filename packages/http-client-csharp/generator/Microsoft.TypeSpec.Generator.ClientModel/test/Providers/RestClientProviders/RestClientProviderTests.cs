@@ -1492,5 +1492,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.That(file.Content, Contains.Substring("api-version"));
             Assert.That(file.Content, Contains.Substring("maxpagesize"));
         }
+
+        [Test]
+        public void ContentTypeHeaderWrappedInNullCheckWhenContentIsOptional()
+        {
+            // Test that when there's an optional body parameter with a Content-Type header,
+            // the Content-Type header setting is wrapped in a null check for the content parameter
+            var contentTypeParam = InputFactory.HeaderParameter(
+                "Content-Type",
+                InputFactory.Literal.String("application/json"),
+                isRequired: true,
+                isContentType: true,
+                scope: InputParameterScope.Constant);
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: false);
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                requestMediaTypes: ["application/json"],
+                parameters: [contentTypeParam, bodyParam]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var restClient = client!.RestClient;
+            Assert.IsNotNull(restClient);
+
+            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
+            Assert.IsNotNull(createMethod);
+
+            var statements = createMethod!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+
+            // Debug: print all statements
+            Console.WriteLine("All statements:");
+            foreach (var stmt in statements!)
+            {
+                Console.WriteLine($"  {stmt.ToDisplayString()}");
+            }
+
+            var contentTypeStatement = statements!.FirstOrDefault(s =>
+                s.ToDisplayString().Contains("Content-Type") &&
+                s.ToDisplayString().Contains("if"));
+
+            Assert.IsNotNull(contentTypeStatement, "Content-Type header should be wrapped in a null check");
+            Assert.IsTrue(contentTypeStatement!.ToDisplayString().Contains("if (content != null)"),
+                $"Content-Type should be wrapped in 'if (content != null)', but got: {contentTypeStatement.ToDisplayString()}");
+        }
     }
 }
