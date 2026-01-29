@@ -632,11 +632,11 @@ class JinjaSerializer(ReaderAndWriter):
                         )
                         output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
                         files_to_write.append((output_path, content))
-                        break
+                        # break
                     except Exception as e:  # pylint: disable=broad-except
                         _LOGGER.error(f"error happens in test generation for operation group {og.class_name}: {e}")
-                break
-            break
+                # break
+            # break
 
         # Phase 2: Write all files (I/O-bound, threading helps here)
         def write_single_file(item: tuple[Path, str]) -> None:
