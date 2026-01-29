@@ -429,7 +429,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // If this is a Content-Type header and there's a content parameter (which could be null), wrap in content null check
                 else if (inputHeaderParameter.IsContentType && contentParam != null)
                 {
-                    statement = new IfStatement(((ValueExpression)contentParam).NotEqual(Null)) { statement };
+                    statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
                 }
 
                 statements.Add(statement);
