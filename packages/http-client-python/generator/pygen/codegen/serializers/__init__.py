@@ -35,11 +35,7 @@ from .sample_serializer import SampleSerializer
 from .test_serializer import TestSerializer, TestGeneralSerializer
 from .types_serializer import TypesSerializer
 from ...utils import to_snake_case, VALID_PACKAGE_MODE
-from .utils import (
-    extract_sample_name,
-    get_namespace_from_package_name,
-    get_namespace_config,
-)
+from .utils import extract_sample_name, get_namespace_from_package_name, get_namespace_config, hash_file_import
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -541,45 +537,49 @@ class JinjaSerializer(ReaderAndWriter):
         out_path = self._generated_tests_samples_folder("generated_samples")
         sample_additional_folder = self.sample_additional_folder
 
-        # Collect all sample work items
-        sample_tasks = []
+        # Phase 1: Generate all content (CPU-bound)
+        files_to_write: list[tuple[Path, str]] = []
+        # Cache import_test per (client_namespace, imports_hash_string) since it's expensive to compute
+        import_sample_cache: dict[tuple[str, str], str] = {}
+
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
                     samples = operation.yaml_data.get("samples")
                     if not samples or operation.name.startswith("_"):
                         continue
-                    for value in samples.values():
-                        sample_tasks.append((op_group, operation, value))
+                    for sample_value in samples.values():
+                        file = sample_value.get("x-ms-original-file", "sample.json")
+                        file_name = to_snake_case(extract_sample_name(file)) + ".py"
+                        try:
+                            sample_ser = SampleSerializer(
+                                code_model=self.code_model,
+                                env=env,
+                                operation_group=op_group,
+                                operation=operation,
+                                sample=sample_value,
+                                file_name=file_name,
+                            )
+                            file_import = sample_ser.get_file_import()
+                            imports_hash_string = hash_file_import(file_import)
+                            cache_key = (op_group.client.client_namespace, imports_hash_string)
+                            if cache_key not in import_sample_cache:
+                                import_sample_cache[cache_key] = sample_ser.get_imports_from_file_import(file_import)
+                            sample_ser.imports = import_sample_cache[cache_key]
 
-        def generate_single_sample(task):
-            op_group, operation, sample_value = task
-            file = sample_value.get("x-ms-original-file", "sample.json")
-            file_name = to_snake_case(extract_sample_name(file)) + ".py"
-            try:
-                content = SampleSerializer(
-                    code_model=self.code_model,
-                    env=env,
-                    operation_group=op_group,
-                    operation=operation,
-                    sample=sample_value,
-                    file_name=file_name,
-                ).serialize()
-                output_path = out_path / sample_additional_folder / _sample_output_path(file) / file_name
-                return (output_path, content, None)
-            except Exception as e:  # pylint: disable=broad-except
-                return (None, None, f"error happens in sample {file}: {e}")
+                            content = sample_ser.serialize()
+                            output_path = out_path / sample_additional_folder / _sample_output_path(file) / file_name
+                            files_to_write.append((output_path, content))
+                        except Exception as e:  # pylint: disable=broad-except
+                            _LOGGER.error(f"error happens in sample {file}: {e}")
 
-        # Process samples in parallel using ThreadPoolExecutor
+        # Phase 2: Write all files (I/O-bound, threading helps here)
+        def write_single_file(item: tuple[Path, str]) -> None:
+            path, content = item
+            self.write_file(path, content)
+
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            results = list(executor.map(generate_single_sample, sample_tasks))
-
-        # Write files and log errors
-        for output_path, content, error in results:
-            if error:
-                _LOGGER.error(error)
-            else:
-                self.write_file(output_path, content)
+            executor.map(write_single_file, files_to_write)
 
     def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
@@ -595,10 +595,12 @@ class JinjaSerializer(ReaderAndWriter):
             for async_mode in (True, False):
                 async_suffix = "_async" if async_mode else ""
                 general_serializer.async_mode = async_mode
-                files_to_write.append((
-                    out_path / f"testpreparer{async_suffix}.py",
-                    general_serializer.serialize_testpreparer(),
-                ))
+                files_to_write.append(
+                    (
+                        out_path / f"testpreparer{async_suffix}.py",
+                        general_serializer.serialize_testpreparer(),
+                    )
+                )
 
         # Generate test files - reuse serializer per operation group, toggle async_mode
         # Cache import_test per (client.name, async_mode) since it's expensive to compute

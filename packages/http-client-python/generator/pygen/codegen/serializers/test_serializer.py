@@ -63,9 +63,7 @@ class TestCase:
         self.is_azure_arm = is_azure_arm
         # Pre-compute params
         if is_azure_arm:
-            self.params = {
-                k: ("resource_group.name" if k == "resource_group_name" else v) for k, v in params.items()
-            }
+            self.params = {k: ("resource_group.name" if k == "resource_group_name" else v) for k, v in params.items()}
         else:
             self.params = params
         # Pre-compute name

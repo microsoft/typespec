@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
-from typing import Any, Union
+from typing import Any, Optional, Union
 from jinja2 import Environment
 
 from ..models.operation import OperationBase
@@ -41,8 +41,17 @@ class SampleSerializer(BaseSerializer):
         self.sample = sample
         self.file_name = file_name
         self.sample_params = sample.get("parameters", {})
+        self._imports: str = ""
 
-    def _imports(self) -> FileImportSerializer:
+    @property
+    def imports(self) -> str:
+        return self._imports
+
+    @imports.setter
+    def imports(self, value: str) -> None:
+        self._imports = value
+
+    def get_file_import(self) -> FileImport:
         imports = FileImport(self.code_model)
         client = self.operation_group.client
         namespace = client.client_namespace
@@ -60,7 +69,12 @@ class SampleSerializer(BaseSerializer):
         for param in self.operation.parameters.positional + self.operation.parameters.keyword_only:
             if param.client_default_value is None and not param.optional and param.wire_name in self.sample_params:
                 imports.merge(param.type.imports_for_sample())
-        return FileImportSerializer(imports, True)
+
+        return imports
+
+    @staticmethod
+    def get_imports_from_file_import(file_import: FileImport) -> str:
+        return str(FileImportSerializer(file_import, True))
 
     def _client_params(self) -> dict[str, Any]:
         # client params
@@ -99,7 +113,7 @@ class SampleSerializer(BaseSerializer):
     # prepare operation parameters
     def _operation_params(self) -> dict[str, Any]:
         operation_params = {}
-        for param in (self.operation.parameters.positional + self.operation.parameters.keyword_only):
+        for param in self.operation.parameters.positional + self.operation.parameters.keyword_only:
             if not param.optional and not param.client_default_value:
                 param_value = self.sample_params.get(param.wire_name)
                 if not param_value:
@@ -150,7 +164,7 @@ class SampleSerializer(BaseSerializer):
             operation_params=self._operation_params(),
             operation_group_name=self._operation_group_name(),
             operation_name=self._operation_name(),
-            imports=self._imports(),
+            imports=self.imports,
             client_params=self._client_params(),
             origin_file=self._origin_file(),
             return_var=return_var,
