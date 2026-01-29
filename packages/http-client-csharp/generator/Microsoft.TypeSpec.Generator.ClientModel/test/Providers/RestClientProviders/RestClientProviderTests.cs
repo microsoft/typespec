@@ -1528,13 +1528,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var statements = createMethod!.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(statements);
 
-            var contentTypeStatement = statements!.FirstOrDefault(s =>
-                s.ToDisplayString().Contains("Content-Type") &&
-                s.ToDisplayString().Contains("if"));
-
-            Assert.IsNotNull(contentTypeStatement, "Content-Type header should be wrapped in a null check");
-            Assert.IsTrue(contentTypeStatement!.ToDisplayString().Contains("content != null"),
-                $"Content-Type should be wrapped in 'content != null', but got: {contentTypeStatement.ToDisplayString()}");
+            var expectedStatement = @"if ((content != null))
+{
+    request.Headers.Set(""Content-Type"", ""application/json"");
+}
+";
+            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
+            Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == expectedStatement),
+                $"Expected to find statement:\n{expectedStatement}\nBut got statements:\n{statementsString}");
         }
     }
 }
