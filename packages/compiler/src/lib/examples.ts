@@ -49,7 +49,7 @@ export function serializeValueAsJson(
         serializeValueAsJson(
           program,
           v,
-          type.kind === "Model" && isArrayModelType(program, type)
+          type.kind === "Model" && isArrayModelType(type)
             ? type.indexer.value
             : program.checker.anyType,
           /* encodeAs: */ undefined,

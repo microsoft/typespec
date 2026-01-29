@@ -639,5 +639,104 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("System.Text.Json", externalModel.External.Package);
             Assert.AreEqual("8.0.0", externalModel.External.MinVersion);
         }
+
+        [Test]
+        public void LoadsXmlOnlyModelDoesNotAddJsonUsage()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Xml), "Model should have Xml usage flag");
+            Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "XML-only model should NOT have Json usage flag added");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
+        }
+
+        [Test]
+        public void LoadsNonXmlModelAddsJsonUsage()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Json), "Non-XML model should have Json usage flag added");
+            Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Xml), "Model should NOT have Xml usage flag");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
+        }
+
+        [Test]
+        public void LoadsModelWithBothXmlAndJsonUsage()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Xml), "Model should have Xml usage flag");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "Model should have Json usage flag");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should have Input usage flag");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Output), "Model should have Output usage flag");
+        }
     }
 }

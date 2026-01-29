@@ -329,12 +329,8 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
           }),
         ],
       ];
-    } else if (
-      target.kind === "Model" &&
-      isArrayModelType(program, target) &&
-      source.kind === "Model"
-    ) {
-      if (isArrayModelType(program, source)) {
+    } else if (target.kind === "Model" && isArrayModelType(target) && source.kind === "Model") {
+      if (isArrayModelType(source)) {
         return hasIndexAndIsAssignableTo(
           source,
           target as Model & { indexer: ModelIndexer },
@@ -347,11 +343,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       }
     } else if (target.kind === "Model" && source.kind === "Model") {
       return areModelsRelated(source, target, diagnosticTarget, relationCache);
-    } else if (
-      target.kind === "Model" &&
-      isArrayModelType(program, target) &&
-      source.kind === "Tuple"
-    ) {
+    } else if (target.kind === "Model" && isArrayModelType(target) && source.kind === "Tuple") {
       return isTupleAssignableToArray(source, target, diagnosticTarget, relationCache);
     } else if (target.kind === "Tuple" && source.kind === "Tuple") {
       return isTupleAssignableToTuple(source, target, diagnosticTarget, relationCache);
