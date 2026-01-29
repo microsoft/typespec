@@ -3319,6 +3319,19 @@ Expected request body:
 </SimpleModel>
 ```
 
+### Payload_Xml_XmlErrorValue_get
+
+- Endpoint: `get /payload/xml/error`
+
+Expected error response body:
+
+```xml
+<XmlErrorBody>
+  <message>Something went wrong</message>
+  <code>400</code>
+</XmlErrorBody>
+```
+
 ### Response_StatusCodeRange_errorResponseStatusCode404
 
 - Endpoint: `get /response/status-code-range/error-response-status-code-404`
