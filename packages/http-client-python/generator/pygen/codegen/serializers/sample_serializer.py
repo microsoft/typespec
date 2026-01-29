@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Union
 from jinja2 import Environment
 
 from ..models.operation import OperationBase

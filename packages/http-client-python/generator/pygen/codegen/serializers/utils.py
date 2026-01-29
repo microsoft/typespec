@@ -71,12 +71,12 @@ def create_fake_value(param_type: BaseType) -> Any:
     :param param_type: The parameter type to create a fake value for.
     :return: A string representation of the fake value.
     """
+    
+    model_type: Optional[ModelType] = None
     if isinstance(param_type, ModelType):
         model_type = param_type
     elif isinstance(param_type, CombinedType):
         model_type = param_type.target_model_subtype((ModelType,))
-    else:
-        model_type = None
     resolved_type = get_sub_type(model_type) if model_type else param_type
     return json_dumps_template(resolved_type.get_json_template_representation())
 
