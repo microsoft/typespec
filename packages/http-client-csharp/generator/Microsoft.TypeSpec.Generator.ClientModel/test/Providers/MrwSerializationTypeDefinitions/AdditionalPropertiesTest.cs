@@ -245,20 +245,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializations, "Serialization provider should exist");
 
             var writeCoreMethod = serializations!.BuildJsonModelWriteCoreMethod();
-            Assert.IsNotNull(writeCoreMethod);
+            Assert.IsNotNull(writeCoreMethod, "Write method should be created");
 
             var methodBody = writeCoreMethod?.BodyStatements;
-            Assert.IsNotNull(methodBody);
+            Assert.IsNotNull(methodBody, "Method body should exist");
 
             var methodBodyString = methodBody!.ToDisplayString();
 
-            // Verify that AdditionalProperties property is serialized
+            // Verify that AdditionalProperties property exists and has object type
             var additionalPropertiesProperty = model.Properties.FirstOrDefault(p => p.Name == "AdditionalProperties");
             Assert.IsNotNull(additionalPropertiesProperty, "AdditionalProperties property should exist");
+            Assert.IsTrue(additionalPropertiesProperty!.Type.IsDictionary, "Property should be a dictionary");
+            Assert.AreEqual(typeof(object), additionalPropertiesProperty.Type.Arguments[1].FrameworkType,
+                "Value type should be object for backward compatibility");
 
-            var expectedSerializationStatement = $"foreach (var item in {additionalPropertiesProperty!.Name})";
-            Assert.IsTrue(methodBodyString.Contains(expectedSerializationStatement),
-                "Serialization should iterate over AdditionalProperties");
+            // Verify format check
+            Assert.IsTrue(methodBodyString.Contains("options.Format"),
+                "Should check options.Format");
+            Assert.IsTrue(methodBodyString.Contains("if ((format != \"J\"))"),
+                "Should validate JSON format");
+            Assert.IsTrue(methodBodyString.Contains("throw new global::System.FormatException"),
+                "Should throw FormatException for unsupported formats");
+
+            // Verify serialization of the Name property
+            Assert.IsTrue(methodBodyString.Contains("writer.WritePropertyName(\"name\"u8)") ||
+                         methodBodyString.Contains("writer.WritePropertyName(\"Name\"u8)"),
+                "Should write Name property name");
+            Assert.IsTrue(methodBodyString.Contains("writer.WriteStringValue(Name)"),
+                "Should write Name property value");
+
+            // Verify foreach loop over AdditionalProperties
+            var expectedForeachStatement = $"foreach (var item in {additionalPropertiesProperty.Name})";
+            Assert.IsTrue(methodBodyString.Contains(expectedForeachStatement),
+                "Should iterate over AdditionalProperties");
+
+            // Verify property key is written
+            Assert.IsTrue(methodBodyString.Contains("writer.WritePropertyName(item.Key)"),
+                "Should write additional property key");
+
+            // Verify property value is written with generic WriteObjectValue for object type
+            Assert.IsTrue(methodBodyString.Contains("writer.WriteObjectValue<object>(item.Value, options)"),
+                "Should use WriteObjectValue<object> for object-typed additional properties");
         }
     }
 }
