@@ -729,7 +729,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
 
       if (constraint.type) {
         compilerAssert(
-          constraint.type.kind === "Model" && isArrayModelType(program, constraint.type),
+          constraint.type.kind === "Model" && isArrayModelType(constraint.type),
           "Expected rest parameter type constraint to be an array type.",
         );
         return {
@@ -741,7 +741,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         compilerAssert(
           constraint.valueType &&
             constraint.valueType.kind === "Model" &&
-            isArrayModelType(program, constraint.valueType),
+            isArrayModelType(constraint.valueType),
           "Mixed parameter rest constraint must have either type or value constraint.",
         );
 
