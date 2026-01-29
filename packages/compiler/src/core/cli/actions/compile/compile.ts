@@ -212,18 +212,20 @@ function printStats(stats: Stats) {
     printRuntime(stats, "checker", Performance.stage, 4);
     printGroup(stats, "validation", "validators", Performance.validator, 4);
     printGroup(stats, "linter", "rules", Performance.lintingRule, 4);
-    printGroup(stats, "emit", "emitters", Performance.stage, 4);
+    for (const emitter of Object.keys(stats.emit.emitters).sort()) {
+      printGroup(stats.emit.emitters, emitter, "steps", Performance.stage, 6);
+    }
   }
 
-  function printGroup<K extends keyof RuntimeStats, L extends keyof RuntimeStats[K]>(
-    base: RuntimeStats,
+  function printGroup<B, K extends keyof B, L extends keyof B[K]>(
+    base: B,
     groupName: K,
     itemsKey: L,
     perf: readonly [number, number],
     indent: number = 0,
   ) {
     const group: any = base[groupName];
-    printKV(groupName, runtimeStr(group["total"] ?? 0), indent);
+    printKV(groupName as any, runtimeStr(group["total"] ?? 0), indent);
     for (const [key, value] of Object.entries(group[itemsKey]).sort((a, b) =>
       a[0].localeCompare(b[0]),
     )) {
