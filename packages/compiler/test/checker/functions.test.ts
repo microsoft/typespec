@@ -163,7 +163,7 @@ describe("compiler: checker: functions", () => {
         const X = testFn("one", "two", "three");
       `);
 
-      expectCalledWith("one", "two", "three"); // program + args, optional b provided
+      expectCalledWith("one", "two", "three");
     });
 
     it("allows omitting optional param", async () => {
@@ -639,10 +639,6 @@ describe("compiler: checker: functions", () => {
     });
 
     it("marshals object values correctly", async () => {
-      // BUG: This test reveals a type system issue where numeric literal 25 is not
-      // assignable to int32 in object literal context within extern functions.
-      // The error: Type '{ name: string, age: 25 }' is not assignable to type '{ name: string, age: int32 }'
-      // Expected: Numeric literal 25 should be assignable to int32
       const diagnostics = await runner.diagnose(`
         extern fn expectObject(obj: valueof {name: string, age: int32}): valueof {name: string, age: int32};
         const X = expectObject(#{name: "test", age: 25});
