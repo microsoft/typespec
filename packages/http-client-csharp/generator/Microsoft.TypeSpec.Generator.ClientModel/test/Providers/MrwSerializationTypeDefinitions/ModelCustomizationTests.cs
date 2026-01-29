@@ -526,5 +526,62 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
             Assert.IsNotNull(implicitOperator, "Implicit operator should still be generated when only explicit operator is customized");
         }
+
+        // Unit test for enum array serialization - shows generated output like spector tests show behavior
+        [Test]
+        public async Task ValidateEnumArraySerializationGeneratedOutput()
+        {
+            var inputEnum = InputFactory.StringEnum("TestEnum", [("Blue", "blue"), ("Red", "red"), ("Green", "green")], isExtensible: false);
+            var props = new[]
+            {
+                InputFactory.Property("Colors", InputFactory.Array(inputEnum))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props, usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                inputEnums: () => [inputEnum]);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            
+            var generatedCode = file.Content;
+            
+            Assert.IsTrue(generatedCode.Contains("writer.WriteStringValue(item.ToSerialString())"));
+            Assert.IsTrue(generatedCode.Contains("array.Add(item.GetString().ToTestEnum())"));
+            Assert.IsTrue(generatedCode.Contains("foreach"));
+            Assert.IsTrue(generatedCode.Contains("ToSerialString()"));
+        }
+        
+        [Test]
+        public async Task ValidateEnumArrayDeserializationGeneratedOutput()
+        {
+            var inputEnum = InputFactory.StringEnum("TestEnum", [("Blue", "blue"), ("Red", "red"), ("Green", "green")], isExtensible: false);
+            var props = new[]
+            {
+                InputFactory.Property("Colors", InputFactory.Array(inputEnum))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props, usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                inputEnums: () => [inputEnum]);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            
+            var generatedCode = file.Content;
+            
+            Assert.IsTrue(generatedCode.Contains("array.Add(item.GetString().ToTestEnum())"));
+            Assert.IsTrue(generatedCode.Contains("foreach"));
+            Assert.IsTrue(generatedCode.Contains("JsonElement"));
+            Assert.IsTrue(generatedCode.Contains("ToTestEnum()") || generatedCode.Contains(".ToEnum()"));
+        }
     }
 }
