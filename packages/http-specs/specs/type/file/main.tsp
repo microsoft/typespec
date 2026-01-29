@@ -26,6 +26,28 @@ namespace Body {
 
   @scenario
   @scenarioDoc("""
+    Test File type as request body with JSON content type.
+    Expected request:
+    - Content-Type header: application/json
+    - Body: JSON content with file data
+    """)
+  @post
+  @route("/request/json-content-type")
+  op uploadFileJsonContentType(@bodyRoot file: Http.File<"application/json">): NoContentResponse;
+
+  @scenario
+  @scenarioDoc("""
+    Test File type as response body with JSON content type.
+    Expected response:
+    - Content-Type header: application/json
+    - Body: JSON content with file data
+    """)
+  @get
+  @route("/response/json-content-type")
+  op downloadFileJsonContentType(): Http.File<"application/json">;
+
+  @scenario
+  @scenarioDoc("""
     Test File type as response body with specific content type.
     Expected response:
     - Content-Type header: image/png

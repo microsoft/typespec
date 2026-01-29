@@ -2058,7 +2058,7 @@ Test multiple File instances in multipart form data.
 Expected request:
 
 ```
-POST /multipart/file/file-array HTTP/1.1
+POST /multipart/form-data/file/file-array HTTP/1.1
 Content-Type: multipart/form-data; boundary=abcde12345
 
 --abcde12345
@@ -2074,40 +2074,20 @@ Content-Type: image/png
 --abcde12345--
 ```
 
-### Payload_MultiPart_FormData_File_uploadFileMultipleContentTypes
+### Payload_MultiPart_FormData_File_uploadFileRequiredFilename
 
-- Endpoint: `post /multipart/form-data/file/multiple-content-types`
+- Endpoint: `post /multipart/form-data/file/required-filename`
 
-Test File type in multipart form data with multiple allowed content types.
-Client should send image/png.
+Test File type in multipart form data with required filename.
 Expected request:
 
 ```
-POST /multipart/file/multiple-content-types HTTP/1.1
+POST /multipart/form-data/file/required-filename HTTP/1.1
 Content-Type: multipart/form-data; boundary=abcde12345
 
 --abcde12345
 Content-Disposition: form-data; name="file"; filename="image.png"
 Content-Type: image/png
-
-{…file content of image.png…}
---abcde12345--
-```
-
-### Payload_MultiPart_FormData_File_uploadFileRequiredContentType
-
-- Endpoint: `post /multipart/form-data/file/required-content-type`
-
-Test File type in multipart form data with required content type metadata.
-Expected request:
-
-```
-POST /multipart/file/required-content-type HTTP/1.1
-Content-Type: multipart/form-data; boundary=abcde12345
-
---abcde12345
-Content-Disposition: form-data; name="file"; filename="image.png"
-Content-Type: application/octet-stream
 
 {…file content of image.png…}
 --abcde12345--
@@ -2121,7 +2101,7 @@ Test File type in multipart form data with specific content type.
 Expected request:
 
 ```
-POST /multipart/file/specific-content-type HTTP/1.1
+POST /multipart/form-data/file/specific-content-type HTTP/1.1
 Content-Type: multipart/form-data; boundary=abcde12345
 
 --abcde12345
@@ -5302,6 +5282,16 @@ Expected response:
 - Content-Type header: application/octet-stream
 - Body: binary content matching packages/http-specs/assets/image.png
 
+### Type_File_Body_downloadFileJsonContentType
+
+- Endpoint: `get /type/file/body/response/json-content-type`
+
+Test File type as response body with JSON content type.
+Expected response:
+
+- Content-Type header: application/json
+- Body: JSON content with file data
+
 ### Type_File_Body_downloadFileMultipleContentTypes
 
 - Endpoint: `get /type/file/body/response/multiple-content-types`
@@ -5332,6 +5322,16 @@ Expected request:
 
 - Content-Type header: application/octet-stream (or not specified)
 - Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileJsonContentType
+
+- Endpoint: `post /type/file/body/request/json-content-type`
+
+Test File type as request body with JSON content type.
+Expected request:
+
+- Content-Type header: application/json
+- Body: JSON content with file data
 
 ### Type_File_Body_uploadFileMultipleContentTypes
 

@@ -34,6 +34,51 @@ Scenarios.Type_File_Body_uploadFileSpecificContentType = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
+// Body tests - Request with JSON content type
+Scenarios.Type_File_Body_uploadFileJsonContentType = passOnSuccess({
+  uri: "/type/file/body/request/json-content-type",
+  method: "post",
+  request: {
+    body: {
+      contentType: "application/json",
+      rawContent: JSON.stringify({ message: "test file content" }),
+    },
+  },
+  response: {
+    status: 204,
+  },
+  handler(req: MockRequest) {
+    req.expect.containsHeader("content-type", "application/json");
+    req.expect.rawBodyEquals(JSON.stringify({ message: "test file content" }));
+    return { status: 204 };
+  },
+  kind: "MockApiDefinition",
+});
+
+// Body tests - Response with JSON content type
+Scenarios.Type_File_Body_downloadFileJsonContentType = passOnSuccess({
+  uri: "/type/file/body/response/json-content-type",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: {
+      contentType: "application/json",
+      rawContent: JSON.stringify({ message: "test file content" }),
+    },
+  },
+  handler(req: MockRequest) {
+    return {
+      status: 200,
+      body: {
+        contentType: "application/json",
+        rawContent: JSON.stringify({ message: "test file content" }),
+      },
+    };
+  },
+  kind: "MockApiDefinition",
+});
+
 // Body tests - Response with specific content type
 Scenarios.Type_File_Body_downloadFileSpecificContentType = passOnSuccess({
   uri: "/type/file/body/response/specific-content-type",
