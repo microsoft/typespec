@@ -181,24 +181,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializations, "Serialization provider should exist");
 
             var deserializationMethod = serializations!.BuildDeserializationMethod();
-            Assert.IsNotNull(deserializationMethod);
+            Assert.IsNotNull(deserializationMethod, "Deserialization method should be created");
+
+            var signature = deserializationMethod?.Signature;
+            Assert.IsNotNull(signature, "Method signature should exist");
+            Assert.AreEqual(model.Type, signature?.ReturnType, "Return type should match model type");
 
             var methodBody = deserializationMethod?.BodyStatements;
-            Assert.IsNotNull(methodBody);
+            Assert.IsNotNull(methodBody, "Method body should exist");
 
             var methodBodyString = methodBody!.ToDisplayString();
 
-            // Verify that object type is used in deserialization for backward compatibility
+            // Verify variable declaration with object type for backward compatibility
             Assert.IsTrue(methodBodyString.Contains("global::System.Collections.Generic.IDictionary<string, object> additionalProperties"),
-                "Should use IDictionary<string, object> for backward compatibility");
+                "Should declare IDictionary<string, object> variable for backward compatibility");
 
-            // Verify that additionalProperties variable is used in the return statement
-            Assert.IsTrue(methodBodyString.Contains("additionalProperties"),
-                "Return statement should use additionalProperties");
+            // Verify dictionary initialization with ChangeTrackingDictionary
+            Assert.IsTrue(methodBodyString.Contains("new global::Sample.ChangeTrackingDictionary<string, object>()"),
+                "Should initialize ChangeTrackingDictionary with object type");
 
-            // Verify that the GetObject() method is used for object deserialization
-            Assert.IsTrue(methodBodyString.Contains("prop.Value.GetObject()"),
-                "Should use GetObject() for deserializing object values");
+            // Verify foreach loop over JsonElement properties
+            Assert.IsTrue(methodBodyString.Contains("foreach (var prop in element.EnumerateObject())"),
+                "Should enumerate over JsonElement properties");
+
+            // Verify property name check for known property
+            Assert.IsTrue(methodBodyString.Contains("prop.NameEquals(\"name\"u8)") || methodBodyString.Contains("prop.NameEquals(\"Name\"u8)"),
+                "Should check for property name");
+
+            // Verify GetString() is used for the Name property
+            Assert.IsTrue(methodBodyString.Contains("prop.Value.GetString()"),
+                "Should use GetString() for string property deserialization");
+
+            // Verify GetObject() method is used for additional properties deserialization
+            Assert.IsTrue(methodBodyString.Contains("additionalProperties.Add(prop.Name, prop.Value.GetObject())"),
+                "Should use GetObject() for deserializing object values into additionalProperties");
+
+            // Verify return statement with proper constructor call
+            Assert.IsTrue(methodBodyString.Contains("return new global::Sample.Models.TestModel(name, additionalProperties)"),
+                "Return statement should call constructor with name and additionalProperties");
+
+            // Verify no additionalBinaryDataProperties parameter in constructor call for object type
+            Assert.IsFalse(methodBodyString.Contains("return new global::Sample.Models.TestModel(name, additionalProperties, additionalBinaryDataProperties)"),
+                "Should not include additionalBinaryDataProperties parameter when using object type");
         }
 
         [Test]
