@@ -196,8 +196,7 @@ export interface IndeterminateEntity {
     | BooleanLiteral
     | EnumMember
     | UnionVariant
-    | NullType
-    | UnknownType;
+    | NullType;
 }
 
 export interface IntrinsicType extends BaseType {
