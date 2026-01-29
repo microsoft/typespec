@@ -11,10 +11,12 @@ import {
   serializeValueAsJson,
   StringLiteral,
   Type,
+  UnserializableValueError,
   Value,
 } from "@typespec/compiler";
 import { HttpOperation, HttpProperty } from "@typespec/http";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
+
 /**
  * Checks if two objects are deeply equal.
  *
@@ -153,7 +155,21 @@ export function getDefaultValue(
   defaultType: Value,
   modelProperty: ModelProperty,
 ): any {
-  return serializeValueAsJson(program, defaultType, modelProperty);
+  try {
+    return serializeValueAsJson(program, defaultType, modelProperty);
+  } catch (e) {
+    if (e instanceof UnserializableValueError) {
+      reportDiagnostic(program, {
+        code: "default-not-supported",
+        format: {
+          message: e.message,
+        },
+        target: modelProperty,
+      });
+      return undefined;
+    }
+    throw e;
+  }
 }
 
 export function isBytesKeptRaw(program: Program, type: Type) {

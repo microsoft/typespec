@@ -15,6 +15,48 @@ import {
 import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
 
 /**
+ * Error thrown when a value cannot be serialized.
+ */
+export class UnserializableValueError extends Error {
+  constructor(public readonly reason: string = "Cannot serialize value as JSON.") {
+    super(reason);
+    this.name = "UnserializableValueError";
+  }
+}
+
+/**
+ * Error thrown when a scalar value cannot be serialized because it uses an unsupported constructor.
+ */
+export class UnsupportedScalarConstructorError extends UnserializableValueError {
+  constructor(
+    public readonly scalarName: string,
+    public readonly constructorName: string,
+    public readonly supportedConstructors: readonly string[],
+  ) {
+    super(
+      `Cannot serialize scalar '${scalarName}' with constructor '${constructorName}'. Supported constructors: ${supportedConstructors.join(", ")}`,
+    );
+    this.name = "UnsupportedScalarConstructorError";
+  }
+}
+
+export interface ValueJsonSerializers {
+  /** Custom handler to serialize a scalar value
+   * @param value The scalar value to serialize
+   * @param type The type of the scalar value in the current context
+   * @param encodeAs The encoding information for the scalar value, if any
+   * @param originalFn The original serialization function to fall back to. Throws `UnsupportedScalarConstructorError` if the scalar constructor is not supported.
+   * @returns The serialized value
+   */
+  serializeScalarValue?: (
+    value: ScalarValue,
+    type: Type,
+    encodeAs: EncodeData | undefined,
+    originalFn: (value: ScalarValue, type: Type, encodeAs: EncodeData | undefined) => unknown,
+  ) => unknown;
+}
+
+/**
  * Serialize the given TypeSpec value as a JSON object using the given type and its encoding annotations.
  * The Value MUST be assignable to the given type.
  */
@@ -23,6 +65,7 @@ export function serializeValueAsJson(
   value: Value,
   type: Type,
   encodeAs?: EncodeData,
+  handlers?: ValueJsonSerializers,
   diagnosticTarget?: DiagnosticTarget | typeof NoTarget,
 ): unknown {
   if (type.kind === "ModelProperty") {
@@ -31,6 +74,7 @@ export function serializeValueAsJson(
       value,
       type.type,
       encodeAs ?? getEncode(program, type),
+      handlers,
       diagnosticTarget,
     );
   }
@@ -53,15 +97,16 @@ export function serializeValueAsJson(
             ? type.indexer.value
             : program.checker.anyType,
           /* encodeAs: */ undefined,
+          handlers,
           diagnosticTarget,
         ),
       );
     case "ObjectValue":
-      return serializeObjectValueAsJson(program, value, type, diagnosticTarget);
+      return serializeObjectValueAsJson(program, value, type, handlers, diagnosticTarget);
     case "ScalarValue":
-      return serializeScalarValueAsJson(program, value, type, encodeAs);
+      return serializeScalarValueAsJson(program, value, type, encodeAs, handlers);
     case "Function":
-      throw new Error("TODO/witemple");
+      throw new UnserializableValueError("Cannot serialize a function value as JSON.");
   }
 }
 
@@ -109,6 +154,7 @@ function serializeObjectValueAsJson(
   program: Program,
   value: ObjectValue,
   type: Type,
+  handlers?: ValueJsonSerializers,
   diagnosticTarget?: DiagnosticTarget | typeof NoTarget,
 ): Record<string, unknown> {
   type = resolveUnions(program, value, type) ?? type;
@@ -125,6 +171,7 @@ function serializeObjectValueAsJson(
         propValue.value,
         definition,
         /* encodeAs: */ undefined,
+        handlers,
         propValue.node,
       );
     }
@@ -169,7 +216,17 @@ function serializeScalarValueAsJson(
   value: ScalarValue,
   type: Type,
   encodeAs: EncodeData | undefined,
+  handlers?: ValueJsonSerializers,
 ): unknown {
+  if (handlers?.serializeScalarValue) {
+    return handlers.serializeScalarValue(
+      value,
+      type,
+      encodeAs,
+      serializeScalarValueAsJson.bind(null, program, value, type, encodeAs, undefined),
+    );
+  }
+
   const result = resolveKnownScalar(program, value.scalar);
   if (result === undefined) {
     return serializeValueAsJson(program, value.value.args[0], value.value.args[0].type);
@@ -179,15 +236,30 @@ function serializeScalarValueAsJson(
 
   switch (result.scalar.name) {
     case "utcDateTime":
-      return ScalarSerializers.utcDateTime((value.value.args[0] as any as any).value, encodeAs);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.utcDateTime((value.value.args[0] as any).value, encodeAs);
+      }
+      throw new UnsupportedScalarConstructorError("utcDateTime", value.value.name, ["fromISO"]);
     case "offsetDateTime":
-      return ScalarSerializers.offsetDateTime((value.value.args[0] as any).value, encodeAs);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.offsetDateTime((value.value.args[0] as any).value, encodeAs);
+      }
+      throw new UnsupportedScalarConstructorError("offsetDateTime", value.value.name, ["fromISO"]);
     case "plainDate":
-      return ScalarSerializers.plainDate((value.value.args[0] as any).value);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.plainDate((value.value.args[0] as any).value);
+      }
+      throw new UnsupportedScalarConstructorError("plainDate", value.value.name, ["fromISO"]);
     case "plainTime":
-      return ScalarSerializers.plainTime((value.value.args[0] as any).value);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.plainTime((value.value.args[0] as any).value);
+      }
+      throw new UnsupportedScalarConstructorError("plainTime", value.value.name, ["fromISO"]);
     case "duration":
-      return ScalarSerializers.duration((value.value.args[0] as any).value, encodeAs);
+      if (value.value.name === "fromISO") {
+        return ScalarSerializers.duration((value.value.args[0] as any).value, encodeAs);
+      }
+      throw new UnsupportedScalarConstructorError("duration", value.value.name, ["fromISO"]);
   }
 }
 
