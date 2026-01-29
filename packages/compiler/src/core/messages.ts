@@ -402,6 +402,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Type ${"type"} is not is not callable.`,
+      templateParameter: paramMessage`Template parameter '${"name"} extends ${"constraint"}' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).`,
     },
   },
   "named-init-required": {

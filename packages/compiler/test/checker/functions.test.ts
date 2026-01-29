@@ -1395,4 +1395,75 @@ describe("compiler: checker: functions", () => {
       "fn(a: valueof string, ...args: valueof int32[])",
     ); // string -> unknown, int32? -> unknown?
   });
+
+  describe("calling template arguments", () => {
+    let runner: BasicTestRunner;
+
+    beforeEach(() => {
+      testHost.addJsFile("templates.js", {
+        $functions: {
+          "": {
+            f(_ctx: FunctionContext, T: Model) {
+              return T.name;
+            },
+          },
+        },
+      });
+      runner = createTestWrapper(testHost, {
+        autoImports: ["./templates.js"],
+        autoUsings: ["TypeSpec.Reflection"],
+      });
+    });
+
+    it("does not allow calling an unconstrained template parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Test<T extends Model, F> {
+          @test
+          p: string = F();
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "non-callable",
+        message:
+          "Template parameter 'F extends unknown' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
+      });
+    });
+
+    it("does not allow calling a template paremeter constrained to a type that is possibly not a function", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Test<F extends Model | valueof fn() => valueof string> {
+          @test
+          p: string = F();
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "non-callable",
+        message:
+          "Template parameter 'F extends Model | valueof fn () => valueof string' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).",
+      });
+    });
+
+    it("allows calling a template parameter constrained to a function value", async () => {
+      const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+        extern fn f(T: Model): valueof string;
+
+        model Foo {}
+
+        model Test<F extends valueof fn(T: Model) => valueof string> {
+          @test
+          p: string = F(Foo);
+        }
+
+        alias Instance = Test<f>;
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+      expectDiagnosticEmpty(diagnostics);
+
+      strictEqual(p.defaultValue?.entityKind, "Value");
+      strictEqual(p.defaultValue?.valueKind, "StringValue");
+      strictEqual(p.defaultValue?.value, "Foo");
+    });
+  });
 });

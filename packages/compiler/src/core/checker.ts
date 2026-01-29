@@ -4277,6 +4277,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (target.entityKind === "Type") {
       if (target.kind === "Scalar" || target.kind === "ScalarConstructor") {
         return target;
+      } else if (target.kind === "TemplateParameter") {
+        const callable = target.constraint && constraintIsCallable(target.constraint);
+        if (!callable) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "non-callable",
+              messageId: "templateParameter",
+              format: {
+                name: target.node.id.sv,
+                constraint: target.constraint
+                  ? getEntityName(target.constraint, { printable: true })
+                  : "unknown",
+              },
+              target: node.target,
+            }),
+          );
+        }
+        return null;
       }
     } else if (target.entityKind === "Value") {
       if (target.valueKind === "Function") {
@@ -4291,7 +4309,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           ? target.type.kind
           : target.valueKind;
 
-    if (!isErrorType(target))
+    if (!isErrorType(target)) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "non-callable",
@@ -4299,7 +4317,38 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: node.target,
         }),
       );
+    }
     return null;
+
+    function constraintIsCallable(constraint: MixedParameterConstraint): boolean {
+      compilerAssert(
+        constraint.type || constraint.valueType,
+        "Expected constraint to have type or value type",
+      );
+      let callable = true;
+
+      if (constraint.type) {
+        callable &&= typeIsCallable(constraint.type);
+      }
+
+      if (constraint.valueType) {
+        callable &&= constraint.valueType.kind === "FunctionType";
+      }
+
+      return callable;
+    }
+
+    function typeIsCallable(type: Type): boolean {
+      switch (type.kind) {
+        case "Scalar":
+        case "ScalarConstructor":
+          return true;
+        case "Union":
+          return [...type.variants.values()].every(typeIsCallable);
+        default:
+          return false;
+      }
+    }
   }
 
   /** Check the arguments of the call expression are a single value of the given syntax. */
