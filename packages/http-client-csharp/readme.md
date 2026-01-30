@@ -15,6 +15,10 @@ npm install @typespec/http-client-csharp
 - Install [Node.js](https://nodejs.org/download/) 20 or above. (Verify by running `node --version`)
 - Install [**.NET 8.0 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) for your specific platform. (or a higher version)
 
+### Using as a Downstream Emitter
+
+For detailed instructions on how to use this package as a library in your own emitter, see the [Downstream Emitters Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/.tspd/docs/downstream-emitters.md).
+
 ### Customizing Generated Code
 
 For detailed instructions on how to customize the generated C# code, see the [Customization Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/.tspd/docs/customization.md).
@@ -124,12 +128,6 @@ The name of the generator. By default this is set to `ScmCodeModelGenerator`. Ge
 **Type:** `string`
 
 Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.
-
-### `update-code-model`
-
-**Type:** `object`
-
-Allows emitter authors to specify a custom function to modify the generated code model before emitting. This is useful for modifying the code model before it is passed to the generator.
 
 ### `license`
 
