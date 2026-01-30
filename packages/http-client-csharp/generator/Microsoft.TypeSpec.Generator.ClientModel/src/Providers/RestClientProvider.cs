@@ -426,10 +426,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
                 }
-                // If this is a Content-Type header and there's a content parameter (which could be null), wrap in content null check
+                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
                 else if (inputHeaderParameter.IsContentType && contentParam != null)
                 {
-                    statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
+                    // Check if any body parameter in the operation is optional
+                    var hasOptionalBody = operation.Parameters.Any(p =>
+                        p is InputBodyParameter bodyParam && !bodyParam.IsRequired);
+
+                    if (hasOptionalBody)
+                    {
+                        statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
+                    }
                 }
 
                 statements.Add(statement);

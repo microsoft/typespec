@@ -1537,5 +1537,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == expectedStatement),
                 $"Expected to find statement:\n{expectedStatement}\nBut got statements:\n{statementsString}");
         }
+
+        [Test]
+        public void ContentTypeHeaderNotWrappedInNullCheckWhenContentIsRequired()
+        {
+            // Test that when there's a required body parameter with a Content-Type header,
+            // the Content-Type header setting is NOT wrapped in a null check
+            var contentTypeParam = InputFactory.HeaderParameter(
+                "Content-Type",
+                InputFactory.Literal.String("application/json"),
+                isRequired: true,
+                isContentType: true,
+                scope: InputParameterScope.Constant);
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: true);
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                requestMediaTypes: ["application/json"],
+                parameters: [contentTypeParam, bodyParam]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var restClient = client!.RestClient;
+            Assert.IsNotNull(restClient);
+
+            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
+            Assert.IsNotNull(createMethod, "CreateTestOperationRequest method not found");
+
+            var statements = createMethod!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+
+            var expectedStatement = @"request.Headers.Set(""Content-Type"", ""application/json"");
+";
+            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
+            Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == expectedStatement),
+                $"Expected to find statement:\n{expectedStatement}\nBut got statements:\n{statementsString}");
+        }
     }
 }
