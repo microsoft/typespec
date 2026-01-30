@@ -441,6 +441,7 @@ function fromQueryParameter(
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     readOnly: isReadOnly(p),
+    correspondingMethodParams: getCorrespondingMethodParams(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -472,6 +473,7 @@ function fromPathParameter(
     decorators: p.decorators,
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    correspondingMethodParams: getCorrespondingMethodParams(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -502,6 +504,7 @@ function fromHeaderParameter(
     readOnly: isReadOnly(p),
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    correspondingMethodParams: getCorrespondingMethodParams(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -530,6 +533,7 @@ function fromBodyParameter(
     decorators: p.decorators,
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    correspondingMethodParams: getCorrespondingMethodParams(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -918,6 +922,22 @@ function getArraySerializationDelimiter(
 ): string | undefined {
   const format = getCollectionFormat(p);
   return format ? collectionFormatToDelimMap[format] : undefined;
+}
+
+export function getCorrespondingMethodParams(
+  sdkContext: CSharpEmitterContext,
+  p: SdkHttpParameter | SdkModelPropertyType,
+): InputMethodParameter[] | undefined {
+  // correspondingMethodParams is only available on SdkHttpParameter and SdkModelPropertyType
+  const correspondingParams = (p as any).correspondingMethodParams;
+  if (!correspondingParams || correspondingParams.length === 0) {
+    return undefined;
+  }
+
+  const namespace = getClientNamespaceString(sdkContext) ?? "";
+  return correspondingParams.map((methodParam: SdkMethodParameter) =>
+    fromMethodParameter(sdkContext, methodParam, namespace)
+  );
 }
 
 function getResponseType(
