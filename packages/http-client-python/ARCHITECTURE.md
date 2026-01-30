@@ -126,6 +126,7 @@ The generator transforms the YAML code model into Python SDK code through two st
 #### Step 1: Preprocess
 
 Enhances the YAML with Python-specific information:
+
 - Converts names to `snake_case` and pads Python reserved words
 - Adds Python type hints and handles optional/required parameters
 - Creates overloads for different content types (JSON, binary, multipart)
@@ -144,6 +145,7 @@ Transforms the enhanced YAML into Python files using a three-layer architecture:
 3. **Templates** (`codegen/templates/`): Jinja2 templates defining Python code structure (`.jinja2` files for clients, models, enums, operations, etc.)
 
 **Example template usage**:
+
 ```python
 {% for operation in operation_group.operations %}
 def {{ operation.name }}(self, {{ operation.parameters }}):
