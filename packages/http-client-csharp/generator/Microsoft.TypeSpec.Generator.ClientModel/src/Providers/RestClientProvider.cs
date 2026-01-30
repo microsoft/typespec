@@ -24,6 +24,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
         private const string MaxPageSizeParameterName = "maxpagesize";
+        private const string TopParameterName = "top";
+        private const string MaxCountParameterName = "maxCount";
+        private const string ApiVersionParameterName = "api-version";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -49,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
+        protected override string BuildName() => ClientProvider.Name;
 
         protected override string BuildNamespace() => ClientProvider.Type.Namespace;
 
@@ -124,7 +127,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
             var options = ScmKnownParameters.RequestOptions;
-            var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest);
+            var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, ClientProvider);
 
             if (isNextLinkRequest)
             {
@@ -306,6 +309,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
+            // Add API version parameters that need to be preserved across pagination requests
+            var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
+            if (apiVersionParam != null && !reinjectedParamsMap.ContainsKey(apiVersionParam.Name))
+            {
+                var createdParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(apiVersionParam);
+                if (createdParam != null && paramMap.TryGetValue(createdParam.Name, out var paramInSignature))
+                {
+                    reinjectedParamsMap[apiVersionParam.Name] = paramInSignature;
+                }
+            }
+
             return reinjectedParamsMap;
         }
 
@@ -418,7 +432,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
+        private List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -437,7 +451,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static MethodBodyStatement? BuildQueryParameterStatement(
+        private MethodBodyStatement? BuildQueryParameterStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
             Dictionary<string, ParameterProvider> paramMap,
@@ -452,7 +466,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Determine if we should update existing parameters or always append
             bool shouldUpdateExisting = isNextLinkRequest &&
-                                      ShouldSkipReinjectedParameter(inputQueryParameter.SerializedName) &&
+                                      ShouldUpdateReinjectedParameter(inputQueryParameter.SerializedName) &&
                                       paramType?.IsCollection != true;
 
             MethodBodyStatement statement = shouldUpdateExisting
@@ -744,10 +758,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
+        private void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
             type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             serializationFormat = null;
+
+            if (inputParam.IsApiVersion && ClientProvider.IsMultiServiceClient)
+            {
+                var apiVersionField = ClientProvider.GetApiVersionFieldForService(operation.Namespace);
+                if (apiVersionField != null)
+                {
+                    type = apiVersionField.Type;
+                    serializationFormat = apiVersionField.WireInfo?.SerializationFormat;
+                    valueExpression = apiVersionField;
+                    return;
+                }
+            }
+
             if (inputParam.Scope == InputParameterScope.Constant && !(operation.IsMultipartFormData && inputParam is InputHeaderParameter headerParameter && headerParameter.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
@@ -830,9 +857,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
-        private static bool ShouldSkipReinjectedParameter(string parameterName)
+        private static bool ShouldUpdateReinjectedParameter(string parameterName)
         {
-            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase);
+            return parameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase) ||
+                   parameterName.Equals(ApiVersionParameterName, StringComparison.OrdinalIgnoreCase);
             // In the future, we can extend this to check multiple parameters
         }
 
@@ -846,7 +874,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 foreach (var statusCode in response.StatusCodes)
                 {
-                    if (statusCode >= 200 && statusCode < 300)
+                    if (statusCode >= 200 && statusCode < 400)
                     {
                         statusCodes.Add(statusCode);
                     }
@@ -868,7 +896,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return NextMethodCache[operation];
         }
 
-        internal static List<ParameterProvider> GetMethodParameters(InputServiceMethod serviceMethod, ScmMethodKind methodType)
+        internal static List<ParameterProvider> GetMethodParameters(
+            InputServiceMethod serviceMethod,
+            ScmMethodKind methodType,
+            ClientProvider client)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -919,6 +950,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParam is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
                 {
                     continue;
+                }
+
+                if (inputParam.IsApiVersion && (inputParam.DefaultValue != null || client.IsMultiServiceClient))
+                {
+                    continue;
+                }
+
+                // For paging operations, rename "top" parameter to "maxCount"
+                if (serviceMethod is InputPagingServiceMethod &&
+                    string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                {
+                    inputParam.Update(name: MaxCountParameterName);
                 }
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
