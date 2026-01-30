@@ -3,7 +3,7 @@ import { Broom16Filled, Bug16Regular, Save16Regular } from "@fluentui/react-icon
 import type { CompilerOptions } from "@typespec/compiler";
 import { useMemo, type FunctionComponent, type ReactNode } from "react";
 import { EmitterDropdown } from "../react/emitter-dropdown.js";
-import { SamplesDrawerTrigger } from "../react/samples-drawer.js";
+import { SamplesDrawerTrigger } from "../react/samples-drawer/index.js";
 import { CompilerSettingsDialogButton } from "../react/settings/compiler-settings-dialog-button.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import style from "./editor-command-bar.module.css";
