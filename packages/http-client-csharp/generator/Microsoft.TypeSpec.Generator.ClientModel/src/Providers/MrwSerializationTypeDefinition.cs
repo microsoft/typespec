@@ -1288,7 +1288,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             IEnumerable<AttributeStatement> serializationAttributes,
             SerializationFormat? arrayEncoding = null)
         {
-            var serializationFormat = wireInfo.SerializationFormat;
+            var serializationFormat = arrayEncoding ?? wireInfo.SerializationFormat;
 
             // Check for custom deserialization
             foreach (var attribute in serializationAttributes)
