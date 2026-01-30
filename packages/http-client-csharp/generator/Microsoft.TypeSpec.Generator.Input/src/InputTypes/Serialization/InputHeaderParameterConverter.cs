@@ -104,7 +104,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a serializedName.");
             parameter.IsApiVersion = isApiVersion;
             parameter.DefaultValue = defaultValue;
-            parameter.Scope = InputParameter.ParseScope(type, name, scope);;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.ArraySerializationDelimiter = arraySerializationDelimiter;
             parameter.IsContentType = isContentType;
             parameter.CorrespondingMethodParams = correspondingMethodParams;

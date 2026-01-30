@@ -105,7 +105,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.IsApiVersion = isApiVersion;
             parameter.DefaultValue = defaultValue;
             parameter.IsEndpoint = isEndpoint;
-            parameter.Scope = InputParameter.ParseScope(type, name, scope);;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.SkipUrlEncoding = skipUrlEncoding;
             parameter.CorrespondingMethodParams = correspondingMethodParams;
 
