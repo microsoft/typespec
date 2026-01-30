@@ -57,14 +57,14 @@ function findProjectRoot(path: string): string | undefined {
  * 
  * @example
  * ```typescript
- * import { $emitCodeModel } from "@typespec/http-client-csharp";
+ * import { emitCodeModel } from "@typespec/http-client-csharp";
  * 
  * export async function $onEmit(context: EmitContext<MyEmitterOptions>) {
  *   const updateCodeModel = (model: CodeModel, context: CSharpEmitterContext) => {
  *     // Customize the code model here
  *     return model;
  *   };
- *   const [, diagnostics] = await $emitCodeModel(context, updateCodeModel);
+ *   const [, diagnostics] = await emitCodeModel(context, updateCodeModel);
  *   // Process diagnostics as needed
  *   context.program.reportDiagnostics(diagnostics);
  * }
@@ -75,7 +75,7 @@ function findProjectRoot(path: string): string | undefined {
  * @returns A tuple containing void and any diagnostics that were generated during the emission
  * @beta
  */
-export async function $emitCodeModel(
+export async function emitCodeModel(
   context: EmitContext<CSharpEmitterOptions>,
   updateCodeModel?: (model: CodeModel, context: CSharpEmitterContext) => CodeModel,
 ): Promise<[void, readonly Diagnostic[]]> {
@@ -174,7 +174,7 @@ export async function $emitCodeModel(
  * @beta
  */
 export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
-  const [, diagnostics] = await $emitCodeModel(context);
+  const [, diagnostics] = await emitCodeModel(context);
   context.program.reportDiagnostics(diagnostics);
 }
 

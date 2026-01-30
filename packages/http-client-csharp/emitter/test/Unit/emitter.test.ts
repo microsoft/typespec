@@ -19,7 +19,7 @@ import {
 describe("$onEmit tests", () => {
   let program: Program;
   let $onEmit: (arg0: EmitContext<CSharpEmitterOptions>) => any;
-  let $emitCodeModel: (
+  let emitCodeModel: (
     context: EmitContext<CSharpEmitterOptions>,
     updateCodeModel?: (model: CodeModel, context: any) => CodeModel,
   ) => any;
@@ -83,11 +83,11 @@ describe("$onEmit tests", () => {
       reportDiagnostics: vi.fn(),
     } as unknown as Program;
 
-    // dynamically import the module to get the $onEmit and $emitCodeModel functions
+    // dynamically import the module to get the $onEmit and emitCodeModel functions
     // we avoid importing it at the top to allow mocking of dependencies
     const emitterModule = await import("../../src/emitter.js");
     $onEmit = emitterModule.$onEmit;
-    $emitCodeModel = emitterModule.$emitCodeModel;
+    emitCodeModel = emitterModule.emitCodeModel;
   });
 
   it("should apply the updateCodeModel callback", async () => {
@@ -95,7 +95,7 @@ describe("$onEmit tests", () => {
     const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {
       return model;
     });
-    await $emitCodeModel(context, updateCallback);
+    await emitCodeModel(context, updateCallback);
     expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 
@@ -184,7 +184,7 @@ describe("$onEmit tests", () => {
   });
 });
 
-describe("$emitCodeModel tests", () => {
+describe("emitCodeModel tests", () => {
   let runner: TestHost;
   let program: Program;
 
@@ -193,7 +193,7 @@ describe("$emitCodeModel tests", () => {
     runner = await createEmitterTestHost();
   });
 
-  it("should return diagnostics array from $emitCodeModel", async () => {
+  it("should return diagnostics array from emitCodeModel", async () => {
     program = await typeSpecCompile(
       `
       model TestModel {
@@ -206,8 +206,8 @@ describe("$emitCodeModel tests", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const { $emitCodeModel } = await import("../../src/emitter.js");
-    const [, diagnostics] = await $emitCodeModel(context);
+    const { emitCodeModel } = await import("../../src/emitter.js");
+    const [, diagnostics] = await emitCodeModel(context);
     
     // Verify that diagnostics is an array
     expect(Array.isArray(diagnostics)).toBe(true);
@@ -215,7 +215,7 @@ describe("$emitCodeModel tests", () => {
     expect(diagnostics).toBeDefined();
   });
 
-  it("should collect diagnostics from createModel in $emitCodeModel", async () => {
+  it("should collect diagnostics from createModel in emitCodeModel", async () => {
     program = await typeSpecCompile(
       `
       model TestModel {
@@ -228,8 +228,8 @@ describe("$emitCodeModel tests", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const { $emitCodeModel } = await import("../../src/emitter.js");
-    const [, diagnostics] = await $emitCodeModel(context);
+    const { emitCodeModel } = await import("../../src/emitter.js");
+    const [, diagnostics] = await emitCodeModel(context);
     
     // The function should return diagnostics even if empty
     expect(diagnostics).toBeDefined();
