@@ -280,6 +280,7 @@ function fromSdkModelProperty(
     serializationOptions: sdkProperty.serializationOptions,
     // A property is defined to be metadata if it is marked `@header`, `@cookie`, `@query`, `@path`.
     isHttpMetadata: isHttpMetadata(sdkContext, sdkProperty),
+    encode: sdkProperty.encode,
   } as InputModelProperty;
 
   if (property) {
