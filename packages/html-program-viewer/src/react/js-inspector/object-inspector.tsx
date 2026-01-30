@@ -69,6 +69,33 @@ const createIterator = (showNonenumerable?: boolean, sortObjectKeys?: boolean) =
         }
       }
 
+      // Also iterate over Symbol keys
+      const symbolKeys = Object.getOwnPropertySymbols(data);
+      for (const symbolKey of symbolKeys) {
+        if (propertyIsEnumerable.call(data, symbolKey)) {
+          const propertyValue = getPropertyValue(data, symbolKey);
+          yield {
+            name: symbolKey.toString(),
+            data: propertyValue,
+          };
+        } else if (showNonenumerable) {
+          let propertyValue;
+          try {
+            propertyValue = getPropertyValue(data, symbolKey);
+          } catch (e) {
+            // console.warn(e)
+          }
+
+          if (propertyValue !== undefined) {
+            yield {
+              name: symbolKey.toString(),
+              data: propertyValue,
+              isNonenumerable: true,
+            };
+          }
+        }
+      }
+
       // [[Prototype]] of the object: `Object.getPrototypeOf(data)`
       // the property name is shown as "__proto__"
       if (showNonenumerable && data !== Object.prototype /* already added */) {
