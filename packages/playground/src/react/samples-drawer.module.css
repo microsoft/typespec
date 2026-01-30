@@ -47,6 +47,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  user-select: none;
 }
 
 .sample-icon-pattern {

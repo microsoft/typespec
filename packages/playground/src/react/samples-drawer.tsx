@@ -6,6 +6,7 @@ import {
   DrawerHeaderTitle,
   OverlayDrawer,
   Text,
+  tokens,
   ToolbarButton,
   Tooltip,
 } from "@fluentui/react-components";
@@ -25,18 +26,18 @@ function hashString(str: string): number {
   return Math.abs(hash);
 }
 
-/** Color palette for sample icons - using pleasant, distinct colors */
+/** Color palette using FluentUI tokens - using Background2 for light bg */
 const iconColors = [
-  { bg: "#e3f2fd", fg: "#1565c0" }, // Blue
-  { bg: "#f3e5f5", fg: "#7b1fa2" }, // Purple
-  { bg: "#e8f5e9", fg: "#2e7d32" }, // Green
-  { bg: "#fff3e0", fg: "#e65100" }, // Orange
-  { bg: "#fce4ec", fg: "#c2185b" }, // Pink
-  { bg: "#e0f7fa", fg: "#00838f" }, // Cyan
-  { bg: "#fff8e1", fg: "#f9a825" }, // Amber
-  { bg: "#efebe9", fg: "#4e342e" }, // Brown
-  { bg: "#e8eaf6", fg: "#3949ab" }, // Indigo
-  { bg: "#e0f2f1", fg: "#00695c" }, // Teal
+  { bg: tokens.colorPaletteBlueBackground2, fg: tokens.colorPaletteBlueForeground2 },
+  { bg: tokens.colorPaletteGrapeBackground2, fg: tokens.colorPaletteGrapeForeground2 },
+  { bg: tokens.colorPaletteForestBackground2, fg: tokens.colorPaletteForestForeground2 },
+  { bg: tokens.colorPalettePumpkinBackground2, fg: tokens.colorPalettePumpkinForeground2 },
+  { bg: tokens.colorPaletteMagentaBackground2, fg: tokens.colorPaletteMagentaForeground2 },
+  { bg: tokens.colorPaletteTealBackground2, fg: tokens.colorPaletteTealForeground2 },
+  { bg: tokens.colorPaletteGoldBackground2, fg: tokens.colorPaletteGoldForeground2 },
+  { bg: tokens.colorPalettePlumBackground2, fg: tokens.colorPalettePlumForeground2 },
+  { bg: tokens.colorPaletteLavenderBackground2, fg: tokens.colorPaletteLavenderForeground2 },
+  { bg: tokens.colorPaletteSteelBackground2, fg: tokens.colorPaletteSteelForeground2 },
 ];
 
 /** Simple geometric patterns for variety */
@@ -48,7 +49,7 @@ interface SampleIconProps {
 }
 
 const SampleIcon: FunctionComponent<SampleIconProps> = ({ name }) => {
-  const { color, pattern, initials } = useMemo(() => {
+  const { colors, pattern, initials } = useMemo(() => {
     const hash = hashString(name);
     const colorIndex = hash % iconColors.length;
     const patternIndex = (hash >> 4) % patterns.length;
@@ -59,7 +60,7 @@ const SampleIcon: FunctionComponent<SampleIconProps> = ({ name }) => {
         ? (words[0][0] + words[1][0]).toUpperCase()
         : name.slice(0, 2).toUpperCase();
     return {
-      color: iconColors[colorIndex],
+      colors: iconColors[colorIndex],
       pattern: patterns[patternIndex],
       initials: init,
     };
@@ -71,43 +72,47 @@ const SampleIcon: FunctionComponent<SampleIconProps> = ({ name }) => {
 
     switch (pattern) {
       case "circle":
-        return <circle cx={half} cy={half} r={half - 4} fill={color.fg} opacity={0.15} />;
+        return <circle cx={half} cy={half} r={half - 4} fill={colors.fg} opacity={0.15} />;
       case "squares":
         return (
           <>
-            <rect x={4} y={4} width={16} height={16} fill={color.fg} opacity={0.1} />
-            <rect x={28} y={28} width={16} height={16} fill={color.fg} opacity={0.15} />
+            <rect x={4} y={4} width={16} height={16} fill={colors.fg} opacity={0.1} />
+            <rect x={28} y={28} width={16} height={16} fill={colors.fg} opacity={0.15} />
           </>
         );
       case "triangle":
         return (
-          <polygon points={`${half},8 ${size - 8},${size - 8} 8,${size - 8}`} fill={color.fg} opacity={0.12} />
+          <polygon
+            points={`${half},8 ${size - 8},${size - 8} 8,${size - 8}`}
+            fill={colors.fg}
+            opacity={0.12}
+          />
         );
       case "hexagon":
         return (
           <polygon
             points={`${half},4 ${size - 6},${half / 2 + 4} ${size - 6},${size - half / 2 - 4} ${half},${size - 4} 6,${size - half / 2 - 4} 6,${half / 2 + 4}`}
-            fill={color.fg}
+            fill={colors.fg}
             opacity={0.12}
           />
         );
       case "diamond":
         return (
-          <polygon points={`${half},6 ${size - 6},${half} ${half},${size - 6} 6,${half}`} fill={color.fg} opacity={0.12} />
+          <polygon
+            points={`${half},6 ${size - 6},${half} ${half},${size - 6} 6,${half}`}
+            fill={colors.fg}
+            opacity={0.12}
+          />
         );
     }
   };
 
   return (
-    <div
-      className={style["sample-icon"]}
-      style={{ backgroundColor: color.bg }}
-      aria-hidden="true"
-    >
+    <div className={style["sample-icon"]} style={{ backgroundColor: colors.bg }} aria-hidden="true">
       <svg width="48" height="48" viewBox="0 0 48 48" className={style["sample-icon-pattern"]}>
         {renderPattern()}
       </svg>
-      <span className={style["sample-icon-initials"]} style={{ color: color.fg }}>
+      <span className={style["sample-icon-initials"]} style={{ color: colors.fg }}>
         {initials}
       </span>
     </div>
