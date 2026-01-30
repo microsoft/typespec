@@ -432,12 +432,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
+            // Build a set of serialized names for base discriminator properties to handle cases where
+            // the derived model has a discriminator with a different C# name but the same wire name
+            HashSet<string> baseDiscriminatorSerializedNames = EnumerateBaseModels()
+                .SelectMany(m => m.Properties)
+                .Where(p => p.IsDiscriminator && p.SerializedName is not null)
+                .Select(p => p.SerializedName)
+                .ToHashSet();
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
                 var isDiscriminator = IsDiscriminator(property);
 
-                if (isDiscriminator && baseProperties.ContainsKey(property.Name))
+                // Skip discriminator properties that already exist in the base class
+                // Check both by C# property name and by serialized name to handle cases where
+                // the derived model has a discriminator with a different C# name but the same wire name
+                if (isDiscriminator && (baseProperties.ContainsKey(property.Name) || (property.SerializedName is not null && baseDiscriminatorSerializedNames.Contains(property.SerializedName))))
                 {
                     continue;
                 }
