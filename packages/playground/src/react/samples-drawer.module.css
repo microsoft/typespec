@@ -1,0 +1,39 @@
+.samples-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.sample-card {
+  cursor: pointer;
+  padding: 16px;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sample-card:hover {
+  box-shadow: var(--shadow8);
+}
+
+.sample-card:focus-visible {
+  outline: 2px solid var(--colorBrandStroke1);
+  outline-offset: 2px;
+}
+
+.sample-title {
+  font-size: var(--fontSizeBase400);
+  margin: 0;
+}
+
+.sample-description {
+  font-size: var(--fontSizeBase200);
+  color: var(--colorNeutralForeground2);
+  margin: 0;
+  line-height: 1.4;
+}
