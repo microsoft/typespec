@@ -159,4 +159,7 @@ function navigateModels(sdkContext: CSharpEmitterContext) {
   for (const e of sdkContext.sdkPackage.enums) {
     fromSdkType(sdkContext, e);
   }
+  for (const u of sdkContext.sdkPackage.unions) {
+    fromSdkType(sdkContext, u);
+  }
 }

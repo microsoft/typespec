@@ -385,11 +385,45 @@ function fromSdkBuiltInType(
   };
 }
 
-function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): InputUnionType {
+function fromUnionType(
+  sdkContext: CSharpEmitterContext,
+  union: SdkUnionType,
+): InputUnionType | InputModelType {
   const variantTypes: InputType[] = [];
   for (const value of union.variantTypes) {
     const variantType = fromSdkType(sdkContext, value);
     variantTypes.push(variantType);
+  }
+  if (isDiscriminatedUnion(union)) {
+    const baseType: InputModelType = {
+      kind: "model",
+      name: union.name,
+      namespace: union.namespace,
+      crossLanguageDefinitionId: union.crossLanguageDefinitionId,
+      access: union.access,
+      usage: union.usage,
+      properties: [],
+      serializationOptions: {},
+      summary: union.summary,
+      doc: union.doc,
+      deprecation: union.deprecation,
+      decorators: union.decorators,
+      external: fromSdkExternalTypeInfo(union),
+    } as InputModelType;
+    const discriminatedSubtypes: Record<string, InputModelType> = {};
+    variantTypes.forEach((variant) => {
+      if (variant.kind === "model") {
+        variant.baseModel = baseType;
+        if (variant.discriminatorValue !== undefined) {
+          discriminatedSubtypes[variant.discriminatorValue] = variant;
+        }
+      }
+    });
+    if (Object.keys(discriminatedSubtypes).length > 0) {
+      baseType.discriminatedSubtypes = discriminatedSubtypes;
+    }
+    //TODO we should hoist the discriminator property to the base type
+    return baseType;
   }
 
   return {
@@ -400,6 +434,16 @@ function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): I
     decorators: union.decorators,
     external: fromSdkExternalTypeInfo(union),
   };
+}
+
+function isDiscriminatedUnion(sdkType: SdkUnionType): boolean {
+  if (!sdkType.discriminatedOptions) {
+    return false;
+  }
+
+  return sdkType.variantTypes.every((variant) => {
+    return variant.kind === "model" && !variant.baseModel;
+  });
 }
 
 function fromSdkConstantType(
