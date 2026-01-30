@@ -1,6 +1,7 @@
 // @ts-check
 import { addClassName } from "@expressive-code/core/hast";
 import { defineEcConfig } from "astro-expressive-code";
+import commentHighlights from "./plugins/comment-highlights.js";
 import tspTryitCode from "./plugins/tsp-tryit-code.js";
 
 export function defineTypeSpecEcConfig(base: string) {
@@ -42,6 +43,7 @@ export function defineTypeSpecEcConfig(base: string) {
           },
         },
       },
+      commentHighlights(),
       tspTryitCode(base + "playground/"),
     ],
   });
