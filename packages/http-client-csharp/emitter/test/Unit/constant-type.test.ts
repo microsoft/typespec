@@ -33,7 +33,8 @@ describe("Name for constant type", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const testModel = root.models.find((m) => m.name === "TestModel");
     ok(testModel);
     const propertyType = testModel.properties[0].type;
@@ -64,7 +65,8 @@ describe("Name for constant type", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const testModel1 = root.models.find((m) => m.name === "TestModel1");
     ok(testModel1);
     const testModel2 = root.models.find((m) => m.name === "TestModel2");
@@ -103,7 +105,8 @@ describe("Constant enum conversion", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const testModel = root.models.find((m) => m.name === "TestModel");
     ok(testModel);
     const propertyType = testModel.properties[0].type;
@@ -134,7 +137,8 @@ describe("Constant enum conversion", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const testModel = root.models.find((m) => m.name === "TestModel");
     ok(testModel);
     const propertyType = testModel.properties[0].type;

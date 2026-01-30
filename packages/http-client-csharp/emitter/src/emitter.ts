@@ -3,6 +3,8 @@
 
 import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
 import {
+  createDiagnosticCollector,
+  Diagnostic,
   EmitContext,
   getDirectoryPath,
   joinPaths,
@@ -20,11 +22,13 @@ import {
   tspOutputFileName,
 } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
+import { createDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
+import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
@@ -48,11 +52,34 @@ function findProjectRoot(path: string): string | undefined {
 }
 
 /**
- * The entry point for the emitter. This function is called by the typespec compiler.
+ * Creates a code model by executing the full emission logic.
+ * This function can be called by downstream emitters to generate a code model and collect diagnostics.
+ * 
+ * @example
+ * ```typescript
+ * import { emitCodeModel } from "@typespec/http-client-csharp";
+ * 
+ * export async function $onEmit(context: EmitContext<MyEmitterOptions>) {
+ *   const updateCodeModel = (model: CodeModel, context: CSharpEmitterContext) => {
+ *     // Customize the code model here
+ *     return model;
+ *   };
+ *   const [, diagnostics] = await emitCodeModel(context, updateCodeModel);
+ *   // Process diagnostics as needed
+ *   context.program.reportDiagnostics(diagnostics);
+ * }
+ * ```
+ * 
  * @param context - The emit context
+ * @param updateCodeModel - Optional callback to modify the code model before emission
+ * @returns A tuple containing void and any diagnostics that were generated during the emission
  * @beta
  */
-export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
+export async function emitCodeModel(
+  context: EmitContext<CSharpEmitterOptions>,
+  updateCodeModel?: (model: CodeModel, context: CSharpEmitterContext) => CodeModel,
+): Promise<[void, readonly Diagnostic[]]> {
+  const diagnostics = createDiagnosticCollector();
   const program: Program = context.program;
   const options = resolveOptions(context);
   const outputFolder = context.emitterOutputDir;
@@ -70,12 +97,16 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       ),
       logger,
     );
-    program.reportDiagnostics(sdkContext.diagnostics);
+    for (const diag of sdkContext.diagnostics) {
+      diagnostics.add(diag);
+    }
 
-    let root = createModel(sdkContext);
+    const root = diagnostics.pipe(createModel(sdkContext));
 
     if (root) {
-      root = options["update-code-model"](root, sdkContext);
+      // Apply optional code model update callback
+      const updatedRoot = updateCodeModel ? updateCodeModel(root, sdkContext) : root;
+
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
@@ -83,9 +114,9 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
 
       // emit tspCodeModel.json
-      await writeCodeModel(sdkContext, root, outputFolder);
+      await writeCodeModel(sdkContext, updatedRoot, outputFolder);
 
-      const namespace = root.name;
+      const namespace = updatedRoot.name;
       const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
       //emit configuration.json
@@ -113,7 +144,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
           debug: options.debug ?? false,
         });
         if (result.exitCode !== 0) {
-          const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+          const isValid = diagnostics.pipe(await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion));
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) {
             throw new Error(
@@ -122,7 +153,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
           }
         }
       } catch (error: any) {
-        const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+        const isValid = diagnostics.pipe(await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion));
         // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
         if (isValid) throw new Error(error);
       }
@@ -133,6 +164,18 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
     }
   }
+
+  return diagnostics.wrap(undefined);
+}
+
+/**
+ * The entry point for the emitter. This function is called by the typespec compiler.
+ * @param context - The emit context
+ * @beta
+ */
+export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
+  const [, diagnostics] = await emitCodeModel(context);
+  context.program.reportDiagnostics(diagnostics);
 }
 
 export function createConfiguration(
@@ -142,7 +185,6 @@ export function createConfiguration(
 ): Configuration {
   const skipKeys = [
     "new-project",
-    "update-code-model",
     "sdk-context-options",
     "save-inputs",
     "generator-name",
@@ -172,29 +214,32 @@ export function createConfiguration(
  * Report diagnostic if dotnet sdk is not installed or its version does not meet prerequisite
  * @param sdkContext - The SDK context
  * @param minVersionRequisite - The minimum required major version
- * @param logger - The logger
+ * @returns A tuple containing whether the SDK is valid and any diagnostics
  * @internal
  */
 export async function _validateDotNetSdk(
   sdkContext: CSharpEmitterContext,
   minMajorVersion: number,
-): Promise<boolean> {
+): Promise<[boolean, readonly Diagnostic[]]> {
+  const diagnostics = createDiagnosticCollector();
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
+    return diagnostics.wrap(diagnostics.pipe(validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion)));
   } catch (error: any) {
     if (error && "code" in error && error["code"] === "ENOENT") {
-      sdkContext.logger.reportDiagnostic({
-        code: "invalid-dotnet-sdk-dependency",
-        messageId: "missing",
-        format: {
-          dotnetMajorVersion: `${minMajorVersion}`,
-          downloadUrl: "https://dotnet.microsoft.com/",
-        },
-        target: NoTarget,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "invalid-dotnet-sdk-dependency",
+          messageId: "missing",
+          format: {
+            dotnetMajorVersion: `${minMajorVersion}`,
+            downloadUrl: "https://dotnet.microsoft.com/",
+          },
+          target: NoTarget,
+        }),
+      );
     }
-    return false;
+    return diagnostics.wrap(false);
   }
 }
 
@@ -202,32 +247,41 @@ function validateDotNetSdkVersionCore(
   sdkContext: CSharpEmitterContext,
   version: string,
   minMajorVersion: number,
-): boolean {
+): [boolean, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   if (version) {
     const dotIndex = version.indexOf(".");
     const firstPart = dotIndex === -1 ? version : version.substring(0, dotIndex);
     const major = Number(firstPart);
 
     if (isNaN(major)) {
-      return false;
+      return diagnostics.wrap(false);
     }
     if (major < minMajorVersion) {
-      sdkContext.logger.reportDiagnostic({
-        code: "invalid-dotnet-sdk-dependency",
-        messageId: "invalidVersion",
-        format: {
-          installedVersion: version,
-          dotnetMajorVersion: `${minMajorVersion}`,
-          downloadUrl: "https://dotnet.microsoft.com/",
-        },
-        target: NoTarget,
-      });
-      return false;
+      diagnostics.add(
+        createDiagnostic({
+          code: "invalid-dotnet-sdk-dependency",
+          messageId: "invalidVersion",
+          format: {
+            installedVersion: version,
+            dotnetMajorVersion: `${minMajorVersion}`,
+            downloadUrl: "https://dotnet.microsoft.com/",
+          },
+          target: NoTarget,
+        }),
+      );
+      return diagnostics.wrap(false);
     }
-    return true;
+    return diagnostics.wrap(true);
   } else {
-    sdkContext.logger.error("Cannot get the installed .NET SDK version.");
-    return false;
+    diagnostics.add(
+      createDiagnostic({
+        code: "general-error",
+        format: { message: "Cannot get the installed .NET SDK version." },
+        target: NoTarget,
+      }),
+    );
+    return diagnostics.wrap(false);
   }
 }
 

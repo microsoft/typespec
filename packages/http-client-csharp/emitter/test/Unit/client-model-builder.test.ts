@@ -58,7 +58,8 @@ describe("fixNamingConflicts", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
 
     // Find the real enum
     const realEnum = root.enums.find(
@@ -142,7 +143,8 @@ describe("fixNamingConflicts", () => {
       namespace: targetNamespace,
     } as any);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
 
     // Get all ErrorResponse models - fixNamingConflicts should have resolved the conflicts
     const errorModels = root.models.filter(
@@ -194,7 +196,8 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
 
     // The root apiVersions should include the version from the Versions enum
     // which is defined in the default namespace with version "2023-01-01-preview"
@@ -228,7 +231,8 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
 
     // The root apiVersions should include all versions from the TestVersions enum
     strictEqual(root.apiVersions.length, 3, "Root apiVersions should have 3 versions");
@@ -247,7 +251,8 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
 
     // Single service client should have apiVersions from the @versioned decorator
     ok(root.apiVersions.length > 0, "Root apiVersions should not be empty for single service");
@@ -299,7 +304,8 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
 
     ok(root.apiVersions.length === 0, "Root apiVersions should be empty for multiservice");
 
@@ -358,7 +364,8 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
 
     ok(root.apiVersions.length === 0, "Root apiVersions should be empty for multiservice");
   });
@@ -415,7 +422,8 @@ describe("parseApiVersions", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
 
     ok(
       root.apiVersions.length === 0,
@@ -439,5 +447,64 @@ describe("parseApiVersions", () => {
     strictEqual(barClient.apiVersions.length, 2, "Bar client should have 2 apiVersions");
     ok(barClient.apiVersions.includes("bv1"), "Bar client should include bv1");
     ok(barClient.apiVersions.includes("bv2"), "Bar client should include bv2");
+  });
+});
+
+describe("createModel diagnostic collection", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("should return a tuple with CodeModel and diagnostics array", async () => {
+    const program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const result = createModel(sdkContext);
+    
+    // Verify the result is a tuple
+    ok(Array.isArray(result), "Result should be an array (tuple)");
+    strictEqual(result.length, 2, "Result should have exactly 2 elements");
+    
+    const [codeModel, diagnostics] = result;
+    
+    // Verify the code model
+    ok(codeModel, "CodeModel should be defined");
+    strictEqual(codeModel.name, "Azure.Csharp.Testing", "CodeModel name should be Azure.Csharp.Testing");
+    
+    // Verify diagnostics is an array
+    ok(Array.isArray(diagnostics), "Diagnostics should be an array");
+  });
+
+  it("should collect diagnostics when using diagnostic collection mode", async () => {
+    const program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [, diagnostics] = createModel(sdkContext);
+    
+    // Verify diagnostics array exists (may be empty or contain diagnostics)
+    ok(diagnostics !== undefined, "Diagnostics should not be undefined");
+    ok(Array.isArray(diagnostics), "Diagnostics should be an array");
   });
 });

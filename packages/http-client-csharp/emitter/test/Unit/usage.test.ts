@@ -33,7 +33,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const fooModel = root.models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -54,7 +55,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const fooModel = root.models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -75,7 +77,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const fooModel = root.models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -97,7 +100,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const fooModel = root.models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -124,7 +128,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const fooModel = root.models.find((model) => model.name === "Foo");
     const templateModel = root.models.find((model) => model.name === "TemplateModelFoo");
 
@@ -154,7 +159,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const baseModel = root.models.find((model) => model.name === "BaseModel");
     const fooModel = root.models.find((model) => model.name === "Foo");
 
@@ -191,7 +197,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const baseModel = root.models.find((model) => model.name === "BaseModel");
     const fooModel = root.models.find((model) => model.name === "Foo");
     const propertyModel = root.models.find((model) => model.name === "PropertyModel");
@@ -218,7 +225,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const fooAlias = root.models.find((model) => model.name === "TestRequest");
 
     ok(fooAlias);
@@ -266,7 +274,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const fooInfo = root.models.find((model) => model.name === "FooInfo");
     const batchCreateFooListItemsRequest = root.models.find(
       (model) => model.name === "BatchCreateFooListItemsRequest",
@@ -312,7 +321,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const fooModel = root.models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -371,7 +381,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const baseModel = root.models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.models.find(
       (model) => model.name === "DerivedModelWithDiscriminatorA",
@@ -441,7 +452,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const baseModel = root.models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.models.find(
       (model) => model.name === "DerivedModelWithDiscriminatorA",
@@ -478,7 +490,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const simpleEnumRenamed = root.enums.find((enumType) => enumType.name === "SimpleEnumRenamed");
 
     ok(simpleEnumRenamed);
@@ -502,7 +515,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const renamedModel = root.models.find((model) => model.name === "RenamedModel");
 
     ok(renamedModel);
@@ -660,7 +674,8 @@ interface LegacyLro {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root, modelDiagnostics] = createModel(sdkContext);
+    context.program.reportDiagnostics(modelDiagnostics);
     const radiologyInsightsInferenceResult = root.models.find(
       (model) => model.name === "RadiologyInsightsInferenceResult",
     );

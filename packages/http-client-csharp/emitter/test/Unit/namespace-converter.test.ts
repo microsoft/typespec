@@ -1,4 +1,5 @@
 import { TestHost } from "@typespec/compiler/testing";
+import { createDiagnosticCollector } from "@typespec/compiler";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { fromSdkNamespaces } from "../../src/lib/namespace-converter.js";
@@ -50,7 +51,7 @@ describe("Namespace Converter", () => {
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
       const sdkPackage = sdkContext.sdkPackage;
-      const parsedNamespaces = fromSdkNamespaces(sdkContext, sdkPackage.namespaces);
+      const [parsedNamespaces, diagnostics] = fromSdkNamespaces(sdkContext, sdkPackage.namespaces);
 
       strictEqual(parsedNamespaces.length, 1);
 

@@ -7,16 +7,18 @@ import {
   SdkHttpOperation,
   SdkPackage,
 } from "@azure-tools/typespec-client-generator-core";
-import { NoTarget } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
+import { createDiagnostic } from "./lib.js";
 import { InputAuth } from "../type/input-auth.js";
 import { InputOAuth2Flow } from "../type/input-oauth2-auth.js";
 
 export function processServiceAuthentication(
   sdkContext: CSharpEmitterContext,
   sdkPackage: SdkPackage<SdkHttpOperation>,
-): InputAuth | undefined {
+): [InputAuth | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
   for (const client of sdkPackage.clients) {
     for (const parameter of client.clientInitialization.parameters) {
@@ -28,29 +30,31 @@ export function processServiceAuthentication(
   }
 
   if (!authClientParameter) {
-    return undefined;
+    return diagnostics.wrap(undefined);
   }
 
   const inputAuth: InputAuth = {};
 
   if (authClientParameter.type.kind === "credential") {
-    const auth = processAuthType(sdkContext, authClientParameter.type);
+    const auth = diagnostics.pipe(processAuthType(sdkContext, authClientParameter.type));
     if (!auth && authClientParameter.type.scheme.type !== "noAuth") {
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-auth",
-        messageId: "onlyUnsupportedAuthProvided",
-        target: authClientParameter.type.__raw ?? NoTarget,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "unsupported-auth",
+          messageId: "onlyUnsupportedAuthProvided",
+          target: authClientParameter.type.__raw ?? NoTarget,
+        }),
+      );
 
-      return inputAuth;
+      return diagnostics.wrap(inputAuth);
     }
-    return auth;
+    return diagnostics.wrap(auth);
   }
 
   let containsNoAuth = false;
   for (const authType of authClientParameter.type.variantTypes) {
     containsNoAuth = containsNoAuth || authType.scheme.type === "noAuth";
-    const auth = processAuthType(sdkContext, authType);
+    const auth = diagnostics.pipe(processAuthType(sdkContext, authType));
     if (auth?.apiKey) {
       inputAuth.apiKey = auth.apiKey;
     }
@@ -60,75 +64,84 @@ export function processServiceAuthentication(
   }
 
   if (containsNoAuth && !inputAuth.apiKey && !inputAuth.oAuth2) {
-    return undefined;
+    return diagnostics.wrap(undefined);
   }
 
   if (!inputAuth?.apiKey && !inputAuth?.oAuth2) {
-    sdkContext.logger.reportDiagnostic({
-      code: "unsupported-auth",
-      messageId: "onlyUnsupportedAuthProvided",
-      target: authClientParameter.type.__raw ?? NoTarget,
-    });
+    diagnostics.add(
+      createDiagnostic({
+        code: "unsupported-auth",
+        messageId: "onlyUnsupportedAuthProvided",
+        target: authClientParameter.type.__raw ?? NoTarget,
+      }),
+    );
   }
 
-  return inputAuth;
+  return diagnostics.wrap(inputAuth);
 }
 
 function processAuthType(
   sdkContext: CSharpEmitterContext,
   credentialType: SdkCredentialType,
-): InputAuth | undefined {
+): [InputAuth | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const scheme = credentialType.scheme;
   switch (scheme.type) {
     case "apiKey":
       if (scheme.in !== "header") {
-        sdkContext.logger.reportDiagnostic({
-          code: "unsupported-auth",
-          format: {
-            message: `Only header is supported for ApiKey authentication. ${scheme.in} is not supported.`,
-          },
-          target: credentialType.__raw ?? NoTarget,
-        });
-        return undefined;
+        diagnostics.add(
+          createDiagnostic({
+            code: "unsupported-auth",
+            format: {
+              message: `Only header is supported for ApiKey authentication. ${scheme.in} is not supported.`,
+            },
+            target: credentialType.__raw ?? NoTarget,
+          }),
+        );
+        return diagnostics.wrap(undefined);
       }
-      return { apiKey: { name: scheme.name, in: scheme.in } } as InputAuth;
+      return diagnostics.wrap({ apiKey: { name: scheme.name, in: scheme.in } } as InputAuth);
     case "oauth2":
-      return processOAuth2(scheme);
+      return diagnostics.wrap(processOAuth2(scheme));
     case "http": {
       const schemeOrApiKeyPrefix = scheme.scheme;
       switch (schemeOrApiKeyPrefix) {
         case "Basic":
-          sdkContext.logger.reportDiagnostic({
-            code: "unsupported-auth",
-            format: { message: `${schemeOrApiKeyPrefix} auth method is currently not supported.` },
-            target: credentialType.__raw ?? NoTarget,
-          });
-          return undefined;
+          diagnostics.add(
+            createDiagnostic({
+              code: "unsupported-auth",
+              format: { message: `${schemeOrApiKeyPrefix} auth method is currently not supported.` },
+              target: credentialType.__raw ?? NoTarget,
+            }),
+          );
+          return diagnostics.wrap(undefined);
         case "Bearer":
-          return {
+          return diagnostics.wrap({
             apiKey: {
               name: "Authorization",
               in: "header",
               prefix: "Bearer",
             },
-          };
+          });
         default:
-          return {
+          return diagnostics.wrap({
             apiKey: {
               name: "Authorization",
               in: "header",
               prefix: schemeOrApiKeyPrefix,
             },
-          };
+          });
       }
     }
     default:
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-auth",
-        format: { message: `un-supported authentication scheme ${scheme.type}` },
-        target: credentialType.__raw ?? NoTarget,
-      });
-      return undefined;
+      diagnostics.add(
+        createDiagnostic({
+          code: "unsupported-auth",
+          format: { message: `un-supported authentication scheme ${scheme.type}` },
+          target: credentialType.__raw ?? NoTarget,
+        }),
+      );
+      return diagnostics.wrap(undefined);
   }
 }
 
