@@ -1,5 +1,12 @@
 # Change Log - typespec-vs
 
+## 1.8.0
+
+### Bump dependencies
+
+- [#9335](https://github.com/microsoft/typespec/pull/9335) Bump tcgc dep to `0.63.4`
+
+
 ## 1.7.0
 
 No changes, version bump only.

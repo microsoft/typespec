@@ -1,0 +1,18 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.clientgenerator.core.clientlocation.newsubclient.ArchiveOperationsAsyncClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ArchiveOperationsAsyncClient.archiveProduct": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations.archiveProduct",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ArchiveOperationsAsyncClient.archiveProductWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations.archiveProduct",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ArchiveOperationsClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ArchiveOperationsClient.archiveProduct": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations.archiveProduct",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ArchiveOperationsClient.archiveProductWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations.archiveProduct",
+    "azure.clientgenerator.core.clientlocation.newsubclient.MoveToNewSubClientBuilder": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ProductOperationsAsyncClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ProductOperationsAsyncClient.listProducts": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations.listProducts",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ProductOperationsAsyncClient.listProductsWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations.listProducts",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ProductOperationsClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ProductOperationsClient.listProducts": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations.listProducts",
+    "azure.clientgenerator.core.clientlocation.newsubclient.ProductOperationsClient.listProductsWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToNewSubClient.ProductOperations.listProducts"
+  }
+}

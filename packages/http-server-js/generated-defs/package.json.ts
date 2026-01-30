@@ -20,7 +20,7 @@ export const hsjsDependencies: Record<string, string> = {
   "decimal.js": "^10.5.0",
   "express": "^5.2.1",
   "fs-extra": "^11.2.0",
-  "globby": "~16.0.0",
+  "globby": "~16.1.0",
   "inquirer": "^13.1.0",
   "morgan": "^1.10.0",
   "ora": "^9.0.0",
@@ -33,6 +33,6 @@ export const hsjsDependencies: Record<string, string> = {
   "typescript": "~5.9.2",
   "vitest": "^4.0.15",
   "yargs": "~18.0.0",
-  "prettier": "~3.7.4",
+  "prettier": "~3.8.0",
   "yaml": "~2.8.2",
 };

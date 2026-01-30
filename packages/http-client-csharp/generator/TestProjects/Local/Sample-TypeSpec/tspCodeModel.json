@@ -1815,6 +1815,11 @@
       "usage": "Input,Output,Spread,Json",
       "doc": "A model with a few properties of literal types",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Thing"
+        }
+      },
       "properties": [
         {
           "$id": "197",
@@ -2253,11 +2258,37 @@
             }
           },
           "isHttpMetadata": false
+        },
+        {
+          "$id": "229",
+          "kind": "property",
+          "name": "propertyWithSpecialDocs",
+          "serializedName": "propertyWithSpecialDocs",
+          "doc": "This tests:\n- Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.\n- Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.\n- Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.\n- Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.\n- **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.\n- *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.",
+          "type": {
+            "$id": "230",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.propertyWithSpecialDocs",
+          "serializationOptions": {
+            "json": {
+              "name": "propertyWithSpecialDocs"
+            }
+          },
+          "isHttpMetadata": false
         }
       ]
     },
     {
-      "$id": "229",
+      "$id": "231",
       "kind": "model",
       "name": "RoundTripModel",
       "namespace": "SampleTypeSpec",
@@ -2265,15 +2296,20 @@
       "usage": "Input,Output,Json",
       "doc": "this is a roundtrip model",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "RoundTripModel"
+        }
+      },
       "properties": [
         {
-          "$id": "230",
+          "$id": "232",
           "kind": "property",
           "name": "requiredString",
           "serializedName": "requiredString",
           "doc": "Required string, illustrating a reference type property.",
           "type": {
-            "$id": "231",
+            "$id": "233",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2293,13 +2329,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "232",
+          "$id": "234",
           "kind": "property",
           "name": "requiredInt",
           "serializedName": "requiredInt",
           "doc": "Required int, illustrating a value type property.",
           "type": {
-            "$id": "233",
+            "$id": "235",
             "kind": "int32",
             "name": "int32",
             "encode": "string",
@@ -2320,13 +2356,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "234",
+          "$id": "236",
           "kind": "property",
           "name": "requiredCollection",
           "serializedName": "requiredCollection",
           "doc": "Required collection of enums",
           "type": {
-            "$id": "235",
+            "$id": "237",
             "kind": "array",
             "name": "ArrayStringFixedEnum",
             "valueType": {
@@ -2349,16 +2385,16 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "236",
+          "$id": "238",
           "kind": "property",
           "name": "requiredDictionary",
           "serializedName": "requiredDictionary",
           "doc": "Required dictionary of enums",
           "type": {
-            "$id": "237",
+            "$id": "239",
             "kind": "dict",
             "keyType": {
-              "$id": "238",
+              "$id": "240",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2383,7 +2419,7 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "239",
+          "$id": "241",
           "kind": "property",
           "name": "requiredModel",
           "serializedName": "requiredModel",
@@ -2405,7 +2441,7 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "240",
+          "$id": "242",
           "kind": "property",
           "name": "intExtensibleEnum",
           "serializedName": "intExtensibleEnum",
@@ -2427,13 +2463,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "241",
+          "$id": "243",
           "kind": "property",
           "name": "intExtensibleEnumCollection",
           "serializedName": "intExtensibleEnumCollection",
           "doc": "this is a collection of int based extensible enum",
           "type": {
-            "$id": "242",
+            "$id": "244",
             "kind": "array",
             "name": "ArrayIntExtensibleEnum",
             "valueType": {
@@ -2456,7 +2492,7 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "243",
+          "$id": "245",
           "kind": "property",
           "name": "floatExtensibleEnum",
           "serializedName": "floatExtensibleEnum",
@@ -2478,7 +2514,7 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "244",
+          "$id": "246",
           "kind": "property",
           "name": "floatExtensibleEnumWithIntValue",
           "serializedName": "floatExtensibleEnumWithIntValue",
@@ -2500,13 +2536,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "245",
+          "$id": "247",
           "kind": "property",
           "name": "floatExtensibleEnumCollection",
           "serializedName": "floatExtensibleEnumCollection",
           "doc": "this is a collection of float based extensible enum",
           "type": {
-            "$id": "246",
+            "$id": "248",
             "kind": "array",
             "name": "ArrayFloatExtensibleEnum",
             "valueType": {
@@ -2529,7 +2565,7 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "247",
+          "$id": "249",
           "kind": "property",
           "name": "floatFixedEnum",
           "serializedName": "floatFixedEnum",
@@ -2551,7 +2587,7 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "248",
+          "$id": "250",
           "kind": "property",
           "name": "floatFixedEnumWithIntValue",
           "serializedName": "floatFixedEnumWithIntValue",
@@ -2573,13 +2609,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "249",
+          "$id": "251",
           "kind": "property",
           "name": "floatFixedEnumCollection",
           "serializedName": "floatFixedEnumCollection",
           "doc": "this is a collection of float based fixed enum",
           "type": {
-            "$id": "250",
+            "$id": "252",
             "kind": "array",
             "name": "ArrayFloatFixedEnum",
             "valueType": {
@@ -2602,7 +2638,7 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "251",
+          "$id": "253",
           "kind": "property",
           "name": "intFixedEnum",
           "serializedName": "intFixedEnum",
@@ -2624,13 +2660,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "252",
+          "$id": "254",
           "kind": "property",
           "name": "intFixedEnumCollection",
           "serializedName": "intFixedEnumCollection",
           "doc": "this is a collection of int based fixed enum",
           "type": {
-            "$id": "253",
+            "$id": "255",
             "kind": "array",
             "name": "ArrayIntFixedEnum",
             "valueType": {
@@ -2653,7 +2689,7 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "254",
+          "$id": "256",
           "kind": "property",
           "name": "stringFixedEnum",
           "serializedName": "stringFixedEnum",
@@ -2675,13 +2711,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "255",
+          "$id": "257",
           "kind": "property",
           "name": "requiredUnknown",
           "serializedName": "requiredUnknown",
           "doc": "required unknown",
           "type": {
-            "$id": "256",
+            "$id": "258",
             "kind": "unknown",
             "name": "unknown",
             "crossLanguageDefinitionId": "",
@@ -2701,13 +2737,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "257",
+          "$id": "259",
           "kind": "property",
           "name": "optionalUnknown",
           "serializedName": "optionalUnknown",
           "doc": "optional unknown",
           "type": {
-            "$id": "258",
+            "$id": "260",
             "kind": "unknown",
             "name": "unknown",
             "crossLanguageDefinitionId": "",
@@ -2727,23 +2763,23 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "259",
+          "$id": "261",
           "kind": "property",
           "name": "requiredRecordUnknown",
           "serializedName": "requiredRecordUnknown",
           "doc": "required record of unknown",
           "type": {
-            "$id": "260",
+            "$id": "262",
             "kind": "dict",
             "keyType": {
-              "$id": "261",
+              "$id": "263",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
               "decorators": []
             },
             "valueType": {
-              "$id": "262",
+              "$id": "264",
               "kind": "unknown",
               "name": "unknown",
               "crossLanguageDefinitionId": "",
@@ -2765,13 +2801,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "263",
+          "$id": "265",
           "kind": "property",
           "name": "optionalRecordUnknown",
           "serializedName": "optionalRecordUnknown",
           "doc": "optional record of unknown",
           "type": {
-            "$ref": "260"
+            "$ref": "262"
           },
           "optional": true,
           "readOnly": false,
@@ -2787,13 +2823,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "264",
+          "$id": "266",
           "kind": "property",
           "name": "readOnlyRequiredRecordUnknown",
           "serializedName": "readOnlyRequiredRecordUnknown",
           "doc": "required readonly record of unknown",
           "type": {
-            "$ref": "260"
+            "$ref": "262"
           },
           "optional": false,
           "readOnly": true,
@@ -2809,13 +2845,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "265",
+          "$id": "267",
           "kind": "property",
           "name": "readOnlyOptionalRecordUnknown",
           "serializedName": "readOnlyOptionalRecordUnknown",
           "doc": "optional readonly record of unknown",
           "type": {
-            "$ref": "260"
+            "$ref": "262"
           },
           "optional": true,
           "readOnly": true,
@@ -2831,13 +2867,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "266",
+          "$id": "268",
           "kind": "property",
           "name": "modelWithRequiredNullable",
           "serializedName": "modelWithRequiredNullable",
           "doc": "this is a model with required nullable properties",
           "type": {
-            "$id": "267",
+            "$id": "269",
             "kind": "model",
             "name": "ModelWithRequiredNullableProperties",
             "namespace": "SampleTypeSpec",
@@ -2845,18 +2881,23 @@
             "usage": "Input,Output,Json",
             "doc": "A model with a few required nullable properties",
             "decorators": [],
+            "serializationOptions": {
+              "json": {
+                "name": "ModelWithRequiredNullableProperties"
+              }
+            },
             "properties": [
               {
-                "$id": "268",
+                "$id": "270",
                 "kind": "property",
                 "name": "requiredNullablePrimitive",
                 "serializedName": "requiredNullablePrimitive",
                 "doc": "required nullable primitive type",
                 "type": {
-                  "$id": "269",
+                  "$id": "271",
                   "kind": "nullable",
                   "type": {
-                    "$id": "270",
+                    "$id": "272",
                     "kind": "int32",
                     "name": "int32",
                     "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -2878,13 +2919,13 @@
                 "isHttpMetadata": false
               },
               {
-                "$id": "271",
+                "$id": "273",
                 "kind": "property",
                 "name": "requiredExtensibleEnum",
                 "serializedName": "requiredExtensibleEnum",
                 "doc": "required nullable extensible enum type",
                 "type": {
-                  "$id": "272",
+                  "$id": "274",
                   "kind": "nullable",
                   "type": {
                     "$ref": "22"
@@ -2905,13 +2946,13 @@
                 "isHttpMetadata": false
               },
               {
-                "$id": "273",
+                "$id": "275",
                 "kind": "property",
                 "name": "requiredFixedEnum",
                 "serializedName": "requiredFixedEnum",
                 "doc": "required nullable fixed enum type",
                 "type": {
-                  "$id": "274",
+                  "$id": "276",
                   "kind": "nullable",
                   "type": {
                     "$ref": "17"
@@ -2947,13 +2988,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "275",
+          "$id": "277",
           "kind": "property",
           "name": "requiredBytes",
           "serializedName": "requiredBytes",
           "doc": "Required bytes",
           "type": {
-            "$id": "276",
+            "$id": "278",
             "kind": "bytes",
             "name": "bytes",
             "encode": "base64",
@@ -2976,10 +3017,10 @@
       ]
     },
     {
-      "$ref": "267"
+      "$ref": "269"
     },
     {
-      "$id": "277",
+      "$id": "279",
       "kind": "model",
       "name": "Friend",
       "namespace": "SampleTypeSpec",
@@ -2987,15 +3028,20 @@
       "usage": "Output,Spread,Json",
       "doc": "this is not a friendly model but with a friendly name",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "NotFriend"
+        }
+      },
       "properties": [
         {
-          "$id": "278",
+          "$id": "280",
           "kind": "property",
           "name": "name",
           "serializedName": "name",
           "doc": "name of the NotFriend",
           "type": {
-            "$id": "279",
+            "$id": "281",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3017,7 +3063,7 @@
       ]
     },
     {
-      "$id": "280",
+      "$id": "282",
       "kind": "model",
       "name": "RenamedModel",
       "namespace": "SampleTypeSpec",
@@ -3025,15 +3071,20 @@
       "usage": "Output,Spread,Json",
       "doc": "this is a model with a client name",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "ModelWithClientName"
+        }
+      },
       "properties": [
         {
-          "$id": "281",
+          "$id": "283",
           "kind": "property",
           "name": "otherName",
           "serializedName": "otherName",
           "doc": "name of the ModelWithClientName",
           "type": {
-            "$id": "282",
+            "$id": "284",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3055,31 +3106,41 @@
       ]
     },
     {
-      "$id": "283",
+      "$id": "285",
       "kind": "model",
       "name": "ReturnsAnonymousModelResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": []
     },
     {
-      "$id": "284",
+      "$id": "286",
       "kind": "model",
       "name": "ListWithNextLinkResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
-          "$id": "285",
+          "$id": "287",
           "kind": "property",
           "name": "things",
           "serializedName": "things",
           "type": {
-            "$id": "286",
+            "$id": "288",
             "kind": "array",
             "name": "ArrayThing",
             "valueType": {
@@ -3102,12 +3163,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "287",
+          "$id": "289",
           "kind": "property",
           "name": "next",
           "serializedName": "next",
           "type": {
-            "$id": "288",
+            "$id": "290",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url",
@@ -3129,21 +3190,26 @@
       ]
     },
     {
-      "$id": "289",
+      "$id": "291",
       "kind": "model",
       "name": "ListWithStringNextLinkResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithStringNextLink.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
-          "$id": "290",
+          "$id": "292",
           "kind": "property",
           "name": "things",
           "serializedName": "things",
           "type": {
-            "$ref": "286"
+            "$ref": "288"
           },
           "optional": false,
           "readOnly": false,
@@ -3159,12 +3225,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "291",
+          "$id": "293",
           "kind": "property",
           "name": "next",
           "serializedName": "next",
           "type": {
-            "$id": "292",
+            "$id": "294",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3186,21 +3252,26 @@
       ]
     },
     {
-      "$id": "293",
+      "$id": "295",
       "kind": "model",
       "name": "ListWithContinuationTokenResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
-          "$id": "294",
+          "$id": "296",
           "kind": "property",
           "name": "things",
           "serializedName": "things",
           "type": {
-            "$ref": "286"
+            "$ref": "288"
           },
           "optional": false,
           "readOnly": false,
@@ -3216,12 +3287,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "295",
+          "$id": "297",
           "kind": "property",
           "name": "nextToken",
           "serializedName": "nextToken",
           "type": {
-            "$id": "296",
+            "$id": "298",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3243,21 +3314,26 @@
       ]
     },
     {
-      "$id": "297",
+      "$id": "299",
       "kind": "model",
       "name": "ListWithContinuationTokenHeaderResponseResponse",
       "namespace": "",
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
-          "$id": "298",
+          "$id": "300",
           "kind": "property",
           "name": "things",
           "serializedName": "things",
           "type": {
-            "$ref": "286"
+            "$ref": "288"
           },
           "optional": false,
           "readOnly": false,
@@ -3275,21 +3351,26 @@
       ]
     },
     {
-      "$id": "299",
+      "$id": "301",
       "kind": "model",
       "name": "PageThing",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.Page",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Page"
+        }
+      },
       "properties": [
         {
-          "$id": "300",
+          "$id": "302",
           "kind": "property",
           "name": "items",
           "serializedName": "items",
           "type": {
-            "$ref": "286"
+            "$ref": "288"
           },
           "optional": false,
           "readOnly": false,
@@ -3307,22 +3388,27 @@
       ]
     },
     {
-      "$id": "301",
+      "$id": "303",
       "kind": "model",
       "name": "ModelWithEmbeddedNonBodyParameters",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters",
       "usage": "Input,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "ModelWithEmbeddedNonBodyParameters"
+        }
+      },
       "properties": [
         {
-          "$id": "302",
+          "$id": "304",
           "kind": "property",
           "name": "name",
           "serializedName": "name",
           "doc": "name of the ModelWithEmbeddedNonBodyParameters",
           "type": {
-            "$id": "303",
+            "$id": "305",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3342,13 +3428,13 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "304",
+          "$id": "306",
           "kind": "property",
           "name": "requiredHeader",
           "serializedName": "requiredHeader",
           "doc": "required header parameter",
           "type": {
-            "$id": "305",
+            "$id": "307",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3368,13 +3454,13 @@
           "isHttpMetadata": true
         },
         {
-          "$id": "306",
+          "$id": "308",
           "kind": "property",
           "name": "optionalHeader",
           "serializedName": "optionalHeader",
           "doc": "optional header parameter",
           "type": {
-            "$id": "307",
+            "$id": "309",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3394,13 +3480,13 @@
           "isHttpMetadata": true
         },
         {
-          "$id": "308",
+          "$id": "310",
           "kind": "property",
           "name": "requiredQuery",
           "serializedName": "requiredQuery",
           "doc": "required query parameter",
           "type": {
-            "$id": "309",
+            "$id": "311",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3420,13 +3506,13 @@
           "isHttpMetadata": true
         },
         {
-          "$id": "310",
+          "$id": "312",
           "kind": "property",
           "name": "optionalQuery",
           "serializedName": "optionalQuery",
           "doc": "optional query parameter",
           "type": {
-            "$id": "311",
+            "$id": "313",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3448,7 +3534,7 @@
       ]
     },
     {
-      "$id": "312",
+      "$id": "314",
       "kind": "model",
       "name": "DynamicModel",
       "namespace": "SampleTypeSpec",
@@ -3461,14 +3547,19 @@
           "arguments": {}
         }
       ],
+      "serializationOptions": {
+        "json": {
+          "name": "DynamicModel"
+        }
+      },
       "properties": [
         {
-          "$id": "313",
+          "$id": "315",
           "kind": "property",
           "name": "name",
           "serializedName": "name",
           "type": {
-            "$id": "314",
+            "$id": "316",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3488,12 +3579,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "315",
+          "$id": "317",
           "kind": "property",
           "name": "optionalUnknown",
           "serializedName": "optionalUnknown",
           "type": {
-            "$id": "316",
+            "$id": "318",
             "kind": "unknown",
             "name": "unknown",
             "crossLanguageDefinitionId": "",
@@ -3513,12 +3604,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "317",
+          "$id": "319",
           "kind": "property",
           "name": "optionalInt",
           "serializedName": "optionalInt",
           "type": {
-            "$id": "318",
+            "$id": "320",
             "kind": "int32",
             "name": "int32",
             "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -3538,12 +3629,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "319",
+          "$id": "321",
           "kind": "property",
           "name": "optionalNullableList",
           "serializedName": "optionalNullableList",
           "type": {
-            "$id": "320",
+            "$id": "322",
             "kind": "nullable",
             "type": {
               "$ref": "225"
@@ -3564,12 +3655,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "321",
+          "$id": "323",
           "kind": "property",
           "name": "requiredNullableList",
           "serializedName": "requiredNullableList",
           "type": {
-            "$id": "322",
+            "$id": "324",
             "kind": "nullable",
             "type": {
               "$ref": "225"
@@ -3590,25 +3681,25 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "323",
+          "$id": "325",
           "kind": "property",
           "name": "optionalNullableDictionary",
           "serializedName": "optionalNullableDictionary",
           "type": {
-            "$id": "324",
+            "$id": "326",
             "kind": "nullable",
             "type": {
-              "$id": "325",
+              "$id": "327",
               "kind": "dict",
               "keyType": {
-                "$id": "326",
+                "$id": "328",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
                 "decorators": []
               },
               "valueType": {
-                "$id": "327",
+                "$id": "329",
                 "kind": "int32",
                 "name": "int32",
                 "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -3632,15 +3723,15 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "328",
+          "$id": "330",
           "kind": "property",
           "name": "requiredNullableDictionary",
           "serializedName": "requiredNullableDictionary",
           "type": {
-            "$id": "329",
+            "$id": "331",
             "kind": "nullable",
             "type": {
-              "$ref": "325"
+              "$ref": "327"
             },
             "namespace": "SampleTypeSpec"
           },
@@ -3658,12 +3749,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "330",
+          "$id": "332",
           "kind": "property",
           "name": "primitiveDictionary",
           "serializedName": "primitiveDictionary",
           "type": {
-            "$ref": "325"
+            "$ref": "327"
           },
           "optional": false,
           "readOnly": false,
@@ -3679,12 +3770,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "331",
+          "$id": "333",
           "kind": "property",
           "name": "foo",
           "serializedName": "foo",
           "type": {
-            "$id": "332",
+            "$id": "334",
             "kind": "model",
             "name": "AnotherDynamicModel",
             "namespace": "SampleTypeSpec",
@@ -3697,14 +3788,19 @@
                 "arguments": {}
               }
             ],
+            "serializationOptions": {
+              "json": {
+                "name": "AnotherDynamicModel"
+              }
+            },
             "properties": [
               {
-                "$id": "333",
+                "$id": "335",
                 "kind": "property",
                 "name": "bar",
                 "serializedName": "bar",
                 "type": {
-                  "$id": "334",
+                  "$id": "336",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3739,16 +3835,16 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "335",
+          "$id": "337",
           "kind": "property",
           "name": "listFoo",
           "serializedName": "listFoo",
           "type": {
-            "$id": "336",
+            "$id": "338",
             "kind": "array",
             "name": "ArrayAnotherDynamicModel",
             "valueType": {
-              "$ref": "332"
+              "$ref": "334"
             },
             "crossLanguageDefinitionId": "TypeSpec.Array",
             "decorators": []
@@ -3767,16 +3863,16 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "337",
+          "$id": "339",
           "kind": "property",
           "name": "listOfListFoo",
           "serializedName": "listOfListFoo",
           "type": {
-            "$id": "338",
+            "$id": "340",
             "kind": "array",
             "name": "ArrayArray",
             "valueType": {
-              "$ref": "336"
+              "$ref": "338"
             },
             "crossLanguageDefinitionId": "TypeSpec.Array",
             "decorators": []
@@ -3795,22 +3891,22 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "339",
+          "$id": "341",
           "kind": "property",
           "name": "dictionaryFoo",
           "serializedName": "dictionaryFoo",
           "type": {
-            "$id": "340",
+            "$id": "342",
             "kind": "dict",
             "keyType": {
-              "$id": "341",
+              "$id": "343",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
               "decorators": []
             },
             "valueType": {
-              "$ref": "332"
+              "$ref": "334"
             },
             "decorators": []
           },
@@ -3828,22 +3924,22 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "342",
+          "$id": "344",
           "kind": "property",
           "name": "dictionaryOfDictionaryFoo",
           "serializedName": "dictionaryOfDictionaryFoo",
           "type": {
-            "$id": "343",
+            "$id": "345",
             "kind": "dict",
             "keyType": {
-              "$id": "344",
+              "$id": "346",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
               "decorators": []
             },
             "valueType": {
-              "$ref": "340"
+              "$ref": "342"
             },
             "decorators": []
           },
@@ -3861,22 +3957,22 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "345",
+          "$id": "347",
           "kind": "property",
           "name": "dictionaryListFoo",
           "serializedName": "dictionaryListFoo",
           "type": {
-            "$id": "346",
+            "$id": "348",
             "kind": "dict",
             "keyType": {
-              "$id": "347",
+              "$id": "349",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
               "decorators": []
             },
             "valueType": {
-              "$ref": "336"
+              "$ref": "338"
             },
             "decorators": []
           },
@@ -3894,16 +3990,16 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "348",
+          "$id": "350",
           "kind": "property",
           "name": "listOfDictionaryFoo",
           "serializedName": "listOfDictionaryFoo",
           "type": {
-            "$id": "349",
+            "$id": "351",
             "kind": "array",
             "name": "ArrayRecord",
             "valueType": {
-              "$ref": "340"
+              "$ref": "342"
             },
             "crossLanguageDefinitionId": "TypeSpec.Array",
             "decorators": []
@@ -3924,10 +4020,10 @@
       ]
     },
     {
-      "$ref": "332"
+      "$ref": "334"
     },
     {
-      "$id": "350",
+      "$id": "352",
       "kind": "model",
       "name": "Animal",
       "namespace": "SampleTypeSpec",
@@ -3935,14 +4031,19 @@
       "usage": "Input,Output,Json",
       "doc": "Base animal with discriminator",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Animal"
+        }
+      },
       "discriminatorProperty": {
-        "$id": "351",
+        "$id": "353",
         "kind": "property",
         "name": "kind",
         "serializedName": "kind",
         "doc": "The kind of animal",
         "type": {
-          "$id": "352",
+          "$id": "354",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3963,16 +4064,16 @@
       },
       "properties": [
         {
-          "$ref": "351"
+          "$ref": "353"
         },
         {
-          "$id": "353",
+          "$id": "355",
           "kind": "property",
           "name": "name",
           "serializedName": "name",
           "doc": "Name of the animal",
           "type": {
-            "$id": "354",
+            "$id": "356",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3994,7 +4095,7 @@
       ],
       "discriminatedSubtypes": {
         "pet": {
-          "$id": "355",
+          "$id": "357",
           "kind": "model",
           "name": "Pet",
           "namespace": "SampleTypeSpec",
@@ -4003,8 +4104,13 @@
           "doc": "Pet is a discriminated animal",
           "discriminatorValue": "pet",
           "decorators": [],
+          "serializationOptions": {
+            "json": {
+              "name": "Pet"
+            }
+          },
           "discriminatorProperty": {
-            "$id": "356",
+            "$id": "358",
             "kind": "property",
             "name": "kind",
             "serializedName": "kind",
@@ -4025,20 +4131,20 @@
             "isHttpMetadata": false
           },
           "baseModel": {
-            "$ref": "350"
+            "$ref": "352"
           },
           "properties": [
             {
-              "$ref": "356"
+              "$ref": "358"
             },
             {
-              "$id": "357",
+              "$id": "359",
               "kind": "property",
               "name": "trained",
               "serializedName": "trained",
               "doc": "Whether the pet is trained",
               "type": {
-                "$id": "358",
+                "$id": "360",
                 "kind": "boolean",
                 "name": "boolean",
                 "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -4060,7 +4166,7 @@
           ],
           "discriminatedSubtypes": {
             "dog": {
-              "$id": "359",
+              "$id": "361",
               "kind": "model",
               "name": "Dog",
               "namespace": "SampleTypeSpec",
@@ -4069,12 +4175,17 @@
               "doc": "Dog is a specific type of pet with hierarchy building",
               "discriminatorValue": "dog",
               "decorators": [],
+              "serializationOptions": {
+                "json": {
+                  "name": "Dog"
+                }
+              },
               "baseModel": {
-                "$ref": "355"
+                "$ref": "357"
               },
               "properties": [
                 {
-                  "$id": "360",
+                  "$id": "362",
                   "kind": "property",
                   "name": "kind",
                   "serializedName": "kind",
@@ -4095,13 +4206,13 @@
                   "isHttpMetadata": false
                 },
                 {
-                  "$id": "361",
+                  "$id": "363",
                   "kind": "property",
                   "name": "breed",
                   "serializedName": "breed",
                   "doc": "The breed of the dog",
                   "type": {
-                    "$id": "362",
+                    "$id": "364",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4125,32 +4236,37 @@
           }
         },
         "dog": {
-          "$ref": "359"
+          "$ref": "361"
         }
       }
     },
     {
-      "$ref": "355"
+      "$ref": "357"
     },
     {
-      "$ref": "359"
+      "$ref": "361"
     },
     {
-      "$id": "363",
+      "$id": "365",
       "kind": "model",
       "name": "GetWidgetMetricsResponse",
       "namespace": "SampleTypeSpec",
       "crossLanguageDefinitionId": "SampleTypeSpec.getWidgetMetrics.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
-          "$id": "364",
+          "$id": "366",
           "kind": "property",
           "name": "numSold",
           "serializedName": "numSold",
           "type": {
-            "$id": "365",
+            "$id": "367",
             "kind": "int32",
             "name": "int32",
             "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -4170,12 +4286,12 @@
           "isHttpMetadata": false
         },
         {
-          "$id": "366",
+          "$id": "368",
           "kind": "property",
           "name": "averagePrice",
           "serializedName": "averagePrice",
           "type": {
-            "$id": "367",
+            "$id": "369",
             "kind": "float32",
             "name": "float32",
             "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -4199,14 +4315,14 @@
   ],
   "clients": [
     {
-      "$id": "368",
+      "$id": "370",
       "kind": "client",
       "name": "SampleTypeSpecClient",
       "namespace": "SampleTypeSpec",
       "doc": "This is a sample typespec project.",
       "methods": [
         {
-          "$id": "369",
+          "$id": "371",
           "kind": "basic",
           "name": "sayHi",
           "accessibility": "public",
@@ -4216,19 +4332,19 @@
           ],
           "doc": "Return hi",
           "operation": {
-            "$id": "370",
+            "$id": "372",
             "name": "sayHi",
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "371",
+                "$id": "373",
                 "kind": "header",
                 "name": "headParameter",
                 "serializedName": "head-parameter",
                 "type": {
-                  "$id": "372",
+                  "$id": "374",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4243,12 +4359,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.sayHi.headParameter"
               },
               {
-                "$id": "373",
+                "$id": "375",
                 "kind": "query",
                 "name": "queryParameter",
                 "serializedName": "queryParameter",
                 "type": {
-                  "$id": "374",
+                  "$id": "376",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4263,12 +4379,12 @@
                 "readOnly": false
               },
               {
-                "$id": "375",
+                "$id": "377",
                 "kind": "query",
                 "name": "optionalQuery",
                 "serializedName": "optionalQuery",
                 "type": {
-                  "$id": "376",
+                  "$id": "378",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4283,7 +4399,7 @@
                 "readOnly": false
               },
               {
-                "$id": "377",
+                "$id": "379",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -4321,16 +4437,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.sayHi",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "378",
+              "$id": "380",
               "kind": "method",
               "name": "headParameter",
               "serializedName": "head-parameter",
               "type": {
-                "$id": "379",
+                "$id": "381",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4346,12 +4463,12 @@
               "decorators": []
             },
             {
-              "$id": "380",
+              "$id": "382",
               "kind": "method",
               "name": "queryParameter",
               "serializedName": "queryParameter",
               "type": {
-                "$id": "381",
+                "$id": "383",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4367,12 +4484,12 @@
               "decorators": []
             },
             {
-              "$id": "382",
+              "$id": "384",
               "kind": "method",
               "name": "optionalQuery",
               "serializedName": "optionalQuery",
               "type": {
-                "$id": "383",
+                "$id": "385",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4388,7 +4505,7 @@
               "decorators": []
             },
             {
-              "$id": "384",
+              "$id": "386",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -4416,7 +4533,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.sayHi"
         },
         {
-          "$id": "385",
+          "$id": "387",
           "kind": "basic",
           "name": "helloAgain",
           "accessibility": "public",
@@ -4426,19 +4543,19 @@
           ],
           "doc": "Return hi again",
           "operation": {
-            "$id": "386",
+            "$id": "388",
             "name": "helloAgain",
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "387",
+                "$id": "389",
                 "kind": "header",
                 "name": "p1",
                 "serializedName": "p1",
                 "type": {
-                  "$id": "388",
+                  "$id": "390",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4453,7 +4570,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain.p1"
               },
               {
-                "$id": "389",
+                "$id": "391",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -4469,12 +4586,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain.contentType"
               },
               {
-                "$id": "390",
+                "$id": "392",
                 "kind": "path",
                 "name": "p2",
                 "serializedName": "p2",
                 "type": {
-                  "$id": "391",
+                  "$id": "393",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4492,7 +4609,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain.p2"
               },
               {
-                "$id": "392",
+                "$id": "394",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -4508,12 +4625,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain.accept"
               },
               {
-                "$id": "393",
+                "$id": "395",
                 "kind": "body",
                 "name": "action",
                 "serializedName": "action",
                 "type": {
-                  "$ref": "229"
+                  "$ref": "231"
                 },
                 "isApiVersion": false,
                 "contentTypes": [
@@ -4533,7 +4650,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "229"
+                  "$ref": "231"
                 },
                 "headers": [],
                 "isErrorResponse": false,
@@ -4552,16 +4669,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "394",
+              "$id": "396",
               "kind": "method",
               "name": "p1",
               "serializedName": "p1",
               "type": {
-                "$id": "395",
+                "$id": "397",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4577,12 +4695,12 @@
               "decorators": []
             },
             {
-              "$id": "396",
+              "$id": "398",
               "kind": "method",
               "name": "action",
               "serializedName": "action",
               "type": {
-                "$ref": "229"
+                "$ref": "231"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -4594,7 +4712,7 @@
               "decorators": []
             },
             {
-              "$id": "397",
+              "$id": "399",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -4611,12 +4729,12 @@
               "decorators": []
             },
             {
-              "$id": "398",
+              "$id": "400",
               "kind": "method",
               "name": "p2",
               "serializedName": "p2",
               "type": {
-                "$id": "399",
+                "$id": "401",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4632,7 +4750,7 @@
               "decorators": []
             },
             {
-              "$id": "400",
+              "$id": "402",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -4651,7 +4769,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "229"
+              "$ref": "231"
             }
           },
           "isOverride": false,
@@ -4660,7 +4778,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain"
         },
         {
-          "$id": "401",
+          "$id": "403",
           "kind": "basic",
           "name": "noContentType",
           "accessibility": "public",
@@ -4670,19 +4788,19 @@
           ],
           "doc": "Return hi again",
           "operation": {
-            "$id": "402",
+            "$id": "404",
             "name": "noContentType",
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "403",
+                "$id": "405",
                 "kind": "header",
                 "name": "p1",
                 "serializedName": "p1",
                 "type": {
-                  "$id": "404",
+                  "$id": "406",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4697,12 +4815,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.noContentType.p1"
               },
               {
-                "$id": "405",
+                "$id": "407",
                 "kind": "path",
                 "name": "p2",
                 "serializedName": "p2",
                 "type": {
-                  "$id": "406",
+                  "$id": "408",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4720,7 +4838,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.noContentType.p2"
               },
               {
-                "$id": "407",
+                "$id": "409",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -4737,7 +4855,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.noContentType.contentType"
               },
               {
-                "$id": "408",
+                "$id": "410",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -4753,12 +4871,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.noContentType.accept"
               },
               {
-                "$id": "409",
+                "$id": "411",
                 "kind": "body",
                 "name": "action",
                 "serializedName": "action",
                 "type": {
-                  "$ref": "229"
+                  "$ref": "231"
                 },
                 "isApiVersion": false,
                 "contentTypes": [
@@ -4778,7 +4896,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "229"
+                  "$ref": "231"
                 },
                 "headers": [],
                 "isErrorResponse": false,
@@ -4797,16 +4915,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": false,
             "crossLanguageDefinitionId": "SampleTypeSpec.noContentType",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "410",
+              "$id": "412",
               "kind": "method",
               "name": "p1",
               "serializedName": "p1",
               "type": {
-                "$id": "411",
+                "$id": "413",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4822,12 +4941,12 @@
               "decorators": []
             },
             {
-              "$id": "412",
+              "$id": "414",
               "kind": "method",
               "name": "action",
               "serializedName": "action",
               "type": {
-                "$ref": "229"
+                "$ref": "231"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -4839,12 +4958,12 @@
               "decorators": []
             },
             {
-              "$id": "413",
+              "$id": "415",
               "kind": "method",
               "name": "p2",
               "serializedName": "p2",
               "type": {
-                "$id": "414",
+                "$id": "416",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4860,7 +4979,7 @@
               "decorators": []
             },
             {
-              "$id": "415",
+              "$id": "417",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -4878,7 +4997,7 @@
               "decorators": []
             },
             {
-              "$id": "416",
+              "$id": "418",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -4897,7 +5016,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "229"
+              "$ref": "231"
             }
           },
           "isOverride": false,
@@ -4906,7 +5025,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.noContentType"
         },
         {
-          "$id": "417",
+          "$id": "419",
           "kind": "basic",
           "name": "helloDemo2",
           "accessibility": "public",
@@ -4916,14 +5035,14 @@
           ],
           "doc": "Return hi in demo2",
           "operation": {
-            "$id": "418",
+            "$id": "420",
             "name": "helloDemo2",
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi in demo2",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "419",
+                "$id": "421",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -4961,11 +5080,12 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.helloDemo2",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "420",
+              "$id": "422",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -4993,7 +5113,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.helloDemo2"
         },
         {
-          "$id": "421",
+          "$id": "423",
           "kind": "basic",
           "name": "createLiteral",
           "accessibility": "public",
@@ -5003,14 +5123,14 @@
           ],
           "doc": "Create with literal value",
           "operation": {
-            "$id": "422",
+            "$id": "424",
             "name": "createLiteral",
             "resourceName": "SampleTypeSpec",
             "doc": "Create with literal value",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "423",
+                "$id": "425",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -5027,7 +5147,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral.contentType"
               },
               {
-                "$id": "424",
+                "$id": "426",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -5043,7 +5163,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral.accept"
               },
               {
-                "$id": "425",
+                "$id": "427",
                 "kind": "body",
                 "name": "body",
                 "serializedName": "body",
@@ -5087,11 +5207,12 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "426",
+              "$id": "428",
               "kind": "method",
               "name": "body",
               "serializedName": "body",
@@ -5108,7 +5229,7 @@
               "decorators": []
             },
             {
-              "$id": "427",
+              "$id": "429",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -5126,7 +5247,7 @@
               "decorators": []
             },
             {
-              "$id": "428",
+              "$id": "430",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -5154,7 +5275,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral"
         },
         {
-          "$id": "429",
+          "$id": "431",
           "kind": "basic",
           "name": "helloLiteral",
           "accessibility": "public",
@@ -5164,14 +5285,14 @@
           ],
           "doc": "Send literal parameters",
           "operation": {
-            "$id": "430",
+            "$id": "432",
             "name": "helloLiteral",
             "resourceName": "SampleTypeSpec",
             "doc": "Send literal parameters",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "431",
+                "$id": "433",
                 "kind": "header",
                 "name": "p1",
                 "serializedName": "p1",
@@ -5187,7 +5308,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral.p1"
               },
               {
-                "$id": "432",
+                "$id": "434",
                 "kind": "path",
                 "name": "p2",
                 "serializedName": "p2",
@@ -5206,7 +5327,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral.p2"
               },
               {
-                "$id": "433",
+                "$id": "435",
                 "kind": "query",
                 "name": "p3",
                 "serializedName": "p3",
@@ -5222,7 +5343,7 @@
                 "readOnly": false
               },
               {
-                "$id": "434",
+                "$id": "436",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -5260,11 +5381,12 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "435",
+              "$id": "437",
               "kind": "method",
               "name": "p1",
               "serializedName": "p1",
@@ -5281,7 +5403,7 @@
               "decorators": []
             },
             {
-              "$id": "436",
+              "$id": "438",
               "kind": "method",
               "name": "p2",
               "serializedName": "p2",
@@ -5298,7 +5420,7 @@
               "decorators": []
             },
             {
-              "$id": "437",
+              "$id": "439",
               "kind": "method",
               "name": "p3",
               "serializedName": "p3",
@@ -5315,7 +5437,7 @@
               "decorators": []
             },
             {
-              "$id": "438",
+              "$id": "440",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -5343,7 +5465,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral"
         },
         {
-          "$id": "439",
+          "$id": "441",
           "kind": "basic",
           "name": "topAction",
           "accessibility": "public",
@@ -5353,24 +5475,24 @@
           ],
           "doc": "top level method",
           "operation": {
-            "$id": "440",
+            "$id": "442",
             "name": "topAction",
             "resourceName": "SampleTypeSpec",
             "doc": "top level method",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "441",
+                "$id": "443",
                 "kind": "path",
                 "name": "action",
                 "serializedName": "action",
                 "type": {
-                  "$id": "442",
+                  "$id": "444",
                   "kind": "utcDateTime",
                   "name": "utcDateTime",
                   "encode": "rfc3339",
                   "wireType": {
-                    "$id": "443",
+                    "$id": "445",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -5391,7 +5513,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.topAction.action"
               },
               {
-                "$id": "444",
+                "$id": "446",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -5429,21 +5551,22 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.topAction",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "445",
+              "$id": "447",
               "kind": "method",
               "name": "action",
               "serializedName": "action",
               "type": {
-                "$id": "446",
+                "$id": "448",
                 "kind": "utcDateTime",
                 "name": "utcDateTime",
                 "encode": "rfc3339",
                 "wireType": {
-                  "$id": "447",
+                  "$id": "449",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -5462,7 +5585,7 @@
               "decorators": []
             },
             {
-              "$id": "448",
+              "$id": "450",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -5490,7 +5613,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.topAction"
         },
         {
-          "$id": "449",
+          "$id": "451",
           "kind": "basic",
           "name": "topAction2",
           "accessibility": "public",
@@ -5500,14 +5623,14 @@
           ],
           "doc": "top level method2",
           "operation": {
-            "$id": "450",
+            "$id": "452",
             "name": "topAction2",
             "resourceName": "SampleTypeSpec",
             "doc": "top level method2",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "451",
+                "$id": "453",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -5545,11 +5668,12 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": false,
             "crossLanguageDefinitionId": "SampleTypeSpec.topAction2",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "452",
+              "$id": "454",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -5577,7 +5701,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.topAction2"
         },
         {
-          "$id": "453",
+          "$id": "455",
           "kind": "basic",
           "name": "patchAction",
           "accessibility": "public",
@@ -5587,14 +5711,14 @@
           ],
           "doc": "top level patch",
           "operation": {
-            "$id": "454",
+            "$id": "456",
             "name": "patchAction",
             "resourceName": "SampleTypeSpec",
             "doc": "top level patch",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "455",
+                "$id": "457",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -5611,7 +5735,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.patchAction.contentType"
               },
               {
-                "$id": "456",
+                "$id": "458",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -5627,7 +5751,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.patchAction.accept"
               },
               {
-                "$id": "457",
+                "$id": "459",
                 "kind": "body",
                 "name": "body",
                 "serializedName": "body",
@@ -5671,11 +5795,12 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": false,
             "crossLanguageDefinitionId": "SampleTypeSpec.patchAction",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "458",
+              "$id": "460",
               "kind": "method",
               "name": "body",
               "serializedName": "body",
@@ -5692,7 +5817,7 @@
               "decorators": []
             },
             {
-              "$id": "459",
+              "$id": "461",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -5710,7 +5835,7 @@
               "decorators": []
             },
             {
-              "$id": "460",
+              "$id": "462",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -5738,7 +5863,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.patchAction"
         },
         {
-          "$id": "461",
+          "$id": "463",
           "kind": "basic",
           "name": "anonymousBody",
           "accessibility": "public",
@@ -5748,14 +5873,14 @@
           ],
           "doc": "body parameter without body decorator",
           "operation": {
-            "$id": "462",
+            "$id": "464",
             "name": "anonymousBody",
             "resourceName": "SampleTypeSpec",
             "doc": "body parameter without body decorator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "463",
+                "$id": "465",
                 "kind": "query",
                 "name": "requiredQueryParam",
                 "serializedName": "requiredQueryParam",
@@ -5771,7 +5896,7 @@
                 "readOnly": false
               },
               {
-                "$id": "464",
+                "$id": "466",
                 "kind": "header",
                 "name": "requiredHeader",
                 "serializedName": "required-header",
@@ -5787,7 +5912,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.requiredHeader"
               },
               {
-                "$id": "465",
+                "$id": "467",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -5804,7 +5929,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.contentType"
               },
               {
-                "$id": "466",
+                "$id": "468",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -5820,7 +5945,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.accept"
               },
               {
-                "$id": "467",
+                "$id": "469",
                 "kind": "body",
                 "name": "thing",
                 "serializedName": "thing",
@@ -5864,17 +5989,18 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "468",
+              "$id": "470",
               "kind": "method",
               "name": "name",
               "serializedName": "name",
               "doc": "name of the Thing",
               "type": {
-                "$id": "469",
+                "$id": "471",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -5890,7 +6016,7 @@
               "decorators": []
             },
             {
-              "$id": "470",
+              "$id": "472",
               "kind": "method",
               "name": "requiredUnion",
               "serializedName": "requiredUnion",
@@ -5908,7 +6034,7 @@
               "decorators": []
             },
             {
-              "$id": "471",
+              "$id": "473",
               "kind": "method",
               "name": "requiredLiteralString",
               "serializedName": "requiredLiteralString",
@@ -5926,7 +6052,7 @@
               "decorators": []
             },
             {
-              "$id": "472",
+              "$id": "474",
               "kind": "method",
               "name": "requiredNullableString",
               "serializedName": "requiredNullableString",
@@ -5944,7 +6070,7 @@
               "decorators": []
             },
             {
-              "$id": "473",
+              "$id": "475",
               "kind": "method",
               "name": "optionalNullableString",
               "serializedName": "optionalNullableString",
@@ -5962,7 +6088,7 @@
               "decorators": []
             },
             {
-              "$id": "474",
+              "$id": "476",
               "kind": "method",
               "name": "requiredLiteralInt",
               "serializedName": "requiredLiteralInt",
@@ -5980,7 +6106,7 @@
               "decorators": []
             },
             {
-              "$id": "475",
+              "$id": "477",
               "kind": "method",
               "name": "requiredLiteralFloat",
               "serializedName": "requiredLiteralFloat",
@@ -5998,7 +6124,7 @@
               "decorators": []
             },
             {
-              "$id": "476",
+              "$id": "478",
               "kind": "method",
               "name": "requiredLiteralBool",
               "serializedName": "requiredLiteralBool",
@@ -6016,18 +6142,18 @@
               "decorators": []
             },
             {
-              "$id": "477",
+              "$id": "479",
               "kind": "method",
               "name": "optionalLiteralString",
               "serializedName": "optionalLiteralString",
               "doc": "optional literal string",
               "type": {
-                "$id": "478",
+                "$id": "480",
                 "kind": "enum",
                 "name": "ThingOptionalLiteralString",
                 "crossLanguageDefinitionId": "",
                 "valueType": {
-                  "$id": "479",
+                  "$id": "481",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6035,12 +6161,12 @@
                 },
                 "values": [
                   {
-                    "$id": "480",
+                    "$id": "482",
                     "kind": "enumvalue",
                     "name": "reject",
                     "value": "reject",
                     "valueType": {
-                      "$id": "481",
+                      "$id": "483",
                       "kind": "string",
                       "decorators": [],
                       "doc": "A sequence of textual characters.",
@@ -6048,7 +6174,7 @@
                       "crossLanguageDefinitionId": "TypeSpec.string"
                     },
                     "enumType": {
-                      "$ref": "478"
+                      "$ref": "480"
                     },
                     "decorators": []
                   }
@@ -6069,7 +6195,7 @@
               "decorators": []
             },
             {
-              "$id": "482",
+              "$id": "484",
               "kind": "method",
               "name": "requiredNullableLiteralString",
               "serializedName": "requiredNullableLiteralString",
@@ -6087,18 +6213,18 @@
               "decorators": []
             },
             {
-              "$id": "483",
+              "$id": "485",
               "kind": "method",
               "name": "optionalLiteralInt",
               "serializedName": "optionalLiteralInt",
               "doc": "optional literal int",
               "type": {
-                "$id": "484",
+                "$id": "486",
                 "kind": "enum",
                 "name": "ThingOptionalLiteralInt",
                 "crossLanguageDefinitionId": "",
                 "valueType": {
-                  "$id": "485",
+                  "$id": "487",
                   "kind": "int32",
                   "name": "int32",
                   "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -6106,12 +6232,12 @@
                 },
                 "values": [
                   {
-                    "$id": "486",
+                    "$id": "488",
                     "kind": "enumvalue",
                     "name": "456",
                     "value": 456,
                     "valueType": {
-                      "$id": "487",
+                      "$id": "489",
                       "kind": "int32",
                       "decorators": [],
                       "doc": "A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)",
@@ -6119,7 +6245,7 @@
                       "crossLanguageDefinitionId": "TypeSpec.int32"
                     },
                     "enumType": {
-                      "$ref": "484"
+                      "$ref": "486"
                     },
                     "decorators": []
                   }
@@ -6140,18 +6266,18 @@
               "decorators": []
             },
             {
-              "$id": "488",
+              "$id": "490",
               "kind": "method",
               "name": "optionalLiteralFloat",
               "serializedName": "optionalLiteralFloat",
               "doc": "optional literal float",
               "type": {
-                "$id": "489",
+                "$id": "491",
                 "kind": "enum",
                 "name": "ThingOptionalLiteralFloat",
                 "crossLanguageDefinitionId": "",
                 "valueType": {
-                  "$id": "490",
+                  "$id": "492",
                   "kind": "float32",
                   "name": "float32",
                   "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -6159,12 +6285,12 @@
                 },
                 "values": [
                   {
-                    "$id": "491",
+                    "$id": "493",
                     "kind": "enumvalue",
                     "name": "4.56",
                     "value": 4.56,
                     "valueType": {
-                      "$id": "492",
+                      "$id": "494",
                       "kind": "float32",
                       "decorators": [],
                       "doc": "A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)",
@@ -6172,7 +6298,7 @@
                       "crossLanguageDefinitionId": "TypeSpec.float32"
                     },
                     "enumType": {
-                      "$ref": "489"
+                      "$ref": "491"
                     },
                     "decorators": []
                   }
@@ -6193,7 +6319,7 @@
               "decorators": []
             },
             {
-              "$id": "493",
+              "$id": "495",
               "kind": "method",
               "name": "optionalLiteralBool",
               "serializedName": "optionalLiteralBool",
@@ -6211,13 +6337,13 @@
               "decorators": []
             },
             {
-              "$id": "494",
+              "$id": "496",
               "kind": "method",
               "name": "requiredBadDescription",
               "serializedName": "requiredBadDescription",
               "doc": "description with xml <|endoftext|>",
               "type": {
-                "$id": "495",
+                "$id": "497",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6233,7 +6359,7 @@
               "decorators": []
             },
             {
-              "$id": "496",
+              "$id": "498",
               "kind": "method",
               "name": "optionalNullableList",
               "serializedName": "optionalNullableList",
@@ -6251,7 +6377,7 @@
               "decorators": []
             },
             {
-              "$id": "497",
+              "$id": "499",
               "kind": "method",
               "name": "requiredNullableList",
               "serializedName": "requiredNullableList",
@@ -6269,7 +6395,29 @@
               "decorators": []
             },
             {
-              "$id": "498",
+              "$id": "500",
+              "kind": "method",
+              "name": "propertyWithSpecialDocs",
+              "serializedName": "propertyWithSpecialDocs",
+              "doc": "This tests:\n- Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.\n- Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.\n- Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.\n- Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.\n- **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.\n- *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.",
+              "type": {
+                "$id": "501",
+                "kind": "string",
+                "name": "string",
+                "crossLanguageDefinitionId": "TypeSpec.string",
+                "decorators": []
+              },
+              "location": "Body",
+              "isApiVersion": false,
+              "optional": false,
+              "scope": "Method",
+              "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody.propertyWithSpecialDocs",
+              "readOnly": false,
+              "access": "public",
+              "decorators": []
+            },
+            {
+              "$id": "502",
               "kind": "method",
               "name": "requiredQueryParam",
               "serializedName": "requiredQueryParam",
@@ -6286,7 +6434,7 @@
               "decorators": []
             },
             {
-              "$id": "499",
+              "$id": "503",
               "kind": "method",
               "name": "requiredHeader",
               "serializedName": "required-header",
@@ -6303,7 +6451,7 @@
               "decorators": []
             },
             {
-              "$id": "500",
+              "$id": "504",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -6321,7 +6469,7 @@
               "decorators": []
             },
             {
-              "$id": "501",
+              "$id": "505",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -6349,7 +6497,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody"
         },
         {
-          "$id": "502",
+          "$id": "506",
           "kind": "basic",
           "name": "friendlyModel",
           "accessibility": "public",
@@ -6359,14 +6507,14 @@
           ],
           "doc": "Model can have its friendly name",
           "operation": {
-            "$id": "503",
+            "$id": "507",
             "name": "friendlyModel",
             "resourceName": "SampleTypeSpec",
             "doc": "Model can have its friendly name",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "504",
+                "$id": "508",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -6383,7 +6531,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel.contentType"
               },
               {
-                "$id": "505",
+                "$id": "509",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -6399,12 +6547,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel.accept"
               },
               {
-                "$id": "506",
+                "$id": "510",
                 "kind": "body",
                 "name": "friend",
                 "serializedName": "friend",
                 "type": {
-                  "$ref": "277"
+                  "$ref": "279"
                 },
                 "isApiVersion": false,
                 "contentTypes": [
@@ -6424,7 +6572,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "277"
+                  "$ref": "279"
                 },
                 "headers": [],
                 "isErrorResponse": false,
@@ -6443,17 +6591,18 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "507",
+              "$id": "511",
               "kind": "method",
               "name": "name",
               "serializedName": "name",
               "doc": "name of the NotFriend",
               "type": {
-                "$id": "508",
+                "$id": "512",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6469,7 +6618,7 @@
               "decorators": []
             },
             {
-              "$id": "509",
+              "$id": "513",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -6487,7 +6636,7 @@
               "decorators": []
             },
             {
-              "$id": "510",
+              "$id": "514",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -6506,7 +6655,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "277"
+              "$ref": "279"
             }
           },
           "isOverride": false,
@@ -6515,7 +6664,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel"
         },
         {
-          "$id": "511",
+          "$id": "515",
           "kind": "basic",
           "name": "addTimeHeader",
           "accessibility": "public",
@@ -6524,23 +6673,23 @@
             "2024-08-16-preview"
           ],
           "operation": {
-            "$id": "512",
+            "$id": "516",
             "name": "addTimeHeader",
             "resourceName": "SampleTypeSpec",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "513",
+                "$id": "517",
                 "kind": "header",
                 "name": "repeatabilityFirstSent",
                 "serializedName": "Repeatability-First-Sent",
                 "type": {
-                  "$id": "514",
+                  "$id": "518",
                   "kind": "utcDateTime",
                   "name": "utcDateTime",
                   "encode": "rfc7231",
                   "wireType": {
-                    "$id": "515",
+                    "$id": "519",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6574,21 +6723,22 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.addTimeHeader",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "516",
+              "$id": "520",
               "kind": "method",
               "name": "repeatabilityFirstSent",
               "serializedName": "Repeatability-First-Sent",
               "type": {
-                "$id": "517",
+                "$id": "521",
                 "kind": "utcDateTime",
                 "name": "utcDateTime",
                 "encode": "rfc7231",
                 "wireType": {
-                  "$id": "518",
+                  "$id": "522",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6614,7 +6764,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.addTimeHeader"
         },
         {
-          "$id": "519",
+          "$id": "523",
           "kind": "basic",
           "name": "projectedNameModel",
           "accessibility": "public",
@@ -6624,14 +6774,14 @@
           ],
           "doc": "Model can have its projected name",
           "operation": {
-            "$id": "520",
+            "$id": "524",
             "name": "projectedNameModel",
             "resourceName": "SampleTypeSpec",
             "doc": "Model can have its projected name",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "521",
+                "$id": "525",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -6648,7 +6798,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel.contentType"
               },
               {
-                "$id": "522",
+                "$id": "526",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -6664,12 +6814,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel.accept"
               },
               {
-                "$id": "523",
+                "$id": "527",
                 "kind": "body",
                 "name": "renamedModel",
                 "serializedName": "renamedModel",
                 "type": {
-                  "$ref": "280"
+                  "$ref": "282"
                 },
                 "isApiVersion": false,
                 "contentTypes": [
@@ -6689,7 +6839,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "280"
+                  "$ref": "282"
                 },
                 "headers": [],
                 "isErrorResponse": false,
@@ -6708,17 +6858,18 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "524",
+              "$id": "528",
               "kind": "method",
               "name": "otherName",
               "serializedName": "otherName",
               "doc": "name of the ModelWithClientName",
               "type": {
-                "$id": "525",
+                "$id": "529",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6734,7 +6885,7 @@
               "decorators": []
             },
             {
-              "$id": "526",
+              "$id": "530",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -6752,7 +6903,7 @@
               "decorators": []
             },
             {
-              "$id": "527",
+              "$id": "531",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -6771,7 +6922,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "280"
+              "$ref": "282"
             }
           },
           "isOverride": false,
@@ -6780,7 +6931,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel"
         },
         {
-          "$id": "528",
+          "$id": "532",
           "kind": "basic",
           "name": "returnsAnonymousModel",
           "accessibility": "public",
@@ -6790,14 +6941,14 @@
           ],
           "doc": "return anonymous model",
           "operation": {
-            "$id": "529",
+            "$id": "533",
             "name": "returnsAnonymousModel",
             "resourceName": "SampleTypeSpec",
             "doc": "return anonymous model",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "530",
+                "$id": "534",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -6819,7 +6970,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "283"
+                  "$ref": "285"
                 },
                 "headers": [],
                 "isErrorResponse": false,
@@ -6835,11 +6986,12 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "531",
+              "$id": "535",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -6858,7 +7010,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "283"
+              "$ref": "285"
             }
           },
           "isOverride": false,
@@ -6867,7 +7019,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel"
         },
         {
-          "$id": "532",
+          "$id": "536",
           "kind": "basic",
           "name": "getUnknownValue",
           "accessibility": "public",
@@ -6877,19 +7029,19 @@
           ],
           "doc": "get extensible enum",
           "operation": {
-            "$id": "533",
+            "$id": "537",
             "name": "getUnknownValue",
             "resourceName": "SampleTypeSpec",
             "doc": "get extensible enum",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "534",
+                "$id": "538",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
                 "type": {
-                  "$id": "535",
+                  "$id": "539",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6910,7 +7062,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$id": "536",
+                  "$id": "540",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6937,16 +7089,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.getUnknownValue",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "537",
+              "$id": "541",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
               "type": {
-                "$ref": "535"
+                "$ref": "539"
               },
               "location": "Header",
               "isApiVersion": false,
@@ -6960,7 +7113,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "536"
+              "$ref": "540"
             }
           },
           "isOverride": false,
@@ -6969,7 +7122,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.getUnknownValue"
         },
         {
-          "$id": "538",
+          "$id": "542",
           "kind": "basic",
           "name": "internalProtocol",
           "accessibility": "public",
@@ -6979,14 +7132,14 @@
           ],
           "doc": "When set protocol false and convenient true, then the protocol method should be internal",
           "operation": {
-            "$id": "539",
+            "$id": "543",
             "name": "internalProtocol",
             "resourceName": "SampleTypeSpec",
             "doc": "When set protocol false and convenient true, then the protocol method should be internal",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "540",
+                "$id": "544",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -7003,7 +7156,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol.contentType"
               },
               {
-                "$id": "541",
+                "$id": "545",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -7019,7 +7172,7 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol.accept"
               },
               {
-                "$id": "542",
+                "$id": "546",
                 "kind": "body",
                 "name": "body",
                 "serializedName": "body",
@@ -7063,11 +7216,12 @@
             "generateProtocolMethod": false,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "543",
+              "$id": "547",
               "kind": "method",
               "name": "body",
               "serializedName": "body",
@@ -7084,7 +7238,7 @@
               "decorators": []
             },
             {
-              "$id": "544",
+              "$id": "548",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -7102,7 +7256,7 @@
               "decorators": []
             },
             {
-              "$id": "545",
+              "$id": "549",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -7130,7 +7284,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol"
         },
         {
-          "$id": "546",
+          "$id": "550",
           "kind": "basic",
           "name": "stillConvenient",
           "accessibility": "public",
@@ -7140,7 +7294,7 @@
           ],
           "doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
           "operation": {
-            "$id": "547",
+            "$id": "551",
             "name": "stillConvenient",
             "resourceName": "SampleTypeSpec",
             "doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
@@ -7162,7 +7316,8 @@
             "generateProtocolMethod": false,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.stillConvenient",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [],
           "response": {},
@@ -7172,7 +7327,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.stillConvenient"
         },
         {
-          "$id": "548",
+          "$id": "552",
           "kind": "basic",
           "name": "headAsBoolean",
           "accessibility": "public",
@@ -7182,19 +7337,19 @@
           ],
           "doc": "head as boolean.",
           "operation": {
-            "$id": "549",
+            "$id": "553",
             "name": "headAsBoolean",
             "resourceName": "SampleTypeSpec",
             "doc": "head as boolean.",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "550",
+                "$id": "554",
                 "kind": "path",
                 "name": "id",
                 "serializedName": "id",
                 "type": {
-                  "$id": "551",
+                  "$id": "555",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7228,16 +7383,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.headAsBoolean",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "552",
+              "$id": "556",
               "kind": "method",
               "name": "id",
               "serializedName": "id",
               "type": {
-                "$id": "553",
+                "$id": "557",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7260,7 +7416,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.headAsBoolean"
         },
         {
-          "$id": "554",
+          "$id": "558",
           "kind": "basic",
           "name": "WithApiVersion",
           "accessibility": "public",
@@ -7270,19 +7426,19 @@
           ],
           "doc": "Return hi again",
           "operation": {
-            "$id": "555",
+            "$id": "559",
             "name": "WithApiVersion",
             "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "556",
+                "$id": "560",
                 "kind": "header",
                 "name": "p1",
                 "serializedName": "p1",
                 "type": {
-                  "$id": "557",
+                  "$id": "561",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7297,12 +7453,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion.p1"
               },
               {
-                "$id": "558",
+                "$id": "562",
                 "kind": "query",
                 "name": "apiVersion",
                 "serializedName": "apiVersion",
                 "type": {
-                  "$id": "559",
+                  "$id": "563",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7312,7 +7468,7 @@
                 "explode": false,
                 "defaultValue": {
                   "type": {
-                    "$id": "560",
+                    "$id": "564",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7342,16 +7498,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "561",
+              "$id": "565",
               "kind": "method",
               "name": "p1",
               "serializedName": "p1",
               "type": {
-                "$id": "562",
+                "$id": "566",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7374,7 +7531,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion"
         },
         {
-          "$id": "563",
+          "$id": "567",
           "kind": "paging",
           "name": "ListWithNextLink",
           "accessibility": "public",
@@ -7384,14 +7541,14 @@
           ],
           "doc": "List things with nextlink",
           "operation": {
-            "$id": "564",
+            "$id": "568",
             "name": "ListWithNextLink",
             "resourceName": "SampleTypeSpec",
             "doc": "List things with nextlink",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "565",
+                "$id": "569",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -7413,7 +7570,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "284"
+                  "$ref": "286"
                 },
                 "headers": [],
                 "isErrorResponse": false,
@@ -7429,11 +7586,12 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "566",
+              "$id": "570",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -7452,7 +7610,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "286"
+              "$ref": "288"
             },
             "resultSegments": [
               "things"
@@ -7476,7 +7634,7 @@
           }
         },
         {
-          "$id": "567",
+          "$id": "571",
           "kind": "paging",
           "name": "ListWithStringNextLink",
           "accessibility": "public",
@@ -7486,14 +7644,14 @@
           ],
           "doc": "List things with nextlink",
           "operation": {
-            "$id": "568",
+            "$id": "572",
             "name": "ListWithStringNextLink",
             "resourceName": "SampleTypeSpec",
             "doc": "List things with nextlink",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "569",
+                "$id": "573",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -7515,7 +7673,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "289"
+                  "$ref": "291"
                 },
                 "headers": [],
                 "isErrorResponse": false,
@@ -7531,11 +7689,12 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithStringNextLink",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "570",
+              "$id": "574",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -7554,7 +7713,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "286"
+              "$ref": "288"
             },
             "resultSegments": [
               "things"
@@ -7578,7 +7737,7 @@
           }
         },
         {
-          "$id": "571",
+          "$id": "575",
           "kind": "paging",
           "name": "ListWithContinuationToken",
           "accessibility": "public",
@@ -7588,19 +7747,19 @@
           ],
           "doc": "List things with continuation token",
           "operation": {
-            "$id": "572",
+            "$id": "576",
             "name": "ListWithContinuationToken",
             "resourceName": "SampleTypeSpec",
             "doc": "List things with continuation token",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "573",
+                "$id": "577",
                 "kind": "query",
                 "name": "token",
                 "serializedName": "token",
                 "type": {
-                  "$id": "574",
+                  "$id": "578",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7615,7 +7774,7 @@
                 "readOnly": false
               },
               {
-                "$id": "575",
+                "$id": "579",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -7637,7 +7796,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "293"
+                  "$ref": "295"
                 },
                 "headers": [],
                 "isErrorResponse": false,
@@ -7653,16 +7812,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "576",
+              "$id": "580",
               "kind": "method",
               "name": "token",
               "serializedName": "token",
               "type": {
-                "$id": "577",
+                "$id": "581",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7678,7 +7838,7 @@
               "decorators": []
             },
             {
-              "$id": "578",
+              "$id": "582",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -7697,7 +7857,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "286"
+              "$ref": "288"
             },
             "resultSegments": [
               "things"
@@ -7713,7 +7873,7 @@
             ],
             "continuationToken": {
               "parameter": {
-                "$ref": "573"
+                "$ref": "577"
               },
               "responseSegments": [
                 "nextToken"
@@ -7724,7 +7884,7 @@
           }
         },
         {
-          "$id": "579",
+          "$id": "583",
           "kind": "paging",
           "name": "ListWithContinuationTokenHeaderResponse",
           "accessibility": "public",
@@ -7734,19 +7894,19 @@
           ],
           "doc": "List things with continuation token header response",
           "operation": {
-            "$id": "580",
+            "$id": "584",
             "name": "ListWithContinuationTokenHeaderResponse",
             "resourceName": "SampleTypeSpec",
             "doc": "List things with continuation token header response",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "581",
+                "$id": "585",
                 "kind": "query",
                 "name": "token",
                 "serializedName": "token",
                 "type": {
-                  "$id": "582",
+                  "$id": "586",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7761,7 +7921,7 @@
                 "readOnly": false
               },
               {
-                "$id": "583",
+                "$id": "587",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -7783,14 +7943,14 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "297"
+                  "$ref": "299"
                 },
                 "headers": [
                   {
                     "name": "nextToken",
                     "nameInResponse": "next-token",
                     "type": {
-                      "$id": "584",
+                      "$id": "588",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7811,16 +7971,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "585",
+              "$id": "589",
               "kind": "method",
               "name": "token",
               "serializedName": "token",
               "type": {
-                "$id": "586",
+                "$id": "590",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7836,7 +7997,7 @@
               "decorators": []
             },
             {
-              "$id": "587",
+              "$id": "591",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -7855,7 +8016,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "286"
+              "$ref": "288"
             },
             "resultSegments": [
               "things"
@@ -7871,7 +8032,7 @@
             ],
             "continuationToken": {
               "parameter": {
-                "$ref": "581"
+                "$ref": "585"
               },
               "responseSegments": [
                 "next-token"
@@ -7882,7 +8043,7 @@
           }
         },
         {
-          "$id": "588",
+          "$id": "592",
           "kind": "paging",
           "name": "ListWithPaging",
           "accessibility": "public",
@@ -7892,14 +8053,14 @@
           ],
           "doc": "List things with paging",
           "operation": {
-            "$id": "589",
+            "$id": "593",
             "name": "ListWithPaging",
             "resourceName": "SampleTypeSpec",
             "doc": "List things with paging",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "590",
+                "$id": "594",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -7921,7 +8082,7 @@
                   200
                 ],
                 "bodyType": {
-                  "$ref": "299"
+                  "$ref": "301"
                 },
                 "headers": [],
                 "isErrorResponse": false,
@@ -7937,11 +8098,12 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.ListWithPaging",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "591",
+              "$id": "595",
               "kind": "method",
               "name": "accept",
               "serializedName": "Accept",
@@ -7960,7 +8122,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "286"
+              "$ref": "288"
             },
             "resultSegments": [
               "items"
@@ -7978,7 +8140,7 @@
           }
         },
         {
-          "$id": "592",
+          "$id": "596",
           "kind": "basic",
           "name": "EmbeddedParameters",
           "accessibility": "public",
@@ -7988,20 +8150,20 @@
           ],
           "doc": "An operation with embedded parameters within the body",
           "operation": {
-            "$id": "593",
+            "$id": "597",
             "name": "EmbeddedParameters",
             "resourceName": "SampleTypeSpec",
             "doc": "An operation with embedded parameters within the body",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "594",
+                "$id": "598",
                 "kind": "header",
                 "name": "requiredHeader",
                 "serializedName": "required-header",
                 "doc": "required header parameter",
                 "type": {
-                  "$id": "595",
+                  "$id": "599",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8016,13 +8178,13 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.requiredHeader"
               },
               {
-                "$id": "596",
+                "$id": "600",
                 "kind": "header",
                 "name": "optionalHeader",
                 "serializedName": "optional-header",
                 "doc": "optional header parameter",
                 "type": {
-                  "$id": "597",
+                  "$id": "601",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8037,13 +8199,13 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.optionalHeader"
               },
               {
-                "$id": "598",
+                "$id": "602",
                 "kind": "query",
                 "name": "requiredQuery",
                 "serializedName": "requiredQuery",
                 "doc": "required query parameter",
                 "type": {
-                  "$id": "599",
+                  "$id": "603",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8058,13 +8220,13 @@
                 "readOnly": false
               },
               {
-                "$id": "600",
+                "$id": "604",
                 "kind": "query",
                 "name": "optionalQuery",
                 "serializedName": "optionalQuery",
                 "doc": "optional query parameter",
                 "type": {
-                  "$id": "601",
+                  "$id": "605",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8079,7 +8241,7 @@
                 "readOnly": false
               },
               {
-                "$id": "602",
+                "$id": "606",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -8096,12 +8258,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.EmbeddedParameters.contentType"
               },
               {
-                "$id": "603",
+                "$id": "607",
                 "kind": "body",
                 "name": "body",
                 "serializedName": "body",
                 "type": {
-                  "$ref": "301"
+                  "$ref": "303"
                 },
                 "isApiVersion": false,
                 "contentTypes": [
@@ -8134,16 +8296,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.EmbeddedParameters",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "604",
+              "$id": "608",
               "kind": "method",
               "name": "body",
               "serializedName": "body",
               "type": {
-                "$ref": "301"
+                "$ref": "303"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -8155,7 +8318,7 @@
               "decorators": []
             },
             {
-              "$id": "605",
+              "$id": "609",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -8180,7 +8343,7 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.EmbeddedParameters"
         },
         {
-          "$id": "606",
+          "$id": "610",
           "kind": "basic",
           "name": "DynamicModelOperation",
           "accessibility": "public",
@@ -8190,14 +8353,14 @@
           ],
           "doc": "An operation with a dynamic model",
           "operation": {
-            "$id": "607",
+            "$id": "611",
             "name": "DynamicModelOperation",
             "resourceName": "SampleTypeSpec",
             "doc": "An operation with a dynamic model",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "608",
+                "$id": "612",
                 "kind": "header",
                 "name": "contentType",
                 "serializedName": "Content-Type",
@@ -8214,12 +8377,12 @@
                 "crossLanguageDefinitionId": "SampleTypeSpec.DynamicModelOperation.contentType"
               },
               {
-                "$id": "609",
+                "$id": "613",
                 "kind": "body",
                 "name": "body",
                 "serializedName": "body",
                 "type": {
-                  "$ref": "312"
+                  "$ref": "314"
                 },
                 "isApiVersion": false,
                 "contentTypes": [
@@ -8252,16 +8415,17 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.DynamicModelOperation",
-            "decorators": []
+            "decorators": [],
+            "namespace": "SampleTypeSpec"
           },
           "parameters": [
             {
-              "$id": "610",
+              "$id": "614",
               "kind": "method",
               "name": "body",
               "serializedName": "body",
               "type": {
-                "$ref": "312"
+                "$ref": "314"
               },
               "location": "Body",
               "isApiVersion": false,
@@ -8273,7 +8437,7 @@
               "decorators": []
             },
             {
-              "$id": "611",
+              "$id": "615",
               "kind": "method",
               "name": "contentType",
               "serializedName": "Content-Type",
@@ -8300,12 +8464,12 @@
       ],
       "parameters": [
         {
-          "$id": "612",
+          "$id": "616",
           "kind": "endpoint",
           "name": "sampleTypeSpecUrl",
           "serializedName": "sampleTypeSpecUrl",
           "type": {
-            "$id": "613",
+            "$id": "617",
             "kind": "url",
             "name": "endpoint",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8320,12 +8484,12 @@
           "crossLanguageDefinitionId": "SampleTypeSpec.sampleTypeSpecUrl"
         },
         {
-          "$id": "614",
+          "$id": "618",
           "kind": "method",
           "name": "apiVersion",
           "serializedName": "apiVersion",
           "type": {
-            "$id": "615",
+            "$id": "619",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8335,7 +8499,7 @@
           "isApiVersion": true,
           "defaultValue": {
             "type": {
-              "$id": "616",
+              "$id": "620",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8359,13 +8523,13 @@
       ],
       "children": [
         {
-          "$id": "617",
+          "$id": "621",
           "kind": "client",
           "name": "AnimalOperations",
           "namespace": "SampleTypeSpec",
           "methods": [
             {
-              "$id": "618",
+              "$id": "622",
               "kind": "basic",
               "name": "updatePetAsAnimal",
               "accessibility": "public",
@@ -8375,14 +8539,14 @@
               ],
               "doc": "Update a pet as an animal",
               "operation": {
-                "$id": "619",
+                "$id": "623",
                 "name": "updatePetAsAnimal",
                 "resourceName": "AnimalOperations",
                 "doc": "Update a pet as an animal",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "620",
+                    "$id": "624",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -8399,7 +8563,7 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updatePetAsAnimal.contentType"
                   },
                   {
-                    "$id": "621",
+                    "$id": "625",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -8415,12 +8579,12 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updatePetAsAnimal.accept"
                   },
                   {
-                    "$id": "622",
+                    "$id": "626",
                     "kind": "body",
                     "name": "animal",
                     "serializedName": "animal",
                     "type": {
-                      "$ref": "350"
+                      "$ref": "352"
                     },
                     "isApiVersion": false,
                     "contentTypes": [
@@ -8440,7 +8604,7 @@
                       200
                     ],
                     "bodyType": {
-                      "$ref": "350"
+                      "$ref": "352"
                     },
                     "headers": [],
                     "isErrorResponse": false,
@@ -8459,16 +8623,17 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updatePetAsAnimal",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
-                  "$id": "623",
+                  "$id": "627",
                   "kind": "method",
                   "name": "animal",
                   "serializedName": "animal",
                   "type": {
-                    "$ref": "350"
+                    "$ref": "352"
                   },
                   "location": "Body",
                   "isApiVersion": false,
@@ -8480,7 +8645,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "624",
+                  "$id": "628",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -8498,7 +8663,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "625",
+                  "$id": "629",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -8517,7 +8682,7 @@
               ],
               "response": {
                 "type": {
-                  "$ref": "350"
+                  "$ref": "352"
                 }
               },
               "isOverride": false,
@@ -8526,7 +8691,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updatePetAsAnimal"
             },
             {
-              "$id": "626",
+              "$id": "630",
               "kind": "basic",
               "name": "updateDogAsAnimal",
               "accessibility": "public",
@@ -8536,14 +8701,14 @@
               ],
               "doc": "Update a dog as an animal",
               "operation": {
-                "$id": "627",
+                "$id": "631",
                 "name": "updateDogAsAnimal",
                 "resourceName": "AnimalOperations",
                 "doc": "Update a dog as an animal",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "628",
+                    "$id": "632",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -8560,7 +8725,7 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updateDogAsAnimal.contentType"
                   },
                   {
-                    "$id": "629",
+                    "$id": "633",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -8576,12 +8741,12 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updateDogAsAnimal.accept"
                   },
                   {
-                    "$id": "630",
+                    "$id": "634",
                     "kind": "body",
                     "name": "animal",
                     "serializedName": "animal",
                     "type": {
-                      "$ref": "350"
+                      "$ref": "352"
                     },
                     "isApiVersion": false,
                     "contentTypes": [
@@ -8601,7 +8766,7 @@
                       200
                     ],
                     "bodyType": {
-                      "$ref": "350"
+                      "$ref": "352"
                     },
                     "headers": [],
                     "isErrorResponse": false,
@@ -8620,16 +8785,17 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.updateDogAsAnimal",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
-                  "$id": "631",
+                  "$id": "635",
                   "kind": "method",
                   "name": "animal",
                   "serializedName": "animal",
                   "type": {
-                    "$ref": "350"
+                    "$ref": "352"
                   },
                   "location": "Body",
                   "isApiVersion": false,
@@ -8641,7 +8807,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "632",
+                  "$id": "636",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -8659,7 +8825,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "633",
+                  "$id": "637",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -8678,7 +8844,7 @@
               ],
               "response": {
                 "type": {
-                  "$ref": "350"
+                  "$ref": "352"
                 }
               },
               "isOverride": false,
@@ -8689,12 +8855,12 @@
           ],
           "parameters": [
             {
-              "$id": "634",
+              "$id": "638",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
-                "$id": "635",
+                "$id": "639",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8717,17 +8883,18 @@
             "2024-08-16-preview"
           ],
           "parent": {
-            "$ref": "368"
-          }
+            "$ref": "370"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "636",
+          "$id": "640",
           "kind": "client",
           "name": "PetOperations",
           "namespace": "SampleTypeSpec",
           "methods": [
             {
-              "$id": "637",
+              "$id": "641",
               "kind": "basic",
               "name": "updatePetAsPet",
               "accessibility": "public",
@@ -8737,14 +8904,14 @@
               ],
               "doc": "Update a pet as a pet",
               "operation": {
-                "$id": "638",
+                "$id": "642",
                 "name": "updatePetAsPet",
                 "resourceName": "PetOperations",
                 "doc": "Update a pet as a pet",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "639",
+                    "$id": "643",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -8761,7 +8928,7 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updatePetAsPet.contentType"
                   },
                   {
-                    "$id": "640",
+                    "$id": "644",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -8777,12 +8944,12 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updatePetAsPet.accept"
                   },
                   {
-                    "$id": "641",
+                    "$id": "645",
                     "kind": "body",
                     "name": "pet",
                     "serializedName": "pet",
                     "type": {
-                      "$ref": "355"
+                      "$ref": "357"
                     },
                     "isApiVersion": false,
                     "contentTypes": [
@@ -8802,7 +8969,7 @@
                       200
                     ],
                     "bodyType": {
-                      "$ref": "355"
+                      "$ref": "357"
                     },
                     "headers": [],
                     "isErrorResponse": false,
@@ -8821,16 +8988,17 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updatePetAsPet",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
-                  "$id": "642",
+                  "$id": "646",
                   "kind": "method",
                   "name": "pet",
                   "serializedName": "pet",
                   "type": {
-                    "$ref": "355"
+                    "$ref": "357"
                   },
                   "location": "Body",
                   "isApiVersion": false,
@@ -8842,7 +9010,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "643",
+                  "$id": "647",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -8860,7 +9028,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "644",
+                  "$id": "648",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -8879,7 +9047,7 @@
               ],
               "response": {
                 "type": {
-                  "$ref": "355"
+                  "$ref": "357"
                 }
               },
               "isOverride": false,
@@ -8888,7 +9056,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updatePetAsPet"
             },
             {
-              "$id": "645",
+              "$id": "649",
               "kind": "basic",
               "name": "updateDogAsPet",
               "accessibility": "public",
@@ -8898,14 +9066,14 @@
               ],
               "doc": "Update a dog as a pet",
               "operation": {
-                "$id": "646",
+                "$id": "650",
                 "name": "updateDogAsPet",
                 "resourceName": "PetOperations",
                 "doc": "Update a dog as a pet",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "647",
+                    "$id": "651",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -8922,7 +9090,7 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updateDogAsPet.contentType"
                   },
                   {
-                    "$id": "648",
+                    "$id": "652",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -8938,12 +9106,12 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updateDogAsPet.accept"
                   },
                   {
-                    "$id": "649",
+                    "$id": "653",
                     "kind": "body",
                     "name": "pet",
                     "serializedName": "pet",
                     "type": {
-                      "$ref": "355"
+                      "$ref": "357"
                     },
                     "isApiVersion": false,
                     "contentTypes": [
@@ -8963,7 +9131,7 @@
                       200
                     ],
                     "bodyType": {
-                      "$ref": "355"
+                      "$ref": "357"
                     },
                     "headers": [],
                     "isErrorResponse": false,
@@ -8982,16 +9150,17 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.updateDogAsPet",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
-                  "$id": "650",
+                  "$id": "654",
                   "kind": "method",
                   "name": "pet",
                   "serializedName": "pet",
                   "type": {
-                    "$ref": "355"
+                    "$ref": "357"
                   },
                   "location": "Body",
                   "isApiVersion": false,
@@ -9003,7 +9172,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "651",
+                  "$id": "655",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -9021,7 +9190,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "652",
+                  "$id": "656",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -9040,7 +9209,7 @@
               ],
               "response": {
                 "type": {
-                  "$ref": "355"
+                  "$ref": "357"
                 }
               },
               "isOverride": false,
@@ -9051,12 +9220,12 @@
           ],
           "parameters": [
             {
-              "$id": "653",
+              "$id": "657",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
-                "$id": "654",
+                "$id": "658",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9079,17 +9248,18 @@
             "2024-08-16-preview"
           ],
           "parent": {
-            "$ref": "368"
-          }
+            "$ref": "370"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "655",
+          "$id": "659",
           "kind": "client",
           "name": "DogOperations",
           "namespace": "SampleTypeSpec",
           "methods": [
             {
-              "$id": "656",
+              "$id": "660",
               "kind": "basic",
               "name": "updateDogAsDog",
               "accessibility": "public",
@@ -9099,14 +9269,14 @@
               ],
               "doc": "Update a dog as a dog",
               "operation": {
-                "$id": "657",
+                "$id": "661",
                 "name": "updateDogAsDog",
                 "resourceName": "DogOperations",
                 "doc": "Update a dog as a dog",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "658",
+                    "$id": "662",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -9123,7 +9293,7 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.updateDogAsDog.contentType"
                   },
                   {
-                    "$id": "659",
+                    "$id": "663",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -9139,12 +9309,12 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.updateDogAsDog.accept"
                   },
                   {
-                    "$id": "660",
+                    "$id": "664",
                     "kind": "body",
                     "name": "dog",
                     "serializedName": "dog",
                     "type": {
-                      "$ref": "359"
+                      "$ref": "361"
                     },
                     "isApiVersion": false,
                     "contentTypes": [
@@ -9164,7 +9334,7 @@
                       200
                     ],
                     "bodyType": {
-                      "$ref": "359"
+                      "$ref": "361"
                     },
                     "headers": [],
                     "isErrorResponse": false,
@@ -9183,16 +9353,17 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.updateDogAsDog",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
-                  "$id": "661",
+                  "$id": "665",
                   "kind": "method",
                   "name": "dog",
                   "serializedName": "dog",
                   "type": {
-                    "$ref": "359"
+                    "$ref": "361"
                   },
                   "location": "Body",
                   "isApiVersion": false,
@@ -9204,7 +9375,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "662",
+                  "$id": "666",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -9222,7 +9393,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "663",
+                  "$id": "667",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -9241,7 +9412,7 @@
               ],
               "response": {
                 "type": {
-                  "$ref": "359"
+                  "$ref": "361"
                 }
               },
               "isOverride": false,
@@ -9252,12 +9423,12 @@
           ],
           "parameters": [
             {
-              "$id": "664",
+              "$id": "668",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
-                "$id": "665",
+                "$id": "669",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9280,17 +9451,18 @@
             "2024-08-16-preview"
           ],
           "parent": {
-            "$ref": "368"
-          }
+            "$ref": "370"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "666",
+          "$id": "670",
           "kind": "client",
           "name": "Metrics",
           "namespace": "SampleTypeSpec",
           "methods": [
             {
-              "$id": "667",
+              "$id": "671",
               "kind": "basic",
               "name": "getWidgetMetrics",
               "accessibility": "public",
@@ -9300,14 +9472,14 @@
               ],
               "doc": "Get Widget metrics for given day of week",
               "operation": {
-                "$id": "668",
+                "$id": "672",
                 "name": "getWidgetMetrics",
                 "resourceName": "Metrics",
                 "doc": "Get Widget metrics for given day of week",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "669",
+                    "$id": "673",
                     "kind": "path",
                     "name": "day",
                     "serializedName": "day",
@@ -9326,7 +9498,7 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.getWidgetMetrics.day"
                   },
                   {
-                    "$id": "670",
+                    "$id": "674",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -9348,7 +9520,7 @@
                       200
                     ],
                     "bodyType": {
-                      "$ref": "363"
+                      "$ref": "365"
                     },
                     "headers": [],
                     "isErrorResponse": false,
@@ -9364,11 +9536,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.getWidgetMetrics",
-                "decorators": []
+                "decorators": [],
+                "namespace": "SampleTypeSpec"
               },
               "parameters": [
                 {
-                  "$id": "671",
+                  "$id": "675",
                   "kind": "method",
                   "name": "day",
                   "serializedName": "day",
@@ -9385,7 +9558,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "672",
+                  "$id": "676",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -9404,7 +9577,7 @@
               ],
               "response": {
                 "type": {
-                  "$ref": "363"
+                  "$ref": "365"
                 }
               },
               "isOverride": false,
@@ -9415,12 +9588,12 @@
           ],
           "parameters": [
             {
-              "$id": "673",
+              "$id": "677",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
-                "$id": "674",
+                "$id": "678",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9443,10 +9616,12 @@
             "2024-08-16-preview"
           ],
           "parent": {
-            "$ref": "368"
-          }
+            "$ref": "370"
+          },
+          "isMultiServiceClient": false
         }
-      ]
+      ],
+      "isMultiServiceClient": false
     }
   ],
   "auth": {
