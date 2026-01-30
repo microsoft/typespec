@@ -57,9 +57,20 @@ interface PackageJson {
   exports?: Record<string, string>;
 }
 
-export async function createTypeSpecBundle(libraryPath: string): Promise<TypeSpecBundle> {
+export interface CreateTypeSpecBundleOptions {
+  /**
+   * Whether to minify the output bundle.
+   * @default true
+   */
+  minify?: boolean;
+}
+
+export async function createTypeSpecBundle(
+  libraryPath: string,
+  options?: CreateTypeSpecBundleOptions,
+): Promise<TypeSpecBundle> {
   const definition = await resolveTypeSpecBundleDefinition(libraryPath);
-  const context = await createEsBuildContext(definition);
+  const context = await createEsBuildContext(definition, [], options);
   try {
     const result = await context.rebuild();
     return resolveTypeSpecBundle(definition, result);
@@ -71,24 +82,33 @@ export async function createTypeSpecBundle(libraryPath: string): Promise<TypeSpe
 export async function watchTypeSpecBundle(
   libraryPath: string,
   onBundle: (bundle: TypeSpecBundle) => void,
+  options?: CreateTypeSpecBundleOptions,
 ) {
   const definition = await resolveTypeSpecBundleDefinition(libraryPath);
-  const context = await createEsBuildContext(definition, [
-    {
-      name: "example",
-      setup(build) {
-        build.onEnd((result) => {
-          const bundle = resolveTypeSpecBundle(definition, result);
-          onBundle(bundle);
-        });
+  const context = await createEsBuildContext(
+    definition,
+    [
+      {
+        name: "example",
+        setup(build) {
+          build.onEnd((result) => {
+            const bundle = resolveTypeSpecBundle(definition, result);
+            onBundle(bundle);
+          });
+        },
       },
-    },
-  ]);
+    ],
+    options,
+  );
   await context.watch();
 }
 
-export async function bundleTypeSpecLibrary(libraryPath: string, outputDir: string) {
-  const bundle = await createTypeSpecBundle(libraryPath);
+export async function bundleTypeSpecLibrary(
+  libraryPath: string,
+  outputDir: string,
+  options?: CreateTypeSpecBundleOptions,
+) {
+  const bundle = await createTypeSpecBundle(libraryPath, options);
   await mkdir(outputDir, { recursive: true });
   for (const file of bundle.files) {
     await writeFile(joinPaths(outputDir, file.filename), file.content);
@@ -119,7 +139,12 @@ async function resolveTypeSpecBundleDefinition(
   };
 }
 
-async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugins: Plugin[] = []) {
+async function createEsBuildContext(
+  definition: TypeSpecBundleDefinition,
+  plugins: Plugin[] = [],
+  options?: CreateTypeSpecBundleOptions,
+) {
+  const minify = options?.minify ?? true;
   const libraryPath = definition.path;
   const program = await compile(NodeHost, libraryPath, {
     noEmit: true,
@@ -193,6 +218,7 @@ async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugin
     platform: "browser",
     format: "esm",
     target: "es2024",
+    minify,
     plugins: [virtualPlugin, nodeModulesPolyfillPlugin({}), ...plugins],
   });
 }
