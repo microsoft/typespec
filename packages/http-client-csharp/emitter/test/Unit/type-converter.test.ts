@@ -217,7 +217,7 @@ describe("Union types to model hierarchies", () => {
 
     const betaModel = root.models.find((m) => m.name === "Beta");
     ok(betaModel, "Beta should exist");
-    
+
     const myUnion = root.models.find((m) => m.name === "MyUnion");
     ok(myUnion, "MyUnion should exist");
 
