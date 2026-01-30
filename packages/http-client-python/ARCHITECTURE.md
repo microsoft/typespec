@@ -37,7 +37,7 @@ This separation allows for language-specific code generation while maintaining a
 │  Location: packages/http-client-python/emitter/src/             │
 │                                                                 │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐       │
-│  │  emitter.ts  │──▶│code-model.ts │───▶│   types.ts   │       │
+│  │  emitter.ts  │───▶│code-model.ts │───▶│   types.ts   │       │
 │  │ (entry point)│    │(build model) │    │(type mapping)│       │
 │  └──────────────┘    └──────────────┘    └──────────────┘       │
 │         │                                                       │
@@ -73,7 +73,7 @@ This separation allows for language-specific code generation while maintaining a
 │  │  codegen/                                                │   │
 │  │                                                          │   │
 │  │  ┌──────────┐      ┌──────────────┐    ┌─────────────┐   │   │
-│  │  │ models/  │────▶│ serializers/ │───▶│ templates/  │   │   │
+│  │  │ models/  │────▶│ serializers/ │───▶│ templates/  │   │    │
 │  │  │ (Python  │      │ (Jinja2)     │    │ (.jinja2)   │   │   │
 │  │  │  classes)│      │              │    │             │   │   │
 │  │  └──────────┘      └──────────────┘    └─────────────┘   │   │
