@@ -144,9 +144,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 // Add maxPageSize parameter if PageSizeParameterSegments is specified
-                if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
+                var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
+                if (pageSizeParameterName != null)
                 {
-                    var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
                     reinjectedParamNames.Add(pageSizeParameterName);
                 }
 
@@ -292,9 +292,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Add maxPageSize parameter if PageSizeParameterSegments is specified
-            if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
+            var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
+            if (pageSizeParameterName != null)
             {
-                var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
                 // Find the parameter in the operation parameters
                 var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name == pageSizeParameterName);
                 if (pageSizeParameter != null)
@@ -857,7 +857,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
-         private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
+         private static string? GetPageSizeParameterName(InputPagingServiceMethod? pagingServiceMethod)
+        {
+            return pagingServiceMethod?.PagingMetadata?.PageSizeParameterSegments?.Count > 0
+                ? pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last()
+                : null;
+        }
+
+        private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
         {
             // Check if this is an API version parameter
             if (inputParameter.IsApiVersion)
@@ -866,13 +873,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Check if this is a max page size parameter
-            if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
+            var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
+            if (pageSizeParameterName != null && inputParameter.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
             {
-                var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
-                if (inputParameter.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;
