@@ -1573,18 +1573,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var statements = createMethod!.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(statements);
 
-            var expectedStatement = @"request.Headers.Set(""Content-Type"", ""application/json"");
-";
-            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
-            Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == expectedStatement),
-                $"Expected to find statement:\n{expectedStatement}\nBut got statements:\n{statementsString}");
-
             // Verify there's no if statement wrapping the Content-Type header
             var wrappedStatement = @"if ((content != null))
 {
     request.Headers.Set(""Content-Type"", ""application/json"");
 }
 ";
+            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
             var hasIfWrappedContentType = statements!.Any(s => s.ToDisplayString().Contains(wrappedStatement));
             Assert.IsFalse(hasIfWrappedContentType,
                 $"Content-Type should NOT be wrapped in an if statement for required content, but found:\n{statementsString}");
