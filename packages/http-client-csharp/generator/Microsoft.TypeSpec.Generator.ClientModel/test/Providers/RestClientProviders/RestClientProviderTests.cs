@@ -1578,6 +1578,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
             Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == expectedStatement),
                 $"Expected to find statement:\n{expectedStatement}\nBut got statements:\n{statementsString}");
+
+            // Verify there's no if statement wrapping the Content-Type header
+            var hasIfWrappedContentType = statements!.Any(s =>
+                s.ToDisplayString().Contains("if") &&
+                s.ToDisplayString().Contains("Content-Type"));
+            Assert.IsFalse(hasIfWrappedContentType,
+                $"Content-Type should NOT be wrapped in an if statement for required content, but found:\n{statementsString}");
         }
     }
 }
