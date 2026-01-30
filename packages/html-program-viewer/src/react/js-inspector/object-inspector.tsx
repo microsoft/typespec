@@ -8,42 +8,6 @@ import { propertyIsEnumerable } from "./utils/object-prototype.js";
 import { getPropertyValue } from "./utils/property-utils.js";
 
 const createIterator = (showNonenumerable?: boolean, sortObjectKeys?: boolean) => {
-  // Helper function to handle property iteration for both string and Symbol keys
-  function* iterateProperties(
-    data: any,
-    keys: (string | symbol)[],
-    formatKey: (key: string | symbol) => string = (k) =>
-      typeof k === "string" ? k || `""` : k.toString(),
-  ) {
-    for (const key of keys) {
-      if (propertyIsEnumerable.call(data, key)) {
-        const propertyValue = getPropertyValue(data, key);
-        yield {
-          name: formatKey(key),
-          data: propertyValue,
-        };
-      } else if (showNonenumerable) {
-        // To work around the error (happens some time when propertyName === 'caller' || propertyName === 'arguments')
-        // 'caller' and 'arguments' are restricted function properties and cannot be accessed in this context
-        // http://stackoverflow.com/questions/31921189/caller-and-arguments-are-restricted-function-properties-and-cannot-be-access
-        let propertyValue;
-        try {
-          propertyValue = getPropertyValue(data, key);
-        } catch (e) {
-          // console.warn(e)
-        }
-
-        if (propertyValue !== undefined) {
-          yield {
-            name: formatKey(key),
-            data: propertyValue,
-            isNonenumerable: true,
-          };
-        }
-      }
-    }
-  }
-
   const objectIterator = function* (data: any) {
     const shouldIterate = (typeof data === "object" && data !== null) || typeof data === "function";
     if (!shouldIterate) return;
@@ -69,24 +33,47 @@ const createIterator = (showNonenumerable?: boolean, sortObjectKeys?: boolean) =
         i++;
       }
     } else {
-      // String property names
-      const keys = Object.getOwnPropertyNames(data);
-      if (sortObjectKeys === true && !dataIsArray) {
-        // Array keys should not be sorted in alphabetical order
-        keys.sort();
-      } else if (typeof sortObjectKeys === "function") {
-        keys.sort(sortObjectKeys);
-      }
-
-      yield* iterateProperties(data, keys);
-
-      // Symbol property names
+      // Get all property keys (both string and Symbol)
+      const stringKeys = Object.getOwnPropertyNames(data);
       const symbolKeys = Object.getOwnPropertySymbols(data);
+      const allKeys: (string | symbol)[] = [...stringKeys, ...symbolKeys];
+
       if (sortObjectKeys && !dataIsArray) {
-        // Sort symbols by their description for consistent display
-        symbolKeys.sort((a, b) => a.toString().localeCompare(b.toString()));
+        // Array keys should not be sorted in alphabetical order
+        allKeys.sort((a, b) => {
+          const aStr = typeof a === "string" ? a : a.toString();
+          const bStr = typeof b === "string" ? b : b.toString();
+          return aStr.localeCompare(bStr);
+        });
       }
-      yield* iterateProperties(data, symbolKeys);
+
+      for (const key of allKeys) {
+        if (propertyIsEnumerable.call(data, key)) {
+          const propertyValue = getPropertyValue(data, key);
+          yield {
+            name: typeof key === "string" ? key || `""` : key.toString(),
+            data: propertyValue,
+          };
+        } else if (showNonenumerable) {
+          // To work around the error (happens some time when propertyName === 'caller' || propertyName === 'arguments')
+          // 'caller' and 'arguments' are restricted function properties and cannot be accessed in this context
+          // http://stackoverflow.com/questions/31921189/caller-and-arguments-are-restricted-function-properties-and-cannot-be-access
+          let propertyValue;
+          try {
+            propertyValue = getPropertyValue(data, key);
+          } catch (e) {
+            // console.warn(e)
+          }
+
+          if (propertyValue !== undefined) {
+            yield {
+              name: typeof key === "string" ? key : key.toString(),
+              data: propertyValue,
+              isNonenumerable: true,
+            };
+          }
+        }
+      }
 
       // [[Prototype]] of the object: `Object.getPrototypeOf(data)`
       // the property name is shown as "__proto__"
