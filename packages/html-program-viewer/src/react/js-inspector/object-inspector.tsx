@@ -67,7 +67,7 @@ const createIterator = (showNonenumerable?: boolean, sortObjectKeys?: boolean) =
 
           if (propertyValue !== undefined) {
             yield {
-              name: typeof key === "string" ? key : key.toString(),
+              name: typeof key === "string" ? key || `""` : key.toString(),
               data: propertyValue,
               isNonenumerable: true,
             };
