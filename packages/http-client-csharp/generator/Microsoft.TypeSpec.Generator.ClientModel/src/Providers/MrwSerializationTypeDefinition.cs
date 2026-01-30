@@ -1930,7 +1930,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return [];
             }
             var elementType = propertyType.ElementType;
-            var delimiterChar = Literal(delimiter.ToCharArray()[0]);
+            var delimiterChar = Literal(delimiter!.ToCharArray()[0]);
             var isStringElement = elementType.IsFrameworkType && elementType.FrameworkType == typeof(string);
 
             var getStringStatement = Declare("stringValue", typeof(string), jsonProperty.Value().GetString(), out var stringValueVar);
