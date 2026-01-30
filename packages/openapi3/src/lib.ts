@@ -406,6 +406,12 @@ export const $lib = createTypeSpecLibrary({
           "Streams with itemSchema are only fully supported in OpenAPI 3.2.0 or above. The response will be emitted without itemSchema. Consider using OpenAPI 3.2.0 for full stream support.",
       },
     },
+    "default-not-supported": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Default value is not supported in OpenAPI 3.0 ${"message"}`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,

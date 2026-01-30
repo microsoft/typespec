@@ -1,0 +1,43 @@
+{
+    "$id": "1",
+    "kind": "model",
+    "name": "JsonOnlyModel",
+    "namespace": "SampleTypeSpec",
+    "crossLanguageDefinitionId": "SampleTypeSpec.JsonOnlyModel",
+    "usage": "Input",
+    "doc": "A model that only supports JSON serialization",
+    "decorators": [],
+    "serializationOptions": {
+        "json": {
+            "name": "JsonOnlyModel"
+        }
+    },
+    "properties": [
+        {
+            "$id": "2",
+            "kind": "property",
+            "name": "name",
+            "serializedName": "name",
+            "doc": "name property",
+            "type": {
+                "$id": "3",
+                "kind": "string",
+                "name": "string",
+                "crossLanguageDefinitionId": "TypeSpec.string",
+                "decorators": []
+            },
+            "optional": false,
+            "readOnly": false,
+            "discriminator": false,
+            "flatten": false,
+            "decorators": [],
+            "crossLanguageDefinitionId": "SampleTypeSpec.JsonOnlyModel.name",
+            "serializationOptions": {
+                "json": {
+                    "name": "name"
+                }
+            },
+            "isHttpMetadata": false
+        }
+    ]
+}

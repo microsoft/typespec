@@ -1815,6 +1815,11 @@
       "usage": "Input,Output,Spread,Json",
       "doc": "A model with a few properties of literal types",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Thing"
+        }
+      },
       "properties": [
         {
           "$id": "197",
@@ -2291,6 +2296,11 @@
       "usage": "Input,Output,Json",
       "doc": "this is a roundtrip model",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "RoundTripModel"
+        }
+      },
       "properties": [
         {
           "$id": "232",
@@ -2871,6 +2881,11 @@
             "usage": "Input,Output,Json",
             "doc": "A model with a few required nullable properties",
             "decorators": [],
+            "serializationOptions": {
+              "json": {
+                "name": "ModelWithRequiredNullableProperties"
+              }
+            },
             "properties": [
               {
                 "$id": "270",
@@ -3013,6 +3028,11 @@
       "usage": "Output,Spread,Json",
       "doc": "this is not a friendly model but with a friendly name",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "NotFriend"
+        }
+      },
       "properties": [
         {
           "$id": "280",
@@ -3051,6 +3071,11 @@
       "usage": "Output,Spread,Json",
       "doc": "this is a model with a client name",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "ModelWithClientName"
+        }
+      },
       "properties": [
         {
           "$id": "283",
@@ -3088,6 +3113,11 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": []
     },
     {
@@ -3098,6 +3128,11 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
           "$id": "287",
@@ -3162,6 +3197,11 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithStringNextLink.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
           "$id": "292",
@@ -3219,6 +3259,11 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
           "$id": "296",
@@ -3276,6 +3321,11 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
           "$id": "300",
@@ -3308,6 +3358,11 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.Page",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Page"
+        }
+      },
       "properties": [
         {
           "$id": "302",
@@ -3340,6 +3395,11 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters",
       "usage": "Input,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "ModelWithEmbeddedNonBodyParameters"
+        }
+      },
       "properties": [
         {
           "$id": "304",
@@ -3487,6 +3547,11 @@
           "arguments": {}
         }
       ],
+      "serializationOptions": {
+        "json": {
+          "name": "DynamicModel"
+        }
+      },
       "properties": [
         {
           "$id": "315",
@@ -3723,6 +3788,11 @@
                 "arguments": {}
               }
             ],
+            "serializationOptions": {
+              "json": {
+                "name": "AnotherDynamicModel"
+              }
+            },
             "properties": [
               {
                 "$id": "335",
@@ -3961,6 +4031,11 @@
       "usage": "Input,Output,Json",
       "doc": "Base animal with discriminator",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Animal"
+        }
+      },
       "discriminatorProperty": {
         "$id": "353",
         "kind": "property",
@@ -4029,6 +4104,11 @@
           "doc": "Pet is a discriminated animal",
           "discriminatorValue": "pet",
           "decorators": [],
+          "serializationOptions": {
+            "json": {
+              "name": "Pet"
+            }
+          },
           "discriminatorProperty": {
             "$id": "358",
             "kind": "property",
@@ -4095,6 +4175,11 @@
               "doc": "Dog is a specific type of pet with hierarchy building",
               "discriminatorValue": "dog",
               "decorators": [],
+              "serializationOptions": {
+                "json": {
+                  "name": "Dog"
+                }
+              },
               "baseModel": {
                 "$ref": "357"
               },
@@ -4169,6 +4254,11 @@
       "crossLanguageDefinitionId": "SampleTypeSpec.getWidgetMetrics.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": ""
+        }
+      },
       "properties": [
         {
           "$id": "366",
