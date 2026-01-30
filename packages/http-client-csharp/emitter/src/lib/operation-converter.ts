@@ -928,16 +928,24 @@ export function getCorrespondingMethodParams(
   sdkContext: CSharpEmitterContext,
   p: SdkHttpParameter | SdkModelPropertyType,
 ): InputMethodParameter[] | undefined {
-  // correspondingMethodParams is only available on SdkHttpParameter and SdkModelPropertyType
-  const correspondingParams = (p as any).correspondingMethodParams;
-  if (!correspondingParams || correspondingParams.length === 0) {
+  // methodParameterSegments is a 2D array where each segment array represents a path to a method parameter
+  // We need to get the last element of each segment array which is the actual method parameter
+  const methodParameterSegments = (p as any).methodParameterSegments;
+  if (!methodParameterSegments || methodParameterSegments.length === 0) {
     return undefined;
   }
 
   const namespace = getClientNamespaceString(sdkContext) ?? "";
-  return correspondingParams.map((methodParam: SdkMethodParameter) =>
-    fromMethodParameter(sdkContext, methodParam, namespace)
-  );
+  const methodParams: InputMethodParameter[] = [];
+  
+  for (const segments of methodParameterSegments) {
+    if (segments && segments.length > 0) {
+      const methodParam = segments[segments.length - 1] as SdkMethodParameter;
+      methodParams.push(fromMethodParameter(sdkContext, methodParam, namespace));
+    }
+  }
+  
+  return methodParams.length > 0 ? methodParams : undefined;
 }
 
 function getResponseType(
