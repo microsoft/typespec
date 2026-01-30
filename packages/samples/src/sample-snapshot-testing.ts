@@ -1,5 +1,6 @@
 import {
   CompilerHost,
+  CompilerOptions,
   NodeHost,
   ResolveCompilerOptionsOptions,
   compile,
@@ -29,6 +30,9 @@ export interface SampleSnapshotTestOptions {
 
   /** Override the emitters to use. */
   emit?: string[];
+
+  /** Specify custom emitter options */
+  options?: CompilerOptions["options"];
 }
 
 export interface TestContext {
@@ -90,6 +94,9 @@ function defineSampleSnaphotTest(
     };
     if (config.emit) {
       overrides.emit = config.emit;
+    }
+    if (config.options) {
+      overrides.options = config.options;
     }
     const [options, diagnostics] = await resolveCompilerOptions(host, {
       cwd: process.cwd(),

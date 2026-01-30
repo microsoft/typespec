@@ -21,7 +21,6 @@ import {
   ModelProperty,
   Program,
   Scalar,
-  serializeValueAsJson,
   Tuple,
   Type,
   Union,
@@ -29,6 +28,7 @@ import {
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
+import { serializeExample } from "./examples.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-1.js";
@@ -80,7 +80,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       setProperty(
         target,
         "examples",
-        examples.map((example) => serializeValueAsJson(program, example.value, type)),
+        examples.map((example) => serializeExample(program, example.value, type)),
       );
     }
   }
