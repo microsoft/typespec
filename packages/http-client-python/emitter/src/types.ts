@@ -385,12 +385,15 @@ function emitEnumMember(
   type: SdkEnumValueType,
   enumType: Record<string, any>,
 ): Record<string, any> {
+  if (typesMap.has(type)) {
+    return typesMap.get(type)!;
+  }
   // python don't generate enum created by TCGC, so we shall not generate type for enum member of the enum, either.
   if (type.enumType.isGeneratedName) {
     return getConstantFromEnumValueType(type);
   }
 
-  return {
+  const result = {
     name: enumName(type.name),
     value: type.value,
     description: type.summary ? type.summary : type.doc,
@@ -398,6 +401,8 @@ function emitEnumMember(
     type: type.kind,
     valueType: enumType["valueType"],
   };
+  typesMap.set(type, result);
+  return result;
 }
 
 function emitDurationOrDateType(type: SdkDurationType | SdkDateTimeType): Record<string, any> {

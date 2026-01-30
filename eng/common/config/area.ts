@@ -55,6 +55,7 @@ export const CIRules = {
     "!.prettierrc.json",
     "!cspell.yaml", // CSpell is already run as its dedicated CI(via github action)
     "!eslint.config.json", // Eslint is already run as its dedicated CI(via github action)
+    "!.chronus/**/*", // Used across emitters
     ...ignore(isolatedEmitters),
     ...ignore(AreaPaths["emitter:client:csharp"]),
     ...ignore(AreaPaths["emitter:client:java"]),
