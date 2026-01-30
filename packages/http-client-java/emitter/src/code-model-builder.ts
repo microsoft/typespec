@@ -2226,14 +2226,27 @@ export class CodeModelBuilder {
     const bodyType: SdkType | undefined = sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
-    const unknownResponseBody =
-      sdkResponse.contentTypes &&
-      sdkResponse.contentTypes.length > 0 &&
-      !isKnownContentType(sdkResponse.contentTypes);
+    let responseIsFile: boolean = false;
+    if (
+      bodyType &&
+      bodyType.kind === "model" &&
+      bodyType.serializationOptions.binary &&
+      bodyType.serializationOptions.binary.isFile
+    ) {
+      // check for File
+      responseIsFile = true;
+    } else if (bodyType && bodyType.kind === "bytes") {
+      // check for bytes + unknown content-type
+      const unknownResponseBody =
+        sdkResponse.contentTypes &&
+        sdkResponse.contentTypes.length > 0 &&
+        !isKnownContentType(sdkResponse.contentTypes);
+      responseIsFile = Boolean(unknownResponseBody);
+    }
 
     let response: Response;
-    if (unknownResponseBody && bodyType && bodyType.kind === "bytes") {
-      // binary
+    if (responseIsFile) {
+      // binary/file
       response = new BinaryResponse({
         protocol: {
           http: {
