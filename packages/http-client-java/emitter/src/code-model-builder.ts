@@ -126,12 +126,12 @@ import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./extern
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
-  CONTENT_TYPE_KEY,
   ORIGIN_API_VERSION,
   SPECIAL_HEADER_NAMES,
   cloneOperationParameter,
   findResponsePropertySegments,
   getServiceVersion,
+  isContentTypeHeader,
   isKnownContentType,
   isLroNewPollingStrategy,
   operationIsJsonMergePatch,
@@ -1002,14 +1002,14 @@ export class CodeModelBuilder {
         httpOperation.bodyParam &&
         param.kind === "header"
       ) {
-        if (param.serializedName.toLocaleLowerCase() === CONTENT_TYPE_KEY) {
+        if (isContentTypeHeader(param)) {
           continue;
         }
       }
       // if the request body is optional, skip content-type header added by TCGC
       // TODO: add optional content type to code-model, and support optional content-type from codegen, https://github.com/Azure/autorest.java/issues/2930
       if (httpOperation.bodyParam && httpOperation.bodyParam.optional) {
-        if (param.serializedName.toLocaleLowerCase() === CONTENT_TYPE_KEY) {
+        if (isContentTypeHeader(param)) {
           continue;
         }
       }
@@ -2199,7 +2199,7 @@ export class CodeModelBuilder {
 
         if (schema instanceof ConstantSchema) {
           // skip constant header in response
-          if (header.serializedName.toLowerCase() !== "content-type") {
+          if (isContentTypeHeader(header)) {
             // we does not warn on content-type as constant, as this is the most common case
             reportDiagnostic(this.program, {
               code: "constant-header-in-response-removed",
