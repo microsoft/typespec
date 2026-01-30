@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.26.2
+
+### Bug Fixes
+
+- [#9517](https://github.com/microsoft/typespec/pull/9517) Properly cache enum values
+
+
 ## 0.26.1
 
 ### Bug Fixes
