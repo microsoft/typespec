@@ -45,18 +45,19 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
         }
 
         /// <summary>
-        /// Gets the delimiter string for array serialization format.
+        /// Get the delimiter string for array serialization format.
         /// </summary>
-        public static string GetDelimiter(SerializationFormat format)
+        public static bool TryGetDelimiter(SerializationFormat format, out string delimiter)
         {
-            return format switch
+            delimiter = format switch
             {
                 SerializationFormat.Array_CommaDelimited => ",",
                 SerializationFormat.Array_SpaceDelimited => " ",
                 SerializationFormat.Array_PipeDelimited => "|",
                 SerializationFormat.Array_NewlineDelimited => "\n",
-                _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Unsupported array serialization format")
+                _ => string.Empty
             };
+            return !string.IsNullOrEmpty(delimiter);
         }
 
         private static bool SetEncodingAndReturnTrue(out ArrayKnownEncoding encoding, ArrayKnownEncoding value)

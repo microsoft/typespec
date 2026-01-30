@@ -342,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (inputProperty is InputModelProperty modelProperty &&
                 inputProperty.Type is InputArrayType)
             {
-                var arrayEncoding = modelProperty.GetArrayEncoding();
+                var arrayEncoding = modelProperty.Encode;
                 if (arrayEncoding.HasValue)
                 {
                     return arrayEncoding.Value.ToSerializationFormat();

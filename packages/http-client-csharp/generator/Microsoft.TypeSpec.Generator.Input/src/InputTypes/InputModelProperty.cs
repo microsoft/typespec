@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isApiVersion,
             InputConstant? defaultValue,
             InputSerializationOptions serializationOptions,
-            string? encode = null)
+            ArrayKnownEncoding? encode = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool IsDiscriminator { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
         public bool IsHttpMetadata { get; internal set; }
-        public string? Encode { get; internal set; }
+        public ArrayKnownEncoding? Encode { get; internal set; }
 
         /// <summary>
         /// Updates the properties of the input model property.
@@ -121,15 +121,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 SerializationOptions = serializationOptions;
             }
-        }
-
-        public ArrayKnownEncoding? GetArrayEncoding()
-        {
-            if (ArrayKnownEncodingExtensions.TryParse(Encode, out var encoding))
-            {
-                return encoding;
-            }
-            return null;
         }
     }
 }

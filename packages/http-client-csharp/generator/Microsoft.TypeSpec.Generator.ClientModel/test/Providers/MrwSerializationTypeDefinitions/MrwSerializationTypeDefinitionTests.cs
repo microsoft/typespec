@@ -1266,6 +1266,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase("newlineDelimited", "\\n")]
         public void TestArrayEncodingSerializationStatement(string encoding, string expectedDelimiter)
         {
+            ArrayKnownEncodingExtensions.TryParse(encoding, out var arrayEncoding);
             var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
             var arrayProperty = new InputModelProperty(
                 "TestArray", 
@@ -1281,7 +1282,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 false, 
                 null, 
                 new(json: new("testArray")),
-                encoding);
+                arrayEncoding);
                 
             var properties = new List<InputModelProperty> { arrayProperty };
             var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
@@ -1300,6 +1301,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase("newlineDelimited", "\\n")]
         public void TestArrayEncodingDeserializationStatement(string encoding, string expectedDelimiter)
         {
+            ArrayKnownEncodingExtensions.TryParse(encoding, out var arrayEncoding);
             var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
             var arrayProperty = new InputModelProperty(
                 "TestArray", 
@@ -1315,7 +1317,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 false, 
                 null, 
                 new(json: new("testArray")),
-                encoding);
+                arrayEncoding);
                 
             var properties = new List<InputModelProperty> { arrayProperty };
             var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);

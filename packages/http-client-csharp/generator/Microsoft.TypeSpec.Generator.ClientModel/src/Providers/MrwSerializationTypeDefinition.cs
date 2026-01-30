@@ -1286,10 +1286,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             VariableExpression variableExpression,
             ScopedApi<JsonProperty> jsonProperty,
             IEnumerable<AttributeStatement> serializationAttributes,
-            SerializationFormat? arrayEncoding = null)
+            SerializationFormat? serializationFormat = null)
         {
-            var serializationFormat = arrayEncoding ?? wireInfo.SerializationFormat;
-
             // Check for custom deserialization
             foreach (var attribute in serializationAttributes)
             {
@@ -1311,33 +1309,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             MethodBodyStatement[] deserializationStatements;
-            if (arrayEncoding.HasValue && (propertyType.IsList || propertyType.IsArray))
+            if (serializationFormat.HasValue && (propertyType.IsList || propertyType.IsArray))
             {
-                try
+                if (ArrayKnownEncodingExtensions.TryGetDelimiter(serializationFormat.Value, out var delimiter))
                 {
-                    var delimiter = ArrayKnownEncodingExtensions.GetDelimiter(arrayEncoding.Value);
                     var elementType = propertyType.ElementType;
                     if (IsSupportedEncodedArrayElementType(elementType))
                     {
                         deserializationStatements = CreateEncodedArrayDeserializationStatements(
-                            propertyType, variableExpression, jsonProperty, arrayEncoding.Value);
+                            propertyType, variableExpression, jsonProperty, serializationFormat.Value);
                     }
                     else
                     {
                         // Fall back to default deserialization for unsupported element types
                         deserializationStatements =
                         [
-                            DeserializeValue(propertyType, jsonProperty.Value(), serializationFormat, out ValueExpression value),
+                            DeserializeValue(propertyType, jsonProperty.Value(), wireInfo.SerializationFormat, out ValueExpression value),
                             variableExpression.Assign(value).Terminate()
                         ];
                     }
                 }
-                catch (ArgumentOutOfRangeException)
+                else
                 {
                     // Fall back to default deserialization for non-array encoding formats
                     deserializationStatements =
                     [
-                        DeserializeValue(propertyType, jsonProperty.Value(), serializationFormat, out ValueExpression value),
+                        DeserializeValue(propertyType, jsonProperty.Value(), wireInfo.SerializationFormat, out ValueExpression value),
                         variableExpression.Assign(value).Terminate()
                     ];
                 }
@@ -1347,7 +1344,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Default deserialization for non-encoded arrays and other types
                 deserializationStatements =
                 [
-                    DeserializeValue(propertyType, jsonProperty.Value(), serializationFormat, out ValueExpression value),
+                    DeserializeValue(propertyType, jsonProperty.Value(), wireInfo.SerializationFormat, out ValueExpression value),
                     variableExpression.Assign(value).Terminate()
                 ];
             }
@@ -1672,9 +1669,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Check for encoded arrays and override the serialization statement
             if (serializationFormat.HasValue && (propertyType.IsList || propertyType.IsArray))
             {
-                try
+                if (ArrayKnownEncodingExtensions.TryGetDelimiter(serializationFormat.Value, out var delimiter))
                 {
-                    var delimiter = ArrayKnownEncodingExtensions.GetDelimiter(serializationFormat.Value);
                     var elementType = propertyType.ElementType;
                     if (IsSupportedEncodedArrayElementType(elementType))
                     {
@@ -1683,10 +1679,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             propertyExpression,
                             serializationFormat.Value);
                     }
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    // Not an array encoding format, continue with regular serialization
                 }
             }
 
@@ -1887,7 +1879,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression propertyExpression,
             SerializationFormat serializationFormat)
         {
-            var delimiter = ArrayKnownEncodingExtensions.GetDelimiter(serializationFormat);
+            if (!ArrayKnownEncodingExtensions.TryGetDelimiter(serializationFormat, out var delimiter))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Unsupported array serialization format: {serializationFormat}");
+                return MethodBodyStatement.Empty;
+            }
 
             var elementType = propertyType.ElementType;
 
@@ -1924,7 +1922,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<JsonProperty> jsonProperty,
             SerializationFormat serializationFormat)
         {
-            var delimiter = ArrayKnownEncodingExtensions.GetDelimiter(serializationFormat);
+            if (!ArrayKnownEncodingExtensions.TryGetDelimiter(serializationFormat, out var delimiter))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Unsupported array serialization format: {serializationFormat}");
+                return [];
+            }
             var elementType = propertyType.ElementType;
             var delimiterChar = Literal(delimiter.ToCharArray()[0]);
             var isStringElement = elementType.IsFrameworkType && elementType.FrameworkType == typeof(string);
