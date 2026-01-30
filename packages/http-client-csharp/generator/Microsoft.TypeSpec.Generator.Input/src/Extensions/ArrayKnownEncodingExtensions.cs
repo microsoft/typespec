@@ -8,28 +8,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
     public static class ArrayKnownEncodingExtensions
     {
         /// <summary>
-        /// Converts a string representation to ArrayKnownEncoding.
-        /// </summary>
-        public static bool TryParse(string? value, out ArrayKnownEncoding encoding)
-        {
-            encoding = default;
-            if (value == null) return false;
-
-            return value switch
-            {
-                "ArrayEncoding.commaDelimited" or "commaDelimited" =>
-                    SetEncodingAndReturnTrue(out encoding, ArrayKnownEncoding.CommaDelimited),
-                "ArrayEncoding.spaceDelimited" or "spaceDelimited" =>
-                    SetEncodingAndReturnTrue(out encoding, ArrayKnownEncoding.SpaceDelimited),
-                "ArrayEncoding.pipeDelimited" or "pipeDelimited" =>
-                    SetEncodingAndReturnTrue(out encoding, ArrayKnownEncoding.PipeDelimited),
-                "ArrayEncoding.newlineDelimited" or "newlineDelimited" =>
-                    SetEncodingAndReturnTrue(out encoding, ArrayKnownEncoding.NewlineDelimited),
-                _ => false
-            };
-        }
-
-        /// <summary>
         /// Converts ArrayKnownEncoding to SerializationFormat.
         /// </summary>
         public static SerializationFormat ToSerializationFormat(this ArrayKnownEncoding encoding)
@@ -55,15 +33,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
                 SerializationFormat.Array_SpaceDelimited => " ",
                 SerializationFormat.Array_PipeDelimited => "|",
                 SerializationFormat.Array_NewlineDelimited => "\n",
-                _ => string.Empty
+                _ => null!
             };
-            return !string.IsNullOrEmpty(delimiter);
-        }
-
-        private static bool SetEncodingAndReturnTrue(out ArrayKnownEncoding encoding, ArrayKnownEncoding value)
-        {
-            encoding = value;
-            return true;
+            return delimiter != null;
         }
     }
 }

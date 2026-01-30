@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -65,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isDiscriminator = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
-            ArrayKnownEncoding? encode = null;
+            string? encodeString = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -85,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
-                    || TryReadEncode(ref reader, ref encode);
+                    || reader.TryReadString("encode", ref encodeString);
 
                 if (!isKnownProperty)
                 {
@@ -107,39 +106,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.SerializedName = serializedName ?? serializationOptions?.Json?.Name ?? name;
             property.IsApiVersion = isApiVersion;
             property.DefaultValue = defaultValue;
-            property.Encode = encode;
+            property.Encode = Enum.TryParse<ArrayKnownEncoding>(encodeString, ignoreCase: true, out var encode) ? encode : null;
 
             return property;
-        }
-
-        private static bool TryReadEncode(ref Utf8JsonReader reader, ref ArrayKnownEncoding? encode)
-        {
-            if (reader.TokenType != JsonTokenType.PropertyName)
-            {
-                throw new JsonException();
-            }
-
-            if (reader.GetString() != "encode")
-            {
-                return false;
-            }
-
-            reader.Read();
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                var encodeString = reader.GetString();
-                if (ArrayKnownEncodingExtensions.TryParse(encodeString, out var encodingValue))
-                {
-                    encode = encodingValue;
-                }
-            }
-            else if (reader.TokenType == JsonTokenType.Null)
-            {
-                encode = null;
-            }
-
-            reader.Read();
-            return true;
         }
     }
 }

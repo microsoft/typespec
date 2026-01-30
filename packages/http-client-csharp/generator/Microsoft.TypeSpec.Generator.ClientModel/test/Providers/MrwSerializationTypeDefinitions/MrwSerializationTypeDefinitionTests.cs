@@ -1266,7 +1266,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase("newlineDelimited", "\\n")]
         public void TestArrayEncodingSerializationStatement(string encoding, string expectedDelimiter)
         {
-            ArrayKnownEncodingExtensions.TryParse(encoding, out var arrayEncoding);
+            Enum.TryParse<ArrayKnownEncoding>(encoding, ignoreCase: true, out var arrayEncoding);
             var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
             var arrayProperty = new InputModelProperty(
                 "TestArray", 
@@ -1301,7 +1301,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase("newlineDelimited", "\\n")]
         public void TestArrayEncodingDeserializationStatement(string encoding, string expectedDelimiter)
         {
-            ArrayKnownEncodingExtensions.TryParse(encoding, out var arrayEncoding);
+            Enum.TryParse<ArrayKnownEncoding>(encoding, ignoreCase: true, out var arrayEncoding);
             var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
             var arrayProperty = new InputModelProperty(
                 "TestArray", 
