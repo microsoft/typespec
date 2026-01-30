@@ -98,7 +98,7 @@ Now that we have defined our custom response models, let's use them in our API o
 
 ### Example: Applying Custom Response Models to Operations
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={55-97,102,105,108-112,116-121,125}
 import "@typespec/http";
 import "@typespec/versioning";
 
@@ -153,7 +153,6 @@ model CommonParameters {
   clientVersion?: string;
 }
 
-// highlight-start
 model PetListResponse {
   ...OkResponse;
   ...Body<Pet[]>;
@@ -197,44 +196,34 @@ model PetSuccessResponse {
 model PetNoContentResponse {
   ...NoContentResponse;
 }
-// highlight-end
 
 @route("/pets")
 namespace Pets {
   @get
-  // highlight-next-line
   op listPets(...CommonParameters): PetListResponse;
 
   @get
-  // highlight-start
   op getPet(@path petId: int32, @header ifMatch?: string): PetResponse | PetNotFoundResponse;
-  // highlight-end
   @useAuth(BearerAuth)
   @post
-  // highlight-start
   op createPet(@body pet: Pet):
     | PetCreatedResponse
     | PetAcceptedResponse
     | PetErrorResponse
     | PetUnauthorizedResponse;
-  // highlight-end
 
   @useAuth(BearerAuth)
   @put
-  // highlight-start
   op updatePet(@path petId: int32, @body pet: Pet):
     | PetResponse
     | PetErrorResponse
     | PetUnauthorizedResponse
     | PetNotFoundResponse
     | InternalServerErrorResponse;
-  // highlight-end
 
   @useAuth(BearerAuth)
   @delete
-  // highlight-start
   op deletePet(@path petId: int32): PetNoContentResponse | PetUnauthorizedResponse;
-  // highlight-end
 
   @route("{petId}/toys")
   namespace Toys {

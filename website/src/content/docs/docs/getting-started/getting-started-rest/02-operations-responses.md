@@ -17,7 +17,7 @@ Next, we'll discuss how to define CRUD operations for our API. We'll cover opera
 
 Let's define the CRUD operations for our `Pet` model:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={30-60}
 import "@typespec/http";
 
 using Http;
@@ -47,7 +47,6 @@ enum petType {
   reptile: "reptile",
 }
 
-// highlight-start
 @route("/pets")
 namespace Pets {
   @get
@@ -79,7 +78,6 @@ namespace Pets {
     @statusCode statusCode: 204;
   };
 }
-// highlight-end
 ```
 
 In this example:
@@ -138,7 +136,7 @@ In a real-world API, different operations might return different types of succes
 
 Let's update our pet operations to return different status codes based on the outcome.
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={42-43,50-52,59-60}
 import "@typespec/http";
 
 using Http;
@@ -180,31 +178,25 @@ namespace Pets {
   op getPet(@path petId: int32): {
     @statusCode statusCode: 200;
     @body pet: Pet;
-    // highlight-start
   } | {
     @statusCode statusCode: 404;
-    // highlight-end
   };
 
   @post
   op createPet(@body pet: Pet): {
     @statusCode statusCode: 201;
     @body newPet: Pet;
-    // highlight-start
   } | {
     @statusCode statusCode: 202;
     @body acceptedPet: Pet;
-    // highlight-end
   };
 
   @put
   op updatePet(@path petId: int32, @body pet: Pet): {
     @statusCode statusCode: 200;
     @body updatedPet: Pet;
-    // highlight-start
   } | {
     @statusCode statusCode: 404;
-    // highlight-end
   };
 
   @delete
