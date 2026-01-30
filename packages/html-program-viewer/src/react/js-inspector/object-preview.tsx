@@ -54,20 +54,29 @@ export const ObjectPreview: FC<any> = ({ data }) => {
   } else {
     const maxProperties = OBJECT_MAX_PROPERTIES;
     const propertyNodes: ReactNode[] = [];
-    for (const propertyName in object) {
-      if (hasOwnProperty.call(object, propertyName)) {
+    
+    // Get all property keys (both string and Symbol)
+    const stringKeys = Object.getOwnPropertyNames(object);
+    const symbolKeys = Object.getOwnPropertySymbols(object);
+    const allKeys: (string | symbol)[] = [...stringKeys, ...symbolKeys];
+    const totalProperties = allKeys.length;
+    
+    for (let i = 0; i < allKeys.length; i++) {
+      const key = allKeys[i];
+      if (hasOwnProperty.call(object, key)) {
         let ellipsis;
         if (
           propertyNodes.length === maxProperties - 1 &&
-          Object.keys(object).length > maxProperties
+          totalProperties > maxProperties
         ) {
           ellipsis = <span key={"ellipsis"}>…</span>;
         }
 
-        const propertyValue = getPropertyValue(object, propertyName);
+        const propertyValue = getPropertyValue(object, key);
+        const displayName = typeof key === "string" ? key || `""` : key.toString();
         propertyNodes.push(
-          <span key={propertyName}>
-            <ObjectName name={propertyName || `""`} />
+          <span key={typeof key === "string" ? key : `symbol-${i}`}>
+            <ObjectName name={displayName} />
             :&nbsp;
             <JsValue value={propertyValue} />
             {ellipsis}
