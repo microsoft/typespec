@@ -340,20 +340,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             // Handle array encoding from InputModelProperty
             if (inputProperty is InputModelProperty modelProperty &&
-                inputProperty.Type is InputArrayType &&
-                !string.IsNullOrEmpty(modelProperty.Encode))
+                inputProperty.Type is InputArrayType)
             {
-                return modelProperty.Encode switch
+                var arrayEncoding = modelProperty.GetArrayEncoding();
+                if (arrayEncoding.HasValue)
                 {
-                    "commaDelimited" => SerializationFormat.Array_CommaDelimited,
-                    "spaceDelimited" => SerializationFormat.Array_SpaceDelimited,
-                    "pipeDelimited" => SerializationFormat.Array_PipeDelimited,
-                    "newlineDelimited" => SerializationFormat.Array_NewlineDelimited,
-                    _ => CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type)
-                };
+                    return arrayEncoding.Value.ToSerializationFormat();
+                }
             }
 
-            // Use default serialization format logic
             return CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
         }
     }

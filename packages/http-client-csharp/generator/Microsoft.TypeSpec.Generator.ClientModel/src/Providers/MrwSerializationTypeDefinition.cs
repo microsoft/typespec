@@ -1311,18 +1311,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             MethodBodyStatement[] deserializationStatements;
-            if (arrayEncoding.HasValue && IsArrayEncodingFormat(arrayEncoding.Value) &&
-                (propertyType.IsList || propertyType.IsArray))
+            if (arrayEncoding.HasValue && (propertyType.IsList || propertyType.IsArray))
             {
-                var elementType = GetCollectionElementType(propertyType);
-                if (IsSupportedEncodedArrayElementType(elementType))
+                try
                 {
-                    deserializationStatements = CreateEncodedArrayDeserializationStatements(
-                        propertyType, variableExpression, jsonProperty, arrayEncoding.Value);
+                    var delimiter = ArrayKnownEncodingExtensions.GetDelimiter(arrayEncoding.Value);
+                    var elementType = propertyType.ElementType;
+                    if (IsSupportedEncodedArrayElementType(elementType))
+                    {
+                        deserializationStatements = CreateEncodedArrayDeserializationStatements(
+                            propertyType, variableExpression, jsonProperty, arrayEncoding.Value);
+                    }
+                    else
+                    {
+                        // Fall back to default deserialization for unsupported element types
+                        deserializationStatements =
+                        [
+                            DeserializeValue(propertyType, jsonProperty.Value(), serializationFormat, out ValueExpression value),
+                            variableExpression.Assign(value).Terminate()
+                        ];
+                    }
                 }
-                else
+                catch (ArgumentOutOfRangeException)
                 {
-                    // Fall back to default deserialization for unsupported element types
+                    // Fall back to default deserialization for non-array encoding formats
                     deserializationStatements =
                     [
                         DeserializeValue(propertyType, jsonProperty.Value(), serializationFormat, out ValueExpression value),
@@ -1600,7 +1612,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             continue;
                         }
-                        propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, null));
+                        propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat));
                     }
 
                     foreach (var field in baseModelProvider.CanonicalView.Fields)
@@ -1609,7 +1621,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             continue;
                         }
-                        propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, null));
+                        propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
                     }
 
                     baseModelProvider = baseModelProvider.BaseModelProvider;
@@ -1635,7 +1647,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, null));
+                propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
             }
 
             return [.. propertyStatements];
@@ -1646,7 +1658,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CSharpType propertyType,
             string propertyName,
             MemberExpression propertyExpression,
-            SerializationFormat? arrayEncoding = null)
+            SerializationFormat? serializationFormat)
         {
             var propertySerializationName = wireInfo.SerializedName;
             var propertySerializationFormat = wireInfo.SerializationFormat;
@@ -1658,15 +1670,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
 
             // Check for encoded arrays and override the serialization statement
-            if (arrayEncoding.HasValue && IsArrayEncodingFormat(arrayEncoding.Value) && (propertyType.IsList || propertyType.IsArray))
+            if (serializationFormat.HasValue && (propertyType.IsList || propertyType.IsArray))
             {
-                var elementType = GetCollectionElementType(propertyType);
-                if (IsSupportedEncodedArrayElementType(elementType))
+                try
                 {
-                    serializationStatement = CreateEncodedArraySerializationStatement(
-                        propertyType,
-                        propertyExpression,
-                        arrayEncoding.Value);
+                    var delimiter = ArrayKnownEncodingExtensions.GetDelimiter(serializationFormat.Value);
+                    var elementType = propertyType.ElementType;
+                    if (IsSupportedEncodedArrayElementType(elementType))
+                    {
+                        serializationStatement = CreateEncodedArraySerializationStatement(
+                            propertyType,
+                            propertyExpression,
+                            serializationFormat.Value);
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    // Not an array encoding format, continue with regular serialization
                 }
             }
 
@@ -1850,63 +1870,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // Support string arrays
             if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(string))
+            {
                 return true;
+            }
 
             // Support string enum arrays
-            if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
+            if (elementType.IsEnum && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
+            {
                 return true;
-
+            }
             return false;
-        }
-
-        private static CSharpType GetCollectionElementType(CSharpType collectionType)
-        {
-            return collectionType.IsArray ? collectionType.ElementType : collectionType.Arguments[0];
         }
 
         private MethodBodyStatement CreateEncodedArraySerializationStatement(
             CSharpType propertyType,
             ValueExpression propertyExpression,
-            SerializationFormat encoding)
+            SerializationFormat serializationFormat)
         {
-            // Get the delimiter based on the encoding type
-            var delimiter = encoding switch
-            {
-                SerializationFormat.Array_CommaDelimited => ",",
-                SerializationFormat.Array_SpaceDelimited => " ",
-                SerializationFormat.Array_PipeDelimited => "|",
-                SerializationFormat.Array_NewlineDelimited => "\n",
-                _ => throw new InvalidOperationException($"Unknown array encoding: {encoding}")
-            };
+            var delimiter = ArrayKnownEncodingExtensions.GetDelimiter(serializationFormat);
 
-            // Get element type for string conversion
-            var elementType = GetCollectionElementType(propertyType);
+            var elementType = propertyType.ElementType;
 
-            // Build the serialization expression based on element type
             ValueExpression stringJoinExpression;
             if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(string))
             {
-                // For string arrays, use string.Join directly
-                // string.Join(",", array)
-                stringJoinExpression = Static<string>().Invoke(nameof(string.Join), Literal(delimiter), propertyExpression);
+                stringJoinExpression = StringSnippets.Join(Literal(delimiter), propertyExpression);
             }
             else if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
             {
-                // For string enum arrays, convert each enum to string
                 var x = new VariableExpression(typeof(object), "x");
-                var selectExpression = propertyExpression.Invoke("Select",
+                var selectExpression = propertyExpression.Invoke(nameof(Enumerable.Select),
                     new FuncExpression([x.Declaration], new TernaryConditionalExpression(
                         x.Equal(Null),
                         Literal(""),
-                        x.Invoke("ToSerialString"))));
-                stringJoinExpression = Static<string>().Invoke(nameof(string.Join), Literal(delimiter), selectExpression);
+                        elementType.ToSerial(x))));
+                stringJoinExpression = StringSnippets.Join(Literal(delimiter), selectExpression);
             }
             else
             {
-                throw new InvalidOperationException($"Encoded array serialization is only supported for string and string enum arrays. Element type: {elementType.Name}");
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                   DiagnosticCodes.UnsupportedSerialization,
+                   $"Encoded array serialization is only supported for string and string enum arrays. Element type: {elementType.Name}.",
+                   severity: EmitterDiagnosticSeverity.Warning);
+                stringJoinExpression = propertyExpression.InvokeToString();
             }
 
-            // writer.WriteStringValue(stringJoinExpression)
             return _utf8JsonWriterSnippet.WriteStringValue(stringJoinExpression);
         }
 
@@ -1914,76 +1922,74 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CSharpType propertyType,
             VariableExpression variableExpression,
             ScopedApi<JsonProperty> jsonProperty,
-            SerializationFormat encoding)
+            SerializationFormat serializationFormat)
         {
-            var delimiter = encoding switch
-            {
-                SerializationFormat.Array_CommaDelimited => ",",
-                SerializationFormat.Array_SpaceDelimited => " ",
-                SerializationFormat.Array_PipeDelimited => "|",
-                SerializationFormat.Array_NewlineDelimited => "\n",
-                _ => throw new InvalidOperationException($"Unknown array encoding: {encoding}")
-            };
-            var elementType = GetCollectionElementType(propertyType);
+            var delimiter = ArrayKnownEncodingExtensions.GetDelimiter(serializationFormat);
+            var elementType = propertyType.ElementType;
             var delimiterChar = Literal(delimiter.ToCharArray()[0]);
             var isStringElement = elementType.IsFrameworkType && elementType.FrameworkType == typeof(string);
 
             var getStringStatement = Declare("stringValue", typeof(string), jsonProperty.Value().GetString(), out var stringValueVar);
-            var isNullOrEmptyCheck = Static<string>().Invoke("IsNullOrEmpty", stringValueVar);
+            var isNullOrEmptyCheck = StringSnippets.IsNullOrEmpty(stringValueVar.As<string>());
 
             MethodBodyStatement createArrayStatement;
 
             if (isStringElement)
             {
-                var splitResult = stringValueVar.Invoke("Split", delimiterChar);
+                var splitResult = stringValueVar.As<string>().Split(delimiterChar);
                 if (propertyType.IsArray)
                 {
-                    var emptyExpression = new NewArrayExpression(elementType);
+                    var emptyExpression = New.Array(elementType);
                     var conditionalExpression = new TernaryConditionalExpression(
                         isNullOrEmptyCheck, emptyExpression, splitResult);
                     createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
                 }
                 else if (propertyType.IsList)
                 {
-                    var emptyExpression = New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType));
+                    var listType = New.List(elementType);
                     var populatedExpression = New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), splitResult);
                     var conditionalExpression = new TernaryConditionalExpression(
-                        isNullOrEmptyCheck, emptyExpression, populatedExpression);
+                        isNullOrEmptyCheck, listType, populatedExpression);
                     createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
                 }
                 else
                 {
-                    var listExpression = New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), splitResult);
+                    var initType = propertyType.PropertyInitializationType;
+                    var listExpression = New.Instance(initType, splitResult);
                     var conditionalExpression = new TernaryConditionalExpression(
-                        isNullOrEmptyCheck, New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType)), listExpression);
-                    createArrayStatement = variableExpression.Assign(New.Instance(propertyType, conditionalExpression)).Terminate();
+                        isNullOrEmptyCheck, New.Instance(initType), listExpression);
+                    createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
                 }
             }
             else if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
             {
                 var splitExpression = new TernaryConditionalExpression(
                     isNullOrEmptyCheck,
-                    new NewArrayExpression(typeof(string)),
-                    stringValueVar.Invoke("Split", delimiterChar));
+                    New.Array(typeof(string)),
+                    stringValueVar.As<string>().Split(delimiterChar));
 
                 var s = new VariableExpression(typeof(string), "s");
-                var trimmedS = s.Invoke("Trim");
+                var trimmedS = s.Invoke(nameof(string.Trim));
 
                 var parseExpression = Static(elementType).Invoke("Parse", trimmedS);
 
-                var selectExpression = splitExpression.Invoke("Select",
+                var selectExpression = splitExpression.Invoke(nameof(Enumerable.Select),
                     new FuncExpression([s.Declaration], parseExpression));
 
                 var finalExpression = propertyType.IsArray
-                    ? selectExpression.Invoke("ToArray")
+                    ? selectExpression.Invoke(nameof(Enumerable.ToArray))
                     : propertyType.IsList
                         ? New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), selectExpression)
-                        : New.Instance(propertyType, selectExpression);
+                        : New.Instance(propertyType.PropertyInitializationType, selectExpression);
                 createArrayStatement = variableExpression.Assign(finalExpression).Terminate();
             }
             else
             {
-                throw new InvalidOperationException($"Encoded array deserialization is only supported for string and string enum arrays. Element type: {elementType.Name}");
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                   DiagnosticCodes.UnsupportedSerialization,
+                   $"Encoded array deserialization is only supported for string and string enum arrays. Element type: {elementType.Name}.",
+                   severity: EmitterDiagnosticSeverity.Warning);
+                createArrayStatement = variableExpression.Assign(propertyType.IsList ? New.Instance(propertyType) : New.Array(elementType)).Terminate();
             }
             return
             [
@@ -2444,14 +2450,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    provider is ModelProvider modelProvider
                 ? GetDeserializationMethodInvocationForType(modelProvider, jsonElementVariable, dataVariable, optionsVariable)
                 : modelType.Deserialize(jsonElementVariable, null, optionsVariable);
-        }
-
-        private static bool IsArrayEncodingFormat(SerializationFormat format)
-        {
-            return format is SerializationFormat.Array_CommaDelimited or
-                   SerializationFormat.Array_SpaceDelimited or
-                   SerializationFormat.Array_PipeDelimited or
-                   SerializationFormat.Array_NewlineDelimited;
         }
     }
 }

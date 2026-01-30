@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Input.Extensions;
+
 namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputModelProperty : InputProperty
@@ -119,6 +121,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 SerializationOptions = serializationOptions;
             }
+        }
+
+        public ArrayKnownEncoding? GetArrayEncoding()
+        {
+            if (ArrayKnownEncodingExtensions.TryParse(Encode, out var encoding))
+            {
+                return encoding;
+            }
+            return null;
         }
     }
 }
