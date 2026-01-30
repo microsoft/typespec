@@ -12,9 +12,6 @@
     box-shadow 0.2s ease,
     border-color 0.2s ease;
   min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .sample-card:hover {
@@ -24,6 +21,45 @@
 .sample-card:focus-visible {
   outline: 2px solid var(--colorBrandStroke1);
   outline-offset: 2px;
+}
+
+.sample-card-content {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.sample-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sample-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sample-icon-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.sample-icon-initials {
+  position: relative;
+  font-size: 16px;
+  font-weight: 600;
+  z-index: 1;
 }
 
 .sample-title {
