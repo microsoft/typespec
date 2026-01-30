@@ -10,7 +10,7 @@ export interface EmitFileOptions {
 
 const emittedFilesPerProgramKey = Symbol.for("TYPESPEC_EMITTED_FILES_PATHS");
 if ((globalThis as any)[emittedFilesPerProgramKey] === undefined) {
-  (globalThis as any)[emittedFilesPerProgramKey] = new Map<Program, string[]>();
+  (globalThis as any)[emittedFilesPerProgramKey] = new WeakMap<Program, string[]>();
 }
 
 export function getEmittedFilesForProgram(program: Program): string[] {
