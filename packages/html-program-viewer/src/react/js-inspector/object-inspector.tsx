@@ -82,6 +82,10 @@ const createIterator = (showNonenumerable?: boolean, sortObjectKeys?: boolean) =
 
       // Symbol property names
       const symbolKeys = Object.getOwnPropertySymbols(data);
+      if (sortObjectKeys && !dataIsArray) {
+        // Sort symbols by their description for consistent display
+        symbolKeys.sort((a, b) => a.toString().localeCompare(b.toString()));
+      }
       yield* iterateProperties(data, symbolKeys);
 
       // [[Prototype]] of the object: `Object.getPrototypeOf(data)`
