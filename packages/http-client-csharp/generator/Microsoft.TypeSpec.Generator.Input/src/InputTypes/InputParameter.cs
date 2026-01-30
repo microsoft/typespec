@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Microsoft.TypeSpec.Generator.Input
@@ -26,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public InputParameterScope Scope { get; internal set; }
+        public IReadOnlyList<InputMethodParameter>? CorrespondingMethodParams { get; internal set; }
 
         /// <summary>
         /// Update the instance with given parameters.

@@ -62,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<string>? contentTypes = null;
             string? defaultContentType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? correspondingMethodParams = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -79,7 +80,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadComplexType("contentTypes",options, ref contentTypes)
                     || reader.TryReadComplexType("defaultContentType", options, ref defaultContentType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("correspondingMethodParams", options, ref correspondingMethodParams);
 
                 if (!isKnownProperty)
                 {
@@ -101,6 +103,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.ContentTypes = contentTypes ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a contentTypes.");
             parameter.DefaultContentType = defaultContentType ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a defaultContentType.");
+            parameter.CorrespondingMethodParams = correspondingMethodParams;
 
             return parameter;
         }
