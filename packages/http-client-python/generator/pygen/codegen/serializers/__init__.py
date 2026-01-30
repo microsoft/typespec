@@ -541,7 +541,6 @@ class JinjaSerializer(ReaderAndWriter):
         import_sample_cache: dict[tuple[str, str], str],
         out_path: Path,
         sample_additional_folder: Path,
-        files_to_write: list[tuple[Path, str]],
     ) -> None:
         """Process samples for a single operation."""
         for sample_value in samples.values():
@@ -565,7 +564,7 @@ class JinjaSerializer(ReaderAndWriter):
 
                 content = sample_ser.serialize()
                 output_path = out_path / sample_additional_folder / _sample_output_path(file) / file_name
-                files_to_write.append((output_path, content))
+                self.write_file(output_path, content)
             except Exception as e:  # pylint: disable=broad-except
                 _LOGGER.error("error happens in sample %s: %s", file, e)
 
@@ -573,8 +572,6 @@ class JinjaSerializer(ReaderAndWriter):
         out_path = self._generated_tests_samples_folder("generated_samples")
         sample_additional_folder = self.sample_additional_folder
 
-        # Phase 1: Generate all content (CPU-bound)
-        files_to_write: list[tuple[Path, str]] = []
         # Cache import_test per (client_namespace, imports_hash_string) since it's expensive to compute
         import_sample_cache: dict[tuple[str, str], str] = {}
 
@@ -592,32 +589,22 @@ class JinjaSerializer(ReaderAndWriter):
                         import_sample_cache,
                         out_path,
                         sample_additional_folder,
-                        files_to_write,
                     )
-
-        # Phase 2: Write all files
-        for path, content in files_to_write:
-            self.write_file(path, content)
 
     def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
         out_path = self._generated_tests_samples_folder("generated_tests")
 
-        # Phase 1: Generate all content (CPU-bound)
-        files_to_write: list[tuple[Path, str]] = []
-
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
-        files_to_write.append((out_path / "conftest.py", general_serializer.serialize_conftest()))
+        self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
 
         if not self.code_model.options["azure-arm"]:
             for async_mode in (True, False):
                 async_suffix = "_async" if async_mode else ""
                 general_serializer.async_mode = async_mode
-                files_to_write.append(
-                    (
-                        out_path / f"testpreparer{async_suffix}.py",
-                        general_serializer.serialize_testpreparer(),
-                    )
+                self.write_file(
+                    out_path / f"testpreparer{async_suffix}.py",
+                    general_serializer.serialize_testpreparer(),
                 )
 
         # Generate test files - reuse serializer per operation group, toggle async_mode
@@ -636,12 +623,8 @@ class JinjaSerializer(ReaderAndWriter):
                         test_serializer.import_test = import_test_cache[cache_key]
                         content = test_serializer.serialize_test()
                         output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
-                        files_to_write.append((output_path, content))
+                        self.write_file(output_path, content)
                 except Exception as e:  # pylint: disable=broad-except
                     _LOGGER.error("error happens in test generation for operation group %s: %s", og.class_name, e)
-
-        # Phase 2: Write all files
-        for path, content in files_to_write:
-            self.write_file(path, content)
 
         self.code_model.for_test = False
