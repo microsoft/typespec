@@ -180,3 +180,52 @@ describe("External types", () => {
     strictEqual((jsonElementProp.type as any).external.minVersion, "8.0.0");
   });
 });
+
+describe("Union types to model hierarchies", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+  it("should convert union with members to model hierarchy", async () => {
+    const program = await typeSpecCompile(
+      `
+      model Alpha {
+        alphaProp: string;
+        type: "alpha";
+      }
+      model Beta {
+        betaProp: int32;
+        type: "beta";
+      }
+      @discriminated(#{ discriminatorPropertyName: "type", envelope: "none" })
+      union MyUnion {
+        "alpha": Alpha,
+        "beta": Beta
+      }
+      op test(@body input: MyUnion): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const alphaModel = root.models.find((m) => m.name === "Alpha");
+    ok(alphaModel, "Alpha should exist");
+
+    const betaModel = root.models.find((m) => m.name === "Beta");
+    ok(betaModel, "Beta should exist");
+    
+    const myUnion = root.models.find((m) => m.name === "MyUnion");
+    ok(myUnion, "MyUnion should exist");
+
+    // Validate that MyUnion is a model
+    strictEqual(myUnion.kind, "model", "MyUnion should be converted to a model");
+
+    // Validate that Alpha and Beta inherit from MyUnion
+    strictEqual(alphaModel.baseModel, myUnion, "Alpha should inherit from MyUnion");
+    strictEqual(betaModel.baseModel, myUnion, "Beta should inherit from MyUnion");
+  });
+});
