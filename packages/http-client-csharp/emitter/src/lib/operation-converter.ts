@@ -327,7 +327,11 @@ function updateMethodParameter(
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
     if (methodParameter.type.kind === "constant") {
-      methodParameter.type = fromSdkType(sdkContext, operationHttpParameter.type, operationHttpParameter);
+      methodParameter.type = fromSdkType(
+        sdkContext,
+        operationHttpParameter.type,
+        operationHttpParameter,
+      );
     }
   }
 }
