@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
         /// <summary>
         /// Get the delimiter string for array serialization format.
         /// </summary>
-        public static bool TryGetDelimiter(SerializationFormat format, out string delimiter)
+        public static bool TryGetDelimiter(SerializationFormat format, out string? delimiter)
         {
             delimiter = format switch
             {
@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
                 SerializationFormat.Array_SpaceDelimited => " ",
                 SerializationFormat.Array_PipeDelimited => "|",
                 SerializationFormat.Array_NewlineDelimited => "\n",
-                _ => null!
+                _ => null
             };
             return delimiter != null;
         }
