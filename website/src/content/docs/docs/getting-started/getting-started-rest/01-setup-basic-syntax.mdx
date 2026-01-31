@@ -92,7 +92,7 @@ A REST service in TypeSpec is defined using the [`@service`](../../../standard-l
 
 Let's start by defining a simple REST service for a Pet Store:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={4-7}
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={4-7}
 import "@typespec/http";
 
 using Http;
@@ -119,7 +119,7 @@ In this example:
 
 Let's create a namespace for our Pet Store service:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={8}
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={8}
 import "@typespec/http";
 
 using Http;
@@ -147,7 +147,7 @@ In TypeSpec, a [model](../../language-basics/models.md) is a fundamental buildin
 
 Let's define a simple model for a `Pet`:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={9-22}
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={9-22}
 import "@typespec/http";
 
 using Http;
@@ -184,7 +184,7 @@ In this example:
 
 We can add [validation](../../../language-basics/values/#validation) annotations to our model properties to enforce certain constraints:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={12,15-16}
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={12,15-16}
 import "@typespec/http";
 
 using Http;

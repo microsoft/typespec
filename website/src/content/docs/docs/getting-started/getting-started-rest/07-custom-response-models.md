@@ -98,7 +98,7 @@ Now that we have defined our custom response models, let's use them in our API o
 
 ### Example: Applying Custom Response Models to Operations
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={55-97,102,105,108-112,116-121,125}
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={55-97,102,105,108-112,116-121,125}
 import "@typespec/http";
 import "@typespec/versioning";
 

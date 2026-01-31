@@ -26,7 +26,7 @@ Error models can be used to represent different types of errors that your API mi
 
 We'll define models to represent validation errors, not-found errors, and internal server errors:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={45,55-58,65-76,85-102}
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={45,55-58,65-76,85-102}
 import "@typespec/http";
 
 using Http;

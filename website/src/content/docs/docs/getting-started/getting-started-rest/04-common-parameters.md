@@ -16,7 +16,7 @@ Let's start by defining a model for common parameters. This model will include p
 
 For the sake of demonstration, we're going to require each API call in our Pet Store service to include a request ID, a locale, and a client version. Let's define a model for these common parameters, which we'll label `requestID`, `locale`, and `clientVersion`:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={30-39}
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={30-39}
 import "@typespec/http";
 
 using Http;
@@ -69,7 +69,7 @@ Now that we have defined our common parameters model, let's reuse it across mult
 
 ### Example: Reusing Common Parameters in Operations
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" mark={44,50,59,71,90}
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={44,50,59,71,90}
 import "@typespec/http";
 
 using Http;
@@ -193,7 +193,7 @@ In this example:
 
 Let's take a closer look at how the common parameters model with the `spread` operator is represented in the generated OpenAPI specification by looking at the `deletePet` operation:
 
-```yaml mark={14-16,28-45}
+```yaml ins={14-16,28-45}
 #### Generated OpenAPI Specification:
 
 paths:
