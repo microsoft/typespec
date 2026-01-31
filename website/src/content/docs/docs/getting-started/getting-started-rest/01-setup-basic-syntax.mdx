@@ -92,14 +92,14 @@ A REST service in TypeSpec is defined using the [`@service`](../../../standard-l
 
 Let's start by defining a simple REST service for a Pet Store:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={4-7}
-import "@typespec/http";
-
-using Http;
-@service(#{
-  title: "Pet Store",
-})
-@server("https://example.com", "Single server endpoint")
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ 
+ using Http;
++@service(#{
++  title: "Pet Store",
++})
++@server("https://example.com", "Single server endpoint")
 ```
 
 In this example:
@@ -119,15 +119,15 @@ In this example:
 
 Let's create a namespace for our Pet Store service:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={8}
-import "@typespec/http";
-
-using Http;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-
-namespace PetStore;
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ 
+ using Http;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
+ 
++namespace PetStore;
 ```
 
 In this example:
@@ -147,29 +147,29 @@ In TypeSpec, a [model](../../language-basics/models.md) is a fundamental buildin
 
 Let's define a simple model for a `Pet`:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={9-22}
-import "@typespec/http";
-
-using Http;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-namespace PetStore;
-
-model Pet {
-  id: int32;
-  name: string;
-  age: int32;
-  kind: petType;
-}
-
-enum petType {
-  dog: "dog",
-  cat: "cat",
-  fish: "fish",
-  bird: "bird",
-  reptile: "reptile",
-}
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ 
+ using Http;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
+ namespace PetStore;
+ 
++model Pet {
++  id: int32;
++  name: string;
++  age: int32;
++  kind: petType;
++}
++
++enum petType {
++  dog: "dog",
++  cat: "cat",
++  fish: "fish",
++  bird: "bird",
++  reptile: "reptile",
++}
 ```
 
 In this example:
@@ -184,35 +184,35 @@ In this example:
 
 We can add [validation](../../../language-basics/values/#validation) annotations to our model properties to enforce certain constraints:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={12,15-16}
-import "@typespec/http";
-
-using Http;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-namespace PetStore;
-
-model Pet {
-  id: int32;
-
-  @minLength(1)
-  name: string;
-
-  @minValue(0)
-  @maxValue(100)
-  age: int32;
-
-  kind: petType;
-}
-
-enum petType {
-  dog: "dog",
-  cat: "cat",
-  fish: "fish",
-  bird: "bird",
-  reptile: "reptile",
-}
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ 
+ using Http;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
+ namespace PetStore;
+ 
+ model Pet {
+   id: int32;
+ 
++  @minLength(1)
+   name: string;
+ 
++  @minValue(0)
++  @maxValue(100)
+   age: int32;
+ 
+   kind: petType;
+ }
+ 
+ enum petType {
+   dog: "dog",
+   cat: "cat",
+   fish: "fish",
+   bird: "bird",
+   reptile: "reptile",
+ }
 ```
 
 In this example:

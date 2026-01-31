@@ -26,109 +26,109 @@ Error models can be used to represent different types of errors that your API mi
 
 We'll define models to represent validation errors, not-found errors, and internal server errors:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={45,55-58,65-76,85-102}
-import "@typespec/http";
-
-using Http;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-namespace PetStore;
-
-model Pet {
-  id: int32;
-
-  @minLength(1)
-  name: string;
-
-  @minValue(0)
-  @maxValue(100)
-  age: int32;
-
-  kind: petType;
-}
-
-enum petType {
-  dog: "dog",
-  cat: "cat",
-  fish: "fish",
-  bird: "bird",
-  reptile: "reptile",
-}
-
-@route("/pets")
-namespace Pets {
-  @get
-  op listPets(): {
-    @statusCode statusCode: 200;
-    @body pets: Pet[];
-  };
-
-  @get
-  op getPet(@path petId: int32): {
-    @statusCode statusCode: 200;
-    @body pet: Pet;
-  } | {
-    @statusCode statusCode: 404;
-
-    @body error: NotFoundError;
-  };
-
-  @post
-  op createPet(@body pet: Pet): {
-    @statusCode statusCode: 201;
-    @body newPet: Pet;
-  } | {
-    @statusCode statusCode: 202;
-    @body acceptedPet: Pet;
-  } | {
-    @statusCode statusCode: 400;
-    @body error: ValidationError;
-  };
-
-  @put
-  op updatePet(@path petId: int32, @body pet: Pet):
-    | {
-        @statusCode statusCode: 200;
-        @body updatedPet: Pet;
-      }
-    | {
-        @statusCode statusCode: 400;
-        @body error: ValidationError;
-      }
-    | {
-        @statusCode statusCode: 404;
-        @body error: NotFoundError;
-      }
-    | {
-        @statusCode statusCode: 500;
-        @body error: InternalServerError;
-      };
-
-  @delete
-  op deletePet(@path petId: int32): {
-    @statusCode statusCode: 204;
-  };
-}
-
-@error
-model NotFoundError {
-  code: "NOT_FOUND";
-  message: string;
-}
-
-@error
-model ValidationError {
-  code: "VALIDATION_ERROR";
-  message: string;
-  details: string[];
-}
-
-@error
-model InternalServerError {
-  code: "INTERNAL_SERVER_ERROR";
-  message: string;
-}
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ 
+ using Http;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
+ namespace PetStore;
+ 
+ model Pet {
+   id: int32;
+ 
+   @minLength(1)
+   name: string;
+ 
+   @minValue(0)
+   @maxValue(100)
+   age: int32;
+ 
+   kind: petType;
+ }
+ 
+ enum petType {
+   dog: "dog",
+   cat: "cat",
+   fish: "fish",
+   bird: "bird",
+   reptile: "reptile",
+ }
+ 
+ @route("/pets")
+ namespace Pets {
+   @get
+   op listPets(): {
+     @statusCode statusCode: 200;
+     @body pets: Pet[];
+   };
+ 
+   @get
+   op getPet(@path petId: int32): {
+     @statusCode statusCode: 200;
+     @body pet: Pet;
+   } | {
+     @statusCode statusCode: 404;
+ 
++    @body error: NotFoundError;
+   };
+ 
+   @post
+   op createPet(@body pet: Pet): {
+     @statusCode statusCode: 201;
+     @body newPet: Pet;
+   } | {
+     @statusCode statusCode: 202;
+     @body acceptedPet: Pet;
++  } | {
++    @statusCode statusCode: 400;
++    @body error: ValidationError;
++  };
+ 
+   @put
+   op updatePet(@path petId: int32, @body pet: Pet):
+     | {
+         @statusCode statusCode: 200;
+         @body updatedPet: Pet;
++      }
++    | {
++        @statusCode statusCode: 400;
++        @body error: ValidationError;
++      }
++    | {
++        @statusCode statusCode: 404;
++        @body error: NotFoundError;
++      }
++    | {
++        @statusCode statusCode: 500;
++        @body error: InternalServerError;
+       };
+ 
+   @delete
+   op deletePet(@path petId: int32): {
+     @statusCode statusCode: 204;
+   };
+ }
+ 
++@error
++model NotFoundError {
++  code: "NOT_FOUND";
++  message: string;
++}
++
++@error
++model ValidationError {
++  code: "VALIDATION_ERROR";
++  message: string;
++  details: string[];
++}
++
++@error
++model InternalServerError {
++  code: "INTERNAL_SERVER_ERROR";
++  message: string;
++}
 ```
 
 In this example:

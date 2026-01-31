@@ -98,194 +98,194 @@ Now that we have defined our custom response models, let's use them in our API o
 
 ### Example: Applying Custom Response Models to Operations
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={55-97,102,105,108-112,116-121,125}
-import "@typespec/http";
-import "@typespec/versioning";
-
-using Http;
-using Versioning;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-@versioned(Versions)
-namespace PetStore;
-
-enum Versions {
-  v1: "1.0",
-  v2: "2.0",
-}
-
-model Pet {
-  id: int32;
-
-  @minLength(1)
-  name: string;
-
-  @minValue(0)
-  @maxValue(100)
-  age: int32;
-
-  kind: petType;
-}
-
-enum petType {
-  dog: "dog",
-  cat: "cat",
-  fish: "fish",
-  bird: "bird",
-  reptile: "reptile",
-}
-
-@added(Versions.v2)
-model Toy {
-  id: int32;
-  name: string;
-}
-
-model CommonParameters {
-  @header
-  requestID: string;
-
-  @query
-  locale?: string;
-
-  @header
-  clientVersion?: string;
-}
-
-model PetListResponse {
-  ...OkResponse;
-  ...Body<Pet[]>;
-}
-
-model PetResponse {
-  ...OkResponse;
-  ...Body<Pet>;
-}
-
-model PetCreatedResponse {
-  ...CreatedResponse;
-  ...Body<Pet>;
-}
-
-model PetAcceptedResponse {
-  ...AcceptedResponse;
-  ...Body<Pet>;
-}
-
-model PetErrorResponse {
-  ...BadRequestResponse;
-  ...Body<ValidationError>;
-}
-
-model PetNotFoundResponse {
-  ...NotFoundResponse;
-  ...Body<NotFoundError>;
-}
-
-model PetUnauthorizedResponse {
-  ...UnauthorizedResponse;
-  ...Body<UnauthorizedError>;
-}
-
-model PetSuccessResponse {
-  ...OkResponse;
-  ...Body<string>;
-}
-
-model PetNoContentResponse {
-  ...NoContentResponse;
-}
-
-@route("/pets")
-namespace Pets {
-  @get
-  op listPets(...CommonParameters): PetListResponse;
-
-  @get
-  op getPet(@path petId: int32, @header ifMatch?: string): PetResponse | PetNotFoundResponse;
-  @useAuth(BearerAuth)
-  @post
-  op createPet(@body pet: Pet):
-    | PetCreatedResponse
-    | PetAcceptedResponse
-    | PetErrorResponse
-    | PetUnauthorizedResponse;
-
-  @useAuth(BearerAuth)
-  @put
-  op updatePet(@path petId: int32, @body pet: Pet):
-    | PetResponse
-    | PetErrorResponse
-    | PetUnauthorizedResponse
-    | PetNotFoundResponse
-    | InternalServerErrorResponse;
-
-  @useAuth(BearerAuth)
-  @delete
-  op deletePet(@path petId: int32): PetNoContentResponse | PetUnauthorizedResponse;
-
-  @route("{petId}/toys")
-  namespace Toys {
-    @added(Versions.v2)
-    @get
-    op listToys(@path petId: int32, ...CommonParameters): {
-      @body toys: Toy[];
-    };
-
-    @added(Versions.v2)
-    @post
-    @useAuth(BearerAuth)
-    op createToy(@path petId: int32, @body toy: Toy, ...CommonParameters): {
-      @statusCode statusCode: 201;
-      @body newToy: Toy;
-    };
-
-    @added(Versions.v2)
-    @put
-    @useAuth(BearerAuth)
-    op updateToy(@path petId: int32, @path toyId: int32, @body toy: Toy, ...CommonParameters): {
-      @body updatedToy: Toy;
-    };
-
-    @added(Versions.v2)
-    @delete
-    @useAuth(BearerAuth)
-    op deleteToy(@path petId: int32, @path toyId: int32, ...CommonParameters): {
-      @statusCode statusCode: 204;
-    };
-  }
-}
-
-@error
-model NotFoundError {
-  code: "NOT_FOUND";
-  message: string;
-}
-
-@error
-model ValidationError {
-  code: "VALIDATION_ERROR";
-  message: string;
-  details: string[];
-}
-
-@error
-model UnauthorizedError {
-  code: "UNAUTHORIZED";
-  message: string;
-}
-
-@error
-model InternalServerError {
-  code: "INTERNAL_SERVER_ERROR";
-  message: string;
-}
-
-model InternalServerErrorResponse {
-  @statusCode statusCode: 500;
-  @body error: InternalServerError;
-}
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ import "@typespec/versioning";
+ 
+ using Http;
+ using Versioning;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
+ @versioned(Versions)
+ namespace PetStore;
+ 
+ enum Versions {
+   v1: "1.0",
+   v2: "2.0",
+ }
+ 
+ model Pet {
+   id: int32;
+ 
+   @minLength(1)
+   name: string;
+ 
+   @minValue(0)
+   @maxValue(100)
+   age: int32;
+ 
+   kind: petType;
+ }
+ 
+ enum petType {
+   dog: "dog",
+   cat: "cat",
+   fish: "fish",
+   bird: "bird",
+   reptile: "reptile",
+ }
+ 
+ @added(Versions.v2)
+ model Toy {
+   id: int32;
+   name: string;
+ }
+ 
+ model CommonParameters {
+   @header
+   requestID: string;
+ 
+   @query
+   locale?: string;
+ 
+   @header
+   clientVersion?: string;
+ }
+ 
++model PetListResponse {
++  ...OkResponse;
++  ...Body<Pet[]>;
++}
++
++model PetResponse {
++  ...OkResponse;
++  ...Body<Pet>;
++}
++
++model PetCreatedResponse {
++  ...CreatedResponse;
++  ...Body<Pet>;
++}
++
++model PetAcceptedResponse {
++  ...AcceptedResponse;
++  ...Body<Pet>;
++}
++
++model PetErrorResponse {
++  ...BadRequestResponse;
++  ...Body<ValidationError>;
++}
++
++model PetNotFoundResponse {
++  ...NotFoundResponse;
++  ...Body<NotFoundError>;
++}
++
++model PetUnauthorizedResponse {
++  ...UnauthorizedResponse;
++  ...Body<UnauthorizedError>;
++}
++
++model PetSuccessResponse {
++  ...OkResponse;
++  ...Body<string>;
++}
++
++model PetNoContentResponse {
++  ...NoContentResponse;
++}
+ 
+ @route("/pets")
+ namespace Pets {
+   @get
++  op listPets(...CommonParameters): PetListResponse;
+ 
+   @get
++  op getPet(@path petId: int32, @header ifMatch?: string): PetResponse | PetNotFoundResponse;
+   @useAuth(BearerAuth)
+   @post
++  op createPet(@body pet: Pet):
++    | PetCreatedResponse
++    | PetAcceptedResponse
++    | PetErrorResponse
++    | PetUnauthorizedResponse;
+ 
+   @useAuth(BearerAuth)
+   @put
++  op updatePet(@path petId: int32, @body pet: Pet):
++    | PetResponse
++    | PetErrorResponse
++    | PetUnauthorizedResponse
++    | PetNotFoundResponse
++    | InternalServerErrorResponse;
+ 
+   @useAuth(BearerAuth)
+   @delete
++  op deletePet(@path petId: int32): PetNoContentResponse | PetUnauthorizedResponse;
+ 
+   @route("{petId}/toys")
+   namespace Toys {
+     @added(Versions.v2)
+     @get
+     op listToys(@path petId: int32, ...CommonParameters): {
+       @body toys: Toy[];
+     };
+ 
+     @added(Versions.v2)
+     @post
+     @useAuth(BearerAuth)
+     op createToy(@path petId: int32, @body toy: Toy, ...CommonParameters): {
+       @statusCode statusCode: 201;
+       @body newToy: Toy;
+     };
+ 
+     @added(Versions.v2)
+     @put
+     @useAuth(BearerAuth)
+     op updateToy(@path petId: int32, @path toyId: int32, @body toy: Toy, ...CommonParameters): {
+       @body updatedToy: Toy;
+     };
+ 
+     @added(Versions.v2)
+     @delete
+     @useAuth(BearerAuth)
+     op deleteToy(@path petId: int32, @path toyId: int32, ...CommonParameters): {
+       @statusCode statusCode: 204;
+     };
+   }
+ }
+ 
+ @error
+ model NotFoundError {
+   code: "NOT_FOUND";
+   message: string;
+ }
+ 
+ @error
+ model ValidationError {
+   code: "VALIDATION_ERROR";
+   message: string;
+   details: string[];
+ }
+ 
+ @error
+ model UnauthorizedError {
+   code: "UNAUTHORIZED";
+   message: string;
+ }
+ 
+ @error
+ model InternalServerError {
+   code: "INTERNAL_SERVER_ERROR";
+   message: string;
+ }
+ 
+ model InternalServerErrorResponse {
+   @statusCode statusCode: 500;
+   @body error: InternalServerError;
+ }
 ```
 
 In this example:

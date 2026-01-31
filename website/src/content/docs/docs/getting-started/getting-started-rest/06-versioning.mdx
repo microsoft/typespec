@@ -18,25 +18,25 @@ Before we can use the versioning decorators, we need to add the `@typespec/versi
 
 Add the `@typespec/versioning` library to your `package.json` file, in both the `peerDependencies` and `devDependencies` sections. Your updated `package.json` should look like this:
 
-```json ins={9,15}
-{
-  "name": "typespec-petstore",
-  "version": "0.1.0",
-  "type": "module",
-  "peerDependencies": {
-    "@typespec/compiler": "latest",
-    "@typespec/http": "latest",
-    "@typespec/openapi3": "latest",
-    "@typespec/versioning": "latest"
-  },
-  "devDependencies": {
-    "@typespec/compiler": "latest",
-    "@typespec/http": "latest",
-    "@typespec/openapi3": "latest",
-    "@typespec/versioning": "latest"
-  },
-  "private": true
-}
+```diff lang=json
+ {
+   "name": "typespec-petstore",
+   "version": "0.1.0",
+   "type": "module",
+   "peerDependencies": {
+     "@typespec/compiler": "latest",
+     "@typespec/http": "latest",
+     "@typespec/openapi3": "latest",
++    "@typespec/versioning": "latest"
+   },
+   "devDependencies": {
+     "@typespec/compiler": "latest",
+     "@typespec/http": "latest",
+     "@typespec/openapi3": "latest",
++    "@typespec/versioning": "latest"
+   },
+   "private": true
+ }
 ```
 
 ### Step 2: Install Dependencies
@@ -55,22 +55,22 @@ The [`@versioned`](../../../libraries/versioning/reference/decorators/#@TypeSpec
 
 Let's define two versions of our API, `v1` and `v2`:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={2,5,9,12-15}
-import "@typespec/http";
-import "@typespec/versioning";
-
-using Http;
-using Versioning;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-@versioned(Versions)
-namespace PetStore;
-
-enum Versions {
-  v1: "1.0",
-  v2: "2.0",
-}
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
++import "@typespec/versioning";
+ 
+ using Http;
++using Versioning;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
++@versioned(Versions)
+ namespace PetStore;
+ 
++enum Versions {
++  v1: "1.0",
++  v2: "2.0",
++}
 ```
 
 In this example:
@@ -108,49 +108,49 @@ The [`@added`](../../../libraries/versioning/reference/decorators/#@TypeSpec.Ver
 
 Let's add a `Toy` model that is only available in version 2 of the API:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={38-42}
-import "@typespec/http";
-import "@typespec/versioning";
-
-using Http;
-using Versioning;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-@versioned(Versions)
-namespace PetStore;
-
-enum Versions {
-  v1: "1.0",
-  v2: "2.0",
-}
-
-model Pet {
-  id: int32;
-
-  @minLength(1)
-  name: string;
-
-  @minValue(0)
-  @maxValue(100)
-  age: int32;
-
-  kind: petType;
-}
-
-enum petType {
-  dog: "dog",
-  cat: "cat",
-  fish: "fish",
-  bird: "bird",
-  reptile: "reptile",
-}
-
-@added(Versions.v2)
-model Toy {
-  id: int32;
-  name: string;
-}
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ import "@typespec/versioning";
+ 
+ using Http;
+ using Versioning;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
+ @versioned(Versions)
+ namespace PetStore;
+ 
+ enum Versions {
+   v1: "1.0",
+   v2: "2.0",
+ }
+ 
+ model Pet {
+   id: int32;
+ 
+   @minLength(1)
+   name: string;
+ 
+   @minValue(0)
+   @maxValue(100)
+   age: int32;
+ 
+   kind: petType;
+ }
+ 
+ enum petType {
+   dog: "dog",
+   cat: "cat",
+   fish: "fish",
+   bird: "bird",
+   reptile: "reptile",
+ }
+ 
++@added(Versions.v2)
++model Toy {
++  id: int32;
++  name: string;
++}
 ```
 
 In this example:
@@ -163,218 +163,218 @@ Let's define version-specific operations to manage toys for pets. These operatio
 
 ### Example: Adding Version-Specific Operations
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={125-180}
-import "@typespec/http";
-import "@typespec/versioning";
-
-using Http;
-using Versioning;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-@versioned(Versions)
-namespace PetStore;
-
-enum Versions {
-  v1: "1.0",
-  v2: "2.0",
-}
-
-model Pet {
-  id: int32;
-
-  @minLength(1)
-  name: string;
-
-  @minValue(0)
-  @maxValue(100)
-  age: int32;
-
-  kind: petType;
-}
-
-enum petType {
-  dog: "dog",
-  cat: "cat",
-  fish: "fish",
-  bird: "bird",
-  reptile: "reptile",
-}
-
-@added(Versions.v2)
-model Toy {
-  id: int32;
-  name: string;
-}
-
-model CommonParameters {
-  @header
-  requestID: string;
-
-  @query
-  locale?: string;
-
-  @header
-  clientVersion?: string;
-}
-
-@route("/pets")
-namespace Pets {
-  @get
-  op listPets(...CommonParameters): {
-    @statusCode statusCode: 200;
-    @body pets: Pet[];
-  };
-
-  @get
-  op getPet(@path petId: int32, ...CommonParameters): {
-    @statusCode statusCode: 200;
-    @body pet: Pet;
-  } | {
-    @statusCode statusCode: 404;
-    @body error: NotFoundError;
-  };
-
-  @post
-  @useAuth(BearerAuth)
-  op createPet(@body pet: Pet, ...CommonParameters):
-    | {
-        @statusCode statusCode: 201;
-        @body newPet: Pet;
-      }
-    | {
-        @statusCode statusCode: 202;
-        @body acceptedPet: Pet;
-      }
-    | {
-        @statusCode statusCode: 400;
-        @body error: ValidationError;
-      }
-    | {
-        @statusCode statusCode: 401;
-        @body error: UnauthorizedError;
-      };
-
-  @put
-  @useAuth(BearerAuth)
-  op updatePet(@path petId: int32, @body pet: Pet, ...CommonParameters):
-    | {
-        @statusCode statusCode: 200;
-        @body updatedPet: Pet;
-      }
-    | {
-        @statusCode statusCode: 400;
-        @body error: ValidationError;
-      }
-    | {
-        @statusCode statusCode: 401;
-        @body error: UnauthorizedError;
-      }
-    | {
-        @statusCode statusCode: 404;
-        @body error: NotFoundError;
-      }
-    | {
-        @statusCode statusCode: 500;
-        @body error: InternalServerError;
-      };
-
-  @delete
-  @useAuth(BearerAuth)
-  op deletePet(@path petId: int32, ...CommonParameters): {
-    @statusCode statusCode: 204;
-  } | {
-    @statusCode statusCode: 401;
-    @body error: UnauthorizedError;
-  };
-
-  @route("{petId}/toys")
-  namespace Toys {
-    @added(Versions.v2)
-    @get
-    op listToys(@path petId: int32, ...CommonParameters): {
-      @statusCode statusCode: 200;
-      @body toys: Toy[];
-    } | {
-      @statusCode statusCode: 404;
-      @body error: NotFoundError;
-    };
-
-    @added(Versions.v2)
-    @post
-    @useAuth(BearerAuth)
-    op createToy(@path petId: int32, @body toy: Toy, ...CommonParameters): {
-      @statusCode statusCode: 201;
-      @body newToy: Toy;
-    } | {
-      @statusCode statusCode: 400;
-      @body error: ValidationError;
-    } | {
-      @statusCode statusCode: 401;
-      @body error: UnauthorizedError;
-    };
-
-    @added(Versions.v2)
-    @put
-    @useAuth(BearerAuth)
-    op updateToy(@path petId: int32, @path toyId: int32, @body toy: Toy, ...CommonParameters):
-      | {
-          @body updatedToy: Toy;
-        }
-      | {
-          @statusCode statusCode: 400;
-          @body error: ValidationError;
-        }
-      | {
-          @statusCode statusCode: 401;
-          @body error: UnauthorizedError;
-        }
-      | {
-          @statusCode statusCode: 404;
-          @body error: NotFoundError;
-        };
-
-    @added(Versions.v2)
-    @delete
-    @useAuth(BearerAuth)
-    op deleteToy(@path petId: int32, @path toyId: int32, ...CommonParameters): {
-      @statusCode statusCode: 204;
-    } | {
-      @statusCode statusCode: 401;
-      @body error: UnauthorizedError;
-    };
-  }
-}
-
-@error
-model NotFoundError {
-  code: "NOT_FOUND";
-  message: string;
-}
-
-@error
-model ValidationError {
-  code: "VALIDATION_ERROR";
-  message: string;
-  details: string[];
-}
-
-@error
-model UnauthorizedError {
-  code: "UNAUTHORIZED";
-  message: string;
-}
-
-@error
-model InternalServerError {
-  code: "INTERNAL_SERVER_ERROR";
-  message: string;
-}
-
-model InternalServerErrorResponse {
-  @statusCode statusCode: 500;
-  @body error: InternalServerError;
-}
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ import "@typespec/versioning";
+ 
+ using Http;
+ using Versioning;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
+ @versioned(Versions)
+ namespace PetStore;
+ 
+ enum Versions {
+   v1: "1.0",
+   v2: "2.0",
+ }
+ 
+ model Pet {
+   id: int32;
+ 
+   @minLength(1)
+   name: string;
+ 
+   @minValue(0)
+   @maxValue(100)
+   age: int32;
+ 
+   kind: petType;
+ }
+ 
+ enum petType {
+   dog: "dog",
+   cat: "cat",
+   fish: "fish",
+   bird: "bird",
+   reptile: "reptile",
+ }
+ 
+ @added(Versions.v2)
+ model Toy {
+   id: int32;
+   name: string;
+ }
+ 
+ model CommonParameters {
+   @header
+   requestID: string;
+ 
+   @query
+   locale?: string;
+ 
+   @header
+   clientVersion?: string;
+ }
+ 
+ @route("/pets")
+ namespace Pets {
+   @get
+   op listPets(...CommonParameters): {
+     @statusCode statusCode: 200;
+     @body pets: Pet[];
+   };
+ 
+   @get
+   op getPet(@path petId: int32, ...CommonParameters): {
+     @statusCode statusCode: 200;
+     @body pet: Pet;
+   } | {
+     @statusCode statusCode: 404;
+     @body error: NotFoundError;
+   };
+ 
+   @post
+   @useAuth(BearerAuth)
+   op createPet(@body pet: Pet, ...CommonParameters):
+     | {
+         @statusCode statusCode: 201;
+         @body newPet: Pet;
+       }
+     | {
+         @statusCode statusCode: 202;
+         @body acceptedPet: Pet;
+       }
+     | {
+         @statusCode statusCode: 400;
+         @body error: ValidationError;
+       }
+     | {
+         @statusCode statusCode: 401;
+         @body error: UnauthorizedError;
+       };
+ 
+   @put
+   @useAuth(BearerAuth)
+   op updatePet(@path petId: int32, @body pet: Pet, ...CommonParameters):
+     | {
+         @statusCode statusCode: 200;
+         @body updatedPet: Pet;
+       }
+     | {
+         @statusCode statusCode: 400;
+         @body error: ValidationError;
+       }
+     | {
+         @statusCode statusCode: 401;
+         @body error: UnauthorizedError;
+       }
+     | {
+         @statusCode statusCode: 404;
+         @body error: NotFoundError;
+       }
+     | {
+         @statusCode statusCode: 500;
+         @body error: InternalServerError;
+       };
+ 
+   @delete
+   @useAuth(BearerAuth)
+   op deletePet(@path petId: int32, ...CommonParameters): {
+     @statusCode statusCode: 204;
+   } | {
+     @statusCode statusCode: 401;
+     @body error: UnauthorizedError;
+   };
+ 
++  @route("{petId}/toys")
++  namespace Toys {
++    @added(Versions.v2)
++    @get
++    op listToys(@path petId: int32, ...CommonParameters): {
++      @statusCode statusCode: 200;
++      @body toys: Toy[];
++    } | {
++      @statusCode statusCode: 404;
++      @body error: NotFoundError;
++    };
++
++    @added(Versions.v2)
++    @post
++    @useAuth(BearerAuth)
++    op createToy(@path petId: int32, @body toy: Toy, ...CommonParameters): {
++      @statusCode statusCode: 201;
++      @body newToy: Toy;
++    } | {
++      @statusCode statusCode: 400;
++      @body error: ValidationError;
++    } | {
++      @statusCode statusCode: 401;
++      @body error: UnauthorizedError;
++    };
++
++    @added(Versions.v2)
++    @put
++    @useAuth(BearerAuth)
++    op updateToy(@path petId: int32, @path toyId: int32, @body toy: Toy, ...CommonParameters):
++      | {
++          @body updatedToy: Toy;
++        }
++      | {
++          @statusCode statusCode: 400;
++          @body error: ValidationError;
++        }
++      | {
++          @statusCode statusCode: 401;
++          @body error: UnauthorizedError;
++        }
++      | {
++          @statusCode statusCode: 404;
++          @body error: NotFoundError;
++        };
++
++    @added(Versions.v2)
++    @delete
++    @useAuth(BearerAuth)
++    op deleteToy(@path petId: int32, @path toyId: int32, ...CommonParameters): {
++      @statusCode statusCode: 204;
++    } | {
++      @statusCode statusCode: 401;
++      @body error: UnauthorizedError;
++    };
++  }
+ }
+ 
+ @error
+ model NotFoundError {
+   code: "NOT_FOUND";
+   message: string;
+ }
+ 
+ @error
+ model ValidationError {
+   code: "VALIDATION_ERROR";
+   message: string;
+   details: string[];
+ }
+ 
+ @error
+ model UnauthorizedError {
+   code: "UNAUTHORIZED";
+   message: string;
+ }
+ 
+ @error
+ model InternalServerError {
+   code: "INTERNAL_SERVER_ERROR";
+   message: string;
+ }
+ 
+ model InternalServerErrorResponse {
+   @statusCode statusCode: 500;
+   @body error: InternalServerError;
+ }
 ```
 
 In this example:

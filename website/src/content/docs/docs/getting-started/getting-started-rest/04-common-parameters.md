@@ -16,46 +16,46 @@ Let's start by defining a model for common parameters. This model will include p
 
 For the sake of demonstration, we're going to require each API call in our Pet Store service to include a request ID, a locale, and a client version. Let's define a model for these common parameters, which we'll label `requestID`, `locale`, and `clientVersion`:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={30-39}
-import "@typespec/http";
-
-using Http;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-namespace PetStore;
-
-model Pet {
-  id: int32;
-
-  @minLength(1)
-  name: string;
-
-  @minValue(0)
-  @maxValue(100)
-  age: int32;
-
-  kind: petType;
-}
-
-enum petType {
-  dog: "dog",
-  cat: "cat",
-  fish: "fish",
-  bird: "bird",
-  reptile: "reptile",
-}
-
-model CommonParameters {
-  @header
-  requestID: string;
-
-  @query
-  locale?: string;
-
-  @header
-  clientVersion?: string;
-}
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ 
+ using Http;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
+ namespace PetStore;
+ 
+ model Pet {
+   id: int32;
+ 
+   @minLength(1)
+   name: string;
+ 
+   @minValue(0)
+   @maxValue(100)
+   age: int32;
+ 
+   kind: petType;
+ }
+ 
+ enum petType {
+   dog: "dog",
+   cat: "cat",
+   fish: "fish",
+   bird: "bird",
+   reptile: "reptile",
+ }
+ 
++model CommonParameters {
++  @header
++  requestID: string;
++
++  @query
++  locale?: string;
++
++  @header
++  clientVersion?: string;
++}
 ```
 
 In this example:
@@ -69,119 +69,119 @@ Now that we have defined our common parameters model, let's reuse it across mult
 
 ### Example: Reusing Common Parameters in Operations
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={44,50,59,71,90}
-import "@typespec/http";
-
-using Http;
-
-@service(#{ title: "Pet Store" })
-@server("https://example.com", "Single server endpoint")
-namespace PetStore;
-
-model Pet {
-  id: int32;
-
-  @minLength(1)
-  name: string;
-
-  @minValue(0)
-  @maxValue(100)
-  age: int32;
-
-  kind: petType;
-}
-
-enum petType {
-  dog: "dog",
-  cat: "cat",
-  fish: "fish",
-  bird: "bird",
-  reptile: "reptile",
-}
-
-model CommonParameters {
-  @header
-  requestID: string;
-
-  @query
-  locale?: string;
-
-  @header
-  clientVersion?: string;
-}
-
-@route("/pets")
-namespace Pets {
-  @get
-  op listPets(...CommonParameters): {
-    @statusCode statusCode: 200;
-    @body pets: Pet[];
-  };
-
-  @get
-  op getPet(@path petId: int32, ...CommonParameters): {
-    @statusCode statusCode: 200;
-    @body pet: Pet;
-  } | {
-    @statusCode statusCode: 404;
-    @body error: NotFoundError;
-  };
-
-  @post
-  op createPet(@body pet: Pet, ...CommonParameters): {
-    @statusCode statusCode: 201;
-    @body newPet: Pet;
-  } | {
-    @statusCode statusCode: 202;
-    @body acceptedPet: Pet;
-  } | {
-    @statusCode statusCode: 400;
-    @body error: ValidationError;
-  };
-
-  @put
-  op updatePet(@path petId: int32, @body pet: Pet, ...CommonParameters):
-    | {
-        @statusCode statusCode: 200;
-        @body updatedPet: Pet;
-      }
-    | {
-        @statusCode statusCode: 400;
-        @body error: ValidationError;
-      }
-    | {
-        @statusCode statusCode: 404;
-        @body error: NotFoundError;
-      }
-    | {
-        @statusCode statusCode: 500;
-        @body error: InternalServerError;
-      };
-
-  @delete
-  op deletePet(@path petId: int32, ...CommonParameters): {
-    @statusCode statusCode: 204;
-  };
-}
-
-@error
-model NotFoundError {
-  code: "NOT_FOUND";
-  message: string;
-}
-
-@error
-model ValidationError {
-  code: "VALIDATION_ERROR";
-  message: string;
-  details: string[];
-}
-
-@error
-model InternalServerError {
-  code: "INTERNAL_SERVER_ERROR";
-  message: string;
-}
+```diff lang=tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+ import "@typespec/http";
+ 
+ using Http;
+ 
+ @service(#{ title: "Pet Store" })
+ @server("https://example.com", "Single server endpoint")
+ namespace PetStore;
+ 
+ model Pet {
+   id: int32;
+ 
+   @minLength(1)
+   name: string;
+ 
+   @minValue(0)
+   @maxValue(100)
+   age: int32;
+ 
+   kind: petType;
+ }
+ 
+ enum petType {
+   dog: "dog",
+   cat: "cat",
+   fish: "fish",
+   bird: "bird",
+   reptile: "reptile",
+ }
+ 
+ model CommonParameters {
+   @header
+   requestID: string;
+ 
+   @query
+   locale?: string;
+ 
+   @header
+   clientVersion?: string;
+ }
+ 
+ @route("/pets")
+ namespace Pets {
+   @get
++  op listPets(...CommonParameters): {
+     @statusCode statusCode: 200;
+     @body pets: Pet[];
+   };
+ 
+   @get
++  op getPet(@path petId: int32, ...CommonParameters): {
+     @statusCode statusCode: 200;
+     @body pet: Pet;
+   } | {
+     @statusCode statusCode: 404;
+     @body error: NotFoundError;
+   };
+ 
+   @post
++  op createPet(@body pet: Pet, ...CommonParameters): {
+     @statusCode statusCode: 201;
+     @body newPet: Pet;
+   } | {
+     @statusCode statusCode: 202;
+     @body acceptedPet: Pet;
+   } | {
+     @statusCode statusCode: 400;
+     @body error: ValidationError;
+   };
+ 
+   @put
++  op updatePet(@path petId: int32, @body pet: Pet, ...CommonParameters):
+     | {
+         @statusCode statusCode: 200;
+         @body updatedPet: Pet;
+       }
+     | {
+         @statusCode statusCode: 400;
+         @body error: ValidationError;
+       }
+     | {
+         @statusCode statusCode: 404;
+         @body error: NotFoundError;
+       }
+     | {
+         @statusCode statusCode: 500;
+         @body error: InternalServerError;
+       };
+ 
+   @delete
++  op deletePet(@path petId: int32, ...CommonParameters): {
+     @statusCode statusCode: 204;
+   };
+ }
+ 
+ @error
+ model NotFoundError {
+   code: "NOT_FOUND";
+   message: string;
+ }
+ 
+ @error
+ model ValidationError {
+   code: "VALIDATION_ERROR";
+   message: string;
+   details: string[];
+ }
+ 
+ @error
+ model InternalServerError {
+   code: "INTERNAL_SERVER_ERROR";
+   message: string;
+ }
 ```
 
 In this example:
@@ -193,61 +193,61 @@ In this example:
 
 Let's take a closer look at how the common parameters model with the `spread` operator is represented in the generated OpenAPI specification by looking at the `deletePet` operation:
 
-```yaml ins={14-16,28-45}
-#### Generated OpenAPI Specification:
-
-paths:
-  /pets/{petId}:
-    delete:
-      operationId: Pets_deletePet
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - $ref: "#/components/parameters/CommonParameters.requestID"
-        - $ref: "#/components/parameters/CommonParameters.locale"
-        - $ref: "#/components/parameters/CommonParameters.clientVersion"
-      responses:
-        "204":
-          description: "There is no content to send for this request, but the headers may be useful."
-        "404":
-          description: "Not Found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotFoundError"
-components:
-  parameters:
-    CommonParameters.clientVersion:
-      name: client-version
-      in: header
-      required: false
-      schema:
-        type: string
-    CommonParameters.locale:
-      name: locale
-      in: query
-      required: false
-      schema:
-        type: string
-    CommonParameters.requestID:
-      name: request-id
-      in: header
-      required: true
-      schema:
-        type: string
-  schemas:
-    NotFoundError:
-      type: object
-      properties:
-        code:
-          type: string
-          example: "NOT_FOUND"
-        message:
-          type: string
+```diff lang=yaml
+ #### Generated OpenAPI Specification:
+ 
+ paths:
+   /pets/{petId}:
+     delete:
+       operationId: Pets_deletePet
+       parameters:
+         - name: petId
+           in: path
+           required: true
+           schema:
+             type: integer
+             format: int32
++        - $ref: "#/components/parameters/CommonParameters.requestID"
++        - $ref: "#/components/parameters/CommonParameters.locale"
++        - $ref: "#/components/parameters/CommonParameters.clientVersion"
+       responses:
+         "204":
+           description: "There is no content to send for this request, but the headers may be useful."
+         "404":
+           description: "Not Found"
+           content:
+             application/json:
+               schema:
+                 $ref: "#/components/schemas/NotFoundError"
+ components:
+   parameters:
++    CommonParameters.clientVersion:
++      name: client-version
++      in: header
++      required: false
++      schema:
++        type: string
++    CommonParameters.locale:
++      name: locale
++      in: query
++      required: false
++      schema:
++        type: string
++    CommonParameters.requestID:
++      name: request-id
++      in: header
++      required: true
++      schema:
++        type: string
+   schemas:
+     NotFoundError:
+       type: object
+       properties:
+         code:
+           type: string
+           example: "NOT_FOUND"
+         message:
+           type: string
 ```
 
 In this example:
