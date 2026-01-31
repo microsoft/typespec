@@ -7,6 +7,7 @@
 - [Supported Scenarios](#supported-scenarios)
   - [Model Factory Methods](#model-factory-methods)
   - [Model Properties](#model-properties)
+  - [AdditionalProperties Type Preservation](#additionalproperties-type-preservation)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
@@ -137,6 +138,87 @@ public IReadOnlyList<string> Items { get; }
 - The generator compares property types against the `LastContractView`
 - For read-write lists and dictionaries, if the previous type was different, the previous type is retained
 - A diagnostic message is logged: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
+
+### AdditionalProperties Type Preservation
+
+The generator maintains backward compatibility for the `AdditionalProperties` property type on models that extend or use `Record<unknown>`.
+
+#### Scenario: AdditionalProperties Type Changed from Object to BinaryData
+
+**Description:** When a model with additional properties was previously generated with `IDictionary<string, object>`, but the current generator would produce `IDictionary<string, BinaryData>`, the generator preserves the previous `object` type to maintain backward compatibility.
+
+This commonly occurs when:
+
+- Migrating from an older generator version that used `object` for unknown additional property values
+- Regenerating a library that was originally created with `IDictionary<string, object>` for `Record<unknown>` types
+
+**Example:**
+
+Previous version generated with object type:
+
+```csharp
+public partial class MyModel
+{
+    private readonly IDictionary<string, object> _additionalBinaryDataProperties;
+
+    public MyModel(string name, IDictionary<string, object> additionalProperties)
+    {
+        Name = name;
+        _additionalBinaryDataProperties = additionalProperties;
+    }
+
+    public string Name { get; set; }
+    public IDictionary<string, object> AdditionalProperties { get; }
+}
+```
+
+Current TypeSpec would generate with BinaryData:
+
+```csharp
+public partial class MyModel
+{
+    private readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+
+    public MyModel(string name, IDictionary<string, BinaryData> additionalProperties)
+    {
+        Name = name;
+        _additionalBinaryDataProperties = additionalProperties;
+    }
+
+    public string Name { get; set; }
+    public IDictionary<string, BinaryData> AdditionalProperties { get; }
+}
+```
+
+**Generated Compatibility Result:**
+
+When the last contract had `IDictionary<string, object>`, the generator preserves the object type:
+
+```csharp
+public partial class MyModel
+{
+    private readonly IDictionary<string, object> _additionalBinaryDataProperties;
+
+    public MyModel(string name, IDictionary<string, object> additionalProperties)
+    {
+        Name = name;
+        _additionalBinaryDataProperties = additionalProperties;
+    }
+
+    public string Name { get; set; }
+    public IDictionary<string, object> AdditionalProperties { get; }
+}
+```
+
+**Key Points:**
+
+- Applies to models with `AdditionalProperties` defined via `Record<unknown>` or similar patterns
+- The backing field type is changed from `IDictionary<string, BinaryData>` to `IDictionary<string, object>`
+- The property type matches the backing field type to avoid compilation errors
+- Serialization and deserialization automatically handle both `object` and `BinaryData` types
+- For object types, deserialization uses `JsonElement.GetObject()` instead of wrapping in `BinaryData`
+- For object types, serialization uses `Utf8JsonWriter.WriteObjectValue<object>()` to handle arbitrary values
+- Binary compatibility is fully maintained - existing client code continues to work without recompilation
 
 ### API Version Enum
 
