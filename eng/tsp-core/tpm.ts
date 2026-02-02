@@ -137,7 +137,7 @@ async function main(): Promise<void> {
 
   if (values.help || !command) {
     console.log(`
-Usage: trepo <command> [options]
+Usage: tpm <command> [options]
 
 Commands:
   install    Install dependencies for modified packages
@@ -149,9 +149,9 @@ Options:
   -h, --help      Show help
 
 Examples:
-  trepo install --since origin/main
-  trepo build --since HEAD~5
-  trepo pack --since origin/main
+  tpm install --since origin/main
+  tpm build --since HEAD~5
+  tpm pack --since origin/main
 `);
     process.exit(values.help ? 0 : 1);
   }
