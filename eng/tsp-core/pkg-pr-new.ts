@@ -13,7 +13,7 @@ const paths = packages
   .filter((dirent) => dirent.isDirectory())
   .map((dirent) => `packages/${dirent.name}`);
 
-const modifiedPaths = paths.filter((x) => files.some((f) => f.startsWith(x)));
+const modifiedPaths = paths.filter((x) => files.some((f) => f.startsWith(x + "/")));
 // eslint-disable-next-line no-console
 console.log("Packages", { all: paths, modified: modifiedPaths });
 try {

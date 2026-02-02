@@ -31,7 +31,4 @@ jobs:
       - name: Bump version to prerelease targets
         run: pnpm chronus version --prerelease "{nextVersion}-pr.${{ github.event.pull_request.number }}.${{ github.run_number }}"
 
-      - name: Pack
-        run: npx tsx eng/tsp-core/trepo.ts pack --since origin/main
-
       - run: pnpm tsx eng/tsp-core/pkg-pr-new.ts
