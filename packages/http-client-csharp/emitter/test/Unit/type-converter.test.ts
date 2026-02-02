@@ -276,6 +276,43 @@ describe("Union types to model hierarchies", () => {
         undefined,
         "Beta should not have the discriminator property 'type'",
       );
+
+      // Validate the operation request body is of the new model type
+      if (opDefinition.includes("@body")) {
+        const testOp = root.clients[0].methods.find((op) => op.name === "test");
+        ok(testOp, "Operation 'test' should exist");
+        const bodyParam = testOp.parameters.find((p) => p.name === "input");
+        ok(bodyParam, "Body parameter 'input' should exist");
+        strictEqual(
+          bodyParam.type,
+          myUnion,
+          "Body parameter 'input' type should be the converted MyUnion model",
+        );
+      }
+
+      // Validate the operation response body is of the new model type
+      if (opDefinition.includes("): MyUnion;")) {
+        const testOp = root.clients[0].methods.find((op) => op.name === "test");
+        ok(testOp, "Operation 'test' should exist");
+        strictEqual(
+          testOp.response.type,
+          myUnion,
+          "Operation return type should be the converted MyUnion model",
+        );
+      }
+
+      // Validate the property type is of the new model type
+      if (opDefinition.includes("model ContainerModel")) {
+        const containerModel = root.models.find((m) => m.name === "ContainerModel");
+        ok(containerModel, "ContainerModel should exist");
+        const unionProp = containerModel.properties.find((p) => p.name === "unionProp");
+        ok(unionProp, "Property 'unionProp' should exist");
+        strictEqual(
+          unionProp.type,
+          myUnion,
+          "Property 'unionProp' type should be the converted MyUnion model",
+        );
+      }
     }),
   );
 
