@@ -10,7 +10,7 @@ console.log("modified files:", files);
 
 const packages = await readdir(repoRoot + "/packages", { withFileTypes: true });
 const paths = packages
-  .filter((dirent) => dirent.isDirectory() && dirent.name !== "http-client-python")
+  .filter((dirent) => dirent.isDirectory())
   .map((dirent) => `packages/${dirent.name}`);
 
 const modifiedPaths = paths.filter((x) => files.some((f) => f.startsWith(x)));
