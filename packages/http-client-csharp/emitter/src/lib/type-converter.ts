@@ -4,6 +4,7 @@
 import {
   DecoratorInfo,
   SdkArrayType,
+  SdkBuiltInKinds,
   SdkBuiltInType,
   SdkConstantType,
   SdkDateTimeType,
@@ -414,7 +415,7 @@ function discriminatorPropertyFromUnion(
   // Declare an enum for all the constant values
   const discriminatorEnumType: InputEnumType = {
     kind: "enum",
-    name: `${union.name}Discriminator`,
+    name: `${union.name}${discriminatorPropertyName[0].toUpperCase()}${discriminatorPropertyName.slice(1)}`,
     valueType: fromSdkBuiltInType(sdkContext, {
       kind: "string",
       name: "string",
@@ -452,7 +453,30 @@ function discriminatorPropertyFromUnion(
 
   discriminatorEnumType.values.push(...enumValues);
 
-  sdkContext.__typeCache.updateSdkTypeReferences(union, discriminatorEnumType);
+  sdkContext.__typeCache.updateSdkTypeReferences(
+    {
+      kind: "enum",
+      name: discriminatorEnumType.name,
+      valueType: fromSdkBuiltInType(sdkContext, {
+        kind: "string",
+        name: "string",
+        crossLanguageDefinitionId: "TypeSpec.string",
+        decorators: [],
+      }) as SdkBuiltInType<SdkBuiltInKinds>,
+      values: [],
+      namespace: union.namespace,
+      crossLanguageDefinitionId: "",
+      access: "public",
+      usage: UsageFlags.None,
+      decorators: [],
+      isFixed: false,
+      isFlags: false,
+      isGeneratedName: true,
+      isUnionAsEnum: false,
+      apiVersions: [],
+    },
+    discriminatorEnumType,
+  );
 
   return {
     kind: "property",

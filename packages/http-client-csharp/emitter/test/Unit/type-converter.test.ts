@@ -241,6 +241,9 @@ describe("Union types to model hierarchies", () => {
       const myUnion = root.models.find((m) => m.name === "MyUnion");
       ok(myUnion, "MyUnion should exist");
 
+      const enumDefinition = root.enums.find((e) => e.name === "MyUnionType");
+      ok(enumDefinition, "Discriminator enum MyUnionType should exist");
+
       // Validate that MyUnion is a model
       strictEqual(myUnion.kind, "model", "MyUnion should be converted to a model");
 
