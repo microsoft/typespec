@@ -648,7 +648,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
-                var clientParam = ClientProvider.ClientParameters.FirstOrDefault(p => p.WireInfo.SerializedName == paramName);
+                var clientParam = ClientProvider.ClientParameters.FirstOrDefault(p => p.WireInfo.SerializedName == paramName || p.Name == paramName);
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
