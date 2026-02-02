@@ -252,16 +252,30 @@ describe("Union types to model hierarchies", () => {
       strictEqual(betaModel.baseModel, myUnion, "Beta should inherit from MyUnion");
 
       // Validate the base model has the discriminator property
-      const discriminatorProp = myUnion.properties.find((p) => p.name === "type");
-      ok(discriminatorProp, "MyUnion should have a discriminator property 'type'");
+      const discriminatorProperty = myUnion.properties.find((p) => p.name === "type");
+      ok(discriminatorProperty, "MyUnion should have a discriminator property 'type'");
       strictEqual(
-        discriminatorProp.type.kind,
+        discriminatorProperty.type.kind,
         "enum",
         "Discriminator property 'type' should be of type string",
       );
 
+      strictEqual(discriminatorProperty.kind, "property");
+      strictEqual(discriminatorProperty.name, "type");
+      strictEqual(discriminatorProperty.serializedName, "type");
+      strictEqual(discriminatorProperty.type.kind, "enum");
+      strictEqual(discriminatorProperty.optional, false);
+      strictEqual(discriminatorProperty.readOnly, false);
+      strictEqual(discriminatorProperty.discriminator, true);
+
+      strictEqual(
+        discriminatorProperty,
+        myUnion.discriminatorProperty,
+        "Discriminator property should be set on MyUnion",
+      );
+
       // Validate that the discriminator property has the correct enum values
-      const enumValues = new Set(discriminatorProp.type.values.map((v) => v.name));
+      const enumValues = new Set(discriminatorProperty.type.values.map((v) => v.name));
       strictEqual(enumValues.has("alpha"), true, "Discriminator enum should include 'alpha'");
       strictEqual(enumValues.has("beta"), true, "Discriminator enum should include 'beta'");
 
