@@ -145,10 +145,6 @@ Examples:
 
   if (values.since) {
     packages = await getModifiedPackages(values.since);
-    if (packages.length === 0) {
-      console.log("No modified packages found.");
-      return;
-    }
   } else {
     // If no --since flag, operate on all packages
     packages = await getAllPackages();
