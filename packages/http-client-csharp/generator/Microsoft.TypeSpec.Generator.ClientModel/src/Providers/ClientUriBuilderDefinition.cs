@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string AppendQueryDelimitedMethodName = "AppendQueryDelimited";
         private const string AppendPathDelimitedMethodName = "AppendPathDelimited";
         private const string AppendPathMethodName = "AppendPath";
+        private const string UpdateQueryMethodName = "UpdateQuery";
 
         private readonly FieldProvider _uriBuilderField;
         private readonly FieldProvider _pathAndQueryField;
@@ -100,6 +101,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             methods.AddRange(BuildAppendPathDelimitedMethods());
             methods.AddRange(BuildAppendQueryMethods());
             methods.AddRange(BuildAppendQueryDelimitedMethods());
+            methods.Add(BuildUpdateQueryMethod());
             methods.Add(BuildToUriMethod());
 
             return methods.ToArray();
@@ -116,7 +118,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     uriParameter
                 },
                 ReturnType: null,
-                Description: null, ReturnDescription: null);
+                Description: null,
+                ReturnDescription: null);
 
             var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
             var body = new MethodBodyStatement[]
@@ -124,7 +127,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _uriBuilderField.Assign(New.Instance(_uriBuilderField.Type, uriParameter)).Terminate(),
                 stringBuilder.Invoke("Clear").Terminate(),
                 stringBuilder.Append(UriBuilderPath).Terminate(),
-                _pathLengthField.Assign(stringBuilder.Length()).Terminate()
+                _pathLengthField.Assign(stringBuilder.Length()).Terminate(),
+                stringBuilder.Append(UriBuilderQuery).Terminate()
             };
 
             return new(signature, body, this, XmlDocProvider.Empty);
@@ -139,10 +143,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: [valueParameter, escapeParameter],
                 ReturnType: null,
-                Description: null, ReturnDescription: null);
+                Description: null,
+                ReturnDescription: null);
 
             var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
-            var pathLength = (ValueExpression)_pathLengthField;
+            var pathLength = _pathLengthField.AsValueExpression;
 
             MethodBodyStatement body = new MethodBodyStatement[]
             {
@@ -191,7 +196,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: parameters,
                 ReturnType: null,
-                Description: null, ReturnDescription: null);
+                Description: null,
+                ReturnDescription: null);
             var convertToStringExpression = valueParameter.ConvertToString(hasFormat ? (ValueExpression)_formatParameter : null);
             var body = new InvokeMethodExpression(null, AppendPathMethodName, [convertToStringExpression, escapeParameter]);
 
@@ -209,10 +215,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: [nameParameter, valueParameter, escapeParameter],
                 ReturnType: null,
-                Description: null, ReturnDescription: null);
+                Description: null,
+                ReturnDescription: null);
 
             var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
-            var pathLength = (ValueExpression)_pathLengthField;
+            var pathLength = _pathLengthField.AsValueExpression;
 
             var body = new MethodBodyStatement[]
             {
@@ -269,7 +276,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: parameters,
                 ReturnType: null,
-                Description: null, ReturnDescription: null);
+                Description: null,
+                ReturnDescription: null);
             var convertToStringExpression = valueParameter.ConvertToString(hasFormat ? (ValueExpression)_formatParameter : null);
             var body = new InvokeMethodExpression(null, AppendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter]);
 
@@ -312,7 +320,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Parameters: parameters,
                 ReturnType: null,
                 GenericArguments: [_t],
-                Description: null, ReturnDescription: null);
+                Description: null,
+                ReturnDescription: null);
 
             var value = valueParameter.As(_t);
 
@@ -333,6 +342,82 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new(signature, body, this, XmlDocProvider.Empty);
         }
 
+        private MethodProvider BuildUpdateQueryMethod()
+        {
+            var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
+            var valueParameter = new ParameterProvider("value", $"The value.", typeof(string));
+
+            var signature = new MethodSignature(
+                Name: UpdateQueryMethodName,
+                Modifiers: MethodSignatureModifiers.Public,
+                Parameters: [nameParameter, valueParameter],
+                ReturnType: null,
+                Description: null,
+                ReturnDescription: null);
+
+            var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
+            var pathLength = _pathLengthField.AsValueExpression;
+
+            var body = new MethodBodyStatement[]
+            {
+                MethodBodyStatement.Empty,
+                new IfElseStatement(
+                    stringBuilder.Length().Equal(pathLength),
+                    // No query string exists - add first parameter
+                    new MethodBodyStatement[]
+                    {
+                        new InvokeMethodExpression(null, AppendQueryMethodName, [nameParameter, valueParameter, Literal(false)]).Terminate()
+                    },
+                    // Query string exists - update or append parameter
+                    new MethodBodyStatement[]
+                    {
+                        Declare("queryStartIndex", typeof(int), new BinaryOperatorExpression("+", pathLength, Int(1)), out var queryStartIndex),
+                        Declare("searchPattern", typeof(string), new BinaryOperatorExpression("+", nameParameter, Literal("=")), out var searchPattern),
+                        Declare("queryString", typeof(string), stringBuilder.Invoke("ToString", queryStartIndex, new BinaryOperatorExpression("-", stringBuilder.Length(), queryStartIndex)), out var queryString),
+
+                        Declare("paramStartIndex", typeof(int), Literal(-1), out var paramStartIndex),
+                        new IfStatement(queryString.Invoke("StartsWith", searchPattern))
+                        {
+                            paramStartIndex.Assign(Literal(0)).Terminate()
+                        },
+                        new IfStatement(paramStartIndex.Equal(Literal(-1)))
+                        {
+                            Declare("prefixedIndex", typeof(int), queryString.Invoke("IndexOf", new BinaryOperatorExpression("+", Literal("&"), searchPattern)), out var prefixedIndex),
+                            new IfStatement(prefixedIndex.GreaterThanOrEqual(Literal(0)))
+                            {
+                                paramStartIndex.Assign(new BinaryOperatorExpression("+", prefixedIndex, Int(1))).Terminate()
+                            }
+                        },
+
+                        new IfElseStatement(
+                            paramStartIndex.GreaterThanOrEqual(Literal(0)),
+                            // Parameter exists - replace its value
+                            new MethodBodyStatement[]
+                            {
+                                Declare("valueStartIndex", typeof(int), new BinaryOperatorExpression("+", paramStartIndex, searchPattern.Property("Length")), out var valueStartIndex),
+                                Declare("valueEndIndex", typeof(int), queryString.Invoke("IndexOf", Literal('&'), valueStartIndex), out var valueEndIndex),
+                                new IfStatement(valueEndIndex.Equal(Literal(-1)))
+                                {
+                                    valueEndIndex.Assign(queryString.Property("Length")).Terminate()
+                                },
+                                Declare("globalStart", typeof(int), new BinaryOperatorExpression("+", queryStartIndex, valueStartIndex), out var globalStart),
+                                Declare("globalEnd", typeof(int), new BinaryOperatorExpression("+", queryStartIndex, valueEndIndex), out var globalEnd),
+                                stringBuilder.Invoke("Remove", globalStart, new BinaryOperatorExpression("-", globalEnd, globalStart)).Terminate(),
+                                stringBuilder.Invoke("Insert", globalStart, valueParameter).Terminate()
+                            },
+                            // Parameter doesn't exist - append new parameter
+                            new MethodBodyStatement[]
+                            {
+                                new InvokeMethodExpression(null, AppendQueryMethodName, [nameParameter, valueParameter, Literal(false)]).Terminate()
+                            }
+                        )
+                    }
+                )
+            };
+
+            return new(signature, body, this, XmlDocProvider.Empty);
+        }
+
         private MethodProvider BuildToUriMethod()
         {
             var signature = new MethodSignature(
@@ -340,10 +425,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: Array.Empty<ParameterProvider>(),
                 ReturnType: typeof(Uri),
-                Description: null, ReturnDescription: null);
+                Description: null,
+                ReturnDescription: null);
 
             var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
-            var pathLength = (ValueExpression)_pathLengthField;
+            var pathLength = _pathLengthField.AsValueExpression;
 
             var body = new MethodBodyStatement[]
             {

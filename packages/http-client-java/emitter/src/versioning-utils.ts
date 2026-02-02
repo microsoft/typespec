@@ -4,26 +4,56 @@ import { Namespace, Program } from "@typespec/compiler";
 import { findVersionedNamespace, getVersions, Version } from "@typespec/versioning";
 
 /**
+ * Sentinel values that describe a client that not have consistent api-versions.
+ * Reason is either the service is not versioned, or the client aggregates multiple services of different api-versions.
+ */
+export enum InconsistentVersions {
+  /**
+   * The client is not versioned.
+   */
+  NotVersioned,
+  /**
+   * The client contains multiple services which may have the same set or different set of api-versions.
+   */
+  MixedVersions,
+}
+
+/**
  * Gets the array of api-version on the TypeSpec service that contains this SDK client.
- * `undefined` if the service is not versioned.
+ * Returns {@link InconsistentVersions.NotVersioned} when the service is not versioned and
+ * {@link InconsistentVersions.MixedVersions} when the client aggregates multiple services
+ * that disagree on api-version.
  *
  * @param program the program
  * @param client the SDK client
- * @returns the array of api-version on the TypeSpec service that contains this SDK client
+ * @returns the array of api-version when there is only one service in the SDK client or an {@link InconsistentVersions} indicator when the SDK client is not versioned or has multiple versions.
  */
 export function getServiceApiVersions(
   program: Program,
   client: SdkClientType<SdkHttpOperation>,
-): Version[] | undefined {
-  // TODO: use client.apiVersions after TCGC supports multiple service
-  // Also, this function lacks the logic of the handling of added/removed on the Namespace/Interface of the SDK client.
-  let apiVersions: Version[] | undefined;
-  const versionedNamespace: Namespace | undefined = findVersionedNamespace(
-    program,
-    client.__raw.service,
-  );
-  if (versionedNamespace) {
-    apiVersions = getVersions(program, versionedNamespace)[1]?.getVersions();
+): Version[] | InconsistentVersions {
+  // TODO: use client.apiVersions
+
+  let apiVersions: Version[] | InconsistentVersions;
+  // TCGC 0.63+ supports multiple api-version in a single client
+  if (Array.isArray(client.__raw.service)) {
+    // here, we treat a versioned client with multiple service as client of mixed versions
+    apiVersions = isSdkClientVersioned(client)
+      ? InconsistentVersions.MixedVersions
+      : InconsistentVersions.NotVersioned;
+  } else {
+    const serviceNamespace = client.__raw.service;
+    const versionedNamespace: Namespace | undefined = findVersionedNamespace(
+      program,
+      serviceNamespace,
+    );
+    if (versionedNamespace) {
+      apiVersions =
+        getVersions(program, versionedNamespace)[1]?.getVersions() ??
+        InconsistentVersions.NotVersioned;
+    } else {
+      apiVersions = InconsistentVersions.NotVersioned;
+    }
   }
   return apiVersions;
 }
@@ -134,4 +164,9 @@ export function isVersionEarlierThan(version: string, compareTo: string): boolea
 
   // Versions are identical
   return false;
+}
+
+function isSdkClientVersioned(client: SdkClientType<SdkHttpOperation>): boolean {
+  // on TCGC, the difference of versioned client and not versioned client is on the existence of "apiVersion" parameter in clientInitialization
+  return client.clientInitialization.parameters.some((p) => p.name === "apiVersion");
 }

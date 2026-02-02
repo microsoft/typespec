@@ -492,6 +492,18 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return any(o.name.lower() == "list" for c in self.clients for og in c.operation_groups for o in og.operations)
 
     @property
+    def has_property_named_list(self) -> bool:
+        return any(p.client_name.lower() == "list" for m in self.model_types for p in m.properties)
+
+    @property
+    def has_padded_model_property(self) -> bool:
+        for model_type in self.model_types:
+            for prop in model_type.properties:
+                if prop.original_tsp_name:
+                    return True
+        return False
+
+    @property
     def external_types(self) -> list[ExternalType]:
         """All of the external types"""
         return [t for t in self.types_map.values() if isinstance(t, ExternalType)]

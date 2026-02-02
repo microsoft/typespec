@@ -145,6 +145,17 @@ model Thing {
 
   @doc("required nullable collection")
   requiredNullableList: int32[] | null;
+
+  /**
+   * This tests:
+   * - Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.
+   * - Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.
+   * - Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.
+   * - Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.
+   * - **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.
+   * - *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.
+   */
+  propertyWithSpecialDocs: string;
 }
 
 @doc("A model with a few required nullable properties")
@@ -501,3 +512,84 @@ op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
 @doc("An operation with a dynamic model")
 @post
 op DynamicModelOperation(@body body: DynamicModel): void;
+
+@doc("Base animal with discriminator")
+@discriminator("kind")
+model Animal {
+  @doc("The kind of animal")
+  kind: string;
+
+  @doc("Name of the animal")
+  name: string;
+}
+
+alias PetContent = {
+  @doc("Whether the pet is trained")
+  trained: boolean;
+};
+
+@doc("Pet is a discriminated animal")
+model Pet extends Animal {
+  kind: "pet";
+  ...PetContent;
+}
+
+alias DogContent = {
+  @doc("The breed of the dog")
+  breed: string;
+};
+
+@doc("Dog is a specific type of pet with hierarchy building")
+@Legacy.hierarchyBuilding(Pet)
+model Dog extends Animal {
+  kind: "dog";
+  ...PetContent;
+  ...DogContent;
+}
+
+@route("/animals")
+interface AnimalOperations {
+  @doc("Update a pet as an animal")
+  @put
+  @route("/pet/as-animal")
+  updatePetAsAnimal(@body animal: Animal): Animal;
+
+  @doc("Update a dog as an animal")
+  @put
+  @route("/dog/as-animal")
+  updateDogAsAnimal(@body animal: Animal): Animal;
+}
+
+@route("/pets")
+interface PetOperations {
+  @doc("Update a pet as a pet")
+  @put
+  @route("/pet/as-pet")
+  updatePetAsPet(@body pet: Pet): Pet;
+
+  @doc("Update a dog as a pet")
+  @put
+  @route("/dog/as-pet")
+  updateDogAsPet(@body pet: Pet): Pet;
+}
+
+@route("/dogs")
+interface DogOperations {
+  @doc("Update a dog as a dog")
+  @put
+  @route("/dog/as-dog")
+  updateDogAsDog(@body dog: Dog): Dog;
+}
+
+@clientInitialization({
+  initializedBy: InitializedBy.individually | InitializedBy.parent,
+})
+interface Metrics {
+  @doc("Get Widget metrics for given day of week")
+  @get
+  @route("/metrics/widgets/daysOfWeek")
+  getWidgetMetrics(@path day: DaysOfWeekExtensibleEnum): {
+    numSold: int32;
+    averagePrice: float32;
+  };
+}

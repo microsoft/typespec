@@ -143,7 +143,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyProvider? property = null;
             for (int i = 0; i < NextPagePropertySegments.Count; i++)
             {
-                property = model.Properties.First(p => p.WireInfo?.SerializedName == NextPagePropertySegments[i]);
+                property = FindPropertyInModelHierarchy(model, NextPagePropertySegments[i]);
 
                 if (i < NextPagePropertySegments.Count - 1)
                 {
@@ -152,6 +152,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return property!.Type;
+        }
+
+        /// <summary>
+        /// Searches for a property with the specified serialized name in the model and its base models.
+        /// </summary>
+        private PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string serializedName)
+        {
+            // First, try to find the property in the current model
+            var property = model.Properties.FirstOrDefault(p => p.WireInfo?.SerializedName == serializedName);
+            if (property != null)
+            {
+                return property;
+            }
+
+            // If not found, search in the base model hierarchy
+            if (model is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            {
+                return FindPropertyInModelHierarchy(modelProvider.BaseModelProvider, serializedName);
+            }
+
+            // If not found anywhere, throw an exception with a helpful message
+            throw new InvalidOperationException(
+                $"Property with serialized name '{serializedName}' not found in model '{model.Name}' or its base models.");
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");
@@ -315,25 +338,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 case InputResponseLocation.Body:
                     var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
-                    return
-                    [
-                        Declare(nextPageVariable, resultExpression),
-                        new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
+
+                    var ifElseStatement = nextPageType.Equals(typeof(Uri))
+                        ? new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
                             {
                                 Return(Static(typeof(ContinuationToken))
                                 .Invoke("FromBytes", BinaryDataSnippets.FromString(
-                                    nextPageType.Equals(typeof(Uri)) ?
-                                        nextPageVariable.Property("AbsoluteUri") :
-                                        nextPageVariable)))
+                                    nextPageVariable.Property("AbsoluteUri"))))
                             },
                             Return(Null))
+                        : new IfElseStatement(new IfStatement(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageVariable)))
+                            {
+                                Return(Static(typeof(ContinuationToken))
+                                .Invoke("FromBytes", BinaryDataSnippets.FromString(nextPageVariable)))
+                            },
+                            Return(Null));
+
+                    return
+                    [
+                        Declare(nextPageVariable, resultExpression),
+                        ifElseStatement
                     ];
                 case InputResponseLocation.Header:
                     return
                     [
                         new IfElseStatement(
                             new IfStatement(PageParameter.ToApi<ClientResponseApi>().GetRawResponse()
-                                .TryGetHeader(nextPagePropertySegments![0], out var nextLinkHeader))
+                                .TryGetHeader(nextPagePropertySegments![0], out var nextLinkHeader)
+                                .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                             {
                                 Return(Static(typeof(ContinuationToken)).Invoke("FromBytes", BinaryDataSnippets.FromString(nextLinkHeader!)))
                             },
@@ -450,19 +482,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, responseModel);
                     if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
                     {
+                        IfStatement condition = NextPagePropertyType.Equals(typeof(Uri))
+                            ? new IfStatement(nextPage.Equal(Null))
+                            : new IfStatement(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPage));
+                        condition.Add(YieldBreak());
+
                         return
                         [
                             nextPage.Assign(resultExpression).Terminate(),
-                            new IfStatement(nextPage.Equal(Null))
-                            {
-                                YieldBreak()
-                            }
+                            condition,
                         ];
                     }
+
                     return
                     [
                         Declare("nextPageString", resultExpression.As<string>(), out ScopedApi<string> nextPageString),
-                        new IfStatement(nextPageString.Equal(Null))
+                        new IfStatement(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageString))
                         {
                             YieldBreak()
                         },
@@ -472,7 +507,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return
                         [
                             new IfElseStatement(
-                                new IfStatement(result.GetRawResponse().TryGetHeader(NextPagePropertySegments[0], out var nextLinkHeader))
+                                new IfStatement(result.GetRawResponse().TryGetHeader(NextPagePropertySegments[0], out var nextLinkHeader)
+                                    .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                                 {
                                         nextPage.Type.Equals(typeof(Uri)) ?
                                             nextPage.Assign(New.Instance<Uri>(nextLinkHeader!)).Terminate() :

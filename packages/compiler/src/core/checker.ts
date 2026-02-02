@@ -10,7 +10,7 @@ import {
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { compilerAssert, ignoreDiagnostics, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
@@ -56,6 +56,7 @@ import {
   DecoratorContext,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
+  DecoratorValidatorCallbacks,
   Diagnostic,
   DiagnosticTarget,
   DocContent,
@@ -156,6 +157,7 @@ import {
   UnionVariantNode,
   UnknownType,
   UsingStatementNode,
+  ValidatorFn,
   Value,
   ValueWithTemplate,
   VoidType,
@@ -368,6 +370,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
@@ -1149,14 +1152,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (node) {
       const deprecationDetails = getDeprecationDetails(program, node);
       if (deprecationDetails) {
-        reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+        reportDeprecated(program, deprecationDetails.message, target, reportCheckerDiagnostic);
         return;
       }
     }
 
     const deprecationDetails = getDeprecationDetails(program, type);
     if (deprecationDetails) {
-      reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+      reportDeprecated(program, deprecationDetails.message, target, reportCheckerDiagnostic);
     }
   }
 
@@ -3485,6 +3488,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     internalDecoratorValidation();
     assertNoPendingResolutions();
+    runPostValidators(postCheckValidators);
   }
 
   function assertNoPendingResolutions() {
@@ -4726,7 +4730,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
       return [[], undefined];
     }
-    if (isArrayModelType(program, targetType)) {
+    if (isArrayModelType(targetType)) {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "spread-model", target: targetNode }),
         mapper,
@@ -5092,17 +5096,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     let valueType: Type | undefined;
     let type: Type | undefined;
     if (constraint.valueType) {
-      if (
-        constraint.valueType.kind === "Model" &&
-        isArrayModelType(program, constraint.valueType)
-      ) {
+      if (constraint.valueType.kind === "Model" && isArrayModelType(constraint.valueType)) {
         valueType = constraint.valueType.indexer.value;
       } else {
         return undefined;
       }
     }
     if (constraint.type) {
-      if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
+      if (constraint.type.kind === "Model" && isArrayModelType(constraint.type)) {
         type = constraint.type.indexer.value;
       } else {
         return undefined;
@@ -5955,17 +5956,40 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     stats.finishedTypes++;
 
     if (!options.skipDecorators) {
+      let postSelfValidators: ValidatorFn[] = [];
       if ("decorators" in typeDef) {
-        for (const decApp of typeDef.decorators) {
-          applyDecoratorToType(program, decApp, typeDef);
-        }
+        postSelfValidators = applyDecoratorsToType(typeDef);
       }
       typeDef.isFinished = true;
       Object.setPrototypeOf(typeDef, typePrototype);
+      runPostValidators(postSelfValidators);
     }
 
     markAsChecked(typeDef);
     return typeDef;
+  }
+
+  function applyDecoratorsToType(
+    typeDef: Type & { decorators: DecoratorApplication[] },
+  ): ValidatorFn[] {
+    const postSelfValidators: ValidatorFn[] = [];
+    for (const decApp of typeDef.decorators) {
+      const validators = applyDecoratorToType(program, decApp, typeDef);
+      if (validators?.onTargetFinish) {
+        postSelfValidators.push(validators.onTargetFinish);
+      }
+      if (validators?.onGraphFinish) {
+        postCheckValidators.push(validators.onGraphFinish);
+      }
+    }
+    return postSelfValidators;
+  }
+
+  /** Run a list of post validator */
+  function runPostValidators(validators: ValidatorFn[]) {
+    for (const validator of validators) {
+      program.reportDiagnostics(validator());
+    }
   }
 
   function markAsChecked<T extends Type>(type: T) {
@@ -6650,26 +6674,11 @@ function getDocContent(content: readonly DocContent[]) {
   return docs.join("");
 }
 
-function reportDeprecation(
+function applyDecoratorToType(
   program: Program,
-  target: DiagnosticTarget,
-  message: string,
-  reportFunc: (d: Diagnostic) => void,
-): void {
-  if (program.compilerOptions.ignoreDeprecated !== true) {
-    reportFunc(
-      createDiagnostic({
-        code: "deprecated",
-        format: {
-          message,
-        },
-        target,
-      }),
-    );
-  }
-}
-
-function applyDecoratorToType(program: Program, decApp: DecoratorApplication, target: Type) {
+  decApp: DecoratorApplication,
+  target: Type,
+): DecoratorValidatorCallbacks | void {
   compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
 
   for (const arg of decApp.args) {
@@ -6683,12 +6692,7 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
   if (decApp.definition) {
     const deprecation = getDeprecationDetails(program, decApp.definition);
     if (deprecation !== undefined) {
-      reportDeprecation(
-        program,
-        decApp.node ?? target,
-        deprecation.message,
-        program.reportDiagnostic,
-      );
+      reportDeprecated(program, deprecation.message, decApp.node ?? target);
     }
   }
 
@@ -6697,7 +6701,7 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
     const args = decApp.args.map((x) => x.jsValue);
     const fn = decApp.decorator;
     const context = createDecoratorContext(program, decApp);
-    fn(context, target, ...args);
+    return fn(context, target, ...args);
   } catch (error: any) {
     // do not fail the language server for exceptions in decorators
     if (program.compilerOptions.designTimeBuild) {

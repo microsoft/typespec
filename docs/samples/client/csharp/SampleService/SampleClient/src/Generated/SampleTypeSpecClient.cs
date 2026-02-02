@@ -32,6 +32,10 @@ namespace SampleTypeSpec
             }
         };
         private readonly string _apiVersion;
+        private AnimalOperations _cachedAnimalOperations;
+        private PetOperations _cachedPetOperations;
+        private DogOperations _cachedDogOperations;
+        private Metrics _cachedMetrics;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -1090,6 +1094,15 @@ namespace SampleTypeSpec
         /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="propertyWithSpecialDocs">
+        /// This tests:
+        /// - Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.
+        /// - Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.
+        /// - Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.
+        /// - Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.
+        /// - **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.
+        /// - *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.
+        /// </param>
         /// <param name="optionalNullableString"> required optional string. </param>
         /// <param name="optionalLiteralString"> optional literal string. </param>
         /// <param name="optionalLiteralInt"> optional literal int. </param>
@@ -1097,10 +1110,10 @@ namespace SampleTypeSpec
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="name"/> or <paramref name="requiredBadDescription"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -1109,6 +1122,7 @@ namespace SampleTypeSpec
                 Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
                 Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
                 Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
+                Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
                 Thing spreadModel = new Thing(
                     name,
@@ -1127,6 +1141,7 @@ namespace SampleTypeSpec
                     requiredBadDescription,
                     optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                     requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    propertyWithSpecialDocs,
                     null);
                 ClientResult result = AnonymousBody(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
@@ -1153,6 +1168,15 @@ namespace SampleTypeSpec
         /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="propertyWithSpecialDocs">
+        /// This tests:
+        /// - Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.
+        /// - Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.
+        /// - Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.
+        /// - Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.
+        /// - **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.
+        /// - *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.
+        /// </param>
         /// <param name="optionalNullableString"> required optional string. </param>
         /// <param name="optionalLiteralString"> optional literal string. </param>
         /// <param name="optionalLiteralInt"> optional literal int. </param>
@@ -1160,10 +1184,10 @@ namespace SampleTypeSpec
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="name"/> or <paramref name="requiredBadDescription"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -1172,6 +1196,7 @@ namespace SampleTypeSpec
                 Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
                 Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
                 Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
+                Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
                 Thing spreadModel = new Thing(
                     name,
@@ -1190,6 +1215,7 @@ namespace SampleTypeSpec
                     requiredBadDescription,
                     optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                     requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    propertyWithSpecialDocs,
                     null);
                 ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
@@ -3005,6 +3031,30 @@ namespace SampleTypeSpec
             {
                 System.Console.WriteLine("Exiting method DynamicModelOperationAsync.");
             }
+        }
+
+        /// <summary> Initializes a new instance of AnimalOperations. </summary>
+        public virtual AnimalOperations GetAnimalOperationsClient()
+        {
+            return Volatile.Read(ref _cachedAnimalOperations) ?? Interlocked.CompareExchange(ref _cachedAnimalOperations, new AnimalOperations(Pipeline, _endpoint), null) ?? _cachedAnimalOperations;
+        }
+
+        /// <summary> Initializes a new instance of PetOperations. </summary>
+        public virtual PetOperations GetPetOperationsClient()
+        {
+            return Volatile.Read(ref _cachedPetOperations) ?? Interlocked.CompareExchange(ref _cachedPetOperations, new PetOperations(Pipeline, _endpoint), null) ?? _cachedPetOperations;
+        }
+
+        /// <summary> Initializes a new instance of DogOperations. </summary>
+        public virtual DogOperations GetDogOperationsClient()
+        {
+            return Volatile.Read(ref _cachedDogOperations) ?? Interlocked.CompareExchange(ref _cachedDogOperations, new DogOperations(Pipeline, _endpoint), null) ?? _cachedDogOperations;
+        }
+
+        /// <summary> Initializes a new instance of Metrics. </summary>
+        public virtual Metrics GetMetricsClient()
+        {
+            return Volatile.Read(ref _cachedMetrics) ?? Interlocked.CompareExchange(ref _cachedMetrics, new Metrics(Pipeline, _endpoint), null) ?? _cachedMetrics;
         }
     }
 }

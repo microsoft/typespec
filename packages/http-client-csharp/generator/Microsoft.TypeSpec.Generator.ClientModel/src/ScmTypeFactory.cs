@@ -207,11 +207,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected virtual ClientProvider? CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
 
         /// <summary>
-        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input method <paramref name="serviceMethod"/>.
+        /// Factory method for creating a <see cref="ScmMethodProviderCollection"/> based on an input method <paramref name="serviceMethod"/>.
         /// </summary>
         /// <param name="serviceMethod">The <see cref="InputServiceMethod"/> to convert.</param>
         /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
-        /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
+        /// <returns>An instance of <see cref="ScmMethodProviderCollection"/> containing the chain of methods
         /// associated with the input service method, or <c>null</c> if no methods are constructed.
         /// </returns>
         internal ScmMethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, ClientProvider enclosingType)
@@ -230,7 +230,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         }
 
         public virtual ValueExpression DeserializeJsonValue(
-            Type valueType,
+            CSharpType valueType,
             ScopedApi<JsonElement> element,
             ScopedApi<BinaryData> data,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
@@ -238,7 +238,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, data, mrwOptionsParameter, format);
 
         public virtual MethodBodyStatement SerializeJsonValue(
-            Type valueType,
+            CSharpType valueType,
             ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,

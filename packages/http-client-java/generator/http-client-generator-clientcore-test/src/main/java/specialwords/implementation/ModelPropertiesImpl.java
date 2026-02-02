@@ -15,6 +15,8 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
+import specialwords.modelproperties.DictMethods;
+import specialwords.modelproperties.ModelWithList;
 import specialwords.modelproperties.SameAsModel;
 
 /**
@@ -73,6 +75,23 @@ public final class ModelPropertiesImpl {
         Response<Void> sameAsModel(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") SameAsModel body,
             RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/special-words/model-properties/dict-methods",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> dictMethods(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") DictMethods body,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/special-words/model-properties/list",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> withList(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") ModelWithList body, RequestContext requestContext);
     }
 
     /**
@@ -91,6 +110,44 @@ public final class ModelPropertiesImpl {
             updatedContext -> {
                 final String contentType = "application/json";
                 return service.sameAsModel(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
+    }
+
+    /**
+     * The dictMethods operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> dictMethodsWithResponse(DictMethods body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.ModelProperties.dictMethods", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.dictMethods(this.client.getEndpoint(), contentType, body, updatedContext);
+            });
+    }
+
+    /**
+     * The withList operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withListWithResponse(ModelWithList body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.ModelProperties.withList", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                return service.withList(this.client.getEndpoint(), contentType, body, updatedContext);
             });
     }
 }

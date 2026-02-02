@@ -255,5 +255,488 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Json));
         }
+
+        [Test]
+        public void LoadsDynamicDerivedModelMarksBaseModelAsDynamic()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            // Find the base model (should not have @dynamicModel decorator)
+            var baseModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "BaseModel");
+            Assert.IsNotNull(baseModel);
+            Assert.IsFalse(baseModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+
+            var derivedModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "DerivedModel");
+            Assert.IsNotNull(derivedModel);
+            Assert.IsTrue(derivedModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsTrue(derivedModel.IsDynamicModel);
+
+            // Verify that the base model is not marked as dynamic
+            Assert.IsFalse(baseModel.IsDynamicModel);
+            Assert.AreEqual(baseModel, derivedModel.BaseModel);
+        }
+
+        [Test]
+        public void LoadsDynamicDiscriminatedModelMarksBaseModelPropertiesAsDynamic()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            // Find the base model with model properties (discriminated model)
+            var baseModelWithProperties = inputNamespace!.Models.SingleOrDefault(m => m.Name == "BaseModelWithProperties");
+            Assert.IsNotNull(baseModelWithProperties);
+            Assert.IsNotNull(baseModelWithProperties!.DiscriminatorProperty, "Base model should have a discriminator property");
+
+            // Find the derived model (should have @dynamicModel decorator)
+            var derivedModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "DerivedModelExtendingBase");
+            Assert.IsNotNull(derivedModel);
+            Assert.IsTrue(derivedModel!.IsDynamicModel);
+
+            // Verify that the discriminated base model is marked as dynamic because it has a dynamic derived model
+            Assert.IsTrue(baseModelWithProperties!.IsDynamicModel);
+
+            // Verify that model properties in the base model are also marked as dynamic
+            var nestedModelProperty = baseModelWithProperties.Properties.SingleOrDefault(p => p.Name == "NestedModel");
+            Assert.IsNotNull(nestedModelProperty);
+            Assert.IsTrue(nestedModelProperty!.Type is InputModelType);
+            var nestedModel = (InputModelType)nestedModelProperty.Type;
+            Assert.IsTrue(nestedModel.IsDynamicModel);
+
+            // Verify nested array of models
+            var arrayProperty = baseModelWithProperties.Properties.SingleOrDefault(p => p.Name == "ArrayOfModels");
+            Assert.IsNotNull(arrayProperty);
+            Assert.IsTrue(arrayProperty!.Type is InputArrayType);
+            var arrayType = (InputArrayType)arrayProperty.Type;
+            Assert.IsTrue(arrayType.ValueType is InputModelType);
+            var arrayValueModel = (InputModelType)arrayType.ValueType;
+            Assert.IsTrue(arrayValueModel.IsDynamicModel);
+        }
+
+        [Test]
+        public void LoadsDynamicDiscriminatedModelWithMultipleLevelsOfInheritance()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            // Find models at different levels
+            var grandparentModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "GrandparentModel");
+            var parentModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "ParentModel");
+            var childModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "ChildModel");
+
+            Assert.IsNotNull(grandparentModel);
+            Assert.IsNotNull(parentModel);
+            Assert.IsNotNull(childModel);
+
+            // Verify inheritance chain
+            Assert.AreEqual(grandparentModel, parentModel!.BaseModel);
+            Assert.AreEqual(parentModel, childModel!.BaseModel);
+
+            // Verify discriminator setup - grandparent is the discriminated base
+            Assert.IsNotNull(grandparentModel!.DiscriminatorProperty, "Grandparent model should have a discriminator property");
+            Assert.IsNotNull(parentModel.DiscriminatorValue, "Parent model should have a discriminator value");
+            Assert.IsNotNull(childModel.DiscriminatorValue, "Child model should have a discriminator value");
+
+            // Only the child has the @dynamicModel decorator
+            Assert.IsTrue(childModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsFalse(parentModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsFalse(grandparentModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+
+            // Verify all models in the chain are marked as dynamic due to discriminated inheritance
+            Assert.IsTrue(childModel.IsDynamicModel);
+            Assert.IsTrue(parentModel.IsDynamicModel);
+            Assert.IsTrue(grandparentModel.IsDynamicModel);
+        }
+
+        [Test]
+        public void LoadsClientWithSubclientInitializedBy()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputClientConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            var parentClient = inputNamespace!.Clients.SingleOrDefault(c => c.Name == "ParentClient");
+            Assert.IsNotNull(parentClient);
+            Assert.AreEqual(InputClientInitializedBy.Individually, parentClient!.InitializedBy);
+            Assert.IsNull(parentClient.Parent, "Parent client should not have a parent");
+            Assert.AreEqual(1, parentClient.Children.Count, "Parent client should have 1 child");
+
+            var subClient = inputNamespace.Clients.SingleOrDefault(c => c.Name == "SubClient");
+            Assert.IsNotNull(subClient);
+            Assert.AreEqual(InputClientInitializedBy.Individually | InputClientInitializedBy.Parent, subClient!.InitializedBy);
+            Assert.IsNotNull(subClient.Parent, "SubClient should have a parent");
+            Assert.AreEqual("ParentClient", subClient.Parent!.Name, "SubClient's parent should be ParentClient");
+            Assert.AreEqual(0, subClient.Children.Count, "SubClient should have no children");
+        }
+
+        [Test]
+        public void DeserializeUnionWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""union"",
+                ""name"": ""TestUnion"",
+                ""variantTypes"": [
+                    { ""$id"": ""2"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" }
+                ],
+                ""external"": {
+                    ""identity"": ""Azure.Core.Expressions.DataFactoryElement"",
+                    ""package"": ""Azure.Core.Expressions"",
+                    ""minVersion"": ""1.0.0""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputUnionTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var union = JsonSerializer.Deserialize<InputUnionType>(json, options);
+            Assert.IsNotNull(union);
+            Assert.IsNotNull(union!.External);
+            Assert.AreEqual("Azure.Core.Expressions.DataFactoryElement", union.External!.Identity);
+            Assert.AreEqual("Azure.Core.Expressions", union.External.Package);
+            Assert.AreEqual("1.0.0", union.External.MinVersion);
+            Assert.AreEqual(1, union.VariantTypes.Count);
+        }
+
+        [Test]
+        public void DeserializeModelWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""model"",
+                ""name"": ""TestModel"",
+                ""namespace"": ""Test.Models"",
+                ""crossLanguageDefinitionId"": ""Test.Models.TestModel"",
+                ""usage"": ""None"",
+                ""properties"": [],
+                ""external"": {
+                    ""identity"": ""System.Text.Json.JsonElement"",
+                    ""package"": ""System.Text.Json"",
+                    ""minVersion"": ""8.0.0""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var model = JsonSerializer.Deserialize<InputModelType>(json, options);
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(model!.External);
+            Assert.AreEqual("System.Text.Json.JsonElement", model.External!.Identity);
+            Assert.AreEqual("System.Text.Json", model.External.Package);
+            Assert.AreEqual("8.0.0", model.External.MinVersion);
+        }
+
+        [Test]
+        public void DeserializeArrayWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""array"",
+                ""name"": ""TestArray"",
+                ""crossLanguageDefinitionId"": ""TestArray"",
+                ""valueType"": { ""$id"": ""2"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" },
+                ""external"": {
+                    ""identity"": ""System.Collections.Generic.IList""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputArrayTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var array = JsonSerializer.Deserialize<InputArrayType>(json, options);
+            Assert.IsNotNull(array);
+            Assert.IsNotNull(array!.External);
+            Assert.AreEqual("System.Collections.Generic.IList", array.External!.Identity);
+            Assert.IsNull(array.External.Package);
+            Assert.IsNull(array.External.MinVersion);
+        }
+
+        [Test]
+        public void DeserializeDictionaryWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""dict"",
+                ""keyType"": { ""$id"": ""2"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" },
+                ""valueType"": { ""$id"": ""3"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" },
+                ""external"": {
+                    ""identity"": ""System.Collections.Generic.IDictionary"",
+                    ""package"": ""System.Collections""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputDictionaryTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var dictionary = JsonSerializer.Deserialize<InputDictionaryType>(json, options);
+            Assert.IsNotNull(dictionary);
+            Assert.IsNotNull(dictionary!.External);
+            Assert.AreEqual("System.Collections.Generic.IDictionary", dictionary.External!.Identity);
+            Assert.AreEqual("System.Collections", dictionary.External.Package);
+            Assert.IsNull(dictionary.External.MinVersion);
+        }
+
+        [Test]
+        public void DeserializeEnumWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""enum"",
+                ""name"": ""TestEnum"",
+                ""namespace"": ""Test.Models"",
+                ""crossLanguageDefinitionId"": ""Test.Models.TestEnum"",
+                ""valueType"": { ""$id"": ""2"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" },
+                ""values"": [],
+                ""isFixed"": true,
+                ""external"": {
+                    ""identity"": ""System.DayOfWeek""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputEnumTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var enumType = JsonSerializer.Deserialize<InputEnumType>(json, options);
+            Assert.IsNotNull(enumType);
+            Assert.IsNotNull(enumType!.External);
+            Assert.AreEqual("System.DayOfWeek", enumType.External!.Identity);
+            Assert.IsNull(enumType.External.Package);
+            Assert.IsNull(enumType.External.MinVersion);
+        }
+
+        [Test]
+        public void LoadsModelWithExternalMetadataEndToEnd()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var inputNamespace = TypeSpecSerialization.Deserialize(content);
+
+            Assert.IsNotNull(inputNamespace);
+
+            var externalModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "ExternalModel");
+            Assert.IsNotNull(externalModel);
+            Assert.IsNotNull(externalModel!.External, "External metadata should be populated");
+            Assert.AreEqual("System.Text.Json.JsonElement", externalModel.External!.Identity);
+            Assert.AreEqual("System.Text.Json", externalModel.External.Package);
+            Assert.AreEqual("8.0.0", externalModel.External.MinVersion);
+        }
+
+        [Test]
+        public void LoadsXmlOnlyModelDoesNotAddJsonUsage()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Xml), "Model should have Xml usage flag");
+            Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "XML-only model should NOT have Json usage flag added");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
+        }
+
+        [Test]
+        public void LoadsNonXmlModelAddsJsonUsage()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Json), "Non-XML model should have Json usage flag added");
+            Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Xml), "Model should NOT have Xml usage flag");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
+        }
+
+        [Test]
+        public void LoadsModelWithBothXmlAndJsonUsage()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Xml), "Model should have Xml usage flag");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "Model should have Json usage flag");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should have Input usage flag");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Output), "Model should have Output usage flag");
+        }
     }
 }

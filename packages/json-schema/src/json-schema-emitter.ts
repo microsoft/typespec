@@ -51,6 +51,7 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
+  isStringType,
   isType,
   joinPaths,
   serializeValueAsJson,
@@ -776,14 +777,30 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     strategy: "oneOf" | "anyOf",
   ): EmitterOutput<object> {
     const variants = new ArrayBuilder<Record<string, unknown>>();
+    const knownDiscriminatorValues: string[] = [];
 
-    // Collect all derived models
+    // Collect all derived models and their discriminator values
     for (const derived of model.derivedModels) {
       if (!includeDerivedModel(derived)) continue;
 
       // Add reference to each derived model
       const derivedRef = this.emitter.emitTypeReference(derived);
       variants.push(derivedRef);
+
+      // Collect discriminator values for catch-all generation
+      const values = this.#getDiscriminatorValues(derived, discriminator.propertyName);
+      knownDiscriminatorValues.push(...values);
+    }
+
+    // Check if this is an open discriminator (discriminator property type includes string)
+    // If so, add a catch-all variant that matches any unknown discriminator value
+    if (this.#isOpenDiscriminator(model, discriminator.propertyName)) {
+      const catchAllVariant = this.#createCatchAllVariant(
+        model,
+        discriminator.propertyName,
+        knownDiscriminatorValues,
+      );
+      variants.push(catchAllVariant);
     }
 
     // For discriminated unions, emit the oneOf/anyOf with base model properties
@@ -798,6 +815,109 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     this.#applyConstraints(model, schema);
     return this.#createDeclaration(model, name, schema);
+  }
+
+  /**
+   * Check if the discriminator property type is "open" (includes the string scalar type).
+   * This means the discriminated union can accept unknown discriminator values.
+   */
+  #isOpenDiscriminator(model: Model, discriminatorPropertyName: string): boolean {
+    const prop = model.properties.get(discriminatorPropertyName);
+    if (!prop) return false;
+
+    return this.#typeIncludesString(prop.type);
+  }
+
+  /**
+   * Check if a type includes the string scalar (not just string literals).
+   */
+  #typeIncludesString(type: Type): boolean {
+    const program = this.emitter.getProgram();
+
+    switch (type.kind) {
+      case "Scalar":
+        return isStringType(program, type);
+      case "Union":
+        // Check if any variant is the string scalar
+        for (const variant of type.variants.values()) {
+          if (this.#typeIncludesString(variant.type)) {
+            return true;
+          }
+        }
+        return false;
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Get string discriminator values from a model's discriminator property.
+   */
+  #getDiscriminatorValues(model: Model, discriminatorPropertyName: string): string[] {
+    const prop = model.properties.get(discriminatorPropertyName);
+    if (!prop) return [];
+
+    return this.#getStringLiteralValues(prop.type);
+  }
+
+  /**
+   * Extract string literal values from a type.
+   */
+  #getStringLiteralValues(type: Type): string[] {
+    switch (type.kind) {
+      case "String":
+        return [type.value];
+      case "Union":
+        return [...type.variants.values()].flatMap((v) => this.#getStringLiteralValues(v.type));
+      case "UnionVariant":
+        return this.#getStringLiteralValues(type.type);
+      case "EnumMember":
+        return typeof type.value !== "number" ? [type.value ?? type.name] : [];
+      default:
+        return [];
+    }
+  }
+
+  /**
+   * Create a catch-all variant for open discriminated unions.
+   * This variant matches any discriminator value not in the known values.
+   */
+  #createCatchAllVariant(
+    model: Model,
+    discriminatorPropertyName: string,
+    knownValues: string[],
+  ): Record<string, unknown> {
+    const properties = new ObjectBuilder();
+
+    // Emit all base model properties
+    for (const [propName, prop] of model.properties) {
+      if (propName === discriminatorPropertyName) {
+        // Override discriminator property to match any string NOT in known values
+        setProperty(properties, propName, {
+          type: "string",
+          not: { enum: knownValues },
+        });
+      } else {
+        const result = this.emitter.emitModelProperty(prop);
+        setProperty(properties, propName, result);
+      }
+    }
+
+    // If discriminator property is not explicitly defined, add it
+    if (!model.properties.has(discriminatorPropertyName)) {
+      setProperty(properties, discriminatorPropertyName, {
+        type: "string",
+        not: { enum: knownValues },
+      });
+    }
+
+    const required = this.#requiredModelProperties(model);
+
+    return {
+      type: "object",
+      properties: properties,
+      ...(required && { required }),
+    };
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {

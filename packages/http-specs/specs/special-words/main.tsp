@@ -34,6 +34,7 @@ using Spector;
  * in
  * is
  * lambda
+ * list
  * not
  * or
  * pass
@@ -269,4 +270,22 @@ namespace ModelProperties {
     """)
   @route("dict-methods")
   op dictMethods(@body body: DictMethods): void;
+
+  // Test for model property named "list" which is a reserved word in many languages
+  model ModelWithList {
+    list: string;
+  }
+
+  @scenario
+  @scenarioDoc("""
+    Verify that a property can be named "list", which is a reserved word in many languages like Python.
+    
+    Send
+    
+    ```json
+    {"list": "ok"}
+    ```
+    """)
+  @route("list")
+  op withList(@body body: ModelWithList): void;
 }

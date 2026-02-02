@@ -1,5 +1,23 @@
 # Change Log - @typespec/playground
 
+## 0.11.4
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9174](https://github.com/microsoft/typespec/pull/9174) [a11y] Fix problem pane not usable via keyboard
+
+
+## 0.11.3
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 ## 0.11.2
 
 ### Bump dependencies

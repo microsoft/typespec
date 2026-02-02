@@ -14,16 +14,16 @@ cspell.yaml
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @christothes @jsquire
-/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @christothes @jsquire
-/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @christothes @jsquire
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @christothes @jsquire @ShivangiReja @joseharriaga
+/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @christothes @jsquire @ShivangiReja @joseharriaga
+/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @christothes @jsquire @ShivangiReja @joseharriaga
 
 ######################
 # Java
 ######################
 /packages/http-client-java/                  @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 /website/src/content/docs/docs/emitters/clients/http-client-java/ @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
-/.github/prompts/http-client-java-development.md @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
+/.github/instructions/http-client-java.instructions.md @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 
 ######################
 # Python

@@ -14,5 +14,6 @@
   "optionalLiteralBool": false,
   "optionalNullableList": [],
   "requiredNullableString": null,
-  "extra": "stuff"
+  "extra": "stuff",
+  "propertyWithSpecialDocs": "someValue"
 }

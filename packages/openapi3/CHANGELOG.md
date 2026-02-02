@@ -1,5 +1,45 @@
 # Change Log - @typespec/openapi3
 
+## 1.8.0
+
+### Features
+
+- [#9289](https://github.com/microsoft/typespec/pull/9289) Add support for importing deprecated properties and types from OpenAPI
+- [#9262](https://github.com/microsoft/typespec/pull/9262) Add support for OpenAPI 3.2.0 `defaultMapping` in discriminated unions. When a discriminated union has a default variant (unnamed variant), it is now properly emitted:
+  - For OpenAPI 3.2.0: The default variant is included in `oneOf` array and referenced via `discriminator.defaultMapping` property
+  - For OpenAPI 3.0 and 3.1: The default variant is included in `oneOf` array and its discriminator value is added to the `discriminator.mapping` object
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9228](https://github.com/microsoft/typespec/pull/9228) Importer: Escape ${...} patterns in extension string property values to prevent interpolation
+- [#9236](https://github.com/microsoft/typespec/pull/9236) Fix extension properties with JSON-like strings using escaped string literals to prevent triple-quote syntax issues
+- [#9275](https://github.com/microsoft/typespec/pull/9275) import tool - avoid double escaping backslashes
+- [#9265](https://github.com/microsoft/typespec/pull/9265) import tool - missing imports for SSE events
+- [#9265](https://github.com/microsoft/typespec/pull/9265) import tool - escape SSE event union identifiers when required
+
+
+## 1.7.0
+
+### Features
+
+- [#9002](https://github.com/microsoft/typespec/pull/9002) Add `commaDelimited` and `newlineDelimited` values to `ArrayEncoding` enum for serializing arrays with comma and newline delimiters
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9164](https://github.com/microsoft/typespec/pull/9164) Import OpenAPI schemas with anyOf/oneOf containing unixtime format correctly emits `@encode(DateTimeKnownEncoding.unixTimestamp, integer)` decorator for nullable utcDateTime properties
+- [#9151](https://github.com/microsoft/typespec/pull/9151) Import OpenAPI 3.1/3.2 schemas with contentEncoding: base64 as bytes type with `@encode("base64", string)` decorator
+- [#9076](https://github.com/microsoft/typespec/pull/9076) Respect `@externalDocs` on properties
+- [#8961](https://github.com/microsoft/typespec/pull/8961) Support nested unions in operation return types
+
+
 ## 1.6.0
 
 ### Features

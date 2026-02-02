@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -187,7 +189,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Name}");
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                   DiagnosticCodes.InvalidAccessModifier,
+                   $"Invalid modifiers {modifiers} detected.",
+                   severity: EmitterDiagnosticSeverity.Warning);
             }
 
             // we always add partial when possible
@@ -295,7 +300,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..properties];
+            return [.. properties];
         }
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
@@ -334,7 +339,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..methods];
+            return [.. methods];
         }
 
         internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
@@ -348,7 +353,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..constructors];
+            return [.. constructors];
         }
 
         private TypeProvider[] BuildNestedTypesInternal()
@@ -502,27 +507,36 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (name != null)
             {
-                // Reset the custom code view to reflect the new name
-                _customCodeView = new(BuildCustomCodeView(name, Type.Namespace));
-                // Give precedence to the custom code view name if it exists
-                _lastContractView = new(BuildLastContractView(
-                    _customCodeView.Value?.Name ?? name,
-                    _customCodeView.Value?.Type.Namespace ?? Type.Namespace));
-                Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace);
+                ResetMembersBasedOnIdentityChange(name);
             }
 
             if (@namespace != null)
             {
-                // Reset the custom code view to reflect the new namespace
-                _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
-                _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
-                _declarationModifiers = BuildDeclarationModifiersInternal(); // recalculate declaration modifiers
-                Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
+                ResetMembersBasedOnIdentityChange(@namespace: @namespace);
             }
 
             // Rebuild the canonical view
             _canonicalView = new(BuildCanonicalView);
         }
+
+        private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
+        {
+            // Reset the custom code view to reflect the new namespace
+            _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
+            name = _customCodeView.Value?.Name ?? name ?? Type.Name;
+            @namespace = _customCodeView.Value?.Type.Namespace ?? @namespace ?? Type.Namespace;
+            _lastContractView = new(BuildLastContractView(
+                name,
+                @namespace));
+            // recalculate declaration modifiers and constructors
+            _declarationModifiers = null;
+            // constructors might change based on declaration modifier changes
+            _constructors = null;
+            // serialization providers need to reflect the new type name/namespace
+            _serializationProviders = null;
+            Type.Update(name: name, @namespace: @namespace);
+        }
+
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 
         protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
@@ -548,6 +562,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 type.EnsureBuilt();
             }
         }
+
+        internal void ProcessTypeForBackCompatibility()
+        {
+            var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
+            var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
+
+            if (!hasMethods && !hasConstructors)
+            {
+                return;
+            }
+
+            var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
+            var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
+
+            Update(methods: newMethods, constructors: newConstructors);
+        }
+
+        protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
+        protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
+            => [.. originalConstructors];
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
@@ -661,7 +697,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             else if (attribute.ConstructorArguments[1].Kind != TypedConstantKind.Array)
             {
-                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?) a.Value).ToArray();
+                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?)a.Value).ToArray();
             }
             else
             {

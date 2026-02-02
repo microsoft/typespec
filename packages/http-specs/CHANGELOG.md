@@ -1,5 +1,46 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.31
+
+### Features
+
+- [#9299](https://github.com/microsoft/typespec/pull/9299) Add test for services that accept `NoAuth` unioned with other auth type
+
+### Bug Fixes
+
+- [#9200](https://github.com/microsoft/typespec/pull/9200) Fix bulletPointsModel API signature to match runtime behavior - changed response type to OkResponse and updated request body structure
+
+
+## 0.1.0-alpha.30
+
+### Features
+
+- [#8836](https://github.com/microsoft/typespec/pull/8836) Add case for constant query
+- [#9139](https://github.com/microsoft/typespec/pull/9139) Add new test case for multipart
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.1.0-alpha.29
+
+### Features
+
+- [#9106](https://github.com/microsoft/typespec/pull/9106) Add tests for array encode.
+- [#8929](https://github.com/microsoft/typespec/pull/8929) add test for documentation generation
+- [#9019](https://github.com/microsoft/typespec/pull/9019) Add test case for special words about model property name
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9039](https://github.com/microsoft/typespec/pull/9039) Fix EncodeDuration tests with larger unit durations being too strict by making query parameter expectations match input types as numbers instead of strings
+- [#8985](https://github.com/microsoft/typespec/pull/8985) Add new `sourceUrl` handling for the go to source navigation
+
+
 ## 0.1.0-alpha.28
 
 ### Features
