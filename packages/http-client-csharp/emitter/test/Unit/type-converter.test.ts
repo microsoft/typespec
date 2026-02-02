@@ -238,9 +238,9 @@ describe("Union types to model hierarchies", () => {
     );
 
     // Validate that the discriminator property has the correct enum values
-    const enumValues = (discriminatorProp.type as any).values.map((v: any) => v.name);
-    strictEqual(enumValues.includes("alpha"), true, "Discriminator enum should include 'alpha'");
-    strictEqual(enumValues.includes("beta"), true, "Discriminator enum should include 'beta'");
+    const enumValues = new Set(discriminatorProp.type.values.map((v) => v.name));
+    strictEqual(enumValues.has("alpha"), true, "Discriminator enum should include 'alpha'");
+    strictEqual(enumValues.has("beta"), true, "Discriminator enum should include 'beta'");
 
     // Validate that Alpha and Beta DO NOT have the discriminator property
     const alphaDiscriminatorProp = alphaModel.properties.find((p) => p.name === "type");
