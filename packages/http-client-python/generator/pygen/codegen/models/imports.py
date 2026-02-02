@@ -23,9 +23,9 @@ class ImportType(str, Enum):
 
 
 class TypingSection(str, Enum):
-    REGULAR = "regular"  # this import is always a regular import
-    CONDITIONAL = "conditional"  # import is treated as a regular import (not in TYPE_CHECKING block)
-    TYPING = "typing"  # import is placed in TYPE_CHECKING block
+    REGULAR = "regular"  # regular import (not in TYPE_CHECKING block)
+    CONDITIONAL = "conditional"  # typing import that is merged with regular imports at runtime
+    TYPING = "typing"  # import is placed in TYPE_CHECKING block only
 
 
 class MsrestImportType(Enum):
