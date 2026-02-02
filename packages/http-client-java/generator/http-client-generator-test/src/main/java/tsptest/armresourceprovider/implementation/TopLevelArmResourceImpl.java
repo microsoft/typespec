@@ -4,8 +4,10 @@
 
 package tsptest.armresourceprovider.implementation;
 
+import com.azure.core.http.rest.Response;
 import com.azure.core.management.Region;
 import com.azure.core.management.SystemData;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -189,6 +191,15 @@ public final class TopLevelArmResourceImpl
     public Result action(Context context) {
         return serviceManager.topLevelArmResourceInterfaces()
             .action(resourceGroupName, topLevelArmResourceName, context);
+    }
+
+    public Response<BinaryData> publishXmlWithResponse(Context context) {
+        return serviceManager.topLevelArmResourceInterfaces()
+            .publishXmlWithResponse(resourceGroupName, topLevelArmResourceName, context);
+    }
+
+    public BinaryData publishXml() {
+        return serviceManager.topLevelArmResourceInterfaces().publishXml(resourceGroupName, topLevelArmResourceName);
     }
 
     public TopLevelArmResourceImpl withRegion(Region location) {
