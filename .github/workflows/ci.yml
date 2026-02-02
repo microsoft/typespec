@@ -6,9 +6,6 @@ on:
       - main
       - release/*
     paths-ignore:
-      - "packages/http-client-csharp/**"
-      - "packages/http-client-java/**"
-      - "packages/http-client-python/**"
       - "website/**"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,12 +23,15 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Install dependencies
-        run: pnpm install
+        run: npx tsx eng/tsp-core/trepo.ts install --since origin/main
 
       - name: Build
-        run: pnpm run --filter "internal-build-utils" --filter "[origin/main]..." --filter='!@typespec/website' build
+        run: npx tsx eng/tsp-core/trepo.ts build --since origin/main
 
       - name: Bump version to prerelease targets
         run: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr ${{ github.event.pull_request.number }} --buildNumber ${{ github.run_number }}
 
-      - run: pnpm tsx eng/tsp-core/pkg-pr-new.ts
+      - name: Pack
+        run: npx tsx eng/tsp-core/trepo.ts pack --since origin/main
+
+      - run: node eng/tsp-core/pkg-pr-new.ts
