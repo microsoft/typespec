@@ -1,17 +1,15 @@
 import { execSync } from "child_process";
-import { readdir } from "fs/promises";
 import { repoRoot } from "../common/scripts/utils/common.js";
 import { listChangedFilesSince } from "../common/scripts/utils/git.js";
+import { getPublishablePackages } from "./tpm/packages.js";
 
 const files = await listChangedFilesSince(`origin/main`, { repositoryPath: repoRoot });
 
 // eslint-disable-next-line no-console
 console.log("modified files:", files);
 
-const packages = await readdir(repoRoot + "/packages", { withFileTypes: true });
-const paths = packages
-  .filter((dirent) => dirent.isDirectory())
-  .map((dirent) => `packages/${dirent.name}`);
+const packages = await getPublishablePackages();
+const paths = packages.map((pkg) => pkg.path);
 
 const modifiedPaths = paths.filter((x) => files.some((f) => f.startsWith(x + "/")));
 // eslint-disable-next-line no-console
