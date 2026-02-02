@@ -1,3 +1,11 @@
+/**
+ * TPM - TypeSpec Repo Manager
+ *
+ * A tool to manage dependencies, build, and pack TypeSpec-related packages
+ * in a monorepo setup. It can operate on all packages or only those modified
+ * since a specified git reference.
+ */
+
 /* eslint-disable no-console */
 import { execSync } from "child_process";
 import { readdir } from "fs/promises";

@@ -126,3 +126,5 @@ export const $lib = createTypeSpecLibrary({
 } as const);
 
 export const { name: LibName, reportDiagnostic, createDiagnostic, getTracer } = $lib;
+
+console.log("TEST CHANGE REMOVE");

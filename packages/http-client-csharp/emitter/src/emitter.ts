@@ -47,7 +47,7 @@ function findProjectRoot(path: string): string | undefined {
   }
 }
 
-console.log("TEST CHANGE REMOVE")
+console.log("TEST CHANGE REMOVE");
 
 /**
  * The entry point for the emitter. This function is called by the typespec compiler.
