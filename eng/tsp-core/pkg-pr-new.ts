@@ -14,6 +14,11 @@ const paths = packages.map((pkg) => pkg.path);
 const modifiedPaths = paths.filter((x) => files.some((f) => f.startsWith(x + "/")));
 // eslint-disable-next-line no-console
 console.log("Packages", { all: paths, modified: modifiedPaths });
+if (modifiedPaths.length === 0) {
+  // eslint-disable-next-line no-console
+  console.log("No modified packages found.");
+  process.exit(0);
+}
 try {
   execSync(`pnpx pkg-pr-new publish ${modifiedPaths.map((x) => `'${x}'`).join(" ")} --pnpm`, {
     stdio: "inherit",
