@@ -28,10 +28,7 @@ from typing import (
     MutableMapping,
 )
 
-try:
-    from urllib import quote  # type: ignore
-except ImportError:
-    from urllib.parse import quote
+from urllib.parse import quote
 import xml.etree.ElementTree as ET
 
 import isodate  # type: ignore
@@ -90,14 +87,6 @@ class RawDeserializer:
                 raise DeserializationError("JSON is invalid: {}".format(err), err) from err
         elif "xml" in (content_type or []):
             try:
-
-                try:
-                    if isinstance(data, unicode):  # type: ignore
-                        # If I'm Python 2.7 and unicode XML will scream if I try a "fromstring" on unicode string
-                        data_as_str = data_as_str.encode(encoding="utf-8")  # type: ignore
-                except NameError:
-                    pass
-
                 return ET.fromstring(data_as_str)  # nosec
             except ET.ParseError as err:
                 # It might be because the server has an issue, and returned JSON with
@@ -115,8 +104,6 @@ class RawDeserializer:
                     return json_result
                 # If i'm here, it's not JSON, it's not XML, let's scream
                 # and raise the last context in this block (the XML exception)
-                # The function hack is because Py2.7 messes up with exception
-                # context otherwise.
                 _LOGGER.critical("Wasn't XML not JSON, failing")
                 raise DeserializationError("XML is invalid") from err
         elif content_type.startswith("text/"):
@@ -153,11 +140,6 @@ class RawDeserializer:
 
 
 _LOGGER = logging.getLogger(__name__)
-
-try:
-    _long_type = long  # type: ignore
-except NameError:
-    _long_type = int
 
 TZ_UTC = datetime.timezone.utc
 
@@ -834,8 +816,7 @@ class Serializer:  # pylint: disable=too-many-public-methods
 
     @classmethod
     def serialize_unicode(cls, data):
-        """Special handling for serializing unicode strings in Py2.
-        Encode to UTF-8 if unicode, otherwise handle as a str.
+        """Serialize string data.
 
         :param str data: Object to be serialized.
         :rtype: str
@@ -846,13 +827,6 @@ class Serializer:  # pylint: disable=too-many-public-methods
         except AttributeError:
             pass
 
-        try:
-            if isinstance(data, unicode):  # type: ignore
-                # Don't change it, JSON and XML ElementTree are totally able
-                # to serialize correctly u'' strings
-                return data
-        except NameError:
-            return str(data)
         return str(data)
 
     def serialize_iter(self, data, iter_type, div=None, **kwargs):
@@ -966,7 +940,7 @@ class Serializer:  # pylint: disable=too-many-public-methods
         obj_type = type(attr)
         if obj_type in self.basic_types:
             return self.serialize_basic(attr, self.basic_types[obj_type], **kwargs)
-        if obj_type is _long_type:
+        if obj_type is int:
             return self.serialize_long(attr)
         if obj_type is str:
             return self.serialize_unicode(attr)
@@ -1053,13 +1027,13 @@ class Serializer:  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def serialize_long(attr, **kwargs):  # pylint: disable=unused-argument
-        """Serialize long (Py2) or int (Py3).
+        """Serialize int.
 
         :param int attr: Object to be serialized.
-        :rtype: int/long
-        :return: serialized long
+        :rtype: int
+        :return: serialized int
         """
-        return _long_type(attr)
+        return int(attr)
 
     @staticmethod
     def serialize_date(attr, **kwargs):  # pylint: disable=unused-argument
@@ -1726,7 +1700,7 @@ class Deserializer:
         obj_type = type(attr)
         if obj_type in self.basic_types:
             return self.deserialize_basic(attr, self.basic_types[obj_type])
-        if obj_type is _long_type:
+        if obj_type is int:
             return self.deserialize_long(attr)
 
         if obj_type == dict:
@@ -1794,24 +1768,17 @@ class Deserializer:
 
     @staticmethod
     def deserialize_unicode(data):
-        """Preserve unicode objects in Python 2, otherwise return data
-        as a string.
+        """Deserialize string data.
 
         :param str data: response string to be deserialized.
         :return: Deserialized string.
-        :rtype: str or unicode
+        :rtype: str
         """
         # We might be here because we have an enum modeled as string,
         # and we try to deserialize a partial dict with enum inside
         if isinstance(data, Enum):
             return data
 
-        # Consider this is real string
-        try:
-            if isinstance(data, unicode):  # type: ignore
-                return data
-        except NameError:
-            return str(data)
         return str(data)
 
     @staticmethod
@@ -1896,16 +1863,16 @@ class Deserializer:
 
     @staticmethod
     def deserialize_long(attr):
-        """Deserialize string into long (Py2) or int (Py3).
+        """Deserialize string into int.
 
         :param str attr: response string to be deserialized.
         :return: Deserialized int
-        :rtype: long or int
+        :rtype: int
         :raises ValueError: if string format invalid.
         """
         if isinstance(attr, ET.Element):
             attr = attr.text
-        return _long_type(attr)  # type: ignore
+        return int(attr)  # type: ignore
 
     @staticmethod
     def deserialize_duration(attr):

@@ -114,7 +114,7 @@ def _serialize_datetime(o, format: typing.Optional[str] = None):
         if format == "unix-timestamp":
             return int(calendar.timegm(o.utctimetuple()))
 
-        # astimezone() fails for naive times in Python 2.7, so make make sure o is aware (tzinfo is set)
+        # Make sure datetime is aware (tzinfo is set) for astimezone() to work properly
         if not o.tzinfo:
             iso_formatted = o.replace(tzinfo=TZ_UTC).isoformat()
         else:

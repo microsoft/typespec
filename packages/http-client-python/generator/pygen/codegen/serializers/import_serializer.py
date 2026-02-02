@@ -74,8 +74,7 @@ class FileImportSerializer:
         self.async_mode = async_mode
 
     def _get_imports_list(self, baseline_typing_section: TypingSection, add_conditional_typing: bool):
-        # If this is a python 3 file, our regular imports include the CONDITIONAL category
-        # If this is not a python 3 file, our typing imports include the CONDITIONAL category
+        # When add_conditional_typing is True, CONDITIONAL imports are merged with the baseline section
         file_import_copy = deepcopy(self.file_import)
         if add_conditional_typing and any(self.file_import.get_imports_from_section(TypingSection.CONDITIONAL)):
             # we switch the TypingSection key for the CONDITIONAL typing imports so we can merge
