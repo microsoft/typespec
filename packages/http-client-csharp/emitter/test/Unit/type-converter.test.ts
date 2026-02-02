@@ -187,12 +187,12 @@ describe("Union types to model hierarchies", () => {
   beforeEach(async () => {
     runner = await createEmitterTestHost();
   });
-  const cases = [
-    { 
+  const supportedCases = [
+    {
       name: "request bodies",
       opDefinition: `op test(@body input: MyUnion): void;`,
     },
-    { 
+    {
       name: "response bodies",
       opDefinition: `op test(): MyUnion;`,
     },
@@ -204,9 +204,10 @@ describe("Union types to model hierarchies", () => {
       }
       op test(): ContainerModel;
       `,
-    }
-  ]
-  cases.forEach(({name, opDefinition }) => it(`should convert ${name} union with members to model hierarchy`, async () => {
+    },
+  ];
+  supportedCases.forEach(({ name, opDefinition }) =>
+    it(`should convert ${name} union with members to model hierarchy`, async () => {
       const program = await typeSpecCompile(
         `
         model Alpha {
@@ -275,6 +276,50 @@ describe("Union types to model hierarchies", () => {
         undefined,
         "Beta should not have the discriminator property 'type'",
       );
-    })
+    }),
+  );
+
+  const unsupportedCases = [
+    {
+      name: "envelopped",
+      unionDefinition: `@discriminated(#{ discriminatorPropertyName: "type", envelopePropertyName: "data" })
+        union MyUnion {
+          "alpha": Alpha,
+          "beta": Beta
+        }`,
+    },
+  ];
+  unsupportedCases.forEach(({ name, unionDefinition }) =>
+    it(`should NOT convert unsupported ${name} union with members to model hierarchy`, async () => {
+      const program = await typeSpecCompile(
+        `
+        model Alpha {
+          alphaProp: string;
+          type: "alpha";
+        }
+        model Beta {
+          betaProp: int32;
+          type: "beta";
+        }
+        ${unionDefinition}
+        
+        op test(@body input: MyUnion): void;
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const alphaModel = root.models.find((m) => m.name === "Alpha");
+      ok(alphaModel, "Alpha should exist");
+
+      const betaModel = root.models.find((m) => m.name === "Beta");
+      ok(betaModel, "Beta should exist");
+
+      const myUnion = root.models.find((m) => m.name === "MyUnion");
+      ok(!myUnion, "MyUnion should NOT exist");
+    }),
   );
 });

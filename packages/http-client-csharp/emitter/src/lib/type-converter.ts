@@ -493,7 +493,7 @@ function fromUnionType(
     const variantType = fromSdkType(sdkContext, value);
     variantTypes.push(variantType);
   }
-  if (isDiscriminatedUnion(union)) {
+  if (isDiscriminatedUnionSupportedForConversionToModel(union)) {
     const discriminatorProperty = discriminatorPropertyFromUnion(sdkContext, union, variantTypes);
     const properties = discriminatorProperty ? [discriminatorProperty] : [];
     if (discriminatorProperty) {
@@ -547,6 +547,17 @@ function isDiscriminatedUnion(sdkType: SdkUnionType): boolean {
   return sdkType.variantTypes.every((variant) => {
     return variant.kind === "model" && !variant.baseModel;
   });
+}
+
+function isDiscriminatedUnionSupportedForConversionToModel(sdkType: SdkUnionType): boolean {
+  if (!isDiscriminatedUnion(sdkType) || !sdkType.discriminatedOptions) {
+    return false;
+  }
+
+  return (
+    sdkType.discriminatedOptions.envelope === "none" &&
+    !sdkType.discriminatedOptions.envelopePropertyName
+  );
 }
 
 function fromSdkConstantType(
