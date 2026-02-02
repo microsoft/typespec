@@ -395,15 +395,17 @@ function discriminatorPropertyFromUnion(
   }
 
   const discriminatorPropertyName = union.discriminatedOptions.discriminatorPropertyName;
-  const discriminatorProperties = variantTypes.map((variant) => {
-    if (variant.kind === "model") {
-      const discProp = variant.properties.find((p) => p.name === discriminatorPropertyName);
-      if (discProp) {
-        return discProp;
+  const discriminatorProperties = variantTypes
+    .map((variant) => {
+      if (variant.kind === "model") {
+        const discProp = variant.properties.find((p) => p.name === discriminatorPropertyName);
+        if (discProp) {
+          return discProp;
+        }
       }
-    }
-    return undefined;
-  }).filter((p) => p !== undefined);
+      return undefined;
+    })
+    .filter((p) => p !== undefined);
 
   if (discriminatorProperties.length === 0) {
     return undefined;
@@ -434,8 +436,7 @@ function discriminatorPropertyFromUnion(
       return {
         kind: "enumvalue",
         name: prop.type.value === null ? "Null" : prop.type.value.toString(),
-        value:
-          typeof prop.type.value === "boolean" ? (prop.type.value ? 1 : 0) : prop.type.value,
+        value: typeof prop.type.value === "boolean" ? (prop.type.value ? 1 : 0) : prop.type.value,
         enumType: discriminatorEnumType,
         valueType: prop.type.valueType,
       } as InputEnumValueType;
@@ -450,8 +451,6 @@ function discriminatorPropertyFromUnion(
   });
 
   discriminatorEnumType.values.push(...enumValues);
-
-  
 
   sdkContext.__typeCache.updateSdkTypeReferences(union, discriminatorEnumType);
 
@@ -470,7 +469,7 @@ function discriminatorPropertyFromUnion(
     crossLanguageDefinitionId: "",
     serializationOptions: {
       json: { name: discriminatorPropertyName },
-    }
+    },
   };
 }
 
@@ -480,9 +479,7 @@ function removeDiscriminatorPropertiesFromVariants(
 ) {
   for (const variant of variantTypes) {
     if (variant.kind === "model") {
-      variant.properties = variant.properties.filter(
-        (p) => p.name !== discriminatorPropertyName,
-      );
+      variant.properties = variant.properties.filter((p) => p.name !== discriminatorPropertyName);
     }
   }
 }
@@ -498,14 +495,9 @@ function fromUnionType(
   }
   if (isDiscriminatedUnion(union)) {
     const discriminatorProperty = discriminatorPropertyFromUnion(sdkContext, union, variantTypes);
-    const properties = discriminatorProperty
-      ? [discriminatorProperty]
-      : [];
+    const properties = discriminatorProperty ? [discriminatorProperty] : [];
     if (discriminatorProperty) {
-      removeDiscriminatorPropertiesFromVariants(
-        variantTypes,
-        discriminatorProperty.name,
-      );
+      removeDiscriminatorPropertiesFromVariants(variantTypes, discriminatorProperty.name);
     }
     const baseType: InputModelType = {
       kind: "model",

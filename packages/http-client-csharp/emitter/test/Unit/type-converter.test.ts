@@ -244,7 +244,7 @@ describe("Union types to model hierarchies", () => {
       undefined,
       "Alpha should not have the discriminator property 'type'",
     );
-    
+
     const betaDiscriminatorProp = betaModel.properties.find((p) => p.name === "type");
     strictEqual(
       betaDiscriminatorProp,
