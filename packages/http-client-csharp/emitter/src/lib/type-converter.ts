@@ -503,7 +503,14 @@ function removeDiscriminatorPropertiesFromVariants(
 ) {
   for (const variant of variantTypes) {
     if (variant.kind === "model") {
+      const discriminatorProperty = variant.properties.find(
+        (p) => p.name === discriminatorPropertyName,
+      );
       variant.properties = variant.properties.filter((p) => p.name !== discriminatorPropertyName);
+      variant.discriminatorValue =
+        discriminatorProperty?.type.kind === "constant"
+          ? discriminatorProperty.type.value?.toString()
+          : undefined;
     }
   }
 }
@@ -527,6 +534,7 @@ function fromUnionType(
       kind: "model",
       name: union.name,
       namespace: union.namespace,
+      discriminatorProperty: discriminatorProperty,
       crossLanguageDefinitionId: union.crossLanguageDefinitionId,
       access: union.access,
       usage: union.usage,
