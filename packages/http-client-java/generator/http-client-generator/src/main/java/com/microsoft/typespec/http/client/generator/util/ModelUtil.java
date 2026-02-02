@@ -23,8 +23,7 @@ public final class ModelUtil {
                     || model.getImplementationDetails().isInternal()
                     || model.getImplementationDetails().isInput()
                     || model.getImplementationDetails().isException())
-                && !(isExternalModel(model.getImplementationDetails()))
-                && !(isPagedModel(model.getImplementationDetails()));
+                && !(isExternalModel(model.getImplementationDetails()));
         }
         return model.getImplementationDetails() != null
             && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal())

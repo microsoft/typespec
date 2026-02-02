@@ -24,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             ]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "Model");
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             var methods = namedTypeSymbolProvider.Methods;
 
             Assert.AreEqual(1, methods.Count);
@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([model], [typeof(BinaryData)]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "Model");
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.AreEqual(2, namedTypeSymbolProvider.Properties.Count);
             Assert.AreEqual("X", namedTypeSymbolProvider.Properties[0].Name);
             Assert.IsTrue(namedTypeSymbolProvider.Properties[0].Type.Equals(typeof(int)));
@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([model], [typeof(IJsonModel<>)]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "Model");
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.IsNull(namedTypeSymbolProvider.Type.BaseType);
         }
 
@@ -68,18 +68,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => "Model";
 
-            protected override CSharpType[] BuildImplements()
+            protected internal override CSharpType[] BuildImplements()
             {
                 return [new CSharpType(typeof(IJsonModel<>), Type)];
             }
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.None, null, $"", [ new ParameterProvider("writer", $"", typeof(Utf8JsonWriter)), new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions)) ], null, null, null, new CSharpType(typeof(IJsonModel<>), Type));
                 return [new MethodProvider(sig, Snippet.ThrowExpression(Snippet.Null), this, null)];
             }
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 return
                 [

@@ -1,5 +1,5 @@
 import assert, { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("emitting models", () => {
@@ -424,6 +424,25 @@ describe("emitting models", () => {
       assert.deepStrictEqual(schemas["Entity.json"].unevaluatedProperties, undefined);
       assert.deepStrictEqual(schemas["Widget.json"].unevaluatedProperties, undefined);
       assert.deepStrictEqual(schemas["Spinner.json"].unevaluatedProperties, { not: {} });
+    });
+  });
+});
+
+describe("can use special words as properties", () => {
+  it.each(["set", "constructor"])("%s", async (property) => {
+    const schemas = await emitSchema(
+      `
+        model Test {
+          before: string;
+          ${property}: string;
+          after: string;
+        };
+        `,
+    );
+    expect(schemas["Test.json"].properties).toEqual({
+      before: { type: "string" },
+      [property]: { type: "string" },
+      after: { type: "string" },
     });
   });
 });

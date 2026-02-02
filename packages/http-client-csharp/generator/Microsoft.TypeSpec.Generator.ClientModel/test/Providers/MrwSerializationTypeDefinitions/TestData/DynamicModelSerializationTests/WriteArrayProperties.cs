@@ -58,10 +58,6 @@ namespace Sample
                 Patch.WriteTo(writer, "$.cats"u8);
                 writer.WriteEndArray();
             }
-            else
-            {
-                writer.WriteNull("cats"u8);
-            }
             if (Patch.Contains("$.names"u8))
             {
                 if (!Patch.IsRemoved("$.names"u8))
@@ -117,10 +113,6 @@ namespace Sample
                 }
                 Patch.WriteTo(writer, "$.optionalNames"u8);
                 writer.WriteEndArray();
-            }
-            else
-            {
-                writer.WriteNull("optionalNames"u8);
             }
 
             Patch.WriteTo(writer);

@@ -111,5 +111,12 @@ async def test_request_header_nested_response_body(client: PageableClient):
 
 @pytest.mark.asyncio
 async def test_list_without_continuation(client: PageableClient):
-    result = [p async for p in client.list_without_continuation()]
+    result = [p async for p in client.page_size.list_without_continuation()]
     assert_result(result)
+
+
+# after https://github.com/microsoft/typespec/pull/9455 released, we could enable this test again
+# @pytest.mark.asyncio
+# async def test_xml_pagination_list_with_next_link(client: PageableClient):
+#     result = [p async for p in client.xml_pagination.list_with_next_link()]
+#     assert_result(result)

@@ -74,6 +74,15 @@ namespace SampleTypeSpec
                 writer.WritePropertyName("optionalLiteralString"u8);
                 writer.WriteStringValue(OptionalLiteralString);
             }
+            if (Optional.IsDefined(RequiredNullableLiteralString))
+            {
+                writer.WritePropertyName("requiredNullableLiteralString"u8);
+                writer.WriteStringValue(RequiredNullableLiteralString);
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableLiteralString"u8);
+            }
             if (Optional.IsDefined(OptionalLiteralInt))
             {
                 writer.WritePropertyName("optionalLiteralInt"u8);
@@ -115,6 +124,8 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredNullableList"u8);
             }
+            writer.WritePropertyName("propertyWithSpecialDocs"u8);
+            writer.WriteStringValue(PropertyWithSpecialDocs);
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -166,12 +177,14 @@ namespace SampleTypeSpec
             float requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
             string optionalLiteralString = default;
+            string requiredNullableLiteralString = default;
             int? optionalLiteralInt = default;
             float? optionalLiteralFloat = default;
             bool? optionalLiteralBool = default;
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
             IList<int> requiredNullableList = default;
+            string propertyWithSpecialDocs = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -228,6 +241,16 @@ namespace SampleTypeSpec
                 if (prop.NameEquals("optionalLiteralString"u8))
                 {
                     optionalLiteralString = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableLiteralString"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableLiteralString = null;
+                        continue;
+                    }
+                    requiredNullableLiteralString = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralInt"u8))
@@ -291,6 +314,11 @@ namespace SampleTypeSpec
                     requiredNullableList = array;
                     continue;
                 }
+                if (prop.NameEquals("propertyWithSpecialDocs"u8))
+                {
+                    propertyWithSpecialDocs = prop.Value.GetString();
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
@@ -306,12 +334,14 @@ namespace SampleTypeSpec
                 requiredLiteralFloat,
                 requiredLiteralBool,
                 optionalLiteralString,
+                requiredNullableLiteralString,
                 optionalLiteralInt,
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
                 optionalNullableList ?? new ChangeTrackingList<int>(),
                 requiredNullableList,
+                propertyWithSpecialDocs,
                 additionalBinaryDataProperties);
         }
 

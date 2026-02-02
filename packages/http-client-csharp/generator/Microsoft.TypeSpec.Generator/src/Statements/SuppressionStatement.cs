@@ -10,8 +10,8 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public string Justification { get; }
         public ValueExpression Code { get; }
         public MethodBodyStatement? Inner { get; }
-        internal PragmaWarningDisableStatement DisableStatement { get; }
-        internal PragmaWarningRestoreStatement RestoreStatement { get; }
+        public PragmaWarningDisableStatement DisableStatement { get; }
+        public PragmaWarningRestoreStatement RestoreStatement { get; }
 
         public SuppressionStatement(MethodBodyStatement? inner, ValueExpression code, string justification)
         {

@@ -484,3 +484,18 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
     return true;
   }
 }
+
+export function isPromise(value: unknown): value is Promise<unknown> {
+  return !!value && typeof (value as any).then === "function";
+}
+
+export function getEnvironmentVariable(
+  envVarName: string,
+  defaultWhenNotAvailable?: string,
+): string | undefined {
+  // make sure we are fine in both node and browser environments
+  if (typeof process !== "undefined") {
+    return process?.env?.[envVarName] ?? defaultWhenNotAvailable;
+  }
+  return defaultWhenNotAvailable;
+}

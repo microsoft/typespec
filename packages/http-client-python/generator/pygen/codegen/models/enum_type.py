@@ -7,7 +7,8 @@ from typing import Any, TYPE_CHECKING, Optional, cast
 
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
-from .utils import NamespaceType
+from .utils import NamespaceType, add_to_pylint_disable
+from ...utils import NAME_LENGTH_LIMIT
 
 
 if TYPE_CHECKING:
@@ -188,6 +189,12 @@ class EnumType(BaseType):
 
             return f"Union[{self.value_type.type_annotation(**kwargs)}, {model_name}]"
         return self.value_type.type_annotation(**kwargs)
+
+    def pylint_disable(self) -> str:
+        retval: str = ""
+        if len(self.name) > NAME_LENGTH_LIMIT:
+            retval = add_to_pylint_disable(retval, "name-too-long")
+        return retval
 
     def get_declaration(self, value: Any) -> str:
         return self.value_type.get_declaration(value)

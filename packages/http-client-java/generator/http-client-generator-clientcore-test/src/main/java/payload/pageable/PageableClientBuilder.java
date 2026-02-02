@@ -33,9 +33,9 @@ import payload.pageable.implementation.PageableClientImpl;
  */
 @ServiceClientBuilder(
     serviceClients = {
-        PageableClient.class,
         ServerDrivenPaginationClient.class,
-        ServerDrivenPaginationContinuationTokenClient.class })
+        ServerDrivenPaginationContinuationTokenClient.class,
+        PageSizeClient.class })
 public final class PageableClientBuilder implements HttpTrait<PageableClientBuilder>, ProxyTrait<PageableClientBuilder>,
     ConfigurationTrait<PageableClientBuilder>, EndpointTrait<PageableClientBuilder> {
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -227,17 +227,6 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     }
 
     /**
-     * Builds an instance of PageableClient class.
-     * 
-     * @return an instance of PageableClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public PageableClient buildClient() {
-        PageableClientImpl innerClient = buildInnerClient();
-        return new PageableClient(innerClient, innerClient.getInstrumentation());
-    }
-
-    /**
      * Builds an instance of ServerDrivenPaginationClient class.
      * 
      * @return an instance of ServerDrivenPaginationClient.
@@ -259,5 +248,16 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
         PageableClientImpl innerClient = buildInnerClient();
         return new ServerDrivenPaginationContinuationTokenClient(
             innerClient.getServerDrivenPaginationContinuationTokens(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of PageSizeClient class.
+     * 
+     * @return an instance of PageSizeClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public PageSizeClient buildPageSizeClient() {
+        PageableClientImpl innerClient = buildInnerClient();
+        return new PageSizeClient(innerClient.getPageSizes(), innerClient.getInstrumentation());
     }
 }

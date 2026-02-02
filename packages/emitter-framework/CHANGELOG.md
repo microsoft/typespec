@@ -1,5 +1,46 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.15.0
+
+### Features
+
+- [#9141](https://github.com/microsoft/typespec/pull/9141) Add an SCCSet class which incrementally calculates strongly connected components from types added to it and updates reactive arrays with the topologically ordered types and components.
+- [#8966](https://github.com/microsoft/typespec/pull/8966) Add Python Emitter Framework implementation
+
+### Bump dependencies
+
+- [#9202](https://github.com/microsoft/typespec/pull/9202) Update to alloy 0.22
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.14.0
+
+No changes, version bump only.
+
+## 0.13.0
+
+### Features
+
+- [#8415](https://github.com/microsoft/typespec/pull/8415) [c#] Support encode when generating csharp property.
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+## 0.12.0
+
+### Features
+
+- [#8686](https://github.com/microsoft/typespec/pull/8686) Make C# and TypeScript TypeExpression overridable for unsupported types.
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8474](https://github.com/microsoft/typespec/pull/8474) Remove development exports from published package
+
 ## 0.11.0
 
 ### Features
@@ -23,14 +64,12 @@
 - [#8302](https://github.com/microsoft/typespec/pull/8302) [c#] Avoid generating double '?' after property name when the property is nullable union and it's prop.optional is true in the meantime
 - [#8362](https://github.com/microsoft/typespec/pull/8362) Upgrade alloy to 0.20
 
-
 ## 0.10.0
 
 ### Bump dependencies
 
 - [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
 - [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
-
 
 ## 0.9.0
 
@@ -49,7 +88,6 @@
 
 - [#7650](https://github.com/microsoft/typespec/pull/7650) Adds subpath export for csharp emitter-framework components
 
-
 ## 0.8.0
 
 ### Features
@@ -64,7 +102,6 @@
 
 - [#7369](https://github.com/microsoft/typespec/pull/7369) Render discriminated unions correctly
 
-
 ## 0.7.1
 
 ### Bump dependencies
@@ -75,13 +112,11 @@
 
 - [#7321](https://github.com/microsoft/typespec/pull/7321) Use wasm version of tree sitter for snippet extractor
 
-
 ## 0.7.0
 
 ### Bump dependencies
 
 - [#7186](https://github.com/microsoft/typespec/pull/7186) Upgrade to alloy 15
-
 
 ## 0.6.0
 
@@ -89,7 +124,7 @@
 
 - [#7017](https://github.com/microsoft/typespec/pull/7017) [TypeScript] Add various function-related components - FunctionType, FunctionExpression, ArrowFunction, and InterfaceMethod.
 - [#6972](https://github.com/microsoft/typespec/pull/6972) Add support for rendering a Value Expression
-- [#7018](https://github.com/microsoft/typespec/pull/7018) Adds the `TspContextProvider` and `useTsp()` hook for providing and accessing TypeSpec context and the Typekit APIs (e.g. `# Changelog - @typespec/emitter-framework). Adds a new `Output` component that accepts a TypeSpec `Program` and automatically wraps children components with the `TspContextProvider`.
+- [#7018](https://github.com/microsoft/typespec/pull/7018) Adds the `TspContextProvider` and `useTsp()` hook for providing and accessing TypeSpec context and the Typekit APIs (e.g. `# Changelog - @typespec/emitter-framework). Adds a new `Output`component that accepts a TypeSpec`Program`and automatically wraps children components with the`TspContextProvider`.
 
 ### Bump dependencies
 
@@ -99,20 +134,17 @@
 
 - [#6951](https://github.com/microsoft/typespec/pull/6951) InterfaceMember should use Alloy
 
-
 ## 0.5.0
 
 ### Features
 
 - [#6875](https://github.com/microsoft/typespec/pull/6875) Upgrade to alloy 0.10.0
 
-
 ## 0.4.0
 
 ### Bump dependencies
 
 - [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
-
 
 ## 0.3.0
 
@@ -125,12 +157,8 @@
 - [#6178](https://github.com/microsoft/typespec/pull/6178) Improvements on the TestHarness
 - [#6460](https://github.com/microsoft/typespec/pull/6460) Update dependency structure for EmitterFramework, HttpClient and JS Emitter
 
-
-
-
 ## 0.2.0
 
 ### Features
 
 - [#5996](https://github.com/microsoft/typespec/pull/5996) Adding Emitter Framework and Http Client packages
-

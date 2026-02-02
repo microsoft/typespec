@@ -1,0 +1,22 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.Combined": "Azure.ResourceManager.MultiServiceOlderVersions.Combined",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.DisksClient": "Azure.ResourceManager.MultiServiceOlderVersions.ComputeDisk.Disks",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.DisksClient.beginCreateOrUpdate": "Azure.ResourceManager.MultiServiceOlderVersions.ComputeDisk.Disks.createOrUpdate",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.DisksClient.createOrUpdate": "Azure.ResourceManager.MultiServiceOlderVersions.ComputeDisk.Disks.createOrUpdate",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.DisksClient.getByResourceGroup": "Azure.ResourceManager.MultiServiceOlderVersions.ComputeDisk.Disks.get",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.DisksClient.getByResourceGroupWithResponse": "Azure.ResourceManager.MultiServiceOlderVersions.ComputeDisk.Disks.get",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.VirtualMachinesClient": "Azure.ResourceManager.MultiServiceOlderVersions.Compute.VirtualMachines",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.VirtualMachinesClient.beginCreateOrUpdate": "Azure.ResourceManager.MultiServiceOlderVersions.Compute.VirtualMachines.createOrUpdate",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.VirtualMachinesClient.createOrUpdate": "Azure.ResourceManager.MultiServiceOlderVersions.Compute.VirtualMachines.createOrUpdate",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.VirtualMachinesClient.getByResourceGroup": "Azure.ResourceManager.MultiServiceOlderVersions.Compute.VirtualMachines.get",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.VirtualMachinesClient.getByResourceGroupWithResponse": "Azure.ResourceManager.MultiServiceOlderVersions.Compute.VirtualMachines.get",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.models.DiskInner": "Azure.ResourceManager.MultiServiceOlderVersions.ComputeDisk.Disk",
+    "azure.resourcemanager.multiserviceolderversions.combined.fluent.models.VirtualMachineInner": "Azure.ResourceManager.MultiServiceOlderVersions.Compute.VirtualMachine",
+    "azure.resourcemanager.multiserviceolderversions.combined.implementation.CombinedBuilder": "Azure.ResourceManager.MultiServiceOlderVersions.Combined",
+    "azure.resourcemanager.multiserviceolderversions.combined.models.DiskProperties": "Azure.ResourceManager.MultiServiceOlderVersions.ComputeDisk.DiskProperties",
+    "azure.resourcemanager.multiserviceolderversions.combined.models.ResourceProvisioningState": "Azure.ResourceManager.ResourceProvisioningState",
+    "azure.resourcemanager.multiserviceolderversions.combined.models.VirtualMachineProperties": "Azure.ResourceManager.MultiServiceOlderVersions.Compute.VirtualMachineProperties"
+  }
+}

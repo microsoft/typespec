@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  getClientNamespace,
   getHttpOperationParameter,
   isHttpMetadata,
   SdkBodyParameter,
@@ -70,6 +71,7 @@ export function fromSdkServiceMethod(
   sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
+  namespace: string,
 ): InputServiceMethod | undefined {
   let method = sdkContext.__typeCache.methods.get(sdkMethod);
   if (method) {
@@ -84,6 +86,7 @@ export function fromSdkServiceMethod(
         sdkMethod,
         uri,
         rootApiVersions,
+        namespace,
       );
       break;
     case "paging":
@@ -92,12 +95,14 @@ export function fromSdkServiceMethod(
         sdkMethod,
         uri,
         rootApiVersions,
+        namespace,
       );
       pagingServiceMethod.pagingMetadata = loadPagingServiceMetadata(
         sdkContext,
         sdkMethod,
         rootApiVersions,
         uri,
+        namespace,
       );
       method = pagingServiceMethod;
       break;
@@ -107,6 +112,7 @@ export function fromSdkServiceMethod(
         sdkMethod,
         uri,
         rootApiVersions,
+        namespace,
       );
       lroServiceMethod.lroMetadata = loadLongRunningMetadata(sdkContext, sdkMethod);
       method = lroServiceMethod;
@@ -117,6 +123,7 @@ export function fromSdkServiceMethod(
         sdkMethod,
         uri,
         rootApiVersions,
+        namespace,
       );
       lroPagingMethod.lroMetadata = loadLongRunningMetadata(sdkContext, sdkMethod);
       lroPagingMethod.pagingMetadata = loadPagingServiceMetadata(
@@ -124,6 +131,7 @@ export function fromSdkServiceMethod(
         sdkMethod,
         rootApiVersions,
         uri,
+        namespace,
       );
       method = lroPagingMethod;
       break;
@@ -192,6 +200,9 @@ export function fromSdkServiceMethodOperation(
     examples: method.operation.examples
       ? fromSdkHttpExamples(sdkContext, method.operation.examples)
       : undefined,
+    namespace: method.__raw?.namespace
+      ? getClientNamespace(sdkContext, method.__raw.namespace)
+      : undefined,
   };
 
   sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
@@ -228,6 +239,7 @@ function createServiceMethod<T extends InputServiceMethod>(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
+  namespace: string,
 ): T {
   return {
     kind: method.kind,
@@ -237,7 +249,7 @@ function createServiceMethod<T extends InputServiceMethod>(
     doc: method.doc,
     summary: method.summary,
     operation: fromSdkServiceMethodOperation(sdkContext, method, uri, rootApiVersions),
-    parameters: fromSdkServiceMethodParameters(sdkContext, method, rootApiVersions),
+    parameters: fromSdkServiceMethodParameters(sdkContext, method, rootApiVersions, namespace),
     response: fromSdkServiceMethodResponse(sdkContext, method.response),
     exception: method.exception
       ? fromSdkServiceMethodResponse(sdkContext, method.exception)
@@ -273,11 +285,12 @@ function fromSdkServiceMethodParameters(
   sdkContext: CSharpEmitterContext,
   method: SdkServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
+  namespace: string,
 ): InputMethodParameter[] {
   const parameters: InputMethodParameter[] = [];
 
   for (const p of method.parameters) {
-    const methodInputParameter = fromMethodParameter(sdkContext, p);
+    const methodInputParameter = fromMethodParameter(sdkContext, p, namespace);
     const operationHttpParameter = getHttpOperationParameter(method, p);
 
     if (!operationHttpParameter) {
@@ -314,7 +327,11 @@ function updateMethodParameter(
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
     if (methodParameter.type.kind === "constant") {
-      methodParameter.type = fromSdkType(sdkContext, operationHttpParameter.type);
+      methodParameter.type = fromSdkType(
+        sdkContext,
+        operationHttpParameter.type,
+        operationHttpParameter,
+      );
     }
   }
 }
@@ -406,7 +423,7 @@ function fromQueryParameter(
   p: SdkQueryParameter,
   rootApiVersions: string[],
 ): InputQueryParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputQueryParameter = {
     kind: "query",
@@ -435,7 +452,7 @@ function fromPathParameter(
   p: SdkPathParameter,
   rootApiVersions: string[],
 ): InputPathParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputPathParameter = {
     kind: "path",
@@ -466,7 +483,7 @@ function fromHeaderParameter(
   p: SdkHeaderParameter,
   rootApiVersions: string[],
 ): InputHeaderParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputHeaderParameter = {
     kind: "header",
@@ -496,7 +513,7 @@ function fromBodyParameter(
   p: SdkBodyParameter,
   rootApiVersions: string[],
 ): InputBodyParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputBodyParameter = {
     kind: "body",
@@ -522,13 +539,14 @@ function fromBodyParameter(
 export function fromMethodParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkMethodParameter,
+  namespace: string,
 ): InputMethodParameter {
   let retVar = sdkContext.__typeCache.methodParmeters.get(p);
   if (retVar) {
     return retVar as InputMethodParameter;
   }
 
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p, namespace);
 
   retVar = {
     kind: "method",
@@ -669,6 +687,7 @@ function loadPagingServiceMetadata(
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
   uri: string,
+  namespace: string,
 ): InputPagingServiceMetadata {
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
@@ -689,6 +708,7 @@ function loadPagingServiceMetadata(
         method.pagingMetadata.nextLinkOperation,
         uri,
         rootApiVersions,
+        namespace,
       );
     }
 
@@ -745,11 +765,18 @@ function loadPagingServiceMetadata(
     }
   }
 
+  let pageSizeParameterSegments: string[] | undefined;
+  if (method.pagingMetadata.pageSizeParameterSegments) {
+    pageSizeParameterSegments = method.pagingMetadata.pageSizeParameterSegments.map(
+      (segment) => segment.name,
+    );
+  }
+
   return {
-    // TODO - this is hopefully temporary until TCGC provides the information directly on pagingMetadata https://github.com/Azure/typespec-azure/issues/2291
-    itemPropertySegments: method.response.resultSegments!.map((s) => s.name),
+    itemPropertySegments: method.response.resultSegments!.map((s) => getResponseSegmentName(s)),
     nextLink: nextLink,
     continuationToken: continuationToken,
+    pageSizeParameterSegments: pageSizeParameterSegments,
   };
 }
 

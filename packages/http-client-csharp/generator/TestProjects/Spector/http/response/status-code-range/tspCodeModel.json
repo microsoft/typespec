@@ -12,6 +12,11 @@
       "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange",
       "usage": "Json,Exception",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "ErrorInRange"
+        }
+      },
       "properties": [
         {
           "$id": "2",
@@ -73,6 +78,11 @@
       "crossLanguageDefinitionId": "Response.StatusCodeRange.DefaultError",
       "usage": "Json,Exception",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "DefaultError"
+        }
+      },
       "properties": [
         {
           "$id": "7",
@@ -109,6 +119,11 @@
       "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError",
       "usage": "Json,Exception",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "NotFoundError"
+        }
+      },
       "properties": [
         {
           "$id": "10",
@@ -170,6 +185,11 @@
       "crossLanguageDefinitionId": "Response.StatusCodeRange.Standard4XXError",
       "usage": "Json,Exception",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Standard4XXError"
+        }
+      },
       "properties": [
         {
           "$id": "15",
@@ -235,7 +255,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange",
-            "decorators": []
+            "decorators": [],
+            "namespace": "Response.StatusCodeRange"
           },
           "parameters": [],
           "response": {},
@@ -272,7 +293,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCode404",
-            "decorators": []
+            "decorators": [],
+            "namespace": "Response.StatusCodeRange"
           },
           "parameters": [],
           "response": {},
@@ -314,9 +336,11 @@
           "crossLanguageDefinitionId": "Response.StatusCodeRange.endpoint"
         }
       ],
+      "initializedBy": 1,
       "decorators": [],
       "crossLanguageDefinitionId": "Response.StatusCodeRange",
-      "apiVersions": []
+      "apiVersions": [],
+      "isMultiServiceClient": false
     }
   ]
 }

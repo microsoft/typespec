@@ -1,5 +1,34 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.23
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9176](https://github.com/microsoft/typespec/pull/9176) Fixed a bug that caused optional query/header parameters to be improperly converted to primitive types when not provided in a request.
+
+
+## 0.58.0-alpha.22
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.58.0-alpha.21
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.58.0-alpha.20
+
+No changes, version bump only.
+
 ## 0.58.0-alpha.19
 
 ### Bump dependencies

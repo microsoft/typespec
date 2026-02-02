@@ -1276,6 +1276,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a boolean property",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "BooleanProperty"
+        }
+      },
       "properties": [
         {
           "$id": "149",
@@ -1314,6 +1319,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a string property",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "StringProperty"
+        }
+      },
       "properties": [
         {
           "$id": "152",
@@ -1352,6 +1362,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a bytes property",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "BytesProperty"
+        }
+      },
       "properties": [
         {
           "$id": "155",
@@ -1391,6 +1406,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a int property",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "IntProperty"
+        }
+      },
       "properties": [
         {
           "$id": "158",
@@ -1429,6 +1449,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a float property",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "FloatProperty"
+        }
+      },
       "properties": [
         {
           "$id": "161",
@@ -1467,6 +1492,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a decimal property",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "DecimalProperty"
+        }
+      },
       "properties": [
         {
           "$id": "164",
@@ -1505,6 +1535,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a decimal128 property",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Decimal128Property"
+        }
+      },
       "properties": [
         {
           "$id": "167",
@@ -1543,6 +1578,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a datetime property",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "DatetimeProperty"
+        }
+      },
       "properties": [
         {
           "$id": "170",
@@ -1589,6 +1629,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a duration property",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "DurationProperty"
+        }
+      },
       "properties": [
         {
           "$id": "174",
@@ -1635,6 +1680,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with enum properties",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "EnumProperty"
+        }
+      },
       "properties": [
         {
           "$id": "178",
@@ -1669,6 +1719,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with extensible enum properties",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "ExtensibleEnumProperty"
+        }
+      },
       "properties": [
         {
           "$id": "180",
@@ -1703,6 +1758,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with model properties",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "ModelProperty"
+        }
+      },
       "properties": [
         {
           "$id": "182",
@@ -1719,6 +1779,11 @@
             "usage": "Input,Output,Json",
             "doc": "Inner model. Will be a property type for ModelWithModelProperties",
             "decorators": [],
+            "serializationOptions": {
+              "json": {
+                "name": "InnerModel"
+              }
+            },
             "properties": [
               {
                 "$id": "184",
@@ -1775,6 +1840,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with collection string properties",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "CollectionsStringProperty"
+        }
+      },
       "properties": [
         {
           "$id": "187",
@@ -1820,6 +1890,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with collection int properties",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "CollectionsIntProperty"
+        }
+      },
       "properties": [
         {
           "$id": "191",
@@ -1865,6 +1940,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with collection model properties",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "CollectionsModelProperty"
+        }
+      },
       "properties": [
         {
           "$id": "195",
@@ -1906,6 +1986,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with dictionary string properties",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "DictionaryStringProperty"
+        }
+      },
       "properties": [
         {
           "$id": "198",
@@ -1956,6 +2041,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a property never. (This property should not be included).",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "NeverProperty"
+        }
+      },
       "properties": []
     },
     {
@@ -1967,6 +2057,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a property unknown, and the data is a string.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "UnknownStringProperty"
+        }
+      },
       "properties": [
         {
           "$id": "204",
@@ -2005,6 +2100,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a property unknown, and the data is a int32.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "UnknownIntProperty"
+        }
+      },
       "properties": [
         {
           "$id": "207",
@@ -2043,6 +2143,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a property unknown, and the data is a dictionnary.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "UnknownDictProperty"
+        }
+      },
       "properties": [
         {
           "$id": "210",
@@ -2081,6 +2186,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a property unknown, and the data is an array.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "UnknownArrayProperty"
+        }
+      },
       "properties": [
         {
           "$id": "213",
@@ -2119,6 +2229,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a string literal property.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "StringLiteralProperty"
+        }
+      },
       "properties": [
         {
           "$id": "216",
@@ -2153,6 +2268,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a int literal property.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "IntLiteralProperty"
+        }
+      },
       "properties": [
         {
           "$id": "218",
@@ -2187,6 +2307,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a float literal property.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "FloatLiteralProperty"
+        }
+      },
       "properties": [
         {
           "$id": "220",
@@ -2221,6 +2346,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a boolean literal property.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "BooleanLiteralProperty"
+        }
+      },
       "properties": [
         {
           "$id": "222",
@@ -2255,6 +2385,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a union of string literal as property.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "UnionStringLiteralProperty"
+        }
+      },
       "properties": [
         {
           "$id": "224",
@@ -2289,6 +2424,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a union of int literal as property.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "UnionIntLiteralProperty"
+        }
+      },
       "properties": [
         {
           "$id": "226",
@@ -2323,6 +2463,11 @@
       "usage": "Input,Output,Json",
       "doc": "Model with a union of float literal as property.",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "UnionFloatLiteralProperty"
+        }
+      },
       "properties": [
         {
           "$id": "228",
@@ -2357,6 +2502,11 @@
       "usage": "Input,Output,Json",
       "doc": "Template type for testing models with specific properties. Pass in the type of the property you are looking for",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "UnionEnumValueProperty"
+        }
+      },
       "properties": [
         {
           "$id": "230",
@@ -2373,7 +2523,43 @@
               "$ref": "22"
             },
             "enumType": {
-              "$ref": "21"
+              "$id": "232",
+              "kind": "enum",
+              "decorators": [],
+              "name": "ExtendedEnum",
+              "isGeneratedName": false,
+              "namespace": "Type.Property.ValueTypes",
+              "valueType": {
+                "$id": "233",
+                "kind": "string",
+                "decorators": [],
+                "doc": "A sequence of textual characters.",
+                "name": "string",
+                "crossLanguageDefinitionId": "TypeSpec.string"
+              },
+              "values": [
+                {
+                  "$id": "234",
+                  "kind": "enumvalue",
+                  "decorators": [],
+                  "name": "EnumValue2",
+                  "value": "value2",
+                  "valueType": {
+                    "$ref": "233"
+                  },
+                  "enumType": {
+                    "$ref": "232"
+                  }
+                }
+              ],
+              "isFixed": false,
+              "isFlags": false,
+              "usage": "Input,Output,Json",
+              "access": "public",
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtendedEnum",
+              "apiVersions": [],
+              "isUnionAsEnum": true,
+              "__accessSet": true
             },
             "decorators": []
           },
@@ -2395,7 +2581,7 @@
   ],
   "clients": [
     {
-      "$id": "232",
+      "$id": "235",
       "kind": "client",
       "name": "ValueTypesClient",
       "namespace": "Type.Property.ValueTypes",
@@ -2403,13 +2589,13 @@
       "methods": [],
       "parameters": [
         {
-          "$id": "233",
+          "$id": "236",
           "kind": "endpoint",
           "name": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
-            "$id": "234",
+            "$id": "237",
             "kind": "url",
             "name": "endpoint",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2420,7 +2606,7 @@
           "isEndpoint": true,
           "defaultValue": {
             "type": {
-              "$id": "235",
+              "$id": "238",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2433,32 +2619,33 @@
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
         }
       ],
+      "initializedBy": 1,
       "decorators": [],
       "crossLanguageDefinitionId": "Type.Property.ValueTypes",
       "apiVersions": [],
       "children": [
         {
-          "$id": "236",
+          "$id": "239",
           "kind": "client",
           "name": "Boolean",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "237",
+              "$id": "240",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "238",
+                "$id": "241",
                 "name": "get",
                 "resourceName": "Boolean",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "239",
+                    "$id": "242",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -2496,11 +2683,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "240",
+                  "$id": "243",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -2528,21 +2716,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.get"
             },
             {
-              "$id": "241",
+              "$id": "244",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "242",
+                "$id": "245",
                 "name": "put",
                 "resourceName": "Boolean",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "243",
+                    "$id": "246",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -2559,7 +2747,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.contentType"
                   },
                   {
-                    "$id": "244",
+                    "$id": "247",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -2598,11 +2786,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "245",
+                  "$id": "248",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -2620,7 +2809,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "246",
+                  "$id": "249",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -2647,13 +2836,13 @@
           ],
           "parameters": [
             {
-              "$id": "247",
+              "$id": "250",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "248",
+                "$id": "251",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2664,7 +2853,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "249",
+                  "$id": "252",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2674,38 +2863,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "250",
+          "$id": "253",
           "kind": "client",
           "name": "String",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "251",
+              "$id": "254",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "252",
+                "$id": "255",
                 "name": "get",
                 "resourceName": "String",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "253",
+                    "$id": "256",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -2743,11 +2934,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "254",
+                  "$id": "257",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -2775,21 +2967,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.get"
             },
             {
-              "$id": "255",
+              "$id": "258",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "256",
+                "$id": "259",
                 "name": "put",
                 "resourceName": "String",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "257",
+                    "$id": "260",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -2806,7 +2998,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.contentType"
                   },
                   {
-                    "$id": "258",
+                    "$id": "261",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -2845,11 +3037,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "259",
+                  "$id": "262",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -2867,7 +3060,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "260",
+                  "$id": "263",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -2894,13 +3087,13 @@
           ],
           "parameters": [
             {
-              "$id": "261",
+              "$id": "264",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "262",
+                "$id": "265",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2911,7 +3104,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "263",
+                  "$id": "266",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2921,38 +3114,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.String",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "264",
+          "$id": "267",
           "kind": "client",
           "name": "Bytes",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "265",
+              "$id": "268",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "266",
+                "$id": "269",
                 "name": "get",
                 "resourceName": "Bytes",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "267",
+                    "$id": "270",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -2990,11 +3185,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "268",
+                  "$id": "271",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -3022,21 +3218,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.get"
             },
             {
-              "$id": "269",
+              "$id": "272",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "270",
+                "$id": "273",
                 "name": "put",
                 "resourceName": "Bytes",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "271",
+                    "$id": "274",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -3053,7 +3249,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.contentType"
                   },
                   {
-                    "$id": "272",
+                    "$id": "275",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3092,11 +3288,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "273",
+                  "$id": "276",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -3114,7 +3311,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "274",
+                  "$id": "277",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -3141,13 +3338,13 @@
           ],
           "parameters": [
             {
-              "$id": "275",
+              "$id": "278",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "276",
+                "$id": "279",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3158,7 +3355,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "277",
+                  "$id": "280",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3168,38 +3365,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "278",
+          "$id": "281",
           "kind": "client",
           "name": "Int",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "279",
+              "$id": "282",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "280",
+                "$id": "283",
                 "name": "get",
                 "resourceName": "Int",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "281",
+                    "$id": "284",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -3237,11 +3436,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "282",
+                  "$id": "285",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -3269,21 +3469,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.get"
             },
             {
-              "$id": "283",
+              "$id": "286",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "284",
+                "$id": "287",
                 "name": "put",
                 "resourceName": "Int",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "285",
+                    "$id": "288",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -3300,7 +3500,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.contentType"
                   },
                   {
-                    "$id": "286",
+                    "$id": "289",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3339,11 +3539,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "287",
+                  "$id": "290",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -3361,7 +3562,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "288",
+                  "$id": "291",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -3388,13 +3589,13 @@
           ],
           "parameters": [
             {
-              "$id": "289",
+              "$id": "292",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "290",
+                "$id": "293",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3405,7 +3606,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "291",
+                  "$id": "294",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3415,38 +3616,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "292",
+          "$id": "295",
           "kind": "client",
           "name": "Float",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "293",
+              "$id": "296",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "294",
+                "$id": "297",
                 "name": "get",
                 "resourceName": "Float",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "295",
+                    "$id": "298",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -3484,11 +3687,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "296",
+                  "$id": "299",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -3516,21 +3720,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.get"
             },
             {
-              "$id": "297",
+              "$id": "300",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "298",
+                "$id": "301",
                 "name": "put",
                 "resourceName": "Float",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "299",
+                    "$id": "302",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -3547,7 +3751,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.contentType"
                   },
                   {
-                    "$id": "300",
+                    "$id": "303",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3586,11 +3790,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "301",
+                  "$id": "304",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -3608,7 +3813,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "302",
+                  "$id": "305",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -3635,13 +3840,13 @@
           ],
           "parameters": [
             {
-              "$id": "303",
+              "$id": "306",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "304",
+                "$id": "307",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3652,7 +3857,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "305",
+                  "$id": "308",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3662,38 +3867,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "306",
+          "$id": "309",
           "kind": "client",
           "name": "Decimal",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "307",
+              "$id": "310",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "308",
+                "$id": "311",
                 "name": "get",
                 "resourceName": "Decimal",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "309",
+                    "$id": "312",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -3731,11 +3938,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "310",
+                  "$id": "313",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -3763,21 +3971,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.get"
             },
             {
-              "$id": "311",
+              "$id": "314",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "312",
+                "$id": "315",
                 "name": "put",
                 "resourceName": "Decimal",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "313",
+                    "$id": "316",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -3794,7 +4002,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.contentType"
                   },
                   {
-                    "$id": "314",
+                    "$id": "317",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3833,11 +4041,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "315",
+                  "$id": "318",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -3855,7 +4064,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "316",
+                  "$id": "319",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -3882,13 +4091,13 @@
           ],
           "parameters": [
             {
-              "$id": "317",
+              "$id": "320",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "318",
+                "$id": "321",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3899,7 +4108,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "319",
+                  "$id": "322",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3909,38 +4118,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "320",
+          "$id": "323",
           "kind": "client",
           "name": "Decimal128",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "321",
+              "$id": "324",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "322",
+                "$id": "325",
                 "name": "get",
                 "resourceName": "Decimal128",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "323",
+                    "$id": "326",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -3978,11 +4189,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "324",
+                  "$id": "327",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -4010,21 +4222,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.get"
             },
             {
-              "$id": "325",
+              "$id": "328",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "326",
+                "$id": "329",
                 "name": "put",
                 "resourceName": "Decimal128",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "327",
+                    "$id": "330",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -4041,7 +4253,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.contentType"
                   },
                   {
-                    "$id": "328",
+                    "$id": "331",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4080,11 +4292,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "329",
+                  "$id": "332",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -4102,7 +4315,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "330",
+                  "$id": "333",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -4129,13 +4342,13 @@
           ],
           "parameters": [
             {
-              "$id": "331",
+              "$id": "334",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "332",
+                "$id": "335",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4146,7 +4359,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "333",
+                  "$id": "336",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4156,38 +4369,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "334",
+          "$id": "337",
           "kind": "client",
           "name": "Datetime",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "335",
+              "$id": "338",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "336",
+                "$id": "339",
                 "name": "get",
                 "resourceName": "Datetime",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "337",
+                    "$id": "340",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -4225,11 +4440,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "338",
+                  "$id": "341",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -4257,21 +4473,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.get"
             },
             {
-              "$id": "339",
+              "$id": "342",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "340",
+                "$id": "343",
                 "name": "put",
                 "resourceName": "Datetime",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "341",
+                    "$id": "344",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -4288,7 +4504,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.contentType"
                   },
                   {
-                    "$id": "342",
+                    "$id": "345",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4327,11 +4543,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "343",
+                  "$id": "346",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -4349,7 +4566,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "344",
+                  "$id": "347",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -4376,13 +4593,13 @@
           ],
           "parameters": [
             {
-              "$id": "345",
+              "$id": "348",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "346",
+                "$id": "349",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4393,7 +4610,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "347",
+                  "$id": "350",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4403,38 +4620,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "348",
+          "$id": "351",
           "kind": "client",
           "name": "Duration",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "349",
+              "$id": "352",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "350",
+                "$id": "353",
                 "name": "get",
                 "resourceName": "Duration",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "351",
+                    "$id": "354",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -4472,11 +4691,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "352",
+                  "$id": "355",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -4504,21 +4724,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.get"
             },
             {
-              "$id": "353",
+              "$id": "356",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "354",
+                "$id": "357",
                 "name": "put",
                 "resourceName": "Duration",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "355",
+                    "$id": "358",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -4535,7 +4755,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.contentType"
                   },
                   {
-                    "$id": "356",
+                    "$id": "359",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4574,11 +4794,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "357",
+                  "$id": "360",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -4596,7 +4817,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "358",
+                  "$id": "361",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -4623,13 +4844,13 @@
           ],
           "parameters": [
             {
-              "$id": "359",
+              "$id": "362",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "360",
+                "$id": "363",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4640,7 +4861,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "361",
+                  "$id": "364",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4650,38 +4871,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "362",
+          "$id": "365",
           "kind": "client",
           "name": "Enum",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "363",
+              "$id": "366",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "364",
+                "$id": "367",
                 "name": "get",
                 "resourceName": "Enum",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "365",
+                    "$id": "368",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -4719,11 +4942,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "366",
+                  "$id": "369",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -4751,21 +4975,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.get"
             },
             {
-              "$id": "367",
+              "$id": "370",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "368",
+                "$id": "371",
                 "name": "put",
                 "resourceName": "Enum",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "369",
+                    "$id": "372",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -4782,7 +5006,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.contentType"
                   },
                   {
-                    "$id": "370",
+                    "$id": "373",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4821,11 +5045,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "371",
+                  "$id": "374",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -4843,7 +5068,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "372",
+                  "$id": "375",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -4870,13 +5095,13 @@
           ],
           "parameters": [
             {
-              "$id": "373",
+              "$id": "376",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "374",
+                "$id": "377",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4887,7 +5112,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "375",
+                  "$id": "378",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4897,38 +5122,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "376",
+          "$id": "379",
           "kind": "client",
           "name": "ExtensibleEnum",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "377",
+              "$id": "380",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "378",
+                "$id": "381",
                 "name": "get",
                 "resourceName": "ExtensibleEnum",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "379",
+                    "$id": "382",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -4966,11 +5193,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "380",
+                  "$id": "383",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -4998,21 +5226,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.get"
             },
             {
-              "$id": "381",
+              "$id": "384",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "382",
+                "$id": "385",
                 "name": "put",
                 "resourceName": "ExtensibleEnum",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "383",
+                    "$id": "386",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -5029,7 +5257,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.contentType"
                   },
                   {
-                    "$id": "384",
+                    "$id": "387",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -5068,11 +5296,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "385",
+                  "$id": "388",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -5090,7 +5319,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "386",
+                  "$id": "389",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -5117,13 +5346,13 @@
           ],
           "parameters": [
             {
-              "$id": "387",
+              "$id": "390",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "388",
+                "$id": "391",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5134,7 +5363,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "389",
+                  "$id": "392",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5144,38 +5373,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "390",
+          "$id": "393",
           "kind": "client",
           "name": "Model",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "391",
+              "$id": "394",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "392",
+                "$id": "395",
                 "name": "get",
                 "resourceName": "Model",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "393",
+                    "$id": "396",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -5213,11 +5444,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "394",
+                  "$id": "397",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -5245,21 +5477,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.get"
             },
             {
-              "$id": "395",
+              "$id": "398",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "396",
+                "$id": "399",
                 "name": "put",
                 "resourceName": "Model",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "397",
+                    "$id": "400",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -5276,7 +5508,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.contentType"
                   },
                   {
-                    "$id": "398",
+                    "$id": "401",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -5315,11 +5547,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "399",
+                  "$id": "402",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -5337,7 +5570,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "400",
+                  "$id": "403",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -5364,13 +5597,13 @@
           ],
           "parameters": [
             {
-              "$id": "401",
+              "$id": "404",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "402",
+                "$id": "405",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5381,7 +5614,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "403",
+                  "$id": "406",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5391,38 +5624,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "404",
+          "$id": "407",
           "kind": "client",
           "name": "CollectionsString",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "405",
+              "$id": "408",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "406",
+                "$id": "409",
                 "name": "get",
                 "resourceName": "CollectionsString",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "407",
+                    "$id": "410",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -5460,11 +5695,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "408",
+                  "$id": "411",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -5492,21 +5728,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.get"
             },
             {
-              "$id": "409",
+              "$id": "412",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "410",
+                "$id": "413",
                 "name": "put",
                 "resourceName": "CollectionsString",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "411",
+                    "$id": "414",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -5523,7 +5759,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.contentType"
                   },
                   {
-                    "$id": "412",
+                    "$id": "415",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -5562,11 +5798,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "413",
+                  "$id": "416",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -5584,7 +5821,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "414",
+                  "$id": "417",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -5611,13 +5848,13 @@
           ],
           "parameters": [
             {
-              "$id": "415",
+              "$id": "418",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "416",
+                "$id": "419",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5628,7 +5865,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "417",
+                  "$id": "420",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5638,38 +5875,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "418",
+          "$id": "421",
           "kind": "client",
           "name": "CollectionsInt",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "419",
+              "$id": "422",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "420",
+                "$id": "423",
                 "name": "get",
                 "resourceName": "CollectionsInt",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "421",
+                    "$id": "424",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -5707,11 +5946,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "422",
+                  "$id": "425",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -5739,21 +5979,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.get"
             },
             {
-              "$id": "423",
+              "$id": "426",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "424",
+                "$id": "427",
                 "name": "put",
                 "resourceName": "CollectionsInt",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "425",
+                    "$id": "428",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -5770,7 +6010,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.contentType"
                   },
                   {
-                    "$id": "426",
+                    "$id": "429",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -5809,11 +6049,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "427",
+                  "$id": "430",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -5831,7 +6072,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "428",
+                  "$id": "431",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -5858,13 +6099,13 @@
           ],
           "parameters": [
             {
-              "$id": "429",
+              "$id": "432",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "430",
+                "$id": "433",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5875,7 +6116,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "431",
+                  "$id": "434",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5885,38 +6126,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "432",
+          "$id": "435",
           "kind": "client",
           "name": "CollectionsModel",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "433",
+              "$id": "436",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "434",
+                "$id": "437",
                 "name": "get",
                 "resourceName": "CollectionsModel",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "435",
+                    "$id": "438",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -5954,11 +6197,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "436",
+                  "$id": "439",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -5986,21 +6230,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.get"
             },
             {
-              "$id": "437",
+              "$id": "440",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "438",
+                "$id": "441",
                 "name": "put",
                 "resourceName": "CollectionsModel",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "439",
+                    "$id": "442",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -6017,7 +6261,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.contentType"
                   },
                   {
-                    "$id": "440",
+                    "$id": "443",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -6056,11 +6300,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "441",
+                  "$id": "444",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -6078,7 +6323,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "442",
+                  "$id": "445",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -6105,13 +6350,13 @@
           ],
           "parameters": [
             {
-              "$id": "443",
+              "$id": "446",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "444",
+                "$id": "447",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6122,7 +6367,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "445",
+                  "$id": "448",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -6132,38 +6377,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "446",
+          "$id": "449",
           "kind": "client",
           "name": "DictionaryString",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "447",
+              "$id": "450",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "448",
+                "$id": "451",
                 "name": "get",
                 "resourceName": "DictionaryString",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "449",
+                    "$id": "452",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -6201,11 +6448,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "450",
+                  "$id": "453",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -6233,21 +6481,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.get"
             },
             {
-              "$id": "451",
+              "$id": "454",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "452",
+                "$id": "455",
                 "name": "put",
                 "resourceName": "DictionaryString",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "453",
+                    "$id": "456",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -6264,7 +6512,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.contentType"
                   },
                   {
-                    "$id": "454",
+                    "$id": "457",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -6303,11 +6551,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "455",
+                  "$id": "458",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -6325,7 +6574,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "456",
+                  "$id": "459",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -6352,13 +6601,13 @@
           ],
           "parameters": [
             {
-              "$id": "457",
+              "$id": "460",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "458",
+                "$id": "461",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6369,7 +6618,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "459",
+                  "$id": "462",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -6379,38 +6628,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "460",
+          "$id": "463",
           "kind": "client",
           "name": "Never",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "461",
+              "$id": "464",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "462",
+                "$id": "465",
                 "name": "get",
                 "resourceName": "Never",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "463",
+                    "$id": "466",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -6448,11 +6699,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "464",
+                  "$id": "467",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -6480,21 +6732,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.get"
             },
             {
-              "$id": "465",
+              "$id": "468",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "466",
+                "$id": "469",
                 "name": "put",
                 "resourceName": "Never",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "467",
+                    "$id": "470",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -6511,7 +6763,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.contentType"
                   },
                   {
-                    "$id": "468",
+                    "$id": "471",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -6550,11 +6802,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "469",
+                  "$id": "472",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -6572,7 +6825,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "470",
+                  "$id": "473",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -6599,13 +6852,13 @@
           ],
           "parameters": [
             {
-              "$id": "471",
+              "$id": "474",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "472",
+                "$id": "475",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6616,7 +6869,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "473",
+                  "$id": "476",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -6626,38 +6879,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "474",
+          "$id": "477",
           "kind": "client",
           "name": "UnknownString",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "475",
+              "$id": "478",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "476",
+                "$id": "479",
                 "name": "get",
                 "resourceName": "UnknownString",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "477",
+                    "$id": "480",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -6695,11 +6950,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "478",
+                  "$id": "481",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -6727,21 +6983,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.get"
             },
             {
-              "$id": "479",
+              "$id": "482",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "480",
+                "$id": "483",
                 "name": "put",
                 "resourceName": "UnknownString",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "481",
+                    "$id": "484",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -6758,7 +7014,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.contentType"
                   },
                   {
-                    "$id": "482",
+                    "$id": "485",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -6797,11 +7053,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "483",
+                  "$id": "486",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -6819,7 +7076,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "484",
+                  "$id": "487",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -6846,13 +7103,13 @@
           ],
           "parameters": [
             {
-              "$id": "485",
+              "$id": "488",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "486",
+                "$id": "489",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6863,7 +7120,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "487",
+                  "$id": "490",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -6873,38 +7130,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "488",
+          "$id": "491",
           "kind": "client",
           "name": "UnknownInt",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "489",
+              "$id": "492",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "490",
+                "$id": "493",
                 "name": "get",
                 "resourceName": "UnknownInt",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "491",
+                    "$id": "494",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -6942,11 +7201,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "492",
+                  "$id": "495",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -6974,21 +7234,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.get"
             },
             {
-              "$id": "493",
+              "$id": "496",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "494",
+                "$id": "497",
                 "name": "put",
                 "resourceName": "UnknownInt",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "495",
+                    "$id": "498",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -7005,7 +7265,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.contentType"
                   },
                   {
-                    "$id": "496",
+                    "$id": "499",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -7044,11 +7304,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "497",
+                  "$id": "500",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -7066,7 +7327,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "498",
+                  "$id": "501",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -7093,13 +7354,13 @@
           ],
           "parameters": [
             {
-              "$id": "499",
+              "$id": "502",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "500",
+                "$id": "503",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7110,7 +7371,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "501",
+                  "$id": "504",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7120,38 +7381,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "502",
+          "$id": "505",
           "kind": "client",
           "name": "UnknownDict",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "503",
+              "$id": "506",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "504",
+                "$id": "507",
                 "name": "get",
                 "resourceName": "UnknownDict",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "505",
+                    "$id": "508",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -7189,11 +7452,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "506",
+                  "$id": "509",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -7221,21 +7485,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.get"
             },
             {
-              "$id": "507",
+              "$id": "510",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "508",
+                "$id": "511",
                 "name": "put",
                 "resourceName": "UnknownDict",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "509",
+                    "$id": "512",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -7252,7 +7516,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.contentType"
                   },
                   {
-                    "$id": "510",
+                    "$id": "513",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -7291,11 +7555,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "511",
+                  "$id": "514",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -7313,7 +7578,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "512",
+                  "$id": "515",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -7340,13 +7605,13 @@
           ],
           "parameters": [
             {
-              "$id": "513",
+              "$id": "516",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "514",
+                "$id": "517",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7357,7 +7622,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "515",
+                  "$id": "518",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7367,38 +7632,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "516",
+          "$id": "519",
           "kind": "client",
           "name": "UnknownArray",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "517",
+              "$id": "520",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "518",
+                "$id": "521",
                 "name": "get",
                 "resourceName": "UnknownArray",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "519",
+                    "$id": "522",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -7436,11 +7703,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "520",
+                  "$id": "523",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -7468,21 +7736,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.get"
             },
             {
-              "$id": "521",
+              "$id": "524",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "522",
+                "$id": "525",
                 "name": "put",
                 "resourceName": "UnknownArray",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "523",
+                    "$id": "526",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -7499,7 +7767,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.contentType"
                   },
                   {
-                    "$id": "524",
+                    "$id": "527",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -7538,11 +7806,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "525",
+                  "$id": "528",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -7560,7 +7829,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "526",
+                  "$id": "529",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -7587,13 +7856,13 @@
           ],
           "parameters": [
             {
-              "$id": "527",
+              "$id": "530",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "528",
+                "$id": "531",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7604,7 +7873,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "529",
+                  "$id": "532",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7614,38 +7883,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "530",
+          "$id": "533",
           "kind": "client",
           "name": "StringLiteral",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "531",
+              "$id": "534",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "532",
+                "$id": "535",
                 "name": "get",
                 "resourceName": "StringLiteral",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "533",
+                    "$id": "536",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -7683,11 +7954,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "534",
+                  "$id": "537",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -7715,21 +7987,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.get"
             },
             {
-              "$id": "535",
+              "$id": "538",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "536",
+                "$id": "539",
                 "name": "put",
                 "resourceName": "StringLiteral",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "537",
+                    "$id": "540",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -7746,7 +8018,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.contentType"
                   },
                   {
-                    "$id": "538",
+                    "$id": "541",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -7785,11 +8057,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "539",
+                  "$id": "542",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -7807,7 +8080,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "540",
+                  "$id": "543",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -7834,13 +8107,13 @@
           ],
           "parameters": [
             {
-              "$id": "541",
+              "$id": "544",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "542",
+                "$id": "545",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7851,7 +8124,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "543",
+                  "$id": "546",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7861,38 +8134,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "544",
+          "$id": "547",
           "kind": "client",
           "name": "IntLiteral",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "545",
+              "$id": "548",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "546",
+                "$id": "549",
                 "name": "get",
                 "resourceName": "IntLiteral",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "547",
+                    "$id": "550",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -7930,11 +8205,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "548",
+                  "$id": "551",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -7962,21 +8238,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.get"
             },
             {
-              "$id": "549",
+              "$id": "552",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "550",
+                "$id": "553",
                 "name": "put",
                 "resourceName": "IntLiteral",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "551",
+                    "$id": "554",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -7993,7 +8269,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.contentType"
                   },
                   {
-                    "$id": "552",
+                    "$id": "555",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -8032,11 +8308,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "553",
+                  "$id": "556",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -8054,7 +8331,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "554",
+                  "$id": "557",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -8081,13 +8358,13 @@
           ],
           "parameters": [
             {
-              "$id": "555",
+              "$id": "558",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "556",
+                "$id": "559",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8098,7 +8375,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "557",
+                  "$id": "560",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8108,38 +8385,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "558",
+          "$id": "561",
           "kind": "client",
           "name": "FloatLiteral",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "559",
+              "$id": "562",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "560",
+                "$id": "563",
                 "name": "get",
                 "resourceName": "FloatLiteral",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "561",
+                    "$id": "564",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -8177,11 +8456,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "562",
+                  "$id": "565",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -8209,21 +8489,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.get"
             },
             {
-              "$id": "563",
+              "$id": "566",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "564",
+                "$id": "567",
                 "name": "put",
                 "resourceName": "FloatLiteral",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "565",
+                    "$id": "568",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -8240,7 +8520,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.contentType"
                   },
                   {
-                    "$id": "566",
+                    "$id": "569",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -8279,11 +8559,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "567",
+                  "$id": "570",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -8301,7 +8582,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "568",
+                  "$id": "571",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -8328,13 +8609,13 @@
           ],
           "parameters": [
             {
-              "$id": "569",
+              "$id": "572",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "570",
+                "$id": "573",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8345,7 +8626,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "571",
+                  "$id": "574",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8355,38 +8636,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "572",
+          "$id": "575",
           "kind": "client",
           "name": "BooleanLiteral",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "573",
+              "$id": "576",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "574",
+                "$id": "577",
                 "name": "get",
                 "resourceName": "BooleanLiteral",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "575",
+                    "$id": "578",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -8424,11 +8707,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "576",
+                  "$id": "579",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -8456,21 +8740,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.get"
             },
             {
-              "$id": "577",
+              "$id": "580",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "578",
+                "$id": "581",
                 "name": "put",
                 "resourceName": "BooleanLiteral",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "579",
+                    "$id": "582",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -8487,7 +8771,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.contentType"
                   },
                   {
-                    "$id": "580",
+                    "$id": "583",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -8526,11 +8810,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "581",
+                  "$id": "584",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -8548,7 +8833,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "582",
+                  "$id": "585",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -8575,13 +8860,13 @@
           ],
           "parameters": [
             {
-              "$id": "583",
+              "$id": "586",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "584",
+                "$id": "587",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8592,7 +8877,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "585",
+                  "$id": "588",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8602,38 +8887,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "586",
+          "$id": "589",
           "kind": "client",
           "name": "UnionStringLiteral",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "587",
+              "$id": "590",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "588",
+                "$id": "591",
                 "name": "get",
                 "resourceName": "UnionStringLiteral",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "589",
+                    "$id": "592",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -8671,11 +8958,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "590",
+                  "$id": "593",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -8703,21 +8991,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.get"
             },
             {
-              "$id": "591",
+              "$id": "594",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "592",
+                "$id": "595",
                 "name": "put",
                 "resourceName": "UnionStringLiteral",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "593",
+                    "$id": "596",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -8734,7 +9022,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.contentType"
                   },
                   {
-                    "$id": "594",
+                    "$id": "597",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -8773,11 +9061,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "595",
+                  "$id": "598",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -8795,7 +9084,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "596",
+                  "$id": "599",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -8822,13 +9111,13 @@
           ],
           "parameters": [
             {
-              "$id": "597",
+              "$id": "600",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "598",
+                "$id": "601",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8839,7 +9128,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "599",
+                  "$id": "602",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8849,38 +9138,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "600",
+          "$id": "603",
           "kind": "client",
           "name": "UnionIntLiteral",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "601",
+              "$id": "604",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "602",
+                "$id": "605",
                 "name": "get",
                 "resourceName": "UnionIntLiteral",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "603",
+                    "$id": "606",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -8918,11 +9209,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "604",
+                  "$id": "607",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -8950,21 +9242,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.get"
             },
             {
-              "$id": "605",
+              "$id": "608",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "606",
+                "$id": "609",
                 "name": "put",
                 "resourceName": "UnionIntLiteral",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "607",
+                    "$id": "610",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -8981,7 +9273,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.contentType"
                   },
                   {
-                    "$id": "608",
+                    "$id": "611",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -9020,11 +9312,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "609",
+                  "$id": "612",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -9042,7 +9335,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "610",
+                  "$id": "613",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -9069,13 +9362,13 @@
           ],
           "parameters": [
             {
-              "$id": "611",
+              "$id": "614",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "612",
+                "$id": "615",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9086,7 +9379,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "613",
+                  "$id": "616",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -9096,38 +9389,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "614",
+          "$id": "617",
           "kind": "client",
           "name": "UnionFloatLiteral",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "615",
+              "$id": "618",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "616",
+                "$id": "619",
                 "name": "get",
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "617",
+                    "$id": "620",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -9165,11 +9460,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "618",
+                  "$id": "621",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -9197,21 +9493,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.get"
             },
             {
-              "$id": "619",
+              "$id": "622",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "620",
+                "$id": "623",
                 "name": "put",
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "621",
+                    "$id": "624",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -9228,7 +9524,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.contentType"
                   },
                   {
-                    "$id": "622",
+                    "$id": "625",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -9267,11 +9563,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "623",
+                  "$id": "626",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -9289,7 +9586,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "624",
+                  "$id": "627",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -9316,13 +9613,13 @@
           ],
           "parameters": [
             {
-              "$id": "625",
+              "$id": "628",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "626",
+                "$id": "629",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9333,7 +9630,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "627",
+                  "$id": "630",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -9343,38 +9640,40 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         },
         {
-          "$id": "628",
+          "$id": "631",
           "kind": "client",
           "name": "UnionEnumValue",
           "namespace": "Type.Property.ValueTypes",
           "methods": [
             {
-              "$id": "629",
+              "$id": "632",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get call",
               "operation": {
-                "$id": "630",
+                "$id": "633",
                 "name": "get",
                 "resourceName": "UnionEnumValue",
                 "doc": "Get call",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "631",
+                    "$id": "634",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -9412,11 +9711,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.get",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "632",
+                  "$id": "635",
                   "kind": "method",
                   "name": "accept",
                   "serializedName": "Accept",
@@ -9444,21 +9744,21 @@
               "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.get"
             },
             {
-              "$id": "633",
+              "$id": "636",
               "kind": "basic",
               "name": "put",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put operation",
               "operation": {
-                "$id": "634",
+                "$id": "637",
                 "name": "put",
                 "resourceName": "UnionEnumValue",
                 "doc": "Put operation",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "635",
+                    "$id": "638",
                     "kind": "header",
                     "name": "contentType",
                     "serializedName": "Content-Type",
@@ -9475,7 +9775,7 @@
                     "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.contentType"
                   },
                   {
-                    "$id": "636",
+                    "$id": "639",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -9514,11 +9814,12 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put",
-                "decorators": []
+                "decorators": [],
+                "namespace": "Type.Property.ValueTypes"
               },
               "parameters": [
                 {
-                  "$id": "637",
+                  "$id": "640",
                   "kind": "method",
                   "name": "body",
                   "serializedName": "body",
@@ -9536,7 +9837,7 @@
                   "decorators": []
                 },
                 {
-                  "$id": "638",
+                  "$id": "641",
                   "kind": "method",
                   "name": "contentType",
                   "serializedName": "Content-Type",
@@ -9563,13 +9864,13 @@
           ],
           "parameters": [
             {
-              "$id": "639",
+              "$id": "642",
               "kind": "endpoint",
               "name": "endpoint",
               "serializedName": "endpoint",
               "doc": "Service host",
               "type": {
-                "$id": "640",
+                "$id": "643",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9580,7 +9881,7 @@
               "isEndpoint": true,
               "defaultValue": {
                 "type": {
-                  "$id": "641",
+                  "$id": "644",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -9590,17 +9891,20 @@
               "serverUrlTemplate": "{endpoint}",
               "skipUrlEncoding": false,
               "readOnly": false,
-              "crossLanguageDefinitionId": "Type.Property.ValueTypes.endpoint"
+              "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.endpoint"
             }
           ],
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue",
           "apiVersions": [],
           "parent": {
-            "$ref": "232"
-          }
+            "$ref": "235"
+          },
+          "isMultiServiceClient": false
         }
-      ]
+      ],
+      "isMultiServiceClient": false
     }
   ]
 }

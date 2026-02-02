@@ -77,7 +77,8 @@ function generateRequestBodyParameters(
     definitions.push(`@header contentType: ${contentTypes.map((c) => `"${c}"`).join(" | ")}`);
   }
 
-  const isMultipart = contentTypes.includes("multipart/form-data");
+  // Check if any content type is multipart
+  const isMultipart = requestBodies.some((r) => r.contentType.startsWith("multipart/"));
   // Get the set of referenced types
   const body = Array.from(
     new Set(

@@ -63,6 +63,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.next_link_reinjected_parameters: list[Parameter] = [
             Parameter.from_yaml(p, code_model) for p in yaml_data.get("nextLinkReInjectedParameters", [])
         ]
+        self.next_link_verb: str = (yaml_data.get("nextLinkVerb") or "GET").upper()
 
     @property
     def has_continuation_token(self) -> bool:
@@ -71,6 +72,13 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     @property
     def next_variable_name(self) -> str:
         return "_continuation_token" if self.has_continuation_token else "next_link"
+
+    @property
+    def is_xml_paging(self) -> bool:
+        try:
+            return bool(self.responses[0].item_type.xml_metadata)
+        except KeyError:
+            return False
 
     def _get_attr_name(self, wire_name: str) -> str:
         response_type = self.responses[0].type
@@ -175,6 +183,9 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             file_import.merge(self.item_type.imports(**kwargs))
             if self.default_error_deserialization(serialize_namespace) or self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
+            if self.is_xml_paging:
+                file_import.add_submodule_import("xml.etree", "ElementTree", ImportType.STDLIB, alias="ET")
+                file_import.add_submodule_import(relative_path, "_convert_element", ImportType.LOCAL)
         return file_import
 
 

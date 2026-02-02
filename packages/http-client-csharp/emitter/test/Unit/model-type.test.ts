@@ -1,5 +1,6 @@
 vi.resetModules();
 
+import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
@@ -767,5 +768,330 @@ describe("typespec-client-generator-core: general decorators list", () => {
         },
       },
     ]);
+  });
+});
+
+describe("Access decorator on enums", () => {
+  let runner: TestHost;
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("@access decorator should set correct access on enum", async function () {
+    const program = await typeSpecCompile(
+      `
+      @access(Access.internal)
+      enum Color {
+        Red: "red",
+        Blue: "blue", 
+        Green: "green"
+      }
+
+      model TestModel {
+        color: Color;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const colorEnum = enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    strictEqual(colorEnum.access, "internal");
+    strictEqual(colorEnum.usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(colorEnum.values.length, 3);
+  });
+
+  it("enum without @access decorator should have undefined access", async function () {
+    const program = await typeSpecCompile(
+      `
+      enum Color {
+        Red: "red",
+        Blue: "blue", 
+        Green: "green"
+      }
+
+      model TestModel {
+        color: Color;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const colorEnum = enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    strictEqual(colorEnum.access, undefined);
+    strictEqual(colorEnum.values.length, 3);
+  });
+
+  it("@access decorator should set correct access on public enum", async function () {
+    const program = await typeSpecCompile(
+      `
+      @access(Access.public)
+      enum Status {
+        Active: "active",
+        Inactive: "inactive"
+      }
+
+      model TestModel {
+        status: Status;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const statusEnum = enums.find((e) => e.name === "Status");
+    ok(statusEnum);
+    strictEqual(statusEnum.access, "public");
+    strictEqual(statusEnum.values.length, 2);
+  });
+});
+
+describe("Usage decorator on enums", () => {
+  let runner: TestHost;
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("@usage decorator should set correct usage on enum", async function () {
+    const program = await typeSpecCompile(
+      `
+      @usage(Usage.input | Usage.json)
+      enum Color {
+        Red: "red",
+        Blue: "blue", 
+        Green: "green"
+      }
+
+      model TestModel {
+        color: Color;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const colorEnum = enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    strictEqual(colorEnum.usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(colorEnum.values.length, 3);
+  });
+
+  it("enum without @usage decorator should have correct usage", async function () {
+    const program = await typeSpecCompile(
+      `
+      enum Color {
+        Red: "red",
+        Blue: "blue", 
+        Green: "green"
+      }
+
+      model TestModel {
+        color: Color;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const colorEnum = enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    strictEqual(colorEnum.usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(colorEnum.values.length, 3);
+  });
+});
+
+describe("XML serialization options", () => {
+  let runner: TestHost;
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Model and property XML serializationOptions should be parsed correctly with XML content type operation", async function () {
+    const program = await typeSpecCompile(
+      `
+      @name("XmlBook")
+      model Book {
+        @attribute
+        id: int32;
+
+        @name("BookName")
+        title: string;
+
+        @unwrapped
+        authors: string[];
+
+        content: string;
+      }
+
+      @route("/books")
+      @post
+      op createBook(@header contentType: "application/xml", @body book: Book): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+
+    const bookModel = models.find((m) => m.name === "Book");
+    ok(bookModel);
+    ok(bookModel.serializationOptions);
+    ok(bookModel.serializationOptions.xml);
+    strictEqual(bookModel.serializationOptions.xml.name, "XmlBook");
+
+    const idProperty = bookModel.properties.find((p) => p.name === "id");
+    ok(idProperty);
+    ok(idProperty.serializationOptions);
+    ok(idProperty.serializationOptions.xml);
+    strictEqual(idProperty.serializationOptions.xml.name, "id");
+    strictEqual(idProperty.serializationOptions.xml.attribute, true);
+    strictEqual(idProperty.serializationOptions.xml.unwrapped, false);
+
+    const titleProperty = bookModel.properties.find((p) => p.name === "title");
+    ok(titleProperty);
+    ok(titleProperty.serializationOptions);
+    ok(titleProperty.serializationOptions.xml);
+    strictEqual(titleProperty.serializationOptions.xml.name, "BookName");
+    strictEqual(titleProperty.serializationOptions.xml.attribute, false);
+    strictEqual(titleProperty.serializationOptions.xml.unwrapped, false);
+
+    const authorsProperty = bookModel.properties.find((p) => p.name === "authors");
+    ok(authorsProperty);
+    ok(authorsProperty.serializationOptions);
+    ok(authorsProperty.serializationOptions.xml);
+    strictEqual(authorsProperty.serializationOptions.xml.name, "authors");
+    strictEqual(authorsProperty.serializationOptions.xml.attribute, false);
+    strictEqual(authorsProperty.serializationOptions.xml.unwrapped, true);
+
+    const contentProperty = bookModel.properties.find((p) => p.name === "content");
+    ok(contentProperty);
+    ok(contentProperty.serializationOptions);
+    ok(contentProperty.serializationOptions.xml);
+    strictEqual(contentProperty.serializationOptions.xml.name, "content");
+    strictEqual(contentProperty.serializationOptions.xml.attribute, false);
+    strictEqual(contentProperty.serializationOptions.xml.unwrapped, false);
+  });
+
+  it("Property with @name decorator should have correct serializedName from XML options", async function () {
+    const program = await typeSpecCompile(
+      `
+      model XmlModel {
+        @name("CustomElementName")
+        elementValue: string;
+
+        @attribute
+        @name("attr")
+        attributeValue: int32;
+      }
+
+      @route("/xml")
+      @post
+      op sendXml(@header contentType: "application/xml", @body data: XmlModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+
+    const xmlModel = models.find((m) => m.name === "XmlModel");
+    ok(xmlModel);
+
+    const elementProperty = xmlModel.properties.find((p) => p.name === "elementValue");
+    ok(elementProperty);
+    strictEqual(elementProperty.serializedName, "CustomElementName");
+    ok(elementProperty.serializationOptions);
+    ok(elementProperty.serializationOptions.xml);
+    strictEqual(elementProperty.serializationOptions.xml.name, "CustomElementName");
+    strictEqual(elementProperty.serializationOptions.xml.attribute, false);
+
+    const attrProperty = xmlModel.properties.find((p) => p.name === "attributeValue");
+    ok(attrProperty);
+    strictEqual(attrProperty.serializedName, "attr");
+    ok(attrProperty.serializationOptions);
+    ok(attrProperty.serializationOptions.xml);
+    strictEqual(attrProperty.serializationOptions.xml.name, "attr");
+    strictEqual(attrProperty.serializationOptions.xml.attribute, true);
+  });
+
+  it("Array property should have itemsName in XML serializationOptions", async function () {
+    const program = await typeSpecCompile(
+      `
+      model Item {
+        name: string;
+      }
+
+      model Container {
+        items: Item[];
+      }
+
+      @route("/container")
+      @post
+      op sendContainer(@header contentType: "application/xml", @body container: Container): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true, IsXmlNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+
+    const containerModel = models.find((m) => m.name === "Container");
+    ok(containerModel);
+
+    // Validate items property has itemsName
+    const itemsProperty = containerModel.properties.find((p) => p.name === "items");
+    ok(itemsProperty);
+    ok(itemsProperty.serializationOptions);
+    ok(itemsProperty.serializationOptions.xml);
+    strictEqual(itemsProperty.serializationOptions.xml.name, "items");
+    ok(itemsProperty.serializationOptions.xml.itemsName);
+    strictEqual(itemsProperty.serializationOptions.xml.itemsName, "Item");
   });
 });

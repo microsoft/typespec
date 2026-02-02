@@ -1,14 +1,15 @@
 {
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
-    "payload.pageable.PageableClient": "Payload.Pageable",
+    "payload.pageable.PageSizeClient": "Payload.Pageable.PageSize",
     "payload.pageable.PageableClientBuilder": "Payload.Pageable",
     "payload.pageable.Pet": "Payload.Pageable.Pet",
     "payload.pageable.ServerDrivenPaginationClient": "Payload.Pageable.ServerDrivenPagination",
     "payload.pageable.ServerDrivenPaginationContinuationTokenClient": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
-    "payload.pageable.implementation.ListWithoutContinuationResponse": "Payload.Pageable.listWithoutContinuation.Response.anonymous",
     "payload.pageable.implementation.RequestHeaderResponseHeaderResponse": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseHeader.Response.anonymous",
     "payload.pageable.implementation.RequestQueryResponseHeaderResponse": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseHeader.Response.anonymous",
+    "payload.pageable.pagesize.implementation.ListWithPageSizeResponse": "Payload.Pageable.PageSize.listWithPageSize.Response.anonymous",
+    "payload.pageable.pagesize.implementation.ListWithoutContinuationResponse": "Payload.Pageable.PageSize.listWithoutContinuation.Response.anonymous",
     "payload.pageable.serverdrivenpagination.NestedLinkResponseNestedItems": "Payload.Pageable.ServerDrivenPagination.nestedLink.Response.nestedItems.anonymous",
     "payload.pageable.serverdrivenpagination.NestedLinkResponseNestedNext": "Payload.Pageable.ServerDrivenPagination.nestedLink.Response.nestedNext.anonymous",
     "payload.pageable.serverdrivenpagination.continuationtoken.RequestHeaderNestedResponseBodyResponseNestedItems": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderNestedResponseBody.Response.nestedItems.anonymous",

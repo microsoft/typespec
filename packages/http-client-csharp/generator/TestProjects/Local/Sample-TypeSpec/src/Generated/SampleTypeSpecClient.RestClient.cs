@@ -103,7 +103,7 @@ namespace SampleTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/helloLiteral/", false);
             uri.AppendPath(123.ToString(), true);
-            uri.AppendQuery("p3", TypeFormatters.ConvertToString(true, null), true);
+            uri.AppendQuery("p3", TypeFormatters.ConvertToString(true), true);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
             request.Headers.Set("p1", "test");
@@ -156,8 +156,10 @@ namespace SampleTypeSpec
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/anonymousBody", false);
+            uri.AppendQuery("requiredQueryParam", "someRequiredLiteralQueryParam", true);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
+            request.Headers.Set("required-header", "someRequiredLiteralHeader");
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
@@ -186,7 +188,7 @@ namespace SampleTypeSpec
             uri.AppendPath("/", false);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
-            request.Headers.Set("Repeatability-First-Sent", TypeFormatters.ConvertToString(DateTimeOffset.Now, "R"));
+            request.Headers.Set("Repeatability-First-Sent", TypeFormatters.ConvertToString(DateTimeOffset.Now, SerializationFormat.DateTime_RFC7231));
             message.Apply(options);
             return message;
         }

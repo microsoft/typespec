@@ -36,6 +36,10 @@ namespace SampleTypeSpec
             }
         };
         private readonly string _apiVersion;
+        private AnimalOperations _cachedAnimalOperations;
+        private PetOperations _cachedPetOperations;
+        private DogOperations _cachedDogOperations;
+        private Metrics _cachedMetrics;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -64,7 +68,7 @@ namespace SampleTypeSpec
 
             _endpoint = endpoint;
             _keyCredential = credential;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
             _apiVersion = options.Version;
         }
 
@@ -82,7 +86,7 @@ namespace SampleTypeSpec
 
             _endpoint = endpoint;
             _tokenProvider = tokenProvider;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new BearerTokenPolicy(_tokenProvider, _flows) }, Array.Empty<PipelinePolicy>());
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), new BearerTokenPolicy(_tokenProvider, _flows) }, Array.Empty<PipelinePolicy>());
             _apiVersion = options.Version;
         }
 
@@ -152,7 +156,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
             Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            ClientResult result = SayHi(headParameter, queryParameter, optionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = SayHi(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -169,7 +173,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
             Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -239,7 +243,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
             Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = HelloAgain(p2, p1, action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = HelloAgain(p2, p1, action, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
@@ -257,7 +261,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
             Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = await HelloAgainAsync(p2, p1, action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await HelloAgainAsync(p2, p1, action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
@@ -352,7 +356,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> HelloDemo2(CancellationToken cancellationToken = default)
         {
-            ClientResult result = HelloDemo2(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = HelloDemo2(cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -361,7 +365,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> HelloDemo2Async(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await HelloDemo2Async(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await HelloDemo2Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -416,7 +420,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = CreateLiteral(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = CreateLiteral(body, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -429,7 +433,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await CreateLiteralAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await CreateLiteralAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -472,7 +476,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> HelloLiteral(CancellationToken cancellationToken = default)
         {
-            ClientResult result = HelloLiteral(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = HelloLiteral(cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -481,7 +485,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> HelloLiteralAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await HelloLiteralAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await HelloLiteralAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -527,7 +531,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> TopAction(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
-            ClientResult result = TopAction(action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = TopAction(action, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -537,7 +541,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> TopActionAsync(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
-            ClientResult result = await TopActionAsync(action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await TopActionAsync(action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -662,13 +666,14 @@ namespace SampleTypeSpec
         /// <summary> body parameter without body decorator. </summary>
         /// <param name="name"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
-        /// <param name="requiredLiteralInt"> required literal int. </param>
-        /// <param name="requiredLiteralFloat"> required literal float. </param>
-        /// <param name="requiredLiteralBool"> required literal bool. </param>
+        /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="propertyWithSpecialDocs">
+        /// This tests:
+        /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
+        /// </param>
         /// <param name="optionalNullableString"> required optional string. </param>
         /// <param name="optionalLiteralString"> optional literal string. </param>
         /// <param name="optionalLiteralInt"> optional literal int. </param>
@@ -676,47 +681,50 @@ namespace SampleTypeSpec
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="name"/> or <paramref name="requiredBadDescription"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, string requiredNullableString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
+            Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
             Thing spreadModel = new Thing(
                 default,
                 requiredUnion,
-                requiredLiteralString,
+                "accept",
                 requiredNullableString,
                 optionalNullableString,
-                requiredLiteralInt,
-                requiredLiteralFloat,
-                requiredLiteralBool,
+                123,
+                1.23F,
+                false,
                 optionalLiteralString,
+                requiredNullableLiteralString,
                 optionalLiteralInt,
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                propertyWithSpecialDocs,
                 default);
-            ClientResult result = AnonymousBody(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = AnonymousBody(spreadModel, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> body parameter without body decorator. </summary>
         /// <param name="name"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
-        /// <param name="requiredLiteralInt"> required literal int. </param>
-        /// <param name="requiredLiteralFloat"> required literal float. </param>
-        /// <param name="requiredLiteralBool"> required literal bool. </param>
+        /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="propertyWithSpecialDocs">
+        /// This tests:
+        /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
+        /// </param>
         /// <param name="optionalNullableString"> required optional string. </param>
         /// <param name="optionalLiteralString"> optional literal string. </param>
         /// <param name="optionalLiteralInt"> optional literal int. </param>
@@ -724,34 +732,36 @@ namespace SampleTypeSpec
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="name"/> or <paramref name="requiredBadDescription"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/>, <paramref name="requiredBadDescription"/> or <paramref name="propertyWithSpecialDocs"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, string requiredNullableString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string propertyWithSpecialDocs, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
+            Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
             Thing spreadModel = new Thing(
                 default,
                 requiredUnion,
-                requiredLiteralString,
+                "accept",
                 requiredNullableString,
                 optionalNullableString,
-                requiredLiteralInt,
-                requiredLiteralFloat,
-                requiredLiteralBool,
+                123,
+                1.23F,
+                false,
                 optionalLiteralString,
+                requiredNullableLiteralString,
                 optionalLiteralInt,
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                propertyWithSpecialDocs,
                 default);
-            ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -808,7 +818,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
             Friend spreadModel = new Friend(name, default);
-            ClientResult result = FriendlyModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = FriendlyModel(spreadModel, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
@@ -823,7 +833,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
             Friend spreadModel = new Friend(name, default);
-            ClientResult result = await FriendlyModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await FriendlyModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
@@ -866,7 +876,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult AddTimeHeader(CancellationToken cancellationToken = default)
         {
-            return AddTimeHeader(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return AddTimeHeader(cancellationToken.ToRequestOptions());
         }
 
         /// <summary> AddTimeHeader. </summary>
@@ -874,7 +884,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> AddTimeHeaderAsync(CancellationToken cancellationToken = default)
         {
-            return await AddTimeHeaderAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return await AddTimeHeaderAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -930,7 +940,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
             RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
-            ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
@@ -945,7 +955,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
             RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
-            ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
@@ -988,7 +998,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<ReturnsAnonymousModelResponse> ReturnsAnonymousModel(CancellationToken cancellationToken = default)
         {
-            ClientResult result = ReturnsAnonymousModel(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = ReturnsAnonymousModel(cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
         }
 
@@ -997,7 +1007,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await ReturnsAnonymousModelAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await ReturnsAnonymousModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
         }
 
@@ -1055,7 +1065,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(accept, nameof(accept));
 
-            ClientResult result = GetUnknownValue(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = GetUnknownValue(accept, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
         }
 
@@ -1069,7 +1079,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(accept, nameof(accept));
 
-            ClientResult result = await GetUnknownValueAsync(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await GetUnknownValueAsync(accept, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
         }
 
@@ -1124,7 +1134,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = InternalProtocol(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            ClientResult result = InternalProtocol(body, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -1137,7 +1147,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await InternalProtocolAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            ClientResult result = await InternalProtocolAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
@@ -1180,7 +1190,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult StillConvenient(CancellationToken cancellationToken = default)
         {
-            return StillConvenient(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return StillConvenient(cancellationToken.ToRequestOptions());
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
@@ -1188,7 +1198,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> StillConvenientAsync(CancellationToken cancellationToken = default)
         {
-            return await StillConvenientAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return await StillConvenientAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1245,7 +1255,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            return HeadAsBoolean(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return HeadAsBoolean(id, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> head as boolean. </summary>
@@ -1258,7 +1268,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            return await HeadAsBooleanAsync(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return await HeadAsBooleanAsync(id, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1315,7 +1325,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            return WithApiVersion(p1, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return WithApiVersion(p1, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> Return hi again. </summary>
@@ -1328,7 +1338,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            return await WithApiVersionAsync(p1, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return await WithApiVersionAsync(p1, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1368,7 +1378,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithNextLink(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1376,7 +1386,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1416,7 +1426,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1424,7 +1434,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1467,7 +1477,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationToken(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with continuation token. </summary>
@@ -1476,7 +1486,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1519,7 +1529,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationTokenHeaderResponse(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with continuation token header response. </summary>
@@ -1528,7 +1538,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenHeaderResponseAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1568,7 +1578,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithPaging(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with paging. </summary>
@@ -1576,7 +1586,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithPagingAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1644,7 +1654,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> An operation with embedded parameters within the body. </summary>
@@ -1656,7 +1666,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1710,7 +1720,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return DynamicModelOperation(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return DynamicModelOperation(body, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> An operation with a dynamic model. </summary>
@@ -1722,7 +1732,31 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await DynamicModelOperationAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return await DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary> Initializes a new instance of AnimalOperations. </summary>
+        public virtual AnimalOperations GetAnimalOperationsClient()
+        {
+            return Volatile.Read(ref _cachedAnimalOperations) ?? Interlocked.CompareExchange(ref _cachedAnimalOperations, new AnimalOperations(Pipeline, _endpoint), null) ?? _cachedAnimalOperations;
+        }
+
+        /// <summary> Initializes a new instance of PetOperations. </summary>
+        public virtual PetOperations GetPetOperationsClient()
+        {
+            return Volatile.Read(ref _cachedPetOperations) ?? Interlocked.CompareExchange(ref _cachedPetOperations, new PetOperations(Pipeline, _endpoint), null) ?? _cachedPetOperations;
+        }
+
+        /// <summary> Initializes a new instance of DogOperations. </summary>
+        public virtual DogOperations GetDogOperationsClient()
+        {
+            return Volatile.Read(ref _cachedDogOperations) ?? Interlocked.CompareExchange(ref _cachedDogOperations, new DogOperations(Pipeline, _endpoint), null) ?? _cachedDogOperations;
+        }
+
+        /// <summary> Initializes a new instance of Metrics. </summary>
+        public virtual Metrics GetMetricsClient()
+        {
+            return Volatile.Read(ref _cachedMetrics) ?? Interlocked.CompareExchange(ref _cachedMetrics, new Metrics(Pipeline, _endpoint), null) ?? _cachedMetrics;
         }
     }
 }

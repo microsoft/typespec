@@ -1,3 +1,5 @@
+// Preload the parser so it doesn't slow down the first test as much
+import "@typescript-eslint/parser";
 import { RuleTester } from "@typescript-eslint/rule-tester";
 import * as vitest from "vitest";
 

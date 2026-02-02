@@ -3,7 +3,7 @@ import {
   resolveModule,
   ResolveModuleError,
   type ResolveModuleHost,
-} from "../../src/module-resolver/module-resolver.js";
+} from "../../src/module-resolver/index.js";
 import { TestHostError } from "../../src/testing/types.js";
 
 function mkFs(files: Record<string, string>): {
@@ -400,6 +400,27 @@ describe("resolve self", () => {
       type: "module",
       path: "/ws/proj",
       mainFile: "/ws/proj/entry.js",
+    });
+  });
+
+  it("loads self sub exports", async () => {
+    const { host } = mkFs({
+      "/ws/proj/package.json": JSON.stringify({
+        name: "@scope/proj",
+        exports: { ".": "./entry.js", "./subpath": "./subpath.js" },
+      }),
+      "/ws/proj/entry.js": "",
+      "/ws/proj/subpath.js": "",
+    });
+
+    const resolved = await resolveModule(host, "@scope/proj/subpath", {
+      baseDir: "/ws/proj/node_modules/test-lib/nested",
+    });
+    const path = "/ws/proj";
+    expect(resolved).toMatchObject({
+      type: "module",
+      path,
+      mainFile: `${path}/subpath.js`,
     });
   });
 

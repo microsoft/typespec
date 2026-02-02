@@ -14,25 +14,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
     public class CanonicalTypeProviderTests
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
         private NamedSymbol _namedSymbol;
-        private readonly TestTypeProvider _typeProvider;
-        private readonly Compilation _compilation;
-
-        public CanonicalTypeProviderTests()
-        {
-            const string name = "TestName";
-            const string ns = "Sample.Models";
-            _namedSymbol = new NamedSymbol(name: name, @namespace: ns);
-            _compilation = CompilationHelper.LoadCompilation([_namedSymbol, new PropertyType()]);
-            var iNamedSymbol = CompilationHelper.GetSymbol(_compilation.Assembly.Modules.First().GlobalNamespace, name);
-
-            _typeProvider = new TestTypeProvider(name, ns);
-        }
+        private TestTypeProvider _typeProvider;
+        private Compilation _compilation;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
+        private const string Name = "TestName";
+        private const string Ns = "Sample.Models";
 
         [SetUp]
         public async Task Setup()
         {
+            _namedSymbol = new NamedSymbol(name: Name, @namespace: Ns);
+            _compilation = CompilationHelper.LoadCompilation([_namedSymbol, new PropertyType()]);
+            _ = CompilationHelper.GetSymbol(_compilation.Assembly.Modules.First().GlobalNamespace, Name);
             await MockHelpers.LoadMockGeneratorAsync(compilation: () => Task.FromResult(_compilation));
+            _typeProvider = new TestTypeProvider(Name, Ns);
         }
 
         [Test]
@@ -155,8 +152,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNotNull(actual.Description,
                 $"Description is null for property {expected.Name}");
 
-            Assert.AreEqual($"{expected.Description}.", actual.Description!.ToString(),
-                $"Description mismatch for property {expected.Name}");
+            if (expected.WireInfo != null)
+            {
+                Assert.AreEqual(
+                    $"{expected.Description}.",
+                    actual.Description!.ToString(),
+                    $"Description mismatch for property {expected.Name}");
+            }
 
             Assert.AreEqual(expected.Modifiers, actual.Modifiers,
                 $"Modifiers mismatch for property {expected.Name}");
@@ -226,6 +228,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(0, fourth.Parameters.Count);
         }
 
+        [Test]
+        public async Task TestPropertyDocs()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            Dictionary<string, PropertyProvider> properties = _typeProvider.CanonicalView.Properties.ToDictionary(p => p.Name);
+            Assert.AreEqual(4, properties.Count);
+
+            var intProperty = properties.TryGetValue("IntProperty", out var intProp) ? intProp : null;
+            Assert.IsNotNull(intProperty);
+
+            // validate the description is the original description
+            Assert.AreEqual("Description for IntProperty", intProperty!.Description?.ToString());
+
+            var customProperty = properties.TryGetValue("CustomProperty", out var customProp) ? customProp : null;
+            Assert.IsNotNull(customProp);
+
+            // validate the description is empty since it is not in the spec
+            Assert.AreEqual("Custom summary for CustomProperty", customProp!.Description?.ToString());
+        }
+
 
         private class TestTypeProvider : TypeProvider
         {
@@ -254,21 +276,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             protected override string BuildNamespace() => _namespace;
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 var nullInputWireInfo = InputFactory.Property("NullWireInfo", InputPrimitiveType.String);
                 return
                 [
                     // customized by the NamedSymbol
-                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty", false)),
+                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty", false, false)),
                     // not customized by the NamedSymbol
-                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "specProperty", false)),
+                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "specProperty", false, false)),
                     // customized by the NamedSymbol with null wire info
                     new PropertyProvider($"Null Wire Info property", MethodSignatureModifiers.Public, typeof(string), "NullWireInfoProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(nullInputWireInfo))
                 ];
             }
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 var intParam = new ParameterProvider("p", $"I have a wrong name", typeof(int));
                 var strParam = new ParameterProvider("strParam", $"I have the correct name", typeof(string));

@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, expect, it } from "vitest";
-import { OpenAPI3SchemaProperty, OpenAPISchema3_1, Refable } from "../src/types.js";
+import { OpenAPI3Schema, OpenAPISchema3_1, Refable } from "../src/types.js";
 import { worksFor } from "./works-for.js";
 
 worksFor(["3.0.0"], ({ oapiForModel, openApiFor }) => {
@@ -43,7 +43,7 @@ worksFor(["3.0.0"], ({ oapiForModel, openApiFor }) => {
   });
 
   describe("when used in circular references", () => {
-    async function expectInCircularReference(ref: string, value: OpenAPI3SchemaProperty) {
+    async function expectInCircularReference(ref: string, value: Refable<OpenAPI3Schema>) {
       const res = await openApiFor(
         `
         model Test {

@@ -22,7 +22,7 @@ const argv = parseArgs({
 });
 
 // Add this near the top with other constants
-const SKIP_SPECS = ["type/union/discriminated", "client-operation-group"];
+const SKIP_SPECS: string[] = [];
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
@@ -42,6 +42,9 @@ interface TspCommand {
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
+  },
+  "azure/client-generator-core/alternate-type": {
+    namespace: "specs.azure.clientgenerator.core.alternatetype",
   },
   "azure/client-generator-core/api-version": {
     namespace: "specs.azure.clientgenerator.core.apiversion",
@@ -103,6 +106,10 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "client/structure/default": {
     namespace: "client.structure.service",
   },
+  "client/structure/client-operation-group": {
+    "package-name": "client-structure-clientoperationgroup",
+    namespace: "client.structure.clientoperationgroup",
+  },
   "client/structure/multi-client": {
     "package-name": "client-structure-multiclient",
     namespace: "client.structure.multiclient",
@@ -145,6 +152,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "special-words": {
     namespace: "specialwords",
   },
+  "service/multi-service": {
+    namespace: "service.multiservice",
+  },
 };
 
 const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
@@ -159,6 +169,9 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     namespace: "resiliency.srv.driven2",
     "package-mode": "azure-dataplane",
     "package-pprint-name": "ResiliencySrvDriven2",
+  },
+  "authentication/api-key": {
+    "clear-output-folder": "true",
   },
   "authentication/http/custom": {
     "package-name": "authentication-http-custom",
@@ -261,6 +274,14 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "type/union": {
     "package-name": "typetest-union",
     namespace: "typetest.union",
+  },
+  "type/union/discriminated": {
+    "package-name": "typetest-discriminatedunion",
+    namespace: "typetest.discriminatedunion",
+  },
+  documentation: {
+    "package-name": "specs-documentation",
+    namespace: "specs.documentation",
   },
 };
 
@@ -440,11 +461,35 @@ async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number)
   await Promise.all(workers);
 }
 
+// create some files before regeneration. After regeneration, these files should be deleted and we will test it
+// in test case
+async function preprocess(flags: RegenerateFlagsInput): Promise<void> {
+  if (flags.flavor === "azure") {
+    // create folder if not exists
+    const folderParts = [
+      "test",
+      "azure",
+      "generated",
+      "authentication-api-key",
+      "authentication",
+      "apikey",
+      "_operations",
+    ];
+    await promises.mkdir(join(GENERATED_FOLDER, ...folderParts), { recursive: true });
+    await promises.writeFile(
+      join(GENERATED_FOLDER, ...folderParts, "to_be_deleted.py"),
+      "# This file is to be deleted after regeneration",
+    );
+  }
+}
+
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
     await regenerate({ flavor: "azure", ...flags });
     await regenerate({ flavor: "unbranded", ...flags });
   } else {
+    await preprocess(flags);
+
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
     const subdirectoriesForNonAzure = await getSubdirectories(HTTP_SPECS, flagsResolved);

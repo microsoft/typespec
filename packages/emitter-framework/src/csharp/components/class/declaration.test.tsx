@@ -36,10 +36,7 @@ it("renders an empty class declaration", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    class TestModel
-    {
-
-    }
+    class TestModel {}
   `);
 });
 
@@ -73,6 +70,7 @@ it("renders a class declaration with properties using component override", async
       Prop1: string;
       Prop2: int32;
       Prop3?: Foo;
+      Prop4?: "foo" | "bar";
     }
   `);
 
@@ -87,14 +85,8 @@ it("renders a class declaration with properties using component override", async
       </TestClientOverrides>
     </Wrapper>,
   ).toRenderTo(d`
-    class Foo
-    {
-
-    }
-    class Bar
-    {
-
-    }
+    class Foo {}
+    class Bar {}
     class TestModel
     {
         public required string Prop1 { get; set; }
@@ -102,20 +94,36 @@ it("renders a class declaration with properties using component override", async
         public required int Prop2 { get; set; }
     
         public Bar? Prop3 { get; set; }
+
+        public string? Prop4 { get; set; }
     }
   `);
 });
 
 function TestClientOverrides(props: { children?: Children }) {
-  const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
-    reference: (props) => {
-      if (props.type.name === "Foo") {
-        return "Bar";
-      } else {
-        return props.default;
-      }
-    },
-  });
+  const overrides = Experimental_ComponentOverridesConfig()
+    .forTypeKind("Model", {
+      reference: (props) => {
+        if (props.type.name === "Foo") {
+          return "Bar";
+        } else {
+          return props.default;
+        }
+      },
+    })
+    .forTypeKind("Union", {
+      reference: (props) => {
+        for (const variant of props.type.variants.values()) {
+          if (
+            variant.type.kind !== "String" ||
+            (variant.type.kind === "String" && !variant.type.value)
+          ) {
+            return props.default;
+          }
+        }
+        return "string";
+      },
+    });
   return (
     <Experimental_ComponentOverrides overrides={overrides}>
       {props.children}
@@ -133,10 +141,7 @@ it("can override class name", async () => {
       <ClassDeclaration type={TestModel} name="CustomClassName" />
     </Wrapper>,
   ).toRenderTo(`
-    class CustomClassName
-    {
-
-    }
+    class CustomClassName {}
   `);
 });
 
@@ -151,10 +156,7 @@ it("renders a class with access modifiers", async () => {
       <ClassDeclaration type={TestModel} protected />
     </Wrapper>,
   ).toRenderTo(`
-    protected class TestModel
-    {
-
-    }
+    protected class TestModel {}
   `);
 });
 
@@ -170,10 +172,7 @@ describe("from an interface", () => {
         <ClassDeclaration type={TestInterface} />
       </Wrapper>,
     ).toRenderTo(`
-      class TestInterface
-      {
-
-      }
+      class TestInterface {}
     `);
   });
 
@@ -212,10 +211,7 @@ it("renders a class with model members", async () => {
       <ClassDeclaration type={TestModel} />
     </Wrapper>,
   ).toRenderTo(`
-    class TestReference
-    {
-
-    }
+    class TestReference {}
     class TestModel
     {
         public required TestReference Prop1 { get; set; }

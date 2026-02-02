@@ -39,10 +39,12 @@ import {
   TimeSchema,
   UnixTimeSchema,
   UriSchema,
+  UuidSchema,
   VirtualParameter,
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
+  CreateSdkContextOptions,
   InitializedByFlags,
   SdkArrayType,
   SdkBodyParameter,
@@ -107,6 +109,7 @@ import { fail } from "assert";
 import pkg from "lodash";
 import {
   Client as CodeModelClient,
+  EncodedProperty,
   EncodedSchema,
   PageableContinuationToken,
   Serializable,
@@ -123,12 +126,12 @@ import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./extern
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
-  CONTENT_TYPE_KEY,
   ORIGIN_API_VERSION,
   SPECIAL_HEADER_NAMES,
   cloneOperationParameter,
   findResponsePropertySegments,
   getServiceVersion,
+  isContentTypeHeader,
   isKnownContentType,
   isLroNewPollingStrategy,
   operationIsJsonMergePatch,
@@ -143,6 +146,7 @@ import {
   ProcessingCache,
   getAccess,
   getDurationFormat,
+  getExternalJavaClassName,
   getNonNullSdkType,
   getPropertySerializedName,
   getUnionDescription,
@@ -161,7 +165,11 @@ import {
   stringArrayContainsIgnoreCase,
   trace,
 } from "./utils.js";
-import { getFilteredApiVersions, getServiceApiVersions } from "./versioning-utils.js";
+import {
+  InconsistentVersions,
+  getFilteredApiVersions,
+  getServiceApiVersions,
+} from "./versioning-utils.js";
 const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
@@ -196,6 +204,8 @@ export interface EmitterOptionsDev {
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
   "use-object-for-unknown"?: boolean;
+  "float32-as-double"?: boolean;
+  "uuid-as-string"?: boolean;
   polling?: any;
 
   // versioning
@@ -292,10 +302,15 @@ export class CodeModelBuilder {
       return this.codeModel;
     }
 
-    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, {
-      additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
-      versioning: { previewStringRegex: /$/ },
-    }); // include all versions and do the filter by ourselves
+    // on filtering of preview version: TCGC only do this on "apiVersion" parameter in clientInitialization
+    const sdkContextOptions: CreateSdkContextOptions =
+      this.options["service-version-exclude-preview"] === false
+        ? {
+            versioning: { previewStringRegex: /$/ },
+          }
+        : {};
+    sdkContextOptions.additionalDecorators = ["Azure\\.ClientGenerator\\.Core\\.@override"];
+    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, sdkContextOptions);
     this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // license
@@ -520,22 +535,33 @@ export class CodeModelBuilder {
 
   private deduplicateSchemaName() {
     // deduplicate model name
+
+    // packages to skip
+    const packagesToSkip: string[] = [];
+    if (!this.isBranded() || this.isAzureV2()) {
+      // clientcore
+      packagesToSkip.push("io.clientcore.core.");
+    }
+    if (this.isAzureV2()) {
+      // core v2
+      packagesToSkip.push("com.azure.v2.core.");
+    }
+    if (this.isAzureV1()) {
+      // core
+      packagesToSkip.push("com.azure.core.");
+    }
+
     const nameCount = new Map<string, number>();
     const deduplicateName = (schema: Schema) => {
+      // skip models under "com.azure.core." etc. in java, or "Azure." in typespec, if branded
+      // skip models under "io.clientcore.core." in java, if unbranded
+      const skipDeduplicate =
+        (this.isBranded() && schema.language.default?.namespace?.startsWith("Azure.")) ||
+        (schema.language.java?.namespace &&
+          packagesToSkip.some((it) => schema.language.java?.namespace.startsWith(it)));
+
       const name = schema.language.default.name;
-      if (
-        name &&
-        // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
-        !(
-          (
-            this.isBranded() &&
-            (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
-              schema.language.default?.namespace?.startsWith("Azure.") ||
-              schema.language.java?.namespace?.startsWith("com.azure.v2.core.") ||
-              schema.language.java?.namespace?.startsWith("io.clientcore.core."))
-          ) // because azure core v2 uses clientcore types
-        )
-      ) {
+      if (name && !skipDeduplicate) {
         if (!nameCount.has(name)) {
           nameCount.set(name, 1);
         } else {
@@ -638,13 +664,14 @@ export class CodeModelBuilder {
     });
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
-    // versioning
+    // versioning, here we handle consistent api-versions for the client
     const versions = getServiceApiVersions(this.program, client);
-    if (versions && versions.length > 0) {
+    if (Array.isArray(versions) && versions.length > 0) {
+      // consistent api-versions
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
-        this.apiVersion = versions[versions.length - 1];
+        this.apiVersion = versions[versions.length - 1].value;
       } else {
-        this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
+        this.apiVersion = versions.find((it) => it.value === this.sdkContext.apiVersion)?.value;
         if (!this.apiVersion) {
           reportDiagnostic(this.program, {
             code: "invalid-api-version",
@@ -656,12 +683,13 @@ export class CodeModelBuilder {
 
       codeModelClient.apiVersions = [];
       for (const version of getFilteredApiVersions(
+        this.program,
         this.apiVersion,
         versions,
         this.options["service-version-exclude-preview"],
       )) {
         const apiVersion = new ApiVersion();
-        apiVersion.version = version;
+        apiVersion.version = version.value;
         codeModelClient.apiVersions.push(apiVersion);
       }
     }
@@ -701,7 +729,10 @@ export class CodeModelBuilder {
       baseUri,
       hostParameters,
       codeModelClient.globalParameters!,
-      codeModelClient.apiVersions,
+      // versioning: consistent api-versions, or MixedVersions for mixed api-versions, undefined if not versioned
+      versions === InconsistentVersions.MixedVersions
+        ? InconsistentVersions.MixedVersions
+        : codeModelClient.apiVersions,
     );
 
     const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
@@ -730,7 +761,7 @@ export class CodeModelBuilder {
         );
         const parentAccessorPublic = Boolean(
           subClient.clientInitialization.initializedBy & InitializedByFlags.Parent ||
-            subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
+          subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
         );
         codeModelClient.addSubClient(codeModelSubclient, buildMethodPublic, parentAccessorPublic);
       }
@@ -971,14 +1002,14 @@ export class CodeModelBuilder {
         httpOperation.bodyParam &&
         param.kind === "header"
       ) {
-        if (param.serializedName.toLocaleLowerCase() === CONTENT_TYPE_KEY) {
+        if (isContentTypeHeader(param)) {
           continue;
         }
       }
       // if the request body is optional, skip content-type header added by TCGC
       // TODO: add optional content type to code-model, and support optional content-type from codegen, https://github.com/Azure/autorest.java/issues/2930
       if (httpOperation.bodyParam && httpOperation.bodyParam.optional) {
-        if (param.serializedName.toLocaleLowerCase() === CONTENT_TYPE_KEY) {
+        if (isContentTypeHeader(param)) {
           continue;
         }
       }
@@ -1048,9 +1079,9 @@ export class CodeModelBuilder {
     if (responses.length === 0) {
       return;
     }
-    const response = responses[0];
-    const bodyType = response.type;
-    if (!bodyType || bodyType.kind !== "model") {
+    if (!responses.some((r) => r.type && r.type.kind === "model")) {
+      // abort, if none of the responses contains model type
+      // this operation is not valid for pageable (which should return a JSON object), and hence will be generated without pageable
       return;
     }
 
@@ -1072,6 +1103,22 @@ export class CodeModelBuilder {
         ? pageItemsResponseProperty[0].serializedName
         : undefined;
 
+    if (
+      this.isAzureV1() &&
+      (pageItemsResponseProperty === undefined || pageItemsResponseProperty.length > 1)
+    ) {
+      // TCGC should have verified that pageItems exists
+
+      // Azure V1 does not support nested page items
+      reportDiagnostic(this.program, {
+        code: "nested-page-items-not-supported",
+        target:
+          sdkMethod.response.resultSegments?.[sdkMethod.response.resultSegments.length - 1]
+            ?.__raw ?? NoTarget,
+      });
+      return;
+    }
+
     // nextLink
     // TODO: nextLink can also be a response header, similar to "sdkMethod.pagingMetadata.continuationTokenResponseSegments"
     const nextLinkResponseProperty = findResponsePropertySegments(
@@ -1088,7 +1135,7 @@ export class CodeModelBuilder {
     let continuationTokenParameter: Parameter | undefined;
     let continuationTokenResponseProperty: Property[] | undefined;
     let continuationTokenResponseHeader: HttpHeader | undefined;
-    if (!this.isBranded()) {
+    if (!this.isAzureV1()) {
       // parameter would either be query or header parameter, so taking the last segment would be enough
       const continuationTokenParameterSegment =
         sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
@@ -1201,6 +1248,7 @@ export class CodeModelBuilder {
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
+      nextLinkVerb: sdkMethod.pagingMetadata.nextLinkVerb ?? "GET",
     };
   }
 
@@ -1318,23 +1366,33 @@ export class CodeModelBuilder {
   ) {
     if (clientContext.apiVersions && this.isApiVersionParameter(param) && param.kind !== "cookie") {
       // pre-condition for "isApiVersion": the client supports ApiVersions
-      if (this.isArm()) {
-        // Currently we assume ARM tsp only have one client and one api-version.
-        // TODO: How will service define mixed api-versions(like those in Compute RP)?
-        const apiVersion = this.apiVersion;
-        if (!this._armApiVersionParameter) {
-          this._armApiVersionParameter = this.createApiVersionParameter(
-            "api-version",
-            param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
-            apiVersion,
-          );
-          clientContext.addGlobalParameter(this._armApiVersionParameter);
-        }
-        op.addParameter(this._armApiVersionParameter);
-      } else {
-        const parameter = this.getApiVersionParameter(param);
+      if (clientContext.apiVersions === InconsistentVersions.MixedVersions) {
+        // mixed api-versions
+        const parameter = this.createApiVersionParameter(
+          "api-version",
+          param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
+          String(param.clientDefaultValue),
+          ImplementationLocation.Method,
+        );
         op.addParameter(parameter);
-        clientContext.addGlobalParameter(parameter);
+      } else {
+        // consistent api-versions
+        if (this.isArm()) {
+          const apiVersion = this.apiVersion;
+          if (!this._armApiVersionParameter) {
+            this._armApiVersionParameter = this.createApiVersionParameter(
+              "api-version",
+              param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
+              apiVersion,
+            );
+            clientContext.addGlobalParameter(this._armApiVersionParameter);
+          }
+          op.addParameter(this._armApiVersionParameter);
+        } else {
+          const parameter = this.getApiVersionParameter(param);
+          op.addParameter(parameter);
+          clientContext.addGlobalParameter(parameter);
+        }
       }
     } else if (param.kind === "path" && param.onClient && this.isSubscriptionId(param)) {
       const parameter = this.subscriptionIdParameter(param);
@@ -1439,8 +1497,12 @@ export class CodeModelBuilder {
       const parameterOnClient = param.onClient;
       if (parameterOnClient) {
         // use parameter name from client parameter, as the name could be an alias
-        if (param.correspondingMethodParams) {
-          parameterName = param.correspondingMethodParams[0].name;
+        if (
+          param.methodParameterSegments &&
+          param.methodParameterSegments[0] &&
+          param.methodParameterSegments[0].at(-1)
+        ) {
+          parameterName = param.methodParameterSegments[0].at(-1)!.name;
         }
       }
 
@@ -1807,7 +1869,10 @@ export class CodeModelBuilder {
           }
         }
 
-        const schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        let schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        if (!this.isAzureV1()) {
+          schemaName = "Http" + schemaName;
+        }
         const schemaDescription = groupToRequestConditions
           ? "Specifies HTTP options for conditional requests based on modification time."
           : "Specifies HTTP options for conditional requests.";
@@ -1833,6 +1898,10 @@ export class CodeModelBuilder {
           }),
         );
 
+        this.trackSchemaUsage(requestConditionsSchema, {
+          usage: [SchemaContext.External],
+        });
+
         // parameter (optional) of the group schema
         const requestConditionsParameter = new Parameter(
           schemaName,
@@ -1845,7 +1914,9 @@ export class CodeModelBuilder {
           },
         );
 
-        this.trackSchemaUsage(requestConditionsSchema, { usage: [SchemaContext.Input] });
+        this.trackSchemaUsage(requestConditionsSchema, {
+          usage: [SchemaContext.Input, SchemaContext.External],
+        });
         if (op.convenienceApi) {
           this.trackSchemaUsage(requestConditionsSchema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
@@ -1966,14 +2037,14 @@ export class CodeModelBuilder {
        * see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
        */
       /**
-       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type'.
+       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.methodParameterSegments.at(0)?.at(-1)?.type'.
        * Basically, it means that the model of the SDK method parameters (typically, more than 1) be different from the model of this single HTTP body parameter.
        */
       const bodyParameterFlatten =
         !this.isArm() &&
         schema instanceof ObjectSchema &&
         sdkType.kind === "model" &&
-        sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type;
+        sdkBody.type !== sdkBody.methodParameterSegments.at(0)?.at(-1)?.type;
 
       if (schema instanceof ObjectSchema && bodyParameterFlatten) {
         // flatten body parameter
@@ -2125,6 +2196,20 @@ export class CodeModelBuilder {
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.name);
+
+        if (schema instanceof ConstantSchema) {
+          // skip constant header in response
+          if (isContentTypeHeader(header)) {
+            // we does not warn on content-type as constant, as this is the most common case
+            reportDiagnostic(this.program, {
+              code: "constant-header-in-response-removed",
+              format: { headerName: header.serializedName },
+              target: header.__raw ?? NoTarget,
+            });
+          }
+          break;
+        }
+
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {
@@ -2141,14 +2226,27 @@ export class CodeModelBuilder {
     const bodyType: SdkType | undefined = sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
-    const unknownResponseBody =
-      sdkResponse.contentTypes &&
-      sdkResponse.contentTypes.length > 0 &&
-      !isKnownContentType(sdkResponse.contentTypes);
+    let responseIsFile: boolean = false;
+    if (
+      bodyType &&
+      bodyType.kind === "model" &&
+      bodyType.serializationOptions.binary &&
+      bodyType.serializationOptions.binary.isFile
+    ) {
+      // check for File
+      responseIsFile = true;
+    } else if (bodyType && bodyType.kind === "bytes") {
+      // check for bytes + unknown content-type
+      const unknownResponseBody =
+        sdkResponse.contentTypes &&
+        sdkResponse.contentTypes.length > 0 &&
+        !isKnownContentType(sdkResponse.contentTypes);
+      responseIsFile = Boolean(unknownResponseBody);
+    }
 
     let response: Response;
-    if (unknownResponseBody && bodyType && bodyType.kind === "bytes") {
-      // binary
+    if (responseIsFile) {
+      // binary/file
       response = new BinaryResponse({
         protocol: {
           http: {
@@ -2347,6 +2445,12 @@ export class CodeModelBuilder {
           return this.processAnySchema();
 
         case "string":
+          if (
+            type.crossLanguageDefinitionId === "Azure.Core.uuid" &&
+            optionBoolean(this.options["uuid-as-string"]) === false
+          ) {
+            return this.processUuidSchema(type, nameHint);
+          }
           return this.processStringSchema(type, nameHint);
 
         case "float":
@@ -2397,6 +2501,14 @@ export class CodeModelBuilder {
     );
   }
 
+  private processUuidSchema(type: SdkBuiltInType, name: string): UuidSchema {
+    return this.codeModel.schemas.add(
+      new UuidSchema(name, type.doc ?? "", {
+        summary: type.summary,
+      }),
+    );
+  }
+
   private processByteArraySchema(type: SdkBuiltInType, name: string): ByteArraySchema {
     const base64Encoded: boolean = type.encode === "base64url";
     return this.codeModel.schemas.add(
@@ -2422,8 +2534,14 @@ export class CodeModelBuilder {
   }
 
   private processNumberSchema(type: SdkBuiltInType, name: string): NumberSchema {
+    const precision =
+      optionBoolean(this.options["float32-as-double"]) === false
+        ? type.kind === "float32"
+          ? 32
+          : 64
+        : 64;
     return this.codeModel.schemas.add(
-      new NumberSchema(name, type.doc ?? "", SchemaType.Number, 64, {
+      new NumberSchema(name, type.doc ?? "", SchemaType.Number, precision, {
         summary: type.summary,
       }),
     );
@@ -2515,6 +2633,11 @@ export class CodeModelBuilder {
         },
       },
     });
+    if (type.external) {
+      // java name
+      schema.language.java = schema.language.java ?? new Language();
+      schema.language.java.name = getExternalJavaClassName(type);
+    }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
   }
@@ -2622,6 +2745,18 @@ export class CodeModelBuilder {
       },
     });
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+
+    if (type.external) {
+      // java name
+      objectSchema.language.java = objectSchema.language.java ?? new Language();
+      objectSchema.language.java.name = getExternalJavaClassName(type);
+
+      // add external to usage
+      this.trackSchemaUsage(objectSchema, {
+        usage: [SchemaContext.External],
+      });
+    }
+
     this.codeModel.schemas.add(objectSchema);
 
     // cache this now before we accidentally recurse on this type.
@@ -2772,6 +2907,12 @@ export class CodeModelBuilder {
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    if (modelProperty.encode) {
+      if (schema instanceof ArraySchema) {
+        // ArrayEncoding
+        (codeModelProperty as EncodedProperty).arrayEncoding = modelProperty.encode;
+      }
+    }
 
     // xml
     if (modelProperty.serializationOptions.xml) {
@@ -3058,7 +3199,16 @@ export class CodeModelBuilder {
     // we still keep the mapping of models from TypeSpec namespace and Azure namespace to "baseJavaNamespace"
     if (type) {
       const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
-      if (this.isBranded()) {
+
+      if (type.kind !== "client" && type.external) {
+        // external model, Java namespace is on "external.identity"
+        const fullyQualifiedClassName = type.external.identity;
+        const javaNamespace = fullyQualifiedClassName.substring(
+          0,
+          fullyQualifiedClassName.lastIndexOf("."),
+        );
+        return this.escapeJavaNamespace(javaNamespace);
+      } else if (this.isBranded()) {
         // special handling for namespace of model that cannot be mapped to azure-core
         if (crossLanguageDefinitionId === "TypeSpec.Http.File") {
           // TypeSpec.Http.File
@@ -3180,19 +3330,23 @@ export class CodeModelBuilder {
 
   private _pollResultSchema?: ObjectSchema;
   get pollResultSchema(): ObjectSchema {
-    return (
-      this._pollResultSchema ??
-      (this._pollResultSchema = createPollOperationDetailsSchema(
+    if (!this._pollResultSchema) {
+      this._pollResultSchema = createPollOperationDetailsSchema(
         this.codeModel.schemas,
         this.stringSchema,
-      ))
-    );
+      );
+      this.trackSchemaUsage(this._pollResultSchema, {
+        usage: [SchemaContext.External],
+      });
+    }
+    return this._pollResultSchema;
   }
 
   private createApiVersionParameter(
     serializedName: string,
     parameterLocation: ParameterLocation,
     value = "",
+    implementationLocation = ImplementationLocation.Client,
   ): Parameter {
     return new Parameter(
       serializedName,
@@ -3204,7 +3358,7 @@ export class CodeModelBuilder {
         }),
       ),
       {
-        implementation: ImplementationLocation.Client,
+        implementation: implementationLocation,
         origin: ORIGIN_API_VERSION,
         required: true,
         protocol: {

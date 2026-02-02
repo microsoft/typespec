@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.DateTimeRfc1123;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
@@ -13,6 +11,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.DateTimeRfc1123;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -109,7 +109,8 @@ public class ModelTestCaseUtil {
         } else if (type == ClassType.STRING) {
             return randomString();
         } else if (type.asNullable() == ClassType.UNIX_TIME_LONG) {
-            return RANDOM.nextLong() & Long.MAX_VALUE;
+            // use nextInt to avoid exceeding unixTime limit
+            return RANDOM.nextInt() & Integer.MAX_VALUE;
         } else if (type == ClassType.DATE_TIME) {
             return randomDateTime().toString();
         } else if (type == ClassType.DATE_TIME_RFC_1123) {
@@ -126,7 +127,7 @@ public class ModelTestCaseUtil {
             return UUID.randomUUID().toString();
         } else if (type == ClassType.URL) {
             return "http://example.org/" + URLEncoder.encode(randomString(), StandardCharsets.UTF_8);
-        } else if (type == ClassType.OBJECT) {
+        } else if (type == ClassType.OBJECT || type == ClassType.BINARY_DATA) {
             // unknown type, use a simple string
             return "data" + randomString();
         } else if (type instanceof EnumType) {

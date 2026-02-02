@@ -98,18 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a serializedName.");
             parameter.IsApiVersion = isApiVersion;
             parameter.DefaultValue = defaultValue;
-
-            if (scope == null)
-            {
-                throw new JsonException("Parameter must have a scope");
-            }
-            Enum.TryParse<InputParameterScope>(scope, ignoreCase: true, out var parsedScope);
-
-            if (parsedScope == InputParameterScope.Constant && type is not InputLiteralType)
-            {
-                throw new JsonException($"Parameter '{name}' is constant, but its type is '{type.Name}'.");
-            }
-            parameter.Scope = parsedScope;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.ContentTypes = contentTypes ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a contentTypes.");
             parameter.DefaultContentType = defaultContentType ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a defaultContentType.");
 

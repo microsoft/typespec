@@ -1,6 +1,7 @@
 {
   "name": "Example Thing",
   "requiredUnion": "mockUnion",
+  "requiredNullableLiteralString": null,
   "requiredBadDescription": "This is a description with potentially problematic characters like < or >.",
   "requiredNullableList": null,
   "requiredLiteralString": "accept",
@@ -12,5 +13,6 @@
   "optionalLiteralFloat": 4.56,
   "optionalLiteralBool": false,
   "requiredNullableString": null,
-  "extra": "stuff"
+  "extra": "stuff",
+  "propertyWithSpecialDocs": "someValue"
 }

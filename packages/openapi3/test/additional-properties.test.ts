@@ -1,9 +1,9 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, objectSchemaIndexer }) => {
+worksFor(supportedVersions, ({ oapiForModel, objectSchemaIndexer }) => {
   describe("extends Record<T>", () => {
     it(`doesn't set ${objectSchemaIndexer} on model itself`, async () => {
       const res = await oapiForModel("Pet", `model Pet extends Record<unknown> {};`);
@@ -181,7 +181,7 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
   });
 });
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel: baseOapiForMopdel, objectSchemaIndexer }) => {
+worksFor(supportedVersions, ({ oapiForModel: baseOapiForMopdel, objectSchemaIndexer }) => {
   const oapiForModel = async (name: string, model: string, options?: OpenAPI3EmitterOptions) => {
     return baseOapiForMopdel(name, model, { ...options, "seal-object-schemas": true });
   };

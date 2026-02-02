@@ -1,5 +1,21 @@
 # Changelog - @typespec/standalone-cli
 
+## 0.78.0
+
+No changes, version bump only.
+
+## 0.77.0
+
+No changes, version bump only.
+
+## 0.76.0
+
+No changes, version bump only.
+
+## 0.75.0
+
+No changes, version bump only.
+
 ## 0.74.0
 
 No changes, version bump only.

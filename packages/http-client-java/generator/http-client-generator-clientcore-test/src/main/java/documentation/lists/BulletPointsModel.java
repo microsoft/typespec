@@ -1,0 +1,113 @@
+package documentation.lists;
+
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonToken;
+import io.clientcore.core.serialization.json.JsonWriter;
+import java.io.IOException;
+
+/**
+ * This tests:
+ * - Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet
+ * points within documentation comments. It should properly indent the wrapped lines.
+ * - Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is
+ * preserved when the text wraps onto multiple lines in the generated documentation.
+ * - Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the
+ * wrapping and formatting are correctly applied in the output.
+ * - Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic
+ * formatting and is long enough to test the wrapping behavior in such cases.
+ * - **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the
+ * bold formatting is maintained across wrapped lines.
+ * - *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that
+ * italic formatting is correctly applied even when the text spans multiple lines.
+ */
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
+public final class BulletPointsModel implements JsonSerializable<BulletPointsModel> {
+    /*
+     * This property uses an enum with bullet point documentation. The enum documentation includes various formatting
+     * styles to test rendering. The styles are:
+     * - Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet
+     * points within documentation comments. It should properly indent the wrapped lines.
+     * - Bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is
+     * preserved when the text wraps onto multiple
+     * - Bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the
+     * wrapping and formatting are correctly applied in the output.
+     * - Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic
+     * formatting and is long enough to test the wrapping behavior in such cases.
+     * - **Bold bullet point**
+     * - *Italic bullet point*
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final BulletPointsEnum prop;
+
+    /**
+     * Creates an instance of BulletPointsModel class.
+     * 
+     * @param prop the prop value to set.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public BulletPointsModel(BulletPointsEnum prop) {
+        this.prop = prop;
+    }
+
+    /**
+     * Get the prop property: This property uses an enum with bullet point documentation. The enum documentation
+     * includes various formatting styles to test rendering. The styles are:
+     * - Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet
+     * points within documentation comments. It should properly indent the wrapped lines.
+     * - Bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is
+     * preserved when the text wraps onto multiple
+     * - Bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the
+     * wrapping and formatting are correctly applied in the output.
+     * - Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic
+     * formatting and is long enough to test the wrapping behavior in such cases.
+     * - **Bold bullet point**
+     * - *Italic bullet point*.
+     * 
+     * @return the prop value.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public BulletPointsEnum getProp() {
+        return this.prop;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.writeStartObject();
+        jsonWriter.writeStringField("prop", this.prop == null ? null : this.prop.toString());
+        return jsonWriter.writeEndObject();
+    }
+
+    /**
+     * Reads an instance of BulletPointsModel from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of BulletPointsModel if the JsonReader was pointing to an instance of it, or null if it was
+     * pointing to JSON null.
+     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
+     * @throws IOException If an error occurs while reading the BulletPointsModel.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public static BulletPointsModel fromJson(JsonReader jsonReader) throws IOException {
+        return jsonReader.readObject(reader -> {
+            BulletPointsEnum prop = null;
+            while (reader.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = reader.getFieldName();
+                reader.nextToken();
+
+                if ("prop".equals(fieldName)) {
+                    prop = BulletPointsEnum.fromString(reader.getString());
+                } else {
+                    reader.skipChildren();
+                }
+            }
+            return new BulletPointsModel(prop);
+        });
+    }
+}

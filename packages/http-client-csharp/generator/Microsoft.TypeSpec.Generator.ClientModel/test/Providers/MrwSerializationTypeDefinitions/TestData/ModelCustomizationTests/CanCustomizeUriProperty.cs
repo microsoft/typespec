@@ -77,7 +77,7 @@ namespace Sample.Models
                     {
                         continue;
                     }
-                    prop1 = new global::System.Uri(prop.Value.GetString());
+                    prop1 = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new global::System.Uri(prop.Value.GetString());
                     continue;
                 }
                 if ((options.Format != "W"))
@@ -110,7 +110,7 @@ namespace Sample.Models
             switch (format)
             {
                 case "J":
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, options);
                     }

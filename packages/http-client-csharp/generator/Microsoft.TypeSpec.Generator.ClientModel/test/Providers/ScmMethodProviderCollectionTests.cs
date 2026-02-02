@@ -167,6 +167,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
         }
 
+        // Validate that spread model correctly instantiates optional dictionary properties
+        [Test]
+        public async Task SpreadModelWithOptionalDictionaryIsNotNull()
+        {
+            var spreadModelWithDict = InputFactory.Model(
+                "spreadModelWithDict",
+                usage: InputModelTypeUsage.Spread,
+                properties:
+                [
+                    InputFactory.Property("query", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false),
+                    InputFactory.Property("filter", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false),
+                    InputFactory.Property("requiredParam", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                InputFactory.Operation(
+                    "CreateMessage",
+                    parameters:
+                    [
+                        InputFactory.BodyParameter(
+                            "spread",
+                            spreadModelWithDict,
+                            isRequired: true,
+                            scope: InputParameterScope.Spread),
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("query", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter("filter", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter("requiredParam", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Spread)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m => m.Signature.Parameters.All(p => p.Name != "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            var asyncConvenienceMethod = convenienceMethods.FirstOrDefault(m => m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(asyncConvenienceMethod);
+
+            var methodBody = asyncConvenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
         [Test]
         public void ListMethodWithNoPaging()
         {
@@ -800,12 +849,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             if (inputType is InputArrayType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using string content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
             }
             else if (inputType is InputDictionaryType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using string content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
             }
             else
             {
@@ -919,6 +968,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(new CSharpType(typeof(ClientResult<BinaryData>)), responseType);
         }
 
+        [Test]
+        public void RequiredLiteralParametersAreFilteredFromParameters()
+        {
+            var inputUnionFooType = InputFactory.Union([InputFactory.Model("Foo", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ])], "foo");
+            var inputType = InputFactory.Union([inputUnionFooType], "bar");
+            var inputOperation = InputFactory.Operation(
+                "GetOperation",
+                parameters:
+                [
+                    InputFactory.QueryParameter("queryParam", InputFactory.Literal.String("value"), isRequired: true),
+                    InputFactory.HeaderParameter("headerParam", InputFactory.Literal.String("value"), isRequired: true),
+                    InputFactory.BodyParameter("bodyParam", InputFactory.Literal.String("value"), isRequired: true)
+                ],
+                responses: [InputFactory.OperationResponse([200], inputType!)]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "GetOperation",
+                inputOperation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("queryParam", InputFactory.Literal.String("value"), isRequired: true, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("headerParam", InputFactory.Literal.String("value"), isRequired: true, location: InputRequestLocation.Header),
+                    InputFactory.MethodParameter("bodyParam", InputFactory.Literal.String("value"), isRequired: true, location: InputRequestLocation.Body)
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+
+            Assert.IsNotNull(convenienceMethod);
+            Assert.AreEqual(1, convenienceMethod!.Signature.Parameters.Count);
+
+            var protocolMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+            Assert.IsNotNull(protocolMethod);
+            Assert.AreEqual(1, protocolMethod!.Signature.Parameters.Count);
+        }
+
         [TestCase(typeof(int))]
         [TestCase(typeof(long))]
         [TestCase(typeof(float))]
@@ -1023,5 +1122,261 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     ]));
             }
         }
+
+        [Test]
+        public void TestMethodTypeIdentification()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation("TestOperation");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+
+            // Verify protocol methods
+            var protocolMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Protocol).ToList();
+            Assert.AreEqual(2, protocolMethods.Count); // sync + async
+
+            // Verify convenience methods
+            var convenienceMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Convenience).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count); // sync + async
+
+            // Verify CreateRequest method
+            var createRequestMethod = (ScmMethodProvider)client!.RestClient.GetCreateRequestMethod(inputOperation);
+            Assert.AreEqual(ScmMethodKind.CreateRequest, createRequestMethod.Kind);
+        }
+
+        [Test]
+        public async Task CollectionResultDefinitionAddedEvenWhenPagingMethodsCustomized()
+        {
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["items"],
+                null,
+                null);
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("Test", operation, pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel],
+                clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            // Verify CollectionResultDefinition is still added even though methods are customized
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition);
+            Assert.IsNotNull(collectionResultDefinition, "CollectionResultDefinition should be added even when paging methods are customized");
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(DateTimeOffset))]
+        public void ListOfPrimitivesUsesUtf8JsonReader(Type elementType)
+        {
+            InputType inputElementType = elementType switch
+            {
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(float) => InputPrimitiveType.Float32,
+                { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                _ => throw new ArgumentException("Unsupported type")
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetList",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Array(inputElementType))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetList", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetList");
+            Assert.IsNotNull(convenienceMethod);
+
+            var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(elementType.Name), generatedCode);
+        }
+
+        [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(BinaryData))]
+        public void ListOfValueTypeUsesJsonDoc(Type elementType)
+        {
+            InputType inputElementType = elementType switch
+            {
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
+                _ => throw new ArgumentException("Unsupported type")
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetList",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Array(inputElementType))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetList", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetList");
+            Assert.IsNotNull(convenienceMethod);
+
+            var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(elementType.Name), generatedCode);
+        }
+
+        [Test]
+        public void TestDeserializeReadOnlyMemResponse()
+        {
+            var inputOperation = InputFactory.Operation(
+                "GetList",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Array(InputPrimitiveType.Int32))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetList", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [inputClient],
+                createCSharpTypeCore: input =>
+                {
+                    if (input is InputArrayType inputArrayType)
+                    {
+                        // Simulate a ReadOnlyMemory type
+                        return new CSharpType(typeof(ReadOnlyMemory<int>));
+                    }
+                    return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
+                },
+                createCSharpTypeCoreFallback: input => input is InputArrayType);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetList");
+            Assert.IsNotNull(convenienceMethod);
+
+            var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), generatedCode);
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(DateTimeOffset))]
+        public void DictionaryOfPrimitivesUsesUtf8JsonReader(Type valueType)
+        {
+            InputType inputValueType = valueType switch
+            {
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(float) => InputPrimitiveType.Float32,
+                { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                _ => throw new ArgumentException("Unsupported type")
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetDict",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Dictionary(inputValueType))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetDict", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetDict");
+            Assert.IsNotNull(convenienceMethod);
+
+            var actualCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
+        }
+
+        [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(BinaryData))]
+        public void DictionaryOfValueTypeUsesJsonDoc(Type valueType)
+        {
+            InputType inputValueType = valueType switch
+            {
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
+                _ => throw new ArgumentException("Unsupported type")
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetDict",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Dictionary(inputValueType))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetDict", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetDict");
+            Assert.IsNotNull(convenienceMethod);
+
+            var actualCode = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
+        }
+
     }
 }

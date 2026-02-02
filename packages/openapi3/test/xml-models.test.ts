@@ -2,9 +2,9 @@ import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { SimpleTester } from "./test-host.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
+worksFor(supportedVersions, ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
   describe("@name", () => {
     it("set xml.name for schema", async () => {
       const res = await oapiForModel(

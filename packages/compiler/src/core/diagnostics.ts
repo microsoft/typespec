@@ -1,3 +1,4 @@
+import { createDiagnostic } from "./messages.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
 import {
@@ -44,8 +45,18 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
 }
 
 /**
- * Find the syntax node for a typespec diagnostic target.
- * Returns undefined if target is a type or symbol without a node.
+ * Find the syntax node for a TypeSpec diagnostic target.
+ *
+ * This function extracts the AST node from various types of diagnostic targets:
+ * - For template instance targets: returns the node of the template declaration
+ * - For symbols: returns the first declaration node (or symbol source for using symbols)
+ * - For AST nodes: returns the node itself
+ * - For types: returns the node associated with the type
+ *
+ * @param target The diagnostic target to extract a node from. Can be a template instance,
+ *               symbol, AST node, or type.
+ * @returns The AST node associated with the target, or undefined if the target is a type
+ *          or symbol that doesn't have an associated node.
  */
 export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
   if (!("kind" in target) && !("entityKind" in target)) {
@@ -237,18 +248,26 @@ export function assertType<TKind extends Type["kind"][]>(
  * @param program TypeSpec Program.
  * @param message Message describing the deprecation.
  * @param target Target of the deprecation.
+ * @param reportFunc Optional custom report function.
  */
 export function reportDeprecated(
   program: Program,
   message: string,
   target: DiagnosticTarget | typeof NoTarget,
+  reportFunc?: (diagnostic: Diagnostic) => void,
 ): void {
-  program.reportDiagnostic({
-    severity: "warning",
-    code: "deprecated",
-    message: `Deprecated: ${message}`,
-    target,
-  });
+  if (program.compilerOptions.ignoreDeprecated !== true) {
+    const report = reportFunc ?? program.reportDiagnostic.bind(program);
+    report(
+      createDiagnostic({
+        code: "deprecated",
+        format: {
+          message,
+        },
+        target,
+      }),
+    );
+  }
 }
 
 /**

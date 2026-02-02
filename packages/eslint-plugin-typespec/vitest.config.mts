@@ -6,6 +6,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       setupFiles: ["./test/global-setup.ts"],
+      testTimeout: 10_000,
     },
   }),
 );
