@@ -21,10 +21,7 @@ Should not create model and treat it as a Record.
 Should just treat it as a Record
 
 ```ts src/api/testClientOperations.ts function foo
-export async function foo(
-  client: TestClientContext,
-  options?: FooOptions,
-): Promise<Record<string, string>> {
+export async function foo(client: TestClientContext, options?: FooOptions): Promise<Widget> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},

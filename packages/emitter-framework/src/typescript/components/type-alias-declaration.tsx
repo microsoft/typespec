@@ -1,8 +1,9 @@
+import { useDeclarationProvider } from "#core/context/declaration-provider.js";
+import { joinRefkeys } from "#typescript/utils/refkey.js";
 import * as ts from "@alloy-js/typescript";
 import type { Type } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
-import { declarationRefkeys } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 export interface TypedAliasDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
@@ -31,7 +32,8 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
   }
 
   const doc = props.doc ?? $.type.getDoc(props.type);
-  const refkeys = declarationRefkeys(props.refkey, props.type);
+  const dp = useDeclarationProvider();
+  const refkeys = joinRefkeys(props.refkey, dp.getRefkey(props.type));
 
   const name = ts.useTSNamePolicy().getName(originalName, "type");
   return (
