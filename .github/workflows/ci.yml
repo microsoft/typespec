@@ -34,4 +34,4 @@ jobs:
       - name: Pack
         run: npx tsx eng/tsp-core/trepo.ts pack --since origin/main
 
-      - run: node eng/tsp-core/pkg-pr-new.ts
+      - run: pnpm tsx eng/tsp-core/pkg-pr-new.ts
