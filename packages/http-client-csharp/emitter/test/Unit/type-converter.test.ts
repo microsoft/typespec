@@ -187,7 +187,7 @@ describe("Union types to model hierarchies", () => {
   beforeEach(async () => {
     runner = await createEmitterTestHost();
   });
-  it("should convert union with members to model hierarchy", async () => {
+  it("should convert request bodies union with members to model hierarchy", async () => {
     const program = await typeSpecCompile(
       `
       model Alpha {
@@ -204,6 +204,153 @@ describe("Union types to model hierarchies", () => {
         "beta": Beta
       }
       op test(@body input: MyUnion): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const alphaModel = root.models.find((m) => m.name === "Alpha");
+    ok(alphaModel, "Alpha should exist");
+
+    const betaModel = root.models.find((m) => m.name === "Beta");
+    ok(betaModel, "Beta should exist");
+
+    const myUnion = root.models.find((m) => m.name === "MyUnion");
+    ok(myUnion, "MyUnion should exist");
+
+    // Validate that MyUnion is a model
+    strictEqual(myUnion.kind, "model", "MyUnion should be converted to a model");
+
+    // Validate that Alpha and Beta inherit from MyUnion
+    strictEqual(alphaModel.baseModel, myUnion, "Alpha should inherit from MyUnion");
+    strictEqual(betaModel.baseModel, myUnion, "Beta should inherit from MyUnion");
+
+    // Validate the base model has the discriminator property
+    const discriminatorProp = myUnion.properties.find((p) => p.name === "type");
+    ok(discriminatorProp, "MyUnion should have a discriminator property 'type'");
+    strictEqual(
+      discriminatorProp.type.kind,
+      "enum",
+      "Discriminator property 'type' should be of type string",
+    );
+
+    // Validate that the discriminator property has the correct enum values
+    const enumValues = new Set(discriminatorProp.type.values.map((v) => v.name));
+    strictEqual(enumValues.has("alpha"), true, "Discriminator enum should include 'alpha'");
+    strictEqual(enumValues.has("beta"), true, "Discriminator enum should include 'beta'");
+
+    // Validate that Alpha and Beta DO NOT have the discriminator property
+    const alphaDiscriminatorProp = alphaModel.properties.find((p) => p.name === "type");
+    strictEqual(
+      alphaDiscriminatorProp,
+      undefined,
+      "Alpha should not have the discriminator property 'type'",
+    );
+
+    const betaDiscriminatorProp = betaModel.properties.find((p) => p.name === "type");
+    strictEqual(
+      betaDiscriminatorProp,
+      undefined,
+      "Beta should not have the discriminator property 'type'",
+    );
+  });
+
+  it("should convert responses bodies union with members to model hierarchy", async () => {
+    const program = await typeSpecCompile(
+      `
+      model Alpha {
+        alphaProp: string;
+        type: "alpha";
+      }
+      model Beta {
+        betaProp: int32;
+        type: "beta";
+      }
+      @discriminated(#{ discriminatorPropertyName: "type", envelope: "none" })
+      union MyUnion {
+        "alpha": Alpha,
+        "beta": Beta
+      }
+      op test(): MyUnion;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const alphaModel = root.models.find((m) => m.name === "Alpha");
+    ok(alphaModel, "Alpha should exist");
+
+    const betaModel = root.models.find((m) => m.name === "Beta");
+    ok(betaModel, "Beta should exist");
+
+    const myUnion = root.models.find((m) => m.name === "MyUnion");
+    ok(myUnion, "MyUnion should exist");
+
+    // Validate that MyUnion is a model
+    strictEqual(myUnion.kind, "model", "MyUnion should be converted to a model");
+
+    // Validate that Alpha and Beta inherit from MyUnion
+    strictEqual(alphaModel.baseModel, myUnion, "Alpha should inherit from MyUnion");
+    strictEqual(betaModel.baseModel, myUnion, "Beta should inherit from MyUnion");
+
+    // Validate the base model has the discriminator property
+    const discriminatorProp = myUnion.properties.find((p) => p.name === "type");
+    ok(discriminatorProp, "MyUnion should have a discriminator property 'type'");
+    strictEqual(
+      discriminatorProp.type.kind,
+      "enum",
+      "Discriminator property 'type' should be of type string",
+    );
+
+    // Validate that the discriminator property has the correct enum values
+    const enumValues = new Set(discriminatorProp.type.values.map((v) => v.name));
+    strictEqual(enumValues.has("alpha"), true, "Discriminator enum should include 'alpha'");
+    strictEqual(enumValues.has("beta"), true, "Discriminator enum should include 'beta'");
+
+    // Validate that Alpha and Beta DO NOT have the discriminator property
+    const alphaDiscriminatorProp = alphaModel.properties.find((p) => p.name === "type");
+    strictEqual(
+      alphaDiscriminatorProp,
+      undefined,
+      "Alpha should not have the discriminator property 'type'",
+    );
+
+    const betaDiscriminatorProp = betaModel.properties.find((p) => p.name === "type");
+    strictEqual(
+      betaDiscriminatorProp,
+      undefined,
+      "Beta should not have the discriminator property 'type'",
+    );
+  });
+
+  it("should convert properties union with members to model hierarchy", async () => {
+    const program = await typeSpecCompile(
+      `
+      model Alpha {
+        alphaProp: string;
+        type: "alpha";
+      }
+      model Beta {
+        betaProp: int32;
+        type: "beta";
+      }
+      @discriminated(#{ discriminatorPropertyName: "type", envelope: "none" })
+      union MyUnion {
+        "alpha": Alpha,
+        "beta": Beta
+      }
+
+      model ContainerModel {
+        unionProp: MyUnion;
+      }
+
+      op test(): ContainerModel;
       `,
       runner,
       { IsTCGCNeeded: true },
