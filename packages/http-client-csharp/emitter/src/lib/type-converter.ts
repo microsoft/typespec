@@ -493,7 +493,7 @@ function fromUnionType(
     const variantType = fromSdkType(sdkContext, value);
     variantTypes.push(variantType);
   }
-  if (isDiscriminatedUnionSupportedForConversionToModel(union)) {
+  if (isDiscriminatedUnion(union)) {
     const discriminatorProperty = discriminatorPropertyFromUnion(sdkContext, union, variantTypes);
     const properties = discriminatorProperty ? [discriminatorProperty] : [];
     if (discriminatorProperty) {
@@ -540,24 +540,18 @@ function fromUnionType(
 }
 
 function isDiscriminatedUnion(sdkType: SdkUnionType): boolean {
-  if (!sdkType.discriminatedOptions) {
+  if (
+    !sdkType.discriminatedOptions ||
+    sdkType.discriminatedOptions.envelope === "object" ||
+    (sdkType.discriminatedOptions.envelopePropertyName !== undefined &&
+      sdkType.discriminatedOptions.envelopePropertyName !== "")
+  ) {
     return false;
   }
 
   return sdkType.variantTypes.every((variant) => {
     return variant.kind === "model" && !variant.baseModel;
   });
-}
-
-function isDiscriminatedUnionSupportedForConversionToModel(sdkType: SdkUnionType): boolean {
-  if (!isDiscriminatedUnion(sdkType) || !sdkType.discriminatedOptions) {
-    return false;
-  }
-
-  return (
-    sdkType.discriminatedOptions.envelope === "none" &&
-    !sdkType.discriminatedOptions.envelopePropertyName
-  );
 }
 
 function fromSdkConstantType(
