@@ -385,6 +385,108 @@ function fromSdkBuiltInType(
   };
 }
 
+function discriminatorPropertyFromUnion(
+  sdkContext: CSharpEmitterContext,
+  union: SdkUnionType,
+  variantTypes: InputType[],
+): InputModelProperty | undefined {
+  if (!union.discriminatedOptions) {
+    return undefined;
+  }
+
+  const discriminatorPropertyName = union.discriminatedOptions.discriminatorPropertyName;
+  const discriminatorProperties = variantTypes.map((variant) => {
+    if (variant.kind === "model") {
+      const discProp = variant.properties.find((p) => p.name === discriminatorPropertyName);
+      if (discProp) {
+        return discProp;
+      }
+    }
+    return undefined;
+  }).filter((p) => p !== undefined);
+
+  if (discriminatorProperties.length === 0) {
+    return undefined;
+  }
+
+  // Declare an enum for all the constant values
+  const discriminatorEnumType: InputEnumType = {
+    kind: "enum",
+    name: `${union.name}Discriminator`,
+    valueType: fromSdkBuiltInType(sdkContext, {
+      kind: "string",
+      name: "string",
+      crossLanguageDefinitionId: "TypeSpec.string",
+      decorators: [],
+    }),
+    values: [],
+    namespace: union.namespace,
+    crossLanguageDefinitionId: "",
+    access: undefined,
+    usage: UsageFlags.None,
+    decorators: [],
+    isFixed: false,
+    isFlags: false,
+  };
+
+  const enumValues: InputEnumValueType[] = discriminatorProperties.map((prop) => {
+    if (prop.type.kind === "constant") {
+      return {
+        kind: "enumvalue",
+        name: prop.type.value === null ? "Null" : prop.type.value.toString(),
+        value:
+          typeof prop.type.value === "boolean" ? (prop.type.value ? 1 : 0) : prop.type.value,
+        enumType: discriminatorEnumType,
+        valueType: prop.type.valueType,
+      } as InputEnumValueType;
+    }
+    throw new Error(
+      `Discriminator property ${discriminatorPropertyName} in union ${union.name} is not a constant type.`,
+    );
+    // TODO handle numeric constants
+    // TODO handle default variants
+    // TODO handle string values
+    // TODO handle open ended enums
+  });
+
+  discriminatorEnumType.values.push(...enumValues);
+
+  
+
+  sdkContext.__typeCache.updateSdkTypeReferences(union, discriminatorEnumType);
+
+  return {
+    kind: "property",
+    name: discriminatorPropertyName,
+    serializedName: discriminatorPropertyName,
+    type: discriminatorEnumType,
+    optional: false,
+    readOnly: false,
+    decorators: [],
+    flatten: false,
+    discriminator: true,
+    isHttpMetadata: false,
+    isApiVersion: false,
+    crossLanguageDefinitionId: "",
+    serializationOptions: {
+      json: { name: discriminatorPropertyName },
+    }
+  };
+}
+
+function removeDiscriminatorPropertiesFromVariants(
+  variantTypes: InputType[],
+  discriminatorPropertyName: string,
+) {
+  for (const variant of variantTypes) {
+    if (variant.kind === "model") {
+      variant.properties = variant.properties.filter(
+        (p) => p.name !== discriminatorPropertyName,
+      );
+    }
+  }
+}
+
 function fromUnionType(
   sdkContext: CSharpEmitterContext,
   union: SdkUnionType,
@@ -395,6 +497,16 @@ function fromUnionType(
     variantTypes.push(variantType);
   }
   if (isDiscriminatedUnion(union)) {
+    const discriminatorProperty = discriminatorPropertyFromUnion(sdkContext, union, variantTypes);
+    const properties = discriminatorProperty
+      ? [discriminatorProperty]
+      : [];
+    if (discriminatorProperty) {
+      removeDiscriminatorPropertiesFromVariants(
+        variantTypes,
+        discriminatorProperty.name,
+      );
+    }
     const baseType: InputModelType = {
       kind: "model",
       name: union.name,
@@ -402,7 +514,7 @@ function fromUnionType(
       crossLanguageDefinitionId: union.crossLanguageDefinitionId,
       access: union.access,
       usage: union.usage,
-      properties: [],
+      properties: properties,
       serializationOptions: {},
       summary: union.summary,
       doc: union.doc,
@@ -422,7 +534,6 @@ function fromUnionType(
     if (Object.keys(discriminatedSubtypes).length > 0) {
       baseType.discriminatedSubtypes = discriminatedSubtypes;
     }
-    //TODO we should hoist the discriminator property to the base type
     return baseType;
   }
 

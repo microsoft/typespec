@@ -227,5 +227,29 @@ describe("Union types to model hierarchies", () => {
     // Validate that Alpha and Beta inherit from MyUnion
     strictEqual(alphaModel.baseModel, myUnion, "Alpha should inherit from MyUnion");
     strictEqual(betaModel.baseModel, myUnion, "Beta should inherit from MyUnion");
+
+    // Validate the base model has the discriminator property
+    const discriminatorProp = myUnion.properties.find((p) => p.name === "type");
+    ok(discriminatorProp, "MyUnion should have a discriminator property 'type'");
+    strictEqual(
+      discriminatorProp.type.kind,
+      "enum",
+      "Discriminator property 'type' should be of type string",
+    );
+
+    // Validate that Alpha and Beta DO NOT have the discriminator property
+    const alphaDiscriminatorProp = alphaModel.properties.find((p) => p.name === "type");
+    strictEqual(
+      alphaDiscriminatorProp,
+      undefined,
+      "Alpha should not have the discriminator property 'type'",
+    );
+    
+    const betaDiscriminatorProp = betaModel.properties.find((p) => p.name === "type");
+    strictEqual(
+      betaDiscriminatorProp,
+      undefined,
+      "Beta should not have the discriminator property 'type'",
+    );
   });
 });
