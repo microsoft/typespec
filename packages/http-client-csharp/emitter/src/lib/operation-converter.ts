@@ -327,7 +327,11 @@ function updateMethodParameter(
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
     if (methodParameter.type.kind === "constant") {
-      methodParameter.type = fromSdkType(sdkContext, operationHttpParameter.type);
+      methodParameter.type = fromSdkType(
+        sdkContext,
+        operationHttpParameter.type,
+        operationHttpParameter,
+      );
     }
   }
 }
@@ -419,7 +423,7 @@ function fromQueryParameter(
   p: SdkQueryParameter,
   rootApiVersions: string[],
 ): InputQueryParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputQueryParameter = {
     kind: "query",
@@ -448,7 +452,7 @@ function fromPathParameter(
   p: SdkPathParameter,
   rootApiVersions: string[],
 ): InputPathParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputPathParameter = {
     kind: "path",
@@ -479,7 +483,7 @@ function fromHeaderParameter(
   p: SdkHeaderParameter,
   rootApiVersions: string[],
 ): InputHeaderParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputHeaderParameter = {
     kind: "header",
@@ -509,7 +513,7 @@ function fromBodyParameter(
   p: SdkBodyParameter,
   rootApiVersions: string[],
 ): InputBodyParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputBodyParameter = {
     kind: "body",

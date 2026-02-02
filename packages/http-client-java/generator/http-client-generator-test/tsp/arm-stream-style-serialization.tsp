@@ -287,6 +287,8 @@ model ResultData {
   prop2: string;
 }
 
+// test the serializaton of "unknown"
+@usage(Usage.input | Usage.output)
 model Builtin {
   boolean: boolean;
   string: string;
@@ -304,8 +306,9 @@ model Builtin {
   bytesDict: Record<bytes>;
   url: url;
   nullableFloatDict: Record<float64 | null>;
-  encoded: Encoded;
+  encoding: Encoded;
   uuid: Azure.Core.uuid;
+  `unknown`: unknown;
 }
 
 @encode(DurationKnownEncoding.seconds, float32)
