@@ -731,7 +731,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                if (paramMap.TryGetValue(inputParam.SerializedName, out var paramProvider))
+                if (paramMap.TryGetValue(inputParam.Name, out var paramProvider))
                 {
                     GetParamInfo(paramProvider, out type, out serializationFormat, out valueExpression);
                 }
