@@ -23,4 +23,5 @@ try {
 } catch (e: any) {
   // eslint-disable-next-line no-console
   console.error("Failed to run pkg-pr-new publish");
+  process.exit(1);
 }
