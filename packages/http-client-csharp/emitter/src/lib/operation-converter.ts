@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  getClientNamespace,
   getHttpOperationParameter,
   isHttpMetadata,
   SdkBodyParameter,
@@ -199,6 +200,9 @@ export function fromSdkServiceMethodOperation(
     examples: method.operation.examples
       ? fromSdkHttpExamples(sdkContext, method.operation.examples)
       : undefined,
+    namespace: method.__raw?.namespace
+      ? getClientNamespace(sdkContext, method.__raw.namespace)
+      : undefined,
   };
 
   sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
@@ -323,7 +327,11 @@ function updateMethodParameter(
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
     if (methodParameter.type.kind === "constant") {
-      methodParameter.type = fromSdkType(sdkContext, operationHttpParameter.type);
+      methodParameter.type = fromSdkType(
+        sdkContext,
+        operationHttpParameter.type,
+        operationHttpParameter,
+      );
     }
   }
 }
@@ -415,7 +423,7 @@ function fromQueryParameter(
   p: SdkQueryParameter,
   rootApiVersions: string[],
 ): InputQueryParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputQueryParameter = {
     kind: "query",
@@ -444,7 +452,7 @@ function fromPathParameter(
   p: SdkPathParameter,
   rootApiVersions: string[],
 ): InputPathParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputPathParameter = {
     kind: "path",
@@ -475,7 +483,7 @@ function fromHeaderParameter(
   p: SdkHeaderParameter,
   rootApiVersions: string[],
 ): InputHeaderParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputHeaderParameter = {
     kind: "header",
@@ -505,7 +513,7 @@ function fromBodyParameter(
   p: SdkBodyParameter,
   rootApiVersions: string[],
 ): InputBodyParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputBodyParameter = {
     kind: "body",

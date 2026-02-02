@@ -4,7 +4,7 @@
 
 package tsptest.armstreamstyleserialization.models;
 
-import com.azure.core.annotation.Immutable;
+import com.azure.core.annotation.Fluent;
 import com.azure.core.util.Base64Url;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.DateTimeRfc1123;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * The Encoded model.
  */
-@Immutable
+@Fluent
 public final class Encoded implements JsonSerializable<Encoded> {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
@@ -96,7 +96,7 @@ public final class Encoded implements JsonSerializable<Encoded> {
     /**
      * Creates an instance of Encoded class.
      */
-    private Encoded() {
+    public Encoded() {
     }
 
     /**
@@ -112,12 +112,42 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Set the timeInSeconds property: The timeInSeconds property.
+     * 
+     * @param timeInSeconds the timeInSeconds value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withTimeInSeconds(Duration timeInSeconds) {
+        if (timeInSeconds == null) {
+            this.timeInSeconds = null;
+        } else {
+            this.timeInSeconds = timeInSeconds.getSeconds();
+        }
+        return this;
+    }
+
+    /**
      * Get the timeInSecondsPrimitive property: The timeInSecondsPrimitive property.
      * 
      * @return the timeInSecondsPrimitive value.
      */
     public Duration timeInSecondsPrimitive() {
         return Duration.ofSeconds(this.timeInSecondsPrimitive);
+    }
+
+    /**
+     * Set the timeInSecondsPrimitive property: The timeInSecondsPrimitive property.
+     * 
+     * @param timeInSecondsPrimitive the timeInSecondsPrimitive value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withTimeInSecondsPrimitive(Duration timeInSecondsPrimitive) {
+        if (timeInSecondsPrimitive == null) {
+            this.timeInSecondsPrimitive = 0L;
+        } else {
+            this.timeInSecondsPrimitive = timeInSecondsPrimitive.getSeconds();
+        }
+        return this;
     }
 
     /**
@@ -133,6 +163,21 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Set the timeInSecondsFraction property: The timeInSecondsFraction property.
+     * 
+     * @param timeInSecondsFraction the timeInSecondsFraction value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withTimeInSecondsFraction(Duration timeInSecondsFraction) {
+        if (timeInSecondsFraction == null) {
+            this.timeInSecondsFraction = null;
+        } else {
+            this.timeInSecondsFraction = (double) timeInSecondsFraction.toNanos() / 1000_000_000L;
+        }
+        return this;
+    }
+
+    /**
      * Get the timeInSecondsFractionPrimitive property: The timeInSecondsFractionPrimitive property.
      * 
      * @return the timeInSecondsFractionPrimitive value.
@@ -142,12 +187,38 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Set the timeInSecondsFractionPrimitive property: The timeInSecondsFractionPrimitive property.
+     * 
+     * @param timeInSecondsFractionPrimitive the timeInSecondsFractionPrimitive value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withTimeInSecondsFractionPrimitive(Duration timeInSecondsFractionPrimitive) {
+        if (timeInSecondsFractionPrimitive == null) {
+            this.timeInSecondsFractionPrimitive = 0.0;
+        } else {
+            this.timeInSecondsFractionPrimitive = (double) timeInSecondsFractionPrimitive.toNanos() / 1000_000_000L;
+        }
+        return this;
+    }
+
+    /**
      * Get the dateTime property: The dateTime property.
      * 
      * @return the dateTime value.
      */
     public OffsetDateTime dateTime() {
         return this.dateTime;
+    }
+
+    /**
+     * Set the dateTime property: The dateTime property.
+     * 
+     * @param dateTime the dateTime value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withDateTime(OffsetDateTime dateTime) {
+        this.dateTime = dateTime;
+        return this;
     }
 
     /**
@@ -163,6 +234,21 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Set the dateTimeRfc7231 property: The dateTimeRfc7231 property.
+     * 
+     * @param dateTimeRfc7231 the dateTimeRfc7231 value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withDateTimeRfc7231(OffsetDateTime dateTimeRfc7231) {
+        if (dateTimeRfc7231 == null) {
+            this.dateTimeRfc7231 = null;
+        } else {
+            this.dateTimeRfc7231 = new DateTimeRfc1123(dateTimeRfc7231);
+        }
+        return this;
+    }
+
+    /**
      * Get the unixTimestamp property: The unixTimestamp property.
      * 
      * @return the unixTimestamp value.
@@ -175,6 +261,21 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Set the unixTimestamp property: The unixTimestamp property.
+     * 
+     * @param unixTimestamp the unixTimestamp value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withUnixTimestamp(OffsetDateTime unixTimestamp) {
+        if (unixTimestamp == null) {
+            this.unixTimestamp = null;
+        } else {
+            this.unixTimestamp = unixTimestamp.toEpochSecond();
+        }
+        return this;
+    }
+
+    /**
      * Get the unixTimestampPrimitive property: The unixTimestampPrimitive property.
      * 
      * @return the unixTimestampPrimitive value.
@@ -184,12 +285,38 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Set the unixTimestampPrimitive property: The unixTimestampPrimitive property.
+     * 
+     * @param unixTimestampPrimitive the unixTimestampPrimitive value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withUnixTimestampPrimitive(OffsetDateTime unixTimestampPrimitive) {
+        if (unixTimestampPrimitive == null) {
+            this.unixTimestampPrimitive = 0L;
+        } else {
+            this.unixTimestampPrimitive = unixTimestampPrimitive.toEpochSecond();
+        }
+        return this;
+    }
+
+    /**
      * Get the base64 property: The base64 property.
      * 
      * @return the base64 value.
      */
     public byte[] base64() {
         return CoreUtils.clone(this.base64);
+    }
+
+    /**
+     * Set the base64 property: The base64 property.
+     * 
+     * @param base64 the base64 value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withBase64(byte[] base64) {
+        this.base64 = CoreUtils.clone(base64);
+        return this;
     }
 
     /**
@@ -205,12 +332,38 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Set the base64url property: The base64url property.
+     * 
+     * @param base64url the base64url value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withBase64url(byte[] base64url) {
+        if (base64url == null) {
+            this.base64url = null;
+        } else {
+            this.base64url = Base64Url.encode(CoreUtils.clone(base64url));
+        }
+        return this;
+    }
+
+    /**
      * Get the unknownDurationFormat property: The unknownDurationFormat property.
      * 
      * @return the unknownDurationFormat value.
      */
     public String unknownDurationFormat() {
         return this.unknownDurationFormat;
+    }
+
+    /**
+     * Set the unknownDurationFormat property: The unknownDurationFormat property.
+     * 
+     * @param unknownDurationFormat the unknownDurationFormat value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withUnknownDurationFormat(String unknownDurationFormat) {
+        this.unknownDurationFormat = unknownDurationFormat;
+        return this;
     }
 
     /**
@@ -223,12 +376,34 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Set the unknownDateTimeFormat property: The unknownDateTimeFormat property.
+     * 
+     * @param unknownDateTimeFormat the unknownDateTimeFormat value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withUnknownDateTimeFormat(String unknownDateTimeFormat) {
+        this.unknownDateTimeFormat = unknownDateTimeFormat;
+        return this;
+    }
+
+    /**
      * Get the unknownBytes property: The unknownBytes property.
      * 
      * @return the unknownBytes value.
      */
     public String unknownBytes() {
         return this.unknownBytes;
+    }
+
+    /**
+     * Set the unknownBytes property: The unknownBytes property.
+     * 
+     * @param unknownBytes the unknownBytes value to set.
+     * @return the Encoded object itself.
+     */
+    public Encoded withUnknownBytes(String unknownBytes) {
+        this.unknownBytes = unknownBytes;
+        return this;
     }
 
     /**
