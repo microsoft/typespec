@@ -8,10 +8,19 @@ export interface EmitFileOptions {
   newLine?: NewLine;
 }
 
-const emittedFilesPaths: string[] = [];
-export function flushEmittedFilesPaths(): string[] {
-  return emittedFilesPaths.splice(0, emittedFilesPaths.length);
+const emittedFilesPerProgramKey = Symbol.for("TYPESPEC_EMITTED_FILES_PATHS");
+if ((globalThis as any)[emittedFilesPerProgramKey] === undefined) {
+  (globalThis as any)[emittedFilesPerProgramKey] = new WeakMap<Program, string[]>();
 }
+
+export function getEmittedFilesForProgram(program: Program): string[] {
+  const existing = (globalThis as any)[emittedFilesPerProgramKey].get(program);
+  if (existing) return existing;
+  const val: string[] = [];
+  (globalThis as any)[emittedFilesPerProgramKey].set(program, val);
+  return val;
+}
+
 /**
  * Helper to emit a file.
  * @param program TypeSpec Program
@@ -25,8 +34,7 @@ export async function emitFile(program: Program, options: EmitFileOptions): Prom
     options.newLine && options.newLine === "crlf"
       ? options.content.replace(/(\r\n|\n|\r)/gm, "\r\n")
       : options.content;
-
-  emittedFilesPaths.push(options.path);
+  getEmittedFilesForProgram(program).push(options.path);
 
   return await program.host.writeFile(options.path, content);
 }
