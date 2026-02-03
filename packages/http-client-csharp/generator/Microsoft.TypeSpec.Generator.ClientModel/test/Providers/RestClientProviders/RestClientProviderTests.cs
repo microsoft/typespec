@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -1583,6 +1584,136 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var hasIfWrappedContentType = statements!.Any(s => s.ToDisplayString().Contains(wrappedStatement));
             Assert.IsFalse(hasIfWrappedContentType,
                 $"Content-Type should NOT be wrapped in an if statement for required content, but found:\n{statementsString}");
+        }
+
+        [Test]
+        public async Task PageSizeParameterCasingPreservedFromLastContractView()
+        {
+            var pageSizeParam = InputFactory.QueryParameter("maxSizepaging", InputPrimitiveType.Int32,
+                isRequired: false, serializedName: "maxSizepaging");
+
+            List<InputParameter> parameters =
+            [
+                pageSizeParam,
+            ];
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("maxSizepaging", InputPrimitiveType.Int32, isRequired: false,
+                    location: InputRequestLocation.Query, serializedName: "maxSizepaging"),
+            ];
+
+            var inputModel = InputFactory.Model("Item", properties:
+            [
+                InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var pagingMetadata = new InputPagingServiceMetadata(
+                ["value"],
+                new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, []),
+                null,
+                ["maxSizepaging"]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "PagedItems",
+                    properties: [
+                        InputFactory.Property("value", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url)
+                    ]));
+
+            var operation = InputFactory.Operation("GetItems", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "GetItems",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: methodParameters);
+
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParams = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience, clientProvider!);
+
+            var pageSizeParameter = methodParams.FirstOrDefault(p =>
+                string.Equals(p.Name, "maxsizepaging", StringComparison.Ordinal) ||
+                string.Equals(p.Name, "maxSizepaging", StringComparison.Ordinal));
+
+            Assert.IsNotNull(pageSizeParameter, "Page size parameter should be present in method parameters");
+            Assert.AreEqual("maxsizepaging", pageSizeParameter!.Name,
+                "Parameter name should be 'maxsizepaging' (from LastContractView), not 'maxSizepaging' (from input)");
+        }
+
+        [Test]
+        public async Task PageSizeParameterUsesConstantWhenNotInLastContractView()
+        {
+            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32,
+                isRequired: false, serializedName: "maxpagesize");
+
+            List<InputParameter> parameters =
+            [
+                pageSizeParam,
+            ];
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false,
+                    location: InputRequestLocation.Query, serializedName: "maxpagesize"),
+            ];
+
+            var inputModel = InputFactory.Model("Item", properties:
+            [
+                InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var pagingMetadata = new InputPagingServiceMetadata(
+                ["value"],
+                new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, []),
+                null,
+                ["maxpagesize"]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "PagedItems",
+                    properties: [
+                        InputFactory.Property("value", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url)
+                    ]));
+
+            var operation = InputFactory.Operation("GetItems", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "GetItems",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: methodParameters);
+
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParams = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience, clientProvider!);
+
+            var pageSizeParameter = methodParams.FirstOrDefault(p =>
+                string.Equals(p.Name, "maxPageSize", StringComparison.Ordinal) ||
+                string.Equals(p.Name, "maxpagesize", StringComparison.Ordinal));
+
+            Assert.IsNotNull(pageSizeParameter, "Page size parameter should be present in method parameters");
+            Assert.AreEqual("maxPageSize", pageSizeParameter!.Name,
+                "Parameter name should be 'maxPageSize' (from constant), not 'maxpagesize' (from input)");
         }
     }
 }
