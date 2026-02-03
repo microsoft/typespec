@@ -192,10 +192,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
-            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.WireInfo.SerializedName));
+            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name), StringComparer.OrdinalIgnoreCase);
             foreach (var param in ClientProvider.ClientParameters)
             {
-                paramMap[param.WireInfo.SerializedName] = param;
+                paramMap[param.Name] = param;
             }
 
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
@@ -282,9 +282,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 foreach (var param in nextLink.ReInjectedParameters)
                 {
                     var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
-                    if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.WireInfo.SerializedName, out var paramInSignature))
+                    if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
                     {
-                        reinjectedParamsMap[param.SerializedName] = paramInSignature;
+                        reinjectedParamsMap[param.Name] = paramInSignature;
                     }
                 }
             }
@@ -298,9 +298,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (pageSizeParameter != null)
                 {
                     var pageSizeParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(pageSizeParameter);
-                    if (pageSizeParam != null && paramMap.TryGetValue(pageSizeParam.WireInfo.SerializedName, out var paramInSignature))
+                    if (pageSizeParam != null && paramMap.TryGetValue(pageSizeParam.Name, out var paramInSignature))
                     {
-                        reinjectedParamsMap[pageSizeParameter.SerializedName] = paramInSignature;
+                        reinjectedParamsMap[pageSizeParameter.Name] = paramInSignature;
                     }
                 }
             }
@@ -648,14 +648,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
-                var clientParam = ClientProvider.ClientParameters.FirstOrDefault(p => p.WireInfo.SerializedName == paramName || p.Name == paramName);
+                var isClientParameter = ClientProvider.ClientParameters.Any(p => p.WireInfo.SerializedName == paramName || p.Name == paramName);
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
                 InputParameter? inputParam = null;
-                if (clientParam != null)
+                if (isClientParameter)
                 {
-                    GetParamInfo(clientParam, out type, out serializationFormat, out valueExpression);
+                    GetParamInfo(paramMap[paramName], out type, out serializationFormat, out valueExpression);
                 }
                 else
                 {
@@ -670,7 +670,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        throw new InvalidOperationException($"The location of parameter {inputParam.SerializedName} should be path or uri");
+                        throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
                     }
                 }
                 string? format = serializationFormat?.ToFormatSpecifier();
