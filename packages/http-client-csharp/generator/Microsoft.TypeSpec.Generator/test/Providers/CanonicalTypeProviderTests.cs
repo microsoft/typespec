@@ -282,9 +282,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 return
                 [
                     // customized by the NamedSymbol
-                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty", false)),
+                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty", false, false)),
                     // not customized by the NamedSymbol
-                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "specProperty", false)),
+                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "specProperty", false, false)),
                     // customized by the NamedSymbol with null wire info
                     new PropertyProvider($"Null Wire Info property", MethodSignatureModifiers.Public, typeof(string), "NullWireInfoProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(nullInputWireInfo))
                 ];

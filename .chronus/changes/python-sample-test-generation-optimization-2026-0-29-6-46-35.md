@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Add test case
+Optimize sdk generation performance
