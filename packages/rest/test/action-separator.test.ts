@@ -33,7 +33,7 @@ describe("rest: @actionSeparator decorator", () => {
     });
 
     it("accepts Namespace as target without compilation errors", async () => {
-      // This test verifies that @actionSeparator can be applied to namespaces without errors  
+      // This test verifies that @actionSeparator can be applied to namespaces without errors
       const diagnostics = await Tester.diagnose(`
         @TypeSpec.Rest.actionSeparator(":")
         namespace TestNamespace {

@@ -291,13 +291,13 @@ export function $actionSeparator(
  */
 export function getActionSeparator(program: Program, entity: Type): string | undefined {
   const stateMap = program.stateMap(actionSeparatorKey);
-  
+
   // First, check if the entity itself has an action separator
   const directSeparator = stateMap.get(entity);
   if (directSeparator !== undefined) {
     return directSeparator;
   }
-  
+
   // If entity is an operation, check its interface, then namespace
   if (entity.kind === "Operation") {
     // Check the interface
@@ -306,24 +306,24 @@ export function getActionSeparator(program: Program, entity: Type): string | und
       if (interfaceSeparator !== undefined) {
         return interfaceSeparator;
       }
-      
+
       // Check the namespace of the interface
       if (entity.interface.namespace) {
         return getNamespaceActionSeparator(program, entity.interface.namespace);
       }
     }
-    
+
     // Check the namespace directly if no interface
     if (entity.namespace) {
       return getNamespaceActionSeparator(program, entity.namespace);
     }
   }
-  
+
   // If entity is an interface, check its namespace
   if (entity.kind === "Interface" && entity.namespace) {
     return getNamespaceActionSeparator(program, entity.namespace);
   }
-  
+
   return undefined;
 }
 
@@ -332,18 +332,18 @@ export function getActionSeparator(program: Program, entity: Type): string | und
  */
 function getNamespaceActionSeparator(program: Program, namespace: Namespace): string | undefined {
   const stateMap = program.stateMap(actionSeparatorKey);
-  
+
   // Check current namespace
   const separator = stateMap.get(namespace);
   if (separator !== undefined) {
     return separator;
   }
-  
+
   // Check parent namespace recursively
   if (namespace.namespace) {
     return getNamespaceActionSeparator(program, namespace.namespace);
   }
-  
+
   return undefined;
 }
 
