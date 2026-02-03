@@ -5,6 +5,9 @@ import {
   SdkClientType,
   SdkEnumType,
   SdkHttpOperation,
+  SdkModelType,
+  SdkType,
+  SdkUnionType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { CSharpEmitterContext } from "../sdk-context.js";
@@ -152,6 +155,81 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
   }
 }
 
+function indexModelsUsedInUnions(sdkContext: CSharpEmitterContext): Record<string, Set<string>> {
+  const unionUsageMap: Record<string, Set<string>> = {};
+  for (const u of sdkContext.sdkPackage.unions.filter((u) => u.kind === "union")) {
+    const modelsInUnion = new Set<string>(
+      u.variantTypes.filter((m) => m.kind === "model").map((m) => m.name),
+    );
+    for (const modelName of modelsInUnion) {
+      if (!unionUsageMap[modelName]) {
+        unionUsageMap[modelName] = new Set<string>();
+      }
+      unionUsageMap[modelName].add(u.name);
+    }
+  }
+  return unionUsageMap;
+}
+
+function duplicateModelsUsedInUnions(sdkContext: CSharpEmitterContext) {
+  const modelUnionUsageMap = indexModelsUsedInUnions(sdkContext);
+  const entries = Object.entries(modelUnionUsageMap).filter(
+    ([, unionNames]) => unionNames.size > 1,
+  );
+  if (entries.length === 0) {
+    return;
+  }
+  const modelsLookup = Object.fromEntries(
+    Array.from(sdkContext.__typeCache.types.keys())
+      .filter((k) => k.kind === "model")
+      .map((k) => {
+        return [k.name, k];
+      }),
+  );
+  const unionsLookup = Object.fromEntries(
+    sdkContext.sdkPackage.unions
+      .filter((u) => u.kind === "union")
+      .map((u) => {
+        return [u.name, u];
+      }),
+  );
+  for (const [modelName, unionNames] of entries) {
+    duplicateModelInUnion(modelName, unionNames, sdkContext, modelsLookup, unionsLookup);
+  }
+}
+
+function duplicateModelInUnion(
+  modelName: string,
+  unionNames: Set<string>,
+  sdkContext: CSharpEmitterContext,
+  modelsLookup: {
+    [k: string]: SdkModelType;
+  },
+  unionsLookup: {
+    [k: string]: SdkUnionType<SdkType>;
+  },
+) {
+  const modelType = modelsLookup[modelName];
+  for (const unionName of unionNames) {
+    const unionType = unionsLookup[unionName];
+    // Create a duplicate of the model
+    const duplicatedModel = {
+      ...modelType,
+      name: `${modelType.name}For${unionType.name[0].toUpperCase()}${unionType.name.slice(1)}`,
+    };
+    // Update the union to use the duplicated model
+    unionType.variantTypes = unionType.variantTypes.map((vt) => {
+      if (vt.kind === "model" && vt.name === modelType.name) {
+        return duplicatedModel;
+      }
+      return vt;
+    });
+  }
+  // remove the original model from the sdk context type cache
+  sdkContext.__typeCache.types.delete(modelType);
+  delete modelsLookup[modelName];
+}
+
 function navigateModels(sdkContext: CSharpEmitterContext) {
   for (const m of sdkContext.sdkPackage.models) {
     fromSdkType(sdkContext, m);
@@ -159,6 +237,7 @@ function navigateModels(sdkContext: CSharpEmitterContext) {
   for (const e of sdkContext.sdkPackage.enums) {
     fromSdkType(sdkContext, e);
   }
+  duplicateModelsUsedInUnions(sdkContext);
   for (const u of sdkContext.sdkPackage.unions) {
     fromSdkType(sdkContext, u);
   }
