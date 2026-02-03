@@ -87,6 +87,7 @@ The C# HTTP client package consists of two main components:
 2. **Make your changes** to the codebase
 
 3. **Build your changes**:
+
    - Build everything:
      ```bash
      npm run build

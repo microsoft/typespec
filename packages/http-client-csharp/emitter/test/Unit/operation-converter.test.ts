@@ -376,7 +376,7 @@ describe("Operation Converter", () => {
           }
           
           @post
-          op withOptionalBody(@body body?: BodyModel): void;
+          op withOptionalBody(@bodyRoot body?: BodyModel): void;
           `,
           runner,
         );
@@ -389,6 +389,14 @@ describe("Operation Converter", () => {
 
         const method = root.clients[0].methods[0];
         ok(method);
+
+        const contentTypeMethodParam = method.parameters.find((p) => p.name === "contentType");
+        ok(contentTypeMethodParam, "Content-Type parameter should exist in service method");
+        strictEqual(
+          contentTypeMethodParam.type.kind,
+          "constant",
+          "Content-type should remain a constant type, not transformed to enum",
+        );
 
         // validate operation
         const operation = method.operation;

@@ -161,7 +161,7 @@ function fromSdkClient(
             crossLanguageDefinitionId:
               parameter.type.kind === "string" ? "TypeSpec.string" : "TypeSpec.url",
           }
-        : fromSdkType(sdkContext, parameter.type); // TODO: consolidate with converter.fromSdkEndpointType
+        : fromSdkType(sdkContext, parameter.type, false); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         kind: "endpoint",
         name: parameter.name,

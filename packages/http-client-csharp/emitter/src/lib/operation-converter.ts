@@ -64,7 +64,7 @@ import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { fromSdkType } from "./type-converter.js";
-import { getClientNamespaceString, isReadOnly } from "./utils.js";
+import { getClientNamespaceString, isReadOnly, shouldWrapConstantInEnum } from "./utils.js";
 
 export function fromSdkServiceMethod(
   sdkContext: CSharpEmitterContext,
@@ -324,13 +324,17 @@ function updateMethodParameter(
     methodParameter.type,
     rootApiVersions.length > 0,
   );
+  // for content type parameter
+  if (isContentType(operationHttpParameter)) {
+    methodParameter.type = fromSdkType(sdkContext, operationHttpParameter.type, false);
+  }
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
     if (methodParameter.type.kind === "constant") {
       methodParameter.type = fromSdkType(
         sdkContext,
         operationHttpParameter.type,
-        operationHttpParameter,
+        shouldWrapConstantInEnum(operationHttpParameter),
       );
     }
   }
@@ -423,7 +427,7 @@ function fromQueryParameter(
   p: SdkQueryParameter,
   rootApiVersions: string[],
 ): InputQueryParameter {
-  const parameterType = fromSdkType(sdkContext, p.type, p);
+  const parameterType = fromSdkType(sdkContext, p.type, shouldWrapConstantInEnum(p));
 
   const retVar: InputQueryParameter = {
     kind: "query",
@@ -452,7 +456,7 @@ function fromPathParameter(
   p: SdkPathParameter,
   rootApiVersions: string[],
 ): InputPathParameter {
-  const parameterType = fromSdkType(sdkContext, p.type, p);
+  const parameterType = fromSdkType(sdkContext, p.type, shouldWrapConstantInEnum(p));
 
   const retVar: InputPathParameter = {
     kind: "path",
@@ -483,7 +487,7 @@ function fromHeaderParameter(
   p: SdkHeaderParameter,
   rootApiVersions: string[],
 ): InputHeaderParameter {
-  const parameterType = fromSdkType(sdkContext, p.type, p);
+  const parameterType = fromSdkType(sdkContext, p.type, shouldWrapConstantInEnum(p));
 
   const retVar: InputHeaderParameter = {
     kind: "header",
@@ -513,7 +517,7 @@ function fromBodyParameter(
   p: SdkBodyParameter,
   rootApiVersions: string[],
 ): InputBodyParameter {
-  const parameterType = fromSdkType(sdkContext, p.type, p);
+  const parameterType = fromSdkType(sdkContext, p.type, shouldWrapConstantInEnum(p));
 
   const retVar: InputBodyParameter = {
     kind: "body",
@@ -546,7 +550,7 @@ export function fromMethodParameter(
     return retVar as InputMethodParameter;
   }
 
-  const parameterType = fromSdkType(sdkContext, p.type, p, namespace);
+  const parameterType = fromSdkType(sdkContext, p.type, shouldWrapConstantInEnum(p), namespace);
 
   retVar = {
     kind: "method",
@@ -582,7 +586,7 @@ function loadLongRunningMetadata(
       statusCodes: method.operation.verb === "delete" ? [204] : [200],
       bodyType:
         method.lroMetadata.finalResponse?.envelopeResult !== undefined
-          ? fromSdkType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
+          ? fromSdkType(sdkContext, method.lroMetadata.finalResponse.envelopeResult, false)
           : undefined,
     } as OperationResponse,
     resultPath: method.lroMetadata.finalResultPath,
@@ -634,7 +638,7 @@ function fromSdkServiceResponseHeaders(
         nameInResponse: h.serializedName,
         summary: h.summary,
         doc: h.doc,
-        type: fromSdkType(sdkContext, h.type),
+        type: fromSdkType(sdkContext, h.type, false),
       }) as HttpResponseHeader,
   );
 }
@@ -930,8 +934,8 @@ function getResponseType(
 
   // handle anonymous union enum response types by defaulting to the enum value type in the case of
   if (type.kind === "enum" && type.isUnionAsEnum && type.isGeneratedName) {
-    return fromSdkType(sdkContext, type.valueType);
+    return fromSdkType(sdkContext, type.valueType, false);
   }
 
-  return fromSdkType(sdkContext, type);
+  return fromSdkType(sdkContext, type, false);
 }
