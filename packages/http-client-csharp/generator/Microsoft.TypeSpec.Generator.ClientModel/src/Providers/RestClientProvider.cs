@@ -26,7 +26,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string TopParameterName = "top";
         private const string MaxCountParameterName = "maxCount";
         private const string MaxPageSizeParameterName = "maxPageSize";
-        private const string MaxPageSizeLowerCase = "maxpagesize";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -892,8 +891,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return existingParam;
             }
 
-            // Normalize badly-cased "maxpagesize" variants to "maxPageSize"
-            if (string.Equals(originalName, MaxPageSizeLowerCase, StringComparison.OrdinalIgnoreCase))
+            // Normalize badly-cased "maxpagesize" variants to Camel Case
+            if (string.Equals(originalName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase))
             {
                 return MaxPageSizeParameterName;
             }
@@ -970,6 +969,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var pageSizeParameterName = GetPageSizeParameterName(serviceMethod as InputPagingServiceMethod);
 
+            string? correctedPageSizeName = null;
+            if (pageSizeParameterName != null)
+            {
+                correctedPageSizeName = GetCorrectedPageSizeName(pageSizeParameterName, client);
+            }
+
             ModelProvider? spreadSource = null;
             if (methodType == ScmMethodKind.Convenience)
             {
@@ -1023,12 +1028,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 // For paging operations, ensure page size parameter uses the correct casing
-                if (pageSizeParameterName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                if (correctedPageSizeName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                 {
-                    string correctedName = GetCorrectedPageSizeName(inputParam.Name, client);
-                    if (!string.Equals(inputParam.Name, correctedName, StringComparison.Ordinal))
+                    if (!string.Equals(inputParam.Name, correctedPageSizeName, StringComparison.Ordinal))
                     {
-                        inputParam.Update(name: correctedName);
+                        inputParam.Update(name: correctedPageSizeName);
                     }
                 }
 

@@ -1715,5 +1715,75 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("maxPageSize", pageSizeParameter!.Name,
                 "Parameter name should be 'maxPageSize' (from constant), not 'maxpagesize' (from input)");
         }
+
+        [Test]
+        public void PageSizeParameterSerializedNameUsedInCreateRequestMethod()
+        {
+            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32,
+                isRequired: false, serializedName: "maxpagesize");
+
+            List<InputParameter> parameters = [pageSizeParam];
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false,
+                    location: InputRequestLocation.Query, serializedName: "maxpagesize"),
+            ];
+
+            var inputModel = InputFactory.Model("Item", properties:
+            [
+                InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var pagingMetadata = new InputPagingServiceMetadata(
+                ["value"],
+                new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, []),
+                null,
+                ["maxpagesize"]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "PagedItems",
+                    properties: [
+                        InputFactory.Property("value", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url)
+                    ]));
+
+            var operation = InputFactory.Operation("GetItems", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "GetItems",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: methodParameters);
+
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = clientProvider.RestClient;
+
+            // Get the CreateRequest method
+            var createRequestMethod = restClientProvider.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "CreateGetItemsRequest");
+
+            Assert.IsNotNull(createRequestMethod, "CreateGetItemsRequest method should exist");
+
+            // Verify the method parameter uses the corrected name
+            var methodParam = createRequestMethod!.Signature.Parameters.FirstOrDefault(p =>
+                string.Equals(p.Name, "maxPageSize", StringComparison.Ordinal));
+
+            Assert.IsNotNull(methodParam, "Method parameter should use corrected name 'maxPageSize'");
+            Assert.AreEqual("maxPageSize", methodParam!.Name,
+                "Method signature should use 'maxPageSize' (corrected from 'maxpagesize')");
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+
+            // The generated code should use the parameter name "maxPageSize" and append it to the query string
+            // The serialized name "maxpagesize" should be used in uri.AppendQuery("maxpagesize", maxPageSize, true)
+            Assert.IsTrue(file.Content.Contains("maxPageSize"),
+                "Generated code should use corrected parameter name 'maxPageSize'");
+            Assert.IsTrue(file.Content.Contains("uri.AppendQuery(\"maxpagesize\""),
+                "Generated code should use the serialized name 'maxpagesize' in the query string");
+        }
     }
 }
