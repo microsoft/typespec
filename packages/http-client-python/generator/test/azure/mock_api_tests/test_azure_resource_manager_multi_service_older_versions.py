@@ -5,7 +5,12 @@
 # --------------------------------------------------------------------------
 import pytest
 from azure.resourcemanager.multiserviceolderversions.combined import CombinedClient
-from azure.resourcemanager.multiserviceolderversions.combined.models import VirtualMachine, Disk, VirtualMachineProperties, DiskProperties
+from azure.resourcemanager.multiserviceolderversions.combined.models import (
+    VirtualMachine,
+    Disk,
+    VirtualMachineProperties,
+    DiskProperties,
+)
 
 
 @pytest.fixture
