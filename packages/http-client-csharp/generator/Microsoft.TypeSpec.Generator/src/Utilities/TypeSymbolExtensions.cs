@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator
@@ -200,14 +199,6 @@ namespace Microsoft.TypeSpec.Generator
                 ns = string.Join('.', pieces.Take(pieces.Length - 2));
             }
 
-            // If the namespace is empty or the type is an error type, try to resolve it through the TypeFactory
-            // This can happen when Roslyn can't fully resolve a generated type in customization code
-            if ((string.IsNullOrEmpty(ns) || typeSymbol.TypeKind == TypeKind.Error || isNullableUnknownType) &&
-                TryResolveTypeFromTypeFactory(name, isNullable, out var resolvedType))
-            {
-                return resolvedType;
-            }
-
             CSharpType? baseType = null;
             if (typeSymbol.BaseType is not null &&
                 typeSymbol.BaseType.TypeKind != TypeKind.Error &&
@@ -230,41 +221,6 @@ namespace Microsoft.TypeSpec.Generator
                 underlyingEnumType: enumUnderlyingType != null
                     ? GetCSharpType(enumUnderlyingType).FrameworkType
                     : null);
-        }
-
-        private static bool TryResolveTypeFromTypeFactory(string typeName, bool isNullable, out CSharpType resolvedType)
-        {
-            resolvedType = null!;
-
-            // Try to find the type in the input models
-            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
-            var inputModelTypeNameMap = typeFactory.InputModelTypeNameMap;
-            if (inputModelTypeNameMap.TryGetValue(typeName, out var inputModelType))
-            {
-                var type = typeFactory.CreateCSharpType(inputModelType);
-                if (type != null)
-                {
-                    resolvedType = isNullable ? type.WithNullable(true) : type;
-                    return true;
-                }
-            }
-
-            // Try to find the type in the input enums
-            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            foreach (var enumType in inputNamespace.Enums)
-            {
-                if (enumType.Name.ToIdentifierName() == typeName)
-                {
-                    var type = typeFactory.CreateCSharpType(enumType);
-                    if (type != null)
-                    {
-                        resolvedType = isNullable ? type.WithNullable(true) : type;
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
 
         internal static bool ContainsTypeAsArgument(ITypeSymbol potentialGenericType, ITypeSymbol targetType)

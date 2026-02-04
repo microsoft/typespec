@@ -47,6 +47,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     inputType = GetInputEnumType(specProperty?.Type);
                 }
 
+                // If we still don't have an input type (e.g., custom property without spec property),
+                // try to look up the type by name in the TypeFactory
+                if (inputType == null)
+                {
+                    inputType = TryFindInputTypeByName(type.Name);
+                }
+
                 if (inputType == null)
                 {
                     return type;
@@ -62,6 +69,29 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             return type;
+        }
+
+        private static InputType? TryFindInputTypeByName(string typeName)
+        {
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+
+            // Try to find in input models
+            if (typeFactory.InputModelTypeNameMap.TryGetValue(typeName, out var inputModelType))
+            {
+                return inputModelType;
+            }
+
+            // Try to find in input enums
+            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
+            foreach (var enumType in inputNamespace.Enums)
+            {
+                if (enumType.Name == typeName)
+                {
+                    return enumType;
+                }
+            }
+
+            return null;
         }
 
         private static bool IsCustomizedEnumProperty(
