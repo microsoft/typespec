@@ -84,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // This handles cases where the type is renamed using CodeGenType attribute
             if (typeFactory.TypeProvidersByName.TryGetValue(typeName, out var typeProvider))
             {
-                return typeProvider?.Type;
+                return typeProvider.Type;
             }
 
             return null;
