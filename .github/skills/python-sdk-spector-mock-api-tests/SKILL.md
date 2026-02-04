@@ -39,7 +39,7 @@ Test-writing progress:
 - [ ] Find existing test file to extend (or create a new one)
 - [ ] Implement sync + async test(s) that match the case’s request/response expectations
 - [ ] Update test requirements only if a new dependency is introduced
-- [ ] Run the smallest relevant test command(s) and fix failures
+- [ ] Format changed python files with Black (`python -m black <paths> -l 120`)
 
 ## Step 1 — Identify the Spector case link
 
@@ -136,26 +136,13 @@ Only if your new/extended test imports a package not already available:
 
 Avoid adding dependencies unless strictly required by the test.
 
-## Step 6 — Run and fix (tight feedback loop)
+## Step 6 — Format changed files
 
-Run the smallest relevant test(s):
+Format any python files you changed with Black using a 120 character line length:
 
-- Azure flavor (from `packages/http-client-python/generator/test/azure`):
-  - `tox -e test -- mock_api_tests/test_<file>.py`
-  - `tox -e test -- mock_api_tests/asynctests/test_<file>_async.py`
-- Unbranded flavor (from `packages/http-client-python/generator/test/unbranded`):
-  - `tox -e test -- mock_api_tests/test_<file>.py`
-  - `tox -e test -- mock_api_tests/asynctests/test_<file>_async.py`
-- Generic-only tests (from either azure or unbranded test folder):
-  - `tox -e test -- ../generic_mock_api_tests/test_<file>.py`
-  - `tox -e test -- ../generic_mock_api_tests/asynctests/test_<file>_async.py`
+- `python -m black <paths> -l 120`
 
-If failures occur:
-
-1. Fix imports/module path first.
-2. Fix request shaping (headers/query/body) to match the case.
-3. Fix response assertions (status/body/model shapes).
-4. Re-run the same focused command until it passes.
+Replace `<paths>` with the specific files and/or folders you modified.
 
 ## Notes
 
