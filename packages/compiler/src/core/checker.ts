@@ -136,7 +136,6 @@ import {
   SymbolTable,
   SyntaxKind,
   TemplateArgumentNode,
-  TemplateDeclarationNode,
   TemplateParameter,
   TemplateParameterDeclarationNode,
   TemplateableNode,
@@ -245,6 +244,13 @@ class CheckContext<Mapper extends TypeMapper | undefined = TypeMapper | undefine
    */
   maskFlags(flags: CheckFlags): CheckContext<Mapper> {
     return new CheckContext(this.mapper, this.flags & ~flags, this.#templateParametersObserved);
+  }
+
+  /**
+   * Returns true if ALL of the given flags are enabled in this context.
+   */
+  hasFlags(flags: CheckFlags): boolean {
+    return (this.flags & flags) === flags;
   }
 
   /**
@@ -715,7 +721,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return errorType;
     }
     if (entity.kind === "TemplateParameter") {
-      // TODO/witemple was observing template parameter usage here, is that needed?
       if (entity.constraint?.valueType) {
         // means this template constraint will accept values
         reportCheckerDiagnostic(
@@ -1709,7 +1714,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       } else if (symbolLinks.declaredType) {
         baseType = symbolLinks.declaredType;
       } else {
-        // TODO/witemple - what kind of context updates do we need to make here, if any?
         if (sym.flags & SymbolFlags.Member) {
           baseType = checkMemberSym(ctx, sym);
         } else {
@@ -2512,7 +2516,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       operationType.decorators.push(...checkDecorators(ctx, operationType, node));
 
       return finishType(operationType, {
-        skipDecorators: !!(ctx.flags & CheckFlags.InTemplateDeclaration),
+        skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
       });
     }
     // Is this a definition or reference?
@@ -3847,7 +3851,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         decorators.push(...checkDecorators(ctx, type, node));
 
         linkMapper(type, ctx.mapper);
-        finishType(type, { skipDecorators: !!(ctx.flags & CheckFlags.InTemplateDeclaration) });
+        finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
 
         lateBindMemberContainer(type);
         lateBindMembers(type);
@@ -3867,28 +3871,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return type;
   }
 
-  function shouldRunDecorators(ctx: CheckContext, node: TemplateDeclarationNode) {
-    if (ctx.flags & CheckFlags.InTemplateDeclaration) {
-      return false;
-    }
+  // function shouldRunDecorators(ctx: CheckContext, node: TemplateDeclarationNode) {
+  //   if (ctx.flags & CheckFlags.InTemplateDeclaration) {
+  //     return false;
+  //   }
 
-    // Node is not a template we should create the type.
-    if (node.templateParameters.length === 0) {
-      return true;
-    }
-    // There is no mapper so we shouldn't be instantiating the template.
-    if (ctx.mapper === undefined) {
-      return false;
-    }
+  //   // Node is not a template we should create the type.
+  //   if (node.templateParameters.length === 0) {
+  //     return true;
+  //   }
+  //   // There is no mapper so we shouldn't be instantiating the template.
+  //   if (ctx.mapper === undefined) {
+  //     return false;
+  //   }
 
-    // Some of the mapper args are still template parameter so we shouldn't create the type.
-    return (
-      !ctx.mapper.partial &&
-      ctx.mapper.args.every(
-        (t) => isValue(t) || t.entityKind === "Indeterminate" || t.kind !== "TemplateParameter",
-      )
-    );
-  }
+  //   // Some of the mapper args are still template parameter so we shouldn't create the type.
+  //   return (
+  //     !ctx.mapper.partial &&
+  //     ctx.mapper.args.every(
+  //       (t) => isValue(t) || t.entityKind === "Indeterminate" || t.kind !== "TemplateParameter",
+  //     )
+  //   );
+  // }
 
   function checkModelExpression(ctx: CheckContext, node: ModelExpressionNode) {
     const links = getSymbolLinks(node.symbol);
@@ -3910,7 +3914,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       type,
       () => {
         checkModelProperties(ctx, node, properties, type);
-        finishType(type, { skipDecorators: !!(ctx.flags & CheckFlags.InTemplateDeclaration) });
+        finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
       },
     );
     return type;
@@ -4997,17 +5001,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const parentTemplate = getParentTemplateNode(prop);
     linkMapper(type, ctx.mapper);
 
-    let runDecorators = false;
-    if (!parentTemplate || shouldRunDecorators(ctx, parentTemplate)) {
+    const shouldRunDecorators = !ctx.hasFlags(CheckFlags.InTemplateDeclaration);
+    if (!parentTemplate || shouldRunDecorators) {
       const docComment = docFromCommentForSym.get(sym);
       if (docComment) {
         type.decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
-      runDecorators = true;
     }
 
     pendingResolutions.finish(sym, ResolutionKind.Type);
-    return finishType(type, { skipDecorators: !!(ctx.flags & CheckFlags.InTemplateDeclaration) });
+    return finishType(type, { skipDecorators: !shouldRunDecorators });
   }
 
   function createDocFromCommentDecorator(key: "self" | "returns" | "errors", doc: string) {
@@ -5483,7 +5486,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       stdTypes[type.name as any as keyof StdTypes] = type as any;
     }
 
-    return finishType(type, { skipDecorators: !!(ctx.flags & CheckFlags.InTemplateDeclaration) });
+    return finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
   }
 
   function checkScalarExtends(
@@ -5583,7 +5586,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     return finishType(member, {
-      skipDecorators: !!(ctx.flags & CheckFlags.InTemplateDeclaration),
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
     });
   }
 
@@ -5814,7 +5817,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     lateBindMemberContainer(interfaceType);
     lateBindMembers(interfaceType);
     return finishType(interfaceType, {
-      skipDecorators: !!(ctx.flags & CheckFlags.InTemplateDeclaration),
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
     });
   }
 
@@ -5891,7 +5894,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     lateBindMemberContainer(unionType);
     lateBindMembers(unionType);
     return finishType(unionType, {
-      skipDecorators: !!(ctx.flags & CheckFlags.InTemplateDeclaration),
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
     });
   }
 
@@ -5942,7 +5945,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       linkType(ctx, links, variantType);
     }
     return finishType(variantType, {
-      skipDecorators: !!(ctx.flags & CheckFlags.InTemplateDeclaration),
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
     });
   }
 
