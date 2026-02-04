@@ -233,7 +233,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
           return `--${key}=${value}`;
         })
         .join(" ");
-      const commandRecorded = `Copy-Item "C:/dev/typespec/packages/http-client-python/alpha/output copy.yaml" -Destination "C:/dev/typespec/packages/http-client-python/alpha/output.yaml" ; ${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlagsRecorded}`;
+      const commandRecorded = `Copy-Item "C:/dev/typespec/packages/http-client-python/alpha/output copy.yaml" -Destination "C:/dev/typespec/packages/http-client-python/alpha/output.yaml" ; ${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlagsRecorded} --debug=true`;
       fs.writeFileSync(path.join(root, "alpha", "command.txt"), commandRecorded);
 
       const blackExcludeDirs = [
