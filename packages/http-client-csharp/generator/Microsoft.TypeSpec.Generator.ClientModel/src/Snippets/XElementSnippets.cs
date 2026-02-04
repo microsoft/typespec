@@ -34,8 +34,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static ScopedApi<IEnumerable<XAttribute>> Attributes(this ScopedApi<XElement> element)
             => element.Invoke(nameof(XElement.Attributes)).As<IEnumerable<XAttribute>>();
-        public static ScopedApi<string> Name(this ScopedApi<XAttribute> attribute)
-            => attribute.Property(nameof(XAttribute.Name)).As<string>();
+
+        public static ScopedApi<XName> Name(this ScopedApi<XAttribute> attribute)
+            => attribute.Property(nameof(XAttribute.Name)).As<XName>();
 
         public static ScopedApi<string> GetLocalName(this ScopedApi<XAttribute> attribute)
             => Name(attribute).Property(nameof(XName.LocalName)).As<string>();
@@ -51,5 +52,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static ScopedApi<byte[]> GetBytesFromBase64(this ScopedApi<XElement> element, string? format)
             => ModelSerializationExtensionsSnippets.GetBytesFromBase64(element, format).As<byte[]>();
+
+        public static ScopedApi<XNamespace> Namespace(this ScopedApi<XName> name)
+            => name.Property(nameof(XName.Namespace)).As<XNamespace>();
     }
 }

@@ -61,6 +61,12 @@ namespace SampleTypeSpec
                 return null;
             }
 
+            XNamespace labelNs = "https://example.com/ns1";
+            XNamespace daysUsedNs = "https://example.com/ns2";
+            XNamespace fooItemsNs = "http://www.contoso.com/anotherbook.dtd";
+            XNamespace anotherModelNs = "http://www.contoso.com/anothermodel.dtd";
+            XNamespace modelsWithNamespacesNs = "http://www.example.com/namespace";
+
             string name = default;
             int age = default;
             bool enabled = default;
@@ -90,11 +96,19 @@ namespace SampleTypeSpec
             StringExtensibleEnum extensibleEnum = default;
             IntFixedEnum? optionalFixedEnum = default;
             IntExtensibleEnum? optionalExtensibleEnum = default;
+            string label = default;
+            int daysUsed = default;
+            IList<string> fooItems = default;
+            XmlNestedModel anotherModel = default;
+            IList<XmlModelWithNamespace> modelsWithNamespaces = default;
+            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var attr in element.Attributes())
             {
                 string localName = attr.Name.LocalName;
+                XNamespace ns = attr.Name.Namespace;
+
                 if (localName == "id")
                 {
                     id = (string)attr;
@@ -115,11 +129,18 @@ namespace SampleTypeSpec
                     xmlIdentifier = (string)attr;
                     continue;
                 }
+                if (localName == "label" && ns == labelNs)
+                {
+                    label = (string)attr;
+                    continue;
+                }
             }
 
             foreach (var child in element.Elements())
             {
                 string localName = child.Name.LocalName;
+                XNamespace ns = child.Name.Namespace;
+
                 if (localName == "name")
                 {
                     name = (string)child;
@@ -272,6 +293,45 @@ namespace SampleTypeSpec
                     optionalExtensibleEnum = new IntExtensibleEnum((int)child);
                     continue;
                 }
+                if (localName == "daysUsed" && ns == daysUsedNs)
+                {
+                    daysUsed = (int)child;
+                    continue;
+                }
+                if (localName == "fooItems" && ns == fooItemsNs)
+                {
+                    List<string> array = new List<string>();
+                    foreach (var e in child.Elements("string"))
+                    {
+                        array.Add((string)e);
+                    }
+                    fooItems = array;
+                    continue;
+                }
+                if (localName == "anotherModel" && ns == anotherModelNs)
+                {
+                    anotherModel = XmlNestedModel.DeserializeXmlNestedModel(child, options);
+                    continue;
+                }
+                if (localName == "modelsWithNamespaces")
+                {
+                    List<XmlModelWithNamespace> array = new List<XmlModelWithNamespace>();
+                    foreach (var e in child.Elements(modelsWithNamespacesNs + "XmlModelWithNamespace"))
+                    {
+                        array.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(e, options));
+                    }
+                    modelsWithNamespaces = array;
+                    continue;
+                }
+                if (localName == "unwrappedModelsWithNamespaces")
+                {
+                    if (unwrappedModelsWithNamespaces == null)
+                    {
+                        unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
+                    }
+                    unwrappedModelsWithNamespaces.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(child, options));
+                    continue;
+                }
             }
             content = element.Value;
 
@@ -305,6 +365,12 @@ namespace SampleTypeSpec
                 extensibleEnum,
                 optionalFixedEnum,
                 optionalExtensibleEnum,
+                label,
+                daysUsed,
+                fooItems,
+                anotherModel,
+                modelsWithNamespaces,
+                unwrappedModelsWithNamespaces,
                 additionalBinaryDataProperties);
         }
     }

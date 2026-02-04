@@ -183,6 +183,38 @@ namespace SampleTypeSpec
                 writer.WritePropertyName("optionalExtensibleEnum"u8);
                 writer.WriteNumberValue(OptionalExtensibleEnum.Value.ToSerialInt32());
             }
+            writer.WritePropertyName("label"u8);
+            writer.WriteStringValue(Label);
+            writer.WritePropertyName("daysUsed"u8);
+            writer.WriteNumberValue(DaysUsed);
+            writer.WritePropertyName("fooItems"u8);
+            writer.WriteStartArray();
+            foreach (string item in FooItems)
+            {
+                if (item == null)
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
+                writer.WriteStringValue(item);
+            }
+            writer.WriteEndArray();
+            writer.WritePropertyName("anotherModel"u8);
+            writer.WriteObjectValue(AnotherModel, options);
+            writer.WritePropertyName("modelsWithNamespaces"u8);
+            writer.WriteStartArray();
+            foreach (XmlModelWithNamespace item in ModelsWithNamespaces)
+            {
+                writer.WriteObjectValue(item, options);
+            }
+            writer.WriteEndArray();
+            writer.WritePropertyName("unwrappedModelsWithNamespaces"u8);
+            writer.WriteStartArray();
+            foreach (XmlModelWithNamespace item in UnwrappedModelsWithNamespaces)
+            {
+                writer.WriteObjectValue(item, options);
+            }
+            writer.WriteEndArray();
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -254,6 +286,12 @@ namespace SampleTypeSpec
             StringExtensibleEnum extensibleEnum = default;
             IntFixedEnum? optionalFixedEnum = default;
             IntExtensibleEnum? optionalExtensibleEnum = default;
+            string label = default;
+            int daysUsed = default;
+            IList<string> fooItems = default;
+            XmlNestedModel anotherModel = default;
+            IList<XmlModelWithNamespace> modelsWithNamespaces = default;
+            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -490,6 +528,58 @@ namespace SampleTypeSpec
                     optionalExtensibleEnum = new IntExtensibleEnum(prop.Value.GetInt32());
                     continue;
                 }
+                if (prop.NameEquals("label"u8))
+                {
+                    label = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("daysUsed"u8))
+                {
+                    daysUsed = prop.Value.GetInt32();
+                    continue;
+                }
+                if (prop.NameEquals("fooItems"u8))
+                {
+                    List<string> array = new List<string>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        if (item.ValueKind == JsonValueKind.Null)
+                        {
+                            array.Add(null);
+                        }
+                        else
+                        {
+                            array.Add(item.GetString());
+                        }
+                    }
+                    fooItems = array;
+                    continue;
+                }
+                if (prop.NameEquals("anotherModel"u8))
+                {
+                    anotherModel = XmlNestedModel.DeserializeXmlNestedModel(prop.Value, options);
+                    continue;
+                }
+                if (prop.NameEquals("modelsWithNamespaces"u8))
+                {
+                    List<XmlModelWithNamespace> array = new List<XmlModelWithNamespace>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(item, options));
+                    }
+                    modelsWithNamespaces = array;
+                    continue;
+                }
+                if (prop.NameEquals("unwrappedModelsWithNamespaces"u8))
+                {
+                    List<XmlModelWithNamespace> array = new List<XmlModelWithNamespace>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(item, options));
+                    }
+                    unwrappedModelsWithNamespaces = array;
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
@@ -525,6 +615,12 @@ namespace SampleTypeSpec
                 extensibleEnum,
                 optionalFixedEnum,
                 optionalExtensibleEnum,
+                label,
+                daysUsed,
+                fooItems,
+                anotherModel,
+                modelsWithNamespaces,
+                unwrappedModelsWithNamespaces,
                 additionalBinaryDataProperties);
         }
 

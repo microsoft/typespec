@@ -418,5 +418,104 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public async Task XmlDeserializationHandlesAttributeWithNamespace()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("id", attribute: true)),
+                    InputFactory.Property("label", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("label", attribute: true, @namespace: new("https://example.com/ns1", "ns1"))),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("name"))
+                ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel]);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "DeserializeTestXmlModel"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task XmlDeserializationHandlesElementWithNamespace()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("id")),
+                    InputFactory.Property("category", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("category", @namespace: new("https://example.com/ns1", "ns1")))
+                ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel]);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "DeserializeTestXmlModel"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ExplicitOperatorForXmlOnlyModel()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("name"))
+                ]);
+
+            var (_, serialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputModel);
+            var method = serialization.Methods.FirstOrDefault(m => m.Signature.Name == "TestXmlModel");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization,
+                name => name == "TestXmlModel"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ExplicitOperatorForJsonAndXmlModel()
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, wireName: "name", xmlSerializationOptions: new("name"))
+                ]);
+
+            var (_, serialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputModel);
+            var method = serialization.Methods.FirstOrDefault(m => m.Signature.Name == "TestModel");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization,
+                name => name == "TestModel"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

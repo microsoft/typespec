@@ -311,6 +311,12 @@ model AnotherDynamicModel {
   bar: string;
 }
 
+@nsDeclarations
+enum XmlNamespaces {
+  ns1: "https://example.com/ns1",
+  ns2: "https://example.com/ns2",
+}
+
 @doc("An advanced XML model for testing various property types and XML features.")
 @Xml.name("AdvancedXmlModel")
 model XmlAdvancedModel {
@@ -411,6 +417,24 @@ model XmlAdvancedModel {
 
   @doc("An optional extensible enum property")
   optionalExtensibleEnum?: IntExtensibleEnum;
+
+  @attribute
+  @ns(XmlNamespaces.ns1)
+  label: string;
+
+  @ns(XmlNamespaces.ns2)
+  daysUsed: int32;
+
+  @ns("http://www.contoso.com/anotherbook.dtd", "foo")
+  fooItems: string[];
+
+  @ns("http://www.contoso.com/anothermodel.dtd", "bar")
+  anotherModel: XmlNestedModel;
+
+  modelsWithNamespaces: XmlModelWithNamespace[];
+
+  @unwrapped
+  unwrappedModelsWithNamespaces: XmlModelWithNamespace[];
 }
 
 @doc("A nested model for XML testing")
@@ -435,6 +459,11 @@ model XmlItem {
   @doc("Item ID as attribute")
   @attribute
   itemId: string;
+}
+
+@ns("http://www.example.com/namespace", "ns1")
+model XmlModelWithNamespace {
+  foo: string;
 }
 
 union DaysOfWeekExtensibleEnum {
@@ -731,6 +760,7 @@ model Plant {
 }
 
 @doc("Tree is a specific type of plant")
+@usage(Usage.xml | Usage.output | Usage.json )
 model Tree extends Plant {
   species: "tree";
 

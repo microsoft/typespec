@@ -42,7 +42,13 @@ namespace SampleTypeSpec
         /// <param name="data"> A bytes property. </param>
         /// <param name="fixedEnum"> A fixed enum property. </param>
         /// <param name="extensibleEnum"> An extensible enum property. </param>
-        internal XmlAdvancedModel(string name, int age, bool enabled, float score, string nullableString, string id, int version, bool isActive, string originalName, string xmlIdentifier, string content, IEnumerable<string> unwrappedStrings, IEnumerable<int> unwrappedCounts, IEnumerable<XmlItem> unwrappedItems, IEnumerable<string> wrappedColors, IEnumerable<XmlItem> items, XmlNestedModel nestedModel, IDictionary<string, string> metadata, DateTimeOffset createdAt, TimeSpan duration, BinaryData data, StringFixedEnum fixedEnum, StringExtensibleEnum extensibleEnum)
+        /// <param name="label"></param>
+        /// <param name="daysUsed"></param>
+        /// <param name="fooItems"></param>
+        /// <param name="anotherModel"></param>
+        /// <param name="modelsWithNamespaces"></param>
+        /// <param name="unwrappedModelsWithNamespaces"></param>
+        internal XmlAdvancedModel(string name, int age, bool enabled, float score, string nullableString, string id, int version, bool isActive, string originalName, string xmlIdentifier, string content, IEnumerable<string> unwrappedStrings, IEnumerable<int> unwrappedCounts, IEnumerable<XmlItem> unwrappedItems, IEnumerable<string> wrappedColors, IEnumerable<XmlItem> items, XmlNestedModel nestedModel, IDictionary<string, string> metadata, DateTimeOffset createdAt, TimeSpan duration, BinaryData data, StringFixedEnum fixedEnum, StringExtensibleEnum extensibleEnum, string label, int daysUsed, IEnumerable<string> fooItems, XmlNestedModel anotherModel, IEnumerable<XmlModelWithNamespace> modelsWithNamespaces, IEnumerable<XmlModelWithNamespace> unwrappedModelsWithNamespaces)
         {
             Name = name;
             Age = age;
@@ -68,6 +74,12 @@ namespace SampleTypeSpec
             OptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
             FixedEnum = fixedEnum;
             ExtensibleEnum = extensibleEnum;
+            Label = label;
+            DaysUsed = daysUsed;
+            FooItems = fooItems.ToList();
+            AnotherModel = anotherModel;
+            ModelsWithNamespaces = modelsWithNamespaces.ToList();
+            UnwrappedModelsWithNamespaces = unwrappedModelsWithNamespaces.ToList();
         }
 
         /// <summary> Initializes a new instance of <see cref="XmlAdvancedModel"/>. </summary>
@@ -100,8 +112,14 @@ namespace SampleTypeSpec
         /// <param name="extensibleEnum"> An extensible enum property. </param>
         /// <param name="optionalFixedEnum"> An optional fixed enum property. </param>
         /// <param name="optionalExtensibleEnum"> An optional extensible enum property. </param>
+        /// <param name="label"></param>
+        /// <param name="daysUsed"></param>
+        /// <param name="fooItems"></param>
+        /// <param name="anotherModel"></param>
+        /// <param name="modelsWithNamespaces"></param>
+        /// <param name="unwrappedModelsWithNamespaces"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal XmlAdvancedModel(string name, int age, bool enabled, float score, string optionalString, int? optionalInt, string nullableString, string id, int version, bool isActive, string originalName, string xmlIdentifier, string content, IList<string> unwrappedStrings, IList<int> unwrappedCounts, IList<XmlItem> unwrappedItems, IList<string> wrappedColors, IList<XmlItem> items, XmlNestedModel nestedModel, XmlNestedModel optionalNestedModel, IDictionary<string, string> metadata, DateTimeOffset createdAt, TimeSpan duration, BinaryData data, IDictionary<string, BinaryData> optionalRecordUnknown, StringFixedEnum fixedEnum, StringExtensibleEnum extensibleEnum, IntFixedEnum? optionalFixedEnum, IntExtensibleEnum? optionalExtensibleEnum, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal XmlAdvancedModel(string name, int age, bool enabled, float score, string optionalString, int? optionalInt, string nullableString, string id, int version, bool isActive, string originalName, string xmlIdentifier, string content, IList<string> unwrappedStrings, IList<int> unwrappedCounts, IList<XmlItem> unwrappedItems, IList<string> wrappedColors, IList<XmlItem> items, XmlNestedModel nestedModel, XmlNestedModel optionalNestedModel, IDictionary<string, string> metadata, DateTimeOffset createdAt, TimeSpan duration, BinaryData data, IDictionary<string, BinaryData> optionalRecordUnknown, StringFixedEnum fixedEnum, StringExtensibleEnum extensibleEnum, IntFixedEnum? optionalFixedEnum, IntExtensibleEnum? optionalExtensibleEnum, string label, int daysUsed, IList<string> fooItems, XmlNestedModel anotherModel, IList<XmlModelWithNamespace> modelsWithNamespaces, IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             Age = age;
@@ -132,6 +150,12 @@ namespace SampleTypeSpec
             ExtensibleEnum = extensibleEnum;
             OptionalFixedEnum = optionalFixedEnum;
             OptionalExtensibleEnum = optionalExtensibleEnum;
+            Label = label;
+            DaysUsed = daysUsed;
+            FooItems = fooItems;
+            AnotherModel = anotherModel;
+            ModelsWithNamespaces = modelsWithNamespaces;
+            UnwrappedModelsWithNamespaces = unwrappedModelsWithNamespaces;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
@@ -261,5 +285,23 @@ namespace SampleTypeSpec
 
         /// <summary> An optional extensible enum property. </summary>
         public IntExtensibleEnum? OptionalExtensibleEnum { get; }
+
+        /// <summary> Gets the Label. </summary>
+        public string Label { get; }
+
+        /// <summary> Gets the DaysUsed. </summary>
+        public int DaysUsed { get; }
+
+        /// <summary> Gets the FooItems. </summary>
+        public IList<string> FooItems { get; }
+
+        /// <summary> Gets the AnotherModel. </summary>
+        public XmlNestedModel AnotherModel { get; }
+
+        /// <summary> Gets the ModelsWithNamespaces. </summary>
+        public IList<XmlModelWithNamespace> ModelsWithNamespaces { get; }
+
+        /// <summary> Gets the UnwrappedModelsWithNamespaces. </summary>
+        public IList<XmlModelWithNamespace> UnwrappedModelsWithNamespaces { get; }
     }
 }

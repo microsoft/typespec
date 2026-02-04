@@ -182,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
                     {
-                        methods.Add(GetExplicitFromClientResultMethod(_supportsXml));
+                        methods.Add(GetExplicitFromClientResultMethod(_supportsJson, _supportsXml));
                     }
                 }
             }
@@ -239,8 +239,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. methods];
         }
 
-        private MethodProvider GetExplicitFromClientResultMethod(bool supportsXml)
+        private MethodProvider GetExplicitFromClientResultMethod(bool supportsJson, bool supportsXml)
         {
+            if (supportsJson && supportsXml)
+            {
+                return BuildJsonAndXmlExplicitFromClientResult();
+            }
+
             if (supportsXml)
             {
                 return BuildXmlExplicitFromClientResult();

@@ -35,6 +35,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(UnknownPlant))]
     [ModelReaderWriterBuildable(typeof(XmlAdvancedModel))]
     [ModelReaderWriterBuildable(typeof(XmlItem))]
+    [ModelReaderWriterBuildable(typeof(XmlModelWithNamespace))]
     [ModelReaderWriterBuildable(typeof(XmlNestedModel))]
     public partial class SampleTypeSpecContext : ModelReaderWriterContext
     {

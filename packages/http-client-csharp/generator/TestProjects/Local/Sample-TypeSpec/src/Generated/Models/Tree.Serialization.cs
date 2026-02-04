@@ -10,12 +10,13 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
     /// <summary> Tree is a specific type of plant. </summary>
-    public partial class Tree : Plant
+    public partial class Tree : Plant, IJsonModel<Tree>
     {
         /// <summary> Initializes a new instance of <see cref="Tree"/> for deserialization. </summary>
         internal Tree()
@@ -29,6 +30,11 @@ namespace SampleTypeSpec
             string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeTree(document.RootElement, options);
+                    }
                 case "X":
                     using (Stream dataStream = data.ToStream())
                     {
@@ -43,6 +49,13 @@ namespace SampleTypeSpec
         public static explicit operator Tree(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
+
+            if (response.Headers.TryGetValue("Content-Type", out string value) && value.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
+            {
+                using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+                return DeserializeTree(document.RootElement, ModelSerializationExtensions.WireOptions);
+            }
+
             using Stream stream = response.ContentStream;
             if (stream == null)
             {
@@ -51,6 +64,112 @@ namespace SampleTypeSpec
 
             return DeserializeTree(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
         }
+
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        void IJsonModel<Tree>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
+
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Tree)} does not support writing '{format}' format.");
+            }
+            base.JsonModelWriteCore(writer, options);
+            writer.WritePropertyName("age"u8);
+            writer.WriteNumberValue(Age);
+        }
+
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Tree IJsonModel<Tree>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (Tree)JsonModelCreateCore(ref reader, options);
+
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override Plant JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Tree)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeTree(document.RootElement, options);
+        }
+
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static Tree DeserializeTree(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            string species = "tree";
+            string id = default;
+            int height = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            int age = default;
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("species"u8))
+                {
+                    species = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("id"u8))
+                {
+                    id = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("height"u8))
+                {
+                    height = prop.Value.GetInt32();
+                    continue;
+                }
+                if (prop.NameEquals("age"u8))
+                {
+                    age = prop.Value.GetInt32();
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            return new Tree(species, id, height, additionalBinaryDataProperties, age);
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<Tree>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(Tree)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Tree IPersistableModel<Tree>.Create(BinaryData data, ModelReaderWriterOptions options) => (Tree)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<Tree>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="element"> The xml element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>

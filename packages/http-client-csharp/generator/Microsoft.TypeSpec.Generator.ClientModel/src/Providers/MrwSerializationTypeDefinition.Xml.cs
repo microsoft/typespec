@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -23,10 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private readonly ParameterProvider _xElementDeserializationParam = new("element", $"The xml element to deserialize.", typeof(XElement));
         private readonly ScopedApi<XElement> _xmlElementParameterSnippet;
+        private const string ContentTypeHeader = "Content-Type";
 
-        /// <summary>
-        /// Represents a property that can be deserialized from XML, categorized by its serialization type.
-        /// </summary>
         private record XmlPropertyInfo(
             string PropertyName,
             CSharpType PropertyType,
@@ -35,13 +35,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat SerializationFormat,
             IEnumerable<AttributeStatement> SerializationAttributes);
 
-        /// <summary>
-        /// Categorized XML properties for deserialization.
-        /// </summary>
+        private record XmlNamespaceInfo(string Namespace, string VariableName, VariableExpression VariableExpression);
+
         private record XmlPropertyCategories(
             List<XmlPropertyInfo>? AttributeProperties,
             List<XmlPropertyInfo>? ElementProperties,
-            XmlPropertyInfo? TextContentProperty);
+            XmlPropertyInfo? TextContentProperty,
+            Dictionary<string, XmlNamespaceInfo>? Namespaces);
 
         internal MethodProvider BuildXmlDeserializationMethod()
         {
@@ -142,6 +142,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 new IfStatement(_xmlElementParameterSnippet.Equal(Null)) { valueKindEqualsNullReturn },
                 MethodBodyStatement.EmptyLine,
+                GetXmlNamespaceDeclarations(categorizedProperties.Namespaces),
                 GetPropertyVariableDeclarations(),
                 MethodBodyStatement.EmptyLine
             };
@@ -151,6 +152,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(CreateXmlDeserializeForEachStatement(
                     _xmlElementParameterSnippet,
                     categorizedProperties.AttributeProperties,
+                    categorizedProperties.Namespaces,
                     isAttributes: true));
                 statements.Add(MethodBodyStatement.EmptyLine);
             }
@@ -160,6 +162,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(CreateXmlDeserializeForEachStatement(
                     _xmlElementParameterSnippet,
                     categorizedProperties.ElementProperties,
+                    categorizedProperties.Namespaces,
                     isAttributes: false));
             }
 
@@ -179,6 +182,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<XmlPropertyInfo>? attributeProperties = null;
             List<XmlPropertyInfo>? elementProperties = null;
             XmlPropertyInfo? textContentProperty = null;
+            Dictionary<string, XmlNamespaceInfo>? namespaces = null;
 
             var parameters = SerializationConstructor.Signature.Parameters;
 
@@ -208,6 +212,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                // Collect unique namespaces
+                if (xmlWireInfo.Namespace != null)
+                {
+                    namespaces ??= [];
+                    CollectNamespace(propertyName, xmlWireInfo.Namespace, namespaces);
+                }
+                if (xmlWireInfo.ItemsNamespace != null)
+                {
+                    namespaces ??= [];
+                    CollectNamespace(propertyName, xmlWireInfo.ItemsNamespace, namespaces);
+                }
+
                 var serializationFormat = wireInfo?.SerializationFormat ?? SerializationFormat.Default;
                 var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes);
 
@@ -226,35 +242,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 (elementProperties ??= []).Add(propertyInfo);
             }
 
-            return new XmlPropertyCategories(attributeProperties, elementProperties, textContentProperty);
+            return new XmlPropertyCategories(attributeProperties, elementProperties, textContentProperty, namespaces);
         }
 
         private ForEachStatement CreateXmlDeserializeForEachStatement(
             ScopedApi<XElement> elementParameter,
             List<XmlPropertyInfo> properties,
+            Dictionary<string, XmlNamespaceInfo>? namespaces,
             bool isAttributes)
         {
             return isAttributes switch
             {
                 true => new ForEachStatement("attr", elementParameter.Attributes(), out var attr)
                 {
-                    CreateXmlDeserializeAttributeStatements(attr.As<XAttribute>(), properties)
+                    CreateXmlDeserializeAttributeStatements(attr.As<XAttribute>(), properties, namespaces)
                 },
                 false => new ForEachStatement("child", elementParameter.Elements(), out var child)
                 {
-                    CreateXmlDeserializeElementStatements(child.As<XElement>(), properties)
+                    CreateXmlDeserializeElementStatements(child.As<XElement>(), properties, namespaces)
                 }
             };
         }
 
         private MethodBodyStatement CreateXmlDeserializeElementStatements(
             ScopedApi<XElement> childElement,
-            List<XmlPropertyInfo> elementProperties)
+            List<XmlPropertyInfo> elementProperties,
+            Dictionary<string, XmlNamespaceInfo>? namespaces)
         {
             var statements = new List<MethodBodyStatement>();
             var localNameVariable = new VariableExpression(typeof(string), "localName");
+            var nsVariable = new VariableExpression(typeof(XNamespace), "ns");
 
             statements.Add(Declare(localNameVariable, childElement.GetLocalName()));
+            if (namespaces?.Count > 0)
+            {
+                statements.AddRange(
+                    Declare(nsVariable, childElement.Property("Name").Property("Namespace").As<XNamespace>()),
+                    MethodBodyStatement.EmptyLine);
+            }
 
             foreach (var prop in elementProperties)
             {
@@ -272,10 +297,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         prop.PropertyType,
                         prop.PropertyExpression,
                         prop.XmlWireInfo,
-                        prop.SerializationFormat);
+                        prop.SerializationFormat,
+                        namespaces);
                 }
 
-                var checkIfLocalNameEquals = new IfStatement(localNameVariable.Equal(Literal(prop.XmlWireInfo.Name)))
+                // Build condition: check localName and optionally namespace
+                ScopedApi<bool> condition = localNameVariable.Equal(Literal(prop.XmlWireInfo.Name));
+                if (prop.XmlWireInfo.Namespace != null && namespaces != null && namespaces.TryGetValue(prop.XmlWireInfo.Namespace.Namespace, out var nsInfo))
+                {
+                    condition = condition.And(nsVariable.Equal(nsInfo.VariableExpression));
+                }
+
+                var checkIfLocalNameEquals = new IfStatement(condition)
                 {
                     deserializationStatement,
                     Continue
@@ -318,11 +351,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CSharpType propertyType,
             VariableExpression propertyExpression,
             XmlWireInformation xmlWireInfo,
-            SerializationFormat serializationFormat)
+            SerializationFormat serializationFormat,
+            Dictionary<string, XmlNamespaceInfo>? namespaces = null)
         {
             if (propertyType.IsList || propertyType.IsArray)
             {
-                return CreateXmlDeserializeListAssignment(childElement, propertyType, propertyExpression, xmlWireInfo, serializationFormat);
+                return CreateXmlDeserializeListAssignment(childElement, propertyType, propertyExpression, xmlWireInfo, serializationFormat, namespaces);
             }
 
             if (propertyType.IsDictionary)
@@ -339,7 +373,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CSharpType listType,
             VariableExpression listExpression,
             XmlWireInformation xmlWireInfo,
-            SerializationFormat serializationFormat)
+            SerializationFormat serializationFormat,
+            Dictionary<string, XmlNamespaceInfo>? namespaces = null)
         {
             var elementType = listType.ElementType;
             if (xmlWireInfo.Unwrapped == true)
@@ -358,7 +393,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var itemsName = xmlWireInfo.ItemsName;
                 var arrayDeclaration = Declare("array", New.List(elementType), out var listVariable);
-                var foreachStatement = ForEachStatement.Create("e", childElement.Elements(Literal(itemsName)), out ScopedApi<XElement> item)
+
+                // Build element name expression - with namespace if available
+                ValueExpression elementNameExpression;
+                if (xmlWireInfo.ItemsNamespace != null && namespaces != null && namespaces.TryGetValue(xmlWireInfo.ItemsNamespace.Namespace, out var nsInfo))
+                {
+                    elementNameExpression = new BinaryOperatorExpression("+", nsInfo.VariableExpression, Literal(itemsName)).As<XName>();
+                }
+                else
+                {
+                    elementNameExpression = Literal(itemsName);
+                }
+
+                var foreachStatement = ForEachStatement.Create("e", childElement.Elements(elementNameExpression), out ScopedApi<XElement> item)
                     .Add(new MethodBodyStatement[]
                     {
                         DeserializeXmlValue(item, elementType, serializationFormat, out var deserializedItem),
@@ -506,12 +553,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement CreateXmlDeserializeAttributeStatements(
             ScopedApi<XAttribute> attrVariable,
-            List<XmlPropertyInfo> attributeProperties)
+            List<XmlPropertyInfo> attributeProperties,
+            Dictionary<string, XmlNamespaceInfo>? namespaces)
         {
+            var hasNamespacedAttributes = attributeProperties.Any(p => p.XmlWireInfo.Namespace != null);
             var statements = new List<MethodBodyStatement>
             {
                 Declare("localName", typeof(string), attrVariable.GetLocalName(), out var localNameVar)
             };
+
+            VariableExpression? nsVar = null;
+            if (hasNamespacedAttributes)
+            {
+                statements.AddRange(
+                    Declare("ns", typeof(XNamespace), attrVariable.Name().Namespace(), out nsVar),
+                    MethodBodyStatement.EmptyLine);
+            }
 
             foreach (var prop in attributeProperties)
             {
@@ -528,7 +585,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     deserializationStatement = prop.PropertyExpression.Assign(deserializedValue).Terminate();
                 }
 
-                var checkIfLocalNameEquals = new IfStatement(localNameVar.Equal(Literal(prop.XmlWireInfo.Name)))
+                ScopedApi<bool> condition = localNameVar.Equal(Literal(prop.XmlWireInfo.Name));
+                if (prop.XmlWireInfo.Namespace != null && namespaces != null && nsVar != null)
+                {
+                    var nsInfo = namespaces[prop.XmlWireInfo.Namespace.Namespace];
+                    condition = condition.And(nsVar.Equal(nsInfo.VariableExpression));
+                }
+
+                var checkIfLocalNameEquals = new IfStatement(condition)
                 {
                     deserializationStatement,
                     Continue
@@ -594,6 +658,90 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                new MethodSignature(Type.Name, null, modifiers, Type, null, [result]),
                methodBody,
                this);
+        }
+
+        private MethodProvider BuildJsonAndXmlExplicitFromClientResult()
+        {
+            var result = new ParameterProvider(
+                ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ResponseParameterName,
+                $"The {ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.",
+                ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static |
+                            MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+
+            var response = result.ToApi<ClientResponseApi>();
+            MethodBodyStatement responseDeclaration;
+            ScopedApi<bool> tryGetContentType;
+            ScopedApi<string>? contentTypeVar;
+
+            if (response.Original == response.GetRawResponse().Original)
+            {
+                responseDeclaration = MethodBodyStatement.Empty;
+                tryGetContentType = result.ToApi<HttpResponseApi>().TryGetHeader(ContentTypeHeader, out contentTypeVar);
+            }
+            else
+            {
+                responseDeclaration = UsingDeclare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, response.GetRawResponse(), out var responseVar);
+                response = responseVar.ToApi<ClientResponseApi>();
+                tryGetContentType = responseVar.ToApi<HttpResponseApi>().TryGetHeader(ContentTypeHeader, out contentTypeVar);
+            }
+
+            var startsWithJson = contentTypeVar!.StartsWith(Literal("application/json"), StringComparison.OrdinalIgnoreCase);
+            var isJsonCondition = tryGetContentType.And(startsWithJson);
+            var jsonDeserializationBlock = new MethodBodyStatement[]
+            {
+                UsingDeclare("document", typeof(JsonDocument), response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var docVariable),
+                Return(GetDeserializationMethodInvocationForType(_model, docVariable.As<JsonDocument>().RootElement()))
+            };
+
+            var xmlDeserialization = new MethodBodyStatement[]
+            {
+                UsingDeclare("stream", typeof(Stream), response.Property(nameof(HttpResponseApi.ContentStream)), out var streamVar),
+                new IfStatement(streamVar.Equal(Null)) { Return(Default) },
+                MethodBodyStatement.EmptyLine,
+                Return(GetDeserializationMethodInvocationForType(_model, XElementSnippets.Load(streamVar.As<Stream>(), XmlLinqSnippets.PreserveWhitespace)))
+            };
+
+            MethodBodyStatement[] methodBody =
+            [
+                responseDeclaration,
+                MethodBodyStatement.EmptyLine,
+                new IfStatement(isJsonCondition) { jsonDeserializationBlock },
+                MethodBodyStatement.EmptyLine,
+                xmlDeserialization
+            ];
+
+            return new MethodProvider(
+                new MethodSignature(Type.Name, null, modifiers, Type, null, [result]),
+                methodBody,
+                this);
+        }
+
+        private static void CollectNamespace(string propertyName, XmlWireNamespaceOptions nsOptions, Dictionary<string, XmlNamespaceInfo> namespaces)
+        {
+            if (!namespaces.ContainsKey(nsOptions.Namespace))
+            {
+                var variableName = $"{propertyName}Ns".ToVariableName();
+                var variableExpression = new VariableExpression(typeof(XNamespace), variableName);
+                namespaces[nsOptions.Namespace] = new XmlNamespaceInfo(nsOptions.Namespace, variableName, variableExpression);
+            }
+        }
+
+        private static MethodBodyStatement GetXmlNamespaceDeclarations(Dictionary<string, XmlNamespaceInfo>? namespaces)
+        {
+            if (namespaces == null || namespaces.Count == 0)
+            {
+                return MethodBodyStatement.Empty;
+            }
+
+            var statements = new List<MethodBodyStatement>();
+            foreach (var ns in namespaces.Values)
+            {
+                statements.Add(Declare(ns.VariableExpression, Literal(ns.Namespace)));
+            }
+
+            statements.Add(MethodBodyStatement.EmptyLine);
+            return statements;
         }
     }
 }

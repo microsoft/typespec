@@ -270,8 +270,14 @@ namespace SampleTypeSpec
         /// <param name="extensibleEnum"> An extensible enum property. </param>
         /// <param name="optionalFixedEnum"> An optional fixed enum property. </param>
         /// <param name="optionalExtensibleEnum"> An optional extensible enum property. </param>
+        /// <param name="label"></param>
+        /// <param name="daysUsed"></param>
+        /// <param name="fooItems"></param>
+        /// <param name="anotherModel"></param>
+        /// <param name="modelsWithNamespaces"></param>
+        /// <param name="unwrappedModelsWithNamespaces"></param>
         /// <returns> A new <see cref="SampleTypeSpec.XmlAdvancedModel"/> instance for mocking. </returns>
-        public static XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, IEnumerable<string> unwrappedStrings = default, IEnumerable<int> unwrappedCounts = default, IEnumerable<XmlItem> unwrappedItems = default, IEnumerable<string> wrappedColors = default, IEnumerable<XmlItem> items = default, XmlNestedModel nestedModel = default, XmlNestedModel optionalNestedModel = default, IDictionary<string, string> metadata = default, DateTimeOffset createdAt = default, TimeSpan duration = default, BinaryData data = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, StringFixedEnum fixedEnum = default, StringExtensibleEnum extensibleEnum = default, IntFixedEnum? optionalFixedEnum = default, IntExtensibleEnum? optionalExtensibleEnum = default)
+        public static XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, IEnumerable<string> unwrappedStrings = default, IEnumerable<int> unwrappedCounts = default, IEnumerable<XmlItem> unwrappedItems = default, IEnumerable<string> wrappedColors = default, IEnumerable<XmlItem> items = default, XmlNestedModel nestedModel = default, XmlNestedModel optionalNestedModel = default, IDictionary<string, string> metadata = default, DateTimeOffset createdAt = default, TimeSpan duration = default, BinaryData data = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, StringFixedEnum fixedEnum = default, StringExtensibleEnum extensibleEnum = default, IntFixedEnum? optionalFixedEnum = default, IntExtensibleEnum? optionalExtensibleEnum = default, string label = default, int daysUsed = default, IEnumerable<string> fooItems = default, XmlNestedModel anotherModel = default, IEnumerable<XmlModelWithNamespace> modelsWithNamespaces = default, IEnumerable<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default)
         {
             unwrappedStrings ??= new ChangeTrackingList<string>();
             unwrappedCounts ??= new ChangeTrackingList<int>();
@@ -280,6 +286,9 @@ namespace SampleTypeSpec
             items ??= new ChangeTrackingList<XmlItem>();
             metadata ??= new ChangeTrackingDictionary<string, string>();
             optionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
+            fooItems ??= new ChangeTrackingList<string>();
+            modelsWithNamespaces ??= new ChangeTrackingList<XmlModelWithNamespace>();
+            unwrappedModelsWithNamespaces ??= new ChangeTrackingList<XmlModelWithNamespace>();
 
             return new XmlAdvancedModel(
                 name,
@@ -311,6 +320,12 @@ namespace SampleTypeSpec
                 extensibleEnum,
                 optionalFixedEnum,
                 optionalExtensibleEnum,
+                label,
+                daysUsed,
+                fooItems.ToList(),
+                anotherModel,
+                modelsWithNamespaces.ToList(),
+                unwrappedModelsWithNamespaces.ToList(),
                 additionalBinaryDataProperties: null);
         }
 
@@ -331,6 +346,14 @@ namespace SampleTypeSpec
         public static XmlNestedModel XmlNestedModel(string value = default, int nestedId = default)
         {
             return new XmlNestedModel(value, nestedId, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The XmlModelWithNamespace. </summary>
+        /// <param name="foo"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlModelWithNamespace"/> instance for mocking. </returns>
+        public static XmlModelWithNamespace XmlModelWithNamespace(string foo = default)
+        {
+            return new XmlModelWithNamespace(foo, additionalBinaryDataProperties: null);
         }
 
         /// <summary>
