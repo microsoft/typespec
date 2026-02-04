@@ -186,7 +186,6 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 file_import.add_submodule_import(relative_path, deserialize_func, ImportType.LOCAL)
             if self.is_xml_paging:
                 file_import.add_submodule_import("xml.etree", "ElementTree", ImportType.STDLIB, alias="ET")
-                file_import.add_submodule_import(relative_path, "_convert_element", ImportType.LOCAL)
         return file_import
 
 
