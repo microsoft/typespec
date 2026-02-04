@@ -51,6 +51,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 // try to look up the type by name in the TypeFactory
                 if (inputType == null)
                 {
+                    // Try to resolve by looking up the CSharp type directly
+                    var resolvedType = TryFindCSharpTypeByName(type.Name);
+                    if (resolvedType != null)
+                    {
+                        return type.IsNullable ? resolvedType.WithNullable(true) : resolvedType;
+                    }
+
+                    // Fallback: try to find the InputType and create CSharpType from it
                     inputType = TryFindInputTypeByName(type.Name);
                 }
 
@@ -71,17 +79,34 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return type;
         }
 
+        private static CSharpType? TryFindCSharpTypeByName(string typeName)
+        {
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+
+            // Look through CSharpTypeMap to find a type with matching C# name
+            // This handles cases where the type is renamed using CodeGenType attribute
+            foreach (var kvp in typeFactory.CSharpTypeMap)
+            {
+                if (kvp.Key.Name == typeName && kvp.Value != null)
+                {
+                    return kvp.Key;
+                }
+            }
+
+            return null;
+        }
+
         private static InputType? TryFindInputTypeByName(string typeName)
         {
             var typeFactory = CodeModelGenerator.Instance.TypeFactory;
 
-            // Try to find in input models
+            // Try to find in input models by TypeSpec name
             if (typeFactory.InputModelTypeNameMap.TryGetValue(typeName, out var inputModelType))
             {
                 return inputModelType;
             }
 
-            // Try to find in input enums
+            // Try to find in input enums by TypeSpec name
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
             foreach (var enumType in inputNamespace.Enums)
             {
