@@ -442,6 +442,11 @@ function createOAPIEmitter(
     if (metadata) {
       for (const [name, tag] of Object.entries(metadata)) {
         const tagData: OpenAPI3Tag = { name: name, ...tag };
+        // For OpenAPI 3.0 and 3.1, convert 'parent' to 'x-parent' extension
+        if (specVersion !== "3.2.0" && "parent" in tagData) {
+          (tagData as any)["x-parent"] = tagData.parent;
+          delete (tagData as any).parent;
+        }
         tagsMetadata[name] = tagData;
       }
     }

@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
-import { it } from "vitest";
-import { supportedVersions, worksFor } from "./works-for.js";
+import { describe, it } from "vitest";
+import { OpenAPISpecHelpers, supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ openApiFor }) => {
   const testCases: [string, string, string, any][] = [
@@ -100,5 +100,83 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     );
 
     deepStrictEqual(res.tags, expected);
+  });
+});
+
+// Test for parent field - version specific behavior
+describe("tag metadata with parent field", () => {
+  it("OpenAPI 3.2 should emit parent field as-is", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("ParentTag", #{description: "Parent tag"})
+      @tagMetadata("ChildTag", #{description: "Child tag", parent: "ParentTag"})
+      namespace PetStore {
+        @tag("ChildTag") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "ChildTag",
+        description: "Child tag",
+        parent: "ParentTag",
+      },
+      {
+        name: "ParentTag",
+        description: "Parent tag",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.1 should convert parent to x-parent", async () => {
+    const res = await OpenAPISpecHelpers["3.1.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("ParentTag", #{description: "Parent tag"})
+      @tagMetadata("ChildTag", #{description: "Child tag", parent: "ParentTag"})
+      namespace PetStore {
+        @tag("ChildTag") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "ChildTag",
+        description: "Child tag",
+        "x-parent": "ParentTag",
+      },
+      {
+        name: "ParentTag",
+        description: "Parent tag",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.0 should convert parent to x-parent", async () => {
+    const res = await OpenAPISpecHelpers["3.0.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("ParentTag", #{description: "Parent tag"})
+      @tagMetadata("ChildTag", #{description: "Child tag", parent: "ParentTag"})
+      namespace PetStore {
+        @tag("ChildTag") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "ChildTag",
+        description: "Child tag",
+        "x-parent": "ParentTag",
+      },
+      {
+        name: "ParentTag",
+        description: "Parent tag",
+      },
+    ]);
   });
 });

@@ -21,6 +21,7 @@ export interface TagMetadata {
   readonly [key: string]: unknown;
   readonly description?: string;
   readonly externalDocs?: ExternalDocs;
+  readonly parent?: string;
 }
 
 export interface Contact {

@@ -124,6 +124,9 @@ model TagMetadata {
   /** An external Docs information of the API. */
   externalDocs?: ExternalDocs;
 
+  /** The name of a tag that this tag is nested under. Only supported in OpenAPI 3.2. For 3.0 and 3.1, this will be converted to `x-parent`. */
+  parent?: string;
+
   /** Attach some custom data, The extension key must start with `x-`. */
   ...Record<unknown>;
 }
