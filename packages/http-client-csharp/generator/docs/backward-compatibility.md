@@ -475,4 +475,3 @@ public virtual AsyncPageable<Item> GetItemsAsync(int? maxPageSize = null, Cancel
 - **Case 2 (Normalization)**: If the parameter does NOT exist in LastContractView, badly-cased variants are normalized to proper camelCase
 - The HTTP query parameter always uses the original serialized name from the spec (e.g., `maxpagesize`)
 - Existing client code continues to compile without changes
-
