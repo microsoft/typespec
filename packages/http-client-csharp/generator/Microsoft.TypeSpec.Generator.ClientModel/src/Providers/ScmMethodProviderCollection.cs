@@ -705,14 +705,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // If we found a source parameter, convert it appropriately
                 if (argumentValue != null && sourceParam != null)
                 {
-                    // Handle body parameter conversions
-                    if (sourceParam.Location == ParameterLocation.Body)
+                    // Handle body parameter conversions based on PROTOCOL parameter location
+                    if (protocolParam.Location == ParameterLocation.Body)
                     {
                         // Extract non-body metadata properties if the source is a body model
                         List<ValueExpression>? requiredParameters = null;
                         List<ValueExpression>? optionalParameters = null;
 
-                        if (sourceParam.Type.Equals(bodyModel?.Type) == true)
+                        if (sourceParam.Location == ParameterLocation.Body && sourceParam.Type.Equals(bodyModel?.Type) == true)
                         {
                             var parameterConversions = GetNonBodyModelPropertiesConversions(sourceParam, bodyModel);
                             if (parameterConversions != null)
@@ -729,21 +729,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
 
                         // Convert the body parameter value
-                        if (sourceParam.Type.IsReadOnlyMemory || sourceParam.Type.IsList)
+                        // Check the source parameter type to determine conversion needed
+                        var sourceType = sourceParam.Type;
+                        if (sourceType.IsReadOnlyMemory || sourceType.IsList)
                         {
                             argumentValue = declarations.GetValueOrDefault("content") ?? argumentValue;
                         }
-                        else if (sourceParam.Type.IsEnum)
+                        else if (sourceType.IsEnum)
                         {
-                            argumentValue = RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(sourceParam.Type.ToSerial(argumentValue)));
+                            argumentValue = RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(sourceType.ToSerial(argumentValue)));
                         }
-                        else if (sourceParam.Type.Equals(typeof(BinaryData)))
+                        else if (sourceType.Equals(typeof(BinaryData)))
                         {
                             argumentValue = RequestContentApiSnippets.Create(argumentValue);
                         }
-                        else if (sourceParam.Type.IsFrameworkType)
+                        else if (sourceType.IsFrameworkType)
                         {
                             argumentValue = declarations.GetValueOrDefault("content") ?? argumentValue;
+                        }
+                        else if (sourceParam.Location != ParameterLocation.Body)
+                        {
+                            // This is a value extracted from a non-body parameter (e.g., info.Action)
+                            // We need to serialize it as request content
+                            argumentValue = RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(argumentValue));
                         }
 
                         conversions.Add(argumentValue);
