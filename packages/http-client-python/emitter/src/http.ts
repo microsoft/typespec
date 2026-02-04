@@ -1,6 +1,7 @@
 import { NoTarget } from "@typespec/compiler";
 
 import {
+  getClientOptions,
   getHttpOperationParameter,
   SdkBasicServiceMethod,
   SdkBodyParameter,
@@ -39,13 +40,6 @@ export enum ReferredByOperationTypes {
   Default = 0,
   PagingOnly = 1,
   NonPagingOnly = 2,
-}
-
-function getIncludeRootSlash(rootClient: SdkClientType<SdkHttpOperation>): boolean {
-  // TODO: uncomment when @clientOption lands in TCGC
-  // const option = getClientOption(rootClient.decorators, "includeRootSlash");
-  // return option?.value !== false;
-  return true; // default: preserve root slash
 }
 
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
@@ -385,9 +379,10 @@ function emitHttpOperation(
   for (const exception of operation.exceptions) {
     exceptions.push(emitHttpResponse(context, exception.statusCodes, exception, undefined, true)!);
   }
-  const includeRootSlash = getIncludeRootSlash(rootClient);
+  const includeRootSlash = getClientOptions(rootClient, "includeRootSlash") !== false;
+
   const result = {
-    url: includeRootSlash ? operation.path : operation.path.replace(/\/$/, ""),
+    url: includeRootSlash ? operation.path : operation.path.replace(/^\//, ""),
     method: operation.verb.toUpperCase(),
     parameters: emitHttpParameters(context, rootClient, operation, method, serviceApiVersions),
     bodyParameter: emitHttpBodyParameter(context, operation.bodyParam, serviceApiVersions),
