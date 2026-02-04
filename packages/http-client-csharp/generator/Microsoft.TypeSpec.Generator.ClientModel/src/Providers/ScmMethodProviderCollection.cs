@@ -751,14 +751,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                  protocolParam.InputParameter.MethodParameterSegments.Count > 1)
                         {
                             // This is a value extracted from a property (e.g., info.Action from MethodParameterSegments ['info', 'action'])
-                            // We need to serialize it as request content
-                            argumentValue = RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(argumentValue));
+                            // Serialize as BinaryData and rely on implicit cast to RequestContent
+                            argumentValue = BinaryDataSnippets.FromObjectAsJson(argumentValue);
                         }
                         else if (sourceParam.Location != ParameterLocation.Body)
                         {
                             // This is a value from a non-body parameter
-                            // We need to serialize it as request content
-                            argumentValue = RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(argumentValue));
+                            // Serialize as BinaryData and rely on implicit cast to RequestContent
+                            argumentValue = BinaryDataSnippets.FromObjectAsJson(argumentValue);
                         }
 
                         conversions.Add(argumentValue);
