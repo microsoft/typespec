@@ -929,20 +929,27 @@ export function getCorrespondingMethodParams(
   p: SdkHttpParameter | SdkModelPropertyType,
 ): InputMethodParameter[] | undefined {
   // methodParameterSegments is a 2D array where each segment array represents a path to a method parameter
-  // We need to get the last element of each segment array which is the actual method parameter
+  // For spread body cases, there could be multiple paths, but we simplify by taking the first element
+  // We need the complete segment path (e.g., ['Params', 'foo'] for accessing params.foo)
   const methodParameterSegments = (p as any).methodParameterSegments;
   if (!methodParameterSegments || methodParameterSegments.length === 0) {
+    return undefined;
+  }
+
+  // Take the first segment path (simplification - no spector scenario for multiple paths yet)
+  const firstSegmentPath = methodParameterSegments[0];
+  if (!firstSegmentPath || firstSegmentPath.length === 0) {
     return undefined;
   }
 
   const namespace = getClientNamespaceString(sdkContext) ?? "";
   const methodParams: InputMethodParameter[] = [];
   
-  for (const segments of methodParameterSegments) {
-    if (segments && segments.length > 0) {
-      const methodParam = segments[segments.length - 1] as SdkMethodParameter;
-      methodParams.push(fromMethodParameter(sdkContext, methodParam, namespace));
-    }
+  // Convert each element in the segment path to an InputMethodParameter
+  // This preserves the full path information (e.g., ['Params', 'foo'])
+  for (const segment of firstSegmentPath) {
+    const methodParam = segment as SdkMethodParameter;
+    methodParams.push(fromMethodParameter(sdkContext, methodParam, namespace));
   }
   
   return methodParams.length > 0 ? methodParams : undefined;
