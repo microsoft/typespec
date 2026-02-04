@@ -3427,5 +3427,108 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(fieldUpperCase);
             Assert.AreEqual("_serviceAApiVersion", fieldUpperCase!.Name);
         }
+
+        [TestCase("{endpoint}")]
+        [TestCase("{Endpoint}")]
+        [TestCase("{ENDPOINT}")]
+        public void ConvertUriTemplate_CaseInsensitiveEndpointLookup(string serverTemplate)
+        {
+            // Tests that the parameter lookup in ConvertUriTemplateToFormattableString is case-insensitive
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                parameters: [InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    scope: InputParameterScope.Client,
+                    serverUrlTemplate: serverTemplate,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsNotNull(constructor);
+            // Should not throw and should contain the Uri assignment
+            var bodyText = constructor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyText.Contains("_endpoint = new global::System.Uri($\""));
+        }
+
+        [Test]
+        public void ConvertUriTemplate_CaseInsensitivePathParameterLookup()
+        {
+            // Tests template with mixed case placeholders like "{Endpoint}/services/{ApiVersion}"
+            MockHelpers.LoadMockGenerator();
+
+            var serverTemplate = "{Endpoint}/{ApiVersion}";
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Test", InputFactory.Operation("test", uri: serverTemplate))],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint", // lowercase parameter name
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client,
+                        serverUrlTemplate: serverTemplate,
+                        isEndpoint: true),
+                    InputFactory.PathParameter(
+                        "apiVersion", // lowercase parameter name
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client)
+                ]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsNotNull(constructor);
+            // Should not throw - case-insensitive lookup should find parameters
+            var bodyText = constructor!.BodyStatements!.ToDisplayString();
+            Assert.IsNotNull(bodyText);
+            // Verify that the Uri is built according to the server template with case-insensitive parameter matching
+            Assert.IsTrue(bodyText.Contains("$\"{endpoint}/{_apiVersion}\""));
+        }
+
+        [Test]
+        public void ConvertUriTemplate_WithMultiplePlaceholders()
+        {
+            // Tests template with multiple placeholders: "{endpoint}/{apiVersion}/services/{subscriptionId}"
+            MockHelpers.LoadMockGenerator();
+
+            var serverTemplate = "{endpoint}/{apiVersion}/services/{subscriptionId}";
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Test", InputFactory.Operation("test", uri: serverTemplate))],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client,
+                        serverUrlTemplate: serverTemplate,
+                        isEndpoint: true),
+                    InputFactory.PathParameter(
+                        "apiVersion",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client),
+                    InputFactory.PathParameter(
+                        "subscriptionId",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client)
+                ]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsNotNull(constructor);
+            var bodyText = constructor!.BodyStatements!.ToDisplayString();
+            Assert.IsNotNull(bodyText);
+            // Verify that the Uri is built according to the server template
+            Assert.IsTrue(bodyText.Contains("$\"{endpoint}/{_apiVersion}/services/{_subscriptionId}\""));
+        }
     }
 }
+

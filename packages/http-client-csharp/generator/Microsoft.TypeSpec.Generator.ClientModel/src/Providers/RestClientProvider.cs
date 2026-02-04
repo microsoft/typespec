@@ -194,7 +194,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
-            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
+            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name), StringComparer.OrdinalIgnoreCase);
             foreach (var param in ClientProvider.ClientParameters)
             {
                 paramMap[param.Name] = param;
@@ -703,7 +703,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
-                var isClientParameter = ClientProvider.ClientParameters.Any(p => p.Name == paramName);
+                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase));
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
@@ -714,25 +714,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    if (isClientParameter)
+                    inputParam = inputParamMap[paramName];
+                    if (inputParam is InputPathParameter || inputParam is InputEndpointParameter)
                     {
-                        GetParamInfo(paramMap[paramName], out type, out serializationFormat, out valueExpression);
+                        GetParamInfo(paramMap, operation, inputParam, out type, out serializationFormat, out valueExpression);
+                        if (valueExpression == null)
+                        {
+                            break;
+                        }
                     }
                     else
                     {
-                        inputParam = inputParamMap[paramName];
-                        if (inputParam is InputPathParameter || inputParam is InputEndpointParameter)
-                        {
-                            GetParamInfo(paramMap, operation, inputParam, out type, out serializationFormat, out valueExpression);
-                            if (valueExpression == null)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
-                        }
+                        throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
                     }
                 }
                 string? format = serializationFormat?.ToFormatSpecifier();
