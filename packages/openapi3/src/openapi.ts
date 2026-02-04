@@ -1774,7 +1774,7 @@ function createOAPIEmitter(
   function resolveDocumentTags(service: Service): OpenAPI3Tag[] | OpenAPITag3_2[] {
     const metadata = getTagsMetadata(program, service.type);
 
-    const tags: OpenAPI3Tag[] | OpenAPITag3_2[]  = [];
+    const tags: OpenAPI3Tag[] | OpenAPITag3_2[] = [];
     for (const tag of tagsUsedInOperations) {
       if (!metadata?.[tag]) {
         tags.push({ name: tag });
