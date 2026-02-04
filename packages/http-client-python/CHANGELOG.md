@@ -1,5 +1,43 @@
 # Change Log - @typespec/http-client-python
 
+## 0.26.2
+
+### Bug Fixes
+
+- [#9517](https://github.com/microsoft/typespec/pull/9517) Properly cache enum values
+
+
+## 0.26.1
+
+### Bug Fixes
+
+- [#9482](https://github.com/microsoft/typespec/pull/9482) Don't remove azure-sdk tool definitions from pyproject.toml
+- [#9466](https://github.com/microsoft/typespec/pull/9466) Fix additional indentation issues
+- [#9488](https://github.com/microsoft/typespec/pull/9488) `_failsafe_deserialize_xml` xml errors
+
+
+## 0.26.0
+
+### Features
+
+- [#9456](https://github.com/microsoft/typespec/pull/9456) Add support for xml paging
+
+### Bump dependencies
+
+- [#9464](https://github.com/microsoft/typespec/pull/9464) Bump TCGC 0.64.4
+
+
+## 0.25.0
+
+### Features
+
+- [#9407](https://github.com/microsoft/typespec/pull/9407) Support enum type for array encode
+
+### Bug Fixes
+
+- [#9417](https://github.com/microsoft/typespec/pull/9417) support "apiVersions" of TCGC metadata
+
+
 ## 0.24.1
 
 ### Bug Fixes

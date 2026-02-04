@@ -73,7 +73,7 @@ export function emitTypeReference(
       return getJsScalar(ctx, module, type, position).type;
     case "Model": {
       // First handle arrays.
-      if (isArrayModelType(ctx.program, type)) {
+      if (isArrayModelType(type)) {
         const argumentType = type.indexer.value;
 
         const argTypeReference = emitTypeReference(ctx, argumentType, position, module, {

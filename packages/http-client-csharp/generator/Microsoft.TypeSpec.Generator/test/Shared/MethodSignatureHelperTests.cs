@@ -9,7 +9,7 @@ using Microsoft.TypeSpec.Generator.Statements;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
-namespace Microsoft.TypeSpec.Generator.Tests
+namespace Microsoft.TypeSpec.Generator.Tests.Shared
 {
     public class MethodSignatureHelperTests
     {

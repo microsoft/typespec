@@ -2917,6 +2917,517 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 "Should append the operation path /items");
         }
 
+        [Test]
+        public void MultiServiceClient_GeneratesExpectedClient()
+        {
+            // Setup multiservice client with multiple API version enums
+            List<string> serviceAVersions = ["1.0", "2.0"];
+            List<string> serviceBVersions = ["3.0", "4.0"];
+
+            var serviceAEnumValues = serviceAVersions.Select(a => (a, a));
+            var serviceBEnumValues = serviceBVersions.Select(a => (a, a));
+
+            var serviceAEnum = InputFactory.StringEnum(
+                "ServiceVersionA",
+                serviceAEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceA");
+            var serviceBEnum = InputFactory.StringEnum(
+                "ServiceVersionB",
+                serviceBEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceB");
+
+            InputParameter apiVersionParameter = InputFactory.PathParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            InputParameter subscriptionIdParameter = InputFactory.PathParameter(
+                "subscriptionId",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var client = InputFactory.Client(TestClientName, parameters: [subscriptionIdParameter, apiVersionParameter], isMultiServiceClient: true);
+            var serviceAClient = InputFactory.Client("ServiceA", clientNamespace: "Sample.ServiceA", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var serviceBClient = InputFactory.Client("ServiceB", clientNamespace: "Sample.ServiceB", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
+                clients: () => [client, serviceAClient, serviceBClient],
+                inputEnums: () => [serviceAEnum, serviceBEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultiServiceClient_WithThreeServices_GeneratesExpectedClient()
+        {
+            // Setup multiservice client with three different services (KeyVault, Storage, Compute)
+            List<string> keyVaultVersions = ["7.4", "7.5"];
+            List<string> storageVersions = ["2023-01-01", "2024-01-01"];
+            List<string> computeVersions = ["2023-07-01", "2024-03-01", "2024-07-01"];
+
+            var keyVaultEnumValues = keyVaultVersions.Select(a => (a, a));
+            var storageEnumValues = storageVersions.Select(a => (a, a));
+            var computeEnumValues = computeVersions.Select(a => (a, a));
+
+            var keyVaultEnum = InputFactory.StringEnum(
+                "KeyVaultVersion",
+                keyVaultEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.KeyVault");
+            var storageEnum = InputFactory.StringEnum(
+                "StorageVersion",
+                storageEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.Storage");
+            var computeEnum = InputFactory.StringEnum(
+                "ComputeVersion",
+                computeEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.Compute");
+
+            InputParameter apiVersionParameter = InputFactory.PathParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            InputParameter subscriptionIdParameter = InputFactory.PathParameter(
+                "subscriptionId",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var client = InputFactory.Client(TestClientName, parameters: [subscriptionIdParameter, apiVersionParameter], isMultiServiceClient: true);
+            var keyVaultClient = InputFactory.Client("KeyVault", clientNamespace: "Sample.KeyVault", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var storageClient = InputFactory.Client("Storage", clientNamespace: "Sample.Storage", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var computeClient = InputFactory.Client("Compute", clientNamespace: "Sample.Compute", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. keyVaultVersions, .. storageVersions, .. computeVersions],
+                clients: () => [client, keyVaultClient, storageClient, computeClient],
+                inputEnums: () => [keyVaultEnum, storageEnum, computeEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultiServiceCombinedClient_GeneratesExpectedClient()
+        {
+            // Setup multiservice client with multiple API version enums and operations
+            List<string> serviceAVersions = ["1.0", "2.0"];
+            List<string> serviceBVersions = ["3.0", "4.0"];
+
+            var serviceAEnumValues = serviceAVersions.Select(a => (a, a));
+            var serviceBEnumValues = serviceBVersions.Select(a => (a, a));
+
+            var serviceAEnum = InputFactory.StringEnum(
+                "ServiceVersionA",
+                serviceAEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceA");
+            var serviceBEnum = InputFactory.StringEnum(
+                "ServiceVersionB",
+                serviceBEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceB");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            // Create operations with namespace set to each service
+            var serviceAOperation = InputFactory.Operation(
+                "ServiceAOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceA");
+
+            var serviceBOperation = InputFactory.Operation(
+                "ServiceBOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceB");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceAMethod", serviceAOperation),
+                    InputFactory.BasicServiceMethod("ServiceBMethod", serviceBOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceAEnum, serviceBEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultiServiceCombinedClient_WithThreeServices_GeneratesExpectedClient()
+        {
+            // Setup multiservice combined client with three different services (KeyVault, Storage, Compute)
+            List<string> keyVaultVersions = ["7.4", "7.5"];
+            List<string> storageVersions = ["2023-01-01", "2024-01-01"];
+            List<string> computeVersions = ["2023-07-01", "2024-03-01", "2024-07-01"];
+
+            var keyVaultEnumValues = keyVaultVersions.Select(a => (a, a));
+            var storageEnumValues = storageVersions.Select(a => (a, a));
+            var computeEnumValues = computeVersions.Select(a => (a, a));
+
+            var keyVaultEnum = InputFactory.StringEnum(
+                "KeyVaultVersion",
+                keyVaultEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.KeyVault");
+            var storageEnum = InputFactory.StringEnum(
+                "StorageVersion",
+                storageEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.Storage");
+            var computeEnum = InputFactory.StringEnum(
+                "ComputeVersion",
+                computeEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.Compute");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            // Create operations with namespace set to each service
+            var keyVaultOperation = InputFactory.Operation(
+                "KeyVaultOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.KeyVault");
+
+            var storageOperation = InputFactory.Operation(
+                "StorageOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.Storage");
+
+            var computeOperation = InputFactory.Operation(
+                "ComputeOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.Compute");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("KeyVaultMethod", keyVaultOperation),
+                    InputFactory.BasicServiceMethod("StorageMethod", storageOperation),
+                    InputFactory.BasicServiceMethod("ComputeMethod", computeOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. keyVaultVersions, .. storageVersions, .. computeVersions],
+                clients: () => [client],
+                inputEnums: () => [keyVaultEnum, storageEnum, computeEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void GetApiVersionFieldForService_SingleService_ReturnsField()
+        {
+            // Setup single service client with one API version
+            List<string> serviceVersions = ["1.0", "2.0"];
+
+            var serviceEnumValues = serviceVersions.Select(a => (a, a));
+            var serviceEnum = InputFactory.StringEnum(
+                "ServiceVersion",
+                serviceEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("TestMethod", operation)],
+                parameters: [apiVersionParameter]);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Trigger the lazy initialization of Fields which populates _apiVersionFields
+            _ = clientProvider!.Fields;
+
+            // Should return the single API version field regardless of namespace
+            var field = clientProvider!.GetApiVersionFieldForService("Sample");
+            Assert.IsNotNull(field);
+            Assert.AreEqual("_apiVersion", field!.Name);
+
+            // Should also return the field when namespace is null
+            var fieldWithNull = clientProvider.GetApiVersionFieldForService(null);
+            Assert.IsNotNull(fieldWithNull);
+            Assert.AreEqual("_apiVersion", fieldWithNull!.Name);
+        }
+
+        [Test]
+        public void GetApiVersionFieldForService_MultiService_ReturnsMatchingField()
+        {
+            // Setup multiservice client with multiple API version enums
+            List<string> serviceAVersions = ["1.0", "2.0"];
+            List<string> serviceBVersions = ["3.0", "4.0"];
+
+            var serviceAEnumValues = serviceAVersions.Select(a => (a, a));
+            var serviceBEnumValues = serviceBVersions.Select(a => (a, a));
+
+            var serviceAEnum = InputFactory.StringEnum(
+                "ServiceVersionA",
+                serviceAEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceA");
+            var serviceBEnum = InputFactory.StringEnum(
+                "ServiceVersionB",
+                serviceBEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceB");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            // Create operations with namespace set to each service
+            var serviceAOperation = InputFactory.Operation(
+                "ServiceAOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceA");
+
+            var serviceBOperation = InputFactory.Operation(
+                "ServiceBOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceB");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceAMethod", serviceAOperation),
+                    InputFactory.BasicServiceMethod("ServiceBMethod", serviceBOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceAEnum, serviceBEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Trigger the lazy initialization of Fields which populates _apiVersionFields
+            _ = clientProvider!.Fields;
+
+            // Should return the matching field for ServiceA
+            var fieldA = clientProvider!.GetApiVersionFieldForService("Sample.ServiceA");
+            Assert.IsNotNull(fieldA);
+            Assert.AreEqual("_serviceAApiVersion", fieldA!.Name);
+
+            // Should return the matching field for ServiceB
+            var fieldB = clientProvider.GetApiVersionFieldForService("Sample.ServiceB");
+            Assert.IsNotNull(fieldB);
+            Assert.AreEqual("_serviceBApiVersion", fieldB!.Name);
+        }
+
+        [Test]
+        public void GetApiVersionFieldForService_MultiService_WithNonMatchingNamespace_ReturnsNull()
+        {
+            // Setup multiservice client with multiple API version enums
+            List<string> serviceAVersions = ["1.0", "2.0"];
+            List<string> serviceBVersions = ["3.0", "4.0"];
+
+            var serviceAEnumValues = serviceAVersions.Select(a => (a, a));
+            var serviceBEnumValues = serviceBVersions.Select(a => (a, a));
+
+            var serviceAEnum = InputFactory.StringEnum(
+                "ServiceVersionA",
+                serviceAEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceA");
+            var serviceBEnum = InputFactory.StringEnum(
+                "ServiceVersionB",
+                serviceBEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceB");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            // Create operations with namespace set to each service
+            var serviceAOperation = InputFactory.Operation(
+                "ServiceAOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceA");
+
+            var serviceBOperation = InputFactory.Operation(
+                "ServiceBOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceB");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceAMethod", serviceAOperation),
+                    InputFactory.BasicServiceMethod("ServiceBMethod", serviceBOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceAEnum, serviceBEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Trigger the lazy initialization of Fields which populates _apiVersionFields
+            _ = clientProvider!.Fields;
+
+            // Should return null for non-matching namespace
+            var field = clientProvider!.GetApiVersionFieldForService("Sample.ServiceC");
+            Assert.IsNull(field);
+        }
+
+        [Test]
+        public void GetApiVersionFieldForService_MultiService_CaseInsensitiveMatch()
+        {
+            // Setup multiservice client with multiple API version enums
+            List<string> serviceAVersions = ["1.0", "2.0"];
+            List<string> serviceBVersions = ["3.0", "4.0"];
+
+            var serviceAEnumValues = serviceAVersions.Select(a => (a, a));
+            var serviceBEnumValues = serviceBVersions.Select(a => (a, a));
+
+            var serviceAEnum = InputFactory.StringEnum(
+                "ServiceVersionA",
+                serviceAEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceA");
+            var serviceBEnum = InputFactory.StringEnum(
+                "ServiceVersionB",
+                serviceBEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Sample.ServiceB");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            // Create operations with namespace set to each service
+            var serviceAOperation = InputFactory.Operation(
+                "ServiceAOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceA");
+
+            var serviceBOperation = InputFactory.Operation(
+                "ServiceBOperation",
+                parameters: [apiVersionParameter],
+                ns: "Sample.ServiceB");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceAMethod", serviceAOperation),
+                    InputFactory.BasicServiceMethod("ServiceBMethod", serviceBOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceAEnum, serviceBEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Trigger the lazy initialization of Fields which populates _apiVersionFields
+            _ = clientProvider!.Fields;
+
+            // Should match case-insensitively
+            var fieldLowerCase = clientProvider!.GetApiVersionFieldForService("sample.serviceA");
+            Assert.IsNotNull(fieldLowerCase);
+            Assert.AreEqual("_serviceAApiVersion", fieldLowerCase!.Name);
+
+            var fieldUpperCase = clientProvider.GetApiVersionFieldForService("SAMPLE.SERVICEa");
+            Assert.IsNotNull(fieldUpperCase);
+            Assert.AreEqual("_serviceAApiVersion", fieldUpperCase!.Name);
+        }
+
         [TestCase("{endpoint}")]
         [TestCase("{Endpoint}")]
         [TestCase("{ENDPOINT}")]

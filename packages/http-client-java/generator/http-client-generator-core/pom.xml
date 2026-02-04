@@ -59,7 +59,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.57.0</version>
+      <version>1.57.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>

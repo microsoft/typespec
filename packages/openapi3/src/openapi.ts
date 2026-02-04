@@ -1577,7 +1577,7 @@ function createOAPIEmitter(
     if (!typeSchema) {
       return undefined;
     }
-    const schema = applyEncoding(
+    let schema = applyEncoding(
       program,
       param,
       applyIntrinsicDecorators(param, typeSchema),
@@ -1585,7 +1585,13 @@ function createOAPIEmitter(
     );
 
     if (param.defaultValue) {
-      schema.default = getDefaultValue(program, param.defaultValue, param);
+      const defaultValue = getDefaultValue(program, param.defaultValue, param);
+      // In OpenAPI 3.0, $ref cannot have sibling properties.
+      if ("$ref" in schema && specVersion === "3.0.0") {
+        schema = { allOf: [{ $ref: schema.$ref }], default: defaultValue };
+      } else {
+        schema.default = defaultValue;
+      }
     }
     // Description is already provided in the parameter itself.
     delete schema.description;

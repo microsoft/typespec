@@ -599,7 +599,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string uri = "",
             string path = "",
             string httpMethod = "GET",
-            bool generateConvenienceMethod = true)
+            bool generateConvenienceMethod = true,
+            string? ns = null)
         {
             return new InputOperation(
                 name,
@@ -618,7 +619,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 true,
                 generateConvenienceMethod,
-                name);
+                name,
+                ns);
         }
 
         public static InputPagingServiceMetadata NextLinkPagingMetadata(

@@ -174,6 +174,13 @@ export function getDecoratorsForSchema(
     ? schema.type.find((t) => t !== "null")
     : schema.type;
 
+  // Handle x-ms-duration extension with @encode decorator
+  // Must be after effectiveType extraction to handle type arrays correctly
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    decorators.push(...getDurationSchemaDecorators(schema, effectiveType));
+  }
+
   // Handle unixtime format with @encode decorator
   // Check both direct format and format from anyOf/oneOf members
   let formatToUse = schema.format;
@@ -318,6 +325,75 @@ function getUnixtimeSchemaDecorators(effectiveType: string | undefined) {
       args: [createTSValue("DateTimeKnownEncoding.unixTimestamp"), createTSValue("integer")],
     });
   }
+
+  return decorators;
+}
+
+function getDurationSchemaDecorators(
+  schema: OpenAPI3Schema | OpenAPISchema3_1,
+  effectiveType: string | undefined,
+) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // Get the x-ms-duration value (seconds or milliseconds)
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (!xmsDuration || (xmsDuration !== "seconds" && xmsDuration !== "milliseconds")) {
+    return decorators;
+  }
+
+  // Determine the encoding type based on the schema's format and type
+  let encodingType = "float32"; // default
+  const format = schema.format ?? "";
+
+  if (effectiveType === "integer") {
+    // For integer types, use the specific format or default to integer
+    switch (format) {
+      case "int8":
+      case "int16":
+      case "int32":
+      case "int64":
+      case "uint8":
+      case "uint16":
+      case "uint32":
+      case "uint64":
+        encodingType = format;
+        break;
+      default:
+        encodingType = "integer";
+    }
+  } else if (effectiveType === "number") {
+    // For number types, use the specific format or default to float32
+    switch (format) {
+      case "int8":
+      case "int16":
+      case "int32":
+      case "int64":
+      case "uint8":
+      case "uint16":
+      case "uint32":
+      case "uint64":
+        // Number type can have integer formats (e.g., type: number, format: int64)
+        encodingType = format;
+        break;
+      case "decimal":
+      case "decimal128":
+        encodingType = format;
+        break;
+      case "double":
+        encodingType = "float64";
+        break;
+      case "float":
+        encodingType = "float32";
+        break;
+      default:
+        encodingType = "float32";
+    }
+  }
+
+  decorators.push({
+    name: "encode",
+    args: [createTSValue(`"${xmsDuration}"`), createTSValue(encodingType)],
+  });
 
   return decorators;
 }
