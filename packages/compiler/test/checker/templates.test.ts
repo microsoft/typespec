@@ -629,7 +629,9 @@ describe("compiler: templates", () => {
   describe("doesn't run decorators when checking template declarations", () => {
     async function expectMarkDecoratorNotCalled(code: string) {
       testHost.addJsFile("mark.js", {
-        $mark: () => fail("Should not have called decorator"),
+        $mark: () => {
+          fail("Should not have called decorator");
+        },
       });
 
       testHost.addTypeSpecFile(

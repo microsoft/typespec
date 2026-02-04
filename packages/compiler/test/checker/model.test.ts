@@ -1,5 +1,5 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, ModelProperty, SyntaxKind, Type } from "../../src/core/types.js";
 import {
@@ -1075,6 +1075,51 @@ describe("compiler: models", () => {
       strictEqual((C as Model).properties.size, 2);
       strictEqual(((C as Model).properties.get("c")?.type as any).name, "int32");
       strictEqual(((C as Model).properties.get("b")?.type as any).name, "B");
+    });
+
+    it("resolves a recursive template model when the recursion is also templated", async () => {
+      const $observe = vi.fn();
+      testHost.addJsFile("utils.js", {
+        $observe,
+      });
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./utils.js";
+
+        model A<T> {
+          b: T;
+          c: C<string>;
+        }
+
+        @observe
+        model C<U> is A<int32> {
+          d: U;
+        }
+
+        @test
+        model Result is A<boolean>;
+        `,
+      );
+
+      const { Result } = (await testHost.compile("main.tsp")) as { Result: Model | undefined };
+
+      ok(Result);
+      strictEqual(Result.properties.size, 2);
+      strictEqual((Result.properties.get("b")?.type as any).name, "boolean");
+      const cProp = Result.properties.get("c")?.type;
+      ok(cProp);
+      ok(cProp.kind === "Model");
+      strictEqual(cProp.properties.size, 3);
+      strictEqual((cProp.properties.get("b")?.type as any).name, "int32");
+      strictEqual((cProp.properties.get("c")?.type as any).name, "C");
+      strictEqual((cProp.properties.get("d")?.type as any).name, "string");
+
+      // Just checking that the inner layer is identical
+      const innerCProp = cProp.properties.get("c")?.type;
+      strictEqual(innerCProp, cProp);
+
+      expect($observe).toHaveBeenCalledTimes(1);
     });
   });
 
