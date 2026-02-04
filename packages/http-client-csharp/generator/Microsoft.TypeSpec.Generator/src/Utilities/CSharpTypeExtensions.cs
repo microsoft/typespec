@@ -78,11 +78,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private static CSharpType? TryFindCSharpTypeByName(string typeName)
         {
-            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
-
             // Look up type provider by name using the efficient name-based dictionary
             // This handles cases where the type is renamed using CodeGenType attribute
-            if (typeFactory.TypeProvidersByName.TryGetValue(typeName, out var typeProvider))
+            if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(typeName, out var typeProvider))
             {
                 return typeProvider.Type;
             }
