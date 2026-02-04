@@ -25,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
         private const string TopParameterName = "top";
         private const string MaxCountParameterName = "maxCount";
+        private const string MaxPageSizeParameterName = "maxPageSize";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -863,11 +864,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
-         private static string? GetPageSizeParameterName(InputPagingServiceMethod? pagingServiceMethod)
+        private static string? GetPageSizeParameterName(InputPagingServiceMethod? pagingServiceMethod)
         {
             return pagingServiceMethod?.PagingMetadata?.PageSizeParameterSegments?.Count > 0
                 ? pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last()
                 : null;
+        }
+
+        private static string GetCorrectedPageSizeName(string originalName, ClientProvider client)
+        {
+            // Check if parameter exists in LastContractView for backward compatibility
+            var existingParam = client.LastContractView?.Methods
+                ?.SelectMany(method => method.Signature.Parameters)
+                .FirstOrDefault(parameter => string.Equals(parameter.Name, originalName, StringComparison.OrdinalIgnoreCase))
+                ?.Name;
+
+            if (existingParam != null)
+            {
+                return existingParam;
+            }
+
+            // Normalize badly-cased "maxpagesize" variants to Camel Case
+            if (string.Equals(originalName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+            {
+                return MaxPageSizeParameterName;
+            }
+
+            // Keep original name for all other cases
+            return originalName;
         }
 
         private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
@@ -936,6 +960,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // For convenience methods, use the service method parameters
             var inputParameters = methodType is ScmMethodKind.Convenience ? serviceMethod.Parameters : operation.Parameters;
 
+            var pageSizeParameterName = GetPageSizeParameterName(serviceMethod as InputPagingServiceMethod);
+
+            string? correctedPageSizeName = null;
+            if (pageSizeParameterName != null)
+            {
+                correctedPageSizeName = GetCorrectedPageSizeName(pageSizeParameterName, client);
+            }
+
             ModelProvider? spreadSource = null;
             if (methodType == ScmMethodKind.Convenience)
             {
@@ -986,6 +1018,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
                 {
                     inputParam.Update(name: MaxCountParameterName);
+                }
+
+                // For paging operations, ensure page size parameter uses the correct casing
+                if (correctedPageSizeName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!string.Equals(inputParam.Name, correctedPageSizeName, StringComparison.Ordinal))
+                    {
+                        inputParam.Update(name: correctedPageSizeName);
+                    }
                 }
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
