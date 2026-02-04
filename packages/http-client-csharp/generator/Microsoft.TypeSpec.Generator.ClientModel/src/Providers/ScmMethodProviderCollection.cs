@@ -583,111 +583,138 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
             }
 
-            // Create a mapping from protocol parameter names to their InputParameter for MethodParameterSegments lookup
-            var protocolParamsWithSegmentsMap = new Dictionary<string, InputParameter>(StringComparer.OrdinalIgnoreCase);
+            // Create a mapping from convenience parameter names to their ParameterProvider
+            var convenienceParamsMap = ConvenienceMethodParameters.ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
+
+            // Iterate through protocol parameters to maintain correct argument order
             foreach (var protocolParam in ProtocolMethodParameters)
             {
-                if (protocolParam.InputParameter?.MethodParameterSegments != null && protocolParam.InputParameter.MethodParameterSegments.Count > 0)
+                // Skip RequestOptions parameter as it's added at the end
+                if (protocolParam.Type.Equals(ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType))
                 {
-                    // The MethodParameterSegments represents a path (e.g., ['Params', 'foo'] means params.foo)
-                    // Map the first element of the path (the root parameter name) to this protocol parameter's InputParameter
-                    var rootParameterName = protocolParam.InputParameter.MethodParameterSegments[0].Name;
-                    protocolParamsWithSegmentsMap[rootParameterName] = protocolParam.InputParameter;
-                }
-            }
-
-            foreach (var param in ConvenienceMethodParameters)
-            {
-                // Handle spread parameters separately as they map to the entire spread source
-                if (param.SpreadSource is not null)
-                {
-                    if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
-                    {
-                        conversions.Add(spread);
-                        addedSpreadSource = true;
-                    }
                     continue;
                 }
 
-                // Check if this convenience parameter has a corresponding protocol parameter via MethodParameterSegments
-                InputParameter? matchingProtocolInput = null;
-                if (protocolParamsWithSegmentsMap.TryGetValue(param.Name, out matchingProtocolInput))
+                ParameterProvider? sourceParam = null;
+                ValueExpression? argumentValue = null;
+
+                // Try to find the corresponding convenience parameter using MethodParameterSegments
+                if (protocolParam.InputParameter?.MethodParameterSegments != null && protocolParam.InputParameter.MethodParameterSegments.Count > 0)
                 {
-                    // Found a match - now we need to follow the path to get the actual value
-                    ValueExpression conversion = param;
+                    // The MethodParameterSegments represents a path (e.g., ['Params', 'foo'] means params.foo)
+                    var rootParameterName = protocolParam.InputParameter.MethodParameterSegments[0].Name;
 
-                    // If there's a path (more than one element), navigate through properties
-                    if (matchingProtocolInput.MethodParameterSegments!.Count > 1)
+                    if (convenienceParamsMap.TryGetValue(rootParameterName, out sourceParam))
                     {
-                        // Get the property segments (skip the first element which is the root parameter name)
-                        var propertySegments = matchingProtocolInput.MethodParameterSegments
-                            .Skip(1)
-                            .Select(p => p.Name)
-                            .ToList();
-
-                        // Get the model provider for the parameter type if it's a model
-                        if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(param.Type, out var typeProvider) &&
-                            typeProvider is ModelProvider paramModel)
+                        // Check if this is a spread parameter
+                        if (sourceParam.SpreadSource is not null)
                         {
-                            // Use BuildPropertyAccessExpression for proper navigation with null conditionals
-                            conversion = paramModel.GetPropertyExpression(param, propertySegments);
-                        }
-                        else
-                        {
-                            // Fallback to simple property access for non-model types
-                            foreach (var propertyName in propertySegments)
+                            // For spread parameters, add the spread source once
+                            if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
                             {
-                                conversion = conversion.Property(propertyName);
+                                conversions.Add(spread);
+                                addedSpreadSource = true;
+                            }
+                            continue;
+                        }
+
+                        // Start with the root parameter
+                        argumentValue = sourceParam;
+
+                        // Navigate through the property path if needed
+                        if (protocolParam.InputParameter.MethodParameterSegments.Count > 1)
+                        {
+                            var propertySegments = protocolParam.InputParameter.MethodParameterSegments
+                                .Skip(1)
+                                .Select(p => p.Name)
+                                .ToList();
+
+                            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(sourceParam.Type, out var typeProvider) &&
+                                typeProvider is ModelProvider paramModel)
+                            {
+                                argumentValue = paramModel.GetPropertyExpression(sourceParam, propertySegments);
+                            }
+                            else
+                            {
+                                foreach (var propertyName in propertySegments)
+                                {
+                                    argumentValue = argumentValue.Property(propertyName);
+                                }
                             }
                         }
-                    }
-
-                    // Now apply type conversions based on the parameter location and type
-                    if (param.Location == ParameterLocation.Body)
-                    {
-                        if (param.Type.IsReadOnlyMemory || param.Type.IsList)
-                        {
-                            conversions.Add(declarations.GetValueOrDefault("content") ?? conversion);
-                        }
-                        else if (param.Type.IsEnum)
-                        {
-                            conversions.Add(RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(conversion))));
-                        }
-                        else if (param.Type.Equals(typeof(BinaryData)))
-                        {
-                            conversions.Add(RequestContentApiSnippets.Create(conversion));
-                        }
-                        else if (param.Type.IsFrameworkType)
-                        {
-                            conversions.Add(declarations.GetValueOrDefault("content") ?? conversion);
-                        }
-                        else
-                        {
-                            conversions.Add(conversion);
-                        }
-                    }
-                    else if (param.Type.IsEnum)
-                    {
-                        conversions.Add(param.Type.ToSerial(conversion));
-                    }
-                    else
-                    {
-                        conversions.Add(conversion);
                     }
                 }
                 else
                 {
-                    // Fallback for parameters without MethodParameterSegments metadata
-                    // This handles body parameter cases and legacy scenarios
-                    if (param.Location == ParameterLocation.Body)
+                    // Fallback: match by name for legacy scenarios without MethodParameterSegments
+                    if (convenienceParamsMap.TryGetValue(protocolParam.Name, out sourceParam))
                     {
-                        // Add any non-body parameters that may have been declared within the request body model
+                        // Handle spread
+                        if (sourceParam.SpreadSource is not null)
+                        {
+                            if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
+                            {
+                                conversions.Add(spread);
+                                addedSpreadSource = true;
+                            }
+                            continue;
+                        }
+
+                        argumentValue = sourceParam;
+                    }
+                    else if (protocolParam.Location == ParameterLocation.Body)
+                    {
+                        // Check if any convenience parameter has SpreadSource (indicates spread scenario)
+                        if (!addedSpreadSource &&
+                            ConvenienceMethodParameters.Any(p => p.SpreadSource != null) &&
+                            declarations.TryGetValue("spread", out ValueExpression? spread))
+                        {
+                            conversions.Add(spread);
+                            addedSpreadSource = true;
+                            continue;
+                        }
+
+                        // Try to extract from body model properties for non-body metadata
+                        if (bodyModel != null)
+                        {
+                            var bodyParam = ConvenienceMethodParameters.FirstOrDefault(p => p.Location == ParameterLocation.Body && p.Type.Equals(bodyModel.Type));
+                            if (bodyParam != null)
+                            {
+                                var nonBodyProperty = bodyModel.CanonicalView.Properties
+                                    .FirstOrDefault(p => p.WireInfo?.IsHttpMetadata == true &&
+                                        (p.WireInfo.SerializedName.Equals(protocolParam.WireInfo.SerializedName, StringComparison.OrdinalIgnoreCase) ||
+                                         p.Name.Equals(protocolParam.Name, StringComparison.OrdinalIgnoreCase)));
+
+                                if (nonBodyProperty != null)
+                                {
+                                    conversions.Add(bodyParam.Property(nonBodyProperty.Name));
+                                    continue;
+                                }
+                            }
+                        }
+
+                        // If we still haven't found a match, try to find body parameter by location
+                        sourceParam = ConvenienceMethodParameters.FirstOrDefault(p => p.Location == ParameterLocation.Body);
+                        if (sourceParam != null)
+                        {
+                            argumentValue = sourceParam;
+                        }
+                    }
+                }
+
+                // If we found a source parameter, convert it appropriately
+                if (argumentValue != null && sourceParam != null)
+                {
+                    // Handle body parameter conversions
+                    if (sourceParam.Location == ParameterLocation.Body)
+                    {
+                        // Extract non-body metadata properties if the source is a body model
                         List<ValueExpression>? requiredParameters = null;
                         List<ValueExpression>? optionalParameters = null;
 
-                        if (param.Type.Equals(bodyModel?.Type) == true)
+                        if (sourceParam.Type.Equals(bodyModel?.Type) == true)
                         {
-                            var parameterConversions = GetNonBodyModelPropertiesConversions(param, bodyModel);
+                            var parameterConversions = GetNonBodyModelPropertiesConversions(sourceParam, bodyModel);
                             if (parameterConversions != null)
                             {
                                 requiredParameters = parameterConversions.Value.RequiredParameters;
@@ -695,46 +722,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             }
                         }
 
-                        // Add required non-body parameters
+                        // Add required non-body parameters first
                         if (requiredParameters != null)
                         {
                             conversions.AddRange(requiredParameters);
                         }
 
-                        if (param.Type.IsReadOnlyMemory || param.Type.IsList)
+                        // Convert the body parameter value
+                        if (sourceParam.Type.IsReadOnlyMemory || sourceParam.Type.IsList)
                         {
-                            conversions.Add(declarations["content"]);
+                            argumentValue = declarations.GetValueOrDefault("content") ?? argumentValue;
                         }
-                        else if (param.Type.IsEnum)
+                        else if (sourceParam.Type.IsEnum)
                         {
-                            conversions.Add(RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
+                            argumentValue = RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(sourceParam.Type.ToSerial(argumentValue)));
                         }
-                        else if (param.Type.Equals(typeof(BinaryData)))
+                        else if (sourceParam.Type.Equals(typeof(BinaryData)))
                         {
-                            conversions.Add(RequestContentApiSnippets.Create(param));
+                            argumentValue = RequestContentApiSnippets.Create(argumentValue);
                         }
-                        else if (param.Type.IsFrameworkType)
+                        else if (sourceParam.Type.IsFrameworkType)
                         {
-                            conversions.Add(declarations["content"]);
-                        }
-                        else
-                        {
-                            conversions.Add(param);
+                            argumentValue = declarations.GetValueOrDefault("content") ?? argumentValue;
                         }
 
-                        // Add optional non-body parameters
+                        conversions.Add(argumentValue);
+
+                        // Add optional non-body parameters last
                         if (optionalParameters != null)
                         {
                             conversions.AddRange(optionalParameters);
                         }
                     }
-                    else if (param.Type.IsEnum)
+                    else if (sourceParam.Type.IsEnum)
                     {
-                        conversions.Add(param.Type.ToSerial(param));
+                        conversions.Add(sourceParam.Type.ToSerial(sourceParam));
                     }
                     else
                     {
-                        conversions.Add(param);
+                        conversions.Add(argumentValue);
                     }
                 }
             }
