@@ -582,6 +582,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsFalse(optionsArg is NewInstanceExpression, "Options argument should be the parameter itself, not a new instance");
         }
 
+        [Test]
+        public void TestBuildConstructors_DeduplicatesParametersBySerializedName()
+        {
+            // Scenario: Client has a parameter with name "indexName" and serializedName "indexName"
+            // An operation has a parameter with name "name" but serializedName "indexName" (renamed via @encodedName)
+            // These should be deduplicated by SerializedName to avoid duplicate fields
+            var clientParameter = InputFactory.PathParameter(
+                "indexName",
+                InputPrimitiveType.String,
+                serializedName: "indexName",
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operationParameterWithRenamedName = InputFactory.PathParameter(
+                "name",
+                InputPrimitiveType.String,
+                serializedName: "indexName",
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [operationParameterWithRenamedName]);
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("TestMethod", operation)],
+                parameters: [endpointParameter, clientParameter]);
+
+            var clientProvider = new ClientProvider(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Verify the field with the same SerializedName only appears once
+            var fields = clientProvider.Fields;
+            var indexNameFields = fields.Where(f => f.Name == "_indexName" || f.Name == "_name").ToList();
+
+            // Should only have ONE field for the "indexName" serialized name, not two
+            Assert.AreEqual(1, indexNameFields.Count,
+                $"Expected 1 field for serializedName 'indexName', but found {indexNameFields.Count}: {string.Join(", ", indexNameFields.Select(f => f.Name))}");
+
+            // The field should be "_indexName" (from the client parameters, which comes first)
+            Assert.AreEqual("_indexName", indexNameFields[0].Name,
+                "Expected the client parameter field '_indexName' to be used, not the operation parameter field '_name'");
+        }
+
         // Tests for InitializedBy flag behavior
 
         [Test]
