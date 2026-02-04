@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.26.3
+
+### Bug Fixes
+
+- [#9573](https://github.com/microsoft/typespec/pull/9573) Ignore all errors thrown during error deserialization, not just `DeserializationError`
+
+
 ## 0.26.2
 
 ### Bug Fixes

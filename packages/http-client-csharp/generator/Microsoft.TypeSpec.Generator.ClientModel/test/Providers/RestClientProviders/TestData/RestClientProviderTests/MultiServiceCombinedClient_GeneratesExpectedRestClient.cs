@@ -10,7 +10,7 @@ namespace Sample
     {
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier200;
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
         internal global::System.ClientModel.Primitives.PipelineMessage CreateServiceAOperationRequest(global::System.ClientModel.Primitives.RequestOptions options)
         {

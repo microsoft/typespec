@@ -353,7 +353,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                         classifierBackingField.Name.Substring(1).ToIdentifierName(),
                         new ExpressionPropertyBody(
-                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)))),
+                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)), nullCoalesce: true)),
                         this)
                     {
                         BackingField = classifierBackingField
