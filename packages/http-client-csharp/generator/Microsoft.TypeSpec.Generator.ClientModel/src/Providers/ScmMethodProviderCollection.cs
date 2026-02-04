@@ -619,11 +619,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // If there's a path (more than one element), navigate through properties
                     if (matchingProtocolInput.MethodParameterSegments!.Count > 1)
                     {
-                        // Skip the first element (root parameter) and navigate through the rest
-                        for (int i = 1; i < matchingProtocolInput.MethodParameterSegments.Count; i++)
+                        // Get the property segments (skip the first element which is the root parameter name)
+                        var propertySegments = matchingProtocolInput.MethodParameterSegments
+                            .Skip(1)
+                            .Select(p => p.Name)
+                            .ToList();
+
+                        // Get the model provider for the parameter type if it's a model
+                        if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(param.Type, out var typeProvider) &&
+                            typeProvider is ModelProvider paramModel)
                         {
-                            var propertyName = matchingProtocolInput.MethodParameterSegments[i].Name;
-                            conversion = conversion.Property(propertyName);
+                            // Use BuildPropertyAccessExpression for proper navigation with null conditionals
+                            conversion = paramModel.GetPropertyExpression(param, propertySegments);
+                        }
+                        else
+                        {
+                            // Fallback to simple property access for non-model types
+                            foreach (var propertyName in propertySegments)
+                            {
+                                conversion = conversion.Property(propertyName);
+                            }
                         }
                     }
 
