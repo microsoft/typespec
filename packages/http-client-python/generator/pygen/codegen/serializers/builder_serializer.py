@@ -1423,7 +1423,8 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             item_type = builder.item_type.type_annotation(
                 is_operation_file=True, serialize_namespace=self.serialize_namespace
             )
-            list_of_elem_deserialized = f"_deserialize({item_type}, deserialized{access})"
+            deserialize_func = "_deserialize_xml" if builder.is_xml_paging else "_deserialize"
+            list_of_elem_deserialized = f"{deserialize_func}({item_type}, deserialized{access})"
         else:
             list_of_elem_deserialized = f"deserialized{access}"
         retval.append(f"    list_of_elem = {list_of_elem_deserialized}")
