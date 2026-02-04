@@ -80,14 +80,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         {
             var typeFactory = CodeModelGenerator.Instance.TypeFactory;
 
-            // Look through CSharpTypeMap to find a type with matching C# name
+            // Look up type provider by name using the efficient name-based dictionary
             // This handles cases where the type is renamed using CodeGenType attribute
-            foreach (var kvp in typeFactory.CSharpTypeMap)
+            if (typeFactory.TypeProvidersByName.TryGetValue(typeName, out var typeProvider))
             {
-                if (kvp.Key.Name == typeName && kvp.Value != null)
-                {
-                    return kvp.Key;
-                }
+                return typeProvider?.Type;
             }
 
             return null;
