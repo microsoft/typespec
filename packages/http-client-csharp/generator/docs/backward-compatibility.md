@@ -11,6 +11,7 @@
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
+  - [Parameter Name Casing](#parameter-name-casing)
 
 ## Overview
 
@@ -359,3 +360,119 @@ public abstract partial class SearchIndexerDataIdentity
 - The constructor must have matching parameters (same count, types, and names)
 - The modifier is changed from `private protected` to `public`
 - No additional constructors are generated; only the accessibility is adjusted
+
+### Parameter Name Casing
+
+The generator maintains backward compatibility for parameter names to ensure that existing code continues to compile when parameter name casing is corrected or standardized.
+
+#### Scenario: Page Size Parameter Casing Correction
+
+**Description:** When a paging parameter name has incorrect casing in the TypeSpec (e.g., `maxpagesize` instead of `maxPageSize`), the generator handles it in two ways:
+
+1. **If the parameter exists in LastContractView**: The generator uses the exact casing from the previous version to maintain backward compatibility
+2. **If the parameter does NOT exist in LastContractView**: The generator normalizes common badly-cased variants to proper camelCase (e.g., `maxpagesize` → `maxPageSize`)
+
+This commonly occurs when:
+
+- TypeSpec defines a paging parameter with non-standard casing (e.g., all lowercase)
+- The generator needs to maintain API consistency while respecting the wire format
+- New paging operations need standardized parameter naming
+
+**Example:**
+
+**Case 1: Parameter exists in LastContractView - badly-cased is preserved (backward compatibility)**
+
+Previous version had badly-cased parameter name:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? maxpagesize = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (maxpagesize != null)
+        {
+            uri.AppendQuery("maxpagesize", maxpagesize.Value, true);  // Serialized name from spec
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+Current TypeSpec still defines parameter with bad casing:
+
+```typespec
+@query maxpagesize?: int32;  // Lowercase in spec
+```
+
+**Generated Compatibility Result:**
+
+The generator detects the parameter in LastContractView and preserves its exact badly-cased name to maintain backward compatibility:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? maxpagesize = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (maxpagesize != null)
+        {
+            uri.AppendQuery("maxpagesize", maxpagesize.Value, true);  // Still badly-cased for backward compatibility
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+**Case 2: Parameter does NOT exist in LastContractView - badly-cased is normalized**
+
+New paging operation with badly-cased parameter (no previous version):
+
+```typespec
+@query maxpagesize?: int32;  // Lowercase in spec
+```
+
+**Generated Result:**
+
+The generator normalizes the parameter name to proper camelCase since there's no previous version to maintain compatibility with:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? maxPageSize = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (maxPageSize != null)
+        {
+            uri.AppendQuery("maxpagesize", maxPageSize.Value, true);  // Serialized name still uses spec's casing
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+**Key Points:**
+
+- **Case 1 (Backward compatibility)**: If the parameter exists in LastContractView, its exact casing is preserved - even if badly-cased
+- **Case 2 (Normalization)**: If the parameter does NOT exist in LastContractView, badly-cased variants are normalized to proper camelCase
+- The HTTP query parameter always uses the original serialized name from the spec (e.g., `maxpagesize`)
+- Existing client code continues to compile without changes
+
