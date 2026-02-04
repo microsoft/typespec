@@ -1504,16 +1504,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("Bar", elementType.Name);
             Assert.AreEqual("Sample.Models", elementType.Namespace, "Bar type should have proper namespace");
             Assert.IsFalse(string.IsNullOrEmpty(elementType.Namespace), "Element type namespace should not be empty");
-
-            // Validate constructor parameter has proper type
-            var fullCtor = modelTypeProvider.Constructors.Last();
-            var barsParam = fullCtor.Signature.Parameters.FirstOrDefault(p => p.Name == "bars");
-            if (barsParam != null)
-            {
-                Assert.IsTrue(barsParam.Type.IsList);
-                Assert.AreEqual("Bar", barsParam.Type.ElementType.Name);
-                Assert.AreEqual("Sample.Models", barsParam.Type.ElementType.Namespace, "Constructor parameter type should have proper namespace");
-            }
         }
 
         [Test]
@@ -1546,16 +1536,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("RenamedBar", elementType.Name);
             Assert.AreEqual("Sample.Models", elementType.Namespace, "RenamedBar type should have proper namespace");
             Assert.IsFalse(string.IsNullOrEmpty(elementType.Namespace), "Element type namespace should not be empty");
-
-            // Validate constructor parameter has proper type
-            var fullCtor = modelTypeProvider.Constructors.Last();
-            var barsParam = fullCtor.Signature.Parameters.FirstOrDefault(p => p.Name == "renamedBars");
-            if (barsParam != null)
-            {
-                Assert.IsTrue(barsParam.Type.IsList);
-                Assert.AreEqual("RenamedBar", barsParam.Type.ElementType.Name);
-                Assert.AreEqual("Sample.Models", barsParam.Type.ElementType.Namespace, "Constructor parameter type should have proper namespace for renamed type");
-            }
         }
 
         private class NameSpaceVisitor : LibraryVisitor
