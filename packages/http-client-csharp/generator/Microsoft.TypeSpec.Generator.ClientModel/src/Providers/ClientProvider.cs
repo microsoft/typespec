@@ -1104,15 +1104,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<InputParameter> GetAllClientParameters()
         {
-            // Get all parameters from the client and its methods
+            // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters
             var parameters = _inputClient.Parameters.Concat(
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
-                    .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.Name).ToArray();
+                    .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
 
             foreach (var subClient in _subClients.Value)
             {
                 // Add parameters from sub-clients
-                parameters = parameters.Concat(subClient.GetAllClientParameters()).DistinctBy(p => p.Name).ToArray();
+                parameters = parameters.Concat(subClient.GetAllClientParameters()).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
             }
 
             return parameters;
