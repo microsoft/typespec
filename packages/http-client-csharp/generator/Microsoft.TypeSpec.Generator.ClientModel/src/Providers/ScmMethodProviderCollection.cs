@@ -583,73 +583,126 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
             }
 
+            // Create a mapping from protocol parameter names to their InputParameter for CorrespondingMethodParams lookup
+            var protocolParamsWithCorrespondingMap = new Dictionary<string, InputParameter>(StringComparer.OrdinalIgnoreCase);
+            foreach (var protocolParam in ProtocolMethodParameters)
+            {
+                if (protocolParam.InputParameter?.CorrespondingMethodParams != null && protocolParam.InputParameter.CorrespondingMethodParams.Count > 0)
+                {
+                    // Map the first corresponding method parameter name to this protocol parameter's InputParameter
+                    var correspondingName = protocolParam.InputParameter.CorrespondingMethodParams[0].Name;
+                    protocolParamsWithCorrespondingMap[correspondingName] = protocolParam.InputParameter;
+                }
+            }
+
             foreach (var param in ConvenienceMethodParameters)
             {
-                // handle spread
-                if (param.SpreadSource is not null)
+                // Check if this convenience parameter has a corresponding protocol parameter via CorrespondingMethodParams
+                InputParameter? matchingProtocolInput = null;
+                if (protocolParamsWithCorrespondingMap.TryGetValue(param.Name, out matchingProtocolInput))
                 {
-                    if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
+                    // Use the mapped protocol parameter logic
+                    if (param.Location == ParameterLocation.Body)
                     {
-                        conversions.Add(spread);
-                        addedSpreadSource = true;
-                    }
-                }
-                else if (param.Location == ParameterLocation.Body)
-                {
-                    // Add any non-body parameters that may have been declared within the request body model
-                    List<ValueExpression>? requiredParameters = null;
-                    List<ValueExpression>? optionalParameters = null;
-
-                    if (param.Type.Equals(bodyModel?.Type) == true)
-                    {
-                        var parameterConversions = GetNonBodyModelPropertiesConversions(param, bodyModel);
-                        if (parameterConversions != null)
+                        if (param.Type.IsReadOnlyMemory || param.Type.IsList)
                         {
-                            requiredParameters = parameterConversions.Value.RequiredParameters;
-                            optionalParameters = parameterConversions.Value.OptionalParameters;
+                            conversions.Add(declarations.GetValueOrDefault("content") ?? param);
                         }
-                    }
-
-                    // Add required non-body parameters
-                    if (requiredParameters != null)
-                    {
-                        conversions.AddRange(requiredParameters);
-                    }
-
-                    if (param.Type.IsReadOnlyMemory || param.Type.IsList)
-                    {
-                        conversions.Add(declarations["content"]);
+                        else if (param.Type.IsEnum)
+                        {
+                            conversions.Add(RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
+                        }
+                        else if (param.Type.Equals(typeof(BinaryData)))
+                        {
+                            conversions.Add(RequestContentApiSnippets.Create(param));
+                        }
+                        else if (param.Type.IsFrameworkType)
+                        {
+                            conversions.Add(declarations.GetValueOrDefault("content") ?? param);
+                        }
+                        else
+                        {
+                            conversions.Add(param);
+                        }
                     }
                     else if (param.Type.IsEnum)
                     {
-                        conversions.Add(RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
-                    }
-                    else if (param.Type.Equals(typeof(BinaryData)))
-                    {
-                        conversions.Add(RequestContentApiSnippets.Create(param));
-                    }
-                    else if (param.Type.IsFrameworkType)
-                    {
-                        conversions.Add(declarations["content"]);
+                        conversions.Add(param.Type.ToSerial(param));
                     }
                     else
                     {
                         conversions.Add(param);
                     }
-
-                    // Add optional non-body parameters
-                    if (optionalParameters != null)
-                    {
-                        conversions.AddRange(optionalParameters);
-                    }
-                }
-                else if (param.Type.IsEnum)
-                {
-                    conversions.Add(param.Type.ToSerial(param));
                 }
                 else
                 {
-                    conversions.Add(param);
+                    // Fall back to original logic for parameters not mapped via CorrespondingMethodParams
+                    // handle spread
+                    if (param.SpreadSource is not null)
+                    {
+                        if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
+                        {
+                            conversions.Add(spread);
+                            addedSpreadSource = true;
+                        }
+                    }
+                    else if (param.Location == ParameterLocation.Body)
+                    {
+                        // Add any non-body parameters that may have been declared within the request body model
+                        List<ValueExpression>? requiredParameters = null;
+                        List<ValueExpression>? optionalParameters = null;
+
+                        if (param.Type.Equals(bodyModel?.Type) == true)
+                        {
+                            var parameterConversions = GetNonBodyModelPropertiesConversions(param, bodyModel);
+                            if (parameterConversions != null)
+                            {
+                                requiredParameters = parameterConversions.Value.RequiredParameters;
+                                optionalParameters = parameterConversions.Value.OptionalParameters;
+                            }
+                        }
+
+                        // Add required non-body parameters
+                        if (requiredParameters != null)
+                        {
+                            conversions.AddRange(requiredParameters);
+                        }
+
+                        if (param.Type.IsReadOnlyMemory || param.Type.IsList)
+                        {
+                            conversions.Add(declarations["content"]);
+                        }
+                        else if (param.Type.IsEnum)
+                        {
+                            conversions.Add(RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
+                        }
+                        else if (param.Type.Equals(typeof(BinaryData)))
+                        {
+                            conversions.Add(RequestContentApiSnippets.Create(param));
+                        }
+                        else if (param.Type.IsFrameworkType)
+                        {
+                            conversions.Add(declarations["content"]);
+                        }
+                        else
+                        {
+                            conversions.Add(param);
+                        }
+
+                        // Add optional non-body parameters
+                        if (optionalParameters != null)
+                        {
+                            conversions.AddRange(optionalParameters);
+                        }
+                    }
+                    else if (param.Type.IsEnum)
+                    {
+                        conversions.Add(param.Type.ToSerial(param));
+                    }
+                    else
+                    {
+                        conversions.Add(param);
+                    }
                 }
             }
 

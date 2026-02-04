@@ -49,11 +49,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? Field { get; set; }
 
         /// <summary>
+        /// This property stores the InputParameter that this ParameterProvider was created from.
+        /// Used to access metadata like CorrespondingMethodParams for override scenarios.
+        /// </summary>
+        public InputParameter? InputParameter { get; private set; }
+
+        /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
         public ParameterProvider(InputParameter inputParameter)
         {
+            InputParameter = inputParameter;
             Name = inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
