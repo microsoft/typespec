@@ -224,6 +224,18 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
       execSync(command);
 
+      // Write command to alpha/command.txt for debugging/profiling purposes
+      const commandFlagsRecorded = Object.entries(commandArgs)
+        .map(([key, value]) => {
+          if (key === "tsp-file") {
+            return `--${key}=C:/dev/typespec/packages/http-client-python/alpha/output.yaml`;
+          }
+          return `--${key}=${value}`;
+        })
+        .join(" ");
+      const commandRecorded = `Copy-Item "C:/dev/typespec/packages/http-client-python/alpha/output copy.yaml" -Destination "C:/dev/typespec/packages/http-client-python/alpha/output.yaml" ; ${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlagsRecorded}`;
+      fs.writeFileSync(path.join(root, "alpha", "command.txt"), commandRecorded);
+
       const blackExcludeDirs = [
         "__pycache__/",
         "node_modules/",
