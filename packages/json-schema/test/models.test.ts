@@ -416,7 +416,6 @@ describe("can use special words as properties", () => {
   });
 });
 
-
 describe("unspeakable template should be emitted inline", () => {
   it("when using namespace", async () => {
     const schemas = await emitSchema(`
@@ -443,7 +442,8 @@ describe("unspeakable template should be emitted inline", () => {
   });
 
   it("when emitting schema", async () => {
-    const schemas = await emitSchema(`
+    const schemas = await emitSchema(
+      `
       @jsonSchema
       model Test {
         a: Template<Thing, "a">;
@@ -456,13 +456,16 @@ describe("unspeakable template should be emitted inline", () => {
       model Thing {
         a: string;
       }
-    `, undefined, {emitNamespace: false});
+    `,
+      undefined,
+      { emitNamespace: false },
+    );
 
     expect(schemas["Test.json"].properties.a).toEqual({
       type: "object",
       required: ["t"],
       properties: {
-        t: {  $ref: "#/$defs/Thing" },
+        t: { $ref: "#/$defs/Thing" },
       },
     });
     expect(schemas["Test.json"].$defs.Thing).toEqual({
@@ -502,4 +505,4 @@ describe("unspeakable template should be emitted inline", () => {
     });
     assert(schemas["Bar.json"]);
   });
-})
+});

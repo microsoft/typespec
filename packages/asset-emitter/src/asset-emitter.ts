@@ -593,8 +593,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     // Unspeakable instantiations should not reset the type stack because they are
     // emitted inline and need to maintain the outer scope for reference resolution.
     const isUnspeakableInstantiation =
-      (method === "modelInstantiation" || method === "unionInstantiation") &&
-      args[1] === undefined;
+      (method === "modelInstantiation" || method === "unionInstantiation") && args[1] === undefined;
 
     // if we've walked into a new declaration, reset the lexical type stack
     // to the lexical containers of the current type.
@@ -756,7 +755,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     const oldTypeStack = lexicalTypeStack;
     context = newContext.context;
     lexicalTypeStack = newContext.lexicalTypeStack;
-    
+
     cb();
 
     context = oldContext;
