@@ -747,9 +747,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             argumentValue = declarations.GetValueOrDefault("content") ?? argumentValue;
                         }
+                        else if (protocolParam.InputParameter?.MethodParameterSegments != null &&
+                                 protocolParam.InputParameter.MethodParameterSegments.Count > 1)
+                        {
+                            // This is a value extracted from a property (e.g., info.Action from MethodParameterSegments ['info', 'action'])
+                            // We need to serialize it as request content
+                            argumentValue = RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(argumentValue));
+                        }
                         else if (sourceParam.Location != ParameterLocation.Body)
                         {
-                            // This is a value extracted from a non-body parameter (e.g., info.Action)
+                            // This is a value from a non-body parameter
                             // We need to serialize it as request content
                             argumentValue = RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(argumentValue));
                         }
