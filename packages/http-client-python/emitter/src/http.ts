@@ -41,6 +41,13 @@ export enum ReferredByOperationTypes {
   NonPagingOnly = 2,
 }
 
+function getIncludeRootSlash(rootClient: SdkClientType<SdkHttpOperation>): boolean {
+  // TODO: uncomment when @clientOption lands in TCGC
+  // const option = getClientOption(rootClient.decorators, "includeRootSlash");
+  // return option?.value !== false;
+  return true; // default: preserve root slash
+}
+
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
   return parameter.serializedName.toLowerCase() === "content-type";
 }
@@ -378,8 +385,9 @@ function emitHttpOperation(
   for (const exception of operation.exceptions) {
     exceptions.push(emitHttpResponse(context, exception.statusCodes, exception, undefined, true)!);
   }
+  const includeRootSlash = getIncludeRootSlash(rootClient);
   const result = {
-    url: operation.path,
+    url: includeRootSlash ? operation.path : operation.path.replace(/\/$/, ""),
     method: operation.verb.toUpperCase(),
     parameters: emitHttpParameters(context, rootClient, operation, method, serviceApiVersions),
     bodyParameter: emitHttpBodyParameter(context, operation.bodyParam, serviceApiVersions),
