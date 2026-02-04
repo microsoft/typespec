@@ -1164,6 +1164,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 scope: InputParameterScope.Client,
                 isApiVersion: true);
 
+            InputMethodParameter pascalCaseApiVersionParameter = InputFactory.MethodParameter(
+                "ApiVersion",
+                InputPrimitiveType.String,
+                location: InputRequestLocation.Uri,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
             InputMethodParameter enumApiVersionParameter = InputFactory.MethodParameter(
                 "apiVersion",
                 InputFactory.StringEnum(
@@ -1191,7 +1199,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                                 uri: "{endpoint}/{apiVersion}"))
                     ],
                     parameters: [endpointParameter, stringApiVersionParameter]));
-
+            
             yield return new TestCaseData(
                 InputFactory.Client(
                     "TestClient",
@@ -1204,6 +1212,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                                 uri: "{endpoint}/{apiVersion}"))
                     ],
                     parameters: [endpointParameter, enumApiVersionParameter]));
+            
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    methods:
+                    [
+                        InputFactory.BasicServiceMethod(
+                            "TestServiceMethod",
+                             InputFactory.Operation(
+                                "TestOperation",
+                                uri: "{endpoint}/{ApiVersion}"))
+                    ],
+                    parameters: [endpointParameter, stringApiVersionParameter]));
+            
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    methods:
+                    [
+                        InputFactory.BasicServiceMethod(
+                            "TestServiceMethod",
+                             InputFactory.Operation(
+                                "TestOperation",
+                                uri: "{endpoint}/{apiVersion}"))
+                    ],
+                    parameters: [endpointParameter, pascalCaseApiVersionParameter]));
+            
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    methods:
+                    [
+                        InputFactory.BasicServiceMethod(
+                            "TestServiceMethod",
+                             InputFactory.Operation(
+                                "TestOperation",
+                                uri: "{endpoint}/{ApiVersion}"))
+                    ],
+                    parameters: [endpointParameter, pascalCaseApiVersionParameter]));
         }
     }
 }
