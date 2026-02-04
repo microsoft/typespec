@@ -3871,29 +3871,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return type;
   }
 
-  // function shouldRunDecorators(ctx: CheckContext, node: TemplateDeclarationNode) {
-  //   if (ctx.flags & CheckFlags.InTemplateDeclaration) {
-  //     return false;
-  //   }
-
-  //   // Node is not a template we should create the type.
-  //   if (node.templateParameters.length === 0) {
-  //     return true;
-  //   }
-  //   // There is no mapper so we shouldn't be instantiating the template.
-  //   if (ctx.mapper === undefined) {
-  //     return false;
-  //   }
-
-  //   // Some of the mapper args are still template parameter so we shouldn't create the type.
-  //   return (
-  //     !ctx.mapper.partial &&
-  //     ctx.mapper.args.every(
-  //       (t) => isValue(t) || t.entityKind === "Indeterminate" || t.kind !== "TemplateParameter",
-  //     )
-  //   );
-  // }
-
   function checkModelExpression(ctx: CheckContext, node: ModelExpressionNode) {
     const links = getSymbolLinks(node.symbol);
 
