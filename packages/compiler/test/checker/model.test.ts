@@ -1121,6 +1121,74 @@ describe("compiler: models", () => {
 
       expect($observe).toHaveBeenCalledTimes(1);
     });
+
+    it("resolves a cyclic recursion with a property aliased to a recursive spread", async () => {
+      const $observe = vi.fn();
+      testHost.addJsFile("utils.js", {
+        $observe,
+      });
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./utils.js";
+
+        model X<T> {
+          prop: T;
+          y: Y<T>;
+        }
+
+        model Y<T> is X<string> {
+          extra: Z<T>;
+        }
+
+        alias Z<T> = {
+          @observe foo: T;
+          ...X<string>
+        };
+
+        @test model Result is X<int32>;
+        `,
+      );
+
+      const { Result } = (await testHost.compile("main.tsp")) as { Result: Model | undefined };
+
+      ok(Result);
+      strictEqual(Result.properties.size, 2);
+      strictEqual((Result.properties.get("prop")?.type as any).name, "int32");
+      const yProp = Result.properties.get("y")?.type;
+      ok(yProp);
+      ok(yProp.kind === "Model");
+      strictEqual(yProp.properties.size, 3);
+      strictEqual((yProp.properties.get("prop")?.type as any).name, "string");
+      const zProp = yProp.properties.get("extra")?.type;
+      ok(zProp);
+      ok(zProp.kind === "Model");
+      strictEqual(zProp.properties.size, 3);
+      strictEqual((zProp.properties.get("foo")?.type as any).name, "int32");
+      strictEqual((zProp.properties.get("y")?.type as any).name, "Y");
+      strictEqual((zProp.properties.get("prop")?.type as any).name, "string");
+
+      const innerXFromZ = zProp.properties.get("y")?.type;
+      ok(innerXFromZ);
+      ok(innerXFromZ.kind === "Model");
+      strictEqual(innerXFromZ.properties.size, 3);
+      strictEqual((innerXFromZ.properties.get("prop")?.type as any).name, "string");
+      const innerYFromZ = innerXFromZ.properties.get("y")?.type;
+      ok(innerYFromZ);
+      ok(innerYFromZ.kind === "Model");
+      strictEqual(innerYFromZ.properties.size, 3);
+      strictEqual((innerYFromZ.properties.get("prop")?.type as any).name, "string");
+      const innerZFromZ = innerYFromZ.properties.get("extra")?.type;
+      ok(innerZFromZ);
+      ok(innerZFromZ.kind === "Model");
+      strictEqual(innerZFromZ.properties.size, 3);
+      strictEqual((innerZFromZ.properties.get("foo")?.type as any).name, "string");
+      strictEqual((innerZFromZ.properties.get("y")?.type as any).name, "Y");
+      strictEqual((innerZFromZ.properties.get("prop")?.type as any).name, "string");
+
+      // Called twice, once for Z<string> and once for Z<int32>
+      expect($observe).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("spread", () => {

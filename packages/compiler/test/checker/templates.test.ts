@@ -673,6 +673,46 @@ describe("compiler: templates", () => {
       `);
     });
 
+    describe("within aliases", () => {
+      it("on model property", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Foo<T> = {
+            @mark(T) prop: string;
+          };
+        `);
+      });
+
+      it("on model property, when no argument is provided", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Foo<T> = {
+            @mark prop: string;
+          };
+        `);
+      });
+
+      it("when instantiation is indirect", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Bar<T> = Foo<T>;
+
+          alias Foo<T> = {
+            @mark(T) prop: string;
+          };
+        `);
+      });
+
+      it("when instantiation is indirect and nested", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Bar<T> = {
+            nested: Foo<T>;
+          };
+
+          alias Foo<T> = {
+            @mark(T) prop: string;
+          };
+        `);
+      });
+    });
+
     describe("on model properties", () => {
       it("under model", async () => {
         await expectMarkDecoratorNotCalled(`
