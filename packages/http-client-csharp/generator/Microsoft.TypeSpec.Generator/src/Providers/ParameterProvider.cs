@@ -143,7 +143,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 validation: Validation)
             {
                 _asVariable = _asVariable,
-                SpreadSource = SpreadSource
+                SpreadSource = SpreadSource,
+                InputParameter = InputParameter
             };
         }
 
