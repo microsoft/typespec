@@ -23,6 +23,10 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
+
+        // Maps C# type names to TypeProviders for efficient lookup when resolving types by name
+        internal IDictionary<string, TypeProvider> TypeProvidersByName { get; } = new Dictionary<string, TypeProvider>();
+
         private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
@@ -197,6 +201,7 @@ namespace Microsoft.TypeSpec.Generator
             if (modelProvider != null)
             {
                 CSharpTypeMap[modelProvider.Type] = modelProvider;
+                TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
             }
             return modelProvider;
         }
@@ -255,6 +260,7 @@ namespace Microsoft.TypeSpec.Generator
             if (enumProvider != null)
             {
                 CSharpTypeMap[enumProvider.Type] = enumProvider;
+                TypeProvidersByName[enumProvider.Type.Name] = enumProvider;
             }
 
             return enumProvider;
