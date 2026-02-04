@@ -57,9 +57,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     {
                         return type.IsNullable ? resolvedType.WithNullable(true) : resolvedType;
                     }
-
-                    // Fallback: try to find the InputType and create CSharpType from it
-                    inputType = TryFindInputTypeByName(type.Name);
                 }
 
                 if (inputType == null)
@@ -90,29 +87,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 if (kvp.Key.Name == typeName && kvp.Value != null)
                 {
                     return kvp.Key;
-                }
-            }
-
-            return null;
-        }
-
-        private static InputType? TryFindInputTypeByName(string typeName)
-        {
-            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
-
-            // Try to find in input models by TypeSpec name
-            if (typeFactory.InputModelTypeNameMap.TryGetValue(typeName, out var inputModelType))
-            {
-                return inputModelType;
-            }
-
-            // Try to find in input enums by TypeSpec name
-            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            foreach (var enumType in inputNamespace.Enums)
-            {
-                if (enumType.Name == typeName)
-                {
-                    return enumType;
                 }
             }
 
