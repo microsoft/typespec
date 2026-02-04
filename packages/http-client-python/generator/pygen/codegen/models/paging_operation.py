@@ -17,6 +17,7 @@ from .parameter_list import ParameterList
 from .model_type import ModelType
 from .list_type import ListType
 from .parameter import Parameter
+from ...utils import xml_serializable
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -135,6 +136,10 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def has_optional_return_type(self) -> bool:
         return False
 
+    @property
+    def enable_import_deserialize_xml(self):
+        return any(xml_serializable(str(r.default_content_type)) for r in self.exceptions)
+
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         if self.abstract:
             return FileImport(self.code_model)
@@ -182,8 +187,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             )
             file_import.merge(self.item_type.imports(**kwargs))
             if self.default_error_deserialization(serialize_namespace) or self.need_deserialize:
-                deserialize_func = "_deserialize_xml" if self.is_xml_paging else "_deserialize"
-                file_import.add_submodule_import(relative_path, deserialize_func, ImportType.LOCAL)
+                file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
             if self.is_xml_paging:
                 file_import.add_submodule_import("xml.etree", "ElementTree", ImportType.STDLIB, alias="ET")
         return file_import
