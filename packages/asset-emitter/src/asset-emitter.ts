@@ -589,9 +589,21 @@ export function createAssetEmitter<T, TOptions extends object>(
     const type = args[0];
     let newTypeStack: LexicalTypeStackEntry[];
 
+    // Check if this is an unspeakable template instantiation (name is undefined).
+    // Unspeakable instantiations should not reset the type stack because they are
+    // emitted inline and need to maintain the outer scope for reference resolution.
+    const isUnspeakableInstantiation =
+      (method === "modelInstantiation" || method === "unionInstantiation") &&
+      args[1] === undefined;
+
     // if we've walked into a new declaration, reset the lexical type stack
     // to the lexical containers of the current type.
-    if (isDeclaration(type) && type.kind !== "Intrinsic" && !isInternalMethod(method)) {
+    if (
+      isDeclaration(type) &&
+      type.kind !== "Intrinsic" &&
+      !isInternalMethod(method) &&
+      !isUnspeakableInstantiation
+    ) {
       newTypeStack = [stackEntryInterner.intern({ method, args: stackEntryInterner.intern(args) })];
       let ns = type.namespace;
       while (ns) {
@@ -744,7 +756,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     const oldTypeStack = lexicalTypeStack;
     context = newContext.context;
     lexicalTypeStack = newContext.lexicalTypeStack;
-
+    
     cb();
 
     context = oldContext;
