@@ -583,35 +583,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
             }
 
-            // Create a mapping from protocol parameter names to their InputParameter for CorrespondingMethodParams lookup
-            var protocolParamsWithCorrespondingMap = new Dictionary<string, InputParameter>(StringComparer.OrdinalIgnoreCase);
+            // Create a mapping from protocol parameter names to their InputParameter for MethodParameterSegments lookup
+            var protocolParamsWithSegmentsMap = new Dictionary<string, InputParameter>(StringComparer.OrdinalIgnoreCase);
             foreach (var protocolParam in ProtocolMethodParameters)
             {
-                if (protocolParam.InputParameter?.CorrespondingMethodParams != null && protocolParam.InputParameter.CorrespondingMethodParams.Count > 0)
+                if (protocolParam.InputParameter?.MethodParameterSegments != null && protocolParam.InputParameter.MethodParameterSegments.Count > 0)
                 {
-                    // The CorrespondingMethodParams represents a path (e.g., ['Params', 'foo'] means params.foo)
+                    // The MethodParameterSegments represents a path (e.g., ['Params', 'foo'] means params.foo)
                     // Map the first element of the path (the root parameter name) to this protocol parameter's InputParameter
-                    var rootParameterName = protocolParam.InputParameter.CorrespondingMethodParams[0].Name;
-                    protocolParamsWithCorrespondingMap[rootParameterName] = protocolParam.InputParameter;
+                    var rootParameterName = protocolParam.InputParameter.MethodParameterSegments[0].Name;
+                    protocolParamsWithSegmentsMap[rootParameterName] = protocolParam.InputParameter;
                 }
             }
 
             foreach (var param in ConvenienceMethodParameters)
             {
-                // Check if this convenience parameter has a corresponding protocol parameter via CorrespondingMethodParams
+                // Handle spread parameters separately as they map to the entire spread source
+                if (param.SpreadSource is not null)
+                {
+                    if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
+                    {
+                        conversions.Add(spread);
+                        addedSpreadSource = true;
+                    }
+                    continue;
+                }
+
+                // Check if this convenience parameter has a corresponding protocol parameter via MethodParameterSegments
                 InputParameter? matchingProtocolInput = null;
-                if (protocolParamsWithCorrespondingMap.TryGetValue(param.Name, out matchingProtocolInput))
+                if (protocolParamsWithSegmentsMap.TryGetValue(param.Name, out matchingProtocolInput))
                 {
                     // Found a match - now we need to follow the path to get the actual value
                     ValueExpression conversion = param;
 
                     // If there's a path (more than one element), navigate through properties
-                    if (matchingProtocolInput.CorrespondingMethodParams!.Count > 1)
+                    if (matchingProtocolInput.MethodParameterSegments!.Count > 1)
                     {
                         // Skip the first element (root parameter) and navigate through the rest
-                        for (int i = 1; i < matchingProtocolInput.CorrespondingMethodParams.Count; i++)
+                        for (int i = 1; i < matchingProtocolInput.MethodParameterSegments.Count; i++)
                         {
-                            var propertyName = matchingProtocolInput.CorrespondingMethodParams[i].Name;
+                            var propertyName = matchingProtocolInput.MethodParameterSegments[i].Name;
                             conversion = conversion.Property(propertyName);
                         }
                     }
@@ -651,17 +662,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    // Fall back to original logic for parameters not mapped via CorrespondingMethodParams
-                    // handle spread
-                    if (param.SpreadSource is not null)
-                    {
-                        if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
-                        {
-                            conversions.Add(spread);
-                            addedSpreadSource = true;
-                        }
-                    }
-                    else if (param.Location == ParameterLocation.Body)
+                    // Fallback for parameters without MethodParameterSegments metadata
+                    // This handles body parameter cases and legacy scenarios
+                    if (param.Location == ParameterLocation.Body)
                     {
                         // Add any non-body parameters that may have been declared within the request body model
                         List<ValueExpression>? requiredParameters = null;

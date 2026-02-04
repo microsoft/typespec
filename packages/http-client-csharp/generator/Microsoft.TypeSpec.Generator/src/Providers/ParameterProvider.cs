@@ -50,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// This property stores the InputParameter that this ParameterProvider was created from.
-        /// Used to access metadata like CorrespondingMethodParams for override scenarios.
+        /// Used to access metadata like MethodParameterSegments for override scenarios.
         /// </summary>
         public InputParameter? InputParameter { get; private set; }
 

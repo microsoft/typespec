@@ -441,7 +441,7 @@ function fromQueryParameter(
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     readOnly: isReadOnly(p),
-    correspondingMethodParams: getCorrespondingMethodParams(sdkContext, p),
+    methodParameterSegments: getMethodParameterSegments(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -473,7 +473,7 @@ function fromPathParameter(
     decorators: p.decorators,
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
-    correspondingMethodParams: getCorrespondingMethodParams(sdkContext, p),
+    methodParameterSegments: getMethodParameterSegments(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -504,7 +504,7 @@ function fromHeaderParameter(
     readOnly: isReadOnly(p),
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
-    correspondingMethodParams: getCorrespondingMethodParams(sdkContext, p),
+    methodParameterSegments: getMethodParameterSegments(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -533,7 +533,7 @@ function fromBodyParameter(
     decorators: p.decorators,
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
-    correspondingMethodParams: getCorrespondingMethodParams(sdkContext, p),
+    methodParameterSegments: getMethodParameterSegments(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -924,7 +924,7 @@ function getArraySerializationDelimiter(
   return format ? collectionFormatToDelimMap[format] : undefined;
 }
 
-export function getCorrespondingMethodParams(
+export function getMethodParameterSegments(
   sdkContext: CSharpEmitterContext,
   p: SdkHttpParameter | SdkModelPropertyType,
 ): InputMethodParameter[] | undefined {

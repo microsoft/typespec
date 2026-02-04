@@ -21,7 +21,7 @@ import {
 import {
   fromMethodParameter,
   fromSdkServiceMethod,
-  getCorrespondingMethodParams,
+  getMethodParameterSegments,
   getParameterDefaultValue,
 } from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
@@ -183,7 +183,7 @@ function fromSdkClient(
         skipUrlEncoding: false,
         readOnly: isReadOnly(parameter),
         crossLanguageDefinitionId: parameter.crossLanguageDefinitionId,
-        correspondingMethodParams: getCorrespondingMethodParams(sdkContext, parameter),
+        methodParameterSegments: getMethodParameterSegments(sdkContext, parameter),
       });
     }
     return parameters;
