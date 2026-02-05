@@ -13,6 +13,10 @@ namespace Encode.Duration._Property
     {
         internal FloatMillisecondsLargerUnitDurationProperty() => throw null;
 
+        protected virtual FloatMillisecondsLargerUnitDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator FloatMillisecondsLargerUnitDurationProperty(ClientResult result) => throw null;
+
         void IJsonModel<FloatMillisecondsLargerUnitDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace Encode.Duration._Property
 
         FloatMillisecondsLargerUnitDurationProperty IPersistableModel<FloatMillisecondsLargerUnitDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual FloatMillisecondsLargerUnitDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<FloatMillisecondsLargerUnitDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(FloatMillisecondsLargerUnitDurationProperty floatMillisecondsLargerUnitDurationProperty) => throw null;
-
-        public static explicit operator FloatMillisecondsLargerUnitDurationProperty(ClientResult result) => throw null;
     }
 }

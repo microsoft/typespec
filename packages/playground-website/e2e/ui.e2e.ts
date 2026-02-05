@@ -8,8 +8,15 @@ test.describe("playground UI tests", () => {
 
   test("compiled http sample", async ({ page }) => {
     await page.goto(host);
-    const samplesDropDown = page.locator("_react=SamplesDropdown").locator("select");
-    await samplesDropDown.selectOption({ label: "HTTP service" });
+
+    // Click the Samples button to open the drawer
+    const samplesButton = page.locator('button[aria-label="Browse samples"]');
+    await samplesButton.click();
+
+    // Wait for the drawer to open and click on the HTTP service card
+    const httpServiceCard = page.locator("text=HTTP service").first();
+    await httpServiceCard.click();
+
     const outputContainer = page.locator("_react=FileOutput");
     await expect(outputContainer).toContainText(`title: Widget Service`);
   });

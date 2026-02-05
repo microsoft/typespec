@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["specs/rest-metadata-emitter/**/*.ts", "src/**/*.ts", "test/**/*.ts"]
+}

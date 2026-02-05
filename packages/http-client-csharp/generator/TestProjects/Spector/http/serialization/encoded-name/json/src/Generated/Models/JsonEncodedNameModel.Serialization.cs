@@ -13,6 +13,10 @@ namespace Serialization.EncodedName.Json._Property
     {
         internal JsonEncodedNameModel() => throw null;
 
+        protected virtual JsonEncodedNameModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator JsonEncodedNameModel(ClientResult result) => throw null;
+
         void IJsonModel<JsonEncodedNameModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace Serialization.EncodedName.Json._Property
 
         JsonEncodedNameModel IPersistableModel<JsonEncodedNameModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual JsonEncodedNameModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<JsonEncodedNameModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(JsonEncodedNameModel jsonEncodedNameModel) => throw null;
-
-        public static explicit operator JsonEncodedNameModel(ClientResult result) => throw null;
     }
 }

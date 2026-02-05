@@ -13,6 +13,10 @@ namespace Encode.Bytes
     {
         internal Base64BytesProperty() => throw null;
 
+        protected virtual Base64BytesProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator Base64BytesProperty(ClientResult result) => throw null;
+
         void IJsonModel<Base64BytesProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace Encode.Bytes
 
         Base64BytesProperty IPersistableModel<Base64BytesProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Base64BytesProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<Base64BytesProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Base64BytesProperty base64BytesProperty) => throw null;
-
-        public static explicit operator Base64BytesProperty(ClientResult result) => throw null;
     }
 }

@@ -1,48 +1,35 @@
 {% set prefix_lower = test.prefix|lower %}
-{% set client_var = "self.client" if code_model.options["azure-arm"] else "client" %}
+{% set client_var = "self.client" if is_azure_arm else "client" %}
 {% set async = "async " if test.async_mode else "" %}
 {% set async_suffix = "_async" if test.async_mode else "" %}
 # coding=utf-8
-{% if code_model.license_header %}
-{{ code_model.license_header }}
+{% if license_header %}
+{{ license_header }}
 {% endif %}
 import pytest
 {{ imports }}
 
-{% if code_model.options["azure-arm"] %}
+{% if is_azure_arm %}
 AZURE_LOCATION = "eastus"
 {% endif %}
 
 @pytest.mark.skip("you may need to update the auto-generated test case before run it")
 class {{ test.test_class_name }}({{ test.base_test_class_name }}):
-{% if code_model.options["azure-arm"] %}
+{% if is_azure_arm %}
     def setup_method(self, method):
         {% if test.async_mode %}
         self.client = self.create_mgmt_client({{ test.client_name }}, is_async=True)
         {% else %}
         self.client = self.create_mgmt_client({{ test.client_name }})
         {% endif %}
-{% endif %}
+
 {% for testcase in test.testcases %}
-    {% if code_model.options["azure-arm"] %}
     @{{ test.preparer_name }}(location=AZURE_LOCATION)
-    {% else %}
-    @{{ test.preparer_name }}()
-    {% endif %}
     @recorded_by_proxy{{ async_suffix }}
-    {% if code_model.options["azure-arm"] %}
     {{ async }}def test_{{ testcase.name }}(self, resource_group):
-    {% else %}
-    {{ async }}def test_{{ testcase.name }}(self, {{ prefix_lower }}_endpoint):
-        {{ client_var }} = self.{{ test.create_client_name }}(endpoint={{ prefix_lower }}_endpoint)
-    {% endif %}
         {{testcase.response }}{{ client_var }}{{ testcase.operation_group_prefix }}.{{ testcase.operation.name }}(
             {% for key, value in testcase.params.items() %}
-            {% if code_model.options["azure-arm"] and key == "resource_group_name" %}
-            {{ key }}=resource_group.name,
-            {% else %}
-            {{ key }}={{ value|indent(12) }},
-            {% endif %}
+            {{ key }}={{ value }},
             {% endfor %}
         ){{ testcase.operation_suffix }}
         {{ testcase.extra_operation }}
@@ -50,3 +37,20 @@ class {{ test.test_class_name }}({{ test.base_test_class_name }}):
         # ...
 
 {% endfor %}
+{% else %}
+{% for testcase in test.testcases %}
+    @{{ test.preparer_name }}()
+    @recorded_by_proxy{{ async_suffix }}
+    {{ async }}def test_{{ testcase.name }}(self, {{ prefix_lower }}_endpoint):
+        {{ client_var }} = self.{{ test.create_client_name }}(endpoint={{ prefix_lower }}_endpoint)
+        {{testcase.response }}{{ client_var }}{{ testcase.operation_group_prefix }}.{{ testcase.operation.name }}(
+            {% for key, value in testcase.params.items() %}
+            {{ key }}={{ value }},
+            {% endfor %}
+        ){{ testcase.operation_suffix }}
+        {{ testcase.extra_operation }}
+        # please add some check logic here by yourself
+        # ...
+
+{% endfor %}
+{% endif %}

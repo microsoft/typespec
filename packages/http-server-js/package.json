@@ -36,7 +36,7 @@
     "build": "pnpm build:helpers && pnpm build:src",
     "build:src": "tsc -p ./tsconfig.json",
     "build:helpers": "tsx ./build-helpers.ts",
-    "watch": "tsc -p . --watch",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",

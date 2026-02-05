@@ -13,6 +13,10 @@ namespace _Type.Property.ValueTypes
     {
         internal CollectionsIntProperty() => throw null;
 
+        protected virtual CollectionsIntProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator CollectionsIntProperty(ClientResult result) => throw null;
+
         void IJsonModel<CollectionsIntProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace _Type.Property.ValueTypes
 
         CollectionsIntProperty IPersistableModel<CollectionsIntProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual CollectionsIntProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<CollectionsIntProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(CollectionsIntProperty collectionsIntProperty) => throw null;
-
-        public static explicit operator CollectionsIntProperty(ClientResult result) => throw null;
     }
 }
