@@ -1,8 +1,8 @@
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { OpenAPISpecHelpers, supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor, openapisFor }) => {
   const testCases: [string, string, string, any][] = [
     [
       "set tag metadata",
@@ -100,6 +100,54 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     );
 
     deepStrictEqual(res.tags, expected);
+  });
+
+  it("tagMetadata do not gets applied to another service without tags", async () => {
+    const res = await openapisFor(`
+      @service
+      @tagMetadata(
+        "CatTag", #{ description: "Cat operations" }
+      )
+      namespace CatStore {}
+
+      @service
+      namespace DogStore {}
+    `);
+    expect(res["openapi.CatStore.json"].tags).toEqual([
+      {
+        description: "Cat operations",
+        name: "CatTag",
+      },
+    ]);
+    expect(res["openapi.DogStore.json"].tags).toEqual([]);
+  });
+
+  it("tagMetadata only affect the service they are defined on", async () => {
+    const res = await openapisFor(`
+      @service
+      @tagMetadata(
+        "CatTag", #{ description: "Cat operations" }
+      )
+      namespace CatStore {}
+
+      @service
+      @tagMetadata(
+        "DogTag", #{ description: "Dog operations" }
+      )
+      namespace DogStore {}
+    `);
+    expect(res["openapi.CatStore.json"].tags).toEqual([
+      {
+        description: "Cat operations",
+        name: "CatTag",
+      },
+    ]);
+    expect(res["openapi.DogStore.json"].tags).toEqual([
+      {
+        description: "Dog operations",
+        name: "DogTag",
+      },
+    ]);
   });
 });
 

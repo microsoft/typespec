@@ -116,6 +116,7 @@ import {
   OpenAPI3Tag,
   OpenAPI3VersionedServiceRecord,
   OpenAPISchema3_1,
+  OpenAPITag3_2,
   Refable,
   SupportedOpenAPIDocuments,
 } from "./types.js";
@@ -300,10 +301,7 @@ function createOAPIEmitter(
   let paramModels: Set<Type>;
 
   // De-dupe the per-endpoint tags that will be added into the #/tags
-  let tags: Set<string>;
-
-  // The per-endpoint tags that will be added into the #/tags
-  const tagsMetadata: { [name: string]: OpenAPI3Tag } = {};
+  let tagsUsedInOperations: Set<string>;
 
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
@@ -435,21 +433,7 @@ function createOAPIEmitter(
 
     params = new Map();
     paramModels = new Set();
-    tags = new Set();
-
-    // Get Tags Metadata
-    const metadata = getTagsMetadata(program, service.type);
-    if (metadata) {
-      for (const [name, tag] of Object.entries(metadata)) {
-        const tagData: OpenAPI3Tag = { name: name, ...tag };
-        // For OpenAPI 3.0 and 3.1, convert 'parent' to 'x-parent' extension
-        if (specVersion !== "3.2.0" && tag.parent) {
-          tagData["x-parent"] = tag.parent;
-          delete (tagData as { parent?: string }).parent;
-        }
-        tagsMetadata[name] = tagData;
-      }
-    }
+    tagsUsedInOperations = new Set();
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
@@ -744,7 +728,7 @@ function createOAPIEmitter(
       }
       emitParameters();
       emitSchemas(service.type);
-      emitTags();
+      root.tags = resolveDocumentTags(service);
 
       // Clean up empty entries
       if (root.components) {
@@ -842,7 +826,7 @@ function createOAPIEmitter(
         }
         for (const tag of opTags) {
           // Add to root tags if not already there
-          tags.add(tag);
+          tagsUsedInOperations.add(tag);
         }
       }
     }
@@ -906,7 +890,7 @@ function createOAPIEmitter(
       oai3Operation.tags = currentTags;
       for (const tag of currentTags) {
         // Add to root tags if not already there
-        tags.add(tag);
+        tagsUsedInOperations.add(tag);
       }
     }
 
@@ -1786,17 +1770,28 @@ function createOAPIEmitter(
     }
   }
 
-  function emitTags() {
-    // emit Tag from op
-    for (const tag of tags) {
-      if (!tagsMetadata[tag]) {
-        root.tags!.push({ name: tag });
+  /** Resolve tag information to be inserted at the root of the document */
+  function resolveDocumentTags(service: Service): OpenAPI3Tag[] | OpenAPITag3_2[] {
+    const metadata = getTagsMetadata(program, service.type);
+
+    const tags: OpenAPI3Tag[] | OpenAPITag3_2[] = [];
+    for (const tag of tagsUsedInOperations) {
+      if (!metadata?.[tag]) {
+        tags.push({ name: tag });
       }
     }
 
-    for (const key in tagsMetadata) {
-      root.tags!.push(tagsMetadata[key]);
+    for (const [name, tag] of Object.entries(metadata || {})) {
+      const tagData: OpenAPI3Tag = { name: name, ...tag };
+      // For OpenAPI 3.0 and 3.1, convert 'parent' to 'x-parent' extension
+      if (specVersion !== "3.2.0" && tag.parent) {
+        tagData["x-parent"] = tag.parent;
+        delete (tagData as { parent?: string }).parent;
+      }
+      tags.push(tagData);
     }
+
+    return tags;
   }
 
   function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
