@@ -13,6 +13,10 @@ namespace _Type.Property.AdditionalProperties
     {
         internal ExtendsFloatAdditionalProperties() => throw null;
 
+        protected virtual ExtendsFloatAdditionalProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator ExtendsFloatAdditionalProperties(ClientResult result) => throw null;
+
         void IJsonModel<ExtendsFloatAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace _Type.Property.AdditionalProperties
 
         ExtendsFloatAdditionalProperties IPersistableModel<ExtendsFloatAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual ExtendsFloatAdditionalProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<ExtendsFloatAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ExtendsFloatAdditionalProperties extendsFloatAdditionalProperties) => throw null;
-
-        public static explicit operator ExtendsFloatAdditionalProperties(ClientResult result) => throw null;
     }
 }

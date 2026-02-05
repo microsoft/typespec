@@ -39,7 +39,7 @@
     "tsptest.armstreamstyleserialization.models.Dog": "TspTest.ArmStreamStyleSerialization.Dog",
     "tsptest.armstreamstyleserialization.models.DogKind": "TspTest.ArmStreamStyleSerialization.DogKind",
     "tsptest.armstreamstyleserialization.models.Encoded": "TspTest.ArmStreamStyleSerialization.Encoded",
-    "tsptest.armstreamstyleserialization.models.Error": "TspTest.ArmStreamStyleSerialization.ErrorResponse",
+    "tsptest.armstreamstyleserialization.models.ErrorMax": "TspTest.ArmStreamStyleSerialization.ErrorResponseMax",
     "tsptest.armstreamstyleserialization.models.ErrorMin": "TspTest.ArmStreamStyleSerialization.ErrorResponseMin",
     "tsptest.armstreamstyleserialization.models.FunctionProperties": "TspTest.ArmStreamStyleSerialization.FunctionProperties",
     "tsptest.armstreamstyleserialization.models.FunctionsCreateFunctionHeaders": null,

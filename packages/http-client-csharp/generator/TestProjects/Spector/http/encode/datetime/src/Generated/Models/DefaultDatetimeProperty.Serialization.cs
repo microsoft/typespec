@@ -13,6 +13,10 @@ namespace Encode.Datetime
     {
         internal DefaultDatetimeProperty() => throw null;
 
+        protected virtual DefaultDatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator DefaultDatetimeProperty(ClientResult result) => throw null;
+
         void IJsonModel<DefaultDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace Encode.Datetime
 
         DefaultDatetimeProperty IPersistableModel<DefaultDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual DefaultDatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<DefaultDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(DefaultDatetimeProperty defaultDatetimeProperty) => throw null;
-
-        public static explicit operator DefaultDatetimeProperty(ClientResult result) => throw null;
     }
 }

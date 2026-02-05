@@ -13,6 +13,8 @@ namespace Parameters.Basic._ExplicitBody
     {
         internal User() => throw null;
 
+        protected virtual User PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
         void IJsonModel<User>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,8 +28,6 @@ namespace Parameters.Basic._ExplicitBody
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
         User IPersistableModel<User>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual User PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<User>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
