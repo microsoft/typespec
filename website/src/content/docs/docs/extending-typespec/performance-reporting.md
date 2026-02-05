@@ -53,7 +53,7 @@ const timer = context.perf.startTimer("my-task");
 
 // ... do some work across multiple statements
 
-timer.stop();
+timer.end();
 ```
 
 ### `time` - Synchronous Function Timing
@@ -110,7 +110,7 @@ export async function $onEmit(context: EmitContext) {
   // Manual timer for the preparation phase
   const timer = context.perf.startTimer("prepare");
   prepare();
-  timer.stop();
+  timer.end();
 
   // Wrap synchronous rendering with automatic timing
   const renderResult = context.perf.time("render", () => render());
