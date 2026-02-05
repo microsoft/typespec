@@ -1888,7 +1888,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const values: Type[] = [];
     const types: Type[] = [];
     for (const option of node.options) {
-      const [kind, type] = getTypeOrValueOfTypeForNode(option, ctx.mapper);
+      const [kind, type] = getTypeOrValueOfTypeForNode(ctx, option);
       if (kind === "value") {
         values.push(type);
       } else {
@@ -1998,7 +1998,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const intersection: Model = initModel(node);
-    const options = node.options.map((o): [Expression, Type] => [o, getTypeForNode(o, ctx.mapper)]);
+    const options = node.options.map((o): [Expression, Type] => [o, getTypeForNode(o, ctx)]);
 
     ensureResolved(
       options.map(([, type]) => type),
@@ -2165,13 +2165,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return parameterType;
   }
 
-  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper): ["type" | "value", Type] {
+  function getTypeOrValueOfTypeForNode(ctx: CheckContext, node: Node): ["type" | "value", Type] {
     switch (node.kind) {
       case SyntaxKind.ValueOfExpression:
-        const target = getTypeForNode(node.target, mapper);
+        const target = getTypeForNode(node.target, ctx);
         return ["value", target];
       default:
-        return ["type", getTypeForNode(node, mapper)];
+        return ["type", getTypeForNode(node, ctx)];
     }
   }
 
@@ -2183,7 +2183,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case SyntaxKind.UnionExpression:
         return checkMixedParameterConstraintUnion(ctx, node);
       default:
-        const [kind, entity] = getTypeOrValueOfTypeForNode(node, ctx.mapper);
+        const [kind, entity] = getTypeOrValueOfTypeForNode(ctx, node);
         return {
           entityKind: "MixedParameterConstraint",
           node: node,
@@ -2282,7 +2282,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkArrayExpression(ctx: CheckContext, node: ArrayExpressionNode): Model {
-    const elementType = getTypeForNode(node.elementType, ctx.mapper);
+    const elementType = getTypeForNode(node.elementType, ctx);
     const arrayType = getStdType("Array");
     const arrayNode: ModelStatementNode = arrayType.node as any;
     const param: TemplateParameter = getTypeForNode(arrayNode.templateParameters[0]) as any;
