@@ -12,6 +12,11 @@ export interface PlaygroundSample {
   content: string;
 
   /**
+   * A short description of what this sample demonstrates.
+   */
+  description?: string;
+
+  /**
    * Compiler options for the sample.
    */
   compilerOptions?: CompilerOptions;
