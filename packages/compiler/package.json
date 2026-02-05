@@ -109,7 +109,6 @@
     "@inquirer/prompts": "^8.0.1",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",
-    "debug": "~4.4.0",
     "env-paths": "^3.0.0",
     "globby": "~16.0.0",
     "is-unicode-supported": "^2.1.0",
@@ -126,7 +125,6 @@
   },
   "devDependencies": {
     "@types/babel__code-frame": "~7.0.6",
-    "@types/debug": "~4.1.12",
     "@types/mustache": "~4.2.5",
     "@types/node": "~25.0.2",
     "@types/semver": "^7.5.8",
