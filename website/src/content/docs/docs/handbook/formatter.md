@@ -47,7 +47,7 @@ For VS Code to respect the TypeSpec standard style set the following options sty
   "[typespec]": {
     "editor.detectIndentation": false,
     "editor.insertSpaces": true,
-    "editor.tabSize": 2,
+    "editor.tabSize": 2
   }
 }
 ```
