@@ -2282,12 +2282,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkArrayExpression(ctx: CheckContext, node: ArrayExpressionNode): Model {
-    const elementType = getTypeForNode(node.elementType, ctx);
+    const elementCtx = ctx.enterTemplateObserverScope();
+    const elementType = getTypeForNode(node.elementType, elementCtx);
+
+    const instantiationCtx = elementCtx.hasObservedTemplateParameters()
+      ? ctx
+      : ctx.maskFlags(CheckFlags.InTemplateDeclaration);
+
     const arrayType = getStdType("Array");
     const arrayNode: ModelStatementNode = arrayType.node as any;
     const param: TemplateParameter = getTypeForNode(arrayNode.templateParameters[0]) as any;
     return getOrInstantiateTemplate(
-      ctx,
+      instantiationCtx,
       arrayNode,
       [param],
       [elementType],
