@@ -1,8 +1,16 @@
-import { strictEqual, ok, deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
-import { createEmitterTestHost } from "./utils.js";
+import { TestHost } from "@typespec/compiler/testing";
+import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
+import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
+import { InputOperation, InputParameter } from "../../src/type/input-type.js";
 
 describe("MethodParameterSegments", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
   describe("override decorator with model parameter", () => {
     it("should flow methodParameterSegments for path parameters", async () => {
       const tsp = `
@@ -25,20 +33,21 @@ describe("MethodParameterSegments", () => {
         @@override(TestService.testOp, Customizations.testOpCustomization);
       `;
 
-      const runner = await createEmitterTestHost();
-      const result = await runner.compile(tsp);
       
-      ok(result.outputModel, "Output model should be generated");
-      const clients = result.outputModel.Clients;
+      const program = await typeSpecCompile(tsp, runner);
+      
+      const result = program.emitter.outputModel;
+      ok(result, "Output model should be generated");
+      const clients = result.Clients;
       ok(clients && clients.length > 0, "Should have at least one client");
       
       const operations = clients[0].Operations;
       ok(operations && operations.length > 0, "Should have operations");
       
-      const testOp = operations.find(op => op.Name === "testOp");
+      const testOp = operations.find((op: InputOperation) => op.Name === "testOp");
       ok(testOp, "Should find testOp operation");
       
-      const pathParams = testOp.Parameters.filter(p => p.Location === "Path");
+      const pathParams = testOp.Parameters.filter((p: InputParameter) => p.Location === "Path");
       strictEqual(pathParams.length, 2, "Should have 2 path parameters");
       
       for (const param of pathParams) {
@@ -74,17 +83,18 @@ describe("MethodParameterSegments", () => {
         @@override(TestService.testOp, Customizations.testOpCustomization);
       `;
 
-      const runner = await createEmitterTestHost();
-      const result = await runner.compile(tsp);
       
-      ok(result.outputModel, "Output model should be generated");
-      const clients = result.outputModel.Clients;
+      const program = await typeSpecCompile(tsp, runner);
+      
+      const result = program.emitter.outputModel;
+      ok(result, "Output model should be generated");
+      const clients = result.Clients;
       ok(clients && clients.length > 0, "Should have at least one client");
       
       const operations = clients[0].Operations;
       ok(operations && operations.length > 0, "Should have operations");
       
-      const testOp = operations.find(op => op.Name === "testOp");
+      const testOp = operations.find((op: InputOperation) => op.Name === "testOp");
       ok(testOp, "Should find testOp operation");
       
       const bodyParam = testOp.Parameters.find(p => p.Location === "Body");
@@ -123,17 +133,18 @@ describe("MethodParameterSegments", () => {
         @@override(TestService.testOp, Customizations.testOpCustomization);
       `;
 
-      const runner = await createEmitterTestHost();
-      const result = await runner.compile(tsp);
       
-      ok(result.outputModel, "Output model should be generated");
-      const clients = result.outputModel.Clients;
+      const program = await typeSpecCompile(tsp, runner);
+      
+      const result = program.emitter.outputModel;
+      ok(result, "Output model should be generated");
+      const clients = result.Clients;
       ok(clients && clients.length > 0, "Should have at least one client");
       
       const operations = clients[0].Operations;
       ok(operations && operations.length > 0, "Should have operations");
       
-      const testOp = operations.find(op => op.Name === "testOp");
+      const testOp = operations.find((op: InputOperation) => op.Name === "testOp");
       ok(testOp, "Should find testOp operation");
       
       const locations = ["Path", "Query", "Header", "Body"];
@@ -170,17 +181,18 @@ describe("MethodParameterSegments", () => {
         @@override(TestService.testOp, Customizations.testOpCustomization);
       `;
 
-      const runner = await createEmitterTestHost();
-      const result = await runner.compile(tsp);
       
-      ok(result.outputModel, "Output model should be generated");
-      const clients = result.outputModel.Clients;
+      const program = await typeSpecCompile(tsp, runner);
+      
+      const result = program.emitter.outputModel;
+      ok(result, "Output model should be generated");
+      const clients = result.Clients;
       ok(clients && clients.length > 0, "Should have at least one client");
       
       const operations = clients[0].Operations;
       ok(operations && operations.length > 0, "Should have operations");
       
-      const testOp = operations.find(op => op.Name === "testOp");
+      const testOp = operations.find((op: InputOperation) => op.Name === "testOp");
       ok(testOp, "Should find testOp operation");
       
       const bodyParam = testOp.Parameters.find(p => p.Location === "Body");
@@ -202,17 +214,18 @@ describe("MethodParameterSegments", () => {
         @get op testOp(@path pathParam: string, @query queryParam: string): void;
       `;
 
-      const runner = await createEmitterTestHost();
-      const result = await runner.compile(tsp);
       
-      ok(result.outputModel, "Output model should be generated");
-      const clients = result.outputModel.Clients;
+      const program = await typeSpecCompile(tsp, runner);
+      
+      const result = program.emitter.outputModel;
+      ok(result, "Output model should be generated");
+      const clients = result.Clients;
       ok(clients && clients.length > 0, "Should have at least one client");
       
       const operations = clients[0].Operations;
       ok(operations && operations.length > 0, "Should have operations");
       
-      const testOp = operations.find(op => op.Name === "testOp");
+      const testOp = operations.find((op: InputOperation) => op.Name === "testOp");
       ok(testOp, "Should find testOp operation");
       
       for (const param of testOp.Parameters) {
@@ -244,20 +257,21 @@ describe("MethodParameterSegments", () => {
         @@override(TestService.testOp, Customizations.testOpCustomization);
       `;
 
-      const runner = await createEmitterTestHost();
-      const result = await runner.compile(tsp);
       
-      ok(result.outputModel, "Output model should be generated");
-      const clients = result.outputModel.Clients;
+      const program = await typeSpecCompile(tsp, runner);
+      
+      const result = program.emitter.outputModel;
+      ok(result, "Output model should be generated");
+      const clients = result.Clients;
       ok(clients && clients.length > 0, "Should have at least one client");
       
       const operations = clients[0].Operations;
       ok(operations && operations.length > 0, "Should have operations");
       
-      const testOp = operations.find(op => op.Name === "testOp");
+      const testOp = operations.find((op: InputOperation) => op.Name === "testOp");
       ok(testOp, "Should find testOp operation");
       
-      const bodyParams = testOp.Parameters.filter(p => p.Location === "Body");
+      const bodyParams = testOp.Parameters.filter((p: InputParameter) => p.Location === "Body");
       ok(bodyParams.length > 0, "Should have body parameters from spread");
       
       for (const param of bodyParams) {
