@@ -10,7 +10,6 @@ import azure.resourcemanager.multiservicesharedmodels.combined.models.VirtualMac
 import com.azure.core.management.Region;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
 
@@ -24,7 +23,6 @@ public final class ArmMultiServiceSharedModelsTests {
     private static final Region REGION_VM = Region.US_EAST;
 
     @Test
-    @Disabled("route in code is wrong: /Microsoft.Compute/storageAccounts/account1")
     public void testCombinedClient() {
         Map<String, String> storageTags = new HashMap<>();
         storageTags.put("department", "engineering");

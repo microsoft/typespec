@@ -1,6 +1,7 @@
 import { NoTarget } from "@typespec/compiler";
 
 import {
+  getClientOptions,
   getHttpOperationParameter,
   SdkBasicServiceMethod,
   SdkBodyParameter,
@@ -378,8 +379,10 @@ function emitHttpOperation(
   for (const exception of operation.exceptions) {
     exceptions.push(emitHttpResponse(context, exception.statusCodes, exception, undefined, true)!);
   }
+  const includeRootSlash = getClientOptions(rootClient, "includeRootSlash") !== false;
+
   const result = {
-    url: operation.path,
+    url: includeRootSlash ? operation.path : operation.path.replace(/^\//, ""),
     method: operation.verb.toUpperCase(),
     parameters: emitHttpParameters(context, rootClient, operation, method, serviceApiVersions),
     bodyParameter: emitHttpBodyParameter(context, operation.bodyParam, serviceApiVersions),

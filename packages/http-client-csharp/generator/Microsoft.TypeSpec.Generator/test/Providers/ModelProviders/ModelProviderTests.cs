@@ -1807,5 +1807,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(publicConstructor, "Constructor modifier should be changed to public for backward compatibility");
             Assert.AreEqual("baseProp", publicConstructor!.Signature.Parameters[0].Name);
         }
+
+        [Test]
+        public async Task TestBuildProperties_WithObjectAdditionalPropertiesBackwardCompatibility()
+        {
+            // Create a model with unknown additional properties (which would normally generate BinaryData)
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true)],
+                additionalProperties: InputPrimitiveType.Any);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNotNull(modelProvider!.Properties);
+
+            // Verify that AdditionalProperties property exists and has object type for backward compatibility
+            var additionalPropertiesProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "AdditionalProperties");
+            Assert.IsNotNull(additionalPropertiesProperty, "AdditionalProperties property should be generated");
+            Assert.IsTrue(additionalPropertiesProperty!.IsAdditionalProperties, "Property should be marked as additional properties");
+
+            // Verify the type is IDictionary<string, object> for backward compatibility
+            var propertyType = additionalPropertiesProperty.Type;
+            Assert.IsTrue(propertyType.IsDictionary, "Property should be a dictionary type");
+            Assert.AreEqual(2, propertyType.Arguments.Count, "Dictionary should have 2 type arguments");
+            Assert.AreEqual(typeof(string), propertyType.Arguments[0].FrameworkType, "Key type should be string");
+            Assert.AreEqual(typeof(object), propertyType.Arguments[1].FrameworkType, "Value type should be object for backward compatibility");
+        }
     }
 }

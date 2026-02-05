@@ -329,5 +329,8 @@ interface XmlErrorValue {
     ```
     """)
   @get
-  get(): SimpleModel | XmlError;
+  get(): {
+    @header("content-type") contentType: "application/xml";
+    @body body: SimpleModel;
+  } | XmlError;
 }
