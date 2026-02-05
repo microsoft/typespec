@@ -433,7 +433,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         fields.AddRange(_apiVersionFields.Select(f => f.Field).OrderBy(f => f.Name));
                         builtApiVersionFields = true;
                     }
-                    else
+                    else if (!p.IsApiVersion)
                     {
                         var field = new FieldProvider(
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
