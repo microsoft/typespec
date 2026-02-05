@@ -317,6 +317,32 @@ namespace SampleTypeSpec
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
+        /// <summary> Return hi again. </summary>
+        /// <param name="info"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="info"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<RoundTripModel> NoContentType(Wrapper info, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(info, nameof(info));
+
+            ClientResult result = NoContentType(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> Return hi again. </summary>
+        /// <param name="info"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="info"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<RoundTripModel>> NoContentTypeAsync(Wrapper info, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(info, nameof(info));
+
+            ClientResult result = await NoContentTypeAsync(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+        }
+
         /// <summary>
         /// [Protocol Method] Return hi in demo2
         /// <list type="bullet">

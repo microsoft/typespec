@@ -34,6 +34,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(Thing))]
     [ModelReaderWriterBuildable(typeof(UnknownAnimal))]
     [ModelReaderWriterBuildable(typeof(UnknownPet))]
+    [ModelReaderWriterBuildable(typeof(Wrapper))]
     public partial class SampleTypeSpecContext : ModelReaderWriterContext
     {
     }

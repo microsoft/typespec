@@ -34,6 +34,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public bool IsOut { get; private set; }
         public bool IsParams { get; private set; }
 
+        public bool IsContentParameter => Name == "content" && Location == ParameterLocation.Body;
+
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
         public WireInformation WireInfo { get; private set; }
         public ParameterLocation Location { get; private set; }
@@ -95,7 +97,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ValueExpression? initializationValue = null,
             ParameterLocation? location = null,
             WireInformation? wireInfo = null,
-            ParameterValidationType? validation = null)
+            ParameterValidationType? validation = null,
+            InputParameter? inputParameter = null)
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
@@ -114,6 +117,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InitializationValue = initializationValue;
             WireInfo = wireInfo ?? new WireInformation(SerializationFormat.Default, name);
             Location = location ?? ParameterLocation.Unknown;
+            InputParameter = inputParameter;
         }
 
         private ParameterProvider? _inputParameter;

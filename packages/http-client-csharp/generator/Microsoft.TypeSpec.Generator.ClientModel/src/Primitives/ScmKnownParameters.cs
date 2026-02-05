@@ -42,27 +42,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         private static readonly FormattableString RequestContentDescription = $"The content to send as the body of the request.";
         private const string RequestContentParameterName = "content";
 
-        public static readonly ParameterProvider RequestContent = new(
-            RequestContentParameterName,
-            RequestContentDescription,
-            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType,
-            location: ParameterLocation.Body)
-        {
-            Validation = ParameterValidationType.AssertNotNull
-        };
-
-        public static readonly ParameterProvider NullableRequiredRequestContent = new(
-            RequestContentParameterName,
-            RequestContentDescription,
-            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType,
-            location: ParameterLocation.Body);
-
-        public static readonly ParameterProvider OptionalRequestContent = new(
+        public static ParameterProvider CreateRequestContent(InputParameter? parameter = null, bool optional = false, bool nullable = false) => new(
             RequestContentParameterName,
             RequestContentDescription,
             ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType,
             location: ParameterLocation.Body,
-            defaultValue: Null);
+            defaultValue: optional ? Null : null,
+            inputParameter: parameter)
+        {
+            Validation = nullable ? ParameterValidationType.None : ParameterValidationType.AssertNotNull,
+        };
 
         // Known header parameters
         public static readonly ParameterProvider RepeatabilityRequestId = new("repeatabilityRequestId", FormattableStringHelpers.Empty, typeof(Guid))
