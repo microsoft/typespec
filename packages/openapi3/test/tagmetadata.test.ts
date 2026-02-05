@@ -1,6 +1,8 @@
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
+import {  supportedVersions, worksFor } from "./works-for.js";
 import { OpenAPISpecHelpers, supportedVersions, worksFor } from "./works-for.js";
+
 
 worksFor(supportedVersions, ({ openApiFor, openapisFor }) => {
   const testCases: [string, string, string, any][] = [
