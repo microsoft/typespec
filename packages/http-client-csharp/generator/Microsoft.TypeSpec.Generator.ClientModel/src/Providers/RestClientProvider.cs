@@ -195,7 +195,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
-            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name), StringComparer.OrdinalIgnoreCase);
+            var paramMap = signature.Parameters.ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
             foreach (var param in ClientProvider.ClientParameters)
             {
                 paramMap[param.Name] = param;
@@ -278,7 +278,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputOperation operation,
             Dictionary<string, ParameterProvider> paramMap)
         {
-            var reinjectedParamsMap = new Dictionary<string, ParameterProvider>();
+            var reinjectedParamsMap = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
 
             // Add parameters from nextLink.ReInjectedParameters
             if (nextLink.ReInjectedParameters?.Count > 0)
@@ -298,7 +298,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (pageSizeParameterName != null)
             {
                 // Find the parameter in the operation parameters
-                var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name == pageSizeParameterName);
+                var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
                 if (pageSizeParameter != null)
                 {
                     var pageSizeParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(pageSizeParameter);
@@ -623,7 +623,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
-            Dictionary<string, InputParameter> inputParamMap = new(operation.Parameters.ToDictionary(p => p.SerializedName));
+            Dictionary<string, InputParameter> inputParamMap = operation.Parameters.ToDictionary(p => p.SerializedName);
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
             // Only process operation.Uri segments that come AFTER the endpoint parameter
