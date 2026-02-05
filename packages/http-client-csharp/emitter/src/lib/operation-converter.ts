@@ -317,13 +317,6 @@ function updateMethodParameter(
   operationHttpParameter: SdkHttpParameter | SdkModelPropertyType,
   rootApiVersions: string[],
 ): void {
-  methodParameter.serializedName = getNameInRequest(operationHttpParameter);
-  methodParameter.location = getParameterLocation(operationHttpParameter);
-  methodParameter.scope = getParameterScope(
-    operationHttpParameter,
-    methodParameter.type,
-    rootApiVersions.length > 0,
-  );
   // for content type parameter
   if (isContentType(operationHttpParameter)) {
     methodParameter.type = fromSdkType(
@@ -332,6 +325,13 @@ function updateMethodParameter(
       operationHttpParameter,
     );
   }
+  methodParameter.serializedName = getNameInRequest(operationHttpParameter);
+  methodParameter.location = getParameterLocation(operationHttpParameter);
+  methodParameter.scope = getParameterScope(
+    operationHttpParameter,
+    methodParameter.type,
+    rootApiVersions.length > 0,
+  );
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
     if (methodParameter.type.kind === "constant") {
