@@ -45,6 +45,9 @@ namespace Microsoft.TypeSpec.Generator.Input
         private bool? _hasMultiServiceClient;
         public bool HasMultiServiceClient => _hasMultiServiceClient ??= GetHasMultiServiceClient();
 
+        private bool? _hasXmlModelSerialization;
+        public bool HasXmlModelSerialization => _hasXmlModelSerialization ??= GetHasXmlModelSerialization();
+
         private bool GetHasMultipartFormDataOperation()
         {
             foreach (var client in InputNamespace.Clients)
@@ -71,6 +74,26 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
+            return false;
+        }
+
+        private bool GetHasXmlModelSerialization()
+        {
+            foreach (var model in InputNamespace.Models)
+            {
+                if (model.Usage.HasFlag(InputModelTypeUsage.Xml))
+                {
+                    return true;
+                }
+            }
+
+            foreach (var enumType in InputNamespace.Enums)
+            {
+                if (enumType.Usage.HasFlag(InputModelTypeUsage.Xml))
+                {
+                    return true;
+                }
+            }
             return false;
         }
     }

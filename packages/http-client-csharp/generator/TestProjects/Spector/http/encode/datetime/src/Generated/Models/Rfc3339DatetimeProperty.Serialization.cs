@@ -13,6 +13,10 @@ namespace Encode.Datetime
     {
         internal Rfc3339DatetimeProperty() => throw null;
 
+        protected virtual Rfc3339DatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator Rfc3339DatetimeProperty(ClientResult result) => throw null;
+
         void IJsonModel<Rfc3339DatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace Encode.Datetime
 
         Rfc3339DatetimeProperty IPersistableModel<Rfc3339DatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Rfc3339DatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<Rfc3339DatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Rfc3339DatetimeProperty rfc3339DatetimeProperty) => throw null;
-
-        public static explicit operator Rfc3339DatetimeProperty(ClientResult result) => throw null;
     }
 }

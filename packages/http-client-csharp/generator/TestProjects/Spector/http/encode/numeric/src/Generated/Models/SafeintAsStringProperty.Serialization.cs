@@ -13,6 +13,10 @@ namespace Encode.Numeric._Property
     {
         internal SafeintAsStringProperty() => throw null;
 
+        protected virtual SafeintAsStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator SafeintAsStringProperty(ClientResult result) => throw null;
+
         void IJsonModel<SafeintAsStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace Encode.Numeric._Property
 
         SafeintAsStringProperty IPersistableModel<SafeintAsStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual SafeintAsStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<SafeintAsStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(SafeintAsStringProperty safeintAsStringProperty) => throw null;
-
-        public static explicit operator SafeintAsStringProperty(ClientResult result) => throw null;
     }
 }

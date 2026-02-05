@@ -28,12 +28,19 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
     [ModelReaderWriterBuildable(typeof(PageThing))]
     [ModelReaderWriterBuildable(typeof(Pet))]
+    [ModelReaderWriterBuildable(typeof(Plant))]
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResponse))]
     [ModelReaderWriterBuildable(typeof(RoundTripModel))]
     [ModelReaderWriterBuildable(typeof(Thing))]
+    [ModelReaderWriterBuildable(typeof(Tree))]
     [ModelReaderWriterBuildable(typeof(UnknownAnimal))]
     [ModelReaderWriterBuildable(typeof(UnknownPet))]
+    [ModelReaderWriterBuildable(typeof(UnknownPlant))]
+    [ModelReaderWriterBuildable(typeof(XmlAdvancedModel))]
+    [ModelReaderWriterBuildable(typeof(XmlItem))]
+    [ModelReaderWriterBuildable(typeof(XmlModelWithNamespace))]
+    [ModelReaderWriterBuildable(typeof(XmlNestedModel))]
     public partial class SampleTypeSpecContext : ModelReaderWriterContext
     {
     }
