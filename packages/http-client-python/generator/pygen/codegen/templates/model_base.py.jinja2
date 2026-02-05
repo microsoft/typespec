@@ -848,6 +848,14 @@ def _deserialize_multiple_sequence(
     return type(obj)(_deserialize(deserializer, entry, module) for entry, deserializer in zip(obj, entry_deserializers))
 
 
+def _is_array_encoded_deserializer(deserializer: functools.partial) -> bool:
+    return (
+        isinstance(deserializer, functools.partial)
+        and isinstance(deserializer.args[0], functools.partial)
+        and deserializer.args[0].func == _deserialize_array_encoded  # pylint: disable=comparison-with-callable
+    )
+
+
 def _deserialize_sequence(
     deserializer: typing.Optional[typing.Callable],
     module: typing.Optional[str],
@@ -857,17 +865,19 @@ def _deserialize_sequence(
         return obj
     if isinstance(obj, ET.Element):
         obj = list(obj)
-    try:
-        if (
-            isinstance(obj, str)
-            and isinstance(deserializer, functools.partial)
-            and isinstance(deserializer.args[0], functools.partial)
-            and deserializer.args[0].func == _deserialize_array_encoded  # pylint: disable=comparison-with-callable
-        ):
-            # encoded string may be deserialized to sequence
+
+    # encoded string may be deserialized to sequence
+    if isinstance(obj, str) and isinstance(deserializer, functools.partial):
+        # for list[str]
+        if _is_array_encoded_deserializer(deserializer):
             return deserializer(obj)
-    except:  # pylint: disable=bare-except
-        pass
+
+        # for list[Union[...]]
+        if isinstance(deserializer.args[0], list):
+            for sub_deserializer in deserializer.args[0]:
+                if _is_array_encoded_deserializer(sub_deserializer):
+                    return sub_deserializer(obj)
+
     return type(obj)(_deserialize(deserializer, entry, module) for entry in obj)
 
 
@@ -1052,7 +1062,7 @@ def _failsafe_deserialize(
 ) -> typing.Any:
   try:
       return _deserialize(deserializer, response.json(), module, rf, format)
-  except DeserializationError:
+  except Exception:  # pylint: disable=broad-except
       _LOGGER.warning(
           "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
           exc_info=True
@@ -1062,11 +1072,11 @@ def _failsafe_deserialize(
 
 def _failsafe_deserialize_xml(
   deserializer: typing.Any,
-  response: HttpResponse, 
+  response: HttpResponse,
 ) -> typing.Any:
   try:
       return _deserialize_xml(deserializer, response.text())
-  except DeserializationError:
+  except Exception:  # pylint: disable=broad-except
       _LOGGER.warning(
           "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
           exc_info=True

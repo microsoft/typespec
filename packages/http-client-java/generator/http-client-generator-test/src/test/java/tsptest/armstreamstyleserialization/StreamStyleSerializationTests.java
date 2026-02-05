@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
 import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.models.FunctionConfiguration;
-import tsptest.armstreamstyleserialization.models.Error;
+import tsptest.armstreamstyleserialization.models.ErrorMax;
 import tsptest.armstreamstyleserialization.models.Priority;
 import tsptest.armstreamstyleserialization.models.SawShark;
 import tsptest.armstreamstyleserialization.models.Shark;
@@ -49,12 +49,12 @@ public class StreamStyleSerializationTests {
         final String errorBodyWithoutError
             = "{\"code\":\"WepAppError\",\"message\":\"Web app error.\",\"additionalProperty\":\"Deployment error.\",\"details\":[{\"code\":\"InnerError\", \"additionalProperty\": \"nested\"}]}";
         SerializerAdapter serializerAdapter = SerializerFactory.createDefaultManagementSerializerAdapter();
-        Error error = serializerAdapter.deserialize(errorBodyWithError, Error.class, SerializerEncoding.JSON);
+        ErrorMax error = serializerAdapter.deserialize(errorBodyWithError, ErrorMax.class, SerializerEncoding.JSON);
         Assertions.assertEquals("WepAppError", error.getCode());
         Assertions.assertEquals("Deployment error.", error.getAdditionalProperty());
         Assertions.assertEquals("nested", error.getDetails().iterator().next().getAdditionalProperty());
 
-        error = serializerAdapter.deserialize(errorBodyWithoutError, Error.class, SerializerEncoding.JSON);
+        error = serializerAdapter.deserialize(errorBodyWithoutError, ErrorMax.class, SerializerEncoding.JSON);
         Assertions.assertEquals("WepAppError", error.getCode());
         Assertions.assertEquals("Deployment error.", error.getAdditionalProperty());
         Assertions.assertEquals("nested", error.getDetails().iterator().next().getAdditionalProperty());

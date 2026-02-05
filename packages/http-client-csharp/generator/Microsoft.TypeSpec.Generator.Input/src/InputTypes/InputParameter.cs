@@ -31,9 +31,17 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// Update the instance with given parameters.
         /// </summary>
         /// <param name="scope">The scope of the <see cref="InputParameter"/></param>
-        public void Update(InputParameterScope scope)
+        /// <param name="name">The name of the <see cref="InputParameter"/></param>
+        public void Update(InputParameterScope? scope = null, string? name = null)
         {
-            Scope = scope;
+            if (scope.HasValue)
+            {
+                Scope = scope.Value;
+            }
+            if (name != null)
+            {
+                Name = name;
+            }
         }
 
         public static InputParameterScope ParseScope(InputType type, string name, string? scope)

@@ -17,6 +17,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import specialwords.implementation.ModelPropertiesImpl;
 import specialwords.modelproperties.models.DictMethods;
+import specialwords.modelproperties.models.ModelWithList;
 import specialwords.modelproperties.models.SameAsModel;
 
 /**
@@ -99,6 +100,32 @@ public final class ModelPropertiesClient {
     }
 
     /**
+     * The withList operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     list: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withListWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.withListWithResponse(body, requestOptions);
+    }
+
+    /**
      * The sameAsModel operation.
      * 
      * @param body The body parameter.
@@ -134,5 +161,24 @@ public final class ModelPropertiesClient {
         // Generated convenience method for dictMethodsWithResponse
         RequestOptions requestOptions = new RequestOptions();
         dictMethodsWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+    }
+
+    /**
+     * The withList operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withList(ModelWithList body) {
+        // Generated convenience method for withListWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        withListWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
     }
 }

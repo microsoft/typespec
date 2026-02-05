@@ -43,6 +43,7 @@ export interface InputClient extends DecoratedType {
   crossLanguageDefinitionId: string;
   parent?: InputClient;
   children?: InputClient[];
+  isMultiServiceClient: boolean;
 }
 
 /**
@@ -180,6 +181,7 @@ export interface InputModelProperty extends InputPropertyTypeBase {
   serializationOptions: SerializationOptions;
   flatten: boolean;
   isHttpMetadata: boolean;
+  encode?: string;
 }
 
 export type InputProperty = InputModelProperty | InputParameter;

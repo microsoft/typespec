@@ -23,6 +23,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
+        private const string TopParameterName = "top";
+        private const string MaxCountParameterName = "maxCount";
+        private const string MaxPageSizeParameterName = "maxPageSize";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -48,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
+        protected override string BuildName() => ClientProvider.Name;
 
         protected override string BuildNamespace() => ClientProvider.Type.Namespace;
 
@@ -123,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
             var options = ScmKnownParameters.RequestOptions;
-            var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest);
+            var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, ClientProvider);
 
             if (isNextLinkRequest)
             {
@@ -142,9 +145,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 // Add maxPageSize parameter if PageSizeParameterSegments is specified
-                if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
+                var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
+                if (pageSizeParameterName != null)
                 {
-                    var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
                     reinjectedParamNames.Add(pageSizeParameterName);
                 }
 
@@ -192,7 +195,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 
-            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
+            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name), StringComparer.OrdinalIgnoreCase);
             foreach (var param in ClientProvider.ClientParameters)
             {
                 paramMap[param.Name] = param;
@@ -222,7 +225,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (reinjectedParamsMap.Count > 0)
                 {
-                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
+                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap, isNextLinkRequest: true));
                 }
             }
             else
@@ -255,7 +258,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                statements.AddRange(AppendHeaderParameters(request, operation, paramMap));
+                var contentParam = signature.Parameters.FirstOrDefault(p => p.Name == "content" && p.Location == ParameterLocation.Body);
+                statements.AddRange(AppendHeaderParameters(request, operation, paramMap, contentParam: contentParam));
                 statements.AddRange(GetSetContent(request, signature.Parameters));
             }
 
@@ -290,9 +294,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Add maxPageSize parameter if PageSizeParameterSegments is specified
-            if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
+            var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
+            if (pageSizeParameterName != null)
             {
-                var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
                 // Find the parameter in the operation parameters
                 var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name == pageSizeParameterName);
                 if (pageSizeParameter != null)
@@ -302,6 +306,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         reinjectedParamsMap[pageSizeParameter.Name] = paramInSignature;
                     }
+                }
+            }
+
+            // Add API version parameters that need to be preserved across pagination requests
+            var apiVersionParam = operation.Parameters.FirstOrDefault(p => p.IsApiVersion);
+            if (apiVersionParam != null && !reinjectedParamsMap.ContainsKey(apiVersionParam.Name))
+            {
+                var createdParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(apiVersionParam);
+                if (createdParam != null && paramMap.TryGetValue(createdParam.Name, out var paramInSignature))
+                {
+                    reinjectedParamsMap[apiVersionParam.Name] = paramInSignature;
                 }
             }
 
@@ -339,7 +354,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                         classifierBackingField.Name.Substring(1).ToIdentifierName(),
                         new ExpressionPropertyBody(
-                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)))),
+                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)), nullCoalesce: true)),
                         this)
                     {
                         BackingField = classifierBackingField
@@ -362,7 +377,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             throw new InvalidOperationException($"Unexpected status codes for operation {operation.Name}");
         }
 
-        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLink = false)
+        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLink = false, ParameterProvider? contentParam = null)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -410,6 +425,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
                 }
+                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
+                else if (inputHeaderParameter.IsContentType && contentParam != null)
+                {
+                    // Check if any body parameter in the operation is optional
+                    var hasOptionalBody = operation.Parameters.Any(p =>
+                        p is InputBodyParameter bodyParam && !bodyParam.IsRequired);
+
+                    if (hasOptionalBody)
+                    {
+                        statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
+                    }
+                }
 
                 statements.Add(statement);
             }
@@ -417,7 +444,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLinkRequest = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -426,7 +453,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
                     continue;
 
-                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation);
+                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation, isNextLinkRequest);
                 if (queryStatement != null)
                 {
                     statements.Add(queryStatement);
@@ -436,11 +463,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static MethodBodyStatement? BuildQueryParameterStatement(
+        private MethodBodyStatement? BuildQueryParameterStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
             Dictionary<string, ParameterProvider> paramMap,
-            InputOperation operation)
+            InputOperation operation,
+            bool isNextLinkRequest = false)
         {
             GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var serializationFormat, out var valueExpression);
             if (valueExpression == null)
@@ -448,7 +476,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
+            // Determine if we should update existing parameters or always append
+            InputPagingServiceMethod? pagingServiceMethod = _inputClient.Methods.OfType<InputPagingServiceMethod>()
+                .FirstOrDefault(m => m.Operation == operation);
+            bool shouldUpdateExisting = isNextLinkRequest &&
+                                      ShouldUpdateReinjectedParameter(inputQueryParameter, pagingServiceMethod) &&
+                                      paramType?.IsCollection != true;
+
+            MethodBodyStatement statement = shouldUpdateExisting
+                ? BuildUpdateQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat)
+                : BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
 
             // Apply null check if needed
             if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
@@ -460,6 +497,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statement;
         }
 
+        private static ValueExpression GetQueryParameterStringExpression(
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            SerializationFormat? serializationFormat)
+        {
+            return paramType?.Equals(typeof(string)) == true
+                ? valueExpression
+                : GetParameterValueExpression(valueExpression, serializationFormat);
+        }
+
+        private static MethodBodyStatement BuildUpdateQueryStatement(
+            ScopedApi uri,
+            InputQueryParameter inputQueryParameter,
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            SerializationFormat? serializationFormat)
+        {
+            var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
+            var parameterName = inputQueryParameter.SerializedName;
+
+            return uri.UpdateQuery(Literal(parameterName), toStringExpression).Terminate();
+        }
+
         private static MethodBodyStatement BuildAppendQueryStatement(
             ScopedApi uri,
             InputQueryParameter inputQueryParameter,
@@ -467,13 +527,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression valueExpression,
             SerializationFormat? serializationFormat)
         {
-            // Handle non-collection parameters
             if (paramType?.IsCollection != true)
             {
-                var toStringExpression = paramType?.Equals(typeof(string)) == true
-                    ? valueExpression
-                    : GetParameterValueExpression(valueExpression, serializationFormat);
-
+                var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
                 return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
             }
 
@@ -648,7 +704,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
-                var isClientParameter = ClientProvider.ClientParameters.Any(p => p.Name == paramName);
+                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase));
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
@@ -659,25 +715,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    if (isClientParameter)
+                    inputParam = inputParamMap[paramName];
+                    if (inputParam is InputPathParameter || inputParam is InputEndpointParameter)
                     {
-                        GetParamInfo(paramMap[paramName], out type, out serializationFormat, out valueExpression);
+                        GetParamInfo(paramMap, operation, inputParam, out type, out serializationFormat, out valueExpression);
+                        if (valueExpression == null)
+                        {
+                            break;
+                        }
                     }
                     else
                     {
-                        inputParam = inputParamMap[paramName];
-                        if (inputParam is InputPathParameter || inputParam is InputEndpointParameter)
-                        {
-                            GetParamInfo(paramMap, operation, inputParam, out type, out serializationFormat, out valueExpression);
-                            if (valueExpression == null)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
-                        }
+                        throw new InvalidOperationException($"The location of parameter {inputParam.Name} should be path or uri");
                     }
                 }
                 string? format = serializationFormat?.ToFormatSpecifier();
@@ -716,10 +765,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
+        private void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
             type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             serializationFormat = null;
+
+            if (inputParam.IsApiVersion && ClientProvider.IsMultiServiceClient)
+            {
+                var apiVersionField = ClientProvider.GetApiVersionFieldForService(operation.Namespace);
+                if (apiVersionField != null)
+                {
+                    type = apiVersionField.Type;
+                    serializationFormat = apiVersionField.WireInfo?.SerializationFormat;
+                    valueExpression = apiVersionField;
+                    return;
+                }
+            }
+
             if (inputParam.Scope == InputParameterScope.Constant && !(operation.IsMultipartFormData && inputParam is InputHeaderParameter headerParameter && headerParameter.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
@@ -802,6 +864,54 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
+        private static string? GetPageSizeParameterName(InputPagingServiceMethod? pagingServiceMethod)
+        {
+            return pagingServiceMethod?.PagingMetadata?.PageSizeParameterSegments?.Count > 0
+                ? pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last()
+                : null;
+        }
+
+        private static string GetCorrectedPageSizeName(string originalName, ClientProvider client)
+        {
+            // Check if parameter exists in LastContractView for backward compatibility
+            var existingParam = client.LastContractView?.Methods
+                ?.SelectMany(method => method.Signature.Parameters)
+                .FirstOrDefault(parameter => string.Equals(parameter.Name, originalName, StringComparison.OrdinalIgnoreCase))
+                ?.Name;
+
+            if (existingParam != null)
+            {
+                return existingParam;
+            }
+
+            // Normalize badly-cased "maxpagesize" variants to Camel Case
+            if (string.Equals(originalName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+            {
+                return MaxPageSizeParameterName;
+            }
+
+            // Keep original name for all other cases
+            return originalName;
+        }
+
+        private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
+        {
+            // Check if this is an API version parameter
+            if (inputParameter.IsApiVersion)
+            {
+                return true;
+            }
+
+            // Check if this is a max page size parameter
+            var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
+            if (pageSizeParameterName != null && inputParameter.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         private static List<int> GetSuccessStatusCodes(InputOperation operation)
         {
             HashSet<int> statusCodes = [];
@@ -812,7 +922,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 foreach (var statusCode in response.StatusCodes)
                 {
-                    if (statusCode >= 200 && statusCode < 300)
+                    if (statusCode >= 200 && statusCode < 400)
                     {
                         statusCodes.Add(statusCode);
                     }
@@ -834,7 +944,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return NextMethodCache[operation];
         }
 
-        internal static List<ParameterProvider> GetMethodParameters(InputServiceMethod serviceMethod, ScmMethodKind methodType)
+        internal static List<ParameterProvider> GetMethodParameters(
+            InputServiceMethod serviceMethod,
+            ScmMethodKind methodType,
+            ClientProvider client)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -846,6 +959,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var operation = serviceMethod.Operation;
             // For convenience methods, use the service method parameters
             var inputParameters = methodType is ScmMethodKind.Convenience ? serviceMethod.Parameters : operation.Parameters;
+
+            var pageSizeParameterName = GetPageSizeParameterName(serviceMethod as InputPagingServiceMethod);
+
+            string? correctedPageSizeName = null;
+            if (pageSizeParameterName != null)
+            {
+                correctedPageSizeName = GetCorrectedPageSizeName(pageSizeParameterName, client);
+            }
 
             ModelProvider? spreadSource = null;
             if (methodType == ScmMethodKind.Convenience)
@@ -885,6 +1006,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParam is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
                 {
                     continue;
+                }
+
+                if (inputParam.IsApiVersion && (inputParam.DefaultValue != null || client.IsMultiServiceClient))
+                {
+                    continue;
+                }
+
+                // For paging operations, rename "top" parameter to "maxCount"
+                if (serviceMethod is InputPagingServiceMethod &&
+                    string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                {
+                    inputParam.Update(name: MaxCountParameterName);
+                }
+
+                // For paging operations, ensure page size parameter uses the correct casing
+                if (correctedPageSizeName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!string.Equals(inputParam.Name, correctedPageSizeName, StringComparison.Ordinal))
+                    {
+                        inputParam.Update(name: correctedPageSizeName);
+                    }
                 }
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
