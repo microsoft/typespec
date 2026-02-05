@@ -8,4 +8,12 @@ export default tsEslint.config(
   },
   eslint.configs.recommended,
   ...tsEslint.configs.recommended,
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
+      ],
+    },
+  },
 );
