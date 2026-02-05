@@ -714,35 +714,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return conversions;
         }
 
-        private ModelProvider? CreateBodyModel()
-        {
-            InputParameter? methodBodyParameter = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
-            ModelProvider? bodyModel = null;
-            // Search nested parameters
-            if (methodBodyParameter == null)
-            {
-                foreach (var parameter in ServiceMethod.Parameters)
-                {
-                    if (parameter.MethodParameterSegments is { Count: > 1 })
-                    {
-                        methodBodyParameter = parameter.MethodParameterSegments
-                            .FirstOrDefault(p => p.Location == InputRequestLocation.Body);
-
-                        if (methodBodyParameter != null)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            if (methodBodyParameter?.Type is InputModelType model)
-            {
-                bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
-            }
-
-            return bodyModel;
-        }
-
         private (List<ValueExpression> RequiredParameters, List<ValueExpression> OptionalParameters)?
             GetNonBodyModelPropertiesConversions(ParameterProvider bodyParam, ModelProvider bodyModel)
         {
