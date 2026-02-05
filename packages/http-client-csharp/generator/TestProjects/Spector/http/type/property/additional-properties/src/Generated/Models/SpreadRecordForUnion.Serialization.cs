@@ -13,6 +13,10 @@ namespace _Type.Property.AdditionalProperties
     {
         internal SpreadRecordForUnion() => throw null;
 
+        protected virtual SpreadRecordForUnion PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator SpreadRecordForUnion(ClientResult result) => throw null;
+
         void IJsonModel<SpreadRecordForUnion>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace _Type.Property.AdditionalProperties
 
         SpreadRecordForUnion IPersistableModel<SpreadRecordForUnion>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual SpreadRecordForUnion PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<SpreadRecordForUnion>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(SpreadRecordForUnion spreadRecordForUnion) => throw null;
-
-        public static explicit operator SpreadRecordForUnion(ClientResult result) => throw null;
     }
 }

@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     NextTokenField = field;
                 }
 
-                if (field.AsParameter.Name == pageSize)
+                if (string.Equals(field.AsParameter.Name, pageSize, StringComparison.OrdinalIgnoreCase))
                 {
                     PageSizeField = field;
                 }

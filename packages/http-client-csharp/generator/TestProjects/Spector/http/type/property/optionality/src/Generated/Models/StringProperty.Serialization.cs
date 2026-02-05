@@ -11,6 +11,10 @@ namespace _Type.Property.Optional
 {
     public partial class StringProperty : IJsonModel<StringProperty>
     {
+        protected virtual StringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator StringProperty(ClientResult result) => throw null;
+
         void IJsonModel<StringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -25,12 +29,8 @@ namespace _Type.Property.Optional
 
         StringProperty IPersistableModel<StringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual StringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<StringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(StringProperty stringProperty) => throw null;
-
-        public static explicit operator StringProperty(ClientResult result) => throw null;
     }
 }
