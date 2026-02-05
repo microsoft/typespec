@@ -326,7 +326,7 @@ function updateMethodParameter(
   );
   // for content type parameter
   if (isContentType(operationHttpParameter)) {
-    methodParameter.type = fromSdkType(sdkContext, operationHttpParameter.type, false);
+    methodParameter.type = fromSdkType(sdkContext, operationHttpParameter.type, operationHttpParameter);
   }
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
