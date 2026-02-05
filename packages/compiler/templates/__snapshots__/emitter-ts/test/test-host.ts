@@ -2,18 +2,14 @@ import { Diagnostic, resolvePath } from "@typespec/compiler";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { createTester } from "@typespec/compiler/testing";
 
-export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+export const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
   libraries: ["emitter-ts"],
 }).emit("emitter-ts");
 
 export async function emitWithDiagnostics(
   code: string
 ): Promise<[Record<string, string>, readonly Diagnostic[]]> {
-  const [{ outputs }, diagnostics] = await Tester.compileAndDiagnose(code, {
-    compilerOptions: {
-      emit: ["emitter-ts"],
-    },
-  });
+  const [{ outputs }, diagnostics] = await Tester.compileAndDiagnose(code);
   return [outputs, diagnostics];
 }
 

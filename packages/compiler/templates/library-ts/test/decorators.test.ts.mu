@@ -1,5 +1,5 @@
 import { strictEqual } from "node:assert";
-import { describe, it } from "vitest";
+import { describe, it } from "node:test";
 import { expectDiagnostics, extractCursor, t } from "@typespec/compiler/testing";
 import { getAlternateName } from "../src/decorators.js";
 import { Tester } from "./test-host.js";
