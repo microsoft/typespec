@@ -11,6 +11,10 @@ namespace _Type.Model.Empty
 {
     public partial class EmptyOutput : IJsonModel<EmptyOutput>
     {
+        protected virtual EmptyOutput PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator EmptyOutput(ClientResult result) => throw null;
+
         void IJsonModel<EmptyOutput>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -25,10 +29,6 @@ namespace _Type.Model.Empty
 
         EmptyOutput IPersistableModel<EmptyOutput>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual EmptyOutput PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<EmptyOutput>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static explicit operator EmptyOutput(ClientResult result) => throw null;
     }
 }

@@ -12,6 +12,21 @@ namespace Sample.Models
 {
     public partial class Model : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Model>
     {
+        protected virtual global::Sample.Models.Model PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        {
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return global::Sample.Models.Model.DeserializeModel(document.RootElement, options);
+                    }
+                default:
+                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support reading '{options.Format}' format.");
+            }
+        }
+
         void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Model>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
@@ -139,21 +154,6 @@ namespace Sample.Models
         }
 
         global::Sample.Models.Model global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
-
-        protected virtual global::Sample.Models.Model PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
-        {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return global::Sample.Models.Model.DeserializeModel(document.RootElement, options);
-                    }
-                default:
-                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support reading '{options.Format}' format.");
-            }
-        }
 
         string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }
