@@ -1279,6 +1279,13 @@ describe("compiler: parser", () => {
 
   describe("template arguments", () => {
     parseEach(["alias Test = Foo<T>;", "alias TrailingComma = Foo<A, B,>;"]);
+    // Some examples with using functions as args:
+    parseEach([
+      "alias Test = Foo<fn()>;",
+      "alias Test = Foo<fn() => string>;",
+      "alias Test = Foo<fn(a: string, b: int) => string>;",
+      "alias TrailingComma = Foo<fn(a: string, b: int) => string,>;",
+    ]);
   });
 
   describe("annotations order", () => {
