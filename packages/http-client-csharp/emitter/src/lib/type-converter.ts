@@ -280,6 +280,7 @@ function fromSdkModelProperty(
     serializationOptions: sdkProperty.serializationOptions,
     // A property is defined to be metadata if it is marked `@header`, `@cookie`, `@query`, `@path`.
     isHttpMetadata: isHttpMetadata(sdkContext, sdkProperty),
+    encode: sdkProperty.encode,
   } as InputModelProperty;
 
   if (property) {
@@ -306,7 +307,7 @@ function createEnumType(
     crossLanguageDefinitionId: sdkType.kind === "enum" ? sdkType.crossLanguageDefinitionId : "",
     valueType:
       sdkType.kind === "enum"
-        ? (fromSdkType(sdkContext, sdkType.valueType) as InputPrimitiveType)
+        ? fromSdkType(sdkContext, sdkType.valueType)
         : fromSdkBuiltInType(sdkContext, sdkType.valueType),
     values: values,
     // constantType.access, TODO - constant type now does not have access. TCGC will add it later

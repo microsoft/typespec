@@ -4,7 +4,8 @@
 
 package tsptest.armstreamstyleserialization.models;
 
-import com.azure.core.annotation.Immutable;
+import com.azure.core.annotation.Fluent;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -24,7 +25,7 @@ import java.util.Objects;
 /**
  * The Builtin model.
  */
-@Immutable
+@Fluent
 public final class Builtin implements JsonSerializable<Builtin> {
     /*
      * The boolean property.
@@ -107,19 +108,24 @@ public final class Builtin implements JsonSerializable<Builtin> {
     private Map<String, Double> nullableFloatDict;
 
     /*
-     * The encoded property.
+     * The encoding property.
      */
-    private Encoded encoded;
+    private Encoded encoding;
 
     /*
      * The uuid property.
      */
     private String uuid;
 
+    /*
+     * The unknown property.
+     */
+    private BinaryData unknown;
+
     /**
      * Creates an instance of Builtin class.
      */
-    private Builtin() {
+    public Builtin() {
     }
 
     /**
@@ -132,12 +138,34 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Set the booleanProperty property: The boolean property.
+     * 
+     * @param booleanProperty the booleanProperty value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withBooleanProperty(boolean booleanProperty) {
+        this.booleanProperty = booleanProperty;
+        return this;
+    }
+
+    /**
      * Get the string property: The string property.
      * 
      * @return the string value.
      */
     public String string() {
         return this.string;
+    }
+
+    /**
+     * Set the string property: The string property.
+     * 
+     * @param string the string value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withString(String string) {
+        this.string = string;
+        return this;
     }
 
     /**
@@ -150,12 +178,34 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Set the bytes property: The bytes property.
+     * 
+     * @param bytes the bytes value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withBytes(byte[] bytes) {
+        this.bytes = CoreUtils.clone(bytes);
+        return this;
+    }
+
+    /**
      * Get the intProperty property: The int property.
      * 
      * @return the intProperty value.
      */
     public int intProperty() {
         return this.intProperty;
+    }
+
+    /**
+     * Set the intProperty property: The int property.
+     * 
+     * @param intProperty the intProperty value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withIntProperty(int intProperty) {
+        this.intProperty = intProperty;
+        return this;
     }
 
     /**
@@ -168,12 +218,34 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Set the safeint property: The safeint property.
+     * 
+     * @param safeint the safeint value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withSafeint(long safeint) {
+        this.safeint = safeint;
+        return this;
+    }
+
+    /**
      * Get the decimal property: The decimal property.
      * 
      * @return the decimal value.
      */
     public BigDecimal decimal() {
         return this.decimal;
+    }
+
+    /**
+     * Set the decimal property: The decimal property.
+     * 
+     * @param decimal the decimal value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withDecimal(BigDecimal decimal) {
+        this.decimal = decimal;
+        return this;
     }
 
     /**
@@ -186,12 +258,34 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Set the longProperty property: The long property.
+     * 
+     * @param longProperty the longProperty value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withLongProperty(long longProperty) {
+        this.longProperty = longProperty;
+        return this;
+    }
+
+    /**
      * Get the floatProperty property: The float property.
      * 
      * @return the floatProperty value.
      */
     public double floatProperty() {
         return this.floatProperty;
+    }
+
+    /**
+     * Set the floatProperty property: The float property.
+     * 
+     * @param floatProperty the floatProperty value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withFloatProperty(double floatProperty) {
+        this.floatProperty = floatProperty;
+        return this;
     }
 
     /**
@@ -204,12 +298,34 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Set the doubleProperty property: The double property.
+     * 
+     * @param doubleProperty the doubleProperty value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withDoubleProperty(double doubleProperty) {
+        this.doubleProperty = doubleProperty;
+        return this;
+    }
+
+    /**
      * Get the duration property: The duration property.
      * 
      * @return the duration value.
      */
     public Duration duration() {
         return this.duration;
+    }
+
+    /**
+     * Set the duration property: The duration property.
+     * 
+     * @param duration the duration value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withDuration(Duration duration) {
+        this.duration = duration;
+        return this;
     }
 
     /**
@@ -222,12 +338,34 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Set the date property: The date property.
+     * 
+     * @param date the date value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withDate(LocalDate date) {
+        this.date = date;
+        return this;
+    }
+
+    /**
      * Get the dateTime property: The dateTime property.
      * 
      * @return the dateTime value.
      */
     public OffsetDateTime dateTime() {
         return this.dateTime;
+    }
+
+    /**
+     * Set the dateTime property: The dateTime property.
+     * 
+     * @param dateTime the dateTime value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withDateTime(OffsetDateTime dateTime) {
+        this.dateTime = dateTime;
+        return this;
     }
 
     /**
@@ -240,12 +378,34 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Set the stringList property: The stringList property.
+     * 
+     * @param stringList the stringList value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withStringList(List<String> stringList) {
+        this.stringList = stringList;
+        return this;
+    }
+
+    /**
      * Get the bytesDict property: The bytesDict property.
      * 
      * @return the bytesDict value.
      */
     public Map<String, byte[]> bytesDict() {
         return this.bytesDict;
+    }
+
+    /**
+     * Set the bytesDict property: The bytesDict property.
+     * 
+     * @param bytesDict the bytesDict value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withBytesDict(Map<String, byte[]> bytesDict) {
+        this.bytesDict = bytesDict;
+        return this;
     }
 
     /**
@@ -258,6 +418,17 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Set the url property: The url property.
+     * 
+     * @param url the url value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withUrl(String url) {
+        this.url = url;
+        return this;
+    }
+
+    /**
      * Get the nullableFloatDict property: The nullableFloatDict property.
      * 
      * @return the nullableFloatDict value.
@@ -267,12 +438,34 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
-     * Get the encoded property: The encoded property.
+     * Set the nullableFloatDict property: The nullableFloatDict property.
      * 
-     * @return the encoded value.
+     * @param nullableFloatDict the nullableFloatDict value to set.
+     * @return the Builtin object itself.
      */
-    public Encoded encoded() {
-        return this.encoded;
+    public Builtin withNullableFloatDict(Map<String, Double> nullableFloatDict) {
+        this.nullableFloatDict = nullableFloatDict;
+        return this;
+    }
+
+    /**
+     * Get the encoding property: The encoding property.
+     * 
+     * @return the encoding value.
+     */
+    public Encoded encoding() {
+        return this.encoding;
+    }
+
+    /**
+     * Set the encoding property: The encoding property.
+     * 
+     * @param encoding the encoding value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withEncoding(Encoded encoding) {
+        this.encoding = encoding;
+        return this;
     }
 
     /**
@@ -282,6 +475,37 @@ public final class Builtin implements JsonSerializable<Builtin> {
      */
     public String uuid() {
         return this.uuid;
+    }
+
+    /**
+     * Set the uuid property: The uuid property.
+     * 
+     * @param uuid the uuid value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withUuid(String uuid) {
+        this.uuid = uuid;
+        return this;
+    }
+
+    /**
+     * Get the unknown property: The unknown property.
+     * 
+     * @return the unknown value.
+     */
+    public BinaryData unknown() {
+        return this.unknown;
+    }
+
+    /**
+     * Set the unknown property: The unknown property.
+     * 
+     * @param unknown the unknown value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withUnknown(BinaryData unknown) {
+        this.unknown = unknown;
+        return this;
     }
 
     /**
@@ -328,14 +552,18 @@ public final class Builtin implements JsonSerializable<Builtin> {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Missing required property nullableFloatDict in model Builtin"));
         }
-        if (encoded() == null) {
+        if (encoding() == null) {
             throw LOGGER.atError()
-                .log(new IllegalArgumentException("Missing required property encoded in model Builtin"));
+                .log(new IllegalArgumentException("Missing required property encoding in model Builtin"));
         } else {
-            encoded().validate();
+            encoding().validate();
         }
         if (uuid() == null) {
             throw LOGGER.atError().log(new IllegalArgumentException("Missing required property uuid in model Builtin"));
+        }
+        if (unknown() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Missing required property unknown in model Builtin"));
         }
     }
 
@@ -365,8 +593,10 @@ public final class Builtin implements JsonSerializable<Builtin> {
         jsonWriter.writeStringField("url", this.url);
         jsonWriter.writeMapField("nullableFloatDict", this.nullableFloatDict,
             (writer, element) -> writer.writeNumber(element));
-        jsonWriter.writeJsonField("encoded", this.encoded);
+        jsonWriter.writeJsonField("encoding", this.encoding);
         jsonWriter.writeStringField("uuid", this.uuid);
+        jsonWriter.writeFieldName("unknown");
+        this.unknown.writeTo(jsonWriter);
         return jsonWriter.writeEndObject();
     }
 
@@ -426,10 +656,13 @@ public final class Builtin implements JsonSerializable<Builtin> {
                     Map<String, Double> nullableFloatDict
                         = reader.readMap(reader1 -> reader1.getNullable(JsonReader::getDouble));
                     deserializedBuiltin.nullableFloatDict = nullableFloatDict;
-                } else if ("encoded".equals(fieldName)) {
-                    deserializedBuiltin.encoded = Encoded.fromJson(reader);
+                } else if ("encoding".equals(fieldName)) {
+                    deserializedBuiltin.encoding = Encoded.fromJson(reader);
                 } else if ("uuid".equals(fieldName)) {
                     deserializedBuiltin.uuid = reader.getString();
+                } else if ("unknown".equals(fieldName)) {
+                    deserializedBuiltin.unknown
+                        = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));
                 } else {
                     reader.skipChildren();
                 }

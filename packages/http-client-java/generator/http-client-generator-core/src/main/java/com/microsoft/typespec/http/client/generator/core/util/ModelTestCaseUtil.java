@@ -127,7 +127,7 @@ public class ModelTestCaseUtil {
             return UUID.randomUUID().toString();
         } else if (type == ClassType.URL) {
             return "http://example.org/" + URLEncoder.encode(randomString(), StandardCharsets.UTF_8);
-        } else if (type == ClassType.OBJECT) {
+        } else if (type == ClassType.OBJECT || type == ClassType.BINARY_DATA) {
             // unknown type, use a simple string
             return "data" + randomString();
         } else if (type instanceof EnumType) {

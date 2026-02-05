@@ -60,7 +60,7 @@ public final class SkusClientImpl implements SkusClient {
     @ServiceInterface(name = "ArmLegacyClientSkus")
     public interface SkusService {
         @Headers({ "Content-Type: application/json" })
-        @Get("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
+        @Get("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<SkuResourceInner>> getNested(@HostParam("endpoint") String endpoint,
@@ -70,7 +70,7 @@ public final class SkusClientImpl implements SkusClient {
             @HeaderParam("Accept") String accept, Context context);
 
         @Headers({ "Content-Type: application/json" })
-        @Get("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
+        @Get("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Response<SkuResourceInner> getNestedSync(@HostParam("endpoint") String endpoint,
@@ -79,7 +79,7 @@ public final class SkusClientImpl implements SkusClient {
             @PathParam("nestedResourceTypeFirst") String nestedResourceTypeFirst, @PathParam("sku") String sku,
             @HeaderParam("Accept") String accept, Context context);
 
-        @Put("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
+        @Put("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<SkuResourceInner>> createNested(@HostParam("endpoint") String endpoint,
@@ -89,7 +89,7 @@ public final class SkusClientImpl implements SkusClient {
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") SkuResourceInner resource, Context context);
 
-        @Put("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
+        @Put("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Response<SkuResourceInner> createNestedSync(@HostParam("endpoint") String endpoint,
@@ -100,7 +100,7 @@ public final class SkusClientImpl implements SkusClient {
             @BodyParam("application/json") SkuResourceInner resource, Context context);
 
         @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
-        @Delete("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
+        @Delete("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
         @ExpectedResponses({ 200, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<Void>> deleteNested(@HostParam("endpoint") String endpoint,
@@ -110,7 +110,7 @@ public final class SkusClientImpl implements SkusClient {
             Context context);
 
         @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
-        @Delete("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
+        @Delete("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/resourcetypeRegistrations/{nestedResourceTypeFirst}/skus/{sku}")
         @ExpectedResponses({ 200, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Response<Void> deleteNestedSync(@HostParam("endpoint") String endpoint,
@@ -120,7 +120,7 @@ public final class SkusClientImpl implements SkusClient {
             Context context);
 
         @Headers({ "Content-Type: application/json" })
-        @Get("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
+        @Get("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<SkuResourceInner>> getRoot(@HostParam("endpoint") String endpoint,
@@ -129,7 +129,7 @@ public final class SkusClientImpl implements SkusClient {
             @PathParam("sku") String sku, @HeaderParam("Accept") String accept, Context context);
 
         @Headers({ "Content-Type: application/json" })
-        @Get("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
+        @Get("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Response<SkuResourceInner> getRootSync(@HostParam("endpoint") String endpoint,
@@ -137,7 +137,7 @@ public final class SkusClientImpl implements SkusClient {
             @PathParam("providerNamespace") String providerNamespace, @PathParam("resourceType") String resourceType,
             @PathParam("sku") String sku, @HeaderParam("Accept") String accept, Context context);
 
-        @Put("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
+        @Put("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<SkuResourceInner>> createRoot(@HostParam("endpoint") String endpoint,
@@ -147,7 +147,7 @@ public final class SkusClientImpl implements SkusClient {
             @HeaderParam("Accept") String accept, @BodyParam("application/json") SkuResourceInner resource,
             Context context);
 
-        @Put("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
+        @Put("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Response<SkuResourceInner> createRootSync(@HostParam("endpoint") String endpoint,
@@ -158,7 +158,7 @@ public final class SkusClientImpl implements SkusClient {
             Context context);
 
         @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
-        @Delete("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
+        @Delete("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
         @ExpectedResponses({ 200, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<Void>> deleteRoot(@HostParam("endpoint") String endpoint,
@@ -167,7 +167,7 @@ public final class SkusClientImpl implements SkusClient {
             @PathParam("sku") String sku, Context context);
 
         @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
-        @Delete("/subscriptions/{subscriptionId}/providers/Microsoft.ThisWillBeReplaced/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
+        @Delete("/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}")
         @ExpectedResponses({ 200, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Response<Void> deleteRootSync(@HostParam("endpoint") String endpoint,

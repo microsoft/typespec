@@ -317,6 +317,14 @@ function updateMethodParameter(
   operationHttpParameter: SdkHttpParameter | SdkModelPropertyType,
   rootApiVersions: string[],
 ): void {
+  // for content type parameter
+  if (isContentType(operationHttpParameter)) {
+    methodParameter.type = fromSdkType(
+      sdkContext,
+      operationHttpParameter.type,
+      operationHttpParameter,
+    );
+  }
   methodParameter.serializedName = getNameInRequest(operationHttpParameter);
   methodParameter.location = getParameterLocation(operationHttpParameter);
   methodParameter.scope = getParameterScope(

@@ -181,6 +181,7 @@ export interface InputModelProperty extends InputPropertyTypeBase {
   serializationOptions: SerializationOptions;
   flatten: boolean;
   isHttpMetadata: boolean;
+  encode?: string;
 }
 
 export type InputProperty = InputModelProperty | InputParameter;
