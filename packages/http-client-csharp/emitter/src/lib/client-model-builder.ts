@@ -154,9 +154,9 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
 
 function navigateModels(sdkContext: CSharpEmitterContext) {
   for (const m of sdkContext.sdkPackage.models) {
-    fromSdkType(sdkContext, m, false);
+    fromSdkType(sdkContext, m);
   }
   for (const e of sdkContext.sdkPackage.enums) {
-    fromSdkType(sdkContext, e, false);
+    fromSdkType(sdkContext, e);
   }
 }

@@ -376,7 +376,7 @@ describe("Operation Converter", () => {
           }
           
           @post
-          op withOptionalBody(@bodyRoot body?: BodyModel): void;
+          op withOptionalBody(@body body?: BodyModel): void;
           `,
           runner,
         );

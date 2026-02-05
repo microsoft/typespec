@@ -1,12 +1,10 @@
 import {
   listAllServiceNamespaces,
   SdkClientType,
-  SdkHeaderParameter,
   SdkHttpOperation,
   SdkHttpParameter,
   SdkMethodParameter,
   SdkModelPropertyType,
-  SdkModelPropertyTypeBase,
   isReadOnly as tcgcIsReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName, Namespace, NoTarget, Type } from "@typespec/compiler";
@@ -237,45 +235,4 @@ export function containsMultiServiceClient(
  */
 export function isMultiServiceClient(client: SdkClientType<SdkHttpOperation>): boolean {
   return Array.isArray(client.__raw.service) && client.__raw.service.length > 1;
-}
-
-/**
- * Determines if we should wrap the constant type into an enum type (if it is a constant type).
- * @param sdkProperty the property or parameter to assert
- * @returns whether the constant type should be wrapped into an enum type
- */
-export function shouldWrapConstantInEnum(
-  sdkProperty: SdkModelPropertyType | SdkMethodParameter | SdkHttpParameter,
-): boolean {
-  if (sdkProperty.kind === "property" || sdkProperty.kind === "method") {
-    // this is a model property or a method parameter
-    return (
-      (sdkProperty.optional || sdkProperty.type.kind === "nullable") &&
-      sdkProperty.type.kind !== "boolean"
-    );
-  } else {
-    // this is a http parameter
-    const isContentTypeHeader = isContentTypeParameter(sdkProperty);
-    return (
-      !isContentTypeHeader &&
-      (sdkProperty.optional || sdkProperty.type.kind === "nullable") &&
-      sdkProperty.type.kind !== "boolean"
-    );
-  }
-}
-
-function isContentTypeParameter(
-  param: SdkModelPropertyTypeBase | undefined,
-): param is SdkHeaderParameter {
-  if (!param) {
-    return false;
-  }
-
-  return (
-    "kind" in param &&
-    param.kind === "header" &&
-    "serializedName" in param &&
-    typeof param.serializedName === "string" &&
-    param.serializedName.toLocaleLowerCase() === "content-type"
-  );
 }
