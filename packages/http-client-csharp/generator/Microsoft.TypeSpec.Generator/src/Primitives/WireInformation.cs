@@ -8,7 +8,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     public class WireInformation
     {
         public SerializationFormat SerializationFormat { get; }
-
         public string SerializedName { get; internal set; }
 
         public WireInformation(SerializationFormat serializationFormat, string serializedName)

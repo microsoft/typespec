@@ -760,7 +760,7 @@ model Plant {
 }
 
 @doc("Tree is a specific type of plant")
-@usage(Usage.xml | Usage.output | Usage.json )
+@usage(Usage.xml | Usage.output | Usage.json)
 model Tree extends Plant {
   species: "tree";
 
