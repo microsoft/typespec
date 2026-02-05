@@ -5,9 +5,9 @@ using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 {
-    public class XmlSerializationOptions
+    public class XmlSerialization
     {
-        public XmlSerializationOptions(InputXmlSerializationOptions xmlOptions)
+        public XmlSerialization(InputXmlSerializationOptions xmlOptions)
         {
             Name = xmlOptions.Name;
             Attribute = xmlOptions.Attribute;
@@ -25,12 +25,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 
         public bool? Attribute { get; }
 
-        public XmlSerializationNamespaceOptions? Namespace { get; }
+        public XmlSerializationNamespace? Namespace { get; }
 
         public bool? Unwrapped { get; }
 
         public string? ItemsName { get; }
 
-        public XmlSerializationNamespaceOptions? ItemsNamespace { get; }
+        public XmlSerializationNamespace? ItemsNamespace { get; }
     }
 }

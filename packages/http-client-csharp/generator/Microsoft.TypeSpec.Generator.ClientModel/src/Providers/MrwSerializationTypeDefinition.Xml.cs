@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string PropertyName,
             CSharpType PropertyType,
             VariableExpression PropertyExpression,
-            XmlSerializationOptions XmlWireInfo,
+            XmlSerialization XmlWireInfo,
             SerializationFormat SerializationFormat,
             IEnumerable<AttributeStatement> SerializationAttributes);
 
@@ -352,7 +352,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<XElement> childElement,
             CSharpType propertyType,
             VariableExpression propertyExpression,
-            XmlSerializationOptions xmlWireInfo,
+            XmlSerialization xmlWireInfo,
             SerializationFormat serializationFormat,
             Dictionary<string, XmlNamespaceInfo>? namespaces = null)
         {
@@ -374,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<XElement> childElement,
             CSharpType listType,
             VariableExpression listExpression,
-            XmlSerializationOptions xmlWireInfo,
+            XmlSerialization xmlWireInfo,
             SerializationFormat serializationFormat,
             Dictionary<string, XmlNamespaceInfo>? namespaces = null)
         {
@@ -427,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<XElement> childElement,
             CSharpType dictionaryType,
             VariableExpression dictionaryExpression,
-            XmlSerializationOptions xmlWireInfo,
+            XmlSerialization xmlWireInfo,
             SerializationFormat serializationFormat)
         {
             var valueType = dictionaryType.ElementType;
@@ -719,7 +719,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        private static void CollectNamespace(string propertyName, XmlSerializationNamespaceOptions nsOptions, Dictionary<string, XmlNamespaceInfo> namespaces)
+        private static void CollectNamespace(string propertyName, XmlSerializationNamespace nsOptions, Dictionary<string, XmlNamespaceInfo> namespaces)
         {
             if (!namespaces.ContainsKey(nsOptions.Namespace))
             {

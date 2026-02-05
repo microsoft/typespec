@@ -5,9 +5,9 @@ using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 {
-    public class XmlSerializationNamespaceOptions
+    public class XmlSerializationNamespace
     {
-        public XmlSerializationNamespaceOptions(InputXmlNamespaceOptions options)
+        public XmlSerializationNamespace(InputXmlNamespaceOptions options)
         {
             Namespace = options.Namespace;
             Prefix = options.Prefix;

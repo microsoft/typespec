@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
                 : null;
         }
 
-        public XmlSerializationOptions? Xml { get; }
+        public XmlSerialization? Xml { get; }
 
         // TO-DO: Add remaining SCM serialization options https://github.com/microsoft/typespec/issues/5861.
     }
