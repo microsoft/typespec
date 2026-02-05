@@ -326,7 +326,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
         {
             var contentParam = parameters.FirstOrDefault(
-                p => ReferenceEquals(p, ScmKnownParameters.RequestContent) || ReferenceEquals(p, ScmKnownParameters.OptionalRequestContent));
+                p => p.Location == ParameterLocation.Body);
             return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
         }
 
@@ -1041,13 +1041,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         if (methodType == ScmMethodKind.CreateRequest)
                         {
-                            parameter = ScmKnownParameters.RequestContent;
+                            parameter = ScmKnownParameters.CreateRequestContent(inputParam);
                         }
                         else
                         {
-                            parameter = parameter.DefaultValue == null
-                                ? ScmKnownParameters.RequestContent
-                                : ScmKnownParameters.OptionalRequestContent;
+                            parameter = ScmKnownParameters.CreateRequestContent(inputParam,
+                                optional: parameter.DefaultValue != null);
                         }
                     }
                     else

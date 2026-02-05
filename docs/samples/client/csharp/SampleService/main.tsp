@@ -466,6 +466,20 @@ model XmlModelWithNamespace {
   foo: string;
 }
 
+model Wrapper {
+  @doc("header parameter")
+  @header
+  p1: string;
+
+  @doc("body parameter")
+  @body
+  action: RoundTripModel;
+
+  @doc("path parameter")
+  @path
+  p2: string;
+}
+
 union DaysOfWeekExtensibleEnum {
   string,
   Monday: "Monday",
@@ -500,12 +514,15 @@ op helloAgain(
 @route("/noContentType")
 @doc("Return hi again")
 @get
-@convenientAPI(false)
 op noContentType(
   @header p1: string,
   @body action: RoundTripModel,
   @path p2: string,
 ): RoundTripModel;
+
+op noContentTypeOverride(info: Wrapper): RoundTripModel;
+
+@@override(noContentType, noContentTypeOverride);
 
 @route("/demoHi")
 @doc("Return hi in demo2")

@@ -37,6 +37,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(UnknownAnimal))]
     [ModelReaderWriterBuildable(typeof(UnknownPet))]
     [ModelReaderWriterBuildable(typeof(UnknownPlant))]
+    [ModelReaderWriterBuildable(typeof(Wrapper))]
     [ModelReaderWriterBuildable(typeof(XmlAdvancedModel))]
     [ModelReaderWriterBuildable(typeof(XmlItem))]
     [ModelReaderWriterBuildable(typeof(XmlModelWithNamespace))]

@@ -136,6 +136,16 @@ namespace SampleTypeSpec
             return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The Wrapper. </summary>
+        /// <param name="p1"> header parameter. </param>
+        /// <param name="action"> body parameter. </param>
+        /// <param name="p2"> path parameter. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Wrapper"/> instance for mocking. </returns>
+        public static Wrapper Wrapper(string p1 = default, RoundTripModel action = default, string p2 = default)
+        {
+            return new Wrapper(p1, action, p2, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <returns> A new <see cref="Models.Custom.Friend"/> instance for mocking. </returns>
