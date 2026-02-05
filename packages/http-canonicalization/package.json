@@ -8,10 +8,10 @@
     "url": "git+https://github.com/microsoft/typespec.git"
   },
   "scripts": {
-    "build": "tsc -p .",
+    "build": "tsc -p tsconfig.build.json",
     "clean": "rimraf ./dist",
     "format": "prettier . --write",
-    "watch": "tsc -p . --watch",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
