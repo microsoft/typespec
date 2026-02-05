@@ -4,7 +4,7 @@ import { JsValue } from "./js-value/js-value.js";
 import { ObjectName } from "./object-name.js";
 
 import style from "./object-inspector.module.css";
-import { hasOwnProperty } from "./utils/object-prototype.js";
+import { hasOwnProperty, propertyIsEnumerable } from "./utils/object-prototype.js";
 import { getPropertyValue } from "./utils/property-utils.js";
 
 /* intersperse arr with separator */
@@ -55,35 +55,35 @@ export const ObjectPreview: FC<any> = ({ data }) => {
     const maxProperties = OBJECT_MAX_PROPERTIES;
     const propertyNodes: ReactNode[] = [];
     
-    // Get all property keys (both string and Symbol)
-    const stringKeys = Object.getOwnPropertyNames(object);
-    const symbolKeys = Object.getOwnPropertySymbols(object);
+    // Get all property keys (both string and Symbol), filtering for enumerable ones
+    const stringKeys = Object.keys(object); // Object.keys only returns enumerable string properties
+    const symbolKeys = Object.getOwnPropertySymbols(object).filter(sym => 
+      propertyIsEnumerable.call(object, sym)
+    );
     const allKeys: (string | symbol)[] = [...stringKeys, ...symbolKeys];
     const totalProperties = allKeys.length;
     
     for (let i = 0; i < allKeys.length; i++) {
       const key = allKeys[i];
-      if (hasOwnProperty.call(object, key)) {
-        let ellipsis;
-        if (
-          propertyNodes.length === maxProperties - 1 &&
-          totalProperties > maxProperties
-        ) {
-          ellipsis = <span key={"ellipsis"}>…</span>;
-        }
-
-        const propertyValue = getPropertyValue(object, key);
-        const displayName = typeof key === "string" ? key || `""` : key.toString();
-        propertyNodes.push(
-          <span key={typeof key === "string" ? key : `symbol-${i}`}>
-            <ObjectName name={displayName} />
-            :&nbsp;
-            <JsValue value={propertyValue} />
-            {ellipsis}
-          </span>,
-        );
-        if (ellipsis) break;
+      let ellipsis;
+      if (
+        propertyNodes.length === maxProperties - 1 &&
+        totalProperties > maxProperties
+      ) {
+        ellipsis = <span key={"ellipsis"}>…</span>;
       }
+
+      const propertyValue = getPropertyValue(object, key);
+      const displayName = typeof key === "string" ? key || `""` : key.toString();
+      propertyNodes.push(
+        <span key={typeof key === "string" ? key : `symbol-${i}`}>
+          <ObjectName name={displayName} />
+          :&nbsp;
+          <JsValue value={propertyValue} />
+          {ellipsis}
+        </span>,
+      );
+      if (ellipsis) break;
     }
 
     const objectConstructorName = object.constructor ? object.constructor.name : "Object";
