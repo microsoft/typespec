@@ -3,7 +3,6 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from copy import deepcopy
 from ..models.imports import (
     ImportType,
     FileImport,
@@ -76,14 +75,26 @@ class FileImportSerializer:
     def _get_imports_list(self, baseline_typing_section: TypingSection, add_conditional_typing: bool):
         # If this is a python 3 file, our regular imports include the CONDITIONAL category
         # If this is not a python 3 file, our typing imports include the CONDITIONAL category
-        file_import_copy = deepcopy(self.file_import)
-        if add_conditional_typing and any(self.file_import.get_imports_from_section(TypingSection.CONDITIONAL)):
-            # we switch the TypingSection key for the CONDITIONAL typing imports so we can merge
-            # the imports together
-            for i in file_import_copy.imports:
-                if i.typing_section == TypingSection.CONDITIONAL:
-                    i.typing_section = baseline_typing_section
-        return file_import_copy.get_imports_from_section(baseline_typing_section)
+
+        # Get imports that already match the baseline_typing_section
+        result = list(self.file_import.get_imports_from_section(baseline_typing_section))
+
+        if add_conditional_typing:
+            # Get conditional imports and create new ImportModel instances with modified typing_section
+            conditional_imports = self.file_import.get_imports_from_section(TypingSection.CONDITIONAL)
+            for i in conditional_imports:
+                # Create a new ImportModel with the baseline_typing_section instead of CONDITIONAL
+                result.append(
+                    ImportModel(
+                        typing_section=baseline_typing_section,
+                        import_type=i.import_type,
+                        module_name=i.module_name,
+                        submodule_name=i.submodule_name,
+                        alias=i.alias,
+                        version_modules=i.version_modules,
+                    )
+                )
+        return result
 
     def _add_type_checking_import(self):
         if any(self.file_import.get_imports_from_section(TypingSection.TYPING)):
