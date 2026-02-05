@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -246,5 +247,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
 
         protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
+
+        protected override ScmSerializationOptions? CreateSerializationOptionsCore(InputSerializationOptions inputSerializationOptions)
+            => new(inputSerializationOptions);
     }
 }

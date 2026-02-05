@@ -3,11 +3,11 @@
 
 using Microsoft.TypeSpec.Generator.Input;
 
-namespace Microsoft.TypeSpec.Generator.Primitives
+namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 {
-    public class XmlWireNamespaceOptions
+    public class XmlSerializationNamespaceOptions
     {
-        public XmlWireNamespaceOptions(InputXmlNamespaceOptions options)
+        public XmlSerializationNamespaceOptions(InputXmlNamespaceOptions options)
         {
             Namespace = options.Namespace;
             Prefix = options.Prefix;

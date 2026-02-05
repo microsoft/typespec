@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsHttpMetadata { get; }
         public bool IsApiVersion { get; }
         internal FormattableString? Description { get; }
-        public XmlWireInformation? XmlWireInformation { get; }
+        public SerializationOptions? SerializationOptions { get; }
 
         public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, bool isHttpMetadata, bool isApiVersion)
             : base(serializationFormat, serializedName)
@@ -45,8 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             IsDiscriminator = modelProperty != null && modelProperty.IsDiscriminator;
             Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc);
             IsApiVersion = inputProperty.IsApiVersion;
-            XmlWireInformation = modelProperty?.SerializationOptions?.Xml != null
-                ? new XmlWireInformation(modelProperty.SerializationOptions.Xml)
+            SerializationOptions = modelProperty?.SerializationOptions != null
+                ? CodeModelGenerator.Instance.TypeFactory.CreateSerializationOptions(modelProperty.SerializationOptions)
                 : null;
         }
     }

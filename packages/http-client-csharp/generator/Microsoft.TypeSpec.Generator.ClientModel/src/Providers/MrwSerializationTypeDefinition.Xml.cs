@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Xml.Linq;
+using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -31,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string PropertyName,
             CSharpType PropertyType,
             VariableExpression PropertyExpression,
-            XmlWireInformation XmlWireInfo,
+            XmlSerializationOptions XmlWireInfo,
             SerializationFormat SerializationFormat,
             IEnumerable<AttributeStatement> SerializationAttributes);
 
@@ -95,9 +96,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool onlyContainsUnknownDerivedModel,
             ScopedApi<XElement> elementParameter)
         {
-            if (!onlyContainsUnknownDerivedModel && discriminatorProperty?.WireInfo?.XmlWireInformation?.Name != null)
+            var xmlSerializationOptions = (discriminatorProperty?.WireInfo?.SerializationOptions as ScmSerializationOptions)?.Xml;
+            if (!onlyContainsUnknownDerivedModel && xmlSerializationOptions?.Name != null)
             {
-                var discriminatorElementName = discriminatorProperty.WireInfo.XmlWireInformation.Name;
+                var discriminatorElementName = xmlSerializationOptions.Name;
                 var discriminatorElement = new VariableExpression(typeof(XElement), "discriminatorElement");
 
                 return new MethodBodyStatements(
@@ -198,7 +200,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var wireInfo = parameter.Property?.WireInfo ?? parameter.Field?.WireInfo;
-                var xmlWireInfo = wireInfo?.XmlWireInformation;
+                var xmlWireInfo = (wireInfo?.SerializationOptions as ScmSerializationOptions)?.Xml;
                 if (xmlWireInfo == null || wireInfo?.IsHttpMetadata == true)
                 {
                     continue;
@@ -350,7 +352,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<XElement> childElement,
             CSharpType propertyType,
             VariableExpression propertyExpression,
-            XmlWireInformation xmlWireInfo,
+            XmlSerializationOptions xmlWireInfo,
             SerializationFormat serializationFormat,
             Dictionary<string, XmlNamespaceInfo>? namespaces = null)
         {
@@ -372,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<XElement> childElement,
             CSharpType listType,
             VariableExpression listExpression,
-            XmlWireInformation xmlWireInfo,
+            XmlSerializationOptions xmlWireInfo,
             SerializationFormat serializationFormat,
             Dictionary<string, XmlNamespaceInfo>? namespaces = null)
         {
@@ -425,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<XElement> childElement,
             CSharpType dictionaryType,
             VariableExpression dictionaryExpression,
-            XmlWireInformation xmlWireInfo,
+            XmlSerializationOptions xmlWireInfo,
             SerializationFormat serializationFormat)
         {
             var valueType = dictionaryType.ElementType;
@@ -717,7 +719,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        private static void CollectNamespace(string propertyName, XmlWireNamespaceOptions nsOptions, Dictionary<string, XmlNamespaceInfo> namespaces)
+        private static void CollectNamespace(string propertyName, XmlSerializationNamespaceOptions nsOptions, Dictionary<string, XmlNamespaceInfo> namespaces)
         {
             if (!namespaces.ContainsKey(nsOptions.Namespace))
             {

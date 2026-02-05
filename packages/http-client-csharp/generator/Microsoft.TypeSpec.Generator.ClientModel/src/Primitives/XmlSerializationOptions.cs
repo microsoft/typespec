@@ -3,11 +3,11 @@
 
 using Microsoft.TypeSpec.Generator.Input;
 
-namespace Microsoft.TypeSpec.Generator.Primitives
+namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 {
-    public class XmlWireInformation
+    public class XmlSerializationOptions
     {
-        public XmlWireInformation(InputXmlSerializationOptions xmlOptions)
+        public XmlSerializationOptions(InputXmlSerializationOptions xmlOptions)
         {
             Name = xmlOptions.Name;
             Attribute = xmlOptions.Attribute;
@@ -25,12 +25,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         public bool? Attribute { get; }
 
-        public XmlWireNamespaceOptions? Namespace { get; }
+        public XmlSerializationNamespaceOptions? Namespace { get; }
 
         public bool? Unwrapped { get; }
 
         public string? ItemsName { get; }
 
-        public XmlWireNamespaceOptions? ItemsNamespace { get; }
+        public XmlSerializationNamespaceOptions? ItemsNamespace { get; }
     }
 }
