@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.27.0
+
+### Features
+
+- [#9587](https://github.com/microsoft/typespec/pull/9587) Add support for `@clientOption("includeRootSlash")` to control stripping of the slash after the root url
+
+
 ## 0.26.3
 
 ### Bug Fixes
