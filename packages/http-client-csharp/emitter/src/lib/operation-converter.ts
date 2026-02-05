@@ -952,14 +952,14 @@ export function getMethodParameterSegments(
 
   const namespace = getClientNamespaceString(sdkContext) ?? "";
   const methodParams: InputMethodParameter[] = [];
-  
+
   // Convert each element in the segment path to an InputMethodParameter
   // This preserves the full path information (e.g., ['Params', 'foo'])
   for (const segment of firstSegmentPath) {
     const methodParam = segment as SdkMethodParameter;
     methodParams.push(fromMethodParameter(sdkContext, methodParam, namespace));
   }
-  
+
   return methodParams.length > 0 ? methodParams : undefined;
 }
 
