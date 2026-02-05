@@ -23,12 +23,11 @@
     { "path": "packages/monarch/tsconfig.build.json" },
     { "path": "packages/bundler/tsconfig.build.json" },
     { "path": "packages/pack/tsconfig.build.json" },
-    { "path": "packages/tspd/tsconfig.build.json" },
     { "path": "packages/samples/tsconfig.build.json" },
     { "path": "packages/json-schema/tsconfig.build.json" },
     { "path": "packages/best-practices/tsconfig.build.json" },
     { "path": "packages/xml/tsconfig.build.json" },
-    { "path": "packages/http-server-js/tsconfig.build.json" },
+    { "path": "packages/http-server-js/tsconfig.json" },
     { "path": "packages/http-server-csharp/tsconfig.build.json" },
     { "path": "packages/astro-utils/tsconfig.build.json" }
   ],
