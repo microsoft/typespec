@@ -109,7 +109,6 @@ namespace Pets {
       }
     | {
         @statusCode statusCode: 401;
-
         @body error: UnauthorizedError;
       }
     | {

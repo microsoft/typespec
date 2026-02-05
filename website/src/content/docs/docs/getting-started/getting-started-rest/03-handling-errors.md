@@ -70,7 +70,6 @@ namespace Pets {
     @body pet: Pet;
   } | {
     @statusCode statusCode: 404;
-
     @body error: NotFoundError;
   };
 
