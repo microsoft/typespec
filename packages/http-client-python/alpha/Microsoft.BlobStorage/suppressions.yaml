@@ -1,0 +1,18 @@
+- tool: TypeSpecValidation
+  paths:
+    - tspconfig.yaml
+  rules:
+    - SdkTspConfigValidation
+  sub-rules:
+    - options.@azure-tools/typespec-go.generate-fakes
+    - options.@azure-tools/typespec-go.inject-spans
+    - options.@azure-tools/typespec-go.service-dir
+    - options.@azure-tools/typespec-go.package-dir
+    - options.@azure-tools/typespec-java.emitter-output-dir
+    - options.@azure-tools/typespec-ts.emitter-output-dir
+    - options.@azure-tools/typespec-ts.package-details.name
+    - options.@azure-tools/typespec-python.emitter-output-dir
+    - options.@azure-tools/typespec-csharp.namespace
+    - options.@azure-tools/typespec-csharp.clear-output-folder
+    - options.@azure-tools/typespec-csharp.emitter-output-dir
+  reason: 'Suppress SDK configuration validation until TypeSpec conversion is ready. Go options suppressed until service team is ready to update the go package with typespec.'

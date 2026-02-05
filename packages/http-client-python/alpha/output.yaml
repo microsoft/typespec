@@ -1,0 +1,1537 @@
+namespace: azure.resourcemanager.multiservice.combined
+clients:
+  - name: Combined
+    description: ""
+    parameters:
+      - &ref_2
+        optional: true
+        description: Service host
+        clientName: base_url
+        inOverload: false
+        isApiVersion: false
+        isContinuationToken: false
+        type: &ref_1
+          type: string
+        apiVersions: &ref_0 []
+        wireName: endpoint
+        location: endpointPath
+        implementation: Client
+        clientDefaultValue: https://management.azure.com
+        skipUrlEncoding: true
+      - optional: false
+        description: Credential used to authenticate requests to the service.
+        clientName: credential
+        inOverload: false
+        isApiVersion: false
+        isContinuationToken: false
+        type: &ref_46
+          type: OAuth2
+          policy:
+            type: BearerTokenCredentialPolicy
+            credentialScopes:
+              - user_impersonation
+            flows: []
+        apiVersions: *ref_0
+        implementation: Client
+        location: credential
+      - optional: false
+        description: The ID of the target subscription. The value must be an UUID.
+        addedOn: "2024-11-01"
+        clientName: subscription_id
+        inOverload: false
+        isApiVersion: false
+        isContinuationToken: false
+        type: *ref_1
+        apiVersions:
+          - "2024-11-01"
+          - "2025-04-01"
+        implementation: Client
+        location: method
+    operationGroups:
+      - name: VirtualMachines
+        className: VirtualMachines
+        propertyName: VirtualMachines
+        operations:
+          - url: >-
+              /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}
+            method: GET
+            parameters:
+              - *ref_2
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: &ref_7
+                  type: constant
+                  value: "2025-04-01"
+                  valueType: *ref_1
+                apiVersions:
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: api-version
+                location: query
+                implementation: Method
+                explode: false
+                clientDefaultValue: "2025-04-01"
+              - optional: false
+                description: The ID of the target subscription. The value must be an UUID.
+                clientName: subscription_id
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions:
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: subscriptionId
+                location: path
+                implementation: Client
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the resource group. The name is case insensitive.
+                clientName: resource_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions:
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: resourceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the VirtualMachine
+                clientName: vm_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions:
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: vmName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: &ref_8
+                  type: constant
+                  value: application/json
+                  valueType: *ref_1
+                apiVersions:
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: &ref_9
+                  type: model
+                  name: VirtualMachine
+                  description: Describes a Virtual Machine.
+                  parents:
+                    - &ref_25
+                      type: model
+                      name: TrackedResource
+                      description: Tracked Resource
+                      parents:
+                        - &ref_40
+                          type: model
+                          name: Resource
+                          description: Resource
+                          parents: []
+                          discriminatedSubtypes: {}
+                          properties:
+                            - clientName: id
+                              wireName: id
+                              type: *ref_1
+                              optional: true
+                              description: >-
+                                Fully qualified resource ID for the resource. Ex
+                                -
+                                /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+                              addedOn: v3
+                              apiVersions:
+                                - v3
+                                - v4
+                                - v5
+                                - v6
+                              visibility:
+                                - read
+                              isDiscriminator: false
+                              flatten: false
+                            - clientName: name
+                              wireName: name
+                              type: *ref_1
+                              optional: true
+                              description: The name of the resource
+                              addedOn: v3
+                              apiVersions:
+                                - v3
+                                - v4
+                                - v5
+                                - v6
+                              visibility:
+                                - read
+                              isDiscriminator: false
+                              flatten: false
+                            - clientName: type
+                              wireName: type
+                              type: *ref_1
+                              optional: true
+                              description: >-
+                                The type of the resource. E.g.
+                                "Microsoft.Compute/virtualMachines" or
+                                "Microsoft.Storage/storageAccounts"
+                              addedOn: v3
+                              apiVersions:
+                                - v3
+                                - v4
+                                - v5
+                                - v6
+                              visibility:
+                                - read
+                              isDiscriminator: false
+                              flatten: false
+                            - clientName: system_data
+                              wireName: systemData
+                              type: &ref_41
+                                type: model
+                                name: SystemData
+                                description: >-
+                                  Metadata pertaining to creation and last
+                                  modification of the resource.
+                                parents: []
+                                discriminatedSubtypes: {}
+                                properties:
+                                  - clientName: created_by
+                                    wireName: createdBy
+                                    type: *ref_1
+                                    optional: true
+                                    description: The identity that created the resource.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: created_by_type
+                                    wireName: createdByType
+                                    type: &ref_3
+                                      name: createdByType
+                                      snakeCaseName: created_by_type
+                                      description: >-
+                                        The kind of entity that created the
+                                        resource.
+                                      internal: false
+                                      type: enum
+                                      valueType: *ref_1
+                                      values:
+                                        - name: USER
+                                          value: User
+                                          description: The entity was created by a user.
+                                          enumType: *ref_3
+                                          type: enumvalue
+                                          valueType: *ref_1
+                                        - name: APPLICATION
+                                          value: Application
+                                          description: >-
+                                            The entity was created by an
+                                            application.
+                                          enumType: *ref_3
+                                          type: enumvalue
+                                          valueType: *ref_1
+                                        - name: MANAGED_IDENTITY
+                                          value: ManagedIdentity
+                                          description: >-
+                                            The entity was created by a managed
+                                            identity.
+                                          enumType: *ref_3
+                                          type: enumvalue
+                                          valueType: *ref_1
+                                        - name: KEY
+                                          value: Key
+                                          description: The entity was created by a key.
+                                          enumType: *ref_3
+                                          type: enumvalue
+                                          valueType: *ref_1
+                                      xmlMetadata: {}
+                                      crossLanguageDefinitionId: >-
+                                        Azure.ResourceManager.CommonTypes.createdByType
+                                      clientNamespace: >-
+                                        azure.resourcemanager.multiservice.combined
+                                    optional: true
+                                    description: >-
+                                      The type of identity that created the
+                                      resource.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: created_at
+                                    wireName: createdAt
+                                    type: &ref_4
+                                      type: utcDateTime
+                                      encode: rfc3339
+                                      wireType: *ref_1
+                                    optional: true
+                                    description: The timestamp of resource creation (UTC).
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: last_modified_by
+                                    wireName: lastModifiedBy
+                                    type: *ref_1
+                                    optional: true
+                                    description: >-
+                                      The identity that last modified the
+                                      resource.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: last_modified_by_type
+                                    wireName: lastModifiedByType
+                                    type: *ref_3
+                                    optional: true
+                                    description: >-
+                                      The type of identity that last modified
+                                      the resource.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: last_modified_at
+                                    wireName: lastModifiedAt
+                                    type: *ref_4
+                                    optional: true
+                                    description: >-
+                                      The timestamp of resource last
+                                      modification (UTC)
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                snakeCaseName: system_data
+                                base: dpg
+                                internal: false
+                                crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.SystemData
+                                usage: 10500
+                                isXml: false
+                                clientNamespace: azure.resourcemanager.multiservice.combined
+                              optional: true
+                              description: >-
+                                Azure Resource Manager metadata containing
+                                createdBy and modifiedBy information.
+                              addedOn: v3
+                              apiVersions:
+                                - v3
+                                - v4
+                                - v5
+                                - v6
+                              visibility:
+                                - read
+                              isDiscriminator: false
+                              flatten: false
+                          snakeCaseName: resource
+                          base: dpg
+                          internal: false
+                          crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.Resource
+                          usage: 10502
+                          isXml: false
+                          clientNamespace: azure.resourcemanager.multiservice.combined
+                      discriminatedSubtypes: {}
+                      properties:
+                        - clientName: tags
+                          wireName: tags
+                          type: &ref_47
+                            type: dict
+                            elementType: *ref_1
+                          optional: true
+                          description: Resource tags.
+                          addedOn: v3
+                          apiVersions:
+                            - v3
+                            - v4
+                            - v5
+                            - v6
+                          visibility:
+                            - read
+                            - create
+                            - update
+                            - delete
+                            - query
+                          isDiscriminator: false
+                          flatten: false
+                        - clientName: location
+                          wireName: location
+                          type: *ref_1
+                          optional: false
+                          description: The geo-location where the resource lives
+                          addedOn: v3
+                          apiVersions:
+                            - v3
+                            - v4
+                            - v5
+                            - v6
+                          visibility:
+                            - read
+                            - create
+                          isDiscriminator: false
+                          flatten: false
+                      snakeCaseName: tracked_resource
+                      base: dpg
+                      internal: false
+                      crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.TrackedResource
+                      usage: 10502
+                      isXml: false
+                      clientNamespace: azure.resourcemanager.multiservice.combined
+                  discriminatedSubtypes: {}
+                  properties:
+                    - clientName: properties
+                      wireName: properties
+                      type: &ref_42
+                        type: model
+                        name: VirtualMachineProperties
+                        parents: []
+                        discriminatedSubtypes: {}
+                        properties:
+                          - clientName: provisioning_state
+                            wireName: provisioningState
+                            type: &ref_5
+                              name: ResourceProvisioningState
+                              snakeCaseName: resource_provisioning_state
+                              description: The provisioning state of a resource type.
+                              internal: false
+                              type: enum
+                              valueType: *ref_1
+                              values:
+                                - name: SUCCEEDED
+                                  value: Succeeded
+                                  description: Resource has been created.
+                                  enumType: *ref_5
+                                  type: enumvalue
+                                  valueType: *ref_1
+                                - name: FAILED
+                                  value: Failed
+                                  description: Resource creation failed.
+                                  enumType: *ref_5
+                                  type: enumvalue
+                                  valueType: *ref_1
+                                - name: CANCELED
+                                  value: Canceled
+                                  description: Resource creation was canceled.
+                                  enumType: *ref_5
+                                  type: enumvalue
+                                  valueType: *ref_1
+                              xmlMetadata: {}
+                              crossLanguageDefinitionId: Azure.ResourceManager.ResourceProvisioningState
+                              clientNamespace: azure.resourcemanager.multiservice.combined
+                            optional: true
+                            addedOn: "2024-11-01"
+                            apiVersions:
+                              - "2024-11-01"
+                              - "2025-04-01"
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                        snakeCaseName: virtual_machine_properties
+                        base: dpg
+                        internal: false
+                        crossLanguageDefinitionId: >-
+                          Azure.ResourceManager.MultiService.Compute.VirtualMachineProperties
+                        usage: 10502
+                        isXml: false
+                        clientNamespace: azure.resourcemanager.multiservice.combined
+                      optional: true
+                      description: The resource-specific properties for this resource.
+                      apiVersions: []
+                      visibility:
+                        - read
+                        - create
+                        - update
+                        - delete
+                        - query
+                      isDiscriminator: false
+                      flatten: false
+                  snakeCaseName: virtual_machine
+                  base: dpg
+                  internal: false
+                  crossLanguageDefinitionId: Azure.ResourceManager.MultiService.Compute.VirtualMachine
+                  usage: 10502
+                  isXml: false
+                  clientNamespace: azure.resourcemanager.multiservice.combined
+                  referredByOperationType: 2
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: &ref_11
+                  type: model
+                  name: ErrorResponse
+                  description: Error response
+                  parents: []
+                  discriminatedSubtypes: {}
+                  properties:
+                    - clientName: error
+                      wireName: error
+                      type: &ref_6
+                        type: model
+                        name: ErrorDetail
+                        description: The error detail.
+                        parents: []
+                        discriminatedSubtypes: {}
+                        properties:
+                          - clientName: code
+                            wireName: code
+                            type: *ref_1
+                            optional: true
+                            description: The error code.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: message
+                            wireName: message
+                            type: *ref_1
+                            optional: true
+                            description: The error message.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: target
+                            wireName: target
+                            type: *ref_1
+                            optional: true
+                            description: The error target.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: details
+                            wireName: details
+                            type: &ref_48
+                              type: list
+                              elementType: *ref_6
+                            optional: true
+                            description: The error details.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: additional_info
+                            wireName: additionalInfo
+                            type: &ref_49
+                              type: list
+                              elementType: &ref_43
+                                type: model
+                                name: ErrorAdditionalInfo
+                                description: The resource management error additional info.
+                                parents: []
+                                discriminatedSubtypes: {}
+                                properties:
+                                  - clientName: type
+                                    wireName: type
+                                    type: *ref_1
+                                    optional: true
+                                    description: The additional info type.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: info
+                                    wireName: info
+                                    type: &ref_45
+                                      type: any
+                                    optional: true
+                                    description: The additional info.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                    isDiscriminator: false
+                                    flatten: false
+                                snakeCaseName: error_additional_info
+                                base: dpg
+                                internal: false
+                                crossLanguageDefinitionId: >-
+                                  Azure.ResourceManager.CommonTypes.ErrorAdditionalInfo
+                                usage: 5376
+                                isXml: false
+                                clientNamespace: azure.resourcemanager.multiservice.combined
+                            optional: true
+                            description: The error additional info.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                        snakeCaseName: error_detail
+                        base: dpg
+                        internal: false
+                        crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.ErrorDetail
+                        usage: 5376
+                        isXml: false
+                        clientNamespace: azure.resourcemanager.multiservice.combined
+                      optional: true
+                      description: The error object.
+                      addedOn: v3
+                      apiVersions:
+                        - v3
+                        - v4
+                        - v5
+                        - v6
+                      visibility:
+                        - read
+                        - create
+                        - update
+                        - delete
+                        - query
+                      isDiscriminator: false
+                      flatten: false
+                  snakeCaseName: error_response
+                  base: dpg
+                  internal: false
+                  crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.ErrorResponse
+                  usage: 1280
+                  isXml: false
+                  clientNamespace: azure.resourcemanager.multiservice.combined
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            groupName: VirtualMachines
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions:
+              - "2024-11-01"
+              - "2025-04-01"
+            wantTracing: true
+            exposeStreamKeyword: true
+            crossLanguageDefinitionId: Azure.ResourceManager.MultiService.Compute.VirtualMachines.get
+            samples: {}
+            internal: false
+            abstract: false
+            name: get
+            description: >-
+              Retrieves information about the model view or the instance view of
+              a virtual machine.
+            clientNamespace: azure.resourcemanager.multiservice.combined
+          - &ref_24
+            url: >-
+              /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}
+            method: PUT
+            parameters:
+              - *ref_2
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_7
+                apiVersions: &ref_12
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: api-version
+                location: query
+                implementation: Method
+                explode: false
+                clientDefaultValue: "2025-04-01"
+              - optional: false
+                description: The ID of the target subscription. The value must be an UUID.
+                clientName: subscription_id
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: &ref_13
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: subscriptionId
+                location: path
+                implementation: Client
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the resource group. The name is case insensitive.
+                clientName: resource_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: &ref_14
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: resourceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the VirtualMachine
+                clientName: vm_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: &ref_15
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: vmName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: >-
+                  Body parameter's content type. Known values are
+                  application/json
+                clientName: content_type
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: &ref_16
+                  type: string
+                apiVersions: &ref_10
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: Content-Type
+                location: header
+                implementation: Method
+                explode: false
+                clientDefaultValue: application/json
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions: &ref_17
+                  - "2024-11-01"
+                  - "2025-04-01"
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            bodyParameter:
+              optional: false
+              description: Resource create parameters.
+              clientName: resource
+              inOverload: false
+              isApiVersion: false
+              isContinuationToken: false
+              type: *ref_9
+              apiVersions: *ref_10
+              contentTypes: &ref_18
+                - application/json
+              location: body
+              wireName: resource
+              implementation: Method
+              defaultContentType: application/json
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: *ref_9
+                contentTypes: &ref_19
+                  - application/json
+                defaultContentType: application/json
+              - headers:
+                  - type: *ref_1
+                    wireName: Azure-AsyncOperation
+                  - type: &ref_20
+                      type: integer
+                    wireName: Retry-After
+                statusCodes:
+                  - 201
+                discriminator: basic
+                type: *ref_9
+                contentTypes: &ref_21
+                  - application/json
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: *ref_11
+                contentTypes: &ref_22
+                  - application/json
+                defaultContentType: application/json
+            groupName: VirtualMachines
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions: &ref_23
+              - "2024-11-01"
+              - "2025-04-01"
+            wantTracing: false
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: >-
+              Azure.ResourceManager.MultiService.Compute.VirtualMachines.createOrUpdate
+            samples: {}
+            internal: false
+            name: _create_or_update_initial
+            isLroInitialOperation: true
+            description: >-
+              The operation to create or update a virtual machine. Please note
+              some properties can be set only during virtual machine creation.
+            clientNamespace: azure.resourcemanager.multiservice.combined
+          - url: >-
+              /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}
+            method: PUT
+            parameters:
+              - *ref_2
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_7
+                apiVersions: *ref_12
+                wireName: api-version
+                location: query
+                implementation: Method
+                explode: false
+                clientDefaultValue: "2025-04-01"
+              - optional: false
+                description: The ID of the target subscription. The value must be an UUID.
+                clientName: subscription_id
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: *ref_13
+                wireName: subscriptionId
+                location: path
+                implementation: Client
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the resource group. The name is case insensitive.
+                clientName: resource_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: *ref_14
+                wireName: resourceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the VirtualMachine
+                clientName: vm_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: *ref_15
+                wireName: vmName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: >-
+                  Body parameter's content type. Known values are
+                  application/json
+                clientName: content_type
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_16
+                apiVersions: *ref_10
+                wireName: Content-Type
+                location: header
+                implementation: Method
+                explode: false
+                clientDefaultValue: application/json
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions: *ref_17
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            bodyParameter:
+              optional: false
+              description: Resource create parameters.
+              clientName: resource
+              inOverload: false
+              isApiVersion: false
+              isContinuationToken: false
+              type: *ref_9
+              apiVersions: *ref_10
+              contentTypes: *ref_18
+              location: body
+              wireName: resource
+              implementation: Method
+              defaultContentType: application/json
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: *ref_9
+                contentTypes: *ref_19
+                defaultContentType: application/json
+              - headers:
+                  - type: *ref_1
+                    wireName: Azure-AsyncOperation
+                  - type: *ref_20
+                    wireName: Retry-After
+                statusCodes:
+                  - 201
+                discriminator: basic
+                type: *ref_9
+                contentTypes: *ref_21
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: *ref_11
+                contentTypes: *ref_22
+                defaultContentType: application/json
+            groupName: VirtualMachines
+            discriminator: lro
+            isOverload: false
+            overloads: []
+            apiVersions: *ref_23
+            wantTracing: true
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: >-
+              Azure.ResourceManager.MultiService.Compute.VirtualMachines.createOrUpdate
+            samples: {}
+            internal: false
+            name: create_or_update
+            initialOperation: *ref_24
+            description: >-
+              The operation to create or update a virtual machine. Please note
+              some properties can be set only during virtual machine creation.
+            clientNamespace: azure.resourcemanager.multiservice.combined
+        clientNamespace: azure.resourcemanager.multiservice.combined
+      - name: Disks
+        className: Disks
+        propertyName: Disks
+        operations:
+          - url: >-
+              /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/disks/{diskName}
+            method: GET
+            parameters:
+              - *ref_2
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: &ref_26
+                  type: constant
+                  value: "2025-01-02"
+                  valueType: *ref_1
+                apiVersions:
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: api-version
+                location: query
+                implementation: Method
+                explode: false
+                clientDefaultValue: "2025-01-02"
+              - optional: false
+                description: The ID of the target subscription. The value must be an UUID.
+                clientName: subscription_id
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions:
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: subscriptionId
+                location: path
+                implementation: Client
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the resource group. The name is case insensitive.
+                clientName: resource_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions:
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: resourceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the Disk
+                clientName: disk_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions:
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: diskName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions:
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: &ref_27
+                  type: model
+                  name: Disk
+                  description: Disk resource.
+                  parents:
+                    - *ref_25
+                  discriminatedSubtypes: {}
+                  properties:
+                    - clientName: properties
+                      wireName: properties
+                      type: &ref_44
+                        type: model
+                        name: DiskProperties
+                        description: Disk resource properties.
+                        parents: []
+                        discriminatedSubtypes: {}
+                        properties:
+                          - clientName: provisioning_state
+                            wireName: provisioningState
+                            type: *ref_5
+                            optional: true
+                            addedOn: "2024-03-02"
+                            apiVersions:
+                              - "2024-03-02"
+                              - "2025-01-02"
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                        snakeCaseName: disk_properties
+                        base: dpg
+                        internal: false
+                        crossLanguageDefinitionId: >-
+                          Azure.ResourceManager.MultiService.ComputeDisk.DiskProperties
+                        usage: 10502
+                        isXml: false
+                        clientNamespace: azure.resourcemanager.multiservice.combined
+                      optional: true
+                      description: The resource-specific properties for this resource.
+                      apiVersions: []
+                      visibility:
+                        - read
+                        - create
+                        - update
+                        - delete
+                        - query
+                      isDiscriminator: false
+                      flatten: false
+                  snakeCaseName: disk
+                  base: dpg
+                  internal: false
+                  crossLanguageDefinitionId: Azure.ResourceManager.MultiService.ComputeDisk.Disk
+                  usage: 10502
+                  isXml: false
+                  clientNamespace: azure.resourcemanager.multiservice.combined
+                  referredByOperationType: 2
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: *ref_11
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            groupName: Disks
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions:
+              - "2024-03-02"
+              - "2025-01-02"
+            wantTracing: true
+            exposeStreamKeyword: true
+            crossLanguageDefinitionId: Azure.ResourceManager.MultiService.ComputeDisk.Disks.get
+            samples: {}
+            internal: false
+            abstract: false
+            name: get
+            description: Gets information about a disk.
+            clientNamespace: azure.resourcemanager.multiservice.combined
+          - &ref_39
+            url: >-
+              /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/disks/{diskName}
+            method: PUT
+            parameters:
+              - *ref_2
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_26
+                apiVersions: &ref_29
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: api-version
+                location: query
+                implementation: Method
+                explode: false
+                clientDefaultValue: "2025-01-02"
+              - optional: false
+                description: The ID of the target subscription. The value must be an UUID.
+                clientName: subscription_id
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: &ref_30
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: subscriptionId
+                location: path
+                implementation: Client
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the resource group. The name is case insensitive.
+                clientName: resource_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: &ref_31
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: resourceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the Disk
+                clientName: disk_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: &ref_32
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: diskName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: >-
+                  Body parameter's content type. Known values are
+                  application/json
+                clientName: content_type
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_16
+                apiVersions: &ref_28
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: Content-Type
+                location: header
+                implementation: Method
+                explode: false
+                clientDefaultValue: application/json
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions: &ref_33
+                  - "2024-03-02"
+                  - "2025-01-02"
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            bodyParameter:
+              optional: false
+              description: Resource create parameters.
+              clientName: resource
+              inOverload: false
+              isApiVersion: false
+              isContinuationToken: false
+              type: *ref_27
+              apiVersions: *ref_28
+              contentTypes: &ref_34
+                - application/json
+              location: body
+              wireName: resource
+              implementation: Method
+              defaultContentType: application/json
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: *ref_27
+                contentTypes: &ref_35
+                  - application/json
+                defaultContentType: application/json
+              - headers:
+                  - type: *ref_1
+                    wireName: Azure-AsyncOperation
+                  - type: *ref_20
+                    wireName: Retry-After
+                statusCodes:
+                  - 201
+                discriminator: basic
+                type: *ref_27
+                contentTypes: &ref_36
+                  - application/json
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: *ref_11
+                contentTypes: &ref_37
+                  - application/json
+                defaultContentType: application/json
+            groupName: Disks
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions: &ref_38
+              - "2024-03-02"
+              - "2025-01-02"
+            wantTracing: false
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: >-
+              Azure.ResourceManager.MultiService.ComputeDisk.Disks.createOrUpdate
+            samples: {}
+            internal: false
+            name: _create_or_update_initial
+            isLroInitialOperation: true
+            description: Creates or updates a disk.
+            clientNamespace: azure.resourcemanager.multiservice.combined
+          - url: >-
+              /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/disks/{diskName}
+            method: PUT
+            parameters:
+              - *ref_2
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_26
+                apiVersions: *ref_29
+                wireName: api-version
+                location: query
+                implementation: Method
+                explode: false
+                clientDefaultValue: "2025-01-02"
+              - optional: false
+                description: The ID of the target subscription. The value must be an UUID.
+                clientName: subscription_id
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: *ref_30
+                wireName: subscriptionId
+                location: path
+                implementation: Client
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the resource group. The name is case insensitive.
+                clientName: resource_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: *ref_31
+                wireName: resourceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The name of the Disk
+                clientName: disk_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_1
+                apiVersions: *ref_32
+                wireName: diskName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: >-
+                  Body parameter's content type. Known values are
+                  application/json
+                clientName: content_type
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_16
+                apiVersions: *ref_28
+                wireName: Content-Type
+                location: header
+                implementation: Method
+                explode: false
+                clientDefaultValue: application/json
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions: *ref_33
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            bodyParameter:
+              optional: false
+              description: Resource create parameters.
+              clientName: resource
+              inOverload: false
+              isApiVersion: false
+              isContinuationToken: false
+              type: *ref_27
+              apiVersions: *ref_28
+              contentTypes: *ref_34
+              location: body
+              wireName: resource
+              implementation: Method
+              defaultContentType: application/json
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: *ref_27
+                contentTypes: *ref_35
+                defaultContentType: application/json
+              - headers:
+                  - type: *ref_1
+                    wireName: Azure-AsyncOperation
+                  - type: *ref_20
+                    wireName: Retry-After
+                statusCodes:
+                  - 201
+                discriminator: basic
+                type: *ref_27
+                contentTypes: *ref_36
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: *ref_11
+                contentTypes: *ref_37
+                defaultContentType: application/json
+            groupName: Disks
+            discriminator: lro
+            isOverload: false
+            overloads: []
+            apiVersions: *ref_38
+            wantTracing: true
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: >-
+              Azure.ResourceManager.MultiService.ComputeDisk.Disks.createOrUpdate
+            samples: {}
+            internal: false
+            name: create_or_update
+            initialOperation: *ref_39
+            description: Creates or updates a disk.
+            clientNamespace: azure.resourcemanager.multiservice.combined
+        clientNamespace: azure.resourcemanager.multiservice.combined
+    url: "{endpoint}"
+    apiVersions: *ref_0
+    arm: true
+    clientNamespace: azure.resourcemanager.multiservice.combined
+types:
+  - *ref_9
+  - *ref_25
+  - *ref_40
+  - *ref_41
+  - *ref_3
+  - *ref_42
+  - *ref_5
+  - *ref_11
+  - *ref_6
+  - *ref_43
+  - *ref_27
+  - *ref_44
+  - *ref_16
+  - type: any-object
+  - *ref_45
+  - *ref_1
+  - *ref_46
+  - type: utcDateTime
+    encode: rfc3339
+  - *ref_4
+  - *ref_47
+  - *ref_48
+  - *ref_49
+  - *ref_7
+  - *ref_8
+  - *ref_20
+  - *ref_26
+crossLanguagePackageId: Azure.ResourceManager.MultiService.Compute
+metadata: {}
