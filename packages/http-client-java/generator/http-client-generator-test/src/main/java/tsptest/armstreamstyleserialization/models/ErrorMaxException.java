@@ -8,27 +8,27 @@ import com.azure.core.http.HttpResponse;
 import com.azure.core.management.exception.ManagementException;
 
 /**
- * Exception thrown for an invalid response with Error information.
+ * Exception thrown for an invalid response with ErrorMax information.
  */
-public final class ErrorException extends ManagementException {
+public final class ErrorMaxException extends ManagementException {
     /**
-     * Initializes a new instance of the ErrorException class.
+     * Initializes a new instance of the ErrorMaxException class.
      * 
      * @param message the exception message or the response content if a message is not available.
      * @param response the HTTP response.
      */
-    public ErrorException(String message, HttpResponse response) {
+    public ErrorMaxException(String message, HttpResponse response) {
         super(message, response);
     }
 
     /**
-     * Initializes a new instance of the ErrorException class.
+     * Initializes a new instance of the ErrorMaxException class.
      * 
      * @param message the exception message or the response content if a message is not available.
      * @param response the HTTP response.
      * @param value the deserialized response value.
      */
-    public ErrorException(String message, HttpResponse response, Error value) {
+    public ErrorMaxException(String message, HttpResponse response, ErrorMax value) {
         super(message, response, value);
     }
 
@@ -36,7 +36,7 @@ public final class ErrorException extends ManagementException {
      * {@inheritDoc}
      */
     @Override
-    public Error getValue() {
-        return (Error) super.getValue();
+    public ErrorMax getValue() {
+        return (ErrorMax) super.getValue();
     }
 }
