@@ -14,14 +14,14 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * The Error model.
+ * The ErrorMax model.
  */
 @Immutable
-public final class Error extends ManagementError {
+public final class ErrorMax extends ManagementError {
     /*
      * The details property.
      */
-    private List<Error> details;
+    private List<ErrorMax> details;
 
     /*
      * The additionalProperty property.
@@ -49,9 +49,9 @@ public final class Error extends ManagementError {
     private String code;
 
     /**
-     * Creates an instance of Error class.
+     * Creates an instance of ErrorMax class.
      */
-    private Error() {
+    private ErrorMax() {
     }
 
     /**
@@ -60,7 +60,7 @@ public final class Error extends ManagementError {
      * @return the details value.
      */
     @Override
-    public List<Error> getDetails() {
+    public List<ErrorMax> getDetails() {
         return this.details;
     }
 
@@ -134,15 +134,15 @@ public final class Error extends ManagementError {
     }
 
     /**
-     * Reads an instance of Error from the JsonReader.
+     * Reads an instance of ErrorMax from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of Error if the JsonReader was pointing to an instance of it, or null if it was pointing to
-     * JSON null.
+     * @return An instance of ErrorMax if the JsonReader was pointing to an instance of it, or null if it was pointing
+     * to JSON null.
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
-     * @throws IOException If an error occurs while reading the Error.
+     * @throws IOException If an error occurs while reading the ErrorMax.
      */
-    public static Error fromJson(JsonReader jsonReader) throws IOException {
+    public static ErrorMax fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             JsonReader bufferedReader = reader.bufferObject();
             bufferedReader.nextToken();
@@ -160,33 +160,33 @@ public final class Error extends ManagementError {
         });
     }
 
-    private static Error readManagementError(JsonReader jsonReader) throws IOException {
+    private static ErrorMax readManagementError(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            Error deserializedError = new Error();
+            ErrorMax deserializedErrorMax = new ErrorMax();
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("code".equals(fieldName)) {
-                    deserializedError.code = reader.getString();
+                    deserializedErrorMax.code = reader.getString();
                 } else if ("message".equals(fieldName)) {
-                    deserializedError.message = reader.getString();
+                    deserializedErrorMax.message = reader.getString();
                 } else if ("target".equals(fieldName)) {
-                    deserializedError.target = reader.getString();
+                    deserializedErrorMax.target = reader.getString();
                 } else if ("additionalInfo".equals(fieldName)) {
                     List<AdditionalInfo> additionalInfo = reader.readArray(reader1 -> AdditionalInfo.fromJson(reader1));
-                    deserializedError.additionalInfo = additionalInfo;
+                    deserializedErrorMax.additionalInfo = additionalInfo;
                 } else if ("additionalProperty".equals(fieldName)) {
-                    deserializedError.additionalProperty = reader.getString();
+                    deserializedErrorMax.additionalProperty = reader.getString();
                 } else if ("details".equals(fieldName)) {
-                    List<Error> details = reader.readArray(reader1 -> Error.fromJson(reader1));
-                    deserializedError.details = details;
+                    List<ErrorMax> details = reader.readArray(reader1 -> ErrorMax.fromJson(reader1));
+                    deserializedErrorMax.details = details;
                 } else {
                     reader.skipChildren();
                 }
             }
 
-            return deserializedError;
+            return deserializedErrorMax;
         });
     }
 }
