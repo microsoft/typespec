@@ -114,7 +114,9 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       decorators: [...getDecoratorsForSchema(effectiveSchema, context)],
       doc: effectiveSchema.description || schema.description,
       properties: [
-        ...("$ref" in effectiveSchema ? [] : getModelPropertiesFromObjectSchema(effectiveSchema, context)),
+        ...("$ref" in effectiveSchema
+          ? []
+          : getModelPropertiesFromObjectSchema(effectiveSchema, context)),
         ...allOfDetails.properties,
       ],
       additionalProperties:

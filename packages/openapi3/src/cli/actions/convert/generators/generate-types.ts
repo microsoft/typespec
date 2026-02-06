@@ -28,7 +28,7 @@ export class SchemaToExpressionGenerator {
       // In JSON Schema 2020-12 (used in OpenAPI 3.1+), sibling keywords alongside $ref are allowed
       // Check if there's a default value alongside the $ref
       let type = this.getRefName(schema.$ref, callingScope);
-      
+
       // Cast to allow access to sibling properties
       const schemaWithSiblings = schema as SupportedOpenAPISchema & { $ref: string };
       if (schemaWithSiblings.default !== undefined) {
@@ -42,7 +42,7 @@ export class SchemaToExpressionGenerator {
           type += ` = ${defaultValue}`;
         }
       }
-      
+
       return type;
     }
     return this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);

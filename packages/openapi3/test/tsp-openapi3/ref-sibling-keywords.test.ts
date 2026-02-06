@@ -1,6 +1,6 @@
 import { getDocData, Numeric } from "@typespec/compiler";
 import { ok } from "assert";
-import { assert, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { expectDecorators } from "./utils/expect.js";
 import {
   compileForOpenAPI3,
@@ -221,11 +221,7 @@ describe("$ref with sibling keywords", () => {
 
   describe("parameter with $ref and description", () => {
     it("should handle description on $ref parameter", async () => {
-      const {
-        namespace: serviceNamespace,
-        program,
-        diagnostics,
-      } = await compileForOpenAPI3({
+      const { namespace: serviceNamespace, program } = await compileForOpenAPI3({
         schemas: {
           StringType: {
             type: "string",

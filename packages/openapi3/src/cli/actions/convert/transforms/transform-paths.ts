@@ -14,7 +14,11 @@ import {
   TypeSpecRequestBody,
 } from "../interfaces.js";
 import { Context } from "../utils/context.js";
-import { getExtensions, getParameterDecorators, getDirectivesForSchema } from "../utils/decorators.js";
+import {
+  getDirectivesForSchema,
+  getExtensions,
+  getParameterDecorators,
+} from "../utils/decorators.js";
 import { generateOperationId } from "../utils/generate-operation-id.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { supportedHttpMethods } from "../utils/supported-http-methods.js";
@@ -40,7 +44,8 @@ export function transformPaths(
       const operation = path[verb];
       if (!operation) continue;
 
-      const parameters = operation.parameters?.map((p) => transformOperationParameter(p, context)) ?? [];
+      const parameters =
+        operation.parameters?.map((p) => transformOperationParameter(p, context)) ?? [];
       const tags = operation.tags?.map((t) => t) ?? [];
 
       const operationResponses = operation.responses ?? {};
@@ -130,9 +135,7 @@ function transformOperationParameter(
 
   // Get directives from the schema (e.g., deprecated)
   const directives =
-    "schema" in parameter && parameter.schema
-      ? getDirectivesForSchema(parameter.schema)
-      : [];
+    "schema" in parameter && parameter.schema ? getDirectivesForSchema(parameter.schema) : [];
 
   return {
     name: printIdentifier(parameter.name),

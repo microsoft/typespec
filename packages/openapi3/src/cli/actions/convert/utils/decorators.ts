@@ -321,7 +321,10 @@ export function getDecoratorsForSchema(
         ],
       });
     } else {
-      decorators.push({ name: "discriminator", args: [schemaWithoutRef.discriminator.propertyName] });
+      decorators.push({
+        name: "discriminator",
+        args: [schemaWithoutRef.discriminator.propertyName],
+      });
     }
   }
 
