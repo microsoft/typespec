@@ -1,6 +1,6 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { debugLoggers } from "./constants.js";
+import { debugLoggers } from "./debug.js";
 import { ServerLog } from "./types.js";
 
 interface PendingUpdate {

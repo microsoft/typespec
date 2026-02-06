@@ -1,6 +1,6 @@
 import { inspect } from "util";
 import { LanguageModelChat, LanguageModelChatMessage, lm } from "vscode";
-import { debugLoggers } from "../const";
+import { debugLoggers } from "../debug";
 import logger, { LogItem } from "../log/logger";
 import { RetryResult, runWithRetry, runWithTimingLog } from "../utils";
 

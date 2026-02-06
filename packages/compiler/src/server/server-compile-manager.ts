@@ -8,7 +8,7 @@ import {
   Program,
   ServerLog,
 } from "../index.js";
-import { debugLoggers } from "./constants.js";
+import { debugLoggers } from "./debug.js";
 import { trackActionFunc } from "./server-track-action-task.js";
 import { UpdateManager } from "./update-manager.js";
 

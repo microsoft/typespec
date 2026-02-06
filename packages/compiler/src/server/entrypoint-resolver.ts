@@ -3,7 +3,7 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { SystemHost, Diagnostic as TypeSpecDiagnostic } from "../core/types.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
-import { debugLoggers } from "./constants.js";
+import { debugLoggers } from "./debug.js";
 import { FileSystemCache } from "./file-system-cache.js";
 import { ServerLog } from "./types.js";
 
