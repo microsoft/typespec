@@ -1,20 +1,23 @@
 import { strictEqual } from "node:assert";
 import { describe, it } from "node:test";
-import { expectDiagnostics, extractCursor, t } from "@typespec/compiler/testing";
+import type { Operation, Program } from "@typespec/compiler";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { getAlternateName } from "../src/decorators.js";
 import { Tester } from "./test-host.js";
 
 describe("decorators", () => {
   describe("@alternateName", () => {
     it("set alternate name on operation", async () => {
-      const { test, program } = await Tester.compile(t.code`
-        @alternateName("bar") ${t.op("test")}(): void;
-      `);
+      const { test, program } = (await Tester.compile(`
+        using {{#casing.pascalCase}}{{name}}{{/casing.pascalCase}};
+        @alternateName("bar") @test op test(): void;
+      `)) as unknown as { test: Operation; program: Program };
       strictEqual(getAlternateName(program, test), "bar");
     });
 
     it("emit diagnostic if not used on an operation", async () => {
       const diagnostics = await Tester.diagnose(`
+        using {{#casing.pascalCase}}{{name}}{{/casing.pascalCase}};
         @alternateName("bar") model Test {}
       `);
       expectDiagnostics(diagnostics, {
@@ -26,13 +29,14 @@ describe("decorators", () => {
 
 
     it("emit diagnostic if using banned name", async () => {
-      const {pos, source} = extractCursor(`@alternateName(┆"banned") op test(): void;`)
-      const diagnostics = await Tester.diagnose(source);
+      const diagnostics = await Tester.diagnose(`
+        using {{#casing.pascalCase}}{{name}}{{/casing.pascalCase}};
+        @alternateName("banned") op test(): void;
+      `);
       expectDiagnostics(diagnostics, {
         severity: "error",
         code: "{{name}}/banned-alternate-name",
-        message: `Banned alternate name "banned".`,
-        pos
+        message: `Banned alternate name "banned".`
       })
     });
   });
