@@ -1031,7 +1031,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(double))]
         [TestCase(typeof(bool))]
         [TestCase(typeof(string))]
+        [TestCase(typeof(Uri))]
+        [TestCase(typeof(BinaryData))]
         [TestCase(typeof(DateTimeOffset))]
+        [TestCase(typeof(TimeSpan))]
         public void ScalarInputTypeMethods(Type type)
         {
             InputType? inputType = type switch
@@ -1044,6 +1047,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
                 { } t when t == typeof(int) => InputPrimitiveType.Int32,
                 { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
                 _ => null
             };
 
@@ -1263,7 +1268,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public async Task TestDeserializeReadOnlyMemResponse()
+        public void TestDeserializeReadOnlyMemResponse()
         {
             var inputOperation = InputFactory.Operation(
                 "GetList",
