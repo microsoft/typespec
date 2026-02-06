@@ -6,257 +6,64 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Text.Json;
+using System.IO;
+using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
     /// <summary> An advanced XML model for testing various property types and XML features. </summary>
-    public partial class XmlAdvancedModel : IJsonModel<XmlAdvancedModel>
+    public partial class XmlAdvancedModel
     {
         /// <summary> Initializes a new instance of <see cref="XmlAdvancedModel"/> for deserialization. </summary>
         internal XmlAdvancedModel()
         {
         }
 
-        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<XmlAdvancedModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected virtual XmlAdvancedModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<XmlAdvancedModel>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            switch (format)
             {
-                throw new FormatException($"The model {nameof(XmlAdvancedModel)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Name);
-            writer.WritePropertyName("age"u8);
-            writer.WriteNumberValue(Age);
-            writer.WritePropertyName("enabled"u8);
-            writer.WriteBooleanValue(Enabled);
-            writer.WritePropertyName("score"u8);
-            writer.WriteNumberValue(Score);
-            if (Optional.IsDefined(OptionalString))
-            {
-                writer.WritePropertyName("optionalString"u8);
-                writer.WriteStringValue(OptionalString);
-            }
-            if (Optional.IsDefined(OptionalInt))
-            {
-                writer.WritePropertyName("optionalInt"u8);
-                writer.WriteNumberValue(OptionalInt.Value);
-            }
-            if (Optional.IsDefined(NullableString))
-            {
-                writer.WritePropertyName("nullableString"u8);
-                writer.WriteStringValue(NullableString);
-            }
-            else
-            {
-                writer.WriteNull("nullableString"u8);
-            }
-            writer.WritePropertyName("id"u8);
-            writer.WriteStringValue(Id);
-            writer.WritePropertyName("version"u8);
-            writer.WriteNumberValue(Version);
-            writer.WritePropertyName("isActive"u8);
-            writer.WriteBooleanValue(IsActive);
-            writer.WritePropertyName("RenamedProperty"u8);
-            writer.WriteStringValue(OriginalName);
-            writer.WritePropertyName("xml-id"u8);
-            writer.WriteStringValue(XmlIdentifier);
-            writer.WritePropertyName("content"u8);
-            writer.WriteStringValue(Content);
-            writer.WritePropertyName("unwrappedStrings"u8);
-            writer.WriteStartArray();
-            foreach (string item in UnwrappedStrings)
-            {
-                if (item == null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
-                writer.WriteStringValue(item);
-            }
-            writer.WriteEndArray();
-            writer.WritePropertyName("unwrappedCounts"u8);
-            writer.WriteStartArray();
-            foreach (int item in UnwrappedCounts)
-            {
-                writer.WriteNumberValue(item);
-            }
-            writer.WriteEndArray();
-            writer.WritePropertyName("unwrappedItems"u8);
-            writer.WriteStartArray();
-            foreach (XmlItem item in UnwrappedItems)
-            {
-                writer.WriteObjectValue(item, options);
-            }
-            writer.WriteEndArray();
-            writer.WritePropertyName("wrappedColors"u8);
-            writer.WriteStartArray();
-            foreach (string item in WrappedColors)
-            {
-                if (item == null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
-                writer.WriteStringValue(item);
-            }
-            writer.WriteEndArray();
-            writer.WritePropertyName("ItemCollection"u8);
-            writer.WriteStartArray();
-            foreach (XmlItem item in Items)
-            {
-                writer.WriteObjectValue(item, options);
-            }
-            writer.WriteEndArray();
-            writer.WritePropertyName("nestedModel"u8);
-            writer.WriteObjectValue(NestedModel, options);
-            if (Optional.IsDefined(OptionalNestedModel))
-            {
-                writer.WritePropertyName("optionalNestedModel"u8);
-                writer.WriteObjectValue(OptionalNestedModel, options);
-            }
-            writer.WritePropertyName("metadata"u8);
-            writer.WriteStartObject();
-            foreach (var item in Metadata)
-            {
-                writer.WritePropertyName(item.Key);
-                if (item.Value == null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
-                writer.WriteStringValue(item.Value);
-            }
-            writer.WriteEndObject();
-            writer.WritePropertyName("createdAt"u8);
-            writer.WriteStringValue(CreatedAt, "O");
-            writer.WritePropertyName("duration"u8);
-            writer.WriteStringValue(Duration, "P");
-            writer.WritePropertyName("data"u8);
-            writer.WriteBase64StringValue(Data.ToArray(), "D");
-            if (Optional.IsCollectionDefined(OptionalRecordUnknown))
-            {
-                writer.WritePropertyName("optionalRecordUnknown"u8);
-                writer.WriteStartObject();
-                foreach (var item in OptionalRecordUnknown)
-                {
-                    writer.WritePropertyName(item.Key);
-                    if (item.Value == null)
+                case "X":
+                    using (Stream dataStream = data.ToStream())
                     {
-                        writer.WriteNullValue();
-                        continue;
+                        return DeserializeXmlAdvancedModel(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
                     }
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-                writer.WriteEndObject();
-            }
-            writer.WritePropertyName("fixedEnum"u8);
-            writer.WriteStringValue(FixedEnum.ToSerialString());
-            writer.WritePropertyName("extensibleEnum"u8);
-            writer.WriteStringValue(ExtensibleEnum.ToString());
-            if (Optional.IsDefined(OptionalFixedEnum))
-            {
-                writer.WritePropertyName("optionalFixedEnum"u8);
-                writer.WriteNumberValue((int)OptionalFixedEnum.Value);
-            }
-            if (Optional.IsDefined(OptionalExtensibleEnum))
-            {
-                writer.WritePropertyName("optionalExtensibleEnum"u8);
-                writer.WriteNumberValue(OptionalExtensibleEnum.Value.ToSerialInt32());
-            }
-            writer.WritePropertyName("label"u8);
-            writer.WriteStringValue(Label);
-            writer.WritePropertyName("daysUsed"u8);
-            writer.WriteNumberValue(DaysUsed);
-            writer.WritePropertyName("fooItems"u8);
-            writer.WriteStartArray();
-            foreach (string item in FooItems)
-            {
-                if (item == null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
-                writer.WriteStringValue(item);
-            }
-            writer.WriteEndArray();
-            writer.WritePropertyName("anotherModel"u8);
-            writer.WriteObjectValue(AnotherModel, options);
-            writer.WritePropertyName("modelsWithNamespaces"u8);
-            writer.WriteStartArray();
-            foreach (XmlModelWithNamespace item in ModelsWithNamespaces)
-            {
-                writer.WriteObjectValue(item, options);
-            }
-            writer.WriteEndArray();
-            writer.WritePropertyName("unwrappedModelsWithNamespaces"u8);
-            writer.WriteStartArray();
-            foreach (XmlModelWithNamespace item in UnwrappedModelsWithNamespaces)
-            {
-                writer.WriteObjectValue(item, options);
-            }
-            writer.WriteEndArray();
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
+                default:
+                    throw new FormatException($"The model {nameof(XmlAdvancedModel)} does not support reading '{options.Format}' format.");
             }
         }
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        XmlAdvancedModel IJsonModel<XmlAdvancedModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual XmlAdvancedModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="XmlAdvancedModel"/> from. </param>
+        public static explicit operator XmlAdvancedModel(ClientResult result)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlAdvancedModel>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
+            using PipelineResponse response = result.GetRawResponse();
+            using Stream stream = response.ContentStream;
+            if (stream == null)
             {
-                throw new FormatException($"The model {nameof(XmlAdvancedModel)} does not support reading '{format}' format.");
+                return default;
             }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeXmlAdvancedModel(document.RootElement, options);
+
+            return DeserializeXmlAdvancedModel(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
         }
 
-        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="element"> The xml element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static XmlAdvancedModel DeserializeXmlAdvancedModel(JsonElement element, ModelReaderWriterOptions options)
+        internal static XmlAdvancedModel DeserializeXmlAdvancedModel(XElement element, ModelReaderWriterOptions options)
         {
-            if (element.ValueKind == JsonValueKind.Null)
+            if (element == null)
             {
                 return null;
             }
+
+            XNamespace labelNs = "https://example.com/ns1";
+            XNamespace daysUsedNs = "https://example.com/ns2";
+            XNamespace fooItemsNs = "http://www.contoso.com/anotherbook.dtd";
+            XNamespace anotherModelNs = "http://www.contoso.com/anothermodel.dtd";
+            XNamespace modelsWithNamespacesNs = "http://www.example.com/namespace";
+
             string name = default;
             int age = default;
             bool enabled = default;
@@ -293,298 +100,238 @@ namespace SampleTypeSpec
             IList<XmlModelWithNamespace> modelsWithNamespaces = default;
             IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
+
+            foreach (var attr in element.Attributes())
             {
-                if (prop.NameEquals("name"u8))
+                string localName = attr.Name.LocalName;
+                XNamespace ns = attr.Name.Namespace;
+
+                if (localName == "id")
                 {
-                    name = prop.Value.GetString();
+                    id = (string)attr;
                     continue;
                 }
-                if (prop.NameEquals("age"u8))
+                if (localName == "version")
                 {
-                    age = prop.Value.GetInt32();
+                    version = (int)attr;
                     continue;
                 }
-                if (prop.NameEquals("enabled"u8))
+                if (localName == "isActive")
                 {
-                    enabled = prop.Value.GetBoolean();
+                    isActive = (bool)attr;
                     continue;
                 }
-                if (prop.NameEquals("score"u8))
+                if (localName == "xml-id")
                 {
-                    score = prop.Value.GetSingle();
+                    xmlIdentifier = (string)attr;
                     continue;
                 }
-                if (prop.NameEquals("optionalString"u8))
+                if (localName == "label" && ns == labelNs)
                 {
-                    optionalString = prop.Value.GetString();
+                    label = (string)attr;
                     continue;
                 }
-                if (prop.NameEquals("optionalInt"u8))
+            }
+
+            foreach (var child in element.Elements())
+            {
+                string localName = child.Name.LocalName;
+                XNamespace ns = child.Name.Namespace;
+
+                if (localName == "name")
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    name = (string)child;
+                    continue;
+                }
+                if (localName == "age")
+                {
+                    age = (int)child;
+                    continue;
+                }
+                if (localName == "enabled")
+                {
+                    enabled = (bool)child;
+                    continue;
+                }
+                if (localName == "score")
+                {
+                    score = (float)child;
+                    continue;
+                }
+                if (localName == "optionalString")
+                {
+                    optionalString = (string)child;
+                    continue;
+                }
+                if (localName == "optionalInt")
+                {
+                    optionalInt = (int?)child;
+                    continue;
+                }
+                if (localName == "nullableString")
+                {
+                    nullableString = (string)child;
+                    continue;
+                }
+                if (localName == "RenamedProperty")
+                {
+                    originalName = (string)child;
+                    continue;
+                }
+                if (localName == "unwrappedStrings")
+                {
+                    if (unwrappedStrings == null)
                     {
-                        continue;
+                        unwrappedStrings = new List<string>();
                     }
-                    optionalInt = prop.Value.GetInt32();
+                    unwrappedStrings.Add((string)child);
                     continue;
                 }
-                if (prop.NameEquals("nullableString"u8))
+                if (localName == "unwrappedCounts")
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    if (unwrappedCounts == null)
                     {
-                        nullableString = null;
-                        continue;
+                        unwrappedCounts = new List<int>();
                     }
-                    nullableString = prop.Value.GetString();
+                    unwrappedCounts.Add((int)child);
                     continue;
                 }
-                if (prop.NameEquals("id"u8))
+                if (localName == "unwrappedItems")
                 {
-                    id = prop.Value.GetString();
+                    if (unwrappedItems == null)
+                    {
+                        unwrappedItems = new List<XmlItem>();
+                    }
+                    unwrappedItems.Add(XmlItem.DeserializeXmlItem(child, options));
                     continue;
                 }
-                if (prop.NameEquals("version"u8))
-                {
-                    version = prop.Value.GetInt32();
-                    continue;
-                }
-                if (prop.NameEquals("isActive"u8))
-                {
-                    isActive = prop.Value.GetBoolean();
-                    continue;
-                }
-                if (prop.NameEquals("RenamedProperty"u8))
-                {
-                    originalName = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("xml-id"u8))
-                {
-                    xmlIdentifier = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("content"u8))
-                {
-                    content = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("unwrappedStrings"u8))
+                if (localName == "wrappedColors")
                 {
                     List<string> array = new List<string>();
-                    foreach (var item in prop.Value.EnumerateArray())
+                    foreach (var e in child.Elements("string"))
                     {
-                        if (item.ValueKind == JsonValueKind.Null)
-                        {
-                            array.Add(null);
-                        }
-                        else
-                        {
-                            array.Add(item.GetString());
-                        }
-                    }
-                    unwrappedStrings = array;
-                    continue;
-                }
-                if (prop.NameEquals("unwrappedCounts"u8))
-                {
-                    List<int> array = new List<int>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(item.GetInt32());
-                    }
-                    unwrappedCounts = array;
-                    continue;
-                }
-                if (prop.NameEquals("unwrappedItems"u8))
-                {
-                    List<XmlItem> array = new List<XmlItem>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(XmlItem.DeserializeXmlItem(item, options));
-                    }
-                    unwrappedItems = array;
-                    continue;
-                }
-                if (prop.NameEquals("wrappedColors"u8))
-                {
-                    List<string> array = new List<string>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        if (item.ValueKind == JsonValueKind.Null)
-                        {
-                            array.Add(null);
-                        }
-                        else
-                        {
-                            array.Add(item.GetString());
-                        }
+                        array.Add((string)e);
                     }
                     wrappedColors = array;
                     continue;
                 }
-                if (prop.NameEquals("ItemCollection"u8))
+                if (localName == "ItemCollection")
                 {
                     List<XmlItem> array = new List<XmlItem>();
-                    foreach (var item in prop.Value.EnumerateArray())
+                    foreach (var e in child.Elements("Item"))
                     {
-                        array.Add(XmlItem.DeserializeXmlItem(item, options));
+                        array.Add(XmlItem.DeserializeXmlItem(e, options));
                     }
                     items = array;
                     continue;
                 }
-                if (prop.NameEquals("nestedModel"u8))
+                if (localName == "nestedModel")
                 {
-                    nestedModel = XmlNestedModel.DeserializeXmlNestedModel(prop.Value, options);
+                    nestedModel = XmlNestedModel.DeserializeXmlNestedModel(child, options);
                     continue;
                 }
-                if (prop.NameEquals("optionalNestedModel"u8))
+                if (localName == "optionalNestedModel")
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    optionalNestedModel = XmlNestedModel.DeserializeXmlNestedModel(prop.Value, options);
+                    optionalNestedModel = XmlNestedModel.DeserializeXmlNestedModel(child, options);
                     continue;
                 }
-                if (prop.NameEquals("metadata"u8))
+                if (localName == "metadata")
                 {
                     Dictionary<string, string> dictionary = new Dictionary<string, string>();
-                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    foreach (var e in child.Elements())
                     {
-                        if (prop0.Value.ValueKind == JsonValueKind.Null)
-                        {
-                            dictionary.Add(prop0.Name, null);
-                        }
-                        else
-                        {
-                            dictionary.Add(prop0.Name, prop0.Value.GetString());
-                        }
+                        dictionary.Add(e.Name.LocalName, (string)e);
                     }
                     metadata = dictionary;
                     continue;
                 }
-                if (prop.NameEquals("createdAt"u8))
+                if (localName == "createdAt")
                 {
-                    createdAt = prop.Value.GetDateTimeOffset("O");
+                    createdAt = child.GetDateTimeOffset("O");
                     continue;
                 }
-                if (prop.NameEquals("duration"u8))
+                if (localName == "duration")
                 {
-                    duration = prop.Value.GetTimeSpan("P");
+                    duration = child.GetTimeSpan("P");
                     continue;
                 }
-                if (prop.NameEquals("data"u8))
+                if (localName == "data")
                 {
-                    data = BinaryData.FromBytes(prop.Value.GetBytesFromBase64("D"));
+                    data = BinaryData.FromBytes(child.GetBytesFromBase64("D"));
                     continue;
                 }
-                if (prop.NameEquals("optionalRecordUnknown"u8))
+                if (localName == "optionalRecordUnknown")
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
                     Dictionary<string, BinaryData> dictionary = new Dictionary<string, BinaryData>();
-                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    foreach (var e in child.Elements())
                     {
-                        if (prop0.Value.ValueKind == JsonValueKind.Null)
-                        {
-                            dictionary.Add(prop0.Name, null);
-                        }
-                        else
-                        {
-                            dictionary.Add(prop0.Name, BinaryData.FromString(prop0.Value.GetRawText()));
-                        }
+                        dictionary.Add(e.Name.LocalName, BinaryData.FromString(e.Value));
                     }
                     optionalRecordUnknown = dictionary;
                     continue;
                 }
-                if (prop.NameEquals("fixedEnum"u8))
+                if (localName == "fixedEnum")
                 {
-                    fixedEnum = prop.Value.GetString().ToStringFixedEnum();
+                    fixedEnum = ((string)child).ToStringFixedEnum();
                     continue;
                 }
-                if (prop.NameEquals("extensibleEnum"u8))
+                if (localName == "extensibleEnum")
                 {
-                    extensibleEnum = new StringExtensibleEnum(prop.Value.GetString());
+                    extensibleEnum = new StringExtensibleEnum((string)child);
                     continue;
                 }
-                if (prop.NameEquals("optionalFixedEnum"u8))
+                if (localName == "optionalFixedEnum")
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    optionalFixedEnum = prop.Value.GetInt32().ToIntFixedEnum();
+                    optionalFixedEnum = ((int)child).ToIntFixedEnum();
                     continue;
                 }
-                if (prop.NameEquals("optionalExtensibleEnum"u8))
+                if (localName == "optionalExtensibleEnum")
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    optionalExtensibleEnum = new IntExtensibleEnum(prop.Value.GetInt32());
+                    optionalExtensibleEnum = new IntExtensibleEnum((int)child);
                     continue;
                 }
-                if (prop.NameEquals("label"u8))
+                if (localName == "daysUsed" && ns == daysUsedNs)
                 {
-                    label = prop.Value.GetString();
+                    daysUsed = (int)child;
                     continue;
                 }
-                if (prop.NameEquals("daysUsed"u8))
-                {
-                    daysUsed = prop.Value.GetInt32();
-                    continue;
-                }
-                if (prop.NameEquals("fooItems"u8))
+                if (localName == "fooItems" && ns == fooItemsNs)
                 {
                     List<string> array = new List<string>();
-                    foreach (var item in prop.Value.EnumerateArray())
+                    foreach (var e in child.Elements("string"))
                     {
-                        if (item.ValueKind == JsonValueKind.Null)
-                        {
-                            array.Add(null);
-                        }
-                        else
-                        {
-                            array.Add(item.GetString());
-                        }
+                        array.Add((string)e);
                     }
                     fooItems = array;
                     continue;
                 }
-                if (prop.NameEquals("anotherModel"u8))
+                if (localName == "anotherModel" && ns == anotherModelNs)
                 {
-                    anotherModel = XmlNestedModel.DeserializeXmlNestedModel(prop.Value, options);
+                    anotherModel = XmlNestedModel.DeserializeXmlNestedModel(child, options);
                     continue;
                 }
-                if (prop.NameEquals("modelsWithNamespaces"u8))
+                if (localName == "modelsWithNamespaces")
                 {
                     List<XmlModelWithNamespace> array = new List<XmlModelWithNamespace>();
-                    foreach (var item in prop.Value.EnumerateArray())
+                    foreach (var e in child.Elements(modelsWithNamespacesNs + "XmlModelWithNamespace"))
                     {
-                        array.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(item, options));
+                        array.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(e, options));
                     }
                     modelsWithNamespaces = array;
                     continue;
                 }
-                if (prop.NameEquals("unwrappedModelsWithNamespaces"u8))
+                if (localName == "unwrappedModelsWithNamespaces")
                 {
-                    List<XmlModelWithNamespace> array = new List<XmlModelWithNamespace>();
-                    foreach (var item in prop.Value.EnumerateArray())
+                    if (unwrappedModelsWithNamespaces == null)
                     {
-                        array.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(item, options));
+                        unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
                     }
-                    unwrappedModelsWithNamespaces = array;
+                    unwrappedModelsWithNamespaces.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(child, options));
                     continue;
                 }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
             }
+            content = element.Value;
+
             return new XmlAdvancedModel(
                 name,
                 age,
@@ -622,54 +369,6 @@ namespace SampleTypeSpec
                 modelsWithNamespaces,
                 unwrappedModelsWithNamespaces,
                 additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<XmlAdvancedModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlAdvancedModel>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(XmlAdvancedModel)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        XmlAdvancedModel IPersistableModel<XmlAdvancedModel>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual XmlAdvancedModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlAdvancedModel>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
-                    {
-                        return DeserializeXmlAdvancedModel(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(XmlAdvancedModel)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<XmlAdvancedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="XmlAdvancedModel"/> from. </param>
-        public static explicit operator XmlAdvancedModel(ClientResult result)
-        {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeXmlAdvancedModel(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

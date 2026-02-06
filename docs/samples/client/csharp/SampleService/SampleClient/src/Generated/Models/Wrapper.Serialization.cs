@@ -3,49 +3,40 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The PageThing. </summary>
-    internal partial class PageThing : IJsonModel<PageThing>
+    /// <summary> The Wrapper. </summary>
+    public partial class Wrapper : IJsonModel<Wrapper>
     {
-        /// <summary> Initializes a new instance of <see cref="PageThing"/> for deserialization. </summary>
-        internal PageThing()
+        /// <summary> Initializes a new instance of <see cref="Wrapper"/> for deserialization. </summary>
+        internal Wrapper()
         {
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual PageThing PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual Wrapper PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<PageThing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return DeserializePageThing(document.RootElement, options);
+                        return DeserializeWrapper(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(PageThing)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Wrapper)} does not support reading '{options.Format}' format.");
             }
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PageThing"/> from. </param>
-        public static explicit operator PageThing(ClientResult result)
-        {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializePageThing(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<PageThing>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<Wrapper>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             JsonModelWriteCore(writer, options);
@@ -56,18 +47,13 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<PageThing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(PageThing)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(Wrapper)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("items"u8);
-            writer.WriteStartArray();
-            foreach (Thing item in Items)
-            {
-                writer.WriteObjectValue(item, options);
-            }
-            writer.WriteEndArray();
+            writer.WritePropertyName("action"u8);
+            writer.WriteObjectValue(Action, options);
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -87,41 +73,38 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        PageThing IJsonModel<PageThing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        Wrapper IJsonModel<Wrapper>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual PageThing JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected virtual Wrapper JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<PageThing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(PageThing)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(Wrapper)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializePageThing(document.RootElement, options);
+            return DeserializeWrapper(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static PageThing DeserializePageThing(JsonElement element, ModelReaderWriterOptions options)
+        internal static Wrapper DeserializeWrapper(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
-            IList<Thing> items = default;
+            string p1 = default;
+            RoundTripModel action = default;
+            string p2 = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
-                if (prop.NameEquals("items"u8))
+                if (prop.NameEquals("action"u8))
                 {
-                    List<Thing> array = new List<Thing>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(Thing.DeserializeThing(item, options));
-                    }
-                    items = array;
+                    action = RoundTripModel.DeserializeRoundTripModel(prop.Value, options);
                     continue;
                 }
                 if (options.Format != "W")
@@ -129,30 +112,30 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new PageThing(items, additionalBinaryDataProperties);
+            return new Wrapper(p1, action, p2, additionalBinaryDataProperties);
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<PageThing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<Wrapper>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<PageThing>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Wrapper>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(PageThing)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Wrapper)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        PageThing IPersistableModel<PageThing>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        Wrapper IPersistableModel<Wrapper>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<PageThing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<Wrapper>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }
