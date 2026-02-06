@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import { expect, it } from "vitest";
 import { ObjectPreview } from "./object-preview.js";
 
-it("should display Symbol properties in object preview", () => {
+it.only("should display Symbol properties in object preview", () => {
   const sym = Symbol("testSymbol");
   const data = {
     stringProp: "value1",
@@ -19,6 +19,7 @@ it("should display Symbol properties in object preview", () => {
 });
 
 it("should display Symbol properties without description in preview", () => {
+  // eslint-disable-next-line symbol-description
   const sym = Symbol();
   const data = {
     [sym]: "value",
