@@ -583,7 +583,13 @@ function emitHttpParameters(
     switch (parameter.kind) {
       case "header":
         parameters.push(
-          emitHttpHeaderParameter(context, parameter, method, serviceApiVersions, operation.bodyParam),
+          emitHttpHeaderParameter(
+            context,
+            parameter,
+            method,
+            serviceApiVersions,
+            operation.bodyParam,
+          ),
         );
         break;
       case "query":
@@ -600,7 +606,9 @@ function emitHttpParameters(
   return parameters;
 }
 
-function isHttpFileType(type: { kind: string; crossLanguageDefinitionId?: string } | undefined): boolean {
+function isHttpFileType(
+  type: { kind: string; crossLanguageDefinitionId?: string } | undefined,
+): boolean {
   return type?.kind === "model" && type?.crossLanguageDefinitionId === "TypeSpec.Http.File";
 }
 

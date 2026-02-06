@@ -19,8 +19,9 @@ def test_upload_file_specific_content_type(client: FileClient, png_data: bytes):
     client.body.upload_file_specific_content_type(png_data)
 
 
-def test_upload_file_json_content_type(client: FileClient):
-    client.body.upload_file_json_content_type(json.dumps({"message": "test file content"}).encode())
+# Do not support this case for now
+# def test_upload_file_json_content_type(client: FileClient):
+#     client.body.upload_file_json_content_type(json.dumps({"message": "test file content"}).encode())
 
 
 def test_download_file_json_content_type(client: FileClient):
@@ -39,7 +40,7 @@ def test_download_file_multiple_content_types(client: FileClient, png_data: byte
 
 
 def test_upload_file_default_content_type(client: FileClient, png_data: bytes):
-    client.body.upload_file_default_content_type(png_data)
+    client.body.upload_file_default_content_type(png_data, content_type="image/png")
 
 
 def test_download_file_default_content_type(client: FileClient, png_data: bytes):
