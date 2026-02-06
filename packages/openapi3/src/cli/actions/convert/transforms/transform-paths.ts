@@ -14,7 +14,7 @@ import {
   TypeSpecRequestBody,
 } from "../interfaces.js";
 import { Context } from "../utils/context.js";
-import { getExtensions, getParameterDecorators } from "../utils/decorators.js";
+import { getExtensions, getParameterDecorators, getDirectivesForSchema } from "../utils/decorators.js";
 import { generateOperationId } from "../utils/generate-operation-id.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { supportedHttpMethods } from "../utils/supported-http-methods.js";
@@ -33,13 +33,14 @@ export function transformPaths(
   const usedOperationIds = new Set<string>();
 
   for (const route of Object.keys(paths)) {
-    const routeParameters = paths[route].parameters?.map(transformOperationParameter) ?? [];
+    const routeParameters =
+      paths[route].parameters?.map((p) => transformOperationParameter(p, context)) ?? [];
     const path = paths[route];
     for (const verb of supportedHttpMethods) {
       const operation = path[verb];
       if (!operation) continue;
 
-      const parameters = operation.parameters?.map(transformOperationParameter) ?? [];
+      const parameters = operation.parameters?.map((p) => transformOperationParameter(p, context)) ?? [];
       const tags = operation.tags?.map((t) => t) ?? [];
 
       const operationResponses = operation.responses ?? {};
@@ -115,16 +116,30 @@ function dedupeParameters(
 
 function transformOperationParameter(
   parameter: Refable<OpenAPI3Parameter> | Refable<OpenAPIParameter3_2>,
+  context: Context,
 ): Refable<TypeSpecOperationParameter> {
   if ("$ref" in parameter) {
     return { $ref: parameter.$ref };
   }
 
+  // Prefer parameter.description, but fall back to schema.description if present
+  let doc = parameter.description;
+  if (!doc && "schema" in parameter && parameter.schema && parameter.schema.description) {
+    doc = parameter.schema.description;
+  }
+
+  // Get directives from the schema (e.g., deprecated)
+  const directives =
+    "schema" in parameter && parameter.schema
+      ? getDirectivesForSchema(parameter.schema)
+      : [];
+
   return {
     name: printIdentifier(parameter.name),
     in: parameter.in,
-    doc: parameter.description,
-    decorators: getParameterDecorators(parameter),
+    doc,
+    directives,
+    decorators: getParameterDecorators(parameter, context),
     isOptional: !parameter.required,
     schema: "schema" in parameter ? (parameter.schema ?? {}) : {},
   };

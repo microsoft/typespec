@@ -24,9 +24,28 @@ export class SchemaToExpressionGenerator {
     context?: Context,
   ): string {
     const hasRef = "$ref" in schema;
-    return hasRef
-      ? this.getRefName(schema.$ref, callingScope)
-      : this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);
+    if (hasRef) {
+      // In JSON Schema 2020-12 (used in OpenAPI 3.1+), sibling keywords alongside $ref are allowed
+      // Check if there's a default value alongside the $ref
+      let type = this.getRefName(schema.$ref, callingScope);
+      
+      // Cast to allow access to sibling properties
+      const schemaWithSiblings = schema as SupportedOpenAPISchema & { $ref: string };
+      if (schemaWithSiblings.default !== undefined) {
+        const defaultValue = this.generateDefaultValueForRef(
+          schemaWithSiblings,
+          schema.$ref,
+          callingScope,
+          context,
+        );
+        if (defaultValue) {
+          type += ` = ${defaultValue}`;
+        }
+      }
+      
+      return type;
+    }
+    return this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);
   }
 
   public generateArrayType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
@@ -222,6 +241,43 @@ export class SchemaToExpressionGenerator {
       return JSON.stringify(schema.default);
     }
     return undefined; // Return undefined to indicate no default found
+  }
+
+  /**
+   * Generate a default value for a schema that has a $ref and a sibling default keyword.
+   * This handles the case where a schema references another schema but overrides the default value.
+   */
+  private generateDefaultValueForRef(
+    schema: SupportedOpenAPISchema & { $ref: string },
+    ref: string,
+    callingScope: string[],
+    context?: Context,
+  ): string | undefined {
+    if (!schema.default) {
+      return undefined;
+    }
+
+    if (typeof schema.default === "object") {
+      return normalizeObjectValueToTSValueExpression(schema.default);
+    }
+
+    // Check if the referenced schema is an enum
+    if (context) {
+      const refSchema = context.getSchemaByRef(ref);
+      if (
+        refSchema?.enum &&
+        refSchema.type === "string" &&
+        refSchema.enum.includes(schema.default)
+      ) {
+        const enumRefName = this.getRefName(ref, callingScope);
+        // Convert the default value to a valid identifier for the enum member
+        const memberName = printIdentifier(schema.default as string, "disallow-reserved");
+        return `${enumRefName}.${memberName}`;
+      }
+    }
+
+    // For non-enum types, just use JSON.stringify
+    return JSON.stringify(schema.default);
   }
 
   private getAllOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
@@ -442,7 +498,7 @@ export class SchemaToExpressionGenerator {
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
 
         const decorators = generateDecorators(
-          getDecoratorsForSchema(originalPropSchema),
+          getDecoratorsForSchema(originalPropSchema, context),
           isHttpPart ? SchemaToExpressionGenerator.decoratorNamesToExcludeForParts : [],
         )
           .map((d) => `${d}\n`)

@@ -23,11 +23,12 @@ export function transformComponentParameters(
   for (const name of Object.keys(parameters)) {
     const parameter = parameters[name];
     if ("$ref" in parameter) continue;
-    transformComponentParameter(dataTypes, name, parameter);
+    transformComponentParameter(context, dataTypes, name, parameter);
   }
 }
 
 function transformComponentParameter(
+  context: Context,
   dataTypes: TypeSpecDataTypes[],
   key: string,
   parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
@@ -41,11 +42,12 @@ function transformComponentParameter(
     scope,
     name,
     decorators: [],
-    properties: [getModelPropertyFromParameter(parameter)],
+    properties: [getModelPropertyFromParameter(context, parameter)],
   });
 }
 
 function getModelPropertyFromParameter(
+  context: Context,
   parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
 ): TypeSpecModelProperty {
   const parameterSchema = "schema" in parameter ? (parameter.schema ?? {}) : {};
@@ -53,7 +55,7 @@ function getModelPropertyFromParameter(
     name: printIdentifier(parameter.name),
     isOptional: !parameter.required,
     doc: parameter.description ?? parameterSchema.description,
-    decorators: getParameterDecorators(parameter),
+    decorators: getParameterDecorators(parameter, context),
     schema: parameterSchema,
   };
 }

@@ -79,7 +79,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "enum",
       ...getScopeAndName(name),
       directives: getDirectivesForSchema(schema),
-      decorators: getDecoratorsForSchema(schema),
+      decorators: getDecoratorsForSchema(schema, context),
       doc: schema.description,
       schema,
     };
@@ -111,10 +111,10 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       name,
       scope,
       directives: [...getDirectivesForSchema(effectiveSchema)],
-      decorators: [...getDecoratorsForSchema(effectiveSchema)],
+      decorators: [...getDecoratorsForSchema(effectiveSchema, context)],
       doc: effectiveSchema.description || schema.description,
       properties: [
-        ...("$ref" in effectiveSchema ? [] : getModelPropertiesFromObjectSchema(effectiveSchema)),
+        ...("$ref" in effectiveSchema ? [] : getModelPropertiesFromObjectSchema(effectiveSchema, context)),
         ...allOfDetails.properties,
       ],
       additionalProperties:
@@ -143,7 +143,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     // Extract description and decorators from meaningful union members
     const unionMetadata = extractUnionMetadata(schema);
 
-    let decorators = [...getDecoratorsForSchema(schema), ...unionMetadata.decorators];
+    let decorators = [...getDecoratorsForSchema(schema, context), ...unionMetadata.decorators];
 
     // Check if this is an SSE event schema - if so, replace @oneOf with @events
     const schemaRef = `#/components/schemas/${name}`;
@@ -187,7 +187,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
         if (!("$ref" in meaningfulMember)) {
           return {
             description: meaningfulMember.description,
-            decorators: getDecoratorsForSchema(meaningfulMember),
+            decorators: getDecoratorsForSchema(meaningfulMember, context),
           };
         }
       }
@@ -201,7 +201,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       if (nonNullTypes.length === 1) {
         // Create a schema without the null type to extract decorators for the non-null part
         const nonNullSchema = { ...schema, type: nonNullTypes[0] };
-        return { decorators: getDecoratorsForSchema(nonNullSchema) };
+        return { decorators: getDecoratorsForSchema(nonNullSchema, context) };
         // The description should already be on the main schema, so we don't override it here
       }
     }
@@ -218,7 +218,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "scalar",
       ...getScopeAndName(name),
       directives: getDirectivesForSchema(schema),
-      decorators: getDecoratorsForSchema(schema),
+      decorators: getDecoratorsForSchema(schema, context),
       doc: schema.description,
       schema: "$ref" in schema ? {} : schema,
     });
@@ -247,7 +247,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     for (const member of schema.allOf) {
       // inline-schemas treated as normal objects with properties
       if (!("$ref" in member)) {
-        details.properties.push(...getModelPropertiesFromObjectSchema(member));
+        details.properties.push(...getModelPropertiesFromObjectSchema(member, context));
         continue;
       }
 
@@ -335,10 +335,10 @@ function unwrapSingleAnyOfOneOf(
   return schema;
 }
 
-function getModelPropertiesFromObjectSchema({
-  properties,
-  required = [],
-}: SupportedOpenAPISchema): TypeSpecModelProperty[] {
+function getModelPropertiesFromObjectSchema(
+  { properties, required = [] }: SupportedOpenAPISchema,
+  context: Context,
+): TypeSpecModelProperty[] {
   if (!properties) return [];
 
   const modelProperties: TypeSpecModelProperty[] = [];
@@ -351,7 +351,7 @@ function getModelPropertiesFromObjectSchema({
       schema: property,
       isOptional: !required.includes(name),
       directives: [...getDirectivesForSchema(property)],
-      decorators: [...getDecoratorsForSchema(property)],
+      decorators: [...getDecoratorsForSchema(property, context)],
     });
   }
 
