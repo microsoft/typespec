@@ -115,7 +115,6 @@ export const ObjectInspector: FC<ObjectInspectorProps> = ({
   const [expandedPaths, setExpandedPaths] = useState(new Set<string>());
   const dataIterator = createIterator(showNonenumerable, sortObjectKeys);
   const renderer = nodeRenderer ?? DefaultNodeRenderer;
-
   const tree = computeNode({
     path: DEFAULT_ROOT_PATH,
     name: "root",
