@@ -33,6 +33,7 @@ import {
 } from "@typespec/http/experimental";
 import {
   ActionDecorator,
+  ActionSeparatorDecorator,
   AutoRouteDecorator,
   CollectionActionDecorator,
   ListsResourceDecorator,
@@ -276,13 +277,13 @@ const actionSeparatorKey = createStateSymbol("actionSeparator");
  *
  * `@actionSeparator` can only be applied to operations, interfaces, or namespaces.
  */
-export function $actionSeparator(
+export const $actionSeparator: ActionSeparatorDecorator = (
   context: DecoratorContext,
   entity: Operation | Interface | Namespace,
   separator: "/" | ":" | "/:",
-) {
+) => {
   context.program.stateMap(actionSeparatorKey).set(entity, separator);
-}
+};
 
 /**
  * @param program the TypeSpec program
