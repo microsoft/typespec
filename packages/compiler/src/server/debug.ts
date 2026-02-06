@@ -2,6 +2,10 @@ import { getEnvironmentVariable } from "../utils/misc.js";
 
 /**
  * Debug areas that can be enabled via TYPESPEC_DEBUG environment variable.
+ *
+ * Note: We use TYPESPEC_DEBUG instead of DEBUG because the DEBUG environment variable
+ * is not supported in VSCode extensions. See: https://github.com/microsoft/vscode/issues/290140
+ *
  * Usage: TYPESPEC_DEBUG=typespec:server_compile,typespec:compile_config
  *
  * Examples:
