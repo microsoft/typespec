@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import { expect, it } from "vitest";
 import { ObjectPreview } from "./object-preview.js";
 
-it.only("should display Symbol properties in object preview", () => {
+it("should display Symbol properties in object preview", () => {
   const sym = Symbol("testSymbol");
   const data = {
     stringProp: "value1",
