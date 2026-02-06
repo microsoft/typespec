@@ -5,7 +5,9 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
+using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
@@ -14,6 +16,28 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of <see cref="UnknownPlant"/> for deserialization. </summary>
         internal UnknownPlant()
         {
+        }
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override Plant PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Plant>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializePlant(document.RootElement, options);
+                    }
+                case "X":
+                    using (Stream dataStream = data.ToStream())
+                    {
+                        return DeserializePlant(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(Plant)} does not support reading '{options.Format}' format.");
+            }
         }
 
         /// <param name="writer"> The JSON writer. </param>
@@ -111,24 +135,43 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         Plant IPersistableModel<Plant>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override Plant PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Plant>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
-                    {
-                        return DeserializePlant(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(Plant)} does not support reading '{options.Format}' format.");
-            }
-        }
-
         /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<Plant>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="element"> The xml element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static UnknownPlant DeserializeUnknownPlant(XElement element, ModelReaderWriterOptions options)
+        {
+            if (element == null)
+            {
+                return null;
+            }
+
+            string species = "unknown";
+            string id = default;
+            int height = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+
+            foreach (var child in element.Elements())
+            {
+                string localName = child.Name.LocalName;
+                if (localName == "species")
+                {
+                    species = (string)child;
+                    continue;
+                }
+                if (localName == "id")
+                {
+                    id = (string)child;
+                    continue;
+                }
+                if (localName == "height")
+                {
+                    height = (int)child;
+                    continue;
+                }
+            }
+            return new UnknownPlant(species, id, height, additionalBinaryDataProperties);
+        }
     }
 }

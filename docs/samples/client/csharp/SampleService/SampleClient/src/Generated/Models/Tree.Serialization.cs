@@ -6,7 +6,9 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
+using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
@@ -16,6 +18,48 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of <see cref="Tree"/> for deserialization. </summary>
         internal Tree()
         {
+        }
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override Plant PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeTree(document.RootElement, options);
+                    }
+                case "X":
+                    using (Stream dataStream = data.ToStream())
+                    {
+                        return DeserializeTree(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(Tree)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Tree"/> from. </param>
+        public static explicit operator Tree(ClientResult result)
+        {
+            using PipelineResponse response = result.GetRawResponse();
+
+            if (response.Headers.TryGetValue("Content-Type", out string value) && value.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
+            {
+                using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+                return DeserializeTree(document.RootElement, ModelSerializationExtensions.WireOptions);
+            }
+
+            using Stream stream = response.ContentStream;
+            if (stream == null)
+            {
+                return default;
+            }
+
+            return DeserializeTree(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="writer"> The JSON writer. </param>
@@ -121,32 +165,49 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         Tree IPersistableModel<Tree>.Create(BinaryData data, ModelReaderWriterOptions options) => (Tree)PersistableModelCreateCore(data, options);
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override Plant PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Tree>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
-                    {
-                        return DeserializeTree(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(Tree)} does not support reading '{options.Format}' format.");
-            }
-        }
-
         /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<Tree>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Tree"/> from. </param>
-        public static explicit operator Tree(ClientResult result)
+        /// <param name="element"> The xml element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static Tree DeserializeTree(XElement element, ModelReaderWriterOptions options)
         {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeTree(document.RootElement, ModelSerializationExtensions.WireOptions);
+            if (element == null)
+            {
+                return null;
+            }
+
+            string species = "tree";
+            string id = default;
+            int height = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            int age = default;
+
+            foreach (var child in element.Elements())
+            {
+                string localName = child.Name.LocalName;
+                if (localName == "species")
+                {
+                    species = (string)child;
+                    continue;
+                }
+                if (localName == "id")
+                {
+                    id = (string)child;
+                    continue;
+                }
+                if (localName == "height")
+                {
+                    height = (int)child;
+                    continue;
+                }
+                if (localName == "age")
+                {
+                    age = (int)child;
+                    continue;
+                }
+            }
+            return new Tree(species, id, height, additionalBinaryDataProperties, age);
         }
     }
 }
