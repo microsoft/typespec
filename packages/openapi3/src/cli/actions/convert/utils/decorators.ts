@@ -20,6 +20,14 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
 
   for (const key of Object.keys(element)) {
     if (isExtensionKey(key)) {
+      // Handle x-ms-list extension specially
+      if (key === "x-ms-list" && element[key] === true) {
+        decorators.push({
+          name: "list",
+          args: [],
+        });
+      }
+
       decorators.push({
         name: extensionDecoratorName,
         args: [key, normalizeObjectValue(element[key])],
@@ -88,6 +96,15 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIPar
   if (xmsListPageSize === true) {
     decorators.push({
       name: "pageSize",
+      args: [],
+    });
+  }
+
+  // Handle x-ms-list-continuation-token extension on parameter itself
+  const xmsListContinuationToken = (parameter as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
       args: [],
     });
   }
@@ -214,6 +231,15 @@ export function getDecoratorsForSchema(
   }
 
   decorators.push(...getExtensions(schema));
+
+  // Handle x-ms-list-continuation-token extension by adding @continuationToken decorator
+  const xmsListContinuationToken = (schema as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
 
   // Handle x-ms-list-*-link extensions
   decorators.push(...getPagingLinkDecorators(schema));
