@@ -115,6 +115,16 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 - If TypeScript compilation fails, check that compiler built first: `pnpm -r --filter "@typespec/compiler" build`
 - For VS Code extension development, ensure you have the workspace open at the repository root
 
+## Commit instructions
+
+- Always run the linting and the formatting commands before any commit.
+- Follow conventional commits.
+
+## Pull Request instructions
+
+- When the work is done, run `@npx @chronus/chronus add` to add a changelog entry. Make sure to select the correct type of change (fix, feat, docs, etc.) and provide a clear description based on the initial issue description. Also prefix the description with the component name (e.g. if the component is the importer `importer - `).
+- Always start by defining additional unit tests/updating existing unit tests to fulfill the requirements first. Then make changes to the code accordingly. If you are following the TDD (Test Driven Development) approach, make sure to run the tests and see them fail before implementing the code changes.
+
 ## Available Task Instructions
 
 - [Testserver Generation](./prompts/testserver-generation.md): Instructions for generating TypeSpec HTTP spec test servers
