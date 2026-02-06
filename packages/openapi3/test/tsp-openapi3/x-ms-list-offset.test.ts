@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { renderTypeSpecForOpenAPI3, validateTsp } from "./utils/tsp-for-openapi3.js";
 
 describe("x-ms-list-offset extension", () => {
-  it("adds @pageIndex decorator when x-ms-list-offset: true is present", async () => {
+  it("adds @offset decorator when x-ms-list-offset: true is present", async () => {
     const tsp = await renderTypeSpecForOpenAPI3({
       paths: {
         "/widgets": {
@@ -45,8 +45,8 @@ describe("x-ms-list-offset extension", () => {
       },
     });
 
-    // Should include @pageIndex decorator
-    expect(tsp).toContain("@pageIndex");
+    // Should include @offset decorator
+    expect(tsp).toContain("@offset");
     // Should include @extension decorator with x-ms-list-offset
     expect(tsp).toContain('@extension("x-ms-list-offset", true)');
     // Should include the query decorator
@@ -69,7 +69,7 @@ describe("x-ms-list-offset extension", () => {
       /** List widgets */
       @route("/widgets") @get op Widgets_list(
         @extension("x-ms-list-offset", true)
-        @pageIndex
+        @offset
         @query
         offset: int32,
       ): Body<{
@@ -81,7 +81,7 @@ describe("x-ms-list-offset extension", () => {
     await validateTsp(tsp);
   });
 
-  it("does not add @pageIndex decorator when x-ms-list-offset is false", async () => {
+  it("does not add @offset decorator when x-ms-list-offset is false", async () => {
     const tsp = await renderTypeSpecForOpenAPI3({
       paths: {
         "/widgets": {
@@ -109,15 +109,15 @@ describe("x-ms-list-offset extension", () => {
       },
     });
 
-    // Should NOT include @pageIndex decorator
-    expect(tsp).not.toContain("@pageIndex");
+    // Should NOT include @offset decorator
+    expect(tsp).not.toContain("@offset");
     // Should still include @extension decorator with x-ms-list-offset
     expect(tsp).toContain('@extension("x-ms-list-offset", false)');
 
     await validateTsp(tsp);
   });
 
-  it("does not add @pageIndex decorator when x-ms-list-offset is absent", async () => {
+  it("does not add @offset decorator when x-ms-list-offset is absent", async () => {
     const tsp = await renderTypeSpecForOpenAPI3({
       paths: {
         "/widgets": {
@@ -144,8 +144,8 @@ describe("x-ms-list-offset extension", () => {
       },
     });
 
-    // Should NOT include @pageIndex decorator
-    expect(tsp).not.toContain("@pageIndex");
+    // Should NOT include @offset decorator
+    expect(tsp).not.toContain("@offset");
     // Should NOT include @extension decorator with x-ms-list-offset
     expect(tsp).not.toContain("x-ms-list-offset");
 
@@ -180,8 +180,8 @@ describe("x-ms-list-offset extension", () => {
       },
     });
 
-    // Should include @pageIndex decorator
-    expect(tsp).toContain("@pageIndex");
+    // Should include @offset decorator
+    expect(tsp).toContain("@offset");
     // Should include @extension decorator with x-ms-list-offset
     expect(tsp).toContain('@extension("x-ms-list-offset", true)');
     // Parameter should be optional
@@ -233,8 +233,8 @@ describe("x-ms-list-offset extension", () => {
       },
     });
 
-    // Should include @pageIndex decorator for offset
-    expect(tsp).toContain("@pageIndex");
+    // Should include @offset decorator for offset
+    expect(tsp).toContain("@offset");
     // Should have all parameters
     expect(tsp).toContain("filter?:");
     expect(tsp).toContain("offset:");
