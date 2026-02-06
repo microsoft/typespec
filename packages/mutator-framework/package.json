@@ -8,10 +8,10 @@
     "url": "git+https://github.com/microsoft/typespec.git"
   },
   "scripts": {
-    "build": "tsc -p .",
+    "build": "tsc -p tsconfig.build.json",
     "clean": "rimraf ./dist",
     "format": "prettier . --write",
-    "watch": "tsc -p . --watch",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
@@ -37,6 +37,6 @@
     "@types/node": "~25.0.2",
     "@typespec/compiler": "workspace:^",
     "concurrently": "^9.1.2",
-    "prettier": "~3.7.4"
+    "prettier": "~3.8.0"
   }
 }

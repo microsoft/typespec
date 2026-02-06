@@ -77,9 +77,11 @@ $generateScript = {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option
     $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
+  } elseif ($tspFile -match "azure[\\/]resource-manager[\\/]multi-service-older-versions[\\/]") {
+    $tspOptions += " --option ""@typespec/http-client-java.metadata-suffix=older-versions"""
+  } elseif ($tspFile -match "azure[\\/]resource-manager[\\/]multi-service-shared-models[\\/]") {
+    $tspOptions += " --option ""@typespec/http-client-java.metadata-suffix=shared-models"""
   } elseif ($tspFile -match "tsp[\\/]arm.tsp") {
-    # for mgmt, do not generate tests due to random mock values
-    $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # test service-name
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
     # also test generating from specific api-version
@@ -101,8 +103,6 @@ $generateScript = {
     # enable client side validations
     $tspOptions += " --option ""@typespec/http-client-java.client-side-validations=true"""
   } elseif ($tspFile -match "tsp[\\/]arm-customization.tsp") {
-    # for mgmt, do not generate tests due to random mock values
-    $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # add customization code
     $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/KeyVaultCustomization.java"""
   } elseif ($tspFile -match "tsp[\\/]arm-versioned.tsp") {
@@ -199,11 +199,10 @@ try {
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
 
   $specFiles = Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse
-  $multiServiceSpec = Join-Path ./specs "azure/resource-manager/multi-service/client.tsp"
-  if (Test-Path $multiServiceSpec) {
-    # ensure multi-service client specs are processed even though they do not match the default filter
-    $specFiles += Get-Item $multiServiceSpec
-  }
+  # ensure multi-service client specs are processed even though they do not match the default filter
+  $specFiles += Get-Item (Join-Path ./specs "azure/resource-manager/multi-service/client.tsp")
+  $specFiles += Get-Item (Join-Path ./specs "azure/resource-manager/multi-service-older-versions/client.tsp")
+  $specFiles += Get-Item (Join-Path ./specs "azure/resource-manager/multi-service-shared-models/client.tsp")
 
   $job = $specFiles | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 

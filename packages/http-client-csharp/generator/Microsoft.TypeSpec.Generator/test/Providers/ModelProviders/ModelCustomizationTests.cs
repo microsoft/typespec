@@ -1475,6 +1475,69 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("CustomBaseProp", modelProvider.BaseTypeProvider.Properties[0].Name);
         }
 
+        [Test]
+        public async Task CanAddPropertyReferencingGeneratedType()
+        {
+            // Create Bar model that will be referenced by the custom property
+            var barModel = InputFactory.Model("Bar", properties: [
+                InputFactory.Property("b", InputPrimitiveType.String)
+            ], usage: InputModelTypeUsage.Input);
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
+                InputFactory.Property("Prop1", InputPrimitiveType.String)
+            ], usage: InputModelTypeUsage.Input);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, barModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // Validate that the custom property Bars exists in the canonical view
+            var barsProperty = modelTypeProvider.CanonicalView.Properties.FirstOrDefault(p => p.Name == "Bars");
+            Assert.IsNotNull(barsProperty, "Bars property should exist in canonical view");
+
+            // Validate that the Bars property has IList<Bar> type with proper namespace
+            Assert.IsTrue(barsProperty!.Type.IsList);
+            var elementType = barsProperty.Type.ElementType;
+            Assert.AreEqual("Bar", elementType.Name);
+            Assert.AreEqual("Sample.Models", elementType.Namespace, "Bar type should have proper namespace");
+            Assert.IsFalse(string.IsNullOrEmpty(elementType.Namespace), "Element type namespace should not be empty");
+        }
+
+        [Test]
+        public async Task CanAddPropertyReferencingRenamedGeneratedType()
+        {
+            // Create Bar model that will be renamed to RenamedBar via CodeGenType
+            var barModel = InputFactory.Model("Bar", properties: [
+                InputFactory.Property("b", InputPrimitiveType.String)
+            ], usage: InputModelTypeUsage.Input);
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
+                InputFactory.Property("Prop1", InputPrimitiveType.String)
+            ], usage: InputModelTypeUsage.Input);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, barModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // Validate that the custom property RenamedBars exists in the canonical view
+            var renamedBarsProperty = modelTypeProvider.CanonicalView.Properties.FirstOrDefault(p => p.Name == "RenamedBars");
+            Assert.IsNotNull(renamedBarsProperty, "RenamedBars property should exist in canonical view");
+
+            // Validate that the RenamedBars property has IList<RenamedBar> type with proper namespace
+            // Even though Bar is the TypeSpec name, the C# code uses RenamedBar
+            Assert.IsTrue(renamedBarsProperty!.Type.IsList);
+            var elementType = renamedBarsProperty.Type.ElementType;
+            Assert.AreEqual("RenamedBar", elementType.Name);
+            Assert.AreEqual("Sample.Models", elementType.Namespace, "RenamedBar type should have proper namespace");
+            Assert.IsFalse(string.IsNullOrEmpty(elementType.Namespace), "Element type namespace should not be empty");
+        }
+
         private class NameSpaceVisitor : LibraryVisitor
         {
             protected override TypeProvider? VisitType(TypeProvider type)

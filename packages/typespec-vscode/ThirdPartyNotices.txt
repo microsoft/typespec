@@ -8,7 +8,7 @@ original copyright notices and the licenses under which Microsoft received such
 components are set forth below. Microsoft reserves all rights not expressly
 granted herein, whether by implication, estoppel or otherwise.
 
-1. @babel/code-frame version 7.27.1 (https://github.com/babel/babel)
+1. @babel/code-frame version 7.28.6 (https://github.com/babel/babel)
 2. @babel/helper-validator-identifier version 7.28.5 (https://github.com/babel/babel)
 3. ajv version 8.17.1 (ajv-validator/ajv)
 4. balanced-match version 1.0.2 (https://github.com/juliangruber/balanced-match)

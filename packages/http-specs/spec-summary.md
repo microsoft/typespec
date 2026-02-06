@@ -138,6 +138,174 @@ Expected response body:
 }
 ```
 
+### Encode_Array_Property_enumCommaDelimited
+
+- Endpoint: `post /encode/array/property/enum/comma-delimited`
+
+Test operation with request and response model contains an enum array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_enumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/enum/newline-delimited`
+
+Test operation with request and response model contains an enum array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_enumPipeDelimited
+
+- Endpoint: `post /encode/array/property/enum/pipe-delimited`
+
+Test operation with request and response model contains an enum array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_enumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/enum/space-delimited`
+
+Test operation with request and response model contains an enum array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumCommaDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/comma-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumNewlineDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/newline-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_extensibleEnumPipeDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/pipe-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_extensibleEnumSpaceDelimited
+
+- Endpoint: `post /encode/array/property/extensible-enum/space-delimited`
+
+Test operation with request and response model contains an extensible enum (union) array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
 ### Encode_Array_Property_newlineDelimited
 
 - Endpoint: `post /encode/array/property/newline-delimited`
@@ -1882,6 +2050,68 @@ Content-Type: image/jpg
 --abcde12345--
 ```
 
+### Payload_MultiPart_FormData_File_uploadFileArray
+
+- Endpoint: `post /multipart/form-data/file/file-array`
+
+Test multiple File instances in multipart form data.
+Expected request:
+
+```
+POST /multipart/form-data/file/file-array HTTP/1.1
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="files"; filename="image1.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345
+Content-Disposition: form-data; name="files"; filename="image2.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_File_uploadFileRequiredFilename
+
+- Endpoint: `post /multipart/form-data/file/required-filename`
+
+Test File type in multipart form data with required filename.
+Expected request:
+
+```
+POST /multipart/form-data/file/required-filename HTTP/1.1
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="file"; filename="image.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_File_uploadFileSpecificContentType
+
+- Endpoint: `post /multipart/form-data/file/specific-content-type`
+
+Test File type in multipart form data with specific content type.
+Expected request:
+
+```
+POST /multipart/form-data/file/specific-content-type HTTP/1.1
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="file"; filename="image.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345--
+```
+
 ### Payload_MultiPart_FormData_fileArrayAndBasic
 
 - Endpoint: `post /multipart/form-data/complex-parts`
@@ -2667,6 +2897,104 @@ Two requests need to be tested.
 }
 ```
 
+### Payload_Pageable_XmlPagination_listWithContinuation
+
+- Endpoint: `get /payload/pageable/xml/list-with-continuation`
+
+Test case for XML pagination with continuation token. Continuation token is passed in the request query and response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/xml/list
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextMarker>page2</NextMarker>
+</PetListResult>
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/xml/list?marker=page2
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+```
+
+### Payload_Pageable_XmlPagination_listWithNextLink
+
+- Endpoint: `get /payload/pageable/xml/list-with-next-link`
+
+Test case for XML pagination with next link.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/xml/list-with-next-link
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextLink>http://[host]:[port]/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
+</PetListResult>
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/xml/list-with-next-link/nextPage
+
+Expected response body:
+
+```xml
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+```
+
 ### Payload_Xml_ModelWithArrayOfModelValue_get
 
 - Endpoint: `get /payload/xml/modelWithArrayOfModel`
@@ -3051,6 +3379,19 @@ Expected request body:
   <name>foo</name>
   <age>123</age>
 </SimpleModel>
+```
+
+### Payload_Xml_XmlErrorValue_get
+
+- Endpoint: `get /payload/xml/error`
+
+Expected error response body:
+
+```xml
+<XmlErrorBody>
+  <message>Something went wrong</message>
+  <code>400</code>
+</XmlErrorBody>
 ```
 
 ### Response_StatusCodeRange_errorResponseStatusCode404
@@ -4930,6 +5271,90 @@ Expect to send a known value. Mock api expect to receive 'Monday'
 - Endpoint: `put /type/enum/fixed/string/unknown-value`
 
 Expect to handle an unknown value. Mock api expect to receive 'Weekend'
+
+### Type_File_Body_downloadFileDefaultContentType
+
+- Endpoint: `get /type/file/body/response/default-content-type`
+
+Test File type as response body with unspecified content type.
+The File type accepts any content type. For testing, server will return image/png.
+Expected response:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_downloadFileJsonContentType
+
+- Endpoint: `get /type/file/body/response/json-content-type`
+
+Test File type as response body with JSON content type.
+Expected response:
+
+- Content-Type header: application/json
+- Body: JSON content with file data
+
+### Type_File_Body_downloadFileMultipleContentTypes
+
+- Endpoint: `get /type/file/body/response/multiple-content-types`
+
+Test File type as response body with multiple allowed content types.
+Service will return image/png.
+Expected response:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_downloadFileSpecificContentType
+
+- Endpoint: `get /type/file/body/response/specific-content-type`
+
+Test File type as response body with specific content type.
+Expected response:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileDefaultContentType
+
+- Endpoint: `post /type/file/body/request/default-content-type`
+
+Test File type as request body with unspecified content type.
+The File type accepts any content type. For testing, sender will use image/png.
+Expected request:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileJsonContentType
+
+- Endpoint: `post /type/file/body/request/json-content-type`
+
+Test File type as request body with JSON content type.
+Expected request:
+
+- Content-Type header: application/json
+- Body: JSON content with file data
+
+### Type_File_Body_uploadFileMultipleContentTypes
+
+- Endpoint: `post /type/file/body/request/multiple-content-types`
+
+Test File type as request body with multiple allowed content types (image/png or image/jpeg).
+Client should send image/png.
+Expected request:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileSpecificContentType
+
+- Endpoint: `post /type/file/body/request/specific-content-type`
+
+Test File type as request body with specific content type.
+Expected request:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
 
 ### Type_Model_Empty_getEmpty
 

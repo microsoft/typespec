@@ -1378,5 +1378,240 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
         }
 
+        #region MethodParameterSegments Tests
+
+        [Test]
+        public async Task MethodParameterSegments_ExtractsPropertyValues()
+        {
+            // Test scenario: Verify MethodParameterSegments correctly maps convenience params to protocol params
+            var wrapperModel = InputFactory.Model(
+                "Wrapper",
+                properties:
+                [
+                    InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("p2", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            var p1Param = InputFactory.PathParameter("p1", InputPrimitiveType.String, isRequired: true);
+            p1Param.Update(methodParameterSegments: [
+                InputFactory.MethodParameter("wrapper", wrapperModel, isRequired: true),
+                InputFactory.MethodParameter("p1", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            var p2Param = InputFactory.PathParameter("p2", InputPrimitiveType.String, isRequired: true);
+            p2Param.Update(methodParameterSegments: [
+                InputFactory.MethodParameter("wrapper", wrapperModel, isRequired: true),
+                InputFactory.MethodParameter("p2", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "testOp",
+                InputFactory.Operation(
+                    "testOp",
+                    parameters: [p1Param, p2Param]),
+                parameters: [InputFactory.MethodParameter("wrapper", wrapperModel, isRequired: true)]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            
+            // Verify that MethodParameterSegments are correctly set on the input parameters
+            Assert.AreEqual(2, p1Param.MethodParameterSegments!.Count, "p1 should have 2 segments");
+            Assert.AreEqual("wrapper", p1Param.MethodParameterSegments[0].Name);
+            Assert.AreEqual("p1", p1Param.MethodParameterSegments[1].Name);
+            
+            Assert.AreEqual(2, p2Param.MethodParameterSegments!.Count, "p2 should have 2 segments");
+            Assert.AreEqual("wrapper", p2Param.MethodParameterSegments[0].Name);
+            Assert.AreEqual("p2", p2Param.MethodParameterSegments[1].Name);
+        }
+
+        [Test]
+        public async Task MethodParameterSegments_BodyParameterSerialization()
+        {
+            // Test scenario: Body parameter with MethodParameterSegments should be serialized
+            var wrapperModel = InputFactory.Model(
+                "Wrapper",
+                properties:
+                [
+                    InputFactory.Property("action", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            var bodyParam = InputFactory.BodyParameter("action", InputPrimitiveType.String, isRequired: true);
+            bodyParam.Update(methodParameterSegments: [
+                InputFactory.MethodParameter("wrapper", wrapperModel, isRequired: true),
+                InputFactory.MethodParameter("action", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "testOp",
+                InputFactory.Operation(
+                    "testOp",
+                    parameters: [bodyParam]),
+                parameters: [InputFactory.MethodParameter("wrapper", wrapperModel, isRequired: true)]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            
+            // Verify MethodParameterSegments are set correctly
+            Assert.IsNotNull(bodyParam.MethodParameterSegments);
+            Assert.AreEqual(2, bodyParam.MethodParameterSegments!.Count);
+            Assert.AreEqual("wrapper", bodyParam.MethodParameterSegments[0].Name);
+            Assert.AreEqual("action", bodyParam.MethodParameterSegments[1].Name);
+        }
+
+        [Test]
+        public async Task MethodParameterSegments_MultipleSegments()
+        {
+            // Test scenario: Nested property access with 3+ segments
+            var innerModel = InputFactory.Model(
+                "Inner",
+                properties:
+                [
+                    InputFactory.Property("data", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            var wrapperModel = InputFactory.Model(
+                "Wrapper",
+                properties:
+                [
+                    InputFactory.Property("inner", innerModel, isRequired: true),
+                ]);
+
+            var bodyParam = InputFactory.BodyParameter("data", InputPrimitiveType.String, isRequired: true);
+            bodyParam.Update(methodParameterSegments: [
+                InputFactory.MethodParameter("wrapper", wrapperModel, isRequired: true),
+                InputFactory.MethodParameter("inner", innerModel, isRequired: true),
+                InputFactory.MethodParameter("data", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "testOp",
+                InputFactory.Operation(
+                    "testOp",
+                    parameters: [bodyParam]),
+                parameters: [InputFactory.MethodParameter("wrapper", wrapperModel, isRequired: true)]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            
+            // Verify 3-level nesting in MethodParameterSegments
+            Assert.IsNotNull(bodyParam.MethodParameterSegments);
+            Assert.AreEqual(3, bodyParam.MethodParameterSegments!.Count, "Should have 3 segments for nested property");
+            Assert.AreEqual("wrapper", bodyParam.MethodParameterSegments[0].Name);
+            Assert.AreEqual("inner", bodyParam.MethodParameterSegments[1].Name);
+            Assert.AreEqual("data", bodyParam.MethodParameterSegments[2].Name);
+        }
+
+        [Test]
+        public async Task MethodParameterSegments_MixedParameterLocations()
+        {
+            // Test scenario: Mix of path, query, header, and body parameters
+            var paramsModel = InputFactory.Model(
+                "Params",
+                properties:
+                [
+                    InputFactory.Property("pathParam", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("queryParam", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("headerParam", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("bodyParam", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            var pathParam = InputFactory.PathParameter("pathParam", InputPrimitiveType.String, isRequired: true);
+            pathParam.Update(methodParameterSegments: [
+                InputFactory.MethodParameter("params", paramsModel, isRequired: true),
+                InputFactory.MethodParameter("pathParam", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            var queryParam = InputFactory.QueryParameter("queryParam", InputPrimitiveType.String, isRequired: true);
+            queryParam.Update(methodParameterSegments: [
+                InputFactory.MethodParameter("params", paramsModel, isRequired: true),
+                InputFactory.MethodParameter("queryParam", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            var headerParam = InputFactory.HeaderParameter("headerParam", InputPrimitiveType.String, isRequired: true);
+            headerParam.Update(methodParameterSegments: [
+                InputFactory.MethodParameter("params", paramsModel, isRequired: true),
+                InputFactory.MethodParameter("headerParam", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            var bodyParam = InputFactory.BodyParameter("bodyParam", InputPrimitiveType.String, isRequired: true);
+            bodyParam.Update(methodParameterSegments: [
+                InputFactory.MethodParameter("params", paramsModel, isRequired: true),
+                InputFactory.MethodParameter("bodyParam", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "testOp",
+                InputFactory.Operation(
+                    "testOp",
+                    parameters: [pathParam, queryParam, headerParam, bodyParam]),
+                parameters: [InputFactory.MethodParameter("params", paramsModel, isRequired: true)]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            
+            // Verify all parameter types have MethodParameterSegments
+            Assert.IsNotNull(pathParam.MethodParameterSegments);
+            Assert.AreEqual(2, pathParam.MethodParameterSegments!.Count);
+            
+            Assert.IsNotNull(queryParam.MethodParameterSegments);
+            Assert.AreEqual(2, queryParam.MethodParameterSegments!.Count);
+            
+            Assert.IsNotNull(headerParam.MethodParameterSegments);
+            Assert.AreEqual(2, headerParam.MethodParameterSegments!.Count);
+            
+            Assert.IsNotNull(bodyParam.MethodParameterSegments);
+            Assert.AreEqual(2, bodyParam.MethodParameterSegments!.Count);
+        }
+
+        [Test]
+        public async Task MethodParameterSegments_UpdateMethod_SetsSegments()
+        {
+            // Test the InputParameter.Update method correctly sets MethodParameterSegments
+            var model = InputFactory.Model("TestModel");
+            var param = InputFactory.PathParameter("test", InputPrimitiveType.String, isRequired: true);
+            
+            // Initially should be null or empty
+            Assert.IsTrue(param.MethodParameterSegments == null || param.MethodParameterSegments.Count == 0);
+            
+            // Update with segments
+            var segments = new List<InputMethodParameter>
+            {
+                InputFactory.MethodParameter("param1", model, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, isRequired: true)
+            };
+            param.Update(methodParameterSegments: segments);
+            
+            // Verify segments are set
+            Assert.IsNotNull(param.MethodParameterSegments);
+            Assert.AreEqual(2, param.MethodParameterSegments!.Count);
+            Assert.AreEqual("param1", param.MethodParameterSegments[0].Name);
+            Assert.AreEqual("param2", param.MethodParameterSegments[1].Name);
+        }
+
+        #endregion
     }
 }

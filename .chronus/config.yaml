@@ -66,11 +66,13 @@ versionPolicies:
     type: independent
     packages:
       - "@typespec/http-client-python"
+      - "@typespec/http-client-java"
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
 additionalPackages:
   - packages/http-client-python
+  - packages/http-client-java
 
 changedFiles:
   - "!**/*.md"

@@ -239,7 +239,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         ".mypy_cache",
         ".pytest_cache",
         ".vscode",
-        "_build",
+        ".*_build/",
         "/build/",
         "dist",
         ".nox",

@@ -20,7 +20,6 @@ class TestLists:
         # Expected: 204 No Content
         client.lists.bullet_points_op()
 
-    @pytest.mark.skip(reason="https://github.com/microsoft/typespec/issues/9173")
     def test_bullet_points_model(self, client: DocumentationClient):
         # POST /documentation/lists/bullet-points/model
         # Expected: 200 OK

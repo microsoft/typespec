@@ -44,6 +44,7 @@ import {
   unsafe_MutatorWithNamespace,
 } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
+import { createPerfReporter, perf } from "@typespec/compiler/utils";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,
@@ -116,6 +117,7 @@ import {
   OpenAPI3Tag,
   OpenAPI3VersionedServiceRecord,
   OpenAPISchema3_1,
+  OpenAPITag3_2,
   Refable,
   SupportedOpenAPIDocuments,
 } from "./types.js";
@@ -145,7 +147,10 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
   for (const specVersion of options.openapiVersions) {
     const emitter = createOAPIEmitter(context, options, specVersion);
-    await emitter.emitOpenAPI();
+    const { perf } = await emitter.emitOpenAPI();
+    for (const [key, duration] of Object.entries(perf)) {
+      context.perf.report(key, duration);
+    }
   }
 }
 
@@ -170,6 +175,7 @@ export async function getOpenAPI3(
     emitterOutputDir: "tsp-output",
 
     options: options,
+    perf: createPerfReporter(),
   };
 
   const resolvedOptions = resolveOptions(context);
@@ -300,10 +306,7 @@ function createOAPIEmitter(
   let paramModels: Set<Type>;
 
   // De-dupe the per-endpoint tags that will be added into the #/tags
-  let tags: Set<string>;
-
-  // The per-endpoint tags that will be added into the #/tags
-  const tagsMetadata: { [name: string]: OpenAPI3Tag } = {};
+  let tagsUsedInOperations: Set<string>;
 
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
@@ -340,7 +343,11 @@ function createOAPIEmitter(
   }
 
   async function emitOpenAPI() {
+    const computeTimer = perf.startTimer();
+
     const services = await getOpenAPI();
+    const computeTime = computeTimer.end();
+
     // first, emit diagnostics
     for (const serviceRecord of services) {
       if (serviceRecord.versioned) {
@@ -353,11 +360,11 @@ function createOAPIEmitter(
     }
 
     if (program.compilerOptions.dryRun || program.hasError()) {
-      return;
+      return { perf: { compute: computeTime } };
     }
 
     const multipleService = services.length > 1;
-
+    const writeTimer = perf.startTimer();
     for (const serviceRecord of services) {
       if (serviceRecord.versioned) {
         for (const documentRecord of serviceRecord.versions) {
@@ -375,6 +382,13 @@ function createOAPIEmitter(
         });
       }
     }
+    const writeTime = writeTimer.end();
+    return {
+      perf: {
+        compute: computeTime,
+        write: writeTime,
+      },
+    };
   }
 
   function initializeEmitter(
@@ -435,16 +449,7 @@ function createOAPIEmitter(
 
     params = new Map();
     paramModels = new Set();
-    tags = new Set();
-
-    // Get Tags Metadata
-    const metadata = getTagsMetadata(program, service.type);
-    if (metadata) {
-      for (const [name, tag] of Object.entries(metadata)) {
-        const tagData: OpenAPI3Tag = { name: name, ...tag };
-        tagsMetadata[name] = tagData;
-      }
-    }
+    tagsUsedInOperations = new Set();
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
@@ -739,7 +744,7 @@ function createOAPIEmitter(
       }
       emitParameters();
       emitSchemas(service.type);
-      emitTags();
+      root.tags = resolveDocumentTags(service);
 
       // Clean up empty entries
       if (root.components) {
@@ -837,7 +842,7 @@ function createOAPIEmitter(
         }
         for (const tag of opTags) {
           // Add to root tags if not already there
-          tags.add(tag);
+          tagsUsedInOperations.add(tag);
         }
       }
     }
@@ -901,7 +906,7 @@ function createOAPIEmitter(
       oai3Operation.tags = currentTags;
       for (const tag of currentTags) {
         // Add to root tags if not already there
-        tags.add(tag);
+        tagsUsedInOperations.add(tag);
       }
     }
 
@@ -1577,7 +1582,7 @@ function createOAPIEmitter(
     if (!typeSchema) {
       return undefined;
     }
-    const schema = applyEncoding(
+    let schema = applyEncoding(
       program,
       param,
       applyIntrinsicDecorators(param, typeSchema),
@@ -1585,7 +1590,13 @@ function createOAPIEmitter(
     );
 
     if (param.defaultValue) {
-      schema.default = getDefaultValue(program, param.defaultValue, param);
+      const defaultValue = getDefaultValue(program, param.defaultValue, param);
+      // In OpenAPI 3.0, $ref cannot have sibling properties.
+      if ("$ref" in schema && specVersion === "3.0.0") {
+        schema = { allOf: [{ $ref: schema.$ref }], default: defaultValue };
+      } else {
+        schema.default = defaultValue;
+      }
     }
     // Description is already provided in the parameter itself.
     delete schema.description;
@@ -1775,17 +1786,22 @@ function createOAPIEmitter(
     }
   }
 
-  function emitTags() {
-    // emit Tag from op
-    for (const tag of tags) {
-      if (!tagsMetadata[tag]) {
-        root.tags!.push({ name: tag });
+  /** Resolve tag information to be inserted at the root of the document */
+  function resolveDocumentTags(service: Service): OpenAPI3Tag[] | OpenAPITag3_2[] {
+    const metadata = getTagsMetadata(program, service.type);
+
+    const tags: OpenAPI3Tag[] | OpenAPITag3_2[] = [];
+    for (const tag of tagsUsedInOperations) {
+      if (!metadata?.[tag]) {
+        tags.push({ name: tag });
       }
     }
 
-    for (const key in tagsMetadata) {
-      root.tags!.push(tagsMetadata[key]);
+    for (const [name, tag] of Object.entries(metadata || {})) {
+      tags.push({ name: name, ...tag });
     }
+
+    return tags;
   }
 
   function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {

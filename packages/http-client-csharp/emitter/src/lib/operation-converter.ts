@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  getClientNamespace,
   getHttpOperationParameter,
   isHttpMetadata,
   SdkBodyParameter,
@@ -199,6 +200,9 @@ export function fromSdkServiceMethodOperation(
     examples: method.operation.examples
       ? fromSdkHttpExamples(sdkContext, method.operation.examples)
       : undefined,
+    namespace: method.__raw?.namespace
+      ? getClientNamespace(sdkContext, method.__raw.namespace)
+      : undefined,
   };
 
   sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
@@ -313,6 +317,14 @@ function updateMethodParameter(
   operationHttpParameter: SdkHttpParameter | SdkModelPropertyType,
   rootApiVersions: string[],
 ): void {
+  // for content type parameter
+  if (isContentType(operationHttpParameter)) {
+    methodParameter.type = fromSdkType(
+      sdkContext,
+      operationHttpParameter.type,
+      operationHttpParameter,
+    );
+  }
   methodParameter.serializedName = getNameInRequest(operationHttpParameter);
   methodParameter.location = getParameterLocation(operationHttpParameter);
   methodParameter.scope = getParameterScope(
@@ -323,7 +335,11 @@ function updateMethodParameter(
   if (methodParameter.location === RequestLocation.Body) {
     // Convert constants to enums
     if (methodParameter.type.kind === "constant") {
-      methodParameter.type = fromSdkType(sdkContext, operationHttpParameter.type);
+      methodParameter.type = fromSdkType(
+        sdkContext,
+        operationHttpParameter.type,
+        operationHttpParameter,
+      );
     }
   }
 }
@@ -415,7 +431,7 @@ function fromQueryParameter(
   p: SdkQueryParameter,
   rootApiVersions: string[],
 ): InputQueryParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputQueryParameter = {
     kind: "query",
@@ -433,6 +449,7 @@ function fromQueryParameter(
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     readOnly: isReadOnly(p),
+    methodParameterSegments: getMethodParameterSegments(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -444,7 +461,7 @@ function fromPathParameter(
   p: SdkPathParameter,
   rootApiVersions: string[],
 ): InputPathParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputPathParameter = {
     kind: "path",
@@ -464,6 +481,7 @@ function fromPathParameter(
     decorators: p.decorators,
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    methodParameterSegments: getMethodParameterSegments(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -475,7 +493,7 @@ function fromHeaderParameter(
   p: SdkHeaderParameter,
   rootApiVersions: string[],
 ): InputHeaderParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputHeaderParameter = {
     kind: "header",
@@ -494,6 +512,7 @@ function fromHeaderParameter(
     readOnly: isReadOnly(p),
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    methodParameterSegments: getMethodParameterSegments(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -505,7 +524,7 @@ function fromBodyParameter(
   p: SdkBodyParameter,
   rootApiVersions: string[],
 ): InputBodyParameter {
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p);
 
   const retVar: InputBodyParameter = {
     kind: "body",
@@ -522,6 +541,7 @@ function fromBodyParameter(
     decorators: p.decorators,
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    methodParameterSegments: getMethodParameterSegments(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -910,6 +930,37 @@ function getArraySerializationDelimiter(
 ): string | undefined {
   const format = getCollectionFormat(p);
   return format ? collectionFormatToDelimMap[format] : undefined;
+}
+
+export function getMethodParameterSegments(
+  sdkContext: CSharpEmitterContext,
+  p: SdkHttpParameter | SdkModelPropertyType,
+): InputMethodParameter[] | undefined {
+  // methodParameterSegments is a 2D array where each segment array represents a path to a method parameter
+  // For spread body cases, there could be multiple paths, but we simplify by taking the first element
+  // We need the complete segment path (e.g., ['Params', 'foo'] for accessing params.foo)
+  const methodParameterSegments = (p as any).methodParameterSegments;
+  if (!methodParameterSegments || methodParameterSegments.length === 0) {
+    return undefined;
+  }
+
+  // Take the first segment path (simplification - no spector scenario for multiple paths yet)
+  const firstSegmentPath = methodParameterSegments[0];
+  if (!firstSegmentPath || firstSegmentPath.length === 0) {
+    return undefined;
+  }
+
+  const namespace = getClientNamespaceString(sdkContext) ?? "";
+  const methodParams: InputMethodParameter[] = [];
+
+  // Convert each element in the segment path to an InputMethodParameter
+  // This preserves the full path information (e.g., ['Params', 'foo'])
+  for (const segment of firstSegmentPath) {
+    const methodParam = segment as SdkMethodParameter;
+    methodParams.push(fromMethodParameter(sdkContext, methodParam, namespace));
+  }
+
+  return methodParams.length > 0 ? methodParams : undefined;
 }
 
 function getResponseType(

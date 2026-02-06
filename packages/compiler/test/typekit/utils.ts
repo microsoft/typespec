@@ -1,3 +1,4 @@
+import { createPerfReporter } from "../../src/core/perf.js";
 import type { Program } from "../../src/core/program.js";
 import type { EmitContext, Type } from "../../src/core/types.js";
 import { createTestHost } from "../../src/testing/test-host.js";
@@ -15,6 +16,7 @@ export async function createContextMock(program?: Program): Promise<EmitContext<
     program,
     emitterOutputDir: "",
     options: {},
+    perf: createPerfReporter(),
   };
 }
 
