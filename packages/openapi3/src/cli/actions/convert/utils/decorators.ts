@@ -51,6 +51,12 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIPar
     decorators.push(...getDecoratorsForSchema(parameter.schema));
   }
 
+  // Add @pageIndex decorator if x-ms-list-page-index extension is true
+  const xmsListPageIndex = (parameter as any)["x-ms-list-page-index"];
+  if (xmsListPageIndex === true) {
+    decorators.push({ name: "pageIndex", args: [] });
+  }
+
   const locationDecorator = getLocationDecorator(parameter);
   if (locationDecorator) decorators.push(locationDecorator);
 
