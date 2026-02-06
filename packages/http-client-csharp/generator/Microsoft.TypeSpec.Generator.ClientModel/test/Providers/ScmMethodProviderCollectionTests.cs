@@ -1672,7 +1672,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Protocol operation parameters
             var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
             var headerParam = InputFactory.HeaderParameter("x-custom-header", InputPrimitiveType.String, isRequired: true);
+            headerParam.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("request", requestModel, isRequired: true, location: InputRequestLocation.Body),
+                InputFactory.MethodParameter("x-custom-header", InputPrimitiveType.String, isRequired: true)
+            ]);
             var optionalQueryParam = InputFactory.QueryParameter("queryParam", InputPrimitiveType.Int32, isRequired: false);
+            optionalQueryParam.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("request", requestModel, isRequired: true, location: InputRequestLocation.Body),
+                InputFactory.MethodParameter("queryParam", InputPrimitiveType.Int32, isRequired: false)
+            ]);
             var optionalFilter = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false);
             var bodyParam = InputFactory.BodyParameter("body", requestModel, isRequired: true);
             var optionalTake = InputFactory.QueryParameter("take", InputPrimitiveType.Int32, isRequired: false);

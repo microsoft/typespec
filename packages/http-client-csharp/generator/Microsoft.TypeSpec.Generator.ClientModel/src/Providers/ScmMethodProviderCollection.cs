@@ -602,7 +602,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 // Try to find the corresponding convenience parameter using MethodParameterSegments
-                if (protocolParam.InputParameter?.MethodParameterSegments is { Count: > 1 })
+                if (protocolParam.InputParameter?.MethodParameterSegments is { Count: > 1 } && nonBodyProperties?.ContainsKey(protocolParam.Name) != true)
                 {
                     // The MethodParameterSegments represents a path (e.g., ['Params', 'foo'] means params.foo)
                      var rootParameterName = protocolParam.InputParameter.MethodParameterSegments[0].Name;
