@@ -91,6 +91,15 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIPar
     decorators.push(...getDecoratorsForSchema(parameter.schema));
   }
 
+  // Add @pageSize decorator if x-ms-list-page-size extension is true
+  const xmsListPageSize = (parameter as any)["x-ms-list-page-size"];
+  if (xmsListPageSize === true) {
+    decorators.push({
+      name: "pageSize",
+      args: [],
+    });
+  }
+
   // Handle x-ms-list-continuation-token extension on parameter itself
   const xmsListContinuationToken = (parameter as any)["x-ms-list-continuation-token"];
   if (xmsListContinuationToken === true) {
