@@ -115,7 +115,6 @@ import {
   isEmptyResponseModel,
   isRecord,
   isStringEnumType,
-  isValueType,
   resolveReferenceFromScopes,
 } from "./utils.js";
 
@@ -525,6 +524,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const modelName = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const modelFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
+      modelFile.meta["nullable"] = true;
       const ns = model.namespace ?? getModelNamespace(model);
       const modelNamespace = this.#getOrAddNamespace(ns);
       return this.#createModelContext(modelNamespace, modelFile, modelName);
@@ -539,6 +539,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       );
       const sourceFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
+      sourceFile.meta["nullable"] = true;
       const modelNamespace = this.#getOrAddNamespace(model.namespace);
       const context = this.#createModelContext(modelNamespace, sourceFile, model.name);
       context.instantiationName = modelName;
@@ -678,12 +679,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           property.defaultValue,
         ) ?? typeDefault;
       const attributeList = [...attributes.values()];
+      const requiredModifier = !property.optional && !defaultValue ? "required " : "";
+      const nullableSuffix = property.optional || nullable ? "?" : "";
       return this.emitter.result
-        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributeList.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributeList?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
-        isValueType(this.emitter.getProgram(), property.type) && (property.optional || nullable)
-          ? "?"
-          : ""
-      } ${propertyName} { get; ${typeDefault ? "}" : "set; }"}${
+        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributeList.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributeList?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${requiredModifier}${typeName}${nullableSuffix} ${propertyName} { get; ${typeDefault ? "}" : "set; }"}${
         defaultValue ? ` = ${defaultValue};\n` : "\n"
       }
     `);
