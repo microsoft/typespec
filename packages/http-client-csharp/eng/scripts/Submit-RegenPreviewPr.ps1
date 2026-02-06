@@ -37,7 +37,10 @@ param(
   [string]$BranchName = "regen-preview/http-client-csharp-$PackageVersion",
 
   [Parameter(Mandatory = $false)]
-  [string]$BuildUri = ""
+  [string]$BuildUri = "",
+
+  [Parameter(Mandatory = $false)]
+  [string]$LibraryType = "All"
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -50,13 +53,22 @@ $BaseBranch = "main"
 $PRBranch = $BranchName
 
 # Determine PR title based on success/failure
-$titleSuffix = if ($RegenSuccess) { "" } else { " (Failed)" }
-$PRTitle = "Regen Preview: Update azure-typespec/http-client-csharp version to prerelease $PackageVersion$titleSuffix"
+$titlePrefix = if ($RegenSuccess) { "" } else { "(Failed) " }
+$PRTitle = "$titlePrefix Regen Preview: Update generator version to prerelease $PackageVersion"
 
-# Create PR body
+# Create PR body with dynamic package names based on library type
 $statusEmoji = if ($RegenSuccess) { '✅ Success' } else { '❌ Failed' }
+
+# Determine which packages were regenerated
+$packageNames = switch ($LibraryType) {
+    "Azure" { "@azure-typespec/http-client-csharp" }
+    "Unbranded" { "@typespec/http-client-csharp" }
+    "Mgmt" { "@azure-typespec/http-client-csharp-mgmt" }
+    default { "@typespec/http-client-csharp, @azure-typespec/http-client-csharp, @azure-typespec/http-client-csharp-mgmt" }
+}
+
 $PRBody = @"
-This is an automated preview PR to show the impact of regenerating libraries with the prerelease version $PackageVersion of @typespec/http-client-csharp.
+This is an automated preview PR to show the impact of regenerating libraries with the prerelease version $PackageVersion of $packageNames.
 
 ## Details
 
@@ -95,8 +107,8 @@ try {
         throw "Failed to create branch"
     }
 
-    # Stage all changes
-    git add -A
+    # Stage only changes in sdk folder
+    git add sdk/
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to stage changes"
     }

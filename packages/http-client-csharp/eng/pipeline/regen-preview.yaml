@@ -193,7 +193,11 @@ extends:
                   $commitSha = '$(Build.SourceVersion)'
                   $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
                   Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
-                displayName: Set TypeSpec commit URL
+                  
+                  # Set library type variable
+                  $libraryType = '${{ parameters.LibraryType }}'
+                  Write-Host "##vso[task.setvariable variable=LibraryType]$libraryType"
+                displayName: Set TypeSpec commit URL and library type
 
               # Create PR in azure-sdk-for-net
               - task: PowerShell@2
@@ -210,3 +214,4 @@ extends:
                     -RegenSuccess $${{ eq(variables['RegenSuccess'], 'true') }}
                     -BranchName 'regen-preview/http-client-csharp-$(PackageVersion)-$(Build.BuildId)'
                     -BuildUri '$(Build.BuildUri)'
+                    -LibraryType '$(LibraryType)'
