@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Common
 {
@@ -245,8 +246,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? wireName = null,
             string? summary = null,
             string? serializedName = null,
-            string? doc = null)
+            string? doc = null,
+            InputXmlSerializationOptions? xmlSerializationOptions = null)
         {
+            var serializationOptions = new InputSerializationOptions(
+                json: new(wireName ?? name.ToVariableName()),
+                xml: xmlSerializationOptions);
+
             return new InputModelProperty(
                 name: name,
                 summary: summary,
@@ -260,7 +266,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: null,
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
-                serializationOptions: new(json: new(wireName ?? name.ToVariableName())));
+                serializationOptions: serializationOptions);
         }
 
         public static InputHeaderParameter HeaderParameter(

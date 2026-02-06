@@ -202,10 +202,25 @@ export type MadeRequiredDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
- * Identifies when the target type changed.
+ * Declares that the type of a model property has changed starting at a given version,
+ * while keeping earlier versions consistent with the previous type.
  *
- * @param version The version that the target type changed in.
- * @param oldType The previous type of the target.
+ * This decorator is used to track type changes across API versions. When applied,
+ * the property will use `oldType` in versions before the specified `version`,
+ * and the current type definition in the specified version and later.
+ *
+ * @param version The version when the type change takes effect. The new type applies
+ * from this version onwards, while the old type applies to earlier versions.
+ * @param oldType The previous type used before the specified version.
+ * @example
+ * ```tsp
+ * model Foo {
+ *   // In v1: id is a string
+ *   // In v2+: id is an int32
+ *   @typeChangedFrom(Versions.v2, string)
+ *   id: int32;
+ * }
+ * ```
  */
 export type TypeChangedFromDecorator = (
   context: DecoratorContext,
@@ -215,10 +230,23 @@ export type TypeChangedFromDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
- * Identifies when the target type changed.
+ * Declares that the return type of an operation has changed starting at a given version,
+ * while keeping earlier versions consistent with the previous return type.
  *
- * @param version The version that the target type changed in.
- * @param oldType The previous type of the target.
+ * This decorator is used to track return type changes across API versions. When applied,
+ * the operation will return `oldType` in versions before the specified `version`,
+ * and the current return type definition in the specified version and later.
+ *
+ * @param version The version when the return type change takes effect. The new return type applies
+ * from this version onwards, while the old return type applies to earlier versions.
+ * @param oldType The previous return type used before the specified version.
+ * @example
+ * ```tsp
+ * // In v1: returns a string
+ * // In v2+: returns an int32
+ * @returnTypeChangedFrom(Versions.v2, string)
+ * op getUserId(): int32;
+ * ```
  */
 export type ReturnTypeChangedFromDecorator = (
   context: DecoratorContext,

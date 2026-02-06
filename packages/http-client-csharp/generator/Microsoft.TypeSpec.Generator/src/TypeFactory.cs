@@ -23,9 +23,14 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
+
+        // Maps C# type names to TypeProviders for efficient lookup when resolving types by name
+        internal IDictionary<string, TypeProvider> TypeProvidersByName { get; } = new Dictionary<string, TypeProvider>();
+
         private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
+        private Dictionary<InputSerializationOptions, SerializationOptions?> SerializationOptionsCache { get; } = [];
 
         private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
 
@@ -197,6 +202,7 @@ namespace Microsoft.TypeSpec.Generator
             if (modelProvider != null)
             {
                 CSharpTypeMap[modelProvider.Type] = modelProvider;
+                TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
             }
             return modelProvider;
         }
@@ -255,6 +261,7 @@ namespace Microsoft.TypeSpec.Generator
             if (enumProvider != null)
             {
                 CSharpTypeMap[enumProvider.Type] = enumProvider;
+                TypeProvidersByName[enumProvider.Type.Name] = enumProvider;
             }
 
             return enumProvider;
@@ -421,6 +428,34 @@ namespace Microsoft.TypeSpec.Generator
         public virtual NewProjectScaffolding CreateNewProjectScaffolding()
         {
             return new NewProjectScaffolding();
+        }
+
+        /// <summary>
+        /// Creates serialization options for the given input serialization options.
+        /// </summary>
+        /// <param name="inputSerializationOptions">The input serialization options.</param>
+        /// <returns>The serialization options, or <c>null</c> if not applicable.</returns>
+        public SerializationOptions? CreateSerializationOptions(InputSerializationOptions inputSerializationOptions)
+        {
+            if (SerializationOptionsCache.TryGetValue(inputSerializationOptions, out var options))
+            {
+                return options;
+            }
+
+            options = CreateSerializationOptionsCore(inputSerializationOptions);
+            SerializationOptionsCache.Add(inputSerializationOptions, options);
+
+            return options;
+        }
+
+        /// <summary>
+        /// Factory method for creating <see cref="SerializationOptions"/> for the given input serialization options.
+        /// </summary>
+        /// <param name="inputSerializationOptions">The input serialization options.</param>
+        /// <returns>The serialization options, or <c>null</c> if not applicable.</returns>
+        protected virtual SerializationOptions? CreateSerializationOptionsCore(InputSerializationOptions inputSerializationOptions)
+        {
+            return null;
         }
 
         private readonly struct EnumCacheKey

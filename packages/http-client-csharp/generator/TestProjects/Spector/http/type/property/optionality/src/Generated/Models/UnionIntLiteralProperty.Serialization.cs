@@ -11,6 +11,10 @@ namespace _Type.Property.Optional
 {
     public partial class UnionIntLiteralProperty : IJsonModel<UnionIntLiteralProperty>
     {
+        protected virtual UnionIntLiteralProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator UnionIntLiteralProperty(ClientResult result) => throw null;
+
         void IJsonModel<UnionIntLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -25,12 +29,8 @@ namespace _Type.Property.Optional
 
         UnionIntLiteralProperty IPersistableModel<UnionIntLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual UnionIntLiteralProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<UnionIntLiteralProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(UnionIntLiteralProperty unionIntLiteralProperty) => throw null;
-
-        public static explicit operator UnionIntLiteralProperty(ClientResult result) => throw null;
     }
 }

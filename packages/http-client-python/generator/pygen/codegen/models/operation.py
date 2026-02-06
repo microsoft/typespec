@@ -284,6 +284,10 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
     def need_deserialize(self) -> bool:
         return any(r.type and not isinstance(r.type, BinaryIteratorType) for r in self.responses)
 
+    @property
+    def enable_import_deserialize_xml(self) -> bool:
+        return any(xml_serializable(str(r.default_content_type)) for r in self.responses + self.exceptions)
+
     def imports(  # pylint: disable=too-many-branches, disable=too-many-statements
         self, async_mode: bool, **kwargs: Any
     ) -> FileImport:
@@ -443,7 +447,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                         ImportType.LOCAL,
                     )
                     file_import.add_import("json", ImportType.STDLIB)
-            if any(xml_serializable(str(r.default_content_type)) for r in self.responses + self.exceptions):
+            if self.enable_import_deserialize_xml:
                 file_import.add_submodule_import(relative_path, "_deserialize_xml", ImportType.LOCAL)
             elif self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
