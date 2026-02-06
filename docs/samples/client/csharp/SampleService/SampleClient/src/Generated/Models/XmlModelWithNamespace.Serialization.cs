@@ -5,116 +5,18 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Text.Json;
+using System.IO;
+using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
     /// <summary> The XmlModelWithNamespace. </summary>
-    public partial class XmlModelWithNamespace : IJsonModel<XmlModelWithNamespace>
+    public partial class XmlModelWithNamespace
     {
         /// <summary> Initializes a new instance of <see cref="XmlModelWithNamespace"/> for deserialization. </summary>
         internal XmlModelWithNamespace()
         {
         }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<XmlModelWithNamespace>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(XmlModelWithNamespace)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("foo"u8);
-            writer.WriteStringValue(Foo);
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
-        }
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        XmlModelWithNamespace IJsonModel<XmlModelWithNamespace>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual XmlModelWithNamespace JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(XmlModelWithNamespace)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeXmlModelWithNamespace(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static XmlModelWithNamespace DeserializeXmlModelWithNamespace(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            string foo = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("foo"u8))
-                {
-                    foo = prop.Value.GetString();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new XmlModelWithNamespace(foo, additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<XmlModelWithNamespace>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(XmlModelWithNamespace)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        XmlModelWithNamespace IPersistableModel<XmlModelWithNamespace>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -123,17 +25,38 @@ namespace SampleTypeSpec
             string format = options.Format == "W" ? ((IPersistableModel<XmlModelWithNamespace>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
+                case "X":
+                    using (Stream dataStream = data.ToStream())
                     {
-                        return DeserializeXmlModelWithNamespace(document.RootElement, options);
+                        return DeserializeXmlModelWithNamespace(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(XmlModelWithNamespace)} does not support reading '{options.Format}' format.");
             }
         }
 
+        /// <param name="element"> The xml element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<XmlModelWithNamespace>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        internal static XmlModelWithNamespace DeserializeXmlModelWithNamespace(XElement element, ModelReaderWriterOptions options)
+        {
+            if (element == null)
+            {
+                return null;
+            }
+
+            string foo = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+
+            foreach (var child in element.Elements())
+            {
+                string localName = child.Name.LocalName;
+                if (localName == "foo")
+                {
+                    foo = (string)child;
+                    continue;
+                }
+            }
+            return new XmlModelWithNamespace(foo, additionalBinaryDataProperties);
+        }
     }
 }

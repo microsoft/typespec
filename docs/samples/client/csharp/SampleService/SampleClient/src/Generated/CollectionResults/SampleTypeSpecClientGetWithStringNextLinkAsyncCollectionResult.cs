@@ -6,24 +6,20 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
-        private readonly string _token;
         private readonly RequestOptions _options;
 
-        /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
-        /// <param name="token"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
-            _token = token;
             _options = options;
         }
 
@@ -31,19 +27,20 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
-            string nextToken = null;
+            PipelineMessage message = _client.CreateGetWithStringNextLinkRequest(_options);
+            Uri nextPageUri = null;
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
-                if (nextToken == null)
+                string nextPageString = ((ListWithStringNextLinkResponse)result).Next;
+                if (string.IsNullOrEmpty(nextPageString))
                 {
                     yield break;
                 }
-                message = _client.CreateGetWithContinuationTokenRequest(nextToken, _options);
+                nextPageUri = new Uri(nextPageString);
+                message = _client.CreateNextGetWithStringNextLinkRequest(nextPageUri, _options);
             }
         }
 
@@ -52,26 +49,14 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
-            if (nextPage != null)
+            string nextPage = ((ListWithStringNextLinkResponse)page).Next;
+            if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
             }
             else
             {
                 return null;
-            }
-        }
-
-        /// <summary> Gets the values from the specified page. </summary>
-        /// <param name="page"></param>
-        /// <returns> The values from the specified page. </returns>
-        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
-        {
-            foreach (Thing item in ((ListWithContinuationTokenResponse)page).Things)
-            {
-                yield return item;
-                await Task.Yield();
             }
         }
     }
