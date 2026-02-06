@@ -322,7 +322,6 @@ export function createResolver(program: Program): NameResolver {
     }
 
     let result = resolveTypeReferenceWorker(node, options);
-
     const resolvedSym = result.resolvedSymbol;
     Object.assign(links, result);
 
@@ -789,6 +788,7 @@ export function createResolver(program: Program): NameResolver {
       sym = node.symbol;
     }
     compilerAssert(sym, "Should have a symbol");
+
     links.resolvedSymbol = sym;
     links.resolutionResult = ResolutionResultFlags.Resolved;
   }
@@ -1223,6 +1223,10 @@ export function createResolver(program: Program): NameResolver {
     }
     visitedNode.add(node);
 
+    if ("id" in node && node.kind !== SyntaxKind.MemberExpression && node.id) {
+      bindDeclarationIdentifier(node as any);
+    }
+
     switch (node.kind) {
       case SyntaxKind.TypeReference:
         resolveTypeReference(node);
@@ -1254,11 +1258,6 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.CallExpression:
         resolveTypeReference(node.target);
         break;
-        break;
-    }
-
-    if ("id" in node && node.kind !== SyntaxKind.MemberExpression && node.id) {
-      bindDeclarationIdentifier(node as any);
     }
 
     visitChildren(node, bindAndResolveNode);
