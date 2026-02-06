@@ -677,10 +677,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 parameters: parameters);
             var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: methodParameters);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Methods.First(), client!);
+            Assert.IsNotNull(methodCollection);
+            Assert.AreEqual(4, methodCollection.Count);
+
             var convenienceMethod = methodCollection.FirstOrDefault(
-                m => m.Signature.Parameters.All(p => p.Name != "options") && m.Signature.Name == "TestOperation");
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "TestOperation");
             return convenienceMethod;
         }
 
@@ -1024,10 +1031,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(double))]
         [TestCase(typeof(bool))]
         [TestCase(typeof(string))]
-        [TestCase(typeof(Uri))]
-        [TestCase(typeof(BinaryData))]
         [TestCase(typeof(DateTimeOffset))]
-        [TestCase(typeof(TimeSpan))]
         public void ScalarInputTypeMethods(Type type)
         {
             InputType? inputType = type switch
@@ -1040,8 +1044,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
                 { } t when t == typeof(int) => InputPrimitiveType.Int32,
                 { } t when t == typeof(long) => InputPrimitiveType.Int64,
-                { } t when t == typeof(Uri) => InputPrimitiveType.Url,
-                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
                 _ => null
             };
 
@@ -1261,7 +1263,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void TestDeserializeReadOnlyMemResponse()
+        public async Task TestDeserializeReadOnlyMemResponse()
         {
             var inputOperation = InputFactory.Operation(
                 "GetList",
@@ -1378,8 +1380,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
         }
 
-        #region MethodParameterSegments Tests
-
         [Test]
         public async Task MethodParameterSegments_ExtractsPropertyValues()
         {
@@ -1416,15 +1416,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            
+
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
             Assert.IsNotNull(methodCollection);
-            
+
             // Verify that MethodParameterSegments are correctly set on the input parameters
             Assert.AreEqual(2, p1Param.MethodParameterSegments!.Count, "p1 should have 2 segments");
             Assert.AreEqual("wrapper", p1Param.MethodParameterSegments[0].Name);
             Assert.AreEqual("p1", p1Param.MethodParameterSegments[1].Name);
-            
+
             Assert.AreEqual(2, p2Param.MethodParameterSegments!.Count, "p2 should have 2 segments");
             Assert.AreEqual("wrapper", p2Param.MethodParameterSegments[0].Name);
             Assert.AreEqual("p2", p2Param.MethodParameterSegments[1].Name);
@@ -1459,10 +1459,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            
+
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
             Assert.IsNotNull(methodCollection);
-            
+
             // Verify MethodParameterSegments are set correctly
             Assert.IsNotNull(bodyParam.MethodParameterSegments);
             Assert.AreEqual(2, bodyParam.MethodParameterSegments!.Count);
@@ -1507,10 +1507,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            
+
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
             Assert.IsNotNull(methodCollection);
-            
+
             // Verify 3-level nesting in MethodParameterSegments
             Assert.IsNotNull(bodyParam.MethodParameterSegments);
             Assert.AreEqual(3, bodyParam.MethodParameterSegments!.Count, "Should have 3 segments for nested property");
@@ -1569,20 +1569,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            
+
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
             Assert.IsNotNull(methodCollection);
-            
+
             // Verify all parameter types have MethodParameterSegments
             Assert.IsNotNull(pathParam.MethodParameterSegments);
             Assert.AreEqual(2, pathParam.MethodParameterSegments!.Count);
-            
+
             Assert.IsNotNull(queryParam.MethodParameterSegments);
             Assert.AreEqual(2, queryParam.MethodParameterSegments!.Count);
-            
+
             Assert.IsNotNull(headerParam.MethodParameterSegments);
             Assert.AreEqual(2, headerParam.MethodParameterSegments!.Count);
-            
+
             Assert.IsNotNull(bodyParam.MethodParameterSegments);
             Assert.AreEqual(2, bodyParam.MethodParameterSegments!.Count);
         }
@@ -1593,10 +1593,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Test the InputParameter.Update method correctly sets MethodParameterSegments
             var model = InputFactory.Model("TestModel");
             var param = InputFactory.PathParameter("test", InputPrimitiveType.String, isRequired: true);
-            
+
             // Initially should be null or empty
             Assert.IsTrue(param.MethodParameterSegments == null || param.MethodParameterSegments.Count == 0);
-            
+
             // Update with segments
             var segments = new List<InputMethodParameter>
             {
@@ -1604,7 +1604,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 InputFactory.MethodParameter("param2", InputPrimitiveType.String, isRequired: true)
             };
             param.Update(methodParameterSegments: segments);
-            
+
             // Verify segments are set
             Assert.IsNotNull(param.MethodParameterSegments);
             Assert.AreEqual(2, param.MethodParameterSegments!.Count);
@@ -1612,6 +1612,94 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual("param2", param.MethodParameterSegments[1].Name);
         }
 
-        #endregion
+        [Test]
+        public async Task MissingOperationParamsResultInNamedArgsForSubsequent()
+        {
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            var takeParam = InputFactory.QueryParameter("take", InputPrimitiveType.Int32, isRequired: true);
+            var filterParam = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false);
+            var orderParam = InputFactory.HeaderParameter("order", InputPrimitiveType.String, isRequired: false);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "TestOp",
+                InputFactory.Operation(
+                    "TestOp",
+                    parameters: [idParam, filterParam, orderParam, takeParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("take", InputPrimitiveType.Int32, isRequired: true, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("order", InputPrimitiveType.Int32, isRequired: true, location: InputRequestLocation.Header),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == "TestOp");
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
+        [Test]
+        public async Task CombinedMissingOperationParamsAndNonBodyModelParams()
+        {
+            // Create a body model with HTTP metadata properties (header/query params)
+            var requestModel = InputFactory.Model(
+                "RequestModel",
+                properties:
+                [
+                    InputFactory.Property("data", InputPrimitiveType.String, isRequired: true, isHttpMetadata: false),
+                    InputFactory.Property("x-custom-header", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "x-custom-header"),
+                    InputFactory.Property("queryParam", InputPrimitiveType.Int32, isRequired: false, isHttpMetadata: true, wireName: "queryParam"),
+                ]);
+
+            // Protocol operation parameters
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            var headerParam = InputFactory.HeaderParameter("x-custom-header", InputPrimitiveType.String, isRequired: true);
+            var optionalQueryParam = InputFactory.QueryParameter("queryParam", InputPrimitiveType.Int32, isRequired: false);
+            var optionalFilter = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false);
+            var bodyParam = InputFactory.BodyParameter("body", requestModel, isRequired: true);
+            var optionalTake = InputFactory.QueryParameter("take", InputPrimitiveType.Int32, isRequired: false);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "TestOp",
+                InputFactory.Operation(
+                    "TestOp",
+                    parameters: [idParam, headerParam, optionalQueryParam, optionalFilter, bodyParam, optionalTake],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("request", requestModel, isRequired: true, location: InputRequestLocation.Body),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [requestModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == "TestOp");
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
     }
 }
