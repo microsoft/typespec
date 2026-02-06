@@ -7,6 +7,7 @@ import {
   compileForOpenAPI3,
   renderTypeSpecForOpenAPI3,
   tspForOpenAPI3,
+  validateTsp,
 } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level parameters", () => {
@@ -577,6 +578,153 @@ describe("query", () => {
       const fooProperty = Foo.properties.get("foo");
       assert(fooProperty, "foo property not found");
       expectDecorators(fooProperty.decorators, []);
+    });
+  });
+
+  describe("x-ms-list-page-index extension", () => {
+    it("adds @pageIndex decorator when x-ms-list-page-index is true", async () => {
+      const { namespace: serviceNamespace } = await compileForOpenAPI3({
+        parameters: {
+          PageIndex: {
+            name: "idx",
+            in: "query",
+            required: true,
+            schema: {
+              type: "integer",
+              format: "int32",
+            },
+            "x-ms-list-page-index": true,
+          } as any,
+        },
+      });
+
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
+
+      const models = parametersNamespace.models;
+
+      /* model PageIndex { @query @extension("x-ms-list-page-index", true) @pageIndex idx: int32 } */
+      const PageIndex = models.get("PageIndex");
+      assert(PageIndex, "PageIndex model not found");
+      expect(PageIndex.properties.size).toBe(1);
+      const idx = PageIndex.properties.get("idx");
+      assert(idx, "idx property not found");
+      expectDecorators(
+        idx.decorators,
+        [
+          { name: "extension", args: ["x-ms-list-page-index", true] },
+          { name: "pageIndex" },
+          { name: "query" },
+        ],
+        { strict: false },
+      );
+    });
+
+    it("renders correctly in TypeSpec output", async () => {
+      const tsp = await renderTypeSpecForOpenAPI3({
+        paths: {
+          "/widgets": {
+            get: {
+              operationId: "Widgets_list",
+              parameters: [
+                {
+                  name: "idx",
+                  in: "query",
+                  required: true,
+                  schema: {
+                    type: "integer",
+                    format: "int32",
+                  },
+                  "x-ms-list-page-index": true,
+                  explode: false,
+                } as any,
+              ],
+              responses: {
+                "200": {
+                  description: "The request has succeeded.",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            id: { type: "string" },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(tsp).toContain('@extension("x-ms-list-page-index", true)');
+      expect(tsp).toContain("@pageIndex");
+      expect(tsp).toContain("idx: int32");
+      expect(tsp).toContain("@query");
+      await validateTsp(tsp);
+    });
+
+    it("does not add @pageIndex when x-ms-list-page-index is false", async () => {
+      const { namespace: serviceNamespace } = await compileForOpenAPI3({
+        parameters: {
+          NotPageIndex: {
+            name: "idx",
+            in: "query",
+            required: true,
+            schema: {
+              type: "integer",
+              format: "int32",
+            },
+            "x-ms-list-page-index": false,
+          } as any,
+        },
+      });
+
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
+
+      const NotPageIndex = parametersNamespace.models.get("NotPageIndex");
+      assert(NotPageIndex, "NotPageIndex model not found");
+      const idx = NotPageIndex.properties.get("idx");
+      assert(idx, "idx property not found");
+
+      // Should have extension decorator but not pageIndex
+      const decoratorNames = Array.from(idx.decorators).map((d) => d.definition?.name);
+      expect(decoratorNames).not.toContain("@pageIndex");
+      expect(decoratorNames).toContain("@query");
+    });
+
+    it("does not add @pageIndex when x-ms-list-page-index is missing", async () => {
+      const { namespace: serviceNamespace } = await compileForOpenAPI3({
+        parameters: {
+          NoExtension: {
+            name: "idx",
+            in: "query",
+            required: true,
+            schema: {
+              type: "integer",
+              format: "int32",
+            },
+          },
+        },
+      });
+
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
+
+      const NoExtension = parametersNamespace.models.get("NoExtension");
+      assert(NoExtension, "NoExtension model not found");
+      const idx = NoExtension.properties.get("idx");
+      assert(idx, "idx property not found");
+
+      const decoratorNames = Array.from(idx.decorators).map((d) => d.definition?.name);
+      expect(decoratorNames).not.toContain("@pageIndex");
+      expect(decoratorNames).toContain("@query");
     });
   });
 });
