@@ -1,0 +1,351 @@
+# Manual trigger for Regen Preview Pipeline
+# This pipeline regenerates libraries in azure-sdk-for-net and creates a draft PR with the changes
+trigger: none
+
+pr: none
+
+parameters:
+  - name: LibraryType
+    displayName: Library Type to Regenerate
+    type: string
+    default: All
+    values:
+      - All
+      - Unbranded
+      - Azure
+      - Mgmt
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
+  parameters:
+    stages:
+      # Build stage - Build the emitter packages
+      - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+        parameters:
+          BuildPrereleaseVersion: true
+          UseTypeSpecNext: false
+          Publish: "none"
+          PackagePath: /packages/http-client-csharp
+          EmitterPackageJsonPath: packages/http-client-csharp/package.json
+          Packages:
+            - name: typespec-http-client-csharp
+              file: typespec-http-client-csharp-*.tgz
+              type: npm
+            - name: Microsoft.TypeSpec.Generator
+              file: Microsoft.TypeSpec.Generator.*.nupkg
+              type: nuget
+            - name: Microsoft.TypeSpec.Generator.ClientModel
+              file: Microsoft.TypeSpec.Generator.ClientModel.*.nupkg
+              type: nuget
+            - name: Microsoft.TypeSpec.Generator.Input
+              file: Microsoft.TypeSpec.Generator.Input.*.nupkg
+              type: nuget
+            - name: Microsoft.TypeSpec.Generator.Customization
+              file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
+              type: nuget
+          UnitTestArgs: -UnitTests
+          StagePrefix: "CSharp"
+          LanguageShortName: "csharp"
+          HasNugetPackages: true
+          CadlRanchName: "@typespec/http-client-csharp"
+          AdditionalInitializeSteps:
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 8"
+                performMultiLevelLookup: true
+                useGlobalJson: false
+                version: 8.x
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 9"
+                performMultiLevelLookup: true
+                useGlobalJson: false
+                version: 9.x
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 10"
+                performMultiLevelLookup: true
+                useGlobalJson: true
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+      # Regen Preview stage - Run RegenPreview.ps1 and create PR
+      - stage: RegenPreview
+        displayName: Regenerate Libraries and Create PR
+        dependsOn:
+          - CSharp_Build
+        condition: succeeded()
+        variables:
+          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: RunRegenPreview
+            displayName: Run Regeneration Preview
+            steps:
+              - checkout: self
+
+              - task: UseNode@1
+                displayName: "Install Node.js"
+                inputs:
+                  version: "22.x"
+
+              - task: NuGetAuthenticate@1
+
+              - download: current
+                displayName: Download pipeline artifacts
+
+              - pwsh: |
+                  npm install -g @azure-tools/typespec-client-generator-cli@latest
+                displayName: Install tsp-client
+
+              - task: PowerShell@2
+                displayName: Update package.json with injected dependencies
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson.ps1
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+
+              - task: UseDotNet@2
+                inputs:
+                  useGlobalJson: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+              # Clone azure-sdk-for-net repository
+              - pwsh: |
+                  $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "azure-sdk-for-net-regen-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                  New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+                  Write-Host "Created temp directory: $tempDir"
+                  Write-Host "##vso[task.setvariable variable=AzureSdkRepoPath]$tempDir"
+
+                  # Clone azure-sdk-for-net with sparse checkout
+                  Write-Host "Cloning azure-sdk-for-net repository with sparse checkout..."
+                  git init $tempDir
+                  if ($LASTEXITCODE -ne 0) { throw "Failed to initialize repository" }
+
+                  Push-Location $tempDir
+                  try {
+                    git remote add origin "https://github.com/Azure/azure-sdk-for-net.git"
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to add remote" }
+
+                    git sparse-checkout init --cone
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to initialize sparse checkout" }
+
+                    git sparse-checkout set eng/packages/http-client-csharp eng sdk
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to set sparse checkout patterns" }
+
+                    git fetch --depth 1 origin main
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to fetch from origin" }
+
+                    git checkout main
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to checkout main branch" }
+
+                    Write-Host "Successfully cloned azure-sdk-for-net"
+                  }
+                  finally {
+                    Pop-Location
+                  }
+                displayName: Clone azure-sdk-for-net repository
+
+              # Run RegenPreview.ps1
+              - task: PowerShell@2
+                displayName: Run RegenPreview.ps1
+                continueOnError: true
+                inputs:
+                  pwsh: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+                  targetType: inline
+                  script: |
+                    $ErrorActionPreference = 'Continue'
+
+                    # Determine script arguments based on LibraryType parameter
+                    $scriptArgs = @(
+                      '-SdkLibraryRepoPath', '$(AzureSdkRepoPath)'
+                    )
+
+                    $libraryType = '${{ parameters.LibraryType }}'
+                    if ($libraryType -ne 'All') {
+                      $scriptArgs += "-$libraryType"
+                    }
+
+                    Write-Host "Running RegenPreview.ps1 with arguments: $($scriptArgs -join ' ')"
+
+                    try {
+                      & $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/RegenPreview.ps1 @scriptArgs
+                      $exitCode = $LASTEXITCODE
+                      Write-Host "RegenPreview.ps1 completed with exit code: $exitCode"
+                      Write-Host "##vso[task.setvariable variable=RegenExitCode]$exitCode"
+
+                      if ($exitCode -eq 0) {
+                        Write-Host "##vso[task.setvariable variable=RegenSuccess]true"
+                      } else {
+                        Write-Host "##vso[task.setvariable variable=RegenSuccess]false"
+                      }
+                    }
+                    catch {
+                      Write-Host "Error running RegenPreview.ps1: $_"
+                      Write-Host "##vso[task.setvariable variable=RegenSuccess]false"
+                      Write-Host "##vso[task.setvariable variable=RegenExitCode]1"
+                    }
+
+              # Upload regen-report.json as artifact
+              - task: PublishPipelineArtifact@1
+                displayName: Upload regen-report.json
+                condition: always()
+                inputs:
+                  targetPath: '$(Build.SourcesDirectory)/packages/http-client-csharp/regen-report.json'
+                  artifactName: 'regen-report'
+                  publishLocation: 'pipeline'
+
+              # Create PR in azure-sdk-for-net
+              - task: PowerShell@2
+                displayName: Create PR in azure-sdk-for-net
+                condition: always()
+                inputs:
+                  pwsh: true
+                  targetType: inline
+                  script: |
+                    $ErrorActionPreference = 'Stop'
+
+                    # Import the Generation module
+                    Import-Module $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Generation.psm1 -DisableNameChecking -Force
+
+                    # Set up variables
+                    $repoOwner = "Azure"
+                    $repoName = "azure-sdk-for-net"
+                    $baseBranch = "main"
+                    $packageVersion = '$(PackageVersion)'
+                    $branchName = "regen-preview/http-client-csharp-$packageVersion-$(Build.BuildId)"
+                    $authToken = '$(azuresdk-github-pat)'
+                    $azureSdkPath = '$(AzureSdkRepoPath)'
+
+                    # Determine PR title based on success/failure
+                    $regenSuccess = '$(RegenSuccess)' -eq 'true'
+                    $titleSuffix = if ($regenSuccess) { "" } else { " (Failed)" }
+                    $prTitle = "Regen Preview: Update azure-typespec/http-client-csharp version to prerelease $packageVersion$titleSuffix"
+
+                    # Get TypeSpec commit info
+                    $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
+                    $commitSha = '$(Build.SourceVersion)'
+                    $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
+
+                    # Create PR body
+                    $libraryType = '${{ parameters.LibraryType }}'
+                    $prBody = @"
+                    This is an automated preview PR to show the impact of regenerating libraries with the prerelease version $packageVersion of @typespec/http-client-csharp.
+
+                    **⚠️ DO NOT MERGE THIS PR ⚠️**
+
+                    ## Details
+
+                    - TypeSpec commit: $typeSpecCommitUrl
+                    - Library type regenerated: $libraryType
+                    - Regeneration status: $(if ($regenSuccess) { '✅ Success' } else { '❌ Failed' })
+                    - Build: $(Build.BuildUri)
+
+                    ## Purpose
+
+                    This PR is for reviewing the code generation changes only. Review the diff to understand the impact of the TypeSpec changes.
+
+                    ## Artifacts
+
+                    The regen-report.json file with detailed regeneration results is available in the pipeline artifacts.
+                    "@
+
+                    Write-Host "Creating draft PR in $repoOwner/$repoName"
+                    Write-Host "Branch: $branchName"
+                    Write-Host "Title: $prTitle"
+
+                    Push-Location $azureSdkPath
+                    try {
+                      # Configure git
+                      git config user.name "azure-sdk"
+                      git config user.email "azuresdk@microsoft.com"
+
+                      # Create and checkout new branch
+                      git checkout -b $branchName
+                      if ($LASTEXITCODE -ne 0) { throw "Failed to create branch" }
+
+                      # Stage all changes
+                      git add -A
+                      if ($LASTEXITCODE -ne 0) { throw "Failed to stage changes" }
+
+                      # Check if there are changes to commit
+                      $status = git status --porcelain
+                      if (-not $status) {
+                        Write-Host "No changes to commit, skipping PR creation"
+                        exit 0
+                      }
+
+                      # Commit changes
+                      git commit -m "$prTitle"
+                      if ($LASTEXITCODE -ne 0) { throw "Failed to commit changes" }
+
+                      # Push branch with authentication
+                      $pushUrl = "https://x-access-token:$authToken@github.com/$repoOwner/$repoName.git"
+                      git push $pushUrl $branchName
+                      if ($LASTEXITCODE -ne 0) { throw "Failed to push branch" }
+
+                      Write-Host "Successfully pushed branch $branchName"
+
+                      # Create PR using GitHub API
+                      $prData = @{
+                        title = $prTitle
+                        head = $branchName
+                        base = $baseBranch
+                        body = $prBody
+                        draft = $true
+                      } | ConvertTo-Json
+
+                      $headers = @{
+                        Authorization = "token $authToken"
+                        Accept = "application/vnd.github.v3+json"
+                      }
+
+                      $prUrl = "https://api.github.com/repos/$repoOwner/$repoName/pulls"
+                      Write-Host "Creating PR at: $prUrl"
+
+                      $response = Invoke-RestMethod -Uri $prUrl -Method Post -Headers $headers -Body $prData -ContentType "application/json"
+                      $prNumber = $response.number
+                      $prHtmlUrl = $response.html_url
+
+                      Write-Host "Created draft PR #$prNumber: $prHtmlUrl"
+
+                      # Add "Do Not Merge" label
+                      $labelUrl = "https://api.github.com/repos/$repoOwner/$repoName/issues/$prNumber/labels"
+                      $labelData = @{
+                        labels = @("do-not-merge")
+                      } | ConvertTo-Json
+
+                      try {
+                        Invoke-RestMethod -Uri $labelUrl -Method Post -Headers $headers -Body $labelData -ContentType "application/json"
+                        Write-Host "Added 'do-not-merge' label to PR"
+                      }
+                      catch {
+                        Write-Host "Warning: Failed to add label (label may not exist): $_"
+                      }
+
+                      Write-Host "##vso[task.setvariable variable=CreatedPRUrl]$prHtmlUrl"
+                      Write-Host "Preview PR created successfully: $prHtmlUrl"
+                    }
+                    finally {
+                      Pop-Location
+                    }
+
+              # Display PR link
+              - pwsh: |
+                  $prUrl = '$(CreatedPRUrl)'
+                  if ($prUrl) {
+                    Write-Host "========================================" -ForegroundColor Cyan
+                    Write-Host "Preview PR Created: $prUrl" -ForegroundColor Green
+                    Write-Host "========================================" -ForegroundColor Cyan
+                  }
+                displayName: Display PR URL
+                condition: always()
