@@ -168,6 +168,12 @@ export function getDecoratorsForSchema(
 
   decorators.push(...getExtensions(schema));
 
+  // Handle x-ms-list-last-link extension with @lastLink decorator
+  const xmsListLastLink = (schema as any)["x-ms-list-last-link"];
+  if (xmsListLastLink === true) {
+    decorators.push({ name: "lastLink", args: [] });
+  }
+
   // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
   // Extract the non-null type to determine which decorators to apply
   const effectiveType = Array.isArray(schema.type)
