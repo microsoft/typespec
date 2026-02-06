@@ -204,148 +204,26 @@ extends:
                   artifactName: 'regen-report'
                   publishLocation: 'pipeline'
 
+              # Set TypeSpec commit URL variable
+              - pwsh: |
+                  $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
+                  $commitSha = '$(Build.SourceVersion)'
+                  $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
+                  Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
+                displayName: Set TypeSpec commit URL
+
               # Create PR in azure-sdk-for-net
               - task: PowerShell@2
                 displayName: Create PR in azure-sdk-for-net
                 condition: always()
                 inputs:
                   pwsh: true
-                  targetType: inline
-                  script: |
-                    $ErrorActionPreference = 'Stop'
-
-                    # Import the Generation module
-                    Import-Module $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Generation.psm1 -DisableNameChecking -Force
-
-                    # Set up variables
-                    $repoOwner = "Azure"
-                    $repoName = "azure-sdk-for-net"
-                    $baseBranch = "main"
-                    $packageVersion = '$(PackageVersion)'
-                    $branchName = "regen-preview/http-client-csharp-$packageVersion-$(Build.BuildId)"
-                    $authToken = '$(azuresdk-github-pat)'
-                    $azureSdkPath = '$(AzureSdkRepoPath)'
-
-                    # Determine PR title based on success/failure
-                    $regenSuccess = '$(RegenSuccess)' -eq 'true'
-                    $titleSuffix = if ($regenSuccess) { "" } else { " (Failed)" }
-                    $prTitle = "Regen Preview: Update azure-typespec/http-client-csharp version to prerelease $packageVersion$titleSuffix"
-
-                    # Get TypeSpec commit info
-                    $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
-                    $commitSha = '$(Build.SourceVersion)'
-                    $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
-
-                    # Create PR body
-                    $libraryType = '${{ parameters.LibraryType }}'
-                    $prBody = @"
-                    This is an automated preview PR to show the impact of regenerating libraries with the prerelease version $packageVersion of @typespec/http-client-csharp.
-
-                    **⚠️ DO NOT MERGE THIS PR ⚠️**
-
-                    ## Details
-
-                    - TypeSpec commit: $typeSpecCommitUrl
-                    - Library type regenerated: $libraryType
-                    - Regeneration status: $(if ($regenSuccess) { '✅ Success' } else { '❌ Failed' })
-                    - Build: $(Build.BuildUri)
-
-                    ## Purpose
-
-                    This PR is for reviewing the code generation changes only. Review the diff to understand the impact of the TypeSpec changes.
-
-                    ## Artifacts
-
-                    The regen-report.json file with detailed regeneration results is available in the pipeline artifacts.
-                    "@
-
-                    Write-Host "Creating draft PR in $repoOwner/$repoName"
-                    Write-Host "Branch: $branchName"
-                    Write-Host "Title: $prTitle"
-
-                    Push-Location $azureSdkPath
-                    try {
-                      # Configure git
-                      git config user.name "azure-sdk"
-                      git config user.email "azuresdk@microsoft.com"
-
-                      # Create and checkout new branch
-                      git checkout -b $branchName
-                      if ($LASTEXITCODE -ne 0) { throw "Failed to create branch" }
-
-                      # Stage all changes
-                      git add -A
-                      if ($LASTEXITCODE -ne 0) { throw "Failed to stage changes" }
-
-                      # Check if there are changes to commit
-                      $status = git status --porcelain
-                      if (-not $status) {
-                        Write-Host "No changes to commit, skipping PR creation"
-                        exit 0
-                      }
-
-                      # Commit changes
-                      git commit -m "$prTitle"
-                      if ($LASTEXITCODE -ne 0) { throw "Failed to commit changes" }
-
-                      # Push branch with authentication
-                      $pushUrl = "https://x-access-token:$authToken@github.com/$repoOwner/$repoName.git"
-                      git push $pushUrl $branchName
-                      if ($LASTEXITCODE -ne 0) { throw "Failed to push branch" }
-
-                      Write-Host "Successfully pushed branch $branchName"
-
-                      # Create PR using GitHub API
-                      $prData = @{
-                        title = $prTitle
-                        head = $branchName
-                        base = $baseBranch
-                        body = $prBody
-                        draft = $true
-                      } | ConvertTo-Json
-
-                      $headers = @{
-                        Authorization = "token $authToken"
-                        Accept = "application/vnd.github.v3+json"
-                      }
-
-                      $prUrl = "https://api.github.com/repos/$repoOwner/$repoName/pulls"
-                      Write-Host "Creating PR at: $prUrl"
-
-                      $response = Invoke-RestMethod -Uri $prUrl -Method Post -Headers $headers -Body $prData -ContentType "application/json"
-                      $prNumber = $response.number
-                      $prHtmlUrl = $response.html_url
-
-                      Write-Host "Created draft PR #$prNumber: $prHtmlUrl"
-
-                      # Add "Do Not Merge" label
-                      $labelUrl = "https://api.github.com/repos/$repoOwner/$repoName/issues/$prNumber/labels"
-                      $labelData = @{
-                        labels = @("Do Not Merge")
-                      } | ConvertTo-Json
-
-                      try {
-                        Invoke-RestMethod -Uri $labelUrl -Method Post -Headers $headers -Body $labelData -ContentType "application/json"
-                        Write-Host "Added 'Do Not Merge' label to PR"
-                      }
-                      catch {
-                        Write-Host "Warning: Failed to add label (label may not exist): $_"
-                      }
-
-                      Write-Host "##vso[task.setvariable variable=CreatedPRUrl]$prHtmlUrl"
-                      Write-Host "Preview PR created successfully: $prHtmlUrl"
-                    }
-                    finally {
-                      Pop-Location
-                    }
-
-              # Display PR link
-              - pwsh: |
-                  $prUrl = '$(CreatedPRUrl)'
-                  if ($prUrl) {
-                    Write-Host "========================================" -ForegroundColor Cyan
-                    Write-Host "Preview PR Created: $prUrl" -ForegroundColor Green
-                    Write-Host "========================================" -ForegroundColor Cyan
-                  }
-                displayName: Display PR URL
-                condition: always()
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-RegenPreviewPr.ps1
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
+                    -AuthToken '$(azuresdk-github-pat)'
+                    -AzureSdkRepoPath '$(AzureSdkRepoPath)'
+                    -RegenSuccess $${{ eq(variables['RegenSuccess'], 'true') }}
+                    -BranchName 'regen-preview/http-client-csharp-$(PackageVersion)-$(Build.BuildId)'
+                    -BuildUri '$(Build.BuildUri)'
