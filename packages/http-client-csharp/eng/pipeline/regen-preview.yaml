@@ -178,6 +178,48 @@ extends:
                       Write-Host "##vso[task.setvariable variable=RegenExitCode]1"
                     }
 
+              # Display failed libraries from regen-report.json
+              - pwsh: |
+                  $reportPath = '$(Build.SourcesDirectory)/packages/http-client-csharp/regen-report.json'
+                  if (Test-Path $reportPath) {
+                    Write-Host "Reading regeneration report..." -ForegroundColor Cyan
+                    $report = Get-Content $reportPath -Raw | ConvertFrom-Json
+                    $failedLibraries = @($report | Where-Object { $_.Success -eq $false })
+                    
+                    if ($failedLibraries.Count -gt 0) {
+                      Write-Host ""
+                      Write-Host "==================== FAILED LIBRARIES ====================" -ForegroundColor Red
+                      Write-Host "Total Failed: $($failedLibraries.Count)" -ForegroundColor Red
+                      Write-Host ""
+                      
+                      foreach ($lib in $failedLibraries) {
+                        Write-Host "Library: $($lib.Library)" -ForegroundColor Yellow
+                        Write-Host "  Service: $($lib.Service)" -ForegroundColor Gray
+                        Write-Host "  Path: $($lib.Path)" -ForegroundColor Gray
+                        if ($lib.Generator) {
+                          Write-Host "  Generator: $($lib.Generator)" -ForegroundColor Gray
+                        }
+                        Write-Host "  Error: $($lib.Error)" -ForegroundColor Red
+                        if ($lib.Output) {
+                          $outputPreview = $lib.Output.Substring(0, [Math]::Min(500, $lib.Output.Length))
+                          Write-Host "  Output Preview:" -ForegroundColor Gray
+                          Write-Host "    $outputPreview" -ForegroundColor DarkGray
+                          if ($lib.Output.Length -gt 500) {
+                            Write-Host "    ... (truncated, see full output in regen-report.json artifact)" -ForegroundColor DarkGray
+                          }
+                        }
+                        Write-Host ""
+                      }
+                      Write-Host "=========================================================" -ForegroundColor Red
+                    } else {
+                      Write-Host "All libraries regenerated successfully!" -ForegroundColor Green
+                    }
+                  } else {
+                    Write-Host "Regeneration report not found at: $reportPath" -ForegroundColor Yellow
+                  }
+                displayName: Display failed libraries
+                condition: always()
+
               # Upload regen-report.json as artifact
               - task: PublishPipelineArtifact@1
                 displayName: Upload regen-report.json
