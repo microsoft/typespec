@@ -49,8 +49,14 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/client-generator-core/api-version": {
     namespace: "specs.azure.clientgenerator.core.apiversion",
   },
-  "azure/client-generator-core/client-initialization": {
-    namespace: "specs.azure.clientgenerator.core.clientinitialization",
+  "azure/client-generator-core/client-initialization/default": {
+    namespace: "specs.azure.clientgenerator.core.clientinitialization.default",
+  },
+  "azure/client-generator-core/client-initialization/individually": {
+    namespace: "specs.azure.clientgenerator.core.clientinitialization.individually",
+  },
+  "azure/client-generator-core/client-initialization/individuallyParent": {
+    namespace: "specs.azure.clientgenerator.core.clientinitialization.individuallyparent",
   },
   "azure/client-generator-core/client-location": {
     namespace: "specs.azure.clientgenerator.core.clientlocation",
