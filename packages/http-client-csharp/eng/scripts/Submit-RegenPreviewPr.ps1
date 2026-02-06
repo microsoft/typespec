@@ -97,10 +97,6 @@ Write-Host "Title: $PRTitle"
 
 Push-Location $AzureSdkRepoPath
 try {
-    # Configure git
-    git config user.name "azure-sdk"
-    git config user.email "azuresdk@microsoft.com"
-
     # Create and checkout new branch
     git checkout -b $PRBranch
     if ($LASTEXITCODE -ne 0) {
