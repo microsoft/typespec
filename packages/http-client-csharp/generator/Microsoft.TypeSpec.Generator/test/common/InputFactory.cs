@@ -66,6 +66,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             }
         }
 
+        public static class Serialization
+        {
+            public static InputSerializationOptions Options(
+                InputJsonSerializationOptions? json = null,
+                InputXmlSerializationOptions? xml = null)
+            {
+                return new InputSerializationOptions(json, xml);
+            }
+
+            public static InputJsonSerializationOptions Json(string name)
+            {
+                return new InputJsonSerializationOptions(name);
+            }
+
+            public static InputXmlSerializationOptions Xml(
+                string name,
+                bool? attribute = null,
+                InputXmlNamespaceOptions? @namespace = null,
+                bool? unwrapped = null,
+                string? itemsName = null,
+                InputXmlNamespaceOptions? itemsNamespace = null)
+            {
+                return new InputXmlSerializationOptions(name, attribute, @namespace, unwrapped, itemsName, itemsNamespace);
+            }
+
+            public static InputXmlNamespaceOptions XmlNamespace(string ns, string prefix)
+            {
+                return new InputXmlNamespaceOptions(ns, prefix);
+            }
+        }
+
         public static InputHeaderParameter ContentTypeParameter(string contentType)
             => HeaderParameter(
                 "contentType",
@@ -247,12 +278,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? summary = null,
             string? serializedName = null,
             string? doc = null,
-            InputXmlSerializationOptions? xmlSerializationOptions = null)
+            InputSerializationOptions? serializationOptions = null)
         {
-            var serializationOptions = new InputSerializationOptions(
-                json: new(wireName ?? name.ToVariableName()),
-                xml: xmlSerializationOptions);
-
+            serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
                 name: name,
                 summary: summary,
