@@ -10,13 +10,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
     {
         public ScmSerializationOptions(InputSerializationOptions inputSerializationOptions) : base()
         {
+            Json = inputSerializationOptions.Json != null
+                ? new(inputSerializationOptions.Json)
+                : null;
             Xml = inputSerializationOptions.Xml != null
                 ? new(inputSerializationOptions.Xml)
                 : null;
         }
 
-        public XmlSerialization? Xml { get; }
+        public JsonSerialization? Json { get; }
 
-        // TO-DO: Add remaining SCM serialization options https://github.com/microsoft/typespec/issues/5861.
+        public XmlSerialization? Xml { get; }
     }
 }
