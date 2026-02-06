@@ -51,6 +51,15 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIPar
     decorators.push(...getDecoratorsForSchema(parameter.schema));
   }
 
+  // Add @pageSize decorator if x-ms-list-page-size extension is true
+  const xmsListPageSize = (parameter as any)["x-ms-list-page-size"];
+  if (xmsListPageSize === true) {
+    decorators.push({
+      name: "pageSize",
+      args: [],
+    });
+  }
+
   const locationDecorator = getLocationDecorator(parameter);
   if (locationDecorator) decorators.push(locationDecorator);
 
