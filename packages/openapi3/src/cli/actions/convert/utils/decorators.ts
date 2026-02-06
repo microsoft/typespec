@@ -51,6 +51,15 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIPar
     decorators.push(...getDecoratorsForSchema(parameter.schema));
   }
 
+  // Handle x-ms-list-continuation-token extension on parameter itself
+  const xmsListContinuationToken = (parameter as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
+
   const locationDecorator = getLocationDecorator(parameter);
   if (locationDecorator) decorators.push(locationDecorator);
 
