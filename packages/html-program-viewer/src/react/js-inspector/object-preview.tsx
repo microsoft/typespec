@@ -4,7 +4,7 @@ import { JsValue } from "./js-value/js-value.js";
 import { ObjectName } from "./object-name.js";
 
 import style from "./object-inspector.module.css";
-import { hasOwnProperty, propertyIsEnumerable } from "./utils/object-prototype.js";
+import { propertyIsEnumerable } from "./utils/object-prototype.js";
 import { getPropertyValue } from "./utils/property-utils.js";
 
 /* intersperse arr with separator */
@@ -54,22 +54,19 @@ export const ObjectPreview: FC<any> = ({ data }) => {
   } else {
     const maxProperties = OBJECT_MAX_PROPERTIES;
     const propertyNodes: ReactNode[] = [];
-    
+
     // Get all property keys (both string and Symbol), filtering for enumerable ones
     const stringKeys = Object.keys(object); // Object.keys only returns enumerable string properties
-    const symbolKeys = Object.getOwnPropertySymbols(object).filter(sym => 
-      propertyIsEnumerable.call(object, sym)
+    const symbolKeys = Object.getOwnPropertySymbols(object).filter((sym) =>
+      propertyIsEnumerable.call(object, sym),
     );
     const allKeys: (string | symbol)[] = [...stringKeys, ...symbolKeys];
     const totalProperties = allKeys.length;
-    
+
     for (let i = 0; i < allKeys.length; i++) {
       const key = allKeys[i];
       let ellipsis;
-      if (
-        propertyNodes.length === maxProperties - 1 &&
-        totalProperties > maxProperties
-      ) {
+      if (propertyNodes.length === maxProperties - 1 && totalProperties > maxProperties) {
         ellipsis = <span key={"ellipsis"}>…</span>;
       }
 
