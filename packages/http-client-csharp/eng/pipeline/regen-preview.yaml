@@ -96,23 +96,6 @@ extends:
 
               - task: NuGetAuthenticate@1
 
-              - download: current
-                displayName: Download pipeline artifacts
-
-              - pwsh: |
-                  npm install -g @azure-tools/typespec-client-generator-cli@latest
-                displayName: Install tsp-client
-
-              - task: PowerShell@2
-                displayName: Update package.json with injected dependencies
-                inputs:
-                  pwsh: true
-                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson.ps1
-                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
-                  arguments: >
-                    -PackageVersion '$(PackageVersion)'
-                    -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
-
               - task: UseDotNet@2
                 inputs:
                   useGlobalJson: true
