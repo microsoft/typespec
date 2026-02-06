@@ -30,7 +30,7 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 ### Code Quality
 
 - Check formatting: `pnpm format:check` (~1 minute)
-- Format code: `pnpm format`
+- Format code: Run this command exactly `pnpm format`. Do NOT try to format yourself.
 - Run linting: `pnpm lint` (~1 minute)
 - Fix lint issues: `pnpm lint:fix`
 
@@ -102,7 +102,7 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 
 ## Common Development Tasks
 
-- Add change description: `pnpm change add`
+- Add change description: `pnpm change add`. The content is markdown escape decorators in inline code block so they won't tag a user of that name
 - Generate external signatures: `pnpm gen-compiler-extern-signature`
 - Regenerate samples: `pnpm regen-samples`
 - Regenerate docs: `pnpm regen-docs`
