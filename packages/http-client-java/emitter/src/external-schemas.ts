@@ -250,17 +250,21 @@ function addFilenameProperty(
   filenameProperty?: SdkModelPropertyType,
   processSchemaFunc?: (type: SdkType) => Schema,
 ) {
+  const isRequired = filenameProperty ? !filenameProperty.optional : false;
+  const isConstant = filenameProperty?.type.kind === "constant" && isRequired;
+  // if the type is constant, but not required, treat is as non-constant but its value as the default
+  const clientDefaultValue =
+    filenameProperty?.type.kind === "constant" ? String(filenameProperty.type.value) : undefined;
   fileDetailsSchema.addProperty(
     new Property(
       "filename",
       "The filename of the file.",
-      filenameProperty?.type.kind === "constant" && processSchemaFunc
-        ? processSchemaFunc(filenameProperty.type)
-        : stringSchema,
+      isConstant && processSchemaFunc ? processSchemaFunc(filenameProperty.type) : stringSchema,
       {
-        required: filenameProperty ? !filenameProperty.optional : false,
+        required: isRequired,
         nullable: false,
         readOnly: false,
+        clientDefaultValue: clientDefaultValue,
       },
     ),
   );
@@ -272,19 +276,24 @@ function addContentTypeProperty(
   contentTypeProperty?: SdkModelPropertyType,
   processSchemaFunc?: (type: SdkType) => Schema,
 ) {
+  const isRequired = contentTypeProperty ? !contentTypeProperty.optional : false;
+  const isConstant = contentTypeProperty?.type.kind === "constant" && isRequired;
+  // if the type is constant, but not required, treat is as non-constant but its value as the default
+  // TypeSpec 'TypeSpec.Http.File<"image/png">' is such case
+  const clientDefaultValue =
+    contentTypeProperty?.type.kind === "constant"
+      ? String(contentTypeProperty.type.value)
+      : "application/octet-stream";
   fileDetailsSchema.addProperty(
     new Property(
       "contentType",
       "The content-type of the file.",
-      contentTypeProperty?.type.kind === "constant" && processSchemaFunc
-        ? processSchemaFunc(contentTypeProperty.type)
-        : stringSchema,
+      isConstant && processSchemaFunc ? processSchemaFunc(contentTypeProperty.type) : stringSchema,
       {
-        required: contentTypeProperty ? !contentTypeProperty.optional : false,
+        required: isRequired,
         nullable: false,
         readOnly: false,
-        clientDefaultValue:
-          contentTypeProperty?.type.kind === "constant" ? undefined : "application/octet-stream",
+        clientDefaultValue: clientDefaultValue,
       },
     ),
   );
