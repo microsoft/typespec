@@ -443,14 +443,18 @@ describe("compiler: interfaces", () => {
     });
 
     it("instantiating an templated interface doesn't finish template operation inside", async () => {
-      const $track = vi.fn();
-      testHost.addJsFile("dec.js", { $track });
+      const _track = vi.fn();
+      testHost.addJsFile("dec.js", {
+        $track() {
+          _track();
+        },
+      });
       testHost.addTypeSpecFile(
         "main.tsp",
         `
         import "./dec.js";
          
-         interface Base<A> {
+        interface Base<A> {
           @track bar<B>(input: A): B;
         }
 
@@ -458,7 +462,7 @@ describe("compiler: interfaces", () => {
         `,
       );
       await testHost.compile("./");
-      expect($track).not.toHaveBeenCalled();
+      expect(_track).not.toHaveBeenCalled();
     });
 
     it("templated interface extending another templated interface doesn't run decorator on extended interface operations", async () => {
