@@ -223,6 +223,13 @@ export function getDecoratorsForSchema(
 
   decorators.push(...getExtensions(schema));
 
+  // Handle x-ms-list-page-items extension with @pageItems decorator
+  // This must be after getExtensions to ensure both decorators are present
+  const xmsListPageItems = (schema as any)["x-ms-list-page-items"];
+  if (xmsListPageItems === true) {
+    decorators.push({ name: "pageItems", args: [] });
+  }
+
   // Handle x-ms-list-continuation-token extension by adding @continuationToken decorator
   const xmsListContinuationToken = (schema as any)["x-ms-list-continuation-token"];
   if (xmsListContinuationToken === true) {
