@@ -168,6 +168,12 @@ export function getDecoratorsForSchema(
 
   decorators.push(...getExtensions(schema));
 
+  // Handle x-ms-list-first-link extension - add @firstLink decorator when value is true
+  const xmsListFirstLink = (schema as any)["x-ms-list-first-link"];
+  if (xmsListFirstLink === true) {
+    decorators.push({ name: "firstLink", args: [] });
+  }
+
   // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
   // Extract the non-null type to determine which decorators to apply
   const effectiveType = Array.isArray(schema.type)
