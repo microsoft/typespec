@@ -11,6 +11,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
+using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -595,10 +596,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool onlyContainsUnknownDerivedModel,
             ScopedApi<JsonElement> jsonElementParameterSnippet)
         {
-            if (!onlyContainsUnknownDerivedModel && discriminatorProperty?.WireInfo?.SerializedName != null)
+            if (!onlyContainsUnknownDerivedModel && discriminatorProperty?.WireInfo != null)
             {
                 return new IfStatement(jsonElementParameterSnippet.TryGetProperty(
-                    discriminatorProperty.WireInfo.SerializedName,
+                    GetJsonSerializedName(discriminatorProperty.WireInfo),
                     out var discriminator))
                 {
                     new SwitchStatement(discriminator.GetString(), abstractSwitchCases)
@@ -1001,7 +1002,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         continue;
                     }
-                    var propertySerializationName = wireInfo.SerializedName;
+                    var propertySerializationName = GetJsonSerializedName(wireInfo);
                     var propertyName = parameter.Property?.Name ?? parameter.Field?.Name;
                     var propertyType = parameter.Property?.Type ?? parameter.Field?.Type;
                     var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
@@ -1647,6 +1648,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             continue;
                         }
+
                         propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat));
                     }
 
@@ -1656,6 +1658,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             continue;
                         }
+
                         propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
                     }
 
@@ -1695,7 +1698,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MemberExpression propertyExpression,
             SerializationFormat? serializationFormat)
         {
-            var propertySerializationName = wireInfo.SerializedName;
+            var propertySerializationName = GetJsonSerializedName(wireInfo);
             var propertySerializationFormat = wireInfo.SerializationFormat;
             var propertyIsReadOnly = wireInfo.IsReadOnly;
             var propertyIsRequired = wireInfo.IsRequired;
@@ -1750,7 +1753,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var wrapInIsDefinedStatement = WrapInIsDefined(
                 propertyExpression,
                 propertyType,
-                wireInfo,
+                propertySerializationName,
                 propertyIsRequired,
                 propertyIsReadOnly,
                 propertyIsNullable,
@@ -1762,7 +1765,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement WrapInIsDefined(
             MemberExpression propertyExpression,
             CSharpType propertyType,
-            PropertyWireInformation wireInfo,
+            string jsonSerializedName,
             bool propertyIsRequired,
             bool propertyIsReadOnly,
             bool propertyIsNullable,
@@ -1770,7 +1773,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             ScopedApi<bool>? patchCheck = _jsonPatchProperty != null
-                ? Not(_jsonPatchProperty.As<JsonPatch>().Contains(LiteralU8($"$.{wireInfo.SerializedName}")))
+                ? Not(_jsonPatchProperty.As<JsonPatch>().Contains(LiteralU8($"$.{jsonSerializedName}")))
                 : null;
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
@@ -1783,7 +1786,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return writePropertySerializationStatement;
 
                 return (propertyType.IsList || propertyType.IsArray)
-                    ? CreateConditionalPatchSerializationStatement(wireInfo.SerializedName, null, writePropertySerializationStatement, writePropertySerializationStatement)
+                    ? CreateConditionalPatchSerializationStatement(jsonSerializedName, null, writePropertySerializationStatement, writePropertySerializationStatement)
                     : new IfStatement(patchCheck) { writePropertySerializationStatement };
             }
 
@@ -1794,7 +1797,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsReadOnly,
                 propertyIsNullable,
                 propertyIsRequired,
-                wireInfo.SerializedName,
+                jsonSerializedName,
                 patchCheck,
                 writePropertySerializationStatement);
         }
@@ -2502,6 +2505,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
+        }
+
+        private static string GetJsonSerializedName(PropertyWireInformation wireInfo)
+        {
+            return (wireInfo.SerializationOptions as ScmSerializationOptions)?.Json?.Name ?? wireInfo.SerializedName;
         }
 
         internal static ValueExpression GetDeserializationMethodInvocationForType(
