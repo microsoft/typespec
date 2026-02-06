@@ -168,6 +168,13 @@ export function getDecoratorsForSchema(
 
   decorators.push(...getExtensions(schema));
 
+  // Handle x-ms-list-page-items extension with @pageItems decorator
+  // This must be after getExtensions to ensure both decorators are present
+  const xmsListPageItems = (schema as any)["x-ms-list-page-items"];
+  if (xmsListPageItems === true) {
+    decorators.push({ name: "pageItems", args: [] });
+  }
+
   // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
   // Extract the non-null type to determine which decorators to apply
   const effectiveType = Array.isArray(schema.type)
