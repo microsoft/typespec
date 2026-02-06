@@ -48,7 +48,7 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIPar
 
   decorators.push(...getExtensions(parameter));
 
-  // Add @pageIndex decorator if x-ms-list-offset extension is true
+  // Add @offset decorator if x-ms-list-offset extension is true
   const xMsListOffset = (parameter as any)["x-ms-list-offset"];
   if (xMsListOffset === true) {
     decorators.push({ name: "offset", args: [] });
