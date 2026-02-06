@@ -20,6 +20,14 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
 
   for (const key of Object.keys(element)) {
     if (isExtensionKey(key)) {
+      // Handle x-ms-list extension specially
+      if (key === "x-ms-list" && element[key] === true) {
+        decorators.push({
+          name: "list",
+          args: [],
+        });
+      }
+
       decorators.push({
         name: extensionDecoratorName,
         args: [key, normalizeObjectValue(element[key])],
