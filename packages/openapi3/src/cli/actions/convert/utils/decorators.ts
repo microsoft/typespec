@@ -91,6 +91,15 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIPar
     decorators.push(...getDecoratorsForSchema(parameter.schema));
   }
 
+  // Handle x-ms-list-continuation-token extension on parameter itself
+  const xmsListContinuationToken = (parameter as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
+
   // Add @pageIndex decorator if x-ms-list-page-index extension is true
   const xmsListPageIndex = (parameter as any)["x-ms-list-page-index"];
   if (xmsListPageIndex === true) {
@@ -213,6 +222,15 @@ export function getDecoratorsForSchema(
   }
 
   decorators.push(...getExtensions(schema));
+
+  // Handle x-ms-list-continuation-token extension by adding @continuationToken decorator
+  const xmsListContinuationToken = (schema as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
 
   // Handle x-ms-list-*-link extensions
   decorators.push(...getPagingLinkDecorators(schema));
