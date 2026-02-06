@@ -321,12 +321,12 @@ extends:
                       # Add "Do Not Merge" label
                       $labelUrl = "https://api.github.com/repos/$repoOwner/$repoName/issues/$prNumber/labels"
                       $labelData = @{
-                        labels = @("do-not-merge")
+                        labels = @("Do Not Merge")
                       } | ConvertTo-Json
 
                       try {
                         Invoke-RestMethod -Uri $labelUrl -Method Post -Headers $headers -Body $labelData -ContentType "application/json"
-                        Write-Host "Added 'do-not-merge' label to PR"
+                        Write-Host "Added 'Do Not Merge' label to PR"
                       }
                       catch {
                         Write-Host "Warning: Failed to add label (label may not exist): $_"
