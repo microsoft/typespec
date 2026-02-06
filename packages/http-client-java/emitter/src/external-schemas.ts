@@ -194,7 +194,7 @@ const fileDetailsMap: Map<string, ObjectSchema> = new Map();
 function getFileSchemaName(baseName: string, sdkModelType?: SdkModelType): string {
   // If the TypeSpec Model exists and is not TypeSpec.Http.File, directly use its name
   if (sdkModelType && sdkModelType.crossLanguageDefinitionId !== "TypeSpec.Http.File") {
-    return baseName;
+    return sdkModelType.name;
   }
 
   // make sure suffix "FileDetails"
@@ -329,8 +329,7 @@ export function getFileDetailsSchema(
     - Allow required for "filename" and "contentType"
      */
     const filePropertyName = property.name;
-    const fileSchemaName = fileSdkType.name;
-    const schemaName = getFileSchemaName(fileSchemaName, fileSdkType);
+    const schemaName = getFileSchemaName(filePropertyName, fileSdkType);
     let fileDetailsSchema = fileDetailsMap.get(schemaName);
     if (!fileDetailsSchema) {
       const typeNamespace = getNamespace(property.type.__raw) ?? namespace;
