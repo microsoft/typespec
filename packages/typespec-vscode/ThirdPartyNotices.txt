@@ -15,27 +15,23 @@ granted herein, whether by implication, estoppel or otherwise.
 5. brace-expansion version 2.0.2 (https://github.com/juliangruber/brace-expansion)
 6. change-case version 5.4.4 (https://github.com/blakeembrey/change-case)
 7. cross-spawn version 7.0.6 (git@github.com:moxystudio/node-cross-spawn)
-8. debug version 4.4.3 (https://github.com/debug-js/debug)
-9. fast-deep-equal version 3.1.3 (https://github.com/epoberezkin/fast-deep-equal)
-10. fast-uri version 3.1.0 (https://github.com/fastify/fast-uri)
-11. has-flag version 4.0.0 (sindresorhus/has-flag)
-12. is-unicode-supported version 2.1.0 (sindresorhus/is-unicode-supported)
-13. isexe version 2.0.0 (https://github.com/isaacs/isexe)
-14. isexe version 3.1.1 (https://github.com/isaacs/isexe)
-15. js-tokens version 4.0.0 (lydell/js-tokens)
-16. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
-17. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
-18. ms version 2.1.3 (vercel/ms)
-19. mustache version 4.2.0 (https://github.com/janl/mustache.js)
-20. path-key version 3.1.1 (sindresorhus/path-key)
-21. picocolors version 1.1.1 (alexeyraspopov/picocolors)
-22. semver version 7.7.3 (https://github.com/npm/node-semver)
-23. shebang-command version 2.0.0 (kevva/shebang-command)
-24. shebang-regex version 3.0.0 (sindresorhus/shebang-regex)
-25. supports-color version 8.1.1 (chalk/supports-color)
-26. which version 2.0.2 (https://github.com/isaacs/node-which)
-27. which version 6.0.0 (https://github.com/npm/node-which)
-28. yaml version 2.8.2 (github:eemeli/yaml)
+8. fast-deep-equal version 3.1.3 (https://github.com/epoberezkin/fast-deep-equal)
+9. fast-uri version 3.1.0 (https://github.com/fastify/fast-uri)
+10. is-unicode-supported version 2.1.0 (sindresorhus/is-unicode-supported)
+11. isexe version 2.0.0 (https://github.com/isaacs/isexe)
+12. isexe version 3.1.1 (https://github.com/isaacs/isexe)
+13. js-tokens version 4.0.0 (lydell/js-tokens)
+14. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
+15. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
+16. mustache version 4.2.0 (https://github.com/janl/mustache.js)
+17. path-key version 3.1.1 (sindresorhus/path-key)
+18. picocolors version 1.1.1 (alexeyraspopov/picocolors)
+19. semver version 7.7.3 (https://github.com/npm/node-semver)
+20. shebang-command version 2.0.0 (kevva/shebang-command)
+21. shebang-regex version 3.0.0 (sindresorhus/shebang-regex)
+22. which version 2.0.2 (https://github.com/isaacs/node-which)
+23. which version 6.0.0 (https://github.com/npm/node-which)
+24. yaml version 2.8.2 (github:eemeli/yaml)
 
 
 %% @babel/code-frame NOTICES AND INFORMATION BEGIN HERE
@@ -237,33 +233,6 @@ THE SOFTWARE.
 END OF cross-spawn NOTICES AND INFORMATION
 
 
-%% debug NOTICES AND INFORMATION BEGIN HERE
-=====================================================
-(The MIT License)
-
-Copyright (c) 2014-2017 TJ Holowaychuk <tj@vision-media.ca>
-Copyright (c) 2018-2021 Josh Junon
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the 'Software'), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-=====================================================");
-END OF debug NOTICES AND INFORMATION
-
-
 %% fast-deep-equal NOTICES AND INFORMATION BEGIN HERE
 =====================================================
 MIT License
@@ -328,22 +297,6 @@ The complete list of contributors can be found at:
 - https://github.com/garycourt/uri-js/graphs/contributors
 =====================================================");
 END OF fast-uri NOTICES AND INFORMATION
-
-
-%% has-flag NOTICES AND INFORMATION BEGIN HERE
-=====================================================
-MIT License
-
-Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-=====================================================");
-END OF has-flag NOTICES AND INFORMATION
 
 
 %% is-unicode-supported NOTICES AND INFORMATION BEGIN HERE
@@ -484,34 +437,6 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 END OF minimatch NOTICES AND INFORMATION
 
 
-%% ms NOTICES AND INFORMATION BEGIN HERE
-=====================================================
-The MIT License (MIT)
-
-Copyright (c) 2020 Vercel, Inc.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-=====================================================");
-END OF ms NOTICES AND INFORMATION
-
-
 %% mustache NOTICES AND INFORMATION BEGIN HERE
 =====================================================
 The MIT License
@@ -620,22 +545,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 =====================================================");
 END OF shebang-regex NOTICES AND INFORMATION
-
-
-%% supports-color NOTICES AND INFORMATION BEGIN HERE
-=====================================================
-MIT License
-
-Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-=====================================================");
-END OF supports-color NOTICES AND INFORMATION
 
 
 %% which NOTICES AND INFORMATION BEGIN HERE
