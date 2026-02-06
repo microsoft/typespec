@@ -168,6 +168,15 @@ export function getDecoratorsForSchema(
 
   decorators.push(...getExtensions(schema));
 
+  // Handle x-ms-list-continuation-token extension by adding @continuationToken decorator
+  const xmsListContinuationToken = (schema as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
+
   // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
   // Extract the non-null type to determine which decorators to apply
   const effectiveType = Array.isArray(schema.type)
