@@ -280,6 +280,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     namespace: "typetest.discriminatedunion",
   },
   "type/file": {
+    "package-name": "typetest-file",
     namespace: "typetest.file",
   },
   documentation: {

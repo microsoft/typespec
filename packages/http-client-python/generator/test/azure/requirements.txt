@@ -82,6 +82,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/typetest-dictionary
 -e ./generated/typetest-enum-extensible
 -e ./generated/typetest-enum-fixed
+-e ./generated/typetest-file
 -e ./generated/typetest-model-enumdiscriminator
 -e ./generated/typetest-model-nesteddiscriminator
 -e ./generated/typetest-model-notdiscriminated
