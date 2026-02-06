@@ -252,7 +252,7 @@ function addFilenameProperty(
 ) {
   const isRequired = filenameProperty ? !filenameProperty.optional : false;
   const isConstant = filenameProperty?.type.kind === "constant" && isRequired;
-  // if the type is constant, but not required, treat is as non-constant but its value as the default
+  // If the type is constant but not required, treat the type as non-constant String but its value as the default.
   const clientDefaultValue =
     filenameProperty?.type.kind === "constant" ? String(filenameProperty.type.value) : undefined;
   fileDetailsSchema.addProperty(
@@ -278,8 +278,11 @@ function addContentTypeProperty(
 ) {
   const isRequired = contentTypeProperty ? !contentTypeProperty.optional : false;
   const isConstant = contentTypeProperty?.type.kind === "constant" && isRequired;
-  // if the type is constant, but not required, treat is as non-constant but its value as the default
-  // TypeSpec 'TypeSpec.Http.File<"image/png">' is such case
+  // If the type is constant but not required, treat the type as non-constant String but its value as the default.
+  /*
+   * TypeSpec 'TypeSpec.Http.File<"image/png">' is such case.
+   * Feels that it is not user-friendly to create a single value enum for FileContentType that user probably had to set for the request.
+   */
   const clientDefaultValue =
     contentTypeProperty?.type.kind === "constant"
       ? String(contentTypeProperty.type.value)
