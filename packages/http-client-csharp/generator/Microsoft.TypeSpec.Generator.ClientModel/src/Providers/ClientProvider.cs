@@ -427,13 +427,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         false,
                         p.IsApiVersion);
 
-                    if (p.IsApiVersion && !builtApiVersionFields)
+                    if (p.IsApiVersion)
                     {
-                        _apiVersionFields = BuildApiVersionFields(p, type, wireInfo);
-                        fields.AddRange(_apiVersionFields.Select(f => f.Field).OrderBy(f => f.Name));
-                        builtApiVersionFields = true;
+                        if (!builtApiVersionFields)
+                        {
+                            _apiVersionFields = BuildApiVersionFields(p, type, wireInfo);
+                            fields.AddRange(_apiVersionFields.Select(f => f.Field).OrderBy(f => f.Name));
+                            builtApiVersionFields = true;
+                        }
                     }
-                    else if (!p.IsApiVersion)
+                    else
                     {
                         var field = new FieldProvider(
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
