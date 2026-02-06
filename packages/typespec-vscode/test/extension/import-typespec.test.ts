@@ -6,9 +6,9 @@ import {
   packagesInstall,
   packPackages,
   preContrastResult,
-  startWithRightClick,
+  startWithCommandPalette,
 } from "./common/common-steps";
-import { mockShowOpenDialog } from "./common/mock-dialogs";
+import { mockShowOpenDialog, sequence } from "./common/mock-dialogs";
 import { CaseScreenshot, tempDir, test, testfilesDir } from "./common/utils";
 
 // Test files are copied into the temporary directory before tests run
@@ -85,9 +85,10 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
     const { page, app } = await launch({
       workspacePath,
     });
+    const targetPath = path.resolve(workspacePath, "ImportTypespecProjectEmptyFolder");
     const openapifilepath = path.resolve(ImportTypespecProjectFolderPath, "openapi.3.0.yaml");
-    await mockShowOpenDialog(app, [openapifilepath]);
-    await startWithRightClick(page, "Import TypeSpec from Openapi 3", cs);
+    await mockShowOpenDialog(app, sequence([targetPath], [openapifilepath]));
+    await startWithCommandPalette(page, "Import TypeSpec from Openapi 3", cs);
 
     await preContrastResult(
       page,
@@ -97,8 +98,8 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
       cs,
       app,
     );
-    const resultFilePath = path.resolve(workspacePath, "./ImportTypespecProjectEmptyFolder");
-    await expectFilesInDir(expectedResults, resultFilePath);
+
+    await expectFilesInDir(expectedResults, targetPath);
     app.close();
   });
 });
