@@ -41,8 +41,12 @@ class ListType(BaseType):
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.type_annotation(**kwargs)
 
-        # if there is a function named `list` we have to make sure there's no conflict with the built-in `list`
-        list_type = "List" if self.code_model.has_operation_named_list and kwargs.get("is_operation_file") else "list"
+        # if there is a function/property named `list` we have to make sure there's no conflict with the built-in `list`
+        is_operation_file = kwargs.get("is_operation_file", False)
+        use_list_import = (self.code_model.has_operation_named_list and is_operation_file) or (
+            self.code_model.has_property_named_list and not is_operation_file
+        )
+        list_type = "List" if use_list_import else "list"
         return f"{list_type}[{self.element_type.type_annotation(**kwargs)}]"
 
     def description(self, *, is_operation_file: bool) -> str:

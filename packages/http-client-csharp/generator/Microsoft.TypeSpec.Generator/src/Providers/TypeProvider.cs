@@ -507,27 +507,36 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (name != null)
             {
-                // Reset the custom code view to reflect the new name
-                _customCodeView = new(BuildCustomCodeView(name, Type.Namespace));
-                // Give precedence to the custom code view name if it exists
-                _lastContractView = new(BuildLastContractView(
-                    _customCodeView.Value?.Name ?? name,
-                    _customCodeView.Value?.Type.Namespace ?? Type.Namespace));
-                Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace);
+                ResetMembersBasedOnIdentityChange(name);
             }
 
             if (@namespace != null)
             {
-                // Reset the custom code view to reflect the new namespace
-                _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
-                _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
-                _declarationModifiers = BuildDeclarationModifiersInternal(); // recalculate declaration modifiers
-                Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
+                ResetMembersBasedOnIdentityChange(@namespace: @namespace);
             }
 
             // Rebuild the canonical view
             _canonicalView = new(BuildCanonicalView);
         }
+
+        private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
+        {
+            // Reset the custom code view to reflect the new namespace
+            _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
+            name = _customCodeView.Value?.Name ?? name ?? Type.Name;
+            @namespace = _customCodeView.Value?.Type.Namespace ?? @namespace ?? Type.Namespace;
+            _lastContractView = new(BuildLastContractView(
+                name,
+                @namespace));
+            // recalculate declaration modifiers and constructors
+            _declarationModifiers = null;
+            // constructors might change based on declaration modifier changes
+            _constructors = null;
+            // serialization providers need to reflect the new type name/namespace
+            _serializationProviders = null;
+            Type.Update(name: name, @namespace: @namespace);
+        }
+
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 
         protected virtual IReadOnlyList<EnumTypeMember> BuildEnumValues() => throw new InvalidOperationException("Not an EnumProvider type");
@@ -556,16 +565,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void ProcessTypeForBackCompatibility()
         {
-            if (LastContractView?.Methods == null || LastContractView?.Methods.Count == 0)
+            var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
+            var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
+
+            if (!hasMethods && !hasConstructors)
             {
                 return;
             }
 
-            Update(methods: BuildMethodsForBackCompatibility(Methods));
+            var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
+            var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
+
+            Update(methods: newMethods, constructors: newConstructors);
         }
 
         protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
             => [.. originalMethods];
+
+        protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
+            => [.. originalConstructors];
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 

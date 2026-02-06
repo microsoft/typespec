@@ -36,6 +36,7 @@ __all__ = ["SdkJSONEncoder", "Model", "rest_field", "rest_discriminator"]
 
 TZ_UTC = timezone.utc
 _T = typing.TypeVar("_T")
+_NONE_TYPE = type(None)
 
 {% if code_model.has_external_type %}
 TYPE_HANDLER_REGISTRY = TypeHandlerRegistry()
@@ -223,7 +224,7 @@ def _deserialize_datetime(attr: typing.Union[str, datetime]) -> datetime:
     test_utc = date_obj.utctimetuple()
     if test_utc.tm_year > 9999 or test_utc.tm_year < 1:
         raise OverflowError("Hit max or min date")
-    return date_obj
+    return date_obj  # type: ignore[no-any-return]
 
 
 def _deserialize_datetime_rfc7231(attr: typing.Union[str, datetime]) -> datetime:
@@ -277,7 +278,7 @@ def _deserialize_time(attr: typing.Union[str, time]) -> time:
     """
     if isinstance(attr, time):
         return attr
-    return isodate.parse_time(attr)
+    return isodate.parse_time(attr)  # type: ignore[no-any-return]
 
 
 def _deserialize_bytes(attr):
@@ -847,6 +848,14 @@ def _deserialize_multiple_sequence(
     return type(obj)(_deserialize(deserializer, entry, module) for entry, deserializer in zip(obj, entry_deserializers))
 
 
+def _is_array_encoded_deserializer(deserializer: functools.partial) -> bool:
+    return (
+        isinstance(deserializer, functools.partial)
+        and isinstance(deserializer.args[0], functools.partial)
+        and deserializer.args[0].func == _deserialize_array_encoded  # pylint: disable=comparison-with-callable
+    )
+
+
 def _deserialize_sequence(
     deserializer: typing.Optional[typing.Callable],
     module: typing.Optional[str],
@@ -856,17 +865,19 @@ def _deserialize_sequence(
         return obj
     if isinstance(obj, ET.Element):
         obj = list(obj)
-    try:
-        if (
-            isinstance(obj, str)
-            and isinstance(deserializer, functools.partial)
-            and isinstance(deserializer.args[0], functools.partial)
-            and deserializer.args[0].func == _deserialize_array_encoded  # pylint: disable=comparison-with-callable
-        ):
-            # encoded string may be deserialized to sequence
+
+    # encoded string may be deserialized to sequence
+    if isinstance(obj, str) and isinstance(deserializer, functools.partial):
+        # for list[str]
+        if _is_array_encoded_deserializer(deserializer):
             return deserializer(obj)
-    except:  # pylint: disable=bare-except
-        pass
+
+        # for list[Union[...]]
+        if isinstance(deserializer.args[0], list):
+            for sub_deserializer in deserializer.args[0]:
+                if _is_array_encoded_deserializer(sub_deserializer):
+                    return sub_deserializer(obj)
+
     return type(obj)(_deserialize(deserializer, entry, module) for entry in obj)
 
 
@@ -916,16 +927,16 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
 
     # is it optional?
     try:
-        if any(a for a in annotation.__args__ if a == type(None)):  # pyright: ignore
+        if any(a is _NONE_TYPE for a in annotation.__args__):  # pyright: ignore
             if len(annotation.__args__) <= 2:  # pyright: ignore
                 if_obj_deserializer = _get_deserialize_callable_from_annotation(
-                    next(a for a in annotation.__args__ if a != type(None)), module, rf  # pyright: ignore
+                    next(a for a in annotation.__args__ if a is not _NONE_TYPE), module, rf  # pyright: ignore
                 )
 
                 return functools.partial(_deserialize_with_optional, if_obj_deserializer)
             # the type is Optional[Union[...]], we need to remove the None type from the Union
             annotation_copy = copy.copy(annotation)
-            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a != type(None)]  # pyright: ignore
+            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a is not _NONE_TYPE]  # pyright: ignore
             return _get_deserialize_callable_from_annotation(annotation_copy, module, rf)
     except AttributeError:
         pass
@@ -1051,7 +1062,7 @@ def _failsafe_deserialize(
 ) -> typing.Any:
   try:
       return _deserialize(deserializer, response.json(), module, rf, format)
-  except DeserializationError:
+  except Exception:  # pylint: disable=broad-except
       _LOGGER.warning(
           "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
           exc_info=True
@@ -1061,11 +1072,11 @@ def _failsafe_deserialize(
 
 def _failsafe_deserialize_xml(
   deserializer: typing.Any,
-  response: HttpResponse, 
+  response: HttpResponse,
 ) -> typing.Any:
   try:
       return _deserialize_xml(deserializer, response.text())
-  except DeserializationError:
+  except Exception:  # pylint: disable=broad-except
       _LOGGER.warning(
           "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
           exc_info=True
@@ -1327,7 +1338,7 @@ def _get_wrapped_element(
         _get_element(v, exclude_readonly, meta, wrapped_element)
     else:
         wrapped_element.text = _get_primitive_type_value(v)
-    return wrapped_element
+    return wrapped_element  # type: ignore[no-any-return]
 
 
 def _get_primitive_type_value(v) -> str:
@@ -1340,7 +1351,9 @@ def _get_primitive_type_value(v) -> str:
     return str(v)
 
 
-def _create_xml_element(tag, prefix=None, ns=None):
+def _create_xml_element(
+  tag: typing.Any, prefix: typing.Optional[str] = None, ns: typing.Optional[str] = None
+) -> ET.Element:
     if prefix and ns:
         ET.register_namespace(prefix, ns)
     if ns:

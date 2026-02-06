@@ -13,6 +13,8 @@ import { resolveModule } from "../module-resolver/module-resolver.js";
 import { NodePackageResolver } from "../module-resolver/node-package-resolver.js";
 import { ResolveModuleHost } from "../module-resolver/types.js";
 import { parseNodeModuleSpecifier } from "../module-resolver/utils.js";
+import { Typekit } from "../typekit/define-kit.js";
+import { $ } from "../typekit/index.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { extractMarkers } from "./fourslash.js";
 import { createTestFileSystem } from "./fs.js";
@@ -284,6 +286,9 @@ async function createEmitterTesterInstance<Result>(
     get program() {
       return tester.program;
     },
+    get $() {
+      return tester.$;
+    },
   };
 
   async function compileAndDiagnose(
@@ -325,6 +330,8 @@ async function createEmitterTesterInstance<Result>(
 
 async function createTesterInstance(params: TesterInternalParams): Promise<TesterInstance> {
   let savedProgram: Program | undefined;
+  let saved$: Typekit | undefined;
+
   const fs = (await params.fs()).clone();
 
   return {
@@ -335,6 +342,13 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
         throw new Error("Program not initialized. Call compile first.");
       }
       return savedProgram;
+    },
+
+    get $() {
+      if (!saved$) {
+        throw new Error("Typekit not initialized. Call compile first.");
+      }
+      return saved$;
     },
   };
 
@@ -409,11 +423,12 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
       options?.compilerOptions,
     );
     savedProgram = program;
-
+    saved$ = $(program);
     const entities = extractMarkedEntities(program, markerPositions, markerConfigs);
     return [
       {
         program,
+        $: saved$!,
         fs,
         pos: Object.fromEntries(markerPositions.map((x) => [x.name, x])) as any,
         ...(typesCollected as GetMarkedEntities<T>),

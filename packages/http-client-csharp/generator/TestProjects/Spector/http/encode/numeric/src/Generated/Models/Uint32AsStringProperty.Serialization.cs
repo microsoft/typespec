@@ -11,6 +11,10 @@ namespace Encode.Numeric._Property
 {
     public partial class Uint32AsStringProperty : IJsonModel<Uint32AsStringProperty>
     {
+        protected virtual Uint32AsStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator Uint32AsStringProperty(ClientResult result) => throw null;
+
         void IJsonModel<Uint32AsStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -25,12 +29,8 @@ namespace Encode.Numeric._Property
 
         Uint32AsStringProperty IPersistableModel<Uint32AsStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Uint32AsStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<Uint32AsStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Uint32AsStringProperty uint32AsStringProperty) => throw null;
-
-        public static explicit operator Uint32AsStringProperty(ClientResult result) => throw null;
     }
 }

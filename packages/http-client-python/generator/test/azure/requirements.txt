@@ -13,7 +13,11 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-client-generator-core-hierarchy-building
 -e ./generated/azure-client-generator-core-usage
 -e ./generated/azure-client-generator-core-override
--e ./generated/azure-client-generator-core-client-location
+-e ./generated/azure-client-generator-core-client-location-move-method-parameter-to-client
+-e ./generated/azure-client-generator-core-client-location-move-to-existing-sub-client
+-e ./generated/azure-client-generator-core-client-location-move-to-new-sub-client
+-e ./generated/azure-client-generator-core-client-location-move-to-root-client
+-e ./generated/azure-client-generator-core-client-default-value
 -e ./generated/azure-client-generator-core-alternate-type
 -e ./generated/azure-client-generator-core-next-link-verb
 -e ./generated/azure-core-basic
@@ -32,6 +36,9 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-resource-manager-operation-templates
 -e ./generated/azure-resource-manager-resources
 -e ./generated/azure-resource-manager-method-subscription-id
+-e ./generated/azure-resource-manager-multi-service
+-e ./generated/azure-resource-manager-multi-service-older-versions
+-e ./generated/azure-resource-manager-multi-service-shared-models
 -e ./generated/azure-versioning-previewversion
 -e ./generated/client-namespace
 -e ./generated/azure-payload-pageable
@@ -45,10 +52,12 @@ azure-mgmt-core==1.6.0
 -e ./generated/client-structure-twooperationgroup
 -e ./generated/resiliency-srv-driven1
 -e ./generated/resiliency-srv-driven2
+-e ./generated/service-multi-service
 
 # common test case
 -e ./generated/authentication-api-key
 -e ./generated/authentication-http-custom
+-e ./generated/authentication-noauth-union
 -e ./generated/authentication-oauth2
 -e ./generated/authentication-union
 -e ./generated/setuppy-authentication-union
@@ -59,6 +68,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
 -e ./generated/parameters-path
+-e ./generated/parameters-query
 -e ./generated/parameters-spread
 -e ./generated/serialization-encoded-name-json
 -e ./generated/server-endpoint-not-defined
@@ -85,6 +95,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/typetest-property-additionalproperties
 -e ./generated/typetest-scalar
 -e ./generated/typetest-union
+-e ./generated/typetest-discriminatedunion
 -e ./generated/typetest-model-empty
 -e ./generated/headasbooleantrue
 -e ./generated/headasbooleanfalse

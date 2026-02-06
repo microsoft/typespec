@@ -1,7 +1,7 @@
 import type { Model } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { compileOperations, getOperationsWithServiceNamespace } from "./test-host.js";
 
 describe("body resolution", () => {
@@ -213,4 +213,33 @@ it("chooses correct content-type for extensible union body", async () => {
   const body = response.responses[0].body;
   ok(body);
   deepStrictEqual(body.contentTypes, ["text/plain"]);
+});
+
+describe("status code", () => {
+  async function getResponse(code: string) {
+    const [routes, diagnostics] = await getOperationsWithServiceNamespace(code);
+    expectDiagnosticEmpty(diagnostics);
+    expect(routes).toHaveLength(1);
+    expect(routes[0].responses).toHaveLength(1);
+    return routes[0].responses[0];
+  }
+
+  it("resolve from a property at the root", async () => {
+    const response = await getResponse(`op test1(): { @statusCode code: 201 };`);
+    expect(response.statusCodes).toEqual(201);
+  });
+
+  it("resolve from a property nested", async () => {
+    const response = await getResponse(`op test1(): { nested: { @statusCode code: 201 } };`);
+    expect(response.statusCodes).toEqual(201);
+  });
+
+  it("resolve from parent model with no local props", async () => {
+    const response = await getResponse(`
+      model Created { @statusCode code: 201 }
+      model Res extends Created {};
+      op test1(): Res;
+    `);
+    expect(response.statusCodes).toEqual(201);
+  });
 });

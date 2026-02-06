@@ -12,7 +12,7 @@ import {
 import { Context } from "../utils/context.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { generateDocs } from "../utils/docs.js";
-import { generateDecorators } from "./generate-decorators.js";
+import { generateDecorators, generateDirectives } from "./generate-decorators.js";
 import {
   getTypeSpecPrimitiveFromSchema,
   isReferencedEnumType,
@@ -52,6 +52,7 @@ function generateEnum(tsEnum: TypeSpecEnum): string {
     definitions.push(generateDocs(tsEnum.doc));
   }
 
+  definitions.push(...generateDirectives(tsEnum.directives));
   definitions.push(...generateDecorators(tsEnum.decorators));
   definitions.push(`enum ${tsEnum.name} {`);
 
@@ -73,6 +74,7 @@ function generateScalar(scalar: TypeSpecScalar, context: Context): string {
     definitions.push(generateDocs(scalar.doc));
   }
 
+  definitions.push(...generateDirectives(scalar.directives));
   definitions.push(...generateDecorators(scalar.decorators));
   const type = context.generateTypeFromRefableSchema(scalar.schema, scalar.scope);
 
@@ -214,7 +216,7 @@ function generateSSEEventVariants(
         decorators += `\n  @extension("${SSE_TERMINAL_EVENT_EXTENSION}", true)`;
       }
 
-      return `${decorators}\n  ${eventName}: ${dataType},`;
+      return `${decorators}\n  ${printIdentifier(eventName)}: ${dataType},`;
     } catch (error) {
       // If any error occurs, fall back to regular generation
       return (
@@ -231,6 +233,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     definitions.push(generateDocs(union.doc));
   }
 
+  definitions.push(...generateDirectives(union.directives));
   definitions.push(...generateDecorators(union.decorators));
 
   definitions.push(`union ${union.name} {`);
@@ -242,10 +245,12 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
       return "";
     }
 
-    const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref)! : member;
+    const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref) : member;
 
     const propertySchema =
-      memberSchema.properties && memberSchema.properties[union.schema.discriminator.propertyName];
+      memberSchema &&
+      memberSchema.properties &&
+      memberSchema.properties[union.schema.discriminator.propertyName];
     const value =
       (union.schema.discriminator?.mapping && "$ref" in member
         ? Object.entries(union.schema.discriminator.mapping).find((x) => x[1] === member.$ref)?.[0]
@@ -331,6 +336,7 @@ function generateModel(model: TypeSpecModel, context: Context): string {
     definitions.push(generateDocs(model.doc));
   }
 
+  definitions.push(...generateDirectives(model.directives));
   definitions.push(...generateDecorators(model.decorators));
   definitions.push(modelDeclaration.open);
 
@@ -370,6 +376,9 @@ export function generateModelProperty(
 ): string {
   const propertyType = context.generateTypeFromRefableSchema(prop.schema, containerScope);
 
+  // Directives come before decorators
+  const directives = generateDirectives(prop.directives);
+
   // Decorators will be a combination of top-level (parameters) and
   // schema-level decorators.
   const decorators = generateDecorators(
@@ -384,7 +393,10 @@ export function generateModelProperty(
 
   const doc = prop.doc ? generateDocs(prop.doc) : "";
 
-  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.getPartType(propertyType, prop.name, isModelReferencedAsMultipartRequestBody ?? false, encoding, isEnumType, isUnionType)};`;
+  // Format: doc, directives (each on new line), decorators (space separated), property definition
+  const directiveLines = directives.length > 0 ? directives.join("\n") + "\n" : "";
+
+  return `${doc}${directiveLines}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.getPartType(propertyType, prop.name, isModelReferencedAsMultipartRequestBody ?? false, encoding, isEnumType, isUnionType)};`;
 }
 
 export function generateModelExpression(

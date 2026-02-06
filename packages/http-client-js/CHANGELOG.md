@@ -1,5 +1,13 @@
 # Changelog - @typespec/http-client-js
 
+## 0.13.0
+
+### Bump dependencies
+
+- [#9202](https://github.com/microsoft/typespec/pull/9202) Update to alloy 0.22
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
 ## 0.12.0
 
 ### Bump dependencies

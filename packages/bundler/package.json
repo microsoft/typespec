@@ -1,6 +1,6 @@
 {
   "name": "@typespec/bundler",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "author": "Microsoft Corporation",
   "description": "Package to bundle a TypeSpec library.",
   "homepage": "https://typespec.io",
@@ -28,8 +28,8 @@
   "scripts": {
     "bundle": "node ./dist/src/cli.js",
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",

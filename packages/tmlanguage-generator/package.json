@@ -1,6 +1,6 @@
 {
   "name": "tmlanguage-generator",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "author": "Microsoft Corporation",
   "description": "Helper library to generate TextMate syntax highlighting tmLanguage files.",
   "homepage": "https://github.com/microsoft/typespec/tree/main/packages/tmlanguage-generator",
@@ -23,8 +23,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix"
   },

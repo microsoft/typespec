@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     NextTokenField = field;
                 }
 
-                if (field.AsParameter.Name == pageSize)
+                if (string.Equals(field.AsParameter.Name, pageSize, StringComparison.OrdinalIgnoreCase))
                 {
                     PageSizeField = field;
                 }
@@ -143,7 +143,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyProvider? property = null;
             for (int i = 0; i < NextPagePropertySegments.Count; i++)
             {
-                property = model.Properties.First(p => p.WireInfo?.SerializedName == NextPagePropertySegments[i]);
+                property = FindPropertyInModelHierarchy(model, NextPagePropertySegments[i]);
 
                 if (i < NextPagePropertySegments.Count - 1)
                 {
@@ -152,6 +152,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return property!.Type;
+        }
+
+        /// <summary>
+        /// Searches for a property with the specified serialized name in the model and its base models.
+        /// </summary>
+        private PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string serializedName)
+        {
+            // First, try to find the property in the current model
+            var property = model.Properties.FirstOrDefault(p => p.WireInfo?.SerializedName == serializedName);
+            if (property != null)
+            {
+                return property;
+            }
+
+            // If not found, search in the base model hierarchy
+            if (model is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            {
+                return FindPropertyInModelHierarchy(modelProvider.BaseModelProvider, serializedName);
+            }
+
+            // If not found anywhere, throw an exception with a helpful message
+            throw new InvalidOperationException(
+                $"Property with serialized name '{serializedName}' not found in model '{model.Name}' or its base models.");
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");

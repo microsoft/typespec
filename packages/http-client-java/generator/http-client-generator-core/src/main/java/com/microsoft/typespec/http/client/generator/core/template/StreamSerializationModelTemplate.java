@@ -15,6 +15,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvertFromJsonTypeTrait;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvertToJsonTypeTrait;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
@@ -752,15 +754,33 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
                         isJsonMergePatch);
                 } else {
-                    // wireType is String
-                    // at present, only String element is supported. this check is in ts code.
-                    methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
-                        String serializeExpression = propertyValueGetter
-                            + ".stream().map(element -> element == null ? \"\" : element).collect(Collectors.joining(\""
-                            + property.getArrayEncoding().getDelimiter() + "\"))";
-                        methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
-                            serializeExpression);
-                    });
+                    IType wireElementType = ((IterableType) wireType).getElementType();
+                    if (wireElementType == ClassType.STRING) {
+                        // wireType is String
+                        methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
+                            String serializeExpression = propertyValueGetter
+                                + ".stream().map(element -> element == null ? \"\" : element).collect(Collectors.joining(\""
+                                + property.getArrayEncoding().getDelimiter() + "\"))";
+                            methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
+                                serializeExpression);
+                        });
+                    } else {
+                        // wireType need to be converted to String
+                        if (wireElementType instanceof ConvertToJsonTypeTrait) {
+                            String convertToJsonExpression
+                                = ((ConvertToJsonTypeTrait) wireElementType).convertToJsonType("element");
+                            methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
+                                String serializeExpression = propertyValueGetter + ".stream().map(element -> "
+                                    + convertToJsonExpression + ").collect(Collectors.joining(\""
+                                    + property.getArrayEncoding().getDelimiter() + "\"))";
+                                methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
+                                    serializeExpression);
+                            });
+                        } else {
+                            throw new RuntimeException("Unable to convert type " + wireElementType
+                                + " to String for ArrayEncoding serialization.");
+                        }
+                    }
                 }
             } else if (wireType instanceof MapType) {
                 // Assumption is that the key type for the Map is a String. This may not always hold true and when that
@@ -1604,12 +1624,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     deserializationBlock.line(property.getName() + " = reader.readUntyped();");
                 }
             } else if (wireType instanceof IterableType) {
-                final String propertyStringVariableName = property.getName() + "EncodedAsString";
-                if (property.getArrayEncoding() != null) {
-                    // need to prepare the expression for propertyStringVariableName,
-                    // to be used in "if (property.getArrayEncoding() == null)" block
-                    deserializationBlock.line("String " + propertyStringVariableName + " = reader.getString();");
-                }
+                IType wireElementType = ((IterableType) wireType).getElementType();
 
                 if (!propertiesManager.hasConstructorArguments()) {
                     deserializationBlock.text(property.getClientType() + " ");
@@ -1617,15 +1632,42 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
                 deserializationBlock.text(property.getName() + " = ");
                 if (property.getArrayEncoding() == null) {
-                    deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType,
-                        ((IterableType) wireType).getElementType(), ((IterableType) clientType).getElementType(), 0);
+                    deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType, wireElementType,
+                        ((IterableType) clientType).getElementType(), 0);
                 } else {
-                    // wireType is String
-                    // at present, only String element is supported. this check is in ts code.
+                    final String propertyStringVariableName = property.getName() + "EncodedAsString";
                     // LinkedList is used to be consistent with internal code of core, e.g. "readArray" API
-                    deserializationBlock.line(
-                        "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
-                        propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
+                    if (wireElementType == ClassType.STRING) {
+                        // wireType is String
+                        deserializationBlock.line("reader.getNullable(nonNullReader -> {");
+                        deserializationBlock.indent(() -> {
+                            deserializationBlock.line("String %1$s = nonNullReader.getString();",
+                                propertyStringVariableName);
+                            deserializationBlock.line(
+                                "return %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
+                                propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
+                        });
+                        deserializationBlock.line("});");
+                    } else {
+                        // wireType need to be converted from String
+                        if (wireElementType instanceof ConvertFromJsonTypeTrait) {
+                            String conversionExpress
+                                = ((ConvertFromJsonTypeTrait) wireElementType).convertFromJsonType("valueAsString");
+                            deserializationBlock.line("reader.getNullable(nonNullReader -> {");
+                            deserializationBlock.indent(() -> {
+                                deserializationBlock.line("String %1$s = nonNullReader.getString();",
+                                    propertyStringVariableName);
+                                deserializationBlock.line(
+                                    "return %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.stream(%1$s.split(\"%2$s\", -1)).map(valueAsString -> %3$s).collect(Collectors.toList()));",
+                                    propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter(),
+                                    conversionExpress);
+                            });
+                            deserializationBlock.line("});");
+                        } else {
+                            throw new RuntimeException("Unable to convert type " + wireElementType
+                                + " from String for ArrayEncoding serialization.");
+                        }
+                    }
                 }
 
                 if (!propertiesManager.hasConstructorArguments()) {

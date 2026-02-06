@@ -120,6 +120,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             customProperty.Type.IsNullable,
                             false,
                             serializedName ?? customProperty.Name.ToVariableName(),
+                            false,
                             false);
                     }
                     else
@@ -237,6 +238,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             customField.Type.IsNullable,
                             false,
                             serializedName ?? customField.Name.ToVariableName(),
+                            false,
                             false);
                     }
                     else

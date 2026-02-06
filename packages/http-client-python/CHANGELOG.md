@@ -1,5 +1,84 @@
 # Change Log - @typespec/http-client-python
 
+## 0.27.0
+
+### Features
+
+- [#9587](https://github.com/microsoft/typespec/pull/9587) Add support for `@clientOption("includeRootSlash")` to control stripping of the slash after the root url
+
+
+## 0.26.3
+
+### Bug Fixes
+
+- [#9573](https://github.com/microsoft/typespec/pull/9573) Ignore all errors thrown during error deserialization, not just `DeserializationError`
+
+
+## 0.26.2
+
+### Bug Fixes
+
+- [#9517](https://github.com/microsoft/typespec/pull/9517) Properly cache enum values
+
+
+## 0.26.1
+
+### Bug Fixes
+
+- [#9482](https://github.com/microsoft/typespec/pull/9482) Don't remove azure-sdk tool definitions from pyproject.toml
+- [#9466](https://github.com/microsoft/typespec/pull/9466) Fix additional indentation issues
+- [#9488](https://github.com/microsoft/typespec/pull/9488) `_failsafe_deserialize_xml` xml errors
+
+
+## 0.26.0
+
+### Features
+
+- [#9456](https://github.com/microsoft/typespec/pull/9456) Add support for xml paging
+
+### Bump dependencies
+
+- [#9464](https://github.com/microsoft/typespec/pull/9464) Bump TCGC 0.64.4
+
+
+## 0.25.0
+
+### Features
+
+- [#9407](https://github.com/microsoft/typespec/pull/9407) Support enum type for array encode
+
+### Bug Fixes
+
+- [#9417](https://github.com/microsoft/typespec/pull/9417) support "apiVersions" of TCGC metadata
+
+
+## 0.24.1
+
+### Bug Fixes
+
+- [#9298](https://github.com/microsoft/typespec/pull/9298) Fix clients with `NoAuth` credentials to have optional generated `credential` parameters
+
+
+## 0.24.0
+
+### Features
+
+- [#9257](https://github.com/microsoft/typespec/pull/9257) Support multi-service scenario.
+- [#9272](https://github.com/microsoft/typespec/pull/9272) Support lro-paging operation
+
+### Bump dependencies
+
+- [#9335](https://github.com/microsoft/typespec/pull/9335) Bump tcgc dep to `0.63.4`
+- [#9245](https://github.com/microsoft/typespec/pull/9245) Bump generated code's dependency on `azure-core` to `1.37.0`
+
+### Bug Fixes
+
+- [#9256](https://github.com/microsoft/typespec/pull/9256) Fix syntax error when model property is named "list" by using type alias to avoid naming conflicts
+- [#9255](https://github.com/microsoft/typespec/pull/9255) Fix import error about apiversion validation for nested operation groups
+- [#9014](https://github.com/microsoft/typespec/pull/9014) Fix import when body parameter is union of models
+- [#9334](https://github.com/microsoft/typespec/pull/9334) Fix linting errors caused by too many vars, next-mypy issues
+
+
 ## 0.23.1
 
 ### Bug Fixes

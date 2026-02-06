@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -87,8 +87,8 @@
     "build:init-templates-index": "tsx ./.scripts/build-init-templates.ts",
     "build": "pnpm gen-manifest && pnpm build:init-templates-index && pnpm compile && pnpm generate-tmlanguage",
     "api-extractor": "api-extractor run --local --verbose",
-    "compile": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "compile": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
     "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
     "gen-extern-signature": "tsx ./.scripts/gen-extern-signature.ts",
@@ -105,16 +105,16 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@babel/code-frame": "~7.27.1",
+    "@babel/code-frame": "~7.28.6",
     "@inquirer/prompts": "^8.0.1",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",
     "env-paths": "^3.0.0",
-    "globby": "~16.0.0",
+    "globby": "~16.1.0",
     "is-unicode-supported": "^2.1.0",
     "mustache": "~4.2.0",
     "picocolors": "~1.1.1",
-    "prettier": "~3.7.4",
+    "prettier": "~3.8.0",
     "semver": "^7.7.1",
     "tar": "^7.5.2",
     "temporal-polyfill": "^0.3.0",
@@ -124,7 +124,7 @@
     "yargs": "~18.0.0"
   },
   "devDependencies": {
-    "@types/babel__code-frame": "~7.0.6",
+    "@types/babel__code-frame": "~7.27.0",
     "@types/mustache": "~4.2.5",
     "@types/node": "~25.0.2",
     "@types/semver": "^7.5.8",

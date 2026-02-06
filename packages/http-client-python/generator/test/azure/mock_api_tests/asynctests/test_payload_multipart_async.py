@@ -151,3 +151,36 @@ async def test_complex_with_http_part(client: MultiPartClient):
 @pytest.mark.asyncio
 async def test_http_parts_non_string_float(client: MultiPartClient):
     await client.form_data.http_parts.non_string.float(models.FloatRequest(temperature=0.5))
+
+
+@pytest.mark.asyncio
+async def test_with_wire_name(client: MultiPartClient):
+    await client.form_data.with_wire_name(
+        models.MultiPartRequestWithWireName(
+            identifier="123",
+            image=open(str(JPG), "rb"),
+        )
+    )
+
+
+@pytest.mark.asyncio
+async def test_optional_parts(client: MultiPartClient):
+    # First time with only id
+    await client.form_data.optional_parts(
+        models.MultiPartOptionalRequest(
+            id="123",
+        )
+    )
+    # Second time with only profileImage
+    await client.form_data.optional_parts(
+        models.MultiPartOptionalRequest(
+            profile_image=open(str(JPG), "rb"),
+        )
+    )
+    # Third time with both id and profileImage
+    await client.form_data.optional_parts(
+        models.MultiPartOptionalRequest(
+            id="123",
+            profile_image=open(str(JPG), "rb"),
+        )
+    )

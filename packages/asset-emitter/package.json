@@ -1,6 +1,6 @@
 {
   "name": "@typespec/asset-emitter",
-  "version": "0.77.0",
+  "version": "0.78.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec Asset Emitter, this is to be replaced by the new emitter framework",
   "homepage": "https://typespec.io",
@@ -27,8 +27,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",

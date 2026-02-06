@@ -28,32 +28,12 @@ export interface RuntimeStats {
   emit: {
     total: number;
     emitters: {
-      [rule: string]: number;
+      [emitterName: string]: {
+        total: number;
+        steps: {
+          [stepName: string]: number;
+        };
+      };
     };
   };
-}
-
-export interface Timer {
-  end: () => number;
-}
-
-export function startTimer(): Timer {
-  const start = performance.now();
-  return {
-    end: () => {
-      return performance.now() - start;
-    },
-  };
-}
-
-export function time(fn: () => void): number {
-  const timer = startTimer();
-  fn();
-  return timer.end();
-}
-
-export async function timeAsync(fn: () => Promise<void>): Promise<number> {
-  const timer = startTimer();
-  await fn();
-  return timer.end();
 }

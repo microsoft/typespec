@@ -64,6 +64,22 @@ class BasicResource(Model):
         super().__init__(*args, **kwargs)
 
 
+class ModelWithArgsProperty(Model):
+    """A model that has a property named 'args' to test potential conflicts with *args."""
+
+    name: str = rest_field()
+    args: list[str] = rest_field()  # property named 'args' which could conflict with *args
+
+    @overload
+    def __init__(self, *, name: str, args: list[str]): ...
+
+    @overload
+    def __init__(self, mapping: Mapping[str, Any], /): ...
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 class Pet(Model):
     name: str = rest_field()  # my name
     species: str = rest_field()  # my species
@@ -104,6 +120,43 @@ def test_model_and_dict_equal():
         == 3
     )
     assert model.virtual_machines == model["virtualMachines"] == dict_response["virtualMachines"]
+
+
+def test_model_with_args_property():
+    """Test that a model with a property named 'args' works correctly."""
+    # Test initialization with keyword arguments
+    model = ModelWithArgsProperty(name="test", args=["arg1", "arg2", "arg3"])
+    assert model.name == "test"
+    assert model.args == ["arg1", "arg2", "arg3"]
+
+    # Test dict-style access
+    assert model["name"] == "test"
+    assert model["args"] == ["arg1", "arg2", "arg3"]
+
+    # Test equality with dict
+    dict_response = {"name": "test", "args": ["arg1", "arg2", "arg3"]}
+    assert model == dict_response
+
+    # Test initialization from dict (using positional argument which goes to *args)
+    model_from_dict = ModelWithArgsProperty(dict_response)
+    assert model_from_dict.name == "test"
+    assert model_from_dict.args == ["arg1", "arg2", "arg3"]
+    assert model_from_dict == model
+
+    # Test modification of the 'args' property
+    model.args = ["new_arg"]
+    assert model.args == ["new_arg"]
+    assert model["args"] == ["new_arg"]
+
+    # Test dict-style modification of 'args'
+    model["args"] = ["modified_arg1", "modified_arg2"]
+    assert model.args == ["modified_arg1", "modified_arg2"]
+
+    # Test JSON serialization roundtrip
+    json_str = json.dumps(dict(model))
+    parsed = json.loads(json_str)
+    assert parsed["name"] == "test"
+    assert parsed["args"] == ["modified_arg1", "modified_arg2"]
 
 
 def test_json_roundtrip():
@@ -330,6 +383,72 @@ def test_property_is_a_type():
     assert isinstance(fishery.fish, Fish)
     assert fishery.fish.name == fishery.fish["name"] == fishery["fish"]["name"] == "Benjamin"
     assert fishery.fish.species == fishery.fish["species"] == fishery["fish"]["species"] == "Salmon"
+
+
+def test_model_initialization():
+    class DatetimeModel(Model):
+        datetime_value: datetime.datetime = rest_field(name="datetimeValue")
+
+        @overload
+        def __init__(self, *, datetime_value: datetime.datetime): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    val_str = "9999-12-31T23:59:59.999000Z"
+    val = isodate.parse_datetime(val_str)
+
+    # when initialize model with dict, the dict value is shall be serialized value
+    model1 = DatetimeModel({"datetimeValue": val_str})
+    assert model1["datetimeValue"] == val_str
+    assert model1.datetime_value == val
+
+    # when initialize model with keyword args, the value is deserialized value
+    model2 = DatetimeModel(datetime_value=val)
+    assert model2["datetimeValue"] == val_str
+    assert model2.datetime_value == val
+
+    # what if we initialize with dict but the dict has deserialized value? this case show what happens.
+    # Since we always serialize the value before initializing the model from dict, we could still get correct result
+    model3 = DatetimeModel({"datetimeValue": val})
+    assert model3["datetimeValue"] == val_str
+    assert model3.datetime_value == val
+
+
+def test_model_dict_prop_initialization():
+    class DatetimeModel(Model):
+        dict_prop: dict[str, datetime.datetime] = rest_field(name="dictProp")
+
+        @overload
+        def __init__(self, *, dict_prop: dict[str, datetime.datetime]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    val_str = "9999-12-31T23:59:59.999000Z"
+    val = isodate.parse_datetime(val_str)
+
+    # when initialize model with dict, the dict value is shall be serialized value
+    model1 = DatetimeModel({"dictProp": {"key1": val_str}})
+    assert model1["dictProp"] == {"key1": val_str}
+    assert model1.dict_prop == {"key1": val}
+
+    # when initialize model with keyword args, the value is deserialized value
+    model2 = DatetimeModel(dict_prop={"key1": val})
+    assert model2["dictProp"] == {"key1": val_str}
+    assert model2.dict_prop == {"key1": val}
+
+    # what if we initialize with dict but the dict has deserialized value? this case show what happens.
+    # Since we always serialize the value before initializing the model from dict, we could still get correct result
+    model3 = DatetimeModel({"dictProp": {"key1": val}})
+    assert model3["dictProp"] == {"key1": val_str}
+    assert model3.dict_prop == {"key1": val}
 
 
 def test_datetime_deserialization():
