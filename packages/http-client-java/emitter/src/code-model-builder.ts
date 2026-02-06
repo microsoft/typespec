@@ -1995,10 +1995,9 @@ export class CodeModelBuilder {
       requestBodyIsFile = true;
     } else if (sdkType && sdkType.kind === "bytes") {
       // check for bytes + unknown content-type
+      const mediaTypes = op.requests![0].protocol.http!.mediaTypes;
       const unknownRequestBody =
-        op.requests![0].protocol.http!.mediaTypes &&
-        op.requests![0].protocol.http!.mediaTypes.length > 0 &&
-        !isKnownContentType(op.requests![0].protocol.http!.mediaTypes);
+        mediaTypes && mediaTypes.length > 0 && !isKnownContentType(mediaTypes);
       requestBodyIsFile = Boolean(unknownRequestBody);
     }
 
