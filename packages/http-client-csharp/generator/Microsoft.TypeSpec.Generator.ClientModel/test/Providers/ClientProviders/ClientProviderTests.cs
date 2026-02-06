@@ -634,6 +634,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 "Expected the client parameter field '_indexName' to be used, not the operation parameter field '_name'");
         }
 
+        [Test]
+        public void TestBuildConstructors_DeduplicatesConstructorParametersBySerializedName()
+        {
+            // Scenario: Create required client-scoped parameters that will become constructor parameters.
+            // We use required non-path/query/header parameters that are client-scoped - these become fields
+            // and their corresponding parameters in the constructor.
+            var clientParameter = InputFactory.QueryParameter(
+                "indexName",
+                InputPrimitiveType.String,
+                serializedName: "indexName",
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operationParameterWithRenamedName = InputFactory.QueryParameter(
+                "name",
+                InputPrimitiveType.String,
+                serializedName: "indexName",
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [operationParameterWithRenamedName]);
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("TestMethod", operation)],
+                parameters: [endpointParameter, clientParameter]);
+
+            var clientProvider = new ClientProvider(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Verify the underlying parameter deduplication occurred
+            var allClientParameters = clientProvider.GetType()
+                .GetMethod("GetAllClientParameters", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.Invoke(clientProvider, null) as IReadOnlyList<InputParameter>;
+
+            Assert.IsNotNull(allClientParameters, "Could not access GetAllClientParameters method");
+            
+            var indexNameParams = allClientParameters!.Where(p => 
+                p.Name == "indexName" || p.Name == "name").ToList();
+            
+            // Should only have 1 parameter after deduplication by name
+            Assert.AreEqual(1, indexNameParams.Count,
+                $"Expected 1 parameter after deduplication, but found {indexNameParams.Count}: {string.Join(", ", indexNameParams.Select(p => p.Name))}");
+            
+            // Should be the client parameter (first one wins)
+            Assert.AreEqual("indexName", indexNameParams[0].Name,
+                "Expected the client parameter 'indexName' to be preserved after deduplication");
+        }
+
         // Tests for InitializedBy flag behavior
 
         [Test]
