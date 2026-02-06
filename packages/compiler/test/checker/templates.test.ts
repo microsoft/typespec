@@ -629,7 +629,9 @@ describe("compiler: templates", () => {
   describe("doesn't run decorators when checking template declarations", () => {
     async function expectMarkDecoratorNotCalled(code: string) {
       testHost.addJsFile("mark.js", {
-        $mark: () => fail("Should not have called decorator"),
+        $mark: () => {
+          fail("Should not have called decorator");
+        },
       });
 
       testHost.addTypeSpecFile(
@@ -669,6 +671,46 @@ describe("compiler: templates", () => {
         @mark(T)
         union Foo<T> {}
       `);
+    });
+
+    describe("within aliases", () => {
+      it("on model property", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Foo<T> = {
+            @mark(T) prop: string;
+          };
+        `);
+      });
+
+      it("on model property, when no argument is provided", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Foo<T> = {
+            @mark prop: string;
+          };
+        `);
+      });
+
+      it("when instantiation is indirect", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Bar<T> = Foo<T>;
+
+          alias Foo<T> = {
+            @mark(T) prop: string;
+          };
+        `);
+      });
+
+      it("when instantiation is indirect and nested", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Bar<T> = {
+            nested: Foo<T>;
+          };
+
+          alias Foo<T> = {
+            @mark(T) prop: string;
+          };
+        `);
+      });
     });
 
     describe("on model properties", () => {

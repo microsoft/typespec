@@ -20,6 +20,14 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
 
   for (const key of Object.keys(element)) {
     if (isExtensionKey(key)) {
+      // Handle x-ms-list extension specially
+      if (key === "x-ms-list" && element[key] === true) {
+        decorators.push({
+          name: "list",
+          args: [],
+        });
+      }
+
       decorators.push({
         name: extensionDecoratorName,
         args: [key, normalizeObjectValue(element[key])],
@@ -29,6 +37,31 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
 
   return decorators;
 }
+
+function getPagingLinkDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // Map of x-ms-list-*-link extensions to their corresponding TypeSpec decorators
+  const linkExtensions = {
+    "x-ms-list-prev-link": "prevLink",
+    "x-ms-list-next-link": "nextLink",
+    "x-ms-list-first-link": "firstLink",
+    "x-ms-list-last-link": "lastLink",
+  } as const;
+
+  for (const [extensionKey, decoratorName] of Object.entries(linkExtensions)) {
+    const extensionValue = (schema as any)[extensionKey];
+    if (extensionValue === true) {
+      decorators.push({
+        name: decoratorName,
+        args: [],
+      });
+    }
+  }
+
+  return decorators;
+}
+
 function normalizeObjectValue(source: unknown): string | number | object | TSValue {
   if (source !== null && typeof source === "object") {
     const result = createTSValueFromObjectValue(source);
@@ -47,8 +80,30 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIPar
   const decorators: TypeSpecDecorator[] = [];
 
   decorators.push(...getExtensions(parameter));
+
+  // Add @offset decorator if x-ms-list-offset extension is true
+  const xMsListOffset = (parameter as any)["x-ms-list-offset"];
+  if (xMsListOffset === true) {
+    decorators.push({ name: "offset", args: [] });
+  }
+
   if ("schema" in parameter && parameter.schema) {
     decorators.push(...getDecoratorsForSchema(parameter.schema));
+  }
+
+  // Handle x-ms-list-continuation-token extension on parameter itself
+  const xmsListContinuationToken = (parameter as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
+
+  // Add @pageIndex decorator if x-ms-list-page-index extension is true
+  const xmsListPageIndex = (parameter as any)["x-ms-list-page-index"];
+  if (xmsListPageIndex === true) {
+    decorators.push({ name: "pageIndex", args: [] });
   }
 
   const locationDecorator = getLocationDecorator(parameter);
@@ -167,6 +222,18 @@ export function getDecoratorsForSchema(
   }
 
   decorators.push(...getExtensions(schema));
+
+  // Handle x-ms-list-continuation-token extension by adding @continuationToken decorator
+  const xmsListContinuationToken = (schema as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
+
+  // Handle x-ms-list-*-link extensions
+  decorators.push(...getPagingLinkDecorators(schema));
 
   // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
   // Extract the non-null type to determine which decorators to apply
