@@ -279,6 +279,9 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     "package-name": "typetest-discriminatedunion",
     namespace: "typetest.discriminatedunion",
   },
+  "type/file": {
+    namespace: "typetest.file",
+  },
   documentation: {
     "package-name": "specs-documentation",
     namespace: "specs.documentation",

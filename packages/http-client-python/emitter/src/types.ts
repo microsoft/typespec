@@ -260,6 +260,9 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
   if (typesMap.has(type)) {
     return typesMap.get(type)!;
   }
+  if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+    return getSimpleTypeResult({ type: "bytes" });
+  }
   if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.Error") {
     return {
       type: "sdkcore",
