@@ -167,6 +167,7 @@ export function createResolver(program: Program): NameResolver {
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const nodeLinks = new Map<number, NodeLinks>();
   const symbolLinks = new Map<number, SymbolLinks>();
+  const visitedNode = new Set<Node>();
 
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceSym = createSymbol(
@@ -1217,6 +1218,11 @@ export function createResolver(program: Program): NameResolver {
   }
 
   function bindAndResolveNode(node: Node) {
+    if (visitedNode.has(node)) {
+      return;
+    }
+    visitedNode.add(node);
+
     switch (node.kind) {
       case SyntaxKind.TypeReference:
         resolveTypeReference(node);
