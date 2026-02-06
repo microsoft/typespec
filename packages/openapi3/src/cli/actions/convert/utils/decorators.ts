@@ -24,6 +24,14 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
         name: extensionDecoratorName,
         args: [key, normalizeObjectValue(element[key])],
       });
+
+      // Add @nextLink decorator when x-ms-list-next-link is true
+      if (key === "x-ms-list-next-link" && element[key] === true) {
+        decorators.push({
+          name: "nextLink",
+          args: [],
+        });
+      }
     }
   }
 
