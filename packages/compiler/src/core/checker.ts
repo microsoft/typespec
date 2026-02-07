@@ -4688,7 +4688,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): Type | Value | null {
     const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target);
 
-    const canCall = satisfied && !(target.implementation as any).isDefaultFunctionImplementation;
+    const canCall =
+      satisfied &&
+      !ctx.hasFlags(CheckFlags.InTemplateDeclaration) &&
+      !(target.implementation as any).isDefaultFunctionImplementation;
 
     const fnCtx = createFunctionContext(program, node);
 
@@ -4767,7 +4770,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         constraint.type,
         "Expected function to have a return type when it did not have a value type constraint",
       );
-      return errorType;
+      return neverType;
     }
   }
 
