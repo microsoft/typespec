@@ -1,4 +1,4 @@
-export function getPropertyValue(object: any, propertyName: string) {
+export function getPropertyValue(object: any, propertyName: string | symbol) {
   const propertyDescriptor = Object.getOwnPropertyDescriptor(object, propertyName);
   if (propertyDescriptor?.get) {
     try {
