@@ -18,7 +18,7 @@ Bearer authentication uses tokens for access control. The server generates a tok
 
 Let's update our existing operations by enforcing authentication using the `@useAuth` decorator.We'll add authentication to the operations that modify pet data, such as creating, updating, and deleting pets. We'll also add a new error model for unauthorized access.
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={59,72-75,79,90-92,104,107-109,126-130}
 import "@typespec/http";
 
 using Http;
@@ -77,7 +77,6 @@ namespace Pets {
   };
 
   @post
-  // highlight-next-line
   @useAuth(BearerAuth)
   op createPet(@body pet: Pet, ...CommonParameters):
     | {
@@ -91,16 +90,13 @@ namespace Pets {
     | {
         @statusCode statusCode: 400;
         @body error: ValidationError;
-        // highlight-start
       }
     | {
         @statusCode statusCode: 401;
         @body error: UnauthorizedError;
-        // highlight-end
       };
 
   @put
-  // highlight-next-line
   @useAuth(BearerAuth)
   op updatePet(@path petId: int32, @body pet: Pet, ...CommonParameters):
     | {
@@ -112,11 +108,8 @@ namespace Pets {
         @body error: ValidationError;
       }
     | {
-        // highlight-start
         @statusCode statusCode: 401;
-
         @body error: UnauthorizedError;
-        // highlight-end
       }
     | {
         @statusCode statusCode: 404;
@@ -128,15 +121,12 @@ namespace Pets {
       };
 
   @delete
-  // highlight-next-line
   @useAuth(BearerAuth)
   op deletePet(@path petId: int32, ...CommonParameters): {
     @statusCode statusCode: 204;
-    // highlight-start
   } | {
     @statusCode statusCode: 401;
     @body error: UnauthorizedError;
-    // highlight-end
   };
 }
 
@@ -153,13 +143,11 @@ model ValidationError {
   details: string[];
 }
 
-// highlight-start
 @error
 model UnauthorizedError {
   code: "UNAUTHORIZED";
   message: string;
 }
-// highlight-end
 
 @error
 model InternalServerError {
@@ -183,7 +171,7 @@ In this example:
 
 Let's take a closer look at how the `@useAuth` decorator affects the generated OpenAPI specification for the `deletePet` operation.
 
-```yaml
+```yaml ins={15-16,46-49}
 paths:
   /pets/{petId}:
     delete:
@@ -198,10 +186,8 @@ paths:
         - $ref: "#/components/parameters/CommonParameters.requestID"
         - $ref: "#/components/parameters/CommonParameters.locale"
         - $ref: "#/components/parameters/CommonParameters.clientVersion"
-      // highlight-start
       security:
         - BearerAuth: []
-      // highlight-end
       responses:
         "204":
           description: "There is no content to send for this request, but the headers may be useful."
@@ -231,12 +217,10 @@ components:
       required: true
       schema:
         type: string
-  // highlight-start
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
-  // highlight-end
   schemas:
     NotFoundError:
       type: object
