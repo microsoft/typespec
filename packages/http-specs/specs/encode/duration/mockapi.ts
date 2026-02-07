@@ -231,7 +231,7 @@ Scenarios.Encode_Duration_Query_floatSecondsLargerUnit = createQueryServerTests(
   {
     input: 150,
   },
-  150,
+  "150",
 );
 Scenarios.Encode_Duration_Query_int32MillisecondsLargerUnit = createQueryServerTests(
   "/encode/duration/query/int32-milliseconds-larger-unit",
@@ -245,7 +245,7 @@ Scenarios.Encode_Duration_Query_floatMillisecondsLargerUnit = createQueryServerT
   {
     input: 210000,
   },
-  210000,
+  "210000",
 );
 
 function createHeaderServerTests(uri: string, headersData: any, value: any) {
