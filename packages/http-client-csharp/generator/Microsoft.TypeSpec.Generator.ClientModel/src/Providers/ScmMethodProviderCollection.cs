@@ -644,6 +644,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         else
                         {
                             requireNamedArgs = true;
+                            // The protocol parameter might be required due to our need to avoid ambiguity with overloads. In this
+                            // case, the parameter should have also been made nullable.
+                            if (protocolParam.DefaultValue == null && protocolParam.Type.IsNullable)
+                            {
+                                AddArgument(protocolParam, Null);
+                            }
                         }
                         continue;
                     }
