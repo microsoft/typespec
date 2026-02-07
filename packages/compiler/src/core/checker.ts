@@ -4770,7 +4770,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         constraint.type,
         "Expected function to have a return type when it did not have a value type constraint",
       );
-      return neverType;
+      // If for some reason we cannot evaluate the call, we will return the type constraint itself as a fallback.
+      // This is the strongest thing we can do in the context of an error or a template declaration, since the result
+      // of the function call must be assignable to the constraint, and by the transitive property if the constraint
+      // is assignable in the context of evaluation, so will be the result of any valid evaluation of the implementation.
+      // Technically, this isn't exactly ideal, since we won't do this if returning a value is possible, and that could
+      // result in "value-in-type" errors if we return `null` above, but this is a sane fallback in the vast majority of
+      // cases.
+      return constraint.type;
     }
   }
 
