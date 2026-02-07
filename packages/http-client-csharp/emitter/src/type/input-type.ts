@@ -181,6 +181,7 @@ export interface InputModelProperty extends InputPropertyTypeBase {
   serializationOptions: SerializationOptions;
   flatten: boolean;
   isHttpMetadata: boolean;
+  encode?: string;
 }
 
 export type InputProperty = InputModelProperty | InputParameter;
@@ -207,6 +208,7 @@ export interface InputQueryParameter extends InputPropertyTypeBase {
   explode: boolean;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputPathParameter extends InputPropertyTypeBase {
@@ -218,6 +220,7 @@ export interface InputPathParameter extends InputPropertyTypeBase {
   serverUrlTemplate?: string;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputHeaderParameter extends InputPropertyTypeBase {
@@ -227,6 +230,7 @@ export interface InputHeaderParameter extends InputPropertyTypeBase {
   isContentType: boolean;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputBodyParameter extends InputPropertyTypeBase {
@@ -235,6 +239,7 @@ export interface InputBodyParameter extends InputPropertyTypeBase {
   defaultContentType: string;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputEndpointParameter extends InputPropertyTypeBase {
@@ -244,6 +249,7 @@ export interface InputEndpointParameter extends InputPropertyTypeBase {
   scope: InputParameterScope;
   serializedName: string;
   isEndpoint: boolean;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputEnumType extends InputTypeBase {

@@ -1,5 +1,26 @@
 # Change Log - @typespec/http-client-python
 
+## 0.27.0
+
+### Features
+
+- [#9587](https://github.com/microsoft/typespec/pull/9587) Add support for `@clientOption("includeRootSlash")` to control stripping of the slash after the root url
+
+
+## 0.26.3
+
+### Bug Fixes
+
+- [#9573](https://github.com/microsoft/typespec/pull/9573) Ignore all errors thrown during error deserialization, not just `DeserializationError`
+
+
+## 0.26.2
+
+### Bug Fixes
+
+- [#9517](https://github.com/microsoft/typespec/pull/9517) Properly cache enum values
+
+
 ## 0.26.1
 
 ### Bug Fixes

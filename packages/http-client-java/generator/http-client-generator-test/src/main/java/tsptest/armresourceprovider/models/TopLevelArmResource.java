@@ -4,8 +4,10 @@
 
 package tsptest.armresourceprovider.models;
 
+import com.azure.core.http.rest.Response;
 import com.azure.core.management.Region;
 import com.azure.core.management.SystemData;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -393,4 +395,24 @@ public interface TopLevelArmResource {
      * @return the response.
      */
     Result action(Context context);
+
+    /**
+     * A synchronous resource action.
+     * 
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    Response<BinaryData> publishXmlWithResponse(Context context);
+
+    /**
+     * A synchronous resource action.
+     * 
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    BinaryData publishXml();
 }

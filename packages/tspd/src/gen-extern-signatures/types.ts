@@ -1,4 +1,4 @@
-import type { Decorator, FunctionValue } from "../../../compiler/src/core/types.js";
+import type { Decorator, FunctionValue } from "@typespec/compiler";
 
 export type EntitySignature = DecoratorSignature | FunctionSignature;
 

@@ -31,7 +31,7 @@ if (-not $LaunchOnly) {
 
        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 
-       Invoke "npx tsp compile . --trace @typespec/http-client-csharp --option @typespec/http-client-csharp.new-project=true" $sampleDir
+       Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
 
        # exit if the generation failed
        if ($LASTEXITCODE -ne 0) {

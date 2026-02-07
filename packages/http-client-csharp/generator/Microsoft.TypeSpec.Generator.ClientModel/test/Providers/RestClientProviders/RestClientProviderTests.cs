@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -133,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             // Validate that the classifier for 302 status code exists
             Dictionary<string, PropertyProvider> propertyHash = restClient.Properties.ToDictionary(p => p.Name);
-            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier302"), 
+            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier302"),
                 "PipelineMessageClassifier302 should be present for 302 redirect");
 
             var pipelineMessageClassifier302 = propertyHash["PipelineMessageClassifier302"];
@@ -143,7 +144,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             // Validate that fields are created correctly
             Dictionary<string, FieldProvider> fieldHash = restClient.Fields.ToDictionary(f => f.Name);
-            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier302"), 
+            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier302"),
                 "_pipelineMessageClassifier302 field should be present for 302 redirect");
 
             var pipelineMessageClassifier302Field = fieldHash["_pipelineMessageClassifier302"];
@@ -728,7 +729,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var p1 = InputFactory.QueryParameter("p1", InputPrimitiveType.String, isRequired: true);
             var p2 = InputFactory.QueryParameter("p2", InputPrimitiveType.String, isRequired: true);
             var h1 = InputFactory.HeaderParameter("h1", InputPrimitiveType.String, isRequired: true);
-            var maxPageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32, isRequired: false);
+            var maxPageSize = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false);
             List<InputParameter> parameters =
             [
                 p1,
@@ -752,10 +753,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
             var pagingMetadata = new InputPagingServiceMetadata(
-                ["cats"], 
-                new InputNextLink(null, ["nextCat"], InputResponseLocation.Header, [p1]), 
+                ["cats"],
+                new InputNextLink(null, ["nextCat"], InputResponseLocation.Header, [p1]),
                 null,
-                ["maxPageSize"]);
+                ["maxpagesize"]);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
@@ -1393,6 +1394,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 scope: InputParameterScope.Client,
                 isApiVersion: true);
 
+            InputMethodParameter pascalCaseApiVersionParameter = InputFactory.MethodParameter(
+                "ApiVersion",
+                InputPrimitiveType.String,
+                location: InputRequestLocation.Uri,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
             InputMethodParameter enumApiVersionParameter = InputFactory.MethodParameter(
                 "apiVersion",
                 InputFactory.StringEnum(
@@ -1433,64 +1442,395 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                                 uri: "{endpoint}/{apiVersion}"))
                     ],
                     parameters: [endpointParameter, enumApiVersionParameter]));
+
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    methods:
+                    [
+                        InputFactory.BasicServiceMethod(
+                            "TestServiceMethod",
+                             InputFactory.Operation(
+                                "TestOperation",
+                                uri: "{endpoint}/{ApiVersion}"))
+                    ],
+                    parameters: [endpointParameter, stringApiVersionParameter]));
+
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    methods:
+                    [
+                        InputFactory.BasicServiceMethod(
+                            "TestServiceMethod",
+                             InputFactory.Operation(
+                                "TestOperation",
+                                uri: "{endpoint}/{apiVersion}"))
+                    ],
+                    parameters: [endpointParameter, pascalCaseApiVersionParameter]));
+
+            yield return new TestCaseData(
+                InputFactory.Client(
+                    "TestClient",
+                    methods:
+                    [
+                        InputFactory.BasicServiceMethod(
+                            "TestServiceMethod",
+                             InputFactory.Operation(
+                                "TestOperation",
+                                uri: "{endpoint}/{ApiVersion}"))
+                    ],
+                    parameters: [endpointParameter, pascalCaseApiVersionParameter]));
         }
 
         [Test]
         public void TestApiVersionParameterReinjectedInCreateNextRequestMethod()
         {
             // Create API version parameter marked with IsApiVersion = true
-            var apiVersionParam = InputFactory.QueryParameter("apiVersion", InputPrimitiveType.String, 
+            var apiVersionParam = InputFactory.QueryParameter("apiVersion", InputPrimitiveType.String,
                 isRequired: true, serializedName: "api-version", isApiVersion: true);
-            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32, 
+            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32,
                 isRequired: false, serializedName: "maxpagesize");
-            
+
             List<InputParameter> parameters =
             [
                 apiVersionParam,
                 pageSizeParam,
             ];
-            
+
             List<InputMethodParameter> methodParameters =
             [
-                InputFactory.MethodParameter("apiVersion", InputPrimitiveType.String, isRequired: true, 
+                InputFactory.MethodParameter("apiVersion", InputPrimitiveType.String, isRequired: true,
                     location: InputRequestLocation.Query, serializedName: "api-version"),
-                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false, 
+                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false,
                     location: InputRequestLocation.Query, serializedName: "maxpagesize"),
             ];
-            
+
             var inputModel = InputFactory.Model("Item", properties:
             [
                 InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
             ]);
-            
-            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], 
+
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"],
                 InputResponseLocation.Body, reinjectedParameters: []);
-            
+
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
                     "PagedItems",
                     properties: [
-                        InputFactory.Property("value", InputFactory.Array(inputModel)), 
+                        InputFactory.Property("value", InputFactory.Array(inputModel)),
                         InputFactory.Property("nextLink", InputPrimitiveType.Url)
                     ]));
-            
+
             var operation = InputFactory.Operation("listItems", responses: [response], parameters: parameters);
             var inputServiceMethod = InputFactory.PagingServiceMethod(
                 "listItems",
                 operation,
                 pagingMetadata: pagingMetadata,
                 parameters: methodParameters);
-            
+
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var clientProvider = new ClientProvider(client);
             var restClientProvider = new MockClientProvider(client, clientProvider);
 
             var writer = new TypeProviderWriter(restClientProvider);
             var file = writer.Write();
-            
+
             Assert.That(file.Content, Contains.Substring("api-version"));
             Assert.That(file.Content, Contains.Substring("maxpagesize"));
+        }
+
+        [Test]
+        public void ContentTypeHeaderWrappedInNullCheckWhenContentIsOptional()
+        {
+            // Test that when there's an optional body parameter with a Content-Type header,
+            // the Content-Type header setting is wrapped in a null check for the content parameter
+            var contentTypeParam = InputFactory.HeaderParameter(
+                "Content-Type",
+                InputFactory.Literal.String("application/json"),
+                isRequired: true,
+                isContentType: true,
+                scope: InputParameterScope.Constant);
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: false);
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                requestMediaTypes: ["application/json"],
+                parameters: [contentTypeParam, bodyParam]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var restClient = client!.RestClient;
+            Assert.IsNotNull(restClient);
+
+            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
+            Assert.IsNotNull(createMethod, "CreateTestOperationRequest method not found");
+
+            var statements = createMethod!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+
+            var expectedStatement = @"if ((content != null))
+{
+    request.Headers.Set(""Content-Type"", ""application/json"");
+}
+";
+            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
+            Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == expectedStatement),
+                $"Expected to find statement:\n{expectedStatement}\nBut got statements:\n{statementsString}");
+        }
+
+        [Test]
+        public void ContentTypeHeaderNotWrappedInNullCheckWhenContentIsRequired()
+        {
+            // Test that when there's a required body parameter with a Content-Type header,
+            // the Content-Type header setting is NOT wrapped in a null check
+            var contentTypeParam = InputFactory.HeaderParameter(
+                "Content-Type",
+                InputFactory.Literal.String("application/json"),
+                isRequired: true,
+                isContentType: true,
+                scope: InputParameterScope.Constant);
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: true);
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                requestMediaTypes: ["application/json"],
+                parameters: [contentTypeParam, bodyParam]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var restClient = client!.RestClient;
+            Assert.IsNotNull(restClient);
+
+            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
+            Assert.IsNotNull(createMethod, "CreateTestOperationRequest method not found");
+
+            var statements = createMethod!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+
+            // Verify there's no if statement wrapping the Content-Type header
+            var wrappedStatement = @"if ((content != null))
+{
+    request.Headers.Set(""Content-Type"", ""application/json"");
+}
+";
+            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
+            var hasIfWrappedContentType = statements!.Any(s => s.ToDisplayString().Contains(wrappedStatement));
+            Assert.IsFalse(hasIfWrappedContentType,
+                $"Content-Type should NOT be wrapped in an if statement for required content, but found:\n{statementsString}");
+        }
+
+        [Test]
+        public async Task PageSizeParameterCasingPreservedFromLastContractView()
+        {
+            var pageSizeParam = InputFactory.QueryParameter("maxSizepaging", InputPrimitiveType.Int32,
+                isRequired: false, serializedName: "maxSizepaging");
+
+            List<InputParameter> parameters =
+            [
+                pageSizeParam,
+            ];
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("maxSizepaging", InputPrimitiveType.Int32, isRequired: false,
+                    location: InputRequestLocation.Query, serializedName: "maxSizepaging"),
+            ];
+
+            var inputModel = InputFactory.Model("Item", properties:
+            [
+                InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var pagingMetadata = new InputPagingServiceMetadata(
+                ["value"],
+                new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, []),
+                null,
+                ["maxSizepaging"]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "PagedItems",
+                    properties: [
+                        InputFactory.Property("value", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url)
+                    ]));
+
+            var operation = InputFactory.Operation("GetItems", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "GetItems",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: methodParameters);
+
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParams = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience, clientProvider!);
+
+            var pageSizeParameter = methodParams.FirstOrDefault(p =>
+                string.Equals(p.Name, "maxsizepaging", StringComparison.Ordinal) ||
+                string.Equals(p.Name, "maxSizepaging", StringComparison.Ordinal));
+
+            Assert.IsNotNull(pageSizeParameter, "Page size parameter should be present in method parameters");
+            Assert.AreEqual("maxsizepaging", pageSizeParameter!.Name,
+                "Parameter name should be 'maxsizepaging' (from LastContractView), not 'maxSizepaging' (from input)");
+        }
+
+        [Test]
+        public async Task PageSizeParameterUsesConstantWhenNotInLastContractView()
+        {
+            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32,
+                isRequired: false, serializedName: "maxpagesize");
+
+            List<InputParameter> parameters =
+            [
+                pageSizeParam,
+            ];
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false,
+                    location: InputRequestLocation.Query, serializedName: "maxpagesize"),
+            ];
+
+            var inputModel = InputFactory.Model("Item", properties:
+            [
+                InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var pagingMetadata = new InputPagingServiceMetadata(
+                ["value"],
+                new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, []),
+                null,
+                ["maxpagesize"]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "PagedItems",
+                    properties: [
+                        InputFactory.Property("value", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url)
+                    ]));
+
+            var operation = InputFactory.Operation("GetItems", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "GetItems",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: methodParameters);
+
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParams = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience, clientProvider!);
+
+            var pageSizeParameter = methodParams.FirstOrDefault(p =>
+                string.Equals(p.Name, "maxPageSize", StringComparison.Ordinal) ||
+                string.Equals(p.Name, "maxpagesize", StringComparison.Ordinal));
+
+            Assert.IsNotNull(pageSizeParameter, "Page size parameter should be present in method parameters");
+            Assert.AreEqual("maxPageSize", pageSizeParameter!.Name,
+                "Parameter name should be 'maxPageSize' (from constant), not 'maxpagesize' (from input)");
+        }
+
+        [Test]
+        public void PageSizeParameterSerializedNameUsedInCreateRequestMethod()
+        {
+            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32,
+                isRequired: false, serializedName: "maxpagesize");
+
+            List<InputParameter> parameters = [pageSizeParam];
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false,
+                    location: InputRequestLocation.Query, serializedName: "maxpagesize"),
+            ];
+
+            var inputModel = InputFactory.Model("Item", properties:
+            [
+                InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var pagingMetadata = new InputPagingServiceMetadata(
+                ["value"],
+                new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, []),
+                null,
+                ["maxpagesize"]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "PagedItems",
+                    properties: [
+                        InputFactory.Property("value", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url)
+                    ]));
+
+            var operation = InputFactory.Operation("GetItems", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "GetItems",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: methodParameters);
+
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = clientProvider.RestClient;
+
+            // Get the CreateRequest method
+            var createRequestMethod = restClientProvider.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "CreateGetItemsRequest");
+
+            Assert.IsNotNull(createRequestMethod, "CreateGetItemsRequest method should exist");
+
+            // Verify the method parameter uses the corrected name
+            var methodParam = createRequestMethod!.Signature.Parameters.FirstOrDefault(p =>
+                string.Equals(p.Name, "maxPageSize", StringComparison.Ordinal));
+
+            Assert.IsNotNull(methodParam, "Method parameter should use corrected name 'maxPageSize'");
+            Assert.AreEqual("maxPageSize", methodParam!.Name,
+                "Method signature should use 'maxPageSize' (corrected from 'maxpagesize')");
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+
+            // The generated code should use the parameter name "maxPageSize" and append it to the query string
+            // The serialized name "maxpagesize" should be used in uri.AppendQuery("maxpagesize", maxPageSize, true)
+            Assert.IsTrue(file.Content.Contains("maxPageSize"),
+                "Generated code should use corrected parameter name 'maxPageSize'");
+            Assert.IsTrue(file.Content.Contains("uri.AppendQuery(\"maxpagesize\""),
+                "Generated code should use the serialized name 'maxpagesize' in the query string");
         }
     }
 }

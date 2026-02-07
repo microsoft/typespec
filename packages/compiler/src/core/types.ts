@@ -2702,6 +2702,55 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * Emitter custom options defined in createTypeSpecLibrary
    */
   options: TOptions;
+
+  /**
+   * Performance measurement utilities.
+   * Use this to report performance of areas of your emitter.
+   * The information will be displayed when the compiler is run with `--stats` flag.
+   */
+  readonly perf: PerfReporter;
+}
+
+export interface Timer {
+  end: () => number;
+}
+
+export interface PerfReporter {
+  /**
+   * Start timer for the given label.
+   *
+   * @example
+   * ```ts
+   * const timer = emitContext.perf.startTimer("my-emitter-task");
+   * // ... do work
+   * const elapsed = timer.end(); // my-emitter-task automatically reported to the compiler
+   * ```
+   */
+  startTimer(label: string): Timer;
+  /** Report a sync function elapsed time.  */
+  time<T>(label: string, callback: () => T): T;
+  /** Report an async function elapsed time.  */
+  timeAsync<T>(label: string, callback: () => Promise<T>): Promise<T>;
+
+  /**
+   * Report a custom elapsed time for the given label.
+   * Can be used with {@link import("./perf.js").perf}
+   * @example
+   * ```ts
+   * import { perf } from "@typespec/compiler";
+   *
+   * // somewhere in your emitter
+   * const start = perf.now();
+   * await doSomething();
+   * const end = perf.now();
+   *
+   * emitContext.perf.report("doSomething", end - start);
+   * ```
+   */
+  report(label: string, milliseconds: number): void;
+
+  /** @internal */
+  readonly measures: Readonly<Record<string, number>>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";

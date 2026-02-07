@@ -1259,5 +1259,75 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual($"Deserialize{model.Name}", deserializationMethod.Signature.Name,
                 "Deserialization method name should use ModelProvider name");
         }
+
+        [TestCase("commaDelimited", ",")]
+        [TestCase("spaceDelimited", " ")]
+        [TestCase("pipeDelimited", "|")]
+        [TestCase("newlineDelimited", "\\n")]
+        public void TestArrayEncodingSerializationStatement(string encoding, string expectedDelimiter)
+        {
+            Enum.TryParse<ArrayKnownEncoding>(encoding, ignoreCase: true, out var arrayEncoding);
+            var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
+            var arrayProperty = new InputModelProperty(
+                "TestArray", 
+                "Test array property summary",
+                "Test array property", 
+                arrayType, 
+                true, 
+                false, 
+                null, 
+                false, 
+                "testArray", 
+                false, 
+                false, 
+                null, 
+                new(json: new("testArray")),
+                arrayEncoding);
+                
+            var properties = new List<InputModelProperty> { arrayProperty };
+            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
+
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+            var writeMethod = serialization.BuildJsonModelWriteCoreMethod();
+            var methodBody = writeMethod.BodyStatements!.ToDisplayString();
+            
+            Assert.IsTrue(methodBody.Contains($"string.Join(\"{expectedDelimiter}\", TestArray)"), 
+                $"Expected serialization to use string.Join with delimiter '{expectedDelimiter}', but got: {methodBody}");
+        }
+
+        [TestCase("commaDelimited", ",")]
+        [TestCase("spaceDelimited", " ")]
+        [TestCase("pipeDelimited", "|")]
+        [TestCase("newlineDelimited", "\\n")]
+        public void TestArrayEncodingDeserializationStatement(string encoding, string expectedDelimiter)
+        {
+            Enum.TryParse<ArrayKnownEncoding>(encoding, ignoreCase: true, out var arrayEncoding);
+            var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
+            var arrayProperty = new InputModelProperty(
+                "TestArray", 
+                "Test array property summary",
+                "Test array property", 
+                arrayType, 
+                true, 
+                false, 
+                null, 
+                false, 
+                "testArray", 
+                false, 
+                false, 
+                null, 
+                new(json: new("testArray")),
+                arrayEncoding);
+                
+            var properties = new List<InputModelProperty> { arrayProperty };
+            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
+
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+            var deserializeMethod = serialization.BuildDeserializationMethod();
+            var methodBody = deserializeMethod.BodyStatements!.ToDisplayString();
+            
+            Assert.IsTrue(methodBody.Contains($".Split('{expectedDelimiter}')") || methodBody.Contains($".Split(\"{expectedDelimiter}\")"), 
+                $"Expected deserialization to use Split with delimiter '{expectedDelimiter}', but got: {methodBody}");
+        }
     }
 }

@@ -39,6 +39,7 @@ namespace SampleTypeSpec
         private AnimalOperations _cachedAnimalOperations;
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
+        private PlantOperations _cachedPlantOperations;
         private Metrics _cachedMetrics;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
@@ -315,6 +316,32 @@ namespace SampleTypeSpec
 
             using PipelineMessage message = CreateNoContentTypeRequest(p2, p1, content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Return hi again. </summary>
+        /// <param name="info"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="info"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<RoundTripModel> NoContentType(Wrapper info, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(info, nameof(info));
+
+            ClientResult result = NoContentType(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> Return hi again. </summary>
+        /// <param name="info"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="info"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<RoundTripModel>> NoContentTypeAsync(Wrapper info, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(info, nameof(info));
+
+            ClientResult result = await NoContentTypeAsync(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1735,6 +1762,58 @@ namespace SampleTypeSpec
             return await DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// [Protocol Method] Get an advanced XML model with various property types
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetXmlAdvancedModel(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetXmlAdvancedModelRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Get an advanced XML model with various property types
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetXmlAdvancedModelAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetXmlAdvancedModelRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Get an advanced XML model with various property types. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<XmlAdvancedModel> GetXmlAdvancedModel(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetXmlAdvancedModel(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> Get an advanced XML model with various property types. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<XmlAdvancedModel>> GetXmlAdvancedModelAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetXmlAdvancedModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+        }
+
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()
         {
@@ -1751,6 +1830,12 @@ namespace SampleTypeSpec
         public virtual DogOperations GetDogOperationsClient()
         {
             return Volatile.Read(ref _cachedDogOperations) ?? Interlocked.CompareExchange(ref _cachedDogOperations, new DogOperations(Pipeline, _endpoint), null) ?? _cachedDogOperations;
+        }
+
+        /// <summary> Initializes a new instance of PlantOperations. </summary>
+        public virtual PlantOperations GetPlantOperationsClient()
+        {
+            return Volatile.Read(ref _cachedPlantOperations) ?? Interlocked.CompareExchange(ref _cachedPlantOperations, new PlantOperations(Pipeline, _endpoint), null) ?? _cachedPlantOperations;
         }
 
         /// <summary> Initializes a new instance of Metrics. </summary>

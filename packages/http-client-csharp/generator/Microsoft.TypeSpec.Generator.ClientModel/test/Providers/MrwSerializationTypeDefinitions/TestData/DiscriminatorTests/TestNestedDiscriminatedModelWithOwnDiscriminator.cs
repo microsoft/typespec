@@ -15,6 +15,21 @@ namespace Sample.Models
         {
         }
 
+        protected override global::Sample.Models.Plant PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        {
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return global::Sample.Models.Tree.DeserializeTree(document.RootElement, options);
+                    }
+                default:
+                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Tree)} does not support reading '{options.Format}' format.");
+            }
+        }
+
         void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Tree>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
@@ -79,21 +94,6 @@ namespace Sample.Models
         }
 
         global::Sample.Models.Tree global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.Tree)this.PersistableModelCreateCore(data, options));
-
-        protected override global::Sample.Models.Plant PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
-        {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return global::Sample.Models.Tree.DeserializeTree(document.RootElement, options);
-                    }
-                default:
-                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Tree)} does not support reading '{options.Format}' format.");
-            }
-        }
 
         string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }

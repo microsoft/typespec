@@ -582,6 +582,116 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsFalse(optionsArg is NewInstanceExpression, "Options argument should be the parameter itself, not a new instance");
         }
 
+        [Test]
+        public void TestBuildConstructors_DeduplicatesParametersBySerializedName()
+        {
+            // Scenario: Client has a parameter with name "indexName" and serializedName "indexName"
+            // An operation has a parameter with name "name" but serializedName "indexName" (renamed via @encodedName)
+            // These should be deduplicated by SerializedName to avoid duplicate fields
+            var clientParameter = InputFactory.PathParameter(
+                "indexName",
+                InputPrimitiveType.String,
+                serializedName: "indexName",
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operationParameterWithRenamedName = InputFactory.PathParameter(
+                "name",
+                InputPrimitiveType.String,
+                serializedName: "indexName",
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [operationParameterWithRenamedName]);
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("TestMethod", operation)],
+                parameters: [endpointParameter, clientParameter]);
+
+            var clientProvider = new ClientProvider(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Verify the field with the same SerializedName only appears once
+            var fields = clientProvider.Fields;
+            var indexNameFields = fields.Where(f => f.Name == "_indexName" || f.Name == "_name").ToList();
+
+            // Should only have ONE field for the "indexName" serialized name, not two
+            Assert.AreEqual(1, indexNameFields.Count,
+                $"Expected 1 field for serializedName 'indexName', but found {indexNameFields.Count}: {string.Join(", ", indexNameFields.Select(f => f.Name))}");
+
+            // The field should be "_indexName" (from the client parameters, which comes first)
+            Assert.AreEqual("_indexName", indexNameFields[0].Name,
+                "Expected the client parameter field '_indexName' to be used, not the operation parameter field '_name'");
+        }
+
+        [Test]
+        public void TestBuildConstructors_DeduplicatesConstructorParametersBySerializedName()
+        {
+            // Scenario: Create required client-scoped parameters that will become constructor parameters.
+            // We use required non-path/query/header parameters that are client-scoped - these become fields
+            // and their corresponding parameters in the constructor.
+            var clientParameter = InputFactory.QueryParameter(
+                "indexName",
+                InputPrimitiveType.String,
+                serializedName: "indexName",
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operationParameterWithRenamedName = InputFactory.QueryParameter(
+                "name",
+                InputPrimitiveType.String,
+                serializedName: "indexName",
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [operationParameterWithRenamedName]);
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("TestMethod", operation)],
+                parameters: [endpointParameter, clientParameter]);
+
+            var clientProvider = new ClientProvider(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Verify the underlying parameter deduplication occurred
+            var allClientParameters = clientProvider.GetType()
+                .GetMethod("GetAllClientParameters", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.Invoke(clientProvider, null) as IReadOnlyList<InputParameter>;
+
+            Assert.IsNotNull(allClientParameters, "Could not access GetAllClientParameters method");
+            
+            var indexNameParams = allClientParameters!.Where(p => 
+                p.Name == "indexName" || p.Name == "name").ToList();
+            
+            // Should only have 1 parameter after deduplication by name
+            Assert.AreEqual(1, indexNameParams.Count,
+                $"Expected 1 parameter after deduplication, but found {indexNameParams.Count}: {string.Join(", ", indexNameParams.Select(p => p.Name))}");
+            
+            // Should be the client parameter (first one wins)
+            Assert.AreEqual("indexName", indexNameParams[0].Name,
+                "Expected the client parameter 'indexName' to be preserved after deduplication");
+        }
+
         // Tests for InitializedBy flag behavior
 
         [Test]
@@ -3427,5 +3537,108 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(fieldUpperCase);
             Assert.AreEqual("_serviceAApiVersion", fieldUpperCase!.Name);
         }
+
+        [TestCase("{endpoint}")]
+        [TestCase("{Endpoint}")]
+        [TestCase("{ENDPOINT}")]
+        public void ConvertUriTemplate_CaseInsensitiveEndpointLookup(string serverTemplate)
+        {
+            // Tests that the parameter lookup in ConvertUriTemplateToFormattableString is case-insensitive
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                parameters: [InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    scope: InputParameterScope.Client,
+                    serverUrlTemplate: serverTemplate,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsNotNull(constructor);
+            // Should not throw and should contain the Uri assignment
+            var bodyText = constructor!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyText.Contains("_endpoint = new global::System.Uri($\""));
+        }
+
+        [Test]
+        public void ConvertUriTemplate_CaseInsensitivePathParameterLookup()
+        {
+            // Tests template with mixed case placeholders like "{Endpoint}/services/{ApiVersion}"
+            MockHelpers.LoadMockGenerator();
+
+            var serverTemplate = "{Endpoint}/{ApiVersion}";
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Test", InputFactory.Operation("test", uri: serverTemplate))],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint", // lowercase parameter name
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client,
+                        serverUrlTemplate: serverTemplate,
+                        isEndpoint: true),
+                    InputFactory.PathParameter(
+                        "apiVersion", // lowercase parameter name
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client)
+                ]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsNotNull(constructor);
+            // Should not throw - case-insensitive lookup should find parameters
+            var bodyText = constructor!.BodyStatements!.ToDisplayString();
+            Assert.IsNotNull(bodyText);
+            // Verify that the Uri is built according to the server template with case-insensitive parameter matching
+            Assert.IsTrue(bodyText.Contains("$\"{endpoint}/{_apiVersion}\""));
+        }
+
+        [Test]
+        public void ConvertUriTemplate_WithMultiplePlaceholders()
+        {
+            // Tests template with multiple placeholders: "{endpoint}/{apiVersion}/services/{subscriptionId}"
+            MockHelpers.LoadMockGenerator();
+
+            var serverTemplate = "{endpoint}/{apiVersion}/services/{subscriptionId}";
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Test", InputFactory.Operation("test", uri: serverTemplate))],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client,
+                        serverUrlTemplate: serverTemplate,
+                        isEndpoint: true),
+                    InputFactory.PathParameter(
+                        "apiVersion",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client),
+                    InputFactory.PathParameter(
+                        "subscriptionId",
+                        InputPrimitiveType.String,
+                        isRequired: true,
+                        scope: InputParameterScope.Client)
+                ]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            Assert.IsNotNull(constructor);
+            var bodyText = constructor!.BodyStatements!.ToDisplayString();
+            Assert.IsNotNull(bodyText);
+            // Verify that the Uri is built according to the server template
+            Assert.IsTrue(bodyText.Contains("$\"{endpoint}/{_apiVersion}/services/{_subscriptionId}\""));
+        }
     }
 }
+
