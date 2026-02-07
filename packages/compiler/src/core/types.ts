@@ -61,11 +61,6 @@ export interface DecoratorFunction {
   namespace?: string;
 }
 
-export interface FunctionImplementation {
-  (context: FunctionContext, ...args: any[]): Type | Value;
-  namespace?: string;
-}
-
 export type ValidatorFn = () => readonly Diagnostic[];
 
 export interface DecoratorValidatorCallbacks {
@@ -2454,7 +2449,7 @@ export interface DecoratorImplementations {
 
 export interface FunctionImplementations {
   readonly [namespace: string]: {
-    readonly [name: string]: FunctionImplementation;
+    readonly [name: string]: (ctx: FunctionContext, ...parameters: never[]) => unknown;
   };
 }
 
