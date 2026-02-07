@@ -1657,6 +1657,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task MissingRequiredOperationParamsResultInPassingNull()
+        {
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            // This will be made required in the protocol method due to method overload ambiguity
+            var takeParam = InputFactory.QueryParameter("take", InputPrimitiveType.Int32, isRequired: false);
+            var filterParam = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false);
+            var orderParam = InputFactory.HeaderParameter("order", InputPrimitiveType.String, isRequired: false);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "TestOp",
+                InputFactory.Operation(
+                    "TestOp",
+                    parameters: [idParam, filterParam, orderParam, takeParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("take", InputPrimitiveType.Int32, isRequired: false, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("order", InputPrimitiveType.Int32, isRequired: false, location: InputRequestLocation.Header),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == "TestOp");
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
+        [Test]
         public async Task CombinedMissingOperationParamsAndNonBodyModelParams()
         {
             // Create a body model with HTTP metadata properties (header/query params)
