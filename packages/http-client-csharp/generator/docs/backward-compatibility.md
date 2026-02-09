@@ -12,6 +12,8 @@
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
   - [Parameter Name Casing](#parameter-name-casing)
+    - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
+    - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
 
 ## Overview
 
@@ -475,3 +477,116 @@ public virtual AsyncPageable<Item> GetItemsAsync(int? maxPageSize = null, Cancel
 - **Case 2 (Normalization)**: If the parameter does NOT exist in LastContractView, badly-cased variants are normalized to proper camelCase
 - The HTTP query parameter always uses the original serialized name from the spec (e.g., `maxpagesize`)
 - Existing client code continues to compile without changes
+
+#### Scenario: Top Parameter Conversion to MaxCount
+
+**Description:** For paging operations, the generator converts the `top` parameter to `maxCount` to follow standard naming conventions. However, backward compatibility is maintained in two ways:
+
+1. **If the `top` parameter exists in LastContractView**: The generator preserves the `top` parameter name (with its exact casing) to maintain backward compatibility
+2. **If the `top` parameter does NOT exist in LastContractView**: The generator converts `top` to the standardized `maxCount` parameter name
+
+This commonly occurs when:
+
+- Migrating from an older API version or generator that used `top` for pagination limits
+- TypeSpec defines paging operations with a `top` parameter
+- The generator needs to standardize on `maxCount` while maintaining backward compatibility
+
+**Example:**
+
+**Case 1: Top parameter exists in LastContractView - preserved for backward compatibility**
+
+Previous version had `top` parameter:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? top = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (top != null)
+        {
+            uri.AppendQuery("top", top.Value, true);  // Serialized name from spec
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+Current TypeSpec still defines `top` parameter:
+
+```typespec
+op getItems(@query top?: int32): Page<Item>;
+```
+
+**Generated Compatibility Result:**
+
+The generator detects the `top` parameter in LastContractView and preserves it exactly to maintain backward compatibility:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? top = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (top != null)
+        {
+            uri.AppendQuery("top", top.Value, true);  // Still uses "top" for backward compatibility
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+**Case 2: Top parameter does NOT exist in LastContractView - converted to maxCount**
+
+New paging operation with `top` parameter (no previous version):
+
+```typespec
+op getItems(@query top?: int32): Page<Item>;
+```
+
+**Generated Result:**
+
+The generator converts the parameter name to standardized `maxCount` since there's no previous version to maintain compatibility with:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? maxCount = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (maxCount != null)
+        {
+            uri.AppendQuery("top", maxCount.Value, true);  // Serialized name still uses "top" from spec
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+**Key Points:**
+
+- **Case 1 (Backward compatibility)**: If `top` parameter exists in LastContractView, its exact name and casing are preserved
+- **Case 2 (Standardization)**: If `top` parameter does NOT exist in LastContractView, it is converted to `maxCount` for consistency
+- The HTTP query parameter always uses the original serialized name from the spec (e.g., `top`)
+- This conversion is specific to paging operations only
+- Existing client code with `top` continues to compile without changes
+- New code benefits from the standardized `maxCount` naming convention
