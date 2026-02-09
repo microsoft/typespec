@@ -23,8 +23,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("Prop1", InputPrimitiveType.String, xmlSerializationOptions: new("prop1")),
-                    InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String), xmlSerializationOptions: new("prop2"))
+                    InputFactory.Property("Prop1", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop1"))),
+                    InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String), serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop2")))
                 ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel],
@@ -62,7 +62,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("Prop1", InputPrimitiveType.String, xmlSerializationOptions: new("prop1"))
+                    InputFactory.Property("Prop1", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop1")))
                 ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel],
@@ -98,8 +98,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("Prop1", InputPrimitiveType.String, xmlSerializationOptions: new("prop1")),
-                    InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String), xmlSerializationOptions: new("prop2"))
+                    InputFactory.Property("Prop1", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop1"))),
+                    InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String), serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop2")))
                 ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel],
@@ -126,8 +126,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("Id", InputPrimitiveType.String, xmlSerializationOptions: new("id", attribute: true)),
-                    InputFactory.Property("Name", InputPrimitiveType.String, xmlSerializationOptions: new("name"))
+                    InputFactory.Property("Id", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("id", attribute: true))),
+                    InputFactory.Property("Name", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))
                 ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel],

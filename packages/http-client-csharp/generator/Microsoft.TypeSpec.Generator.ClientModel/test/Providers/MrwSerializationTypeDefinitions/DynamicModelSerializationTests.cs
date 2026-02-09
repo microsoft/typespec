@@ -962,14 +962,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void DeserializeMultiplePrimitiveProperties()
         {
+            var fooSerializationOptions = InputFactory.Serialization.Json("foo");
+            var catSerializationOptions = InputFactory.Serialization.Json("x-cat");
+            var barSerializationOptions = InputFactory.Serialization.Json("bar");
             var inputModel = InputFactory.Model(
                "dynamicModel",
                isDynamicModel: true,
                properties:
                [
-                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.Property("cat", InputPrimitiveType.String, serializedName: "x-cat", isRequired: true),
-                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: false)
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(fooSerializationOptions)),
+                    InputFactory.Property("cat", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(catSerializationOptions)),
+                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: false, serializationOptions: InputFactory.Serialization.Options(barSerializationOptions))
                ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);

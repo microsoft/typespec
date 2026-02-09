@@ -5,6 +5,9 @@ using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 {
+    /// <summary>
+    /// Represents XML serialization options for a property or model.
+    /// </summary>
     public class XmlSerialization
     {
         public XmlSerialization(InputXmlSerializationOptions xmlOptions)
