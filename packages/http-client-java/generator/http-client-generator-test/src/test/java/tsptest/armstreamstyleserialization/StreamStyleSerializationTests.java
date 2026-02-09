@@ -164,14 +164,14 @@ public class StreamStyleSerializationTests {
     public void testBinaryDataInContainer() {
         // use a simple class
         TestBinary model = new TestBinary().withUnknownDict(
-            Map.of("string", BinaryData.fromString("value"), "object", BinaryData.fromString("{\"k\", \"v\"}")));
+            Map.of("string", BinaryData.fromString("\"value\""), "object", BinaryData.fromString("{\"k\", \"v\"}")));
 
         com.azure.core.util.BinaryData binaryData = BinaryData.fromObject(model);
         String jsonString = binaryData.toString();
         Map<String, Object> jsonMap = BinaryData.fromString(jsonString).toObject(Map.class);
         Assertions.assertTrue(jsonMap.containsKey("unknownDict"));
         Map<String, Object> unknownDict = (Map<String, Object>) jsonMap.get("unknownDict");
-        Assertions.assertEquals("value", unknownDict.get("string"));
+        Assertions.assertEquals("\"value\"", unknownDict.get("string"));
         Assertions.assertEquals("{\"k\", \"v\"}", unknownDict.get("object"));
 
         model = binaryData.toObject(TestBinary.class);
