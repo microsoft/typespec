@@ -71,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         }
 
         [Test]
-        public void MaxCountParameterUsedWhenNoBackwardCompatibility()
+        public void TopParameterConvertedToMaxCountWhenNoBackwardCompatibility()
         {
             // This test verifies that when a "top" parameter exists in the paging operation,
             // it is converted to "maxCount" when no LastContractView is present (no backward compatibility)
