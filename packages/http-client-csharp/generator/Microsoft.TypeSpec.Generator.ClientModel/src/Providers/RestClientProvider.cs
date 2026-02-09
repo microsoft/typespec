@@ -871,22 +871,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static string GetCorrectedParameterName(string originalName, string updatedName, ClientProvider client)
+        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, ClientProvider client)
         {
             // Check if the original parameter name exists in LastContractView for backward compatibility
             var existingParam = client.LastContractView?.Methods
                 ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(parameter => string.Equals(parameter.Name, originalName, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.Name, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
 
             if (existingParam != null)
             {
                 // Preserve the exact name (including casing) from the previous contract for backward compatibility
-                return existingParam;
+                proposedName = existingParam;
             }
 
             // Use the updated name
-            return updatedName;
+            if (!string.Equals(inputParameter.Name, proposedName, StringComparison.Ordinal))
+            {
+                inputParameter.Update(name: proposedName);
+            }
         }
 
         private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
@@ -1008,22 +1011,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // Rename "top" parameter to "maxCount" (with backward compatibility)
                     if (string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        var correctedMaxCountName = GetCorrectedParameterName(TopParameterName, MaxCountParameterName, client);
-                        if (!string.Equals(inputParam.Name, correctedMaxCountName, StringComparison.Ordinal))
-                        {
-                            inputParam.Update(name: correctedMaxCountName);
-                        }
+                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
-                    if (string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (pageSizeParameterName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase
-                        var correctedPageSizeName = GetCorrectedParameterName(inputParam.Name, MaxPageSizeParameterName, client);
-                        if (!string.Equals(inputParam.Name, correctedPageSizeName, StringComparison.Ordinal))
-                        {
-                            inputParam.Update(name: correctedPageSizeName);
-                        }
+                        var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
+                            ? MaxPageSizeParameterName
+                            : pageSizeParameterName;
+                        // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase, but always
+                        // respect backcompat.
+                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, client);
                     }
                 }
 
