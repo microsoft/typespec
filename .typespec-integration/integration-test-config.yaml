@@ -1,0 +1,17 @@
+suites:
+  azure-specs:
+    repo: https://github.com/Azure/azure-rest-api-specs
+    branch: typespec-next
+    pattern: "specification/**/tspconfig.yaml"
+    entrypoints:
+      - name: "client.tsp"
+        options: ["--dry-run"]
+      - name: "main.tsp"
+  azure-specs-pr:
+    repo: https://github.com/Azure/azure-rest-api-specs-pr
+    branch: typespec-next
+    pattern: "specification/**/tspconfig.yaml"
+    entrypoints:
+      - name: "client.tsp"
+        options: ["--dry-run"]
+      - name: "main.tsp"
