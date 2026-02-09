@@ -11,7 +11,7 @@
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
-  - [Parameter Name Casing](#parameter-name-casing)
+  - [Parameter Naming](#parameter-naming)
     - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
     - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
 
@@ -363,9 +363,9 @@ public abstract partial class SearchIndexerDataIdentity
 - The modifier is changed from `private protected` to `public`
 - No additional constructors are generated; only the accessibility is adjusted
 
-### Parameter Name Casing
+### Parameter Naming
 
-The generator maintains backward compatibility for parameter names to ensure that existing code continues to compile when parameter name casing is corrected or standardized.
+The generator maintains backward compatibility for parameter names to ensure that existing code continues to compile when parameter names are corrected, standardized, or converted to follow naming conventions.
 
 #### Scenario: Page Size Parameter Casing Correction
 
