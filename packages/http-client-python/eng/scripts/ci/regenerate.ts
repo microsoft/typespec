@@ -22,7 +22,7 @@ const argv = parseArgs({
 });
 
 // Add this near the top with other constants
-const SKIP_SPECS: string[] = [];
+const SKIP_SPECS: string[] = ["type/file"];
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir

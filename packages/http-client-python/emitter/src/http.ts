@@ -480,7 +480,6 @@ function emitHttpHeaderParameter(
   parameter: SdkHeaderParameter,
   method: SdkServiceMethod<SdkHttpOperation>,
   serviceApiVersions: string[],
-  bodyParam?: SdkBodyParameter,
 ): Record<string, any> {
   const base = emitParamBase(context, parameter, method, serviceApiVersions);
   const [delimiter, explode] = getDelimiterAndExplode(parameter);
@@ -489,16 +488,6 @@ function emitHttpHeaderParameter(
     // we switch to string type for content-type header
     if (!clientDefaultValue && parameter.type.kind === "constant") {
       clientDefaultValue = parameter.type.value;
-    }
-    // if still no default value, try to derive from body parameter's content types
-    if (!clientDefaultValue && bodyParam) {
-      const fileContentTypes = getHttpFileContentTypes(bodyParam);
-      const defaultContentType = fileContentTypes
-        ? fileContentTypes[0]
-        : bodyParam.defaultContentType;
-      if (defaultContentType) {
-        clientDefaultValue = defaultContentType;
-      }
     }
     base.type = KnownTypes.string;
   }
@@ -582,15 +571,7 @@ function emitHttpParameters(
   for (const parameter of httpParameters) {
     switch (parameter.kind) {
       case "header":
-        parameters.push(
-          emitHttpHeaderParameter(
-            context,
-            parameter,
-            method,
-            serviceApiVersions,
-            operation.bodyParam,
-          ),
-        );
+        parameters.push(emitHttpHeaderParameter(context, parameter, method, serviceApiVersions));
         break;
       case "query":
         parameters.push(
@@ -606,40 +587,21 @@ function emitHttpParameters(
   return parameters;
 }
 
-function isHttpFileType(
-  type: { kind: string; crossLanguageDefinitionId?: string } | undefined,
-): boolean {
-  return type?.kind === "model" && type?.crossLanguageDefinitionId === "TypeSpec.Http.File";
-}
-
-function getHttpFileContentTypes(bodyParam: SdkBodyParameter): string[] | undefined {
-  if (bodyParam.type.kind === "model" && isHttpFileType(bodyParam.type)) {
-    const contentTypeProp = bodyParam.type.properties.find((p) => p.name === "contentType");
-    if (contentTypeProp && contentTypeProp.type.kind === "constant" && contentTypeProp.type.value) {
-      return [String(contentTypeProp.type.value)];
-    }
-  }
-  return undefined;
-}
-
 function emitHttpBodyParameter(
   context: PythonSdkContext,
   bodyParam?: SdkBodyParameter,
   serviceApiVersions: string[] = [],
 ): Record<string, any> | undefined {
   if (bodyParam === undefined) return undefined;
-  const fileContentTypes = getHttpFileContentTypes(bodyParam);
-  const contentTypes = fileContentTypes ?? bodyParam.contentTypes;
-  const defaultContentType = fileContentTypes ? fileContentTypes[0] : bodyParam.defaultContentType;
   return {
     ...emitParamBase(context, bodyParam, undefined, serviceApiVersions),
-    contentTypes,
+    contentTypes: bodyParam.contentTypes,
     location: bodyParam.kind,
     clientName: bodyParam.isGeneratedName ? "body" : camelToSnakeCase(bodyParam.name),
     wireName: bodyParam.isGeneratedName ? "body" : bodyParam.name,
     implementation: getImplementation(context, bodyParam),
     clientDefaultValue: bodyParam.clientDefaultValue,
-    defaultContentType,
+    defaultContentType: bodyParam.defaultContentType,
   };
 }
 
@@ -675,13 +637,8 @@ function emitHttpResponse(
     type["referredByOperationType"] |= referredBy;
   }
 
-  const httpFile = isHttpFileType(response.type);
-  const headers = response.headers
-    .filter((x) => !httpFile || x.serializedName)
-    .map((x) => emitHttpResponseHeader(context, x));
-
   return {
-    headers,
+    headers: response.headers.map((x) => emitHttpResponseHeader(context, x)),
     statusCodes:
       typeof statusCodes === "object"
         ? [[(statusCodes as HttpStatusCodeRange).start, (statusCodes as HttpStatusCodeRange).end]]
