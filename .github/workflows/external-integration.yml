@@ -88,7 +88,7 @@ jobs:
 
       - name: Build and pack TypeSpec Azure packages
         run: |
-          pnpm --filter "!@typespec/playground-website" -r build
+          pnpm --filter "!@typespec/playground-website" --filter "!@typespec/website"  -r build
 
           pnpm chronus pack --pack-destination ./tgz-packages --exclude standalone
 
