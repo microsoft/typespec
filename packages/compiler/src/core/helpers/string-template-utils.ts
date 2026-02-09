@@ -1,5 +1,6 @@
 import { createDiagnosticCollector } from "../diagnostics.js";
 import { createDiagnostic } from "../messages.js";
+import { isErrorType } from "../type-utils.js";
 import type { Diagnostic, StringTemplate } from "../types.js";
 
 export function isStringTemplateSerializable(
@@ -35,8 +36,7 @@ export function explainStringTemplateNotSerializable(
           }
         // eslint-disable-next-line no-fallthrough
         default:
-          // Don't report non-literal-string-template error if the type is already an ErrorType
-          if (span.type.kind !== "Intrinsic" || span.type.name !== "ErrorType") {
+          if (!isErrorType(span.type)) {
             diagnostics.add(
               createDiagnostic({
                 code: "non-literal-string-template",
