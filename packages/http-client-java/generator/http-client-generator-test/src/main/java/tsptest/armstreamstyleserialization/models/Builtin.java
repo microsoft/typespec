@@ -684,13 +684,28 @@ public final class Builtin implements JsonSerializable<Builtin> {
         jsonWriter.writeStringField("uuid", this.uuid);
         jsonWriter.writeFieldName("unknown");
         this.unknown.writeTo(jsonWriter);
-        jsonWriter.writeMapField("unknownDict", this.unknownDict,
-            (writer, element) -> writer.writeUntyped(element == null ? null : element.toObject(Object.class)));
-        jsonWriter.writeArrayField("unknownArray", this.unknownArray,
-            (writer, element) -> writer.writeUntyped(element == null ? null : element.toObject(Object.class)));
-        jsonWriter.writeArrayField("unknownDictArray", this.unknownDictArray, (writer, element) -> writer.writeMap(
-            element,
-            (writer1, element1) -> writer1.writeUntyped(element1 == null ? null : element1.toObject(Object.class))));
+        jsonWriter.writeMapField("unknownDict", this.unknownDict, (writer, element) -> {
+            if (element == null) {
+                writer.writeNull();
+            } else {
+                element.writeTo(writer);
+            }
+        });
+        jsonWriter.writeArrayField("unknownArray", this.unknownArray, (writer, element) -> {
+            if (element == null) {
+                writer.writeNull();
+            } else {
+                element.writeTo(writer);
+            }
+        });
+        jsonWriter.writeArrayField("unknownDictArray", this.unknownDictArray,
+            (writer, element) -> writer.writeMap(element, (writer1, element1) -> {
+                if (element1 == null) {
+                    writer1.writeNull();
+                } else {
+                    element1.writeTo(writer1);
+                }
+            }));
         return jsonWriter.writeEndObject();
     }
 
