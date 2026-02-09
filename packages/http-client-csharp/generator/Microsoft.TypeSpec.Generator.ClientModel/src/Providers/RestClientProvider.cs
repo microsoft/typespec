@@ -871,7 +871,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static string GetCorrectedParameterName(string originalName, string? updatedName, ClientProvider client)
+        private static string GetCorrectedParameterName(string originalName, string updatedName, ClientProvider client)
         {
             // Check if the original parameter name exists in LastContractView for backward compatibility
             var existingParam = client.LastContractView?.Methods
@@ -885,8 +885,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return existingParam;
             }
 
-            // If an updated name is provided, use it; otherwise keep the original name
-            return updatedName ?? originalName;
+            // Use the updated name
+            return updatedName;
         }
 
         private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
