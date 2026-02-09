@@ -15,6 +15,8 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual SpreadRecordForNonDiscriminatedUnion3 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
         public static explicit operator SpreadRecordForNonDiscriminatedUnion3(ClientResult result) => throw null;
 
         void IJsonModel<SpreadRecordForNonDiscriminatedUnion3>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,8 +28,6 @@ namespace _Type.Property.AdditionalProperties
         protected virtual SpreadRecordForNonDiscriminatedUnion3 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         BinaryData IPersistableModel<SpreadRecordForNonDiscriminatedUnion3>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
         SpreadRecordForNonDiscriminatedUnion3 IPersistableModel<SpreadRecordForNonDiscriminatedUnion3>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 

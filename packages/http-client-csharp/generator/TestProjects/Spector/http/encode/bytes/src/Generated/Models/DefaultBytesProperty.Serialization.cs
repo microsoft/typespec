@@ -15,6 +15,8 @@ namespace Encode.Bytes
 
         protected virtual DefaultBytesProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
         public static explicit operator DefaultBytesProperty(ClientResult result) => throw null;
 
         void IJsonModel<DefaultBytesProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,8 +28,6 @@ namespace Encode.Bytes
         protected virtual DefaultBytesProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         BinaryData IPersistableModel<DefaultBytesProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
         DefaultBytesProperty IPersistableModel<DefaultBytesProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
