@@ -71,10 +71,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         }
 
         [Test]
-        public void MaxCountParameterPreservesTopInPagingOperation()
+        public void MaxCountParameterUsedWhenNoBackwardCompatibility()
         {
             // This test verifies that when a "top" parameter exists in the paging operation,
-            // it is converted to "maxCount" (no LastContractView present in this test scenario)
+            // it is converted to "maxCount" when no LastContractView is present
             var maxCountParameter = InputFactory.QueryParameter("maxCount", InputPrimitiveType.Int32);
             var pagingMetadata = InputFactory.PagingMetadata(["items"], null, null);
             var responseModel = InputFactory.Model("Response", properties: [
