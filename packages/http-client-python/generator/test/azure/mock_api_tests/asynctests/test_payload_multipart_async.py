@@ -184,3 +184,33 @@ async def test_optional_parts(client: MultiPartClient):
             profile_image=open(str(JPG), "rb"),
         )
     )
+
+
+@pytest.mark.asyncio
+async def test_file_upload_file_specific_content_type(client: MultiPartClient):
+    await client.form_data.file.upload_file_specific_content_type(
+        models.UploadFileSpecificContentTypeRequest(
+            file=("image.png", open(str(PNG), "rb"), "image/png"),
+        )
+    )
+
+
+@pytest.mark.asyncio
+async def test_file_upload_file_required_filename(client: MultiPartClient):
+    await client.form_data.file.upload_file_required_filename(
+        models.UploadFileRequiredFilenameRequest(
+            file=("image.png", open(str(PNG), "rb"), "image/png"),
+        )
+    )
+
+
+@pytest.mark.asyncio
+async def test_file_upload_file_array(client: MultiPartClient):
+    await client.form_data.file.upload_file_array(
+        models.UploadFileArrayRequest(
+            files=[
+                ("image.png", open(str(PNG), "rb"), "image/png"),
+                ("image.png", open(str(PNG), "rb"), "image/png"),
+            ],
+        )
+    )
