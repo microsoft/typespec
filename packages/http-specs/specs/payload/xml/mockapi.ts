@@ -123,6 +123,12 @@ export const modelWithEncodedNames = `
 </ModelWithEncodedNamesSrc>
 `;
 
+export const modelWithEnum = `
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
+`;
+
 function createServerTests(uri: string, data?: any) {
   return {
     get: passOnSuccess({
@@ -233,6 +239,10 @@ const Payload_Xml_ModelWithEncodedNames = createServerTests(
 );
 Scenarios.Payload_Xml_ModelWithEncodedNamesValue_get = Payload_Xml_ModelWithEncodedNames.get;
 Scenarios.Payload_Xml_ModelWithEncodedNamesValue_put = Payload_Xml_ModelWithEncodedNames.put;
+
+const Payload_Xml_ModelWithEnum = createServerTests("/payload/xml/modelWithEnum", modelWithEnum);
+Scenarios.Payload_Xml_ModelWithEnumValue_get = Payload_Xml_ModelWithEnum.get;
+Scenarios.Payload_Xml_ModelWithEnumValue_put = Payload_Xml_ModelWithEnum.put;
 
 export const xmlError = `
 <XmlErrorBody>
