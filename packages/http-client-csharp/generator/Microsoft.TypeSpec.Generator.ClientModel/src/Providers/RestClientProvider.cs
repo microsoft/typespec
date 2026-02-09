@@ -955,8 +955,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // For convenience methods, use the service method parameters
             var inputParameters = methodType is ScmMethodKind.Convenience ? serviceMethod.Parameters : operation.Parameters;
 
-            var pageSizeParameterName = GetPageSizeParameterName(serviceMethod as InputPagingServiceMethod);
-
             ModelProvider? spreadSource = null;
             if (methodType == ScmMethodKind.Convenience)
             {
@@ -1016,13 +1014,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
 
                     // Ensure page size parameter uses the correct casing
-                    if (pageSizeParameterName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(inputParam.Name, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase
-                        var normalizedPageSizeName = string.Equals(pageSizeParameterName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
-                            ? MaxPageSizeParameterName
-                            : pageSizeParameterName;
-                        var correctedPageSizeName = GetCorrectedParameterName(pageSizeParameterName, normalizedPageSizeName, client);
+                        var correctedPageSizeName = GetCorrectedParameterName(inputParam.Name, MaxPageSizeParameterName, client);
                         if (!string.Equals(inputParam.Name, correctedPageSizeName, StringComparison.Ordinal))
                         {
                             inputParam.Update(name: correctedPageSizeName);
