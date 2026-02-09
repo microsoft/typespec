@@ -3,7 +3,7 @@ import { parseArgs } from "node:util";
 import { join, resolve } from "pathe";
 import { parse } from "yaml";
 import { runIntegrationTestSuite, Stages, type Stage } from "./run.js";
-import { projectRoot, ValidationFailedError } from "./utils.js";
+import { ValidationFailedError } from "./utils.js";
 
 process.on("SIGINT", () => process.exit(0));
 
@@ -36,9 +36,9 @@ const args = parseArgs({
 });
 
 const cwd = process.cwd();
-const integrationFolder = join(cwd, ".typespec-integration");
+const integrationDir = join(cwd, ".typespec-integration");
 const suiteName = args.positionals[0];
-const config = parse(await readFile(join(integrationFolder, "config.yaml"), "utf8"));
+const config = parse(await readFile(join(integrationDir, "config.yaml"), "utf8"));
 const suite = config.suites[suiteName];
 if (suite === undefined) {
   throw new Error(`Integration test suite "${suiteName}" not found in config.`);
@@ -56,7 +56,7 @@ if (args.values.stage) {
   }
 }
 
-const wd = args.values.repo ?? join(projectRoot, "temp", suiteName);
+const wd = args.values.repo ?? join(integrationDir, "temp", suiteName);
 try {
   await runIntegrationTestSuite(wd, suiteName, suite, {
     clean: args.values.clean,
