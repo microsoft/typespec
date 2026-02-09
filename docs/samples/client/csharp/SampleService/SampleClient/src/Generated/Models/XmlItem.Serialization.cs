@@ -5,132 +5,18 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Text.Json;
+using System.IO;
+using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
     /// <summary> An item model for XML array testing. </summary>
-    public partial class XmlItem : IJsonModel<XmlItem>
+    public partial class XmlItem
     {
         /// <summary> Initializes a new instance of <see cref="XmlItem"/> for deserialization. </summary>
         internal XmlItem()
         {
         }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<XmlItem>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
-
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(XmlItem)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("itemName"u8);
-            writer.WriteStringValue(ItemName);
-            writer.WritePropertyName("itemValue"u8);
-            writer.WriteNumberValue(ItemValue);
-            writer.WritePropertyName("itemId"u8);
-            writer.WriteStringValue(ItemId);
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
-        }
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        XmlItem IJsonModel<XmlItem>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
-
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual XmlItem JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(XmlItem)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeXmlItem(document.RootElement, options);
-        }
-
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static XmlItem DeserializeXmlItem(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            string itemName = default;
-            int itemValue = default;
-            string itemId = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("itemName"u8))
-                {
-                    itemName = prop.Value.GetString();
-                    continue;
-                }
-                if (prop.NameEquals("itemValue"u8))
-                {
-                    itemValue = prop.Value.GetInt32();
-                    continue;
-                }
-                if (prop.NameEquals("itemId"u8))
-                {
-                    itemId = prop.Value.GetString();
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new XmlItem(itemName, itemValue, itemId, additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<XmlItem>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(XmlItem)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        XmlItem IPersistableModel<XmlItem>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -139,17 +25,55 @@ namespace SampleTypeSpec
             string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
+                case "X":
+                    using (Stream dataStream = data.ToStream())
                     {
-                        return DeserializeXmlItem(document.RootElement, options);
+                        return DeserializeXmlItem(XElement.Load(dataStream, LoadOptions.PreserveWhitespace), options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(XmlItem)} does not support reading '{options.Format}' format.");
             }
         }
 
+        /// <param name="element"> The xml element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<XmlItem>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        internal static XmlItem DeserializeXmlItem(XElement element, ModelReaderWriterOptions options)
+        {
+            if (element == null)
+            {
+                return null;
+            }
+
+            string itemName = default;
+            int itemValue = default;
+            string itemId = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+
+            foreach (var attr in element.Attributes())
+            {
+                string localName = attr.Name.LocalName;
+                if (localName == "itemId")
+                {
+                    itemId = (string)attr;
+                    continue;
+                }
+            }
+
+            foreach (var child in element.Elements())
+            {
+                string localName = child.Name.LocalName;
+                if (localName == "itemName")
+                {
+                    itemName = (string)child;
+                    continue;
+                }
+                if (localName == "itemValue")
+                {
+                    itemValue = (int)child;
+                    continue;
+                }
+            }
+            return new XmlItem(itemName, itemValue, itemId, additionalBinaryDataProperties);
+        }
     }
 }

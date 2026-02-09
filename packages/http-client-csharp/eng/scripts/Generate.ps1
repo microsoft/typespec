@@ -29,22 +29,22 @@ if (-not $LaunchOnly) {
 
        Invoke "npm install --force" $sampleDir
 
-#       Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
-#
-#       Invoke "npx tsp compile . --trace @typespec/http-client-csharp --option @typespec/http-client-csharp.new-project=true" $sampleDir
-#
-#       # exit if the generation failed
-#       if ($LASTEXITCODE -ne 0) {
-#         exit $LASTEXITCODE
-#       }
+       Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 
-#       Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
-#       Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
-#
-#       # exit if the generation failed
-#       if ($LASTEXITCODE -ne 0) {
-#         exit $LASTEXITCODE
-#       }
+       Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
+
+       # exit if the generation failed
+       if ($LASTEXITCODE -ne 0) {
+         exit $LASTEXITCODE
+       }
+
+       Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
+       Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
+
+       # exit if the generation failed
+       if ($LASTEXITCODE -ne 0) {
+         exit $LASTEXITCODE
+       }
 
         Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
         $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'

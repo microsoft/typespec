@@ -14,12 +14,8 @@ namespace SampleTypeSpec
         /// <summary> A model with a few properties of literal types. </summary>
         /// <param name="name"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
         /// <param name="optionalNullableString"> required optional string. </param>
-        /// <param name="requiredLiteralInt"> required literal int. </param>
-        /// <param name="requiredLiteralFloat"> required literal float. </param>
-        /// <param name="requiredLiteralBool"> required literal bool. </param>
         /// <param name="optionalLiteralString"> optional literal string. </param>
         /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="optionalLiteralInt"> optional literal int. </param>
@@ -30,15 +26,10 @@ namespace SampleTypeSpec
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <param name="propertyWithSpecialDocs">
         /// This tests:
-        /// - Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.
-        /// - Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.
-        /// - Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.
-        /// - Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.
-        /// - **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.
-        /// - *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.
+        /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
         /// </param>
         /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(string name = default, BinaryData requiredUnion = default, string requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, int requiredLiteralInt = default, float requiredLiteralFloat = default, bool requiredLiteralBool = default, string optionalLiteralString = default, string requiredNullableLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string propertyWithSpecialDocs = default)
+        public static Thing Thing(string name = default, BinaryData requiredUnion = default, string requiredNullableString = default, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string propertyWithSpecialDocs = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();
@@ -46,12 +37,12 @@ namespace SampleTypeSpec
             return new Thing(
                 name,
                 requiredUnion,
-                requiredLiteralString,
+                "accept",
                 requiredNullableString,
                 optionalNullableString,
-                requiredLiteralInt,
-                requiredLiteralFloat,
-                requiredLiteralBool,
+                123,
+                1.23F,
+                false,
                 optionalLiteralString,
                 requiredNullableLiteralString,
                 optionalLiteralInt,
@@ -139,6 +130,16 @@ namespace SampleTypeSpec
         public static ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, StringExtensibleEnum? requiredExtensibleEnum = default, StringFixedEnum? requiredFixedEnum = default)
         {
             return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The Wrapper. </summary>
+        /// <param name="p1"> header parameter. </param>
+        /// <param name="action"> body parameter. </param>
+        /// <param name="p2"> path parameter. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Wrapper"/> instance for mocking. </returns>
+        public static Wrapper Wrapper(string p1 = default, RoundTripModel action = default, string p2 = default)
+        {
+            return new Wrapper(p1, action, p2, additionalBinaryDataProperties: null);
         }
 
         /// <summary> this is not a friendly model but with a friendly name. </summary>
@@ -229,7 +230,7 @@ namespace SampleTypeSpec
                 dictionaryOfDictionaryFoo,
                 dictionaryListFoo,
                 listOfDictionaryFoo.ToList(),
-                additionalBinaryDataProperties: null);
+                default);
         }
 
         /// <summary> Another sample dynamic model. </summary>
@@ -237,7 +238,7 @@ namespace SampleTypeSpec
         /// <returns> A new <see cref="SampleTypeSpec.AnotherDynamicModel"/> instance for mocking. </returns>
         public static AnotherDynamicModel AnotherDynamicModel(string bar = default)
         {
-            return new AnotherDynamicModel(bar, additionalBinaryDataProperties: null);
+            return new AnotherDynamicModel(bar, default);
         }
 
         /// <summary> An advanced XML model for testing various property types and XML features. </summary>
@@ -358,7 +359,7 @@ namespace SampleTypeSpec
 
         /// <summary>
         /// Base animal with discriminator
-        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Pet"/> and <see cref="Dog"/>.
+        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Pet"/> and <see cref="SampleTypeSpec.Dog"/>.
         /// </summary>
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>
@@ -399,7 +400,7 @@ namespace SampleTypeSpec
 
         /// <summary>
         /// Base plant with discriminator
-        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Tree"/>.
+        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Tree"/>.
         /// </summary>
         /// <param name="species"> The species of plant. </param>
         /// <param name="id"> The unique identifier of the plant. </param>
