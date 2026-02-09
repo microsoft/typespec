@@ -957,16 +957,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var pageSizeParameterName = GetPageSizeParameterName(serviceMethod as InputPagingServiceMethod);
 
-            string? correctedPageSizeName = null;
-            if (pageSizeParameterName != null)
-            {
-                // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase
-                var normalizedPageSizeName = string.Equals(pageSizeParameterName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
-                    ? MaxPageSizeParameterName
-                    : pageSizeParameterName;
-                correctedPageSizeName = GetCorrectedParameterName(pageSizeParameterName, normalizedPageSizeName, client);
-            }
-
             ModelProvider? spreadSource = null;
             if (methodType == ScmMethodKind.Convenience)
             {
@@ -1026,8 +1016,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
 
                     // Ensure page size parameter uses the correct casing
-                    if (correctedPageSizeName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (pageSizeParameterName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                     {
+                        // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase
+                        var normalizedPageSizeName = string.Equals(pageSizeParameterName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
+                            ? MaxPageSizeParameterName
+                            : pageSizeParameterName;
+                        var correctedPageSizeName = GetCorrectedParameterName(pageSizeParameterName, normalizedPageSizeName, client);
                         if (!string.Equals(inputParam.Name, correctedPageSizeName, StringComparison.Ordinal))
                         {
                             inputParam.Update(name: correctedPageSizeName);
