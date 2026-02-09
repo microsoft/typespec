@@ -35,12 +35,15 @@ export function explainStringTemplateNotSerializable(
           }
         // eslint-disable-next-line no-fallthrough
         default:
-          diagnostics.add(
-            createDiagnostic({
-              code: "non-literal-string-template",
-              target: span,
-            }),
-          );
+          // Don't report non-literal-string-template error if the type is already an ErrorType
+          if (span.type.kind !== "Intrinsic" || span.type.name !== "ErrorType") {
+            diagnostics.add(
+              createDiagnostic({
+                code: "non-literal-string-template",
+                target: span,
+              }),
+            );
+          }
       }
     }
   }
