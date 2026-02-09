@@ -82,6 +82,25 @@ model ModelWithEncodedNames {
   @encodedName("application/xml", "PossibleColors") colors: string[];
 }
 
+@doc("Status values for the model with enum.")
+union Status {
+  string,
+
+  @doc("Pending status.")
+  pending: "pending",
+
+  @doc("Success status.")
+  success: "success",
+
+  @doc("Error status.")
+  error: "error",
+}
+
+@doc("Contains a single property with an enum value.")
+model ModelWithEnum {
+  status: Status;
+}
+
 @doc("An error response body in XML format.")
 @error
 model XmlError {
@@ -312,6 +331,18 @@ interface ModelWithEncodedNamesValue
             <string>blue</string>
           </PossibleColors>
         </ModelWithEncodedNamesSrc>
+        """
+    > {}
+
+@doc("Operations for the ModelWithEnum type.")
+@route("/modelWithEnum")
+interface ModelWithEnumValue
+  extends XmlOperations<
+      ModelWithEnum,
+      """
+        <ModelWithEnum>
+          <status>success</status>
+        </ModelWithEnum>
         """
     > {}
 

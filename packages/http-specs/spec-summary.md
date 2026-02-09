@@ -3157,6 +3157,30 @@ Expected request body:
 </ModelWithEncodedNamesSrc>
 ```
 
+### Payload_Xml_ModelWithEnumValue_get
+
+- Endpoint: `get /payload/xml/modelWithEnum`
+
+Expected response body:
+
+```xml
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
+```
+
+### Payload_Xml_ModelWithEnumValue_put
+
+- Endpoint: `put /payload/xml/modelWithEnum`
+
+Expected request body:
+
+```xml
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
+```
+
 ### Payload_Xml_ModelWithOptionalFieldValue_get
 
 - Endpoint: `get /payload/xml/modelWithOptionalField`
