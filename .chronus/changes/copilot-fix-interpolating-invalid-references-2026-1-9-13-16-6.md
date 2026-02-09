@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Compiler: Don't report non-literal-string-template diagnostic when interpolating ErrorType
+Don't report `non-literal-string-template` diagnostic when interpolating an invalid reference
