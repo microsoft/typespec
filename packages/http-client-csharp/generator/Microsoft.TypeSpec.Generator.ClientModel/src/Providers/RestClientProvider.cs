@@ -889,22 +889,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return updatedName ?? originalName;
         }
 
-        private static string GetCorrectedPageSizeName(string originalName, ClientProvider client)
-        {
-            // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase
-            var normalizedName = string.Equals(originalName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
-                ? MaxPageSizeParameterName
-                : originalName;
-
-            return GetCorrectedParameterName(originalName, normalizedName, client);
-        }
-
-        private static string GetCorrectedMaxCountName(ClientProvider client)
-        {
-            // For "top" parameters, convert to "maxCount" unless it exists in LastContractView
-            return GetCorrectedParameterName(TopParameterName, MaxCountParameterName, client);
-        }
-
         private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
         {
             // Check if this is an API version parameter
@@ -976,7 +960,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string? correctedPageSizeName = null;
             if (pageSizeParameterName != null)
             {
-                correctedPageSizeName = GetCorrectedPageSizeName(pageSizeParameterName, client);
+                // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase
+                var normalizedPageSizeName = string.Equals(pageSizeParameterName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
+                    ? MaxPageSizeParameterName
+                    : pageSizeParameterName;
+                correctedPageSizeName = GetCorrectedParameterName(pageSizeParameterName, normalizedPageSizeName, client);
             }
 
             ModelProvider? spreadSource = null;
@@ -1028,7 +1016,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (serviceMethod is InputPagingServiceMethod &&
                     string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
                 {
-                    var correctedMaxCountName = GetCorrectedMaxCountName(client);
+                    var correctedMaxCountName = GetCorrectedParameterName(TopParameterName, MaxCountParameterName, client);
                     if (!string.Equals(inputParam.Name, correctedMaxCountName, StringComparison.Ordinal))
                     {
                         inputParam.Update(name: correctedMaxCountName);
