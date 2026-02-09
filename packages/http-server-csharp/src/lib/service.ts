@@ -399,6 +399,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const exceptionConstructor = isErrorType
         ? this.getModelExceptionConstructor(this.emitter.getProgram(), model, name, className)
         : "";
+      // Add System.Diagnostics.CodeAnalysis namespace for [SetsRequiredMembers] attribute used in exception constructors
+      if (isErrorType && exceptionConstructor) {
+        checkOrAddNamespaceToScope("System.Diagnostics.CodeAnalysis", this.emitter.getContext().scope);
+      }
 
       this.#metadateMap.set(model, new CSharpType({ name: className, namespace: namespace }));
       const decl = this.emitter.result.declaration(
@@ -424,8 +428,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       if (!isErrorModel(program, model)) return undefined;
       const constructor = this.getExceptionConstructorData(program, model, modelName);
       const isParent = !!model.derivedModels?.length;
-      return `public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `400`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
-        { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}${isParent ? `\npublic ${className}(int statusCode, object? value = null, Dictionary<string, string>? headers = default): base(statusCode, value, headers) {}\n` : ""}`;
+      return `[SetsRequiredMembers]
+	public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `400`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
+        { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}${isParent ? `\n[SetsRequiredMembers]\npublic ${className}(int statusCode, object? value = null, Dictionary<string, string>? headers = default): base(statusCode, value, headers) {}\n` : ""}`;
     }
 
     isDuplicateExceptionName(name: string): boolean {
