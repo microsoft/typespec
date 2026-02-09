@@ -871,9 +871,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static string GetCorrectedPageSizeName(string originalName, ClientProvider client)
+        private static string GetCorrectedParameterName(string originalName, string? updatedName, ClientProvider client)
         {
-            // Check if parameter exists in LastContractView for backward compatibility
+            // Check if the original parameter name exists in LastContractView for backward compatibility
             var existingParam = client.LastContractView?.Methods
                 ?.SelectMany(method => method.Signature.Parameters)
                 .FirstOrDefault(parameter => string.Equals(parameter.Name, originalName, StringComparison.OrdinalIgnoreCase))
@@ -881,35 +881,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (existingParam != null)
             {
+                // Preserve the exact name (including casing) from the previous contract for backward compatibility
                 return existingParam;
             }
 
-            // Normalize badly-cased "maxpagesize" variants to Camel Case
-            if (string.Equals(originalName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase))
-            {
-                return MaxPageSizeParameterName;
-            }
+            // If an updated name is provided, use it; otherwise keep the original name
+            return updatedName ?? originalName;
+        }
 
-            // Keep original name for all other cases
-            return originalName;
+        private static string GetCorrectedPageSizeName(string originalName, ClientProvider client)
+        {
+            // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase
+            var normalizedName = string.Equals(originalName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
+                ? MaxPageSizeParameterName
+                : originalName;
+
+            return GetCorrectedParameterName(originalName, normalizedName, client);
         }
 
         private static string GetCorrectedMaxCountName(ClientProvider client)
         {
-            // Check if "top" parameter exists in LastContractView for backward compatibility
-            var existingTopParam = client.LastContractView?.Methods
-                ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(parameter => string.Equals(parameter.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
-                ?.Name;
-
-            if (existingTopParam != null)
-            {
-                // Preserve the exact name (including casing) from the previous contract for backward compatibility
-                return existingTopParam;
-            }
-
-            // Use the new standard "maxCount" parameter name
-            return MaxCountParameterName;
+            // For "top" parameters, convert to "maxCount" unless it exists in LastContractView
+            return GetCorrectedParameterName(TopParameterName, MaxCountParameterName, client);
         }
 
         private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
