@@ -74,14 +74,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         public void MaxCountParameterUsedWhenNoBackwardCompatibility()
         {
             // This test verifies that when a "top" parameter exists in the paging operation,
-            // it is converted to "maxCount" when no LastContractView is present
-            var maxCountParameter = InputFactory.QueryParameter("maxCount", InputPrimitiveType.Int32);
+            // it is converted to "maxCount" when no LastContractView is present (no backward compatibility)
+            var topParameter = InputFactory.QueryParameter("top", InputPrimitiveType.Int32);
             var pagingMetadata = InputFactory.PagingMetadata(["items"], null, null);
             var responseModel = InputFactory.Model("Response", properties: [
                 InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var response = InputFactory.OperationResponse([200], responseModel);
-            var operation = InputFactory.Operation("getItems", parameters: [maxCountParameter], responses: [response]);
+            var operation = InputFactory.Operation("getItems", parameters: [topParameter], responses: [response]);
             var pagingMethod = InputFactory.PagingServiceMethod("getItems", operation, pagingMetadata: pagingMetadata);
             var client = InputFactory.Client("testClient", methods: [pagingMethod]);
 
@@ -98,7 +98,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 .Select(param => param.Name)
                 .ToList();
 
-            Assert.Contains("maxCount", parameterNames, "Should contain 'maxCount' parameter");
+            Assert.Contains("maxCount", parameterNames, "Should contain 'maxCount' parameter after conversion");
+            Assert.IsFalse(parameterNames.Contains("top"), "Should not contain 'top' parameter after conversion to 'maxCount'");
         }
         
         [Test]

@@ -904,8 +904,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (existingTopParam != null)
             {
-                // Preserve the old "top" parameter name for backward compatibility
-                return TopParameterName;
+                // Preserve the exact name (including casing) from the previous contract for backward compatibility
+                return existingTopParam;
             }
 
             // Use the new standard "maxCount" parameter name
