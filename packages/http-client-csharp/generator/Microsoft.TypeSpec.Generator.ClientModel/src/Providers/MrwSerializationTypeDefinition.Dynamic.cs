@@ -309,7 +309,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 // Add direct dynamic properties
                 var dynamicProperties = properties.Where(p =>
-                    p.WireInfo?.SerializedName != null &&
+                    p.WireInfo != null &&
                     ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
                     provider is ScmModelProvider { JsonPatchProperty: not null });
                 allDynamicProperties.AddRange(dynamicProperties);
@@ -317,7 +317,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Add dynamic collection properties
                 var dynamicCollectionProperties = properties
                     .Where(p => p.Type.IsCollection &&
-                        p.WireInfo?.SerializedName != null &&
+                        p.WireInfo != null &&
                         ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                             p.Type.GetNestedElementType(),
                             out var provider) &&
@@ -333,8 +333,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var property in allDynamicProperties)
             {
                 var patchProperty = ((MemberExpression)property).Property("Patch").As<JsonPatch>();
+                var jsonSerializedName = GetJsonSerializedName(property.WireInfo!);
                 statements.Add(
-                    new IfStatement(localVariable.Invoke("StartsWith", LiteralU8(property.WireInfo!.SerializedName)))
+                    new IfStatement(localVariable.Invoke("StartsWith", LiteralU8(jsonSerializedName)))
                     {
                         propagateGet
                             ? Return(patchProperty.TryGetEncodedValue(
@@ -342,7 +343,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     Spread(LiteralU8("$")),
                                     Spread(ReadOnlySpanSnippets.Slice(
                                         localVariable,
-                                        LiteralU8(property.WireInfo!.SerializedName).Property("Length")))),
+                                        LiteralU8(jsonSerializedName).Property("Length")))),
                                 valueParameter))
                             : new MethodBodyStatement[]
                             {
@@ -351,7 +352,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                         Spread(LiteralU8("$")),
                                         Spread(ReadOnlySpanSnippets.Slice(
                                             localVariable,
-                                            LiteralU8(property.WireInfo!.SerializedName).Property("Length")))),
+                                            LiteralU8(jsonSerializedName).Property("Length")))),
                                     valueParameter),
                                 Return(True)
                             }
@@ -363,7 +364,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var indexableProperty = new IndexableExpression(property);
                 statements.Add(
                     new IfStatement(
-                        localVariable.Invoke("StartsWith", LiteralU8(property.WireInfo!.SerializedName)))
+                        localVariable.Invoke("StartsWith", LiteralU8(GetJsonSerializedName(property.WireInfo!))))
                     {
                         BuildCollectionIfStatements(
                             property,
@@ -393,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? remainderSlice = null;
 
             statements.Add(Declare("propertyLength", typeof(int),
-                LiteralU8(property.WireInfo!.SerializedName).Property("Length"),
+                LiteralU8(GetJsonSerializedName(property.WireInfo!)).Property("Length"),
                 out var propertyLength));
 
             statements.Add(Declare("currentSlice", typeof(ReadOnlySpan<byte>),

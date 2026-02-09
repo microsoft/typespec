@@ -100,7 +100,7 @@ namespace SampleTypeSpec
             try
             {
                 System.Console.WriteLine("Entering method GetTree.");
-                ClientResult result = GetTree(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                ClientResult result = GetTree(cancellationToken.ToRequestOptions());
                 return ClientResult.FromValue((Tree)result, result.GetRawResponse());
             }
             catch (Exception ex)
@@ -122,7 +122,7 @@ namespace SampleTypeSpec
             try
             {
                 System.Console.WriteLine("Entering method GetTreeAsync.");
-                ClientResult result = await GetTreeAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                ClientResult result = await GetTreeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
                 return ClientResult.FromValue((Tree)result, result.GetRawResponse());
             }
             catch (Exception ex)

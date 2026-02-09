@@ -69,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var inputModel = InputFactory.Model(
                 "TestXmlModel",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
-                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("name"))]);
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel]);
 
@@ -88,11 +88,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var innerModel = InputFactory.Model(
                 "InnerModel",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
-                properties: [InputFactory.Property("value", InputPrimitiveType.String, xmlSerializationOptions: new("value"))]);
+                properties: [InputFactory.Property("value", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("value")))]);
             var outerModel = InputFactory.Model(
                 "OuterModel",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
-                properties: [InputFactory.Property("inner", innerModel, xmlSerializationOptions: new("inner"))]);
+                properties: [InputFactory.Property("inner", innerModel, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("inner")))]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [innerModel, outerModel]);
 
@@ -115,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     "colors",
                     InputFactory.Array(InputPrimitiveType.String),
                     isRequired: true,
-                    xmlSerializationOptions: new("colors", unwrapped: true))]);
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("colors", unwrapped: true)))]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel]);
 
@@ -138,7 +138,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     "counts",
                     InputFactory.Array(InputPrimitiveType.Int32),
                     isRequired: true,
-                    xmlSerializationOptions: new("counts", unwrapped: false, itemsName: "int32"))]);
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("counts", unwrapped: false, itemsName: "int32")))]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel]);
 
@@ -160,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 properties: [InputFactory.Property(
                     "timestamp",
                     new InputDateTimeType(DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String),
-                    xmlSerializationOptions: new("timestamp"))]);
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("timestamp")))]);
 
             var modelProvider = new ModelProvider(inputModel);
             var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
@@ -184,7 +184,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 properties: [InputFactory.Property(
                     "duration",
                     new InputDurationType(DurationKnownEncoding.Iso8601, "duration", "TypeSpec.duration", InputPrimitiveType.String, null),
-                    xmlSerializationOptions: new("duration"))]);
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("duration")))]);
 
             var modelProvider = new ModelProvider(inputModel);
             var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
@@ -208,7 +208,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 properties: [InputFactory.Property(
                     "data",
                     InputPrimitiveType.Base64,
-                    xmlSerializationOptions: new("data"))]);
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("data")))]);
 
             var modelProvider = new ModelProvider(inputModel);
             var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
@@ -232,7 +232,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 properties: [InputFactory.Property(
                     "content",
                     InputPrimitiveType.Any,
-                    xmlSerializationOptions: new("content"))]);
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("content")))]);
 
             var modelProvider = new ModelProvider(inputModel);
             var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
@@ -261,7 +261,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 properties: [InputFactory.Property(
                     "status",
                     enumType,
-                    xmlSerializationOptions: new("status"))]);
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("status")))]);
 
             MockHelpers.LoadMockGenerator(
                 inputEnums: () => [enumType],
@@ -295,7 +295,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 properties: [InputFactory.Property(
                     "status",
                     enumType,
-                    xmlSerializationOptions: new("status"))]);
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("status")))]);
 
             MockHelpers.LoadMockGenerator(
                 inputEnums: () => [enumType],
@@ -324,15 +324,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 discriminatedKind: "cat",
                 properties:
                 [
-                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true, xmlSerializationOptions: new("meows"))
+                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("meows")))
                 ]);
             var baseModel = InputFactory.Model(
                 "pet",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true, xmlSerializationOptions: new("kind")),
-                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("name"))
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("kind"))),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
 
@@ -365,15 +365,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 discriminatedKind: "cat",
                 properties:
                 [
-                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true, xmlSerializationOptions: new("meows"))
+                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("meows")))
                 ]);
             var baseModel = InputFactory.Model(
                 "pet",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true, xmlSerializationOptions: new("kind")),
-                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("name"))
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("kind"))),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
 
@@ -401,8 +401,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("id", attribute: true)),
-                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("name"))
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("id", attribute: true))),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))
                 ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel]);
@@ -427,9 +427,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("id", attribute: true)),
-                    InputFactory.Property("label", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("label", attribute: true, @namespace: new("https://example.com/ns1", "ns1"))),
-                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("name"))
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("id", attribute: true))),
+                    InputFactory.Property("label", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("label", attribute: true, @namespace: InputFactory.Serialization.XmlNamespace("https://example.com/ns1", "ns1")))),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))
                 ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel]);
@@ -454,8 +454,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("id")),
-                    InputFactory.Property("category", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("category", @namespace: new("https://example.com/ns1", "ns1")))
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("id"))),
+                    InputFactory.Property("category", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("category", @namespace: InputFactory.Serialization.XmlNamespace("https://example.com/ns1", "ns1"))))
                 ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel]);
@@ -480,7 +480,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, xmlSerializationOptions: new("name"))
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))
                 ]);
 
             var (_, serialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputModel);
@@ -503,7 +503,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json | InputModelTypeUsage.Xml,
                 properties:
                 [
-                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, wireName: "name", xmlSerializationOptions: new("name"))
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, wireName: "name", serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))
                 ]);
 
             var (_, serialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputModel);
