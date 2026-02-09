@@ -894,6 +894,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return originalName;
         }
 
+        private static string GetCorrectedMaxCountName(ClientProvider client)
+        {
+            // Check if "top" parameter exists in LastContractView for backward compatibility
+            var existingTopParam = client.LastContractView?.Methods
+                ?.SelectMany(method => method.Signature.Parameters)
+                .FirstOrDefault(parameter => string.Equals(parameter.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                ?.Name;
+
+            if (existingTopParam != null)
+            {
+                // Preserve the old "top" parameter name for backward compatibility
+                return TopParameterName;
+            }
+
+            // Use the new standard "maxCount" parameter name
+            return MaxCountParameterName;
+        }
+
         private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
         {
             // Check if this is an API version parameter
@@ -1013,11 +1031,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // For paging operations, rename "top" parameter to "maxCount"
+                // For paging operations, rename "top" parameter to "maxCount" (with backward compatibility)
                 if (serviceMethod is InputPagingServiceMethod &&
                     string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
                 {
-                    inputParam.Update(name: MaxCountParameterName);
+                    var correctedMaxCountName = GetCorrectedMaxCountName(client);
+                    if (!string.Equals(inputParam.Name, correctedMaxCountName, StringComparison.Ordinal))
+                    {
+                        inputParam.Update(name: correctedMaxCountName);
+                    }
                 }
 
                 // For paging operations, ensure page size parameter uses the correct casing

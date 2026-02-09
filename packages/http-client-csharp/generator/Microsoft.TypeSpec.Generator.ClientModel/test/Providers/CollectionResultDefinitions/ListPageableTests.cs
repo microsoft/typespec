@@ -69,6 +69,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.Contains("maxCount", parameterNames, "Should contain 'maxCount' parameter");
             Assert.IsFalse(parameterNames.Contains("top"), "Should not contain 'top' parameter after renaming");
         }
+
+        [Test]
+        public void MaxCountParameterPreservesTopInPagingOperation()
+        {
+            // This test verifies that when a "top" parameter exists in the paging operation,
+            // it is converted to "maxCount" (no LastContractView present in this test scenario)
+            var maxCountParameter = InputFactory.QueryParameter("maxCount", InputPrimitiveType.Int32);
+            var pagingMetadata = InputFactory.PagingMetadata(["items"], null, null);
+            var responseModel = InputFactory.Model("Response", properties: [
+                InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var response = InputFactory.OperationResponse([200], responseModel);
+            var operation = InputFactory.Operation("getItems", parameters: [maxCountParameter], responses: [response]);
+            var pagingMethod = InputFactory.PagingServiceMethod("getItems", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("testClient", methods: [pagingMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [responseModel], clients: () => [client]);
+
+            var restClientProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<RestClientProvider>().ToList();
+
+            Assert.IsTrue(restClientProviders.Count > 0, "RestClientProvider should be generated");
+            
+            var parameterNames = restClientProviders
+                .SelectMany(p => p.Methods)
+                .SelectMany(m => m.Signature.Parameters)
+                .Select(param => param.Name)
+                .ToList();
+
+            Assert.Contains("maxCount", parameterNames, "Should contain 'maxCount' parameter");
+        }
         
         [Test]
         public void NoNextLinkOrContinuationTokenOfT()
