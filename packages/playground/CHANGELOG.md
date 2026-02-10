@@ -1,5 +1,16 @@
 # Change Log - @typespec/playground
 
+## 0.12.0
+
+### Features
+
+- [#9535](https://github.com/microsoft/typespec/pull/9535) Update sample dropdown to a drawer opening a sample gallery
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
 ## 0.11.4
 
 ### Bump dependencies
