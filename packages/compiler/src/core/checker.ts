@@ -3293,6 +3293,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           );
           base = lateBindContainer(ty, base);
 
+          if (base?.members) {
+            switch (ty.kind) {
+              case "Model":
+              case "Union":
+              case "Interface":
+              case "Enum":
+              case "Scalar":
+                lateBindMembers(ty);
+            }
+          }
+
           if (!base) return undefined;
         } else {
           const aliasedSym = getAliasedSymbol(ctx, base);
