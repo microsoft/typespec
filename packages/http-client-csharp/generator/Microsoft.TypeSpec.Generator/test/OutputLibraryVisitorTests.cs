@@ -236,7 +236,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"",
                     [new ParameterProvider("param1", $"", typeof(int))]),
                 Snippet.Throw(Snippet.Null), typeProvider);
-            typeProvider.Methods_ = [methodProvider];
+            typeProvider.MethodProviders = [methodProvider];
 
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(typeProvider),
@@ -460,11 +460,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
         /// </summary>
         private class MutableMethodsTypeProvider : TypeProvider
         {
-            public MethodProvider[] Methods_ { get; set; } = [];
+            public MethodProvider[] MethodProviders { get; set; } = [];
             protected override string BuildRelativeFilePath() => $"{Name}.cs";
             protected override string BuildName() => "TestName";
             protected override string BuildNamespace() => "Test";
-            protected internal override MethodProvider[] BuildMethods() => Methods_;
+            protected internal override MethodProvider[] BuildMethods() => MethodProviders;
         }
     }
 }
