@@ -123,7 +123,7 @@ async def test_model_with_encoded_names(client: XmlClient):
 
 @pytest.mark.asyncio
 async def test_model_with_enum(client: XmlClient):
-    model = ModelWithEnum(status="success")
+    model = ModelWithEnum(status=Status.SUCCESS)
     assert await client.model_with_enum_value.get() == model
     await client.model_with_enum_value.put(model)
 
