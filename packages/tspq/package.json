@@ -20,12 +20,6 @@
   "bin": {
     "tspq": "./cmd/tspq.js"
   },
-  "main": "./dist/src/index.js",
-  "exports": {
-    ".": {
-      "import": "./dist/src/index.js"
-    }
-  },
   "engines": {
     "node": ">=20.0.0"
   },

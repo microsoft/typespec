@@ -2,7 +2,8 @@
 import { logDiagnostics, NodeHost, resolvePath } from "@typespec/compiler";
 import yargs from "yargs";
 import { compileWithLocalCompiler } from "./compile-with-local-compiler.js";
-import { formatSummary, summarizeProgram } from "./index.js";
+import { formatSummary } from "./printer.js";
+import { summarizeProgram } from "./summary.js";
 
 try {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
