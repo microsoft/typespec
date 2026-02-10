@@ -376,6 +376,9 @@
           "include": "#tuple-expression"
         },
         {
+          "include": "#inline-named-model-expression"
+        },
+        {
           "include": "#model-expression"
         },
         {
@@ -429,6 +432,24 @@
       "patterns": [
         {
           "include": "#token"
+        }
+      ]
+    },
+    "inline-named-model-expression": {
+      "name": "meta.inline-named-model-expression.typespec",
+      "begin": "\\b(model)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.tsp"
+        },
+        "2": {
+          "name": "entity.name.type.tsp"
+        }
+      },
+      "end": "(?<=\\})",
+      "patterns": [
+        {
+          "include": "#model-expression"
         }
       ]
     },
@@ -598,7 +619,7 @@
           "name": "string.quoted.double.tsp"
         }
       },
-      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -1165,7 +1186,7 @@
           "name": "keyword.operator.type.annotation.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|=|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|\\)|\\}|=|\\b(?:namespace|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#expression"

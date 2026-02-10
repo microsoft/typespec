@@ -828,6 +828,32 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.closeBrace,
         ]);
       });
+
+      it("inline named model in property type", async () => {
+        const tokens = await tokenize(`
+        model Parent {
+          child: model Child {
+            age: int32;
+          };
+        }`);
+        deepStrictEqual(tokens, [
+          Token.keywords.model,
+          Token.identifiers.type("Parent"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("child"),
+          Token.operators.typeAnnotation,
+          Token.keywords.model,
+          Token.identifiers.type("Child"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("age"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("int32"),
+          Token.punctuation.semicolon,
+          Token.punctuation.closeBrace,
+          Token.punctuation.semicolon,
+          Token.punctuation.closeBrace,
+        ]);
+      });
     });
 
     describe("scalar", () => {
