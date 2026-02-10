@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Fall back to wire type for unknown or unsupported encode in the emitter
+Fall back to wire type for unknown or unsupported encode
