@@ -15,6 +15,14 @@ namespace _Type.Property.ValueTypes
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        BinaryData IPersistableModel<NeverProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        NeverProperty IPersistableModel<NeverProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<NeverProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(NeverProperty neverProperty) => throw null;
+
         public static explicit operator NeverProperty(ClientResult result) => throw null;
 
         void IJsonModel<NeverProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,13 +32,5 @@ namespace _Type.Property.ValueTypes
         NeverProperty IJsonModel<NeverProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual NeverProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<NeverProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        NeverProperty IPersistableModel<NeverProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<NeverProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(NeverProperty neverProperty) => throw null;
     }
 }

@@ -51,6 +51,16 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ListWithContinuationTokenResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ListWithContinuationTokenResponse IPersistableModel<ListWithContinuationTokenResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ListWithContinuationTokenResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenResponse"/> from. </param>
         public static explicit operator ListWithContinuationTokenResponse(ClientResult result)
         {
@@ -158,15 +168,5 @@ namespace SampleTypeSpec
             }
             return new ListWithContinuationTokenResponse(things, nextToken, additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ListWithContinuationTokenResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ListWithContinuationTokenResponse IPersistableModel<ListWithContinuationTokenResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ListWithContinuationTokenResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

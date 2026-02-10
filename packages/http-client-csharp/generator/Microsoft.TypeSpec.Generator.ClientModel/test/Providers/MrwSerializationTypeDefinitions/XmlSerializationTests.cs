@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,6 +62,104 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var xmlSerializationMethod = mrwProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "XmlModelWriteCore" &&
                 m.Signature.Parameters.Any(p => p.Type.Equals(typeof(XmlWriter))));
             Assert.IsNull(xmlSerializationMethod, "XML serialization method should NOT be generated for JSON-only models");
+        }
+
+        [Test]
+        public void TestBuildImplicitToBinaryContent()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var (model, serialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputModel, isRootInput: true, isRootOutput: false);
+            var methods = serialization.Methods;
+
+            Assert.IsTrue(methods.Count > 0);
+
+            var method = methods.FirstOrDefault(m => m.Signature.Name == nameof(BinaryContent));
+
+            Assert.IsNotNull(method, "Implicit operator to BinaryContent should be generated for XML models that are root input models");
+
+            var methodSignature = method?.Signature;
+            Assert.IsNotNull(methodSignature);
+
+            var expectedModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
+            Assert.AreEqual(nameof(BinaryContent), methodSignature?.Name);
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers);
+
+            var methodParameters = methodSignature?.Parameters;
+            Assert.AreEqual(1, methodParameters?.Count);
+            Assert.IsTrue(methodSignature?.ReturnType!.Equals(typeof(BinaryContent)));
+        }
+
+        [Test]
+        public void XmlOnlyModelImplementsIPersistableModel()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var (model, serialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputModel, isRootInput: true, isRootOutput: false);
+            var interfaces = serialization.Implements;
+
+            Assert.IsNotNull(interfaces);
+            Assert.AreEqual(1, interfaces.Count);
+
+            var expectedIPersistableModelInterface = new CSharpType(typeof(IPersistableModel<>), model.Type);
+            Assert.IsTrue(interfaces.Any(i => i.Equals(expectedIPersistableModelInterface)), "XML-only models should implement IPersistableModel<T>");
+
+            var unexpectedIJsonModelInterface = new CSharpType(typeof(IJsonModel<>), model.Type);
+            Assert.IsFalse(interfaces.Any(i => i.Equals(unexpectedIJsonModelInterface)), "XML-only models should NOT implement IJsonModel<T>");
+        }
+
+        [Test]
+        public void JsonAndXmlModelImplementsIJsonModel()
+        {
+            var inputModel = InputFactory.Model(
+                "TestJsonXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var (model, serialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputModel);
+            var interfaces = serialization.Implements;
+
+            Assert.IsNotNull(interfaces);
+            Assert.AreEqual(1, interfaces.Count);
+
+            var expectedIJsonModelInterface = new CSharpType(typeof(IJsonModel<>), model.Type);
+            Assert.IsTrue(interfaces.Any(i => i.Equals(expectedIJsonModelInterface)), "JSON+XML models should implement IJsonModel<T>");
+
+            // IJsonModel<T> extends IPersistableModel<T>, so we don't need to explicitly implement IPersistableModel<T>
+            var unexpectedIPersistableModelInterface = new CSharpType(typeof(IPersistableModel<>), model.Type);
+            Assert.IsFalse(interfaces.Any(i => i.Equals(unexpectedIPersistableModelInterface)), "JSON+XML models should implement IJsonModel<T> not IPersistableModel<T> directly");
+        }
+
+        [Test]
+        public async Task XmlOnlyModelGeneratesIPersistableModelMethods()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, wireName: "name", serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))
+                ]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modeltype
+                    ? [new MockIPersistableModelMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                    : []);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -546,6 +646,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     .Where(m => m.Signature.Name.StartsWith("XmlModelWriteCore") ||
                                 m.Signature.Name.StartsWith("PersistableModelWriteCore") ||
                                 m.Signature.Name == "Write")];
+            }
+
+            protected override FieldProvider[] BuildFields() => [];
+        }
+
+        private class MockIPersistableModelMrwProvider : MrwSerializationTypeDefinition
+        {
+            public MockIPersistableModelMrwProvider(InputModelType inputModel, ModelProvider modelProvider)
+                : base(inputModel, modelProvider)
+            {
+            }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                // Filter to only include IPersistableModel explicit interface methods
+                return [.. base.BuildMethods()
+                    .Where(m => m.Signature.ExplicitInterface != null &&
+                                m.Signature.ExplicitInterface.Name == "IPersistableModel")];
             }
 
             protected override FieldProvider[] BuildFields() => [];

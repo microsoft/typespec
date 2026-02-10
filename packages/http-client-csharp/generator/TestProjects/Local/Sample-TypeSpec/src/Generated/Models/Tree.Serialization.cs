@@ -75,6 +75,26 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<Tree>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Tree IPersistableModel<Tree>.Create(BinaryData data, ModelReaderWriterOptions options) => (Tree)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<Tree>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="tree"> The <see cref="Tree"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Tree tree)
+        {
+            if (tree == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(tree, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Tree"/> from. </param>
         public static explicit operator Tree(ClientResult result)
         {
@@ -177,16 +197,6 @@ namespace SampleTypeSpec
             }
             return new Tree(species, id, height, additionalBinaryDataProperties, age);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<Tree>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        Tree IPersistableModel<Tree>.Create(BinaryData data, ModelReaderWriterOptions options) => (Tree)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<Tree>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>

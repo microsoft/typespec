@@ -17,6 +17,14 @@ namespace _Type.Property.Optional
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        BinaryData IPersistableModel<RequiredAndOptionalProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        RequiredAndOptionalProperty IPersistableModel<RequiredAndOptionalProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<RequiredAndOptionalProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(RequiredAndOptionalProperty requiredAndOptionalProperty) => throw null;
+
         public static explicit operator RequiredAndOptionalProperty(ClientResult result) => throw null;
 
         void IJsonModel<RequiredAndOptionalProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,13 +34,5 @@ namespace _Type.Property.Optional
         RequiredAndOptionalProperty IJsonModel<RequiredAndOptionalProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual RequiredAndOptionalProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<RequiredAndOptionalProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        RequiredAndOptionalProperty IPersistableModel<RequiredAndOptionalProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<RequiredAndOptionalProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(RequiredAndOptionalProperty requiredAndOptionalProperty) => throw null;
     }
 }

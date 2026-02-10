@@ -15,6 +15,14 @@ namespace _Type.Property.Optional
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        BinaryData IPersistableModel<CollectionsByteProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        CollectionsByteProperty IPersistableModel<CollectionsByteProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<CollectionsByteProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(CollectionsByteProperty collectionsByteProperty) => throw null;
+
         public static explicit operator CollectionsByteProperty(ClientResult result) => throw null;
 
         void IJsonModel<CollectionsByteProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,13 +32,5 @@ namespace _Type.Property.Optional
         CollectionsByteProperty IJsonModel<CollectionsByteProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual CollectionsByteProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<CollectionsByteProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        CollectionsByteProperty IPersistableModel<CollectionsByteProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<CollectionsByteProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(CollectionsByteProperty collectionsByteProperty) => throw null;
     }
 }
