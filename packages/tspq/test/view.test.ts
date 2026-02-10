@@ -54,7 +54,7 @@ describe("view json", () => {
     const widgetModel = widgetNs.models.get("Widget")!;
     const json = getTypeViewJson(program, widgetModel, { depth: 0, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
-    await expect(output).toMatchFileSnapshot("./snapshots/view-model-depth0.json");
+    await expect(output).toMatchFileSnapshot("./snapshots/view/model-depth0.json");
   });
 
   it("renders model at depth 1", async () => {
@@ -63,7 +63,7 @@ describe("view json", () => {
     const widgetModel = widgetNs.models.get("Widget")!;
     const json = getTypeViewJson(program, widgetModel, { depth: 1, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
-    await expect(output).toMatchFileSnapshot("./snapshots/view-model-depth1.json");
+    await expect(output).toMatchFileSnapshot("./snapshots/view/model-depth1.json");
   });
 
   it("renders model at depth 2", async () => {
@@ -72,7 +72,7 @@ describe("view json", () => {
     const widgetModel = widgetNs.models.get("Widget")!;
     const json = getTypeViewJson(program, widgetModel, { depth: 2, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
-    await expect(output).toMatchFileSnapshot("./snapshots/view-model-depth2.json");
+    await expect(output).toMatchFileSnapshot("./snapshots/view/model-depth2.json");
   });
 
   it("renders enum at depth 1", async () => {
@@ -81,7 +81,7 @@ describe("view json", () => {
     const kindEnum = widgetNs.enums.get("Kind")!;
     const json = getTypeViewJson(program, kindEnum, { depth: 1, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
-    await expect(output).toMatchFileSnapshot("./snapshots/view-enum-depth1.json");
+    await expect(output).toMatchFileSnapshot("./snapshots/view/enum-depth1.json");
   });
 
   it("renders namespace at depth 1", async () => {
@@ -89,7 +89,7 @@ describe("view json", () => {
     const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
     const json = getTypeViewJson(program, widgetNs, { depth: 1, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
-    await expect(output).toMatchFileSnapshot("./snapshots/view-namespace-depth1.json");
+    await expect(output).toMatchFileSnapshot("./snapshots/view/namespace-depth1.json");
   });
 });
 
@@ -104,7 +104,7 @@ describe("view text", () => {
     const widgetModel = widgetNs.models.get("Widget")!;
     const printer = new TypePrinter(false);
     const output = stripLocationLine(printer.formatTypeView(program, widgetModel));
-    await expect(output).toMatchFileSnapshot("./snapshots/view-model-text.txt");
+    await expect(output).toMatchFileSnapshot("./snapshots/view/model-text.txt");
   });
 
   it("renders enum as text", async () => {
@@ -113,7 +113,7 @@ describe("view text", () => {
     const kindEnum = widgetNs.enums.get("Kind")!;
     const printer = new TypePrinter(false);
     const output = stripLocationLine(printer.formatTypeView(program, kindEnum));
-    await expect(output).toMatchFileSnapshot("./snapshots/view-enum-text.txt");
+    await expect(output).toMatchFileSnapshot("./snapshots/view/enum-text.txt");
   });
 
   it("renders namespace as text", async () => {
@@ -121,6 +121,6 @@ describe("view text", () => {
     const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
     const printer = new TypePrinter(false);
     const output = stripLocationLine(printer.formatTypeView(program, widgetNs));
-    await expect(output).toMatchFileSnapshot("./snapshots/view-namespace-text.txt");
+    await expect(output).toMatchFileSnapshot("./snapshots/view/namespace-text.txt");
   });
 });

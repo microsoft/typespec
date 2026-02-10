@@ -38,5 +38,5 @@ it("renders summary output", async () => {
   const summary = summarizeProgram(program);
   const printer = new TypePrinter(false);
   const output = printer.formatSummary(summary);
-  await expect(output).toMatchFileSnapshot("./snapshots/summary-output.txt");
+  await expect(output).toMatchFileSnapshot("./snapshots/summary/output.txt");
 });
