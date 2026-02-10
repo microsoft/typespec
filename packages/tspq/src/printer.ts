@@ -20,7 +20,7 @@ import {
 import pc from "picocolors";
 import { inspect } from "util";
 import type { ProgramSummary, SummaryItem } from "./summary.js";
-import { getLocationInfo, normalizeValue } from "./type-view-json.js";
+import { collectState, getLocationInfo, normalizeValue } from "./type-view-json.js";
 
 type ColorFn = (value: string) => string;
 const identity: ColorFn = (value: string) => value;
@@ -353,11 +353,11 @@ export class TypePrinter {
     const lines: string[] = [];
     const state = collectState(program, type);
 
-    if (Object.keys(state.maps).length === 0 && state.sets.length === 0) {
+    if (!state) {
       return [this.#dim("(none)")];
     }
 
-    if (Object.keys(state.maps).length > 0) {
+    if (state.maps) {
       lines.push(`${this.#key("State maps")}:`);
       for (const mapKey of Object.keys(state.maps)) {
         lines.push(`- ${mapKey}:`);
@@ -365,14 +365,14 @@ export class TypePrinter {
       }
     }
 
-    if (state.sets.length > 0) {
+    if (state.sets && state.sets.length > 0) {
       lines.push(`${this.#key("State sets")}:`);
       for (const setKey of state.sets) {
         lines.push(`- ${setKey}`);
       }
     }
 
-    return lines;
+    return lines.length === 0 ? [this.#dim("(none)")] : lines;
   }
 
   #formatLocation(program: Program, type: Type): string {
@@ -413,24 +413,6 @@ function formatEnumMember(member: EnumMember): string {
 function formatUnionVariant(variant: UnionVariant): string {
   const name = typeof variant.name === "symbol" ? variant.name.toString() : variant.name;
   return `${name}: ${getTypeName(variant.type)}`;
-}
-
-function collectState(program: Program, type: Type) {
-  const mapEntries = [...(program as any).stateMaps.entries()]
-    .map(([key, map]) => [key, map.get(type)] as const)
-    .filter(([, value]) => value !== undefined);
-  const setEntries = [...(program as any).stateSets.entries()].filter(([, set]) => set.has(type));
-
-  const maps: Record<string, unknown> = {};
-  for (const [key, value] of mapEntries) {
-    maps[key.toString()] = normalizeValue(value);
-  }
-  const sets = setEntries.map(([key]) => key.toString()).sort((a, b) => a.localeCompare(b));
-
-  return {
-    maps,
-    sets,
-  };
 }
 
 function indentLines(value: string, indent = "  "): string[] {

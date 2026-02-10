@@ -25,6 +25,11 @@ export interface TypeViewJsonOptions {
   cwd?: string;
 }
 
+export interface TypeViewJsonState {
+  maps?: Record<string, unknown>;
+  sets?: string[];
+}
+
 export interface TypeViewJsonNode {
   name: string;
   kind: string;
@@ -32,6 +37,7 @@ export interface TypeViewJsonNode {
   description?: string;
   location?: TypeViewLocation;
   details?: Record<string, unknown>;
+  state?: TypeViewJsonState;
 }
 
 export interface TypeViewLocation {
@@ -76,6 +82,8 @@ function buildTypeViewNode(
   if (depth > 0) {
     node.details = buildTypeDetails(program, type, depth, cwd);
   }
+
+  node.state = collectState(program, type);
 
   return node;
 }
@@ -295,6 +303,36 @@ function isTypeSpecType(value: unknown): value is Type {
     (value as { entityKind: string }).entityKind === "Type" &&
     "kind" in value
   );
+}
+
+export function collectState(program: Program, type: Type): TypeViewJsonState | undefined {
+  const mapEntries = [...(program as any).stateMaps.entries()]
+    .map(([key, map]: [unknown, Map<unknown, unknown>]) => [key, map.get(type)] as const)
+    .filter(([, value]) => value !== undefined);
+  const setEntries = [...(program as any).stateSets.entries()].filter(
+    ([, set]: [unknown, Set<unknown>]) => set.has(type),
+  );
+
+  if (mapEntries.length === 0 && setEntries.length === 0) {
+    return undefined;
+  }
+
+  const result: TypeViewJsonState = {};
+
+  if (mapEntries.length > 0) {
+    result.maps = {};
+    for (const [key, value] of mapEntries) {
+      result.maps[(key as any).toString()] = normalizeValue(value);
+    }
+  }
+
+  if (setEntries.length > 0) {
+    result.sets = setEntries
+      .map(([key]: [unknown]) => (key as any).toString())
+      .sort((a: string, b: string) => a.localeCompare(b));
+  }
+
+  return result;
 }
 
 export function getLocationInfo(program: Program, type: Type, cwd: string): TypeViewLocation {

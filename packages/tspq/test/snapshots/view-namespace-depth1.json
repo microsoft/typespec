@@ -9,7 +9,15 @@
         "name": "Widget.Widget",
         "kind": "Model",
         "namespace": "Widget",
-        "description": "Widget model"
+        "description": "Widget model",
+        "state": {
+          "maps": {
+            "Symbol(TypeSpec.docs)": {
+              "value": "Widget model",
+              "source": "decorator"
+            }
+          }
+        }
       }
     ],
     "scalars": [
@@ -39,8 +47,27 @@
         "name": "Widget.Kind",
         "kind": "Enum",
         "namespace": "Widget",
-        "description": "Widget enum"
+        "description": "Widget enum",
+        "state": {
+          "maps": {
+            "Symbol(TypeSpec.docs)": {
+              "value": "Widget enum",
+              "source": "decorator"
+            }
+          }
+        }
       }
     ]
+  },
+  "state": {
+    "maps": {
+      "Symbol(@typespec/compiler.services)": {
+        "title": "Widget Service",
+        "type": {
+          "kind": "Namespace",
+          "name": "Widget"
+        }
+      }
+    }
   }
 }

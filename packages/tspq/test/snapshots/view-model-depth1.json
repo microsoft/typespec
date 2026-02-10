@@ -12,7 +12,15 @@
           "name": "string",
           "kind": "Scalar",
           "namespace": "TypeSpec",
-          "description": "A sequence of textual characters."
+          "description": "A sequence of textual characters.",
+          "state": {
+            "maps": {
+              "Symbol(TypeSpec.docs)": {
+                "value": "A sequence of textual characters.",
+                "source": "comment"
+              }
+            }
+          }
         },
         "optional": false
       },
@@ -21,9 +29,25 @@
           "name": "string",
           "kind": "Scalar",
           "namespace": "TypeSpec",
-          "description": "A sequence of textual characters."
+          "description": "A sequence of textual characters.",
+          "state": {
+            "maps": {
+              "Symbol(TypeSpec.docs)": {
+                "value": "A sequence of textual characters.",
+                "source": "comment"
+              }
+            }
+          }
         },
         "optional": true
+      }
+    }
+  },
+  "state": {
+    "maps": {
+      "Symbol(TypeSpec.docs)": {
+        "value": "Widget model",
+        "source": "decorator"
       }
     }
   }
