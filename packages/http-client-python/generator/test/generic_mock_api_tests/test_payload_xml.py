@@ -18,6 +18,8 @@ from payload.xml.models import (
     ModelWithText,
     ModelWithDictionary,
     ModelWithEncodedNames,
+    ModelWithEnum,
+    Status,
 )
 
 
@@ -105,6 +107,12 @@ def test_model_with_encoded_names(client: XmlClient):
     model = ModelWithEncodedNames(model_data=SimpleModel(name="foo", age=123), colors=["red", "green", "blue"])
     assert client.model_with_encoded_names_value.get() == model
     client.model_with_encoded_names_value.put(model)
+
+
+def test_model_with_enum(client: XmlClient):
+    model = ModelWithEnum(status="success")
+    assert client.model_with_enum_value.get() == model
+    client.model_with_enum_value.put(model)
 
 
 def test_xml_error_value(client: XmlClient, core_library):

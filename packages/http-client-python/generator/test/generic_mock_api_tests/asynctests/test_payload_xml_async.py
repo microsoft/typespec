@@ -18,6 +18,8 @@ from payload.xml.models import (
     ModelWithText,
     ModelWithDictionary,
     ModelWithEncodedNames,
+    ModelWithEnum,
+    Status,
 )
 
 
@@ -117,6 +119,13 @@ async def test_model_with_encoded_names(client: XmlClient):
     model = ModelWithEncodedNames(model_data=SimpleModel(name="foo", age=123), colors=["red", "green", "blue"])
     assert await client.model_with_encoded_names_value.get() == model
     await client.model_with_encoded_names_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_enum(client: XmlClient):
+    model = ModelWithEnum(status="success")
+    assert await client.model_with_enum_value.get() == model
+    await client.model_with_enum_value.put(model)
 
 
 @pytest.mark.asyncio
