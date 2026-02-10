@@ -2,7 +2,7 @@
 import { logDiagnostics, NodeHost, resolvePath } from "@typespec/compiler";
 import yargs from "yargs";
 import { compileWithLocalCompiler } from "./compile-with-local-compiler.js";
-import { formatSummary } from "./printer.js";
+import { formatSummary, formatTypeView, getTypeViewJson } from "./printer.js";
 import { summarizeProgram } from "./summary.js";
 
 try {
@@ -27,6 +27,60 @@ async function main() {
       description: "Enable color and formatting in output.",
       default: true,
     })
+    .command(
+      "view <reference>",
+      "View details about a specific type.",
+      (cmd) => {
+        return cmd
+          .positional("reference", {
+            description: "Type reference to inspect.",
+            type: "string",
+          })
+          .option("json", {
+            type: "boolean",
+            description: "Output view as JSON.",
+            default: false,
+          })
+          .option("entrypoint", {
+            description: "Path to the TypeSpec entrypoint.",
+            type: "string",
+          });
+      },
+      async (args) => {
+        const program = await compileWithLocalCompiler(resolvePath(process.cwd(), args.entrypoint));
+
+        if (program.diagnostics.length > 0) {
+          logDiagnostics(program.diagnostics, NodeHost.logSink);
+          if (program.hasError()) {
+            process.exit(1);
+          }
+        }
+
+        if (!args.reference) {
+          console.error("Type reference is required.");
+          process.exit(1);
+        }
+
+        const [resolvedType, diagnostics] = program.resolveTypeReference(args.reference);
+        if (diagnostics.length > 0) {
+          logDiagnostics(diagnostics, NodeHost.logSink);
+          if (diagnostics.some((diag) => diag.severity === "error")) {
+            process.exit(1);
+          }
+        }
+
+        if (!resolvedType) {
+          console.error(`Type reference not found: ${args.reference}`);
+          process.exit(1);
+        }
+
+        if (args.json) {
+          console.log(JSON.stringify(getTypeViewJson(program, resolvedType), null, 2));
+        } else {
+          console.log(formatTypeView(program, resolvedType, args.pretty));
+        }
+      },
+    )
     .command(
       "summary",
       "Compile a TypeSpec spec and print a summary.",
