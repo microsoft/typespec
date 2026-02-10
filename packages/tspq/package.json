@@ -27,6 +27,9 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix"
   },
@@ -43,6 +46,7 @@
     "@types/node": "~25.0.2",
     "@types/yargs": "~17.0.33",
     "rimraf": "~6.1.2",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.15"
   }
 }

@@ -1,0 +1,62 @@
+{
+  "name": "Widget.Widget",
+  "kind": "Model",
+  "namespace": "Widget",
+  "description": "Widget model",
+  "details": {
+    "baseModel": null,
+    "derivedModels": [],
+    "properties": {
+      "id": {
+        "type": {
+          "name": "string",
+          "kind": "Scalar",
+          "namespace": "TypeSpec",
+          "description": "A sequence of textual characters.",
+          "details": {
+            "baseScalar": null,
+            "derivedScalars": [
+              {
+                "name": "url",
+                "kind": "Scalar",
+                "namespace": "TypeSpec",
+                "description": "Represent a URL string as described by https://url.spec.whatwg.org/"
+              },
+              {
+                "name": "Widget.WidgetId",
+                "kind": "Scalar",
+                "namespace": "Widget"
+              }
+            ]
+          }
+        },
+        "optional": false
+      },
+      "name": {
+        "type": {
+          "name": "string",
+          "kind": "Scalar",
+          "namespace": "TypeSpec",
+          "description": "A sequence of textual characters.",
+          "details": {
+            "baseScalar": null,
+            "derivedScalars": [
+              {
+                "name": "url",
+                "kind": "Scalar",
+                "namespace": "TypeSpec",
+                "description": "Represent a URL string as described by https://url.spec.whatwg.org/"
+              },
+              {
+                "name": "Widget.WidgetId",
+                "kind": "Scalar",
+                "namespace": "Widget"
+              }
+            ]
+          }
+        },
+        "optional": true
+      }
+    }
+  }
+}

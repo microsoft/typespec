@@ -2,7 +2,12 @@
 import { logDiagnostics, NodeHost, resolvePath } from "@typespec/compiler";
 import yargs from "yargs";
 import { compileWithLocalCompiler } from "./compile-with-local-compiler.js";
-import { formatSummary, formatTypeView, getTypeViewJson } from "./printer.js";
+import {
+  formatSummary,
+  formatTypeView,
+  getTypeViewJson,
+  type TypeViewJsonOptions,
+} from "./printer.js";
 import { summarizeProgram } from "./summary.js";
 
 try {
@@ -41,6 +46,11 @@ async function main() {
             description: "Output view as JSON.",
             default: false,
           })
+          .option("depth", {
+            type: "number",
+            description: "How many levels deep to expand nested types (default: 1).",
+            default: 1,
+          })
           .option("entrypoint", {
             description: "Path to the TypeSpec entrypoint.",
             type: "string",
@@ -75,7 +85,8 @@ async function main() {
         }
 
         if (args.json) {
-          console.log(JSON.stringify(getTypeViewJson(program, resolvedType), null, 2));
+          const options: TypeViewJsonOptions = { depth: args.depth };
+          console.log(JSON.stringify(getTypeViewJson(program, resolvedType, options), null, 2));
         } else {
           console.log(formatTypeView(program, resolvedType, args.pretty));
         }

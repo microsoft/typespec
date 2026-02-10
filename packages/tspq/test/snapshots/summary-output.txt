@@ -1,0 +1,17 @@
+Services (1)
+- Widget Service (Widget) [1 ops]
+Operations (2)
+- globalOp
+- Widget.WidgetOps.listWidgets
+Models (1)
+- Widget.Widget
+Enums (1)
+- Widget.Kind
+Unions (1)
+- Widget.Choice
+Scalars (1)
+- Widget.WidgetId
+Interfaces (1)
+- Widget.WidgetOps
+Namespaces (1)
+- Widget

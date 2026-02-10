@@ -1,0 +1,30 @@
+{
+  "name": "Widget.Widget",
+  "kind": "Model",
+  "namespace": "Widget",
+  "description": "Widget model",
+  "details": {
+    "baseModel": null,
+    "derivedModels": [],
+    "properties": {
+      "id": {
+        "type": {
+          "name": "string",
+          "kind": "Scalar",
+          "namespace": "TypeSpec",
+          "description": "A sequence of textual characters."
+        },
+        "optional": false
+      },
+      "name": {
+        "type": {
+          "name": "string",
+          "kind": "Scalar",
+          "namespace": "TypeSpec",
+          "description": "A sequence of textual characters."
+        },
+        "optional": true
+      }
+    }
+  }
+}

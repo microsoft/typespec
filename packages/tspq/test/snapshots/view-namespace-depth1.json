@@ -1,0 +1,46 @@
+{
+  "name": "Widget",
+  "kind": "Namespace",
+  "namespace": "",
+  "details": {
+    "namespaces": [],
+    "models": [
+      {
+        "name": "Widget.Widget",
+        "kind": "Model",
+        "namespace": "Widget",
+        "description": "Widget model"
+      }
+    ],
+    "scalars": [
+      {
+        "name": "Widget.WidgetId",
+        "kind": "Scalar",
+        "namespace": "Widget"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "Widget.WidgetOps",
+        "kind": "Interface",
+        "namespace": "Widget"
+      }
+    ],
+    "operations": [],
+    "unions": [
+      {
+        "name": "Widget.Choice",
+        "kind": "Union",
+        "namespace": "Widget"
+      }
+    ],
+    "enums": [
+      {
+        "name": "Widget.Kind",
+        "kind": "Enum",
+        "namespace": "Widget",
+        "description": "Widget enum"
+      }
+    ]
+  }
+}
