@@ -1405,5 +1405,97 @@ describe("compiler: models", () => {
       strictEqual(childModel.name, "Child");
       strictEqual(childModel.properties.size, 0);
     });
+
+    it("augment decorator on inline named model", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            name: string;
+          };
+        }
+        @@doc(Child, "Hello child!");
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(getDoc(testHost.program, childModel), "Hello child!");
+    });
+
+    it("nested inline named models", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            @test grandchild: model Grandchild {
+              age: int32;
+            };
+          };
+        }
+      `,
+      );
+      const { child, grandchild } = (await testHost.compile("main.tsp")) as {
+        child: ModelProperty;
+        grandchild: ModelProperty;
+      };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 1);
+
+      const grandchildModel = grandchild.type as Model;
+      strictEqual(grandchildModel.name, "Grandchild");
+      strictEqual(grandchildModel.properties.size, 1);
+      ok(grandchildModel.properties.has("age"));
+    });
+
+    it("deeply nested inline named models with augment decorators", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            @test grandchild: model Grandchild {
+              age: int32;
+            };
+          };
+        }
+        @@doc(Child, "The child model");
+        @@doc(Grandchild, "The grandchild model");
+      `,
+      );
+      const { child, grandchild } = (await testHost.compile("main.tsp")) as {
+        child: ModelProperty;
+        grandchild: ModelProperty;
+      };
+      const childModel = child.type as Model;
+      strictEqual(getDoc(testHost.program, childModel), "The child model");
+
+      const grandchildModel = grandchild.type as Model;
+      strictEqual(getDoc(testHost.program, grandchildModel), "The grandchild model");
+    });
+
+    it("inline named model with spread properties", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Base { id: int32; }
+        model Parent {
+          @test child: model Child {
+            ...Base;
+            name: string;
+          };
+        }
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 2);
+      ok(childModel.properties.has("id"));
+      ok(childModel.properties.has("name"));
+    });
   });
 });

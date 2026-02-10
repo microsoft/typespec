@@ -387,11 +387,29 @@ export function createBinder(program: Program): Binder {
 
   function bindModelExpression(node: ModelExpressionNode) {
     if (node.id) {
-      // When the model expression has a name, declare it as a named model in the current scope
+      // When the model expression has a name, declare it in the enclosing namespace/script scope
+      // so it can be referenced by name (e.g. from augment decorators).
+      const prevScope = scope;
+      scope = getEnclosingDeclarationScope();
       declareSymbol(node as unknown as Declaration, SymbolFlags.Model | SymbolFlags.Declaration);
+      scope = prevScope;
     } else {
       bindSymbol(node, SymbolFlags.Model);
     }
+  }
+
+  function getEnclosingDeclarationScope(): ScopeNode {
+    let current: Node | undefined = parentNode;
+    while (current) {
+      if (
+        current.kind === SyntaxKind.TypeSpecScript ||
+        current.kind === SyntaxKind.NamespaceStatement
+      ) {
+        return current as ScopeNode;
+      }
+      current = current.parent;
+    }
+    return scope;
   }
 
   function bindModelProperty(node: ModelPropertyNode) {

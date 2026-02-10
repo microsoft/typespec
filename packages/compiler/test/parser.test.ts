@@ -179,6 +179,24 @@ describe("compiler: parser", () => {
       `model Parent {
          child: model Child { }
        }`,
+
+      `model Parent {
+         child: model Child {
+           grandchild: model Grandchild {
+             age: int32;
+           }
+         }
+       }`,
+
+      `model Parent {
+         child: model Child {
+           grandchild: model Grandchild {
+             greatGrandchild: model GreatGrandchild {
+               value: string;
+             }
+           }
+         }
+       }`,
     ]);
   });
 
