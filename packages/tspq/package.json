@@ -1,0 +1,55 @@
+{
+  "name": "@typespec/tspq",
+  "version": "0.78.0",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec query CLI",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "type": "module",
+  "bin": {
+    "tspq": "./cmd/tspq.js"
+  },
+  "main": "./dist/src/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
+  },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "dependencies": {
+    "@typespec/compiler": "workspace:^",
+    "picocolors": "~1.1.1",
+    "yargs": "~18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "~25.0.2",
+    "@types/yargs": "~17.0.33",
+    "rimraf": "~6.1.2",
+    "typescript": "~5.9.2"
+  }
+}
