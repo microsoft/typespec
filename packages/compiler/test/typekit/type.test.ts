@@ -667,3 +667,83 @@ describe("resolve", () => {
     });
   });
 });
+
+describe("inline named models", () => {
+  it("getPlausibleName returns inline model name", async () => {
+    const {
+      Child,
+      context: { program },
+    } = await getTypes(
+      `
+      model Parent {
+        child: model Child {
+          name: string;
+        };
+      }
+      `,
+      ["Child"],
+    );
+
+    expect($(program).type.getPlausibleName(Child as Model)).toBe("Child");
+  });
+
+  it("clone works on inline named models", async () => {
+    const {
+      Child,
+      context: { program },
+    } = await getTypes(
+      `
+      model Parent {
+        child: model Child {
+          name: string;
+        };
+      }
+      `,
+      ["Child"],
+    );
+
+    const clone = $(program).type.clone(Child) as Model;
+    expect(clone.name).toBe("Child");
+    expect(clone.properties.has("name")).toBe(true);
+  });
+
+  it("isAssignableTo works with inline named models", async () => {
+    const {
+      Child,
+      context: { program },
+    } = await getTypes(
+      `
+      model Parent {
+        child: model Child {
+          name: string;
+        };
+      }
+      `,
+      ["Child"],
+    );
+
+    const tk = $(program);
+    // An inline named model should be assignable to itself
+    expect(tk.type.isAssignableTo(Child, Child)).toBe(true);
+  });
+
+  it("resolve finds inline named models by name", async () => {
+    const {
+      context: { program },
+    } = await getTypes(
+      `
+      model Parent {
+        child: model Child {
+          name: string;
+        };
+      }
+      `,
+      [],
+    );
+
+    const tk = $(program);
+    const resolved = tk.type.resolve("Child", "Model");
+    expect(resolved).toBeDefined();
+    expect(resolved!.name).toBe("Child");
+  });
+});
