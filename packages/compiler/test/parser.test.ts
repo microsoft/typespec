@@ -198,6 +198,13 @@ describe("compiler: parser", () => {
          }
        }`,
     ]);
+
+    parseErrorEach([
+      [
+        `model Parent { child: model { age: int32; } }`,
+        [{ message: /Identifier expected/ }],
+      ],
+    ]);
   });
 
   describe("model extends statements", () => {

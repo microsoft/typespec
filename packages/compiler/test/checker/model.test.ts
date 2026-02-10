@@ -1497,5 +1497,57 @@ describe("compiler: models", () => {
       ok(childModel.properties.has("id"));
       ok(childModel.properties.has("name"));
     });
+
+    it("reports duplicate when two inline named models have the same name", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          child1: model Conflict { age: int32; };
+          child2: model Conflict { name: string; };
+        }
+      `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        { code: "duplicate-symbol", message: /Conflict/ },
+        { code: "duplicate-symbol", message: /Conflict/ },
+      ]);
+    });
+
+    it("reports duplicate when inline named model conflicts with top-level model", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Child { value: int32; }
+        model Parent {
+          child: model Child { age: int32; };
+        }
+      `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        { code: "duplicate-symbol", message: /Child/ },
+        { code: "duplicate-symbol", message: /Child/ },
+      ]);
+    });
+
+    it("reports duplicate when nested inline named model reuses parent inline name", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          child: model Child {
+            grandchild: model Child { age: int32; };
+          };
+        }
+      `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        { code: "duplicate-symbol", message: /Child/ },
+        { code: "duplicate-symbol", message: /Child/ },
+      ]);
+    });
   });
 });
