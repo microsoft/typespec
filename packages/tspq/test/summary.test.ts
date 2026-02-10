@@ -1,7 +1,7 @@
-import { createTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { formatSummary } from "../src/printer.js";
 import { summarizeProgram } from "../src/summary.js";
+import { Tester } from "./tester.js";
 
 const mainSpec = `
 @service(#{title: "Widget Service"})
@@ -33,16 +33,10 @@ namespace Widget {
 op globalOp(): void;
 `;
 
-let runner: Awaited<ReturnType<typeof createTestRunner>>;
-
-beforeEach(async () => {
-  runner = await createTestRunner();
-});
-
 describe("summary", () => {
   it("renders summary output", async () => {
-    await runner.compile(mainSpec);
-    const summary = summarizeProgram(runner.program);
+    const { program } = await Tester.compile(mainSpec);
+    const summary = summarizeProgram(program);
     const output = formatSummary(summary, false);
     await expect(output).toMatchFileSnapshot("./snapshots/summary-output.txt");
   });

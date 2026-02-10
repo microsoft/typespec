@@ -1,6 +1,6 @@
-import { createTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { getTypeViewJson } from "../src/type-view-json.js";
+import { Tester } from "./tester.js";
 
 const mainSpec = `
 @service(#{title: "Widget Service"})
@@ -32,12 +32,6 @@ namespace Widget {
 op globalOp(): void;
 `;
 
-let runner: Awaited<ReturnType<typeof createTestRunner>>;
-
-beforeEach(async () => {
-  runner = await createTestRunner();
-});
-
 function stripLocations(obj: unknown): unknown {
   if (obj === null || obj === undefined) return obj;
   if (Array.isArray(obj)) return obj.map(stripLocations);
@@ -54,45 +48,45 @@ function stripLocations(obj: unknown): unknown {
 
 describe("view json", () => {
   it("renders model at depth 0", async () => {
-    await runner.compile(mainSpec);
-    const widgetNs = runner.program.getGlobalNamespaceType().namespaces.get("Widget")!;
+    const { program } = await Tester.compile(mainSpec);
+    const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
     const widgetModel = widgetNs.models.get("Widget")!;
-    const json = getTypeViewJson(runner.program, widgetModel, { depth: 0, cwd: "/" });
+    const json = getTypeViewJson(program, widgetModel, { depth: 0, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
     await expect(output).toMatchFileSnapshot("./snapshots/view-model-depth0.json");
   });
 
   it("renders model at depth 1", async () => {
-    await runner.compile(mainSpec);
-    const widgetNs = runner.program.getGlobalNamespaceType().namespaces.get("Widget")!;
+    const { program } = await Tester.compile(mainSpec);
+    const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
     const widgetModel = widgetNs.models.get("Widget")!;
-    const json = getTypeViewJson(runner.program, widgetModel, { depth: 1, cwd: "/" });
+    const json = getTypeViewJson(program, widgetModel, { depth: 1, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
     await expect(output).toMatchFileSnapshot("./snapshots/view-model-depth1.json");
   });
 
   it("renders model at depth 2", async () => {
-    await runner.compile(mainSpec);
-    const widgetNs = runner.program.getGlobalNamespaceType().namespaces.get("Widget")!;
+    const { program } = await Tester.compile(mainSpec);
+    const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
     const widgetModel = widgetNs.models.get("Widget")!;
-    const json = getTypeViewJson(runner.program, widgetModel, { depth: 2, cwd: "/" });
+    const json = getTypeViewJson(program, widgetModel, { depth: 2, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
     await expect(output).toMatchFileSnapshot("./snapshots/view-model-depth2.json");
   });
 
   it("renders enum at depth 1", async () => {
-    await runner.compile(mainSpec);
-    const widgetNs = runner.program.getGlobalNamespaceType().namespaces.get("Widget")!;
+    const { program } = await Tester.compile(mainSpec);
+    const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
     const kindEnum = widgetNs.enums.get("Kind")!;
-    const json = getTypeViewJson(runner.program, kindEnum, { depth: 1, cwd: "/" });
+    const json = getTypeViewJson(program, kindEnum, { depth: 1, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
     await expect(output).toMatchFileSnapshot("./snapshots/view-enum-depth1.json");
   });
 
   it("renders namespace at depth 1", async () => {
-    await runner.compile(mainSpec);
-    const widgetNs = runner.program.getGlobalNamespaceType().namespaces.get("Widget")!;
-    const json = getTypeViewJson(runner.program, widgetNs, { depth: 1, cwd: "/" });
+    const { program } = await Tester.compile(mainSpec);
+    const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
+    const json = getTypeViewJson(program, widgetNs, { depth: 1, cwd: "/" });
     const output = JSON.stringify(stripLocations(json), null, 2);
     await expect(output).toMatchFileSnapshot("./snapshots/view-namespace-depth1.json");
   });
