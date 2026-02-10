@@ -260,6 +260,62 @@ describe("compiler: references", () => {
         strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
       });
     });
+
+    it("member reference via templated alias with default parameters", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model M<T = string> { prop: T; } 
+        alias A<T = string> = M<T>;
+
+        @test model X { y: A.prop; }
+        `,
+      );
+
+      const { X } = (await testHost.compile("./main.tsp")) as { X: Model };
+      const y = X.properties.get("y")!;
+      strictEqual(y.type.kind, "ModelProperty");
+      strictEqual(y.type.type.kind, "Scalar");
+      strictEqual(y.type.type.name, "string");
+    });
+
+    it("member reference via templated alias with different alias defaults", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          model M<T = string> { prop: T; }
+          alias A<U = boolean> = M<U>;
+
+          @test model X { y: A.prop; }
+        `,
+      );
+
+      const { X } = (await testHost.compile("./main.tsp")) as { X: Model };
+      const y = X.properties.get("y")!;
+      strictEqual(y.type.kind, "ModelProperty");
+      strictEqual(y.type.type.kind, "Scalar");
+      strictEqual(y.type.type.name, "boolean");
+    });
+
+    it("member reference via alias-of-alias (templated, defaultable)", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          model M<T> { prop: T; }
+
+          alias A<T> = M<T>;
+          alias B<T = boolean> = A<T>;
+
+          @test model X { y: B.prop; }
+        `,
+      );
+
+      const { X } = (await testHost.compile("./main.tsp")) as { X: Model };
+      const y = X.properties.get("y")!;
+      strictEqual(y.type.kind, "ModelProperty");
+      strictEqual(y.type.type.kind, "Scalar");
+      strictEqual(y.type.type.name, "boolean");
+    });
   });
 
   describe("enum members", () => {
