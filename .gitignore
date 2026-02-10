@@ -223,7 +223,6 @@ packages/http-client-csharp/generated-defs/**/*.js.map
 packages/http-client-csharp/generated-defs/**/*.d.ts
 packages/http-client-csharp/generated-defs/**/*.d.ts.map
 BenchmarkDotnet.Artifacts/
-!docs/samples/client/csharp/SampleService/package-lock.json
 
 # java emitter
 !packages/http-client-java/package-lock.json
