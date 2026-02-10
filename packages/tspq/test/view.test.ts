@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatTypeView } from "../src/printer.js";
+import { TypePrinter } from "../src/printer.js";
 import { getTypeViewJson } from "../src/type-view-json.js";
 import { Tester } from "./tester.js";
 
@@ -102,7 +102,8 @@ describe("view text", () => {
     const { program } = await Tester.compile(mainSpec);
     const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
     const widgetModel = widgetNs.models.get("Widget")!;
-    const output = stripLocationLine(formatTypeView(program, widgetModel, false));
+    const printer = new TypePrinter(false);
+    const output = stripLocationLine(printer.formatTypeView(program, widgetModel));
     await expect(output).toMatchFileSnapshot("./snapshots/view-model-text.txt");
   });
 
@@ -110,14 +111,16 @@ describe("view text", () => {
     const { program } = await Tester.compile(mainSpec);
     const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
     const kindEnum = widgetNs.enums.get("Kind")!;
-    const output = stripLocationLine(formatTypeView(program, kindEnum, false));
+    const printer = new TypePrinter(false);
+    const output = stripLocationLine(printer.formatTypeView(program, kindEnum));
     await expect(output).toMatchFileSnapshot("./snapshots/view-enum-text.txt");
   });
 
   it("renders namespace as text", async () => {
     const { program } = await Tester.compile(mainSpec);
     const widgetNs = program.getGlobalNamespaceType().namespaces.get("Widget")!;
-    const output = stripLocationLine(formatTypeView(program, widgetNs, false));
+    const printer = new TypePrinter(false);
+    const output = stripLocationLine(printer.formatTypeView(program, widgetNs));
     await expect(output).toMatchFileSnapshot("./snapshots/view-namespace-text.txt");
   });
 });

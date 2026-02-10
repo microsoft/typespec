@@ -2,7 +2,7 @@
 import { logDiagnostics, NodeHost, resolvePath } from "@typespec/compiler";
 import yargs from "yargs";
 import { compileWithLocalCompiler } from "./compile-with-local-compiler.js";
-import { formatSummary, formatTypeView } from "./printer.js";
+import { TypePrinter } from "./printer.js";
 import { summarizeProgram } from "./summary.js";
 import { getTypeViewJson, type TypeViewJsonOptions } from "./type-view-json.js";
 
@@ -84,7 +84,8 @@ async function main() {
           const options: TypeViewJsonOptions = { depth: args.depth };
           console.log(JSON.stringify(getTypeViewJson(program, resolvedType, options), null, 2));
         } else {
-          console.log(formatTypeView(program, resolvedType, args.pretty));
+          const printer = new TypePrinter(args.pretty);
+          console.log(printer.formatTypeView(program, resolvedType));
         }
       },
     )
@@ -117,7 +118,8 @@ async function main() {
         if (args.json) {
           console.log(JSON.stringify(summary, null, 2));
         } else {
-          console.log(formatSummary(summary, args.pretty));
+          const printer = new TypePrinter(args.pretty);
+          console.log(printer.formatSummary(summary));
         }
       },
     )

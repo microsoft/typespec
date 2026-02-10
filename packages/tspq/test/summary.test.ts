@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { formatSummary } from "../src/printer.js";
+import { TypePrinter } from "../src/printer.js";
 import { summarizeProgram } from "../src/summary.js";
 import { Tester } from "./tester.js";
 
@@ -36,6 +36,7 @@ op globalOp(): void;
 it("renders summary output", async () => {
   const { program } = await Tester.compile(mainSpec);
   const summary = summarizeProgram(program);
-  const output = formatSummary(summary, false);
+  const printer = new TypePrinter(false);
+  const output = printer.formatSummary(summary);
   await expect(output).toMatchFileSnapshot("./snapshots/summary-output.txt");
 });
