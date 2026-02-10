@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
         protected internal override PropertyProvider[] BuildProperties() => _properties;
 
-        protected internal override MethodProvider[] BuildMethods() => MethodsOverride ?? _methods;
+        protected internal override MethodProvider[] BuildMethods() => _methods;
         protected override TypeProvider[] BuildNestedTypes() => NestedTypesInternal ?? base.BuildNestedTypes();
 
         public static readonly TypeProvider Empty = new TestTypeProvider();
@@ -43,11 +43,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         internal TypeProvider[]? NestedTypesInternal { get; set; }
-
-        /// <summary>
-        /// Mutable override for BuildMethods. When set, BuildMethods returns this instead of the constructor-provided methods.
-        /// </summary>
-        internal MethodProvider[]? MethodsOverride { get; set; }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _declarationModifiers ?? base.BuildDeclarationModifiers();
     }

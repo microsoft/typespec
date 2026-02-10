@@ -228,15 +228,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public async Task MethodIsNotFilteredWhenVisitorChangesSignature()
         {
-            // Create a type provider with a method matching the custom code (int parameter)
-            var typeProvider = new TestTypeProvider();
+            // Use a type provider subclass with mutable BuildMethods to avoid setting
+            // the TypeProvider._methods cache directly (which would bypass EnsureBuilt's
+            // new code path that calls BuildMethods without filtering).
+            var typeProvider = new MutableMethodsTypeProvider();
             var methodProvider = new MethodProvider(
                 new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"",
                     [new ParameterProvider("param1", $"", typeof(int))]),
                 Snippet.Throw(Snippet.Null), typeProvider);
-            // Set MethodsOverride so BuildMethods returns the matching method
-            // (without using Update which would set TypeProvider._methods directly)
-            typeProvider.MethodsOverride = [methodProvider];
+            typeProvider.Methods_ = [methodProvider];
 
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(typeProvider),
@@ -451,6 +451,20 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 }
                 return base.VisitMethod(method);
             }
+        }
+
+        /// <summary>
+        /// A TypeProvider subclass that allows setting methods after construction via BuildMethods,
+        /// which avoids writing to the TypeProvider._methods cache directly.
+        /// This is needed for tests that exercise EnsureBuilt's code path.
+        /// </summary>
+        private class MutableMethodsTypeProvider : TypeProvider
+        {
+            public MethodProvider[] Methods_ { get; set; } = [];
+            protected override string BuildRelativeFilePath() => $"{Name}.cs";
+            protected override string BuildName() => "TestName";
+            protected override string BuildNamespace() => "Test";
+            protected internal override MethodProvider[] BuildMethods() => Methods_;
         }
     }
 }
