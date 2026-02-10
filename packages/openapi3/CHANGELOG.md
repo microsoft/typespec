@@ -2,10 +2,6 @@
 
 ## 1.9.0
 
-### Deprecations
-
-- [#9336](https://github.com/microsoft/typespec/pull/9336) Deprecate `program` parameter in `isArrayModelType` and `isRecordModelType` functions. Use the new single-argument overload instead: `isArrayModelType(type)` and `isRecordModelType(type)`.
-
 ### Features
 
 - [#9629](https://github.com/microsoft/typespec/pull/9629) importer - Add support for importing the `@continuationToken` decorator based on x-ms-list-continuation-token extension

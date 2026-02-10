@@ -2,10 +2,6 @@
 
 ## 0.58.0-alpha.25
 
-### Deprecations
-
-- [#9336](https://github.com/microsoft/typespec/pull/9336) Deprecate `program` parameter in `isArrayModelType` and `isRecordModelType` functions. Use the new single-argument overload instead: `isArrayModelType(type)` and `isRecordModelType(type)`.
-
 ### Bump dependencies
 
 - [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
