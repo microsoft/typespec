@@ -465,12 +465,6 @@ function emitBuiltInType(
 ): Record<string, any> {
   if (type.encode) {
     if (type.kind === "duration") {
-      if (type.encode === "seconds") {
-        return getSimpleTypeResult({
-          type: sdkScalarKindToPythonKind[type.wireType.kind],
-          encode: type.encode,
-        });
-      }
       if (type.encode === "ISO8601") {
         return getSimpleTypeResult({
           type: type.kind,
