@@ -1508,6 +1508,7 @@ export interface EmptyStatementNode extends BaseNode {
 
 export interface ModelExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.ModelExpression;
+  readonly id?: IdentifierNode;
   readonly properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
   readonly bodyRange: TextRange;
 }

@@ -386,7 +386,11 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindModelExpression(node: ModelExpressionNode) {
-    bindSymbol(node, SymbolFlags.Model);
+    if (node.id) {
+      declareSymbol(node as any, SymbolFlags.Model | SymbolFlags.Declaration);
+    } else {
+      bindSymbol(node, SymbolFlags.Model);
+    }
   }
 
   function bindModelProperty(node: ModelPropertyNode) {

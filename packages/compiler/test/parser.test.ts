@@ -160,6 +160,28 @@ describe("compiler: parser", () => {
     ]);
   });
 
+  describe("inline named model expressions", () => {
+    parseEach([
+      `model Parent {
+         child: model Child {
+           age: int32;
+         }
+       }`,
+
+      `model Parent {
+         child: model Child {
+           name: string;
+           value: int32;
+         };
+         other: string;
+       }`,
+
+      `model Parent {
+         child: model Child { }
+       }`,
+    ]);
+  });
+
   describe("model extends statements", () => {
     parseEach([
       "model foo extends bar { }",

@@ -3886,6 +3886,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const type = initModel(node);
+    if (node.id) {
+      type.name = node.id.sv;
+    }
     const properties = type.properties;
     linkType(ctx, links, type);
     linkMapper(type, ctx.mapper);

@@ -1350,4 +1350,60 @@ describe("compiler: models", () => {
       });
     });
   });
+
+  describe("inline named model expressions", () => {
+    it("creates a named model for inline model expression", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            age: int32;
+          };
+        }
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      strictEqual(child.type.kind, "Model");
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 1);
+      ok(childModel.properties.has("age"));
+    });
+
+    it("inline named model has correct property types", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            name: string;
+            value: int32;
+          };
+        }
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 2);
+      ok(childModel.properties.has("name"));
+      ok(childModel.properties.has("value"));
+    });
+
+    it("inline named model with empty body", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child { };
+        }
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 0);
+    });
+  });
 });
