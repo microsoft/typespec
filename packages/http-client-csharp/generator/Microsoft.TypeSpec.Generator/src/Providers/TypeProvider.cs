@@ -543,10 +543,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void EnsureBuilt()
         {
-            _ = Methods;
-            _ = Constructors;
-            _ = Properties;
-            _ = Fields;
+            // Build all members without applying customization filtering.
+            // Filtering is deferred to CSharpGen.ExecuteAsync after visitors have had a chance
+            // to transform members (e.g., merging parameters). This ensures visitors see the
+            // full set of members before customization filtering is applied.
+            _methods ??= BuildMethods();
+            _constructors ??= BuildConstructors();
+            _properties ??= BuildProperties();
+            _fields ??= BuildFields();
             _ = Implements;
             if (IsEnum)
             {
@@ -782,32 +786,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // are not yet generated so Roslyn will not have the namespace information.
             if (string.IsNullOrEmpty(typeFromCustomization.Namespace))
             {
-                if (typeFromCustomization.Name != generatedType.Name)
-                {
-                    return false;
-                }
-            }
-            else if (typeFromCustomization.FullyQualifiedName != generatedType.FullyQualifiedName)
-            {
-                return false;
+                return typeFromCustomization.Name == generatedType.Name;
             }
 
-            // Also check generic type arguments to avoid false positives when two generic types
-            // share the same name but have different type arguments (e.g., Task<string> vs Task<MatchConditions>).
-            if (typeFromCustomization.Arguments.Count != generatedType.Arguments.Count)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < typeFromCustomization.Arguments.Count; i++)
-            {
-                if (!IsNameMatch(typeFromCustomization.Arguments[i], generatedType.Arguments[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return typeFromCustomization.FullyQualifiedName == generatedType.FullyQualifiedName;
         }
 
         private static string GetFullMethodName(MethodSignatureBase method)

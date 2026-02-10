@@ -226,6 +226,52 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public async Task MethodIsNotFilteredWhenVisitorChangesSignature()
+        {
+            // Create a type provider with a method matching the custom code (int parameter)
+            var typeProvider = new TestTypeProvider();
+            var methodProvider = new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"",
+                    [new ParameterProvider("param1", $"", typeof(int))]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+            // Set MethodsOverride so BuildMethods returns the matching method
+            // (without using Update which would set TypeProvider._methods directly)
+            typeProvider.MethodsOverride = [methodProvider];
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Reset to reinitialize CustomCodeView now that the mock generator is set up
+            typeProvider.Update(reset: true);
+
+            // Step 1: Build all types (simulating CSharpGen.ExecuteAsync)
+            // EnsureBuilt bypasses customization filtering, so the method is preserved
+            foreach (var type in generator.Object.OutputLibrary.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            // Verify that the custom code is correctly loaded and the method is present
+            Assert.IsNotNull(typeProvider.CustomCodeView, "CustomCodeView should not be null");
+            Assert.AreEqual(1, typeProvider.Methods.Count, "Method should be present after EnsureBuilt");
+
+            // Step 2: Visitor changes the parameter type from int to float,
+            // so it no longer matches the custom code
+            var visitor = new ChangeParameterTypeVisitor("TestMethod", typeof(float));
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            // Step 3: Apply customization filtering after visitor
+            typeProvider.Update(methods: typeProvider.FilterCustomizedMethods(typeProvider.Methods));
+
+            // The method should NOT be filtered because the visitor changed its signature
+            // to no longer match the custom code
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+            Assert.AreEqual("TestMethod", typeProvider.Methods[0].Signature.Name);
+            Assert.AreEqual(typeof(float), typeProvider.Methods[0].Signature.Parameters[0].Type.FrameworkType);
+        }
+
+        [Test]
         public async Task MatchingConstructorSignatureIsFilteredAfterVisitorMutation()
         {
             var typeProvider = new TestTypeProvider();
