@@ -37,7 +37,6 @@
     "lint:fix": "eslint . --fix"
   },
   "files": [
-    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
-import { compile, logDiagnostics, NodeHost, resolvePath } from "@typespec/compiler";
+import { logDiagnostics, NodeHost, resolvePath } from "@typespec/compiler";
 import yargs from "yargs";
+import { compileWithLocalCompiler } from "./compile-with-local-compiler.js";
 import { formatSummary, summarizeProgram } from "./index.js";
 
 try {
@@ -26,14 +27,13 @@ async function main() {
       default: true,
     })
     .command(
-      "summary <entrypoint>",
+      "summary",
       "Compile a TypeSpec spec and print a summary.",
       (cmd) => {
         return cmd
-          .positional("entrypoint", {
+          .option("entrypoint", {
             description: "Path to the TypeSpec entrypoint.",
             type: "string",
-            demandOption: true,
           })
           .option("json", {
             type: "boolean",
@@ -42,8 +42,7 @@ async function main() {
           });
       },
       async (args) => {
-        const resolved = resolvePath(process.cwd(), args.entrypoint);
-        const program = await compile(NodeHost, resolved, { noEmit: true });
+        const program = await compileWithLocalCompiler(resolvePath(process.cwd(), args.entrypoint));
 
         if (program.diagnostics.length > 0) {
           logDiagnostics(program.diagnostics, NodeHost.logSink);
