@@ -32,6 +32,27 @@ namespace SampleTypeSpec
             Pipeline = pipeline;
         }
 
+        /// <summary> Initializes a new instance of DogOperations. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public DogOperations(Uri endpoint) : this(endpoint, new SampleTypeSpecClientOptions())
+        {
+        }
+
+        /// <summary> Initializes a new instance of DogOperations. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public DogOperations(Uri endpoint, SampleTypeSpecClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+
+            options ??= new SampleTypeSpecClientOptions();
+
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(DogOperations).Assembly) }, Array.Empty<PipelinePolicy>());
+        }
+
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
         public ClientPipeline Pipeline { get; }
 

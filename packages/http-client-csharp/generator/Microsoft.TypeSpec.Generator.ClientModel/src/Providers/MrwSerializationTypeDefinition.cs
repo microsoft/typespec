@@ -2023,9 +2023,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 var finalExpression = propertyType.IsArray
                     ? selectExpression.Invoke(nameof(Enumerable.ToArray))
-                    : propertyType.IsList
-                        ? New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), selectExpression)
-                        : New.Instance(propertyType.PropertyInitializationType, selectExpression);
+                    : New.Instance(propertyType.PropertyInitializationType, selectExpression);
                 createArrayStatement = variableExpression.Assign(finalExpression).Terminate();
             }
             else

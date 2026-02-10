@@ -5314,7 +5314,8 @@
                         },
                         "valueType": {
                           "$ref": "437"
-                        }
+                        },
+                        "crossLanguageDefinitionId": "SampleTypeSpec.XmlNamespaces.ns1"
                       },
                       {
                         "$id": "439",
@@ -5327,7 +5328,8 @@
                         },
                         "valueType": {
                           "$ref": "437"
-                        }
+                        },
+                        "crossLanguageDefinitionId": "SampleTypeSpec.XmlNamespaces.ns2"
                       }
                     ],
                     "isFixed": true,
@@ -5344,7 +5346,8 @@
                   },
                   "valueType": {
                     "$ref": "437"
-                  }
+                  },
+                  "crossLanguageDefinitionId": "SampleTypeSpec.XmlNamespaces.ns1"
                 }
               }
             },
@@ -5398,7 +5401,8 @@
                   },
                   "valueType": {
                     "$ref": "437"
-                  }
+                  },
+                  "crossLanguageDefinitionId": "SampleTypeSpec.XmlNamespaces.ns2"
                 }
               }
             }
@@ -9570,7 +9574,7 @@
                       },
                       "value": "2024-08-16-preview"
                     },
-                    "optional": false,
+                    "optional": true,
                     "scope": "Method",
                     "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion.apiVersion",
                     "readOnly": false,
@@ -11206,7 +11210,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.sampleTypeSpecUrl"
             }
           ],
-          "initializedBy": 0,
+          "initializedBy": -1,
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations",
           "apiVersions": [
@@ -11601,7 +11605,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.sampleTypeSpecUrl"
             }
           ],
-          "initializedBy": 0,
+          "initializedBy": -1,
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations",
           "apiVersions": [
@@ -11819,7 +11823,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.sampleTypeSpecUrl"
             }
           ],
-          "initializedBy": 0,
+          "initializedBy": -1,
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations",
           "apiVersions": [
@@ -11961,7 +11965,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.sampleTypeSpecUrl"
             }
           ],
-          "initializedBy": 0,
+          "initializedBy": -1,
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations",
           "apiVersions": [
