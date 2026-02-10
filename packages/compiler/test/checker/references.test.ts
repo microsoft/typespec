@@ -579,6 +579,57 @@ describe("compiler: references", () => {
         strictEqual(linkedValue, Foo.operations.get("a"));
       });
     });
+
+    it("operation reference via templated alias with default parameters", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          interface I<T = string> { o(): T; }
+          alias A<T = string> = I<T>;
+
+          @test op example is A.o;
+        `,
+      );
+      const { example } = (await testHost.compile("./main.tsp")) as { example: Operation };
+      strictEqual(example.kind, "Operation");
+      strictEqual(example.returnType.kind, "Scalar");
+      strictEqual(example.returnType.name, "string");
+    });
+
+    it("operation reference via templated alias with different alias defaults", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          interface I<T = string> { o(): T; }
+          alias A<U = boolean> = I<U>;
+
+          @test op example is A.o;
+        `,
+      );
+
+      const { example } = (await testHost.compile("./main.tsp")) as { example: Operation };
+      strictEqual(example.kind, "Operation");
+      strictEqual(example.returnType.kind, "Scalar");
+      strictEqual(example.returnType.name, "boolean");
+    });
+
+    it("operation reference via alias-of-alias (templated, defaultable)", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          interface I<T> { o(): T; }
+          alias A<T> = I<T>;
+          alias B<T = boolean> = A<T>;
+          
+          @test op example is B.o;
+        `,
+      );
+
+      const { example } = (await testHost.compile("./main.tsp")) as { example: Operation };
+      strictEqual(example.kind, "Operation");
+      strictEqual(example.returnType.kind, "Scalar");
+      strictEqual(example.returnType.name, "boolean");
+    });
   });
 
   it("throws proper diagnostics", async () => {
