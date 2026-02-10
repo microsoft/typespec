@@ -387,7 +387,8 @@ export function createBinder(program: Program): Binder {
 
   function bindModelExpression(node: ModelExpressionNode) {
     if (node.id) {
-      declareSymbol(node as any, SymbolFlags.Model | SymbolFlags.Declaration);
+      // When the model expression has a name, declare it as a named model in the current scope
+      declareSymbol(node as unknown as Declaration, SymbolFlags.Model | SymbolFlags.Declaration);
     } else {
       bindSymbol(node, SymbolFlags.Model);
     }
