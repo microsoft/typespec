@@ -1,4 +1,5 @@
 import {
+  getDoc,
   getLocationContext,
   getNamespaceFullName,
   getTypeName,
@@ -8,17 +9,24 @@ import {
   type DiagnosticTarget,
   type Namespace,
   type Program,
+  type Type,
 } from "@typespec/compiler";
 
 export interface ServiceSummary {
   name: string;
   title?: string;
-  operations: string[];
+  operations: SummaryItem[];
+  description?: string;
+}
+
+export interface SummaryItem {
+  name: string;
+  description?: string;
 }
 
 export interface ProgramSummary {
   services: ServiceSummary[];
-  operations: string[];
+  operations: SummaryItem[];
   types: TypeSummary;
   counts: {
     services: number;
@@ -34,12 +42,12 @@ export interface ProgramSummary {
 }
 
 export interface TypeSummary {
-  models: string[];
-  enums: string[];
-  unions: string[];
-  scalars: string[];
-  interfaces: string[];
-  namespaces: string[];
+  models: SummaryItem[];
+  enums: SummaryItem[];
+  unions: SummaryItem[];
+  scalars: SummaryItem[];
+  interfaces: SummaryItem[];
+  namespaces: SummaryItem[];
 }
 
 export function summarizeProgram(program: Program): ProgramSummary {
@@ -49,15 +57,16 @@ export function summarizeProgram(program: Program): ProgramSummary {
       return {
         name: getTypeName(service.type),
         title: service.title,
+        description: getDoc(program, service.type),
         operations: listOperationsIn(service.type)
           .filter((op) => isProjectType(program, op))
-          .map((op) => getTypeName(op)),
+          .map((op) => createTypeSummaryItem(program, op)),
       };
     });
 
   const operations = listOperationsIn(program.getGlobalNamespaceType())
     .filter((op) => isProjectType(program, op))
-    .map((op) => getTypeName(op));
+    .map((op) => createTypeSummaryItem(program, op));
 
   const types = createTypeSummary();
   collectTypes(program, program.getGlobalNamespaceType(), types);
@@ -104,38 +113,38 @@ function countAllTypes(summary: TypeSummary): number {
 }
 
 function sortTypeSummary(summary: TypeSummary) {
-  summary.models.sort((left, right) => left.localeCompare(right));
-  summary.enums.sort((left, right) => left.localeCompare(right));
-  summary.unions.sort((left, right) => left.localeCompare(right));
-  summary.scalars.sort((left, right) => left.localeCompare(right));
-  summary.interfaces.sort((left, right) => left.localeCompare(right));
-  summary.namespaces.sort((left, right) => left.localeCompare(right));
+  summary.models.sort((left, right) => left.name.localeCompare(right.name));
+  summary.enums.sort((left, right) => left.name.localeCompare(right.name));
+  summary.unions.sort((left, right) => left.name.localeCompare(right.name));
+  summary.scalars.sort((left, right) => left.name.localeCompare(right.name));
+  summary.interfaces.sort((left, right) => left.name.localeCompare(right.name));
+  summary.namespaces.sort((left, right) => left.name.localeCompare(right.name));
 }
 
 function collectTypes(program: Program, namespace: Namespace, summary: TypeSummary) {
   for (const model of namespace.models.values()) {
     if (isProjectType(program, model)) {
-      summary.models.push(getTypeName(model));
+      summary.models.push(createTypeSummaryItem(program, model));
     }
   }
   for (const scalar of namespace.scalars.values()) {
     if (isProjectType(program, scalar)) {
-      summary.scalars.push(getTypeName(scalar));
+      summary.scalars.push(createTypeSummaryItem(program, scalar));
     }
   }
   for (const union of namespace.unions.values()) {
     if (isProjectType(program, union)) {
-      summary.unions.push(getTypeName(union));
+      summary.unions.push(createTypeSummaryItem(program, union));
     }
   }
   for (const iface of namespace.interfaces.values()) {
     if (isProjectType(program, iface)) {
-      summary.interfaces.push(getTypeName(iface));
+      summary.interfaces.push(createTypeSummaryItem(program, iface));
     }
   }
   for (const enumType of namespace.enums.values()) {
     if (isProjectType(program, enumType)) {
-      summary.enums.push(getTypeName(enumType));
+      summary.enums.push(createTypeSummaryItem(program, enumType));
     }
   }
 
@@ -144,7 +153,7 @@ function collectTypes(program: Program, namespace: Namespace, summary: TypeSumma
       continue;
     }
     if (isProjectType(program, subNamespace)) {
-      summary.namespaces.push(getNamespaceFullName(subNamespace));
+      summary.namespaces.push(createNamespaceSummaryItem(program, subNamespace));
     }
     collectTypes(program, subNamespace, summary);
   }
@@ -152,4 +161,18 @@ function collectTypes(program: Program, namespace: Namespace, summary: TypeSumma
 
 function isProjectType(program: Program, target: DiagnosticTarget): boolean {
   return getLocationContext(program, target).type === "project";
+}
+
+function createTypeSummaryItem(program: Program, target: Type): SummaryItem {
+  return {
+    name: getTypeName(target),
+    description: getDoc(program, target),
+  };
+}
+
+function createNamespaceSummaryItem(program: Program, target: Namespace): SummaryItem {
+  return {
+    name: getNamespaceFullName(target),
+    description: getDoc(program, target),
+  };
 }

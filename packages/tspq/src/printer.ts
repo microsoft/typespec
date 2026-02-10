@@ -1,5 +1,5 @@
 import pc from "picocolors";
-import type { ProgramSummary } from "./summary.js";
+import type { ProgramSummary, SummaryItem } from "./summary.js";
 
 export function formatSummary(summary: ProgramSummary, pretty = true): string {
   const bold = pretty ? pc.bold : (value: string) => value;
@@ -34,7 +34,7 @@ export function formatSummary(summary: ProgramSummary, pretty = true): string {
 function addGroup(
   lines: string[],
   label: string,
-  types: string[],
+  types: SummaryItem[],
   dim: (value: string) => string,
   count: (value: string) => string,
   titleColor: (value: string) => string,
@@ -45,6 +45,6 @@ function addGroup(
     return;
   }
   for (const type of types) {
-    lines.push(`- ${type}`);
+    lines.push(`- ${type.name}`);
   }
 }
