@@ -5,11 +5,11 @@
  * Note: We use TYPESPEC_DEBUG instead of DEBUG because the DEBUG environment variable
  * is not supported in VSCode extensions. See: https://github.com/microsoft/vscode/issues/290140
  *
- * Usage: TYPESPEC_DEBUG=typespec:lm
+ * Usage: TYPESPEC_DEBUG=lm
  *
  * Examples:
- *   TYPESPEC_DEBUG=typespec:lm                   - Enable Language Model debug logs
- *   TYPESPEC_DEBUG=typespec:*                    - Enable all typespec debug logs
+ *   TYPESPEC_DEBUG=lm                   - Enable Language Model debug logs
+ *   TYPESPEC_DEBUG=*                    - Enable all debug logs
  */
 function isDebugEnabled(area: string): boolean {
   const debug = process.env.TYPESPEC_DEBUG;
@@ -37,5 +37,5 @@ function isDebugEnabled(area: string): boolean {
 }
 
 export const debugLoggers = {
-  lm: { enabled: isDebugEnabled("typespec:lm") },
+  lm: { enabled: isDebugEnabled("lm") },
 } as const;
