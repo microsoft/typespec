@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.27.1
+
+### Bug Fixes
+
+- [#9571](https://github.com/microsoft/typespec/pull/9571) Fix import for xml paging
+
+
 ## 0.27.0
 
 ### Features
