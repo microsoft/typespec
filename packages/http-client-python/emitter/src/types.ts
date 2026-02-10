@@ -470,9 +470,10 @@ function emitBuiltInType(
           type: sdkScalarKindToPythonKind[type.wireType.kind],
           encode: type.encode,
         });
-      } else if (type.encode === "ISO8601") {
+      }
+      if (type.encode === "ISO8601") {
         return getSimpleTypeResult({
-          type: "duration",
+          type: type.kind,
           encode: type.encode,
         });
       }
@@ -481,6 +482,12 @@ function emitBuiltInType(
       if (type.encode === "unixTimestamp") {
         return getSimpleTypeResult({
           type: "unixtime",
+          encode: type.encode,
+        });
+      }
+      if (type.encode === "rfc3339" || type.encode === "rfc7231") {
+        return getSimpleTypeResult({
+          type: type.kind,
           encode: type.encode,
         });
       }
