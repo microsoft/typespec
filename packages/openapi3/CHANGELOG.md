@@ -1,5 +1,36 @@
 # Change Log - @typespec/openapi3
 
+## 1.9.0
+
+### Deprecations
+
+- [#9336](https://github.com/microsoft/typespec/pull/9336) Deprecate `program` parameter in `isArrayModelType` and `isRecordModelType` functions. Use the new single-argument overload instead: `isArrayModelType(type)` and `isRecordModelType(type)`.
+
+### Features
+
+- [#9629](https://github.com/microsoft/typespec/pull/9629) importer - Add support for importing the `@continuationToken` decorator based on x-ms-list-continuation-token extension
+- [#9627](https://github.com/microsoft/typespec/pull/9627) importer - Add support for importing paging link decorators (`@prevLink`, `@nextLink`, `@firstLink`, `@lastLink`) based on x-ms-list-*-link OpenAPI extensions
+- [#9609](https://github.com/microsoft/typespec/pull/9609) importer - Add support for x-ms-list extension to add `@list` decorator to operations
+- [#9613](https://github.com/microsoft/typespec/pull/9613) importer - Add support for `@offset` decorator when x-ms-list-offset extension is present
+- [#9618](https://github.com/microsoft/typespec/pull/9618) importer - Add support for `@pageSize` decorator based on x-ms-list-page-size extension
+- [#9615](https://github.com/microsoft/typespec/pull/9615) importer - Add support for x-ms-list-page-items extension to `@pageItems` decorator
+- [#9611](https://github.com/microsoft/typespec/pull/9611) importer - Add support for x-ms-list-page-index extension to add `@pageIndex` decorator
+- [#9512](https://github.com/microsoft/typespec/pull/9512) Expose performance information when running with `--stats`
+- [#9412](https://github.com/microsoft/typespec/pull/9412) importer - OpenAPI number type with duration format now converts to TypeSpec duration type with @encode("seconds", float32) decorator
+- [#9584](https://github.com/microsoft/typespec/pull/9584) Expose `openapi-versions` emitter option now that both 3.1.0 and 3.2.0 are implemented.
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9410](https://github.com/microsoft/typespec/pull/9410) importer - null reference exception if member schema cannot be resolved
+- [#9533](https://github.com/microsoft/typespec/pull/9533) Fix parameters with default value resulting in `$ref` with `default` as sibling for OpenAPI 3.0
+- [#9583](https://github.com/microsoft/typespec/pull/9583) Fix: tag metadata not scopped to the service it was defined on
+- [#9475](https://github.com/microsoft/typespec/pull/9475) Handle use of `.now()` constructor on date time types in examples and default.
+
+
 ## 1.8.0
 
 ### Features
