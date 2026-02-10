@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { expect, it } from "vitest";
 import { formatSummary } from "../src/printer.js";
 import { summarizeProgram } from "../src/summary.js";
 import { Tester } from "./tester.js";
@@ -33,11 +33,9 @@ namespace Widget {
 op globalOp(): void;
 `;
 
-describe("summary", () => {
-  it("renders summary output", async () => {
-    const { program } = await Tester.compile(mainSpec);
-    const summary = summarizeProgram(program);
-    const output = formatSummary(summary, false);
-    await expect(output).toMatchFileSnapshot("./snapshots/summary-output.txt");
-  });
+it("renders summary output", async () => {
+  const { program } = await Tester.compile(mainSpec);
+  const summary = summarizeProgram(program);
+  const output = formatSummary(summary, false);
+  await expect(output).toMatchFileSnapshot("./snapshots/summary-output.txt");
 });

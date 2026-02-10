@@ -77,11 +77,11 @@ export function formatTypeView(program: Program, type: Type, pretty = true): str
 
   lines.push("");
   lines.push(`${bold(header("Details"))}`);
-  lines.push(...formatTypeDetails(program, type, dim, key, count));
+  lines.push(...formatTypeDetails(program, type, dim, key, count, pretty));
 
   lines.push("");
   lines.push(`${bold(header("Decorator State"))}`);
-  lines.push(...formatState(program, type, dim, key));
+  lines.push(...formatState(program, type, dim, key, pretty));
 
   return lines.join("\n");
 }
@@ -110,6 +110,7 @@ function formatTypeDetails(
   dim: (value: string) => string,
   key: (value: string) => string,
   count: (value: string) => string,
+  pretty = true,
 ): string[] {
   switch (type.kind) {
     case "Namespace":
@@ -117,7 +118,7 @@ function formatTypeDetails(
     case "Model":
       return formatModelDetails(type, dim, key, count);
     case "ModelProperty":
-      return formatModelPropertyDetails(type, dim, key);
+      return formatModelPropertyDetails(type, dim, key, pretty);
     case "Interface":
       return formatInterfaceDetails(type, key, count, dim);
     case "Operation":
@@ -254,12 +255,13 @@ function formatModelPropertyDetails(
   type: ModelProperty,
   dim: (value: string) => string,
   key: (value: string) => string,
+  pretty = true,
 ): string[] {
   const lines: string[] = [];
   addKeyValue(lines, "Type", getTypeName(type.type), key);
   addKeyValue(lines, "Optional", type.optional ? "yes" : "no", key);
   if (type.defaultValue !== undefined) {
-    addKeyValue(lines, "Default value", formatValue(type.defaultValue), key);
+    addKeyValue(lines, "Default value", formatValue(type.defaultValue, pretty), key);
   }
   if (type.sourceProperty) {
     addKeyValue(lines, "Source property", getTypeName(type.sourceProperty), key);
@@ -460,6 +462,7 @@ function formatState(
   type: Type,
   dim: (value: string) => string,
   key: (value: string) => string,
+  pretty = true,
 ): string[] {
   const lines: string[] = [];
   const state = collectState(program, type);
@@ -472,7 +475,7 @@ function formatState(
     lines.push(`${key("State maps")}:`);
     for (const mapKey of Object.keys(state.maps)) {
       lines.push(`- ${mapKey}:`);
-      lines.push(...indentLines(formatValue(state.maps[mapKey])));
+      lines.push(...indentLines(formatValue(state.maps[mapKey], pretty)));
     }
   }
 
@@ -517,10 +520,10 @@ function collectState(program: Program, type: Type) {
   };
 }
 
-function formatValue(value: unknown): string {
+function formatValue(value: unknown, pretty = true): string {
   return inspect(normalizeValue(value), {
     depth: 6,
-    colors: true,
+    colors: pretty,
     compact: true,
     maxArrayLength: 100,
     breakLength: 120,
