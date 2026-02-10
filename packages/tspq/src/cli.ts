@@ -2,13 +2,9 @@
 import { logDiagnostics, NodeHost, resolvePath } from "@typespec/compiler";
 import yargs from "yargs";
 import { compileWithLocalCompiler } from "./compile-with-local-compiler.js";
-import {
-  formatSummary,
-  formatTypeView,
-  getTypeViewJson,
-  type TypeViewJsonOptions,
-} from "./printer.js";
+import { formatSummary, formatTypeView } from "./printer.js";
 import { summarizeProgram } from "./summary.js";
+import { getTypeViewJson, type TypeViewJsonOptions } from "./type-view-json.js";
 
 try {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
