@@ -782,10 +782,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // are not yet generated so Roslyn will not have the namespace information.
             if (string.IsNullOrEmpty(typeFromCustomization.Namespace))
             {
-                return typeFromCustomization.Name == generatedType.Name;
+                if (typeFromCustomization.Name != generatedType.Name)
+                {
+                    return false;
+                }
+            }
+            else if (typeFromCustomization.FullyQualifiedName != generatedType.FullyQualifiedName)
+            {
+                return false;
             }
 
-            return typeFromCustomization.FullyQualifiedName == generatedType.FullyQualifiedName;
+            // Also check generic type arguments to avoid false positives when two generic types
+            // share the same name but have different type arguments (e.g., Task<string> vs Task<MatchConditions>).
+            if (typeFromCustomization.Arguments.Count != generatedType.Arguments.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < typeFromCustomization.Arguments.Count; i++)
+            {
+                if (!IsNameMatch(typeFromCustomization.Arguments[i], generatedType.Arguments[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static string GetFullMethodName(MethodSignatureBase method)

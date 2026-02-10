@@ -82,6 +82,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(customMethods[3].Signature.Parameters.Count, 1);
         }
 
+        // Validates that a custom method with the same name but different generic type arguments does not suppress the generated method
+        [Test]
+        public async Task DoesNotRemoveMethodWithDifferentGenericTypeArgs()
+        {
+            List<InputMethodParameter> parameters = [InputFactory.MethodParameter("p1", InputFactory.Array(InputPrimitiveType.String))];
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation, parameters: parameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Find the client provider
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // The custom method has IEnumerable<int> while the generated convenience method has IEnumerable<string>.
+            // Since the generic type arguments are different, all 4 generated methods should remain.
+            var clientProviderMethods = clientProvider!.Methods;
+            Assert.AreEqual(4, clientProviderMethods.Count);
+
+            var helloAgainMethod = clientProviderMethods.FirstOrDefault(m
+                => m.Signature.Name == "HelloAgain" && m.Signature.Parameters.Count > 0 && m.Signature.Parameters[0].Name == "p1");
+            Assert.IsNotNull(helloAgainMethod);
+
+            // The custom code view should contain the custom method
+            var customCodeView = clientProvider.CustomCodeView;
+            Assert.IsNotNull(customCodeView);
+            var customMethods = customCodeView!.Methods;
+            Assert.AreEqual(1, customMethods.Count);
+            Assert.AreEqual("HelloAgain", customMethods[0].Signature.Name);
+        }
+
         // Validates that the custom method is added when the method has the same name as an existing method but different parameters
         [Test]
         public async Task CanAddMethodSameName()
