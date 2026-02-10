@@ -316,6 +316,41 @@ describe("compiler: references", () => {
       strictEqual(y.type.type.kind, "Scalar");
       strictEqual(y.type.type.name, "boolean");
     });
+
+    it("member reference via templated alias to model literal with default argument", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        alias A<T = string> = { t: T; };
+        @test model Example { prop: A.t }
+        `,
+      );
+
+      const { Example } = (await testHost.compile("./main.tsp")) as { Example: Model };
+      const prop = Example.properties.get("prop")!;
+      strictEqual(prop.type.kind, "ModelProperty");
+      strictEqual(prop.type.type.kind, "Scalar");
+      strictEqual(prop.type.type.name, "string");
+    });
+
+    it("reports an error when referencing an uninstantiated alias", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        alias A<T> = { t: T; };
+        @test model Example { prop: A.t }
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("./main.tsp");
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-template-args",
+          message: "Template argument 'T' is required and not specified.",
+        },
+      ]);
+    });
   });
 
   describe("enum members", () => {
