@@ -17,7 +17,7 @@ namespace Sample
             uri.AppendQuery("p2", p2, true);
             if ((maxPageSize != null))
             {
-                uri.AppendQuery("maxPageSize", global::Sample.TypeFormatters.ConvertToString(maxPageSize), true);
+                uri.AppendQuery("maxpagesize", global::Sample.TypeFormatters.ConvertToString(maxPageSize), true);
             }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
@@ -34,7 +34,7 @@ namespace Sample
             uri.AppendQuery("p1", p1, true);
             if ((maxPageSize != null))
             {
-                uri.UpdateQuery("maxPageSize", global::Sample.TypeFormatters.ConvertToString(maxPageSize));
+                uri.UpdateQuery("maxpagesize", global::Sample.TypeFormatters.ConvertToString(maxPageSize));
             }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;

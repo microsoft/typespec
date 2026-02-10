@@ -583,73 +583,118 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
             }
 
-            foreach (var param in ConvenienceMethodParameters)
+            var bodyParamProvider = ConvenienceMethodParameters.FirstOrDefault(p => p.Location == ParameterLocation.Body);
+            var nonBodyProperties = bodyModel?.CanonicalView.Properties
+                .Where(p => p.WireInfo?.IsHttpMetadata == true)
+                .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
+
+            // Create a mapping from convenience parameter names to their ParameterProvider
+            var convenienceParamsMap = ConvenienceMethodParameters.ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
+
+            bool requireNamedArgs = false;
+            // Iterate through protocol parameters to maintain correct argument order
+            foreach (var protocolParam in ProtocolMethodParameters)
             {
-                // handle spread
-                if (param.SpreadSource is not null)
+                // Skip RequestOptions parameter as it's added at the end
+                if (protocolParam.Type.Equals(ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType))
                 {
-                    if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
-                    {
-                        conversions.Add(spread);
-                        addedSpreadSource = true;
-                    }
+                    continue;
                 }
-                else if (param.Location == ParameterLocation.Body)
+
+                // Try to find the corresponding convenience parameter using MethodParameterSegments
+                if (protocolParam.InputParameter?.MethodParameterSegments is { Count: > 1 } && nonBodyProperties?.ContainsKey(protocolParam.Name) != true)
                 {
-                    // Add any non-body parameters that may have been declared within the request body model
-                    List<ValueExpression>? requiredParameters = null;
-                    List<ValueExpression>? optionalParameters = null;
+                    // The MethodParameterSegments represents a path (e.g., ['Params', 'foo'] means params.foo)
+                     var rootParameterName = protocolParam.InputParameter.MethodParameterSegments[0].Name;
+                     if (!convenienceParamsMap.TryGetValue(rootParameterName, out var convenienceParam) ||
+                         // Body parameters are handled separately
+                         convenienceParam.Location == ParameterLocation.Body)
+                     {
+                         continue;
+                     }
 
-                    if (param.Type.Equals(bodyModel?.Type) == true)
-                    {
-                        var parameterConversions = GetNonBodyModelPropertiesConversions(param, bodyModel);
-                        if (parameterConversions != null)
-                        {
-                            requiredParameters = parameterConversions.Value.RequiredParameters;
-                            optionalParameters = parameterConversions.Value.OptionalParameters;
-                        }
-                    }
+                    // Navigate through the property path
+                    var propertySegments = protocolParam.InputParameter.MethodParameterSegments
+                        .Skip(1)
+                        .Select(p => p.Name)
+                        .ToList();
 
-                    // Add required non-body parameters
-                    if (requiredParameters != null)
+                    if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(convenienceParam.Type, out var typeProvider) &&
+                        typeProvider is ModelProvider paramModel)
                     {
-                        conversions.AddRange(requiredParameters);
+                        AddArgument(protocolParam, paramModel.GetPropertyExpression(convenienceParam, propertySegments));
                     }
-
-                    if (param.Type.IsReadOnlyMemory || param.Type.IsList)
-                    {
-                        conversions.Add(declarations["content"]);
-                    }
-                    else if (param.Type.IsEnum)
-                    {
-                        conversions.Add(RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
-                    }
-                    else if (param.Type.Equals(typeof(BinaryData)))
-                    {
-                        conversions.Add(RequestContentApiSnippets.Create(param));
-                    }
-                    else if (param.Type.IsFrameworkType)
-                    {
-                        conversions.Add(declarations["content"]);
-                    }
-                    else
-                    {
-                        conversions.Add(param);
-                    }
-
-                    // Add optional non-body parameters
-                    if (optionalParameters != null)
-                    {
-                        conversions.AddRange(optionalParameters);
-                    }
-                }
-                else if (param.Type.IsEnum)
-                {
-                    conversions.Add(param.Type.ToSerial(param));
                 }
                 else
                 {
-                    conversions.Add(param);
+                    if (!convenienceParamsMap.TryGetValue(protocolParam.Name, out var convenienceParam))
+                    {
+                        if (protocolParam.IsContentParameter)
+                        {
+                            convenienceParam = bodyParamProvider;
+                        }
+                    }
+
+                    if (convenienceParam == null)
+                    {
+                        if (TryGetNonBodyModelPropertyConversion(protocolParam, out var conversion))
+                        {
+                            AddArgument(protocolParam, conversion);
+                        }
+                        else
+                        {
+                            requireNamedArgs = true;
+                            // The protocol parameter might be required due to our need to avoid ambiguity with overloads. In this
+                            // case, the parameter should have also been made nullable.
+                            if (protocolParam.DefaultValue == null && protocolParam.Type.IsNullable)
+                            {
+                                AddArgument(protocolParam, Null);
+                            }
+                        }
+                        continue;
+                    }
+
+                    // Handle spread
+                    if (convenienceParam.SpreadSource is not null)
+                    {
+                        if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
+                        {
+                            AddArgument(protocolParam, spread);
+                            addedSpreadSource = true;
+                        }
+                    }
+                    else if (convenienceParam.Location == ParameterLocation.Body)
+                    {
+                        if (convenienceParam.Type.IsReadOnlyMemory || convenienceParam.Type.IsList)
+                        {
+                            AddArgument(protocolParam, declarations["content"]);
+                        }
+                        else if (convenienceParam.Type.IsEnum)
+                        {
+                            AddArgument(protocolParam, RequestContentApiSnippets.Create(
+                                BinaryDataSnippets.FromObjectAsJson(convenienceParam.Type.ToSerial(convenienceParam))));
+                        }
+                        else if (convenienceParam.Type.Equals(typeof(BinaryData)))
+                        {
+                            AddArgument(protocolParam, RequestContentApiSnippets.Create(convenienceParam));
+                        }
+                        else if (convenienceParam.Type.IsFrameworkType)
+                        {
+                            AddArgument(protocolParam, declarations["content"]);
+                        }
+                        else
+                        {
+                            AddArgument(protocolParam, convenienceParam);
+                        }
+                    }
+                    else if (convenienceParam.Type.IsEnum)
+                    {
+                        AddArgument(protocolParam, convenienceParam.Type.ToSerial(convenienceParam));
+                    }
+                    else
+                    {
+                        AddArgument(protocolParam, convenienceParam);
+                    }
                 }
             }
 
@@ -657,45 +702,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var requestOptionsApi = ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi;
             // Build method name like "ToRequestOptions" or "ToRequestContext" based on the parameter name
             var toRequestOptionsMethodName = $"ToRequest{char.ToUpper(requestOptionsApi.ParameterName[0])}{requestOptionsApi.ParameterName.Substring(1)}";
-            conversions.Add(ScmKnownParameters.CancellationToken.Invoke(toRequestOptionsMethodName, extensionType: _cancellationTokenExtensionsDefinition.Type));
+            AddArgument(ScmKnownParameters.RequestOptions, ScmKnownParameters.CancellationToken.Invoke(toRequestOptionsMethodName, extensionType: _cancellationTokenExtensionsDefinition.Type));
 
-            return conversions;
-        }
-
-        private (List<ValueExpression> RequiredParameters, List<ValueExpression> OptionalParameters)?
-            GetNonBodyModelPropertiesConversions(ParameterProvider bodyParam, ModelProvider bodyModel)
-        {
-            // Extract non-body properties from the body model
-            var nonBodyProperties = bodyModel.CanonicalView.Properties
-                .Where(p => p.WireInfo?.IsHttpMetadata == true)
-                .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
-
-            if (nonBodyProperties.Count == 0)
-                return null;
-
-            List<ValueExpression> required = [];
-            List<ValueExpression> optional = [];
-
-            // Add properties for matching protocol parameters
-            foreach (var protocolParameter in ProtocolMethodParameters)
+            void AddArgument(ParameterProvider protocolParam, ValueExpression argument)
             {
-                if (protocolParameter.Location != ParameterLocation.Body &&
-                    (nonBodyProperties.TryGetValue(protocolParameter.WireInfo.SerializedName, out var nonBodyProperty) ||
-                    nonBodyProperties.TryGetValue(protocolParameter.Name, out nonBodyProperty)))
-                {
-                    var conversion = bodyParam.Property(nonBodyProperty.Name);
-                    if (protocolParameter.DefaultValue != null)
-                    {
-                        optional.Add(conversion);
-                    }
-                    else
-                    {
-                        required.Add(conversion);
-                    }
-                }
+                conversions.Add(requireNamedArgs ? protocolParam.PositionalReference(argument) : argument);
             }
 
-            return (required, optional);
+            bool TryGetNonBodyModelPropertyConversion(ParameterProvider protocolParam, out ValueExpression conversion)
+            {
+                conversion = Default;
+                if (bodyParamProvider is null || bodyModel is null || nonBodyProperties is null)
+                {
+                    return false;
+                }
+
+                if (!bodyParamProvider.Type.Equals(bodyModel.Type) || protocolParam.Location == ParameterLocation.Body)
+                {
+                    return false;
+                }
+
+                if (nonBodyProperties.TryGetValue(protocolParam.WireInfo.SerializedName, out var nonBodyProperty) ||
+                    nonBodyProperties.TryGetValue(protocolParam.Name, out nonBodyProperty))
+                {
+                    conversion = bodyParamProvider.Property(nonBodyProperty.Name);
+                    return true;
+                }
+
+                return false;
+            }
+
+            return conversions;
         }
 
         private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync, bool shouldMakeParametersRequired)
@@ -800,7 +837,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // If we need to make parameters required, make only the first optional parameter nullable required.
             // This is to prevent ambiguous callsites with the RequestOptions parameter while avoiding overly aggressive required parameter conversion.
             bool hasOptionalRequestContent =
-                optionalParameters.Any(p => p.Equals(ScmKnownParameters.OptionalRequestContent));
+                optionalParameters.Any(p => p.IsContentParameter);
 
             // If there is an optional request content parameter, we need to make all parameters required up to and including the request content parameter
             if (hasOptionalRequestContent)
@@ -808,13 +845,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 int parametersMadeRequired = 0;
                 foreach (var optionalParameter in optionalParameters)
                 {
-                    if (optionalParameter.Equals(ScmKnownParameters.OptionalRequestContent))
+                    if (optionalParameter.IsContentParameter)
                     {
-                        requiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
+                        var nullableRequiredContent =
+                            ScmKnownParameters.CreateRequestContent(optionalParameter.InputParameter, nullable: true);
+                        requiredParameters.Add(nullableRequiredContent);
                         // Update the body param in the underlying collection
                         var bodyParamIndex = ProtocolMethodParameters.IndexOf(optionalParameter);
                         ProtocolMethodParameters[bodyParamIndex] =
-                            ScmKnownParameters.NullableRequiredRequestContent;
+                            nullableRequiredContent;
                         parametersMadeRequired++;
                         break;
                     }
@@ -832,7 +871,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // If there is a required request content, then we don't need to make the optional parameters required
                 bool hasRequiredRequestContent =
-                    requiredParameters.Any(p => p.Equals(ScmKnownParameters.RequestContent));
+                    requiredParameters.Any(p => p.IsContentParameter);
 
                 if (hasRequiredRequestContent)
                 {

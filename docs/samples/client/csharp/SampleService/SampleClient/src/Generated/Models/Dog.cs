@@ -15,7 +15,7 @@ namespace SampleTypeSpec
         /// <param name="trained"> Whether the pet is trained. </param>
         /// <param name="breed"> The breed of the dog. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> or <paramref name="breed"/> is null. </exception>
-        public Dog(string name, bool trained, string breed) : base(name, trained)
+        public Dog(string name, bool trained, string breed) : base("dog", name, trained)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(breed, nameof(breed));

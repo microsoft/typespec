@@ -11,7 +11,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
-    internal static class ModelSerializationExtensionsSnippets
+    internal static partial class ModelSerializationExtensionsSnippets
     {
         private const string WriteStringValueMethodName = "WriteStringValue";
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";

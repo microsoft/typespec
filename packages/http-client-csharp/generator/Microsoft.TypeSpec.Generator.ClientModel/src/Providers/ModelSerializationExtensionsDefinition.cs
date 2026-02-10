@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -23,7 +22,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public sealed class ModelSerializationExtensionsDefinition : TypeProvider
+    public sealed partial class ModelSerializationExtensionsDefinition : TypeProvider
     {
         public const string WireOptionsFieldName = "WireOptions";
         public const string JsonDocumentOptionsFieldName = "JsonDocumentOptions";
@@ -158,7 +157,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteObjectValueMethodGeneric(),
                 BuildWriteObjectValueMethodProvider(),
                 BuildGetUtf8BytesMethodProvider(),
-                .. BuildDynamicModelHelpers()
+                .. BuildDynamicModelHelpers(),
+                .. BuildXmlExtensionMethods()
             ];
         }
 

@@ -7,7 +7,9 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-client-generator-core-api-version-header
 -e ./generated/azure-client-generator-core-api-version-path
 -e ./generated/azure-client-generator-core-api-version-query
--e ./generated/azure-client-generator-core-client-initialization
+-e ./generated/azure-client-generator-core-client-initialization-default
+-e ./generated/azure-client-generator-core-client-initialization-individually
+-e ./generated/azure-client-generator-core-client-initialization-individuallyparent
 -e ./generated/azure-client-generator-core-deserialize-empty-string-as-null
 -e ./generated/azure-client-generator-core-flatten-property
 -e ./generated/azure-client-generator-core-hierarchy-building
@@ -37,6 +39,8 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-resource-manager-resources
 -e ./generated/azure-resource-manager-method-subscription-id
 -e ./generated/azure-resource-manager-multi-service
+-e ./generated/azure-resource-manager-multi-service-older-versions
+-e ./generated/azure-resource-manager-multi-service-shared-models
 -e ./generated/azure-versioning-previewversion
 -e ./generated/client-namespace
 -e ./generated/azure-payload-pageable
@@ -80,6 +84,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/typetest-dictionary
 -e ./generated/typetest-enum-extensible
 -e ./generated/typetest-enum-fixed
+# -e ./generated/typetest-file
 -e ./generated/typetest-model-enumdiscriminator
 -e ./generated/typetest-model-nesteddiscriminator
 -e ./generated/typetest-model-notdiscriminated

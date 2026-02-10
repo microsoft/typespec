@@ -13,6 +13,10 @@ namespace _Type.Property.ValueTypes
     {
         internal UnknownStringProperty() => throw null;
 
+        protected virtual UnknownStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator UnknownStringProperty(ClientResult result) => throw null;
+
         void IJsonModel<UnknownStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -27,12 +31,8 @@ namespace _Type.Property.ValueTypes
 
         UnknownStringProperty IPersistableModel<UnknownStringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual UnknownStringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<UnknownStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(UnknownStringProperty unknownStringProperty) => throw null;
-
-        public static explicit operator UnknownStringProperty(ClientResult result) => throw null;
     }
 }
