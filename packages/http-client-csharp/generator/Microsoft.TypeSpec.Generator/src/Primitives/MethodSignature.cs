@@ -38,19 +38,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public FormattableString GetCRef() => $"{Name}({Parameters.GetTypesFormattable()})";
 
         internal string FullMethodName => ExplicitInterface != null ? $"{ExplicitInterface}.{Name}" : Name;
-        public static readonly IEqualityComparer<MethodSignature> MethodSignatureComparer = new MethodSignatureEqualityComparer();
-
-        private class MethodSignatureEqualityComparer : IEqualityComparer<MethodSignature>
-        {
-            public bool Equals(MethodSignature? x, MethodSignature? y)
-            {
-                return SignatureComparer.Equals(x, y);
-            }
-
-            public int GetHashCode([DisallowNull] MethodSignature obj)
-            {
-                return SignatureComparer.GetHashCode(obj);
-            }
-        }
+        public static IEqualityComparer<MethodSignature> MethodSignatureComparer => SignatureComparer;
     }
 }
