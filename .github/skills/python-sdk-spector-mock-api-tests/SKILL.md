@@ -43,6 +43,7 @@ Test-writing progress:
 - [ ] Implement sync + async test(s) that match the case’s request/response expectations
 - [ ] Update test requirements only if a new dependency is introduced
 - [ ] Format changed python files with Black (`python -m black <paths> -l 120`)
+- [ ] Add a changelog entry under `.chronus/changes`
 
 ## Prerequisites — Environment setup
 
@@ -194,6 +195,76 @@ python -m black < paths > -l 120
 ```
 
 Replace `<paths>` with the specific files and/or folders you modified.
+
+## Step 9 — Validate your test locally
+
+Before opening a PR, run your new or updated test inside a virtual environment.
+
+1. **Determine the test root.** Pick the directory that matches the test you changed:
+   - Azure tests → `packages/http-client-python/generator/test/azure`
+   - Unbranded tests → `packages/http-client-python/generator/test/unbranded`
+
+2. **Create and activate a virtual environment** (if one does not already exist):
+
+   ```bash
+   cd packages/http-client-python/generator/test/<azure|unbranded>
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. **Install only the dependencies you need.**
+   Installing the full `requirements.txt` is slow because it includes every generated SDK. Instead, extract and install only the non-editable dependencies, then install the specific SDK(s) you need:
+
+   ```bash
+   # Install dependencies from requirements.txt, excluding generated SDKs:
+   grep -v '^-e ./generated/' requirements.txt > _requirements.txt
+   pip install -r _requirements.txt
+   rm _requirements.txt
+
+   # Install the specific generated SDK(s) your test imports:
+   pip install -e ./generated/<sdk-folder-name>
+   ```
+
+   Replace `<sdk-folder-name>` with the folder that matches the SDK under test (e.g., `azure-encode-duration`, `encode-duration`).
+
+4. **Run the test:**
+
+   ```bash
+   pytest mock_api_tests/ -v < test_file > .py
+   ```
+
+   Replace `<test_file>` with the file you added or modified. Verify that all tests pass before proceeding.
+
+## Step 10 — Add a changelog entry
+
+Create a changelog file under `.chronus/changes/` to document the change. The file should be a Markdown file with YAML frontmatter specifying the change kind and affected package(s).
+
+**File naming convention:** `<short-description>-<YYYY>-<M>-<DD>-<H>-<m>-<s>.md`
+
+**Template:**
+
+```markdown
+---
+changeKind: internal
+packages:
+  - "@typespec/http-client-python"
+---
+
+<Brief description of what was added or changed.>
+```
+
+**Available `changeKind` values:**
+
+| Kind           | When to use                                      |
+| -------------- | ------------------------------------------------ |
+| `internal`     | Internal changes not user-facing (most test PRs) |
+| `fix`          | Bug fixes to existing features                   |
+| `feature`      | New user-facing features                         |
+| `deprecation`  | Deprecating an existing feature                  |
+| `breaking`     | Breaking changes                                 |
+| `dependencies` | Dependency bumps                                 |
+
+For test additions, use `changeKind: internal` and list `@typespec/http-client-python` as the package.
 
 ## Notes
 
