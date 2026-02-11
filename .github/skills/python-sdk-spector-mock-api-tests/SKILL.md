@@ -34,12 +34,32 @@ And a corresponding async pytest test added under the matching `asynctests/` fol
 
 Test-writing progress:
 
+- [ ] Ensure prerequisites are met (pnpm install, package build)
 - [ ] Identify the Spector case link (directly, or extracted from PR)
+- [ ] Update spec dependency version if the case is from an unreleased PR
 - [ ] Decide the destination folder(s): azure vs unbranded vs generic
+- [ ] Regenerate the specific generated client (do NOT run full regeneration)
 - [ ] Find existing test file to extend (or create a new one)
 - [ ] Implement sync + async test(s) that match the case’s request/response expectations
 - [ ] Update test requirements only if a new dependency is introduced
 - [ ] Format changed python files with Black (`python -m black <paths> -l 120`)
+
+## Prerequisites — Environment setup
+
+Before starting, ensure the build environment is ready:
+
+1. **Install dependencies** (from repo root):
+   ```bash
+   pnpm install
+   ```
+2. **Build the http-client-python package** (required before any `tsp compile`):
+   ```bash
+   cd packages/http-client-python
+   npm install
+   npm run build
+   ```
+
+> ⚠️ Do NOT run `pnpm build` at the repo root — it builds the entire monorepo (including the website) and takes 7+ minutes. Only the http-client-python package build is needed.
 
 ## Step 1 — Identify the Spector case link
 
@@ -55,7 +75,16 @@ Use it directly.
    - `packages/azure-http-specs/specs/` (Azure/typespec-azure)
 3. Extract the specific case/scenario path(s) to target.
 
-## Step 2 — Choose where to put the test
+## Step 2 — Update spec dependency (if needed)
+
+If the Spector case comes from a PR that hasn't been released yet, you must bump the spec dependency in `packages/http-client-python/package.json`:
+
+- For `Azure/typespec-azure` cases: update `@azure-tools/azure-http-specs`
+- For `microsoft/typespec` cases: update `@typespec/http-specs`
+
+After bumping, run `npm run install` under `packages/http-client-python` to update the lock file.
+
+## Step 3 — Choose where to put the test
 
 ### Rule A: Spector in Azure/typespec-azure
 
@@ -80,7 +109,26 @@ Decide with this concrete check:
 
 Why: both azure and unbranded tox runs include `../generic_mock_api_tests`, so shared tests are preferred when they can import the same generated package.
 
-## Step 3 — Find existing test file (or create one)
+## Step 4 — Regenerate the specific generated client
+
+Generated code is gitignored (`packages/http-client-python/generator/test/**/generated/`). You must regenerate the specific spec before writing tests.
+
+**Compile only the single spec you need** (example for azure-core-page):
+
+```bash
+cd packages/http-client-python
+npm run regenerate -- --name=azure/core/page
+```
+
+> ⚠️ Do NOT run `npm run regenerate` — it compiles ALL specs and takes 40+ minutes. Only regenerate the specific spec you need.
+
+**Verify** the generated client has the expected method:
+
+```bash
+grep -r "method_name" generator/test/azure/generated/ < name > /
+```
+
+## Step 5 — Find existing test file (or create one)
 
 1. Search in the chosen folder for an existing test covering the same feature area.
    - Prefer extending an existing `test_*.py` when it already imports the same generated module.
@@ -98,7 +146,7 @@ Conventions to match:
 - For async tests: use `async def client()` fixture + `async with ...` and mark tests with `@pytest.mark.asyncio`.
 - Follow existing assertion style (direct equality for models; `list(...)` for paged results).
 
-## Step 4 — Implement the test from the Spector expectations
+## Step 6 — Implement the test from the Spector expectations
 
 1. Read the Spector case to identify:
    - operation name / route
@@ -124,7 +172,7 @@ Async client import patterns (match the folder you’re writing to):
 - Azure: import `aio` submodule alongside models, e.g. `from specs.<...> import models, aio`, then `async with aio.<Client>()` and `await client.<op>(...)`.
 - Generic/unbranded generated clients often expose `.aio` modules, e.g. `from <pkg>.aio import <Client>`.
 
-## Step 5 — Dependencies (only when needed)
+## Step 7 — Dependencies (only when needed)
 
 Default: do NOT add new dependencies.
 
@@ -136,11 +184,14 @@ Only if your new/extended test imports a package not already available:
 
 Avoid adding dependencies unless strictly required by the test.
 
-## Step 6 — Format changed files
+## Step 8 — Format changed files
 
-Format any python files you changed with Black using a 120 character line length:
+Install Black if not already available, then format any python files you changed with a 120 character line length:
 
-- `python -m black <paths> -l 120`
+```bash
+pip install black # if not already installed
+python -m black < paths > -l 120
+```
 
 Replace `<paths>` with the specific files and/or folders you modified.
 
@@ -149,3 +200,5 @@ Replace `<paths>` with the specific files and/or folders you modified.
 - Keep the skill concise: prefer adding a single focused test per scenario.
 - Don’t duplicate existing coverage: extend an existing file when reasonable.
 - Use forward-slash paths only.
+- Generated code is gitignored — do NOT attempt to commit it. Only commit: test files, and `package.json`/`package-lock.json` (if dependency versions were updated).
+- Do NOT run `npm run regenerate` for verification — CI will handle full regeneration and test execution.
