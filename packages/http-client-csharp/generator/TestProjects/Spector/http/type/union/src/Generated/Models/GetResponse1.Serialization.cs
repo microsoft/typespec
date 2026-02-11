@@ -15,6 +15,8 @@ namespace _Type.Union
 
         protected virtual GetResponse1 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
         public static explicit operator GetResponse1(ClientResult result) => throw null;
 
         void IJsonModel<GetResponse1>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,8 +28,6 @@ namespace _Type.Union
         protected virtual GetResponse1 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         BinaryData IPersistableModel<GetResponse1>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
         GetResponse1 IPersistableModel<GetResponse1>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 

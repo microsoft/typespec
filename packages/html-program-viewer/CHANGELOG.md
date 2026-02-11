@@ -1,5 +1,12 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.79.0
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
 ## 0.78.0
 
 ### Bump dependencies

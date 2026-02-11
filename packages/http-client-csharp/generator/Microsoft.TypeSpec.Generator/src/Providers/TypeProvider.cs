@@ -543,10 +543,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void EnsureBuilt()
         {
-            _ = Methods;
-            _ = Constructors;
-            _ = Properties;
-            _ = Fields;
+            // Build all members without applying customization filtering.
+            // Filtering is deferred to CSharpGen.ExecuteAsync after visitors have had a chance
+            // to transform members (e.g., merging parameters). This ensures visitors see the
+            // full set of members before customization filtering is applied.
+            _methods ??= BuildMethods();
+            _constructors ??= BuildConstructors();
+            _properties ??= BuildProperties();
+            _fields ??= BuildFields();
             _ = Implements;
             if (IsEnum)
             {

@@ -1,5 +1,29 @@
 # Change Log - @typespec/compiler
 
+## 1.9.0
+
+### Deprecations
+
+- [#9336](https://github.com/microsoft/typespec/pull/9336) Deprecate `program` parameter in `isArrayModelType` and `isRecordModelType` functions. Use the new single-argument overload instead: `isArrayModelType(type)` and `isRecordModelType(type)`.
+
+### Features
+
+- [#9078](https://github.com/microsoft/typespec/pull/9078) Remove type constraints from `@continuationToken` decorator
+- [#9512](https://github.com/microsoft/typespec/pull/9512) [API] Add performance reporting utilities for emitters [See docs for more info](https://typespec.io/docs/extending-typespec/performance-reporting/)
+- [#9475](https://github.com/microsoft/typespec/pull/9475) [API] `serializeValueAsJson` throws a `UnsupportedScalarConstructorError` for unsupported scalar constructor instead of crashing
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9320](https://github.com/microsoft/typespec/pull/9320) Fix `--list-files` not working when multiple instance of compiler are loaded
+- [#9607](https://github.com/microsoft/typespec/pull/9607) Fix stack overflow for specs with large number of circular references
+- [#9342](https://github.com/microsoft/typespec/pull/9342) Ensuring ignore-deprecated gets resolved.
+- [#9588](https://github.com/microsoft/typespec/pull/9588) Fixed several checking errors around template instantiations that could cause TemplateParameter instances to leak into decorator calls.
+
+
 ## 1.8.0
 
 ### Features
