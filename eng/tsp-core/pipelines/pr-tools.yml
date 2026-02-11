@@ -37,6 +37,9 @@ extends:
 
               - template: /eng/tsp-core/pipelines/templates/build.yml
 
+              - script: npm install -g @azure/static-web-apps-cli
+                displayName: Install SWA CLI
+
               - task: AzureCLI@1
                 displayName: "Publish playground to PR endpoint"
                 inputs:
