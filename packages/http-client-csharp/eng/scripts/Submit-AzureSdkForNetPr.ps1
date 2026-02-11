@@ -189,11 +189,21 @@ try {
             if ($LASTEXITCODE -ne 0) {
                 Write-Host "npm install failed on public feed. Retrying with private feed..."
                 $privateFeed = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/"
-                Invoke "npm install --registry $privateFeed" $httpClientDir
-                if ($LASTEXITCODE -ne 0) {
-                    Write-Warning "npm install failed on private feed with exit code $LASTEXITCODE, skipping generation."
-                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-                    $installSucceeded = $false
+                $npmrcPath = Join-Path $httpClientDir ".npmrc"
+                $npmrcContent = "registry=$privateFeed`n//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/:_authToken=$AuthToken`n"
+                Set-Content -Path $npmrcPath -Value $npmrcContent -NoNewline
+                try {
+                    Invoke "npm install" $httpClientDir
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Warning "npm install failed on private feed with exit code $LASTEXITCODE, skipping generation."
+                        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                        $installSucceeded = $false
+                    }
+                } finally {
+                    # Clean up .npmrc to avoid committing auth tokens
+                    if (Test-Path $npmrcPath) {
+                        Remove-Item $npmrcPath -Force
+                    }
                 }
             }
         } catch {
