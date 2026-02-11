@@ -15,6 +15,16 @@ namespace Encode._Array
 
         protected virtual SpaceDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<SpaceDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        SpaceDelimitedArrayProperty IPersistableModel<SpaceDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<SpaceDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(SpaceDelimitedArrayProperty spaceDelimitedArrayProperty) => throw null;
+
         public static explicit operator SpaceDelimitedArrayProperty(ClientResult result) => throw null;
 
         void IJsonModel<SpaceDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode._Array
         SpaceDelimitedArrayProperty IJsonModel<SpaceDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual SpaceDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<SpaceDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        SpaceDelimitedArrayProperty IPersistableModel<SpaceDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<SpaceDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(SpaceDelimitedArrayProperty spaceDelimitedArrayProperty) => throw null;
     }
 }

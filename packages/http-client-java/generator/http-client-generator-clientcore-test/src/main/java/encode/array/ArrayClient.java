@@ -164,4 +164,276 @@ public final class ArrayClient {
     public NewlineDelimitedArrayProperty newlineDelimited(NewlineDelimitedArrayProperty body) {
         return newlineDelimitedWithResponse(body, RequestContext.none()).getValue();
     }
+
+    /**
+     * The enumCommaDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<CommaDelimitedEnumArrayProperty>
+        enumCommaDelimitedWithResponse(CommaDelimitedEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.enumCommaDelimited", requestContext,
+            updatedContext -> this.serviceClient.enumCommaDelimitedWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The enumCommaDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CommaDelimitedEnumArrayProperty enumCommaDelimited(CommaDelimitedEnumArrayProperty body) {
+        return enumCommaDelimitedWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The enumSpaceDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<SpaceDelimitedEnumArrayProperty>
+        enumSpaceDelimitedWithResponse(SpaceDelimitedEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.enumSpaceDelimited", requestContext,
+            updatedContext -> this.serviceClient.enumSpaceDelimitedWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The enumSpaceDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public SpaceDelimitedEnumArrayProperty enumSpaceDelimited(SpaceDelimitedEnumArrayProperty body) {
+        return enumSpaceDelimitedWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The enumPipeDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<PipeDelimitedEnumArrayProperty> enumPipeDelimitedWithResponse(PipeDelimitedEnumArrayProperty body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.enumPipeDelimited", requestContext,
+            updatedContext -> this.serviceClient.enumPipeDelimitedWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The enumPipeDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PipeDelimitedEnumArrayProperty enumPipeDelimited(PipeDelimitedEnumArrayProperty body) {
+        return enumPipeDelimitedWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The enumNewlineDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<NewlineDelimitedEnumArrayProperty>
+        enumNewlineDelimitedWithResponse(NewlineDelimitedEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.enumNewlineDelimited", requestContext,
+            updatedContext -> this.serviceClient.enumNewlineDelimitedWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The enumNewlineDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public NewlineDelimitedEnumArrayProperty enumNewlineDelimited(NewlineDelimitedEnumArrayProperty body) {
+        return enumNewlineDelimitedWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The extensibleEnumCommaDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<CommaDelimitedExtensibleEnumArrayProperty> extensibleEnumCommaDelimitedWithResponse(
+        CommaDelimitedExtensibleEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.extensibleEnumCommaDelimited",
+            requestContext,
+            updatedContext -> this.serviceClient.extensibleEnumCommaDelimitedWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The extensibleEnumCommaDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CommaDelimitedExtensibleEnumArrayProperty
+        extensibleEnumCommaDelimited(CommaDelimitedExtensibleEnumArrayProperty body) {
+        return extensibleEnumCommaDelimitedWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The extensibleEnumSpaceDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<SpaceDelimitedExtensibleEnumArrayProperty> extensibleEnumSpaceDelimitedWithResponse(
+        SpaceDelimitedExtensibleEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.extensibleEnumSpaceDelimited",
+            requestContext,
+            updatedContext -> this.serviceClient.extensibleEnumSpaceDelimitedWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The extensibleEnumSpaceDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public SpaceDelimitedExtensibleEnumArrayProperty
+        extensibleEnumSpaceDelimited(SpaceDelimitedExtensibleEnumArrayProperty body) {
+        return extensibleEnumSpaceDelimitedWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The extensibleEnumPipeDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<PipeDelimitedExtensibleEnumArrayProperty> extensibleEnumPipeDelimitedWithResponse(
+        PipeDelimitedExtensibleEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.extensibleEnumPipeDelimited",
+            requestContext,
+            updatedContext -> this.serviceClient.extensibleEnumPipeDelimitedWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The extensibleEnumPipeDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PipeDelimitedExtensibleEnumArrayProperty
+        extensibleEnumPipeDelimited(PipeDelimitedExtensibleEnumArrayProperty body) {
+        return extensibleEnumPipeDelimitedWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The extensibleEnumNewlineDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<NewlineDelimitedExtensibleEnumArrayProperty> extensibleEnumNewlineDelimitedWithResponse(
+        NewlineDelimitedExtensibleEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.extensibleEnumNewlineDelimited",
+            requestContext,
+            updatedContext -> this.serviceClient.extensibleEnumNewlineDelimitedWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The extensibleEnumNewlineDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public NewlineDelimitedExtensibleEnumArrayProperty
+        extensibleEnumNewlineDelimited(NewlineDelimitedExtensibleEnumArrayProperty body) {
+        return extensibleEnumNewlineDelimitedWithResponse(body, RequestContext.none()).getValue();
+    }
 }
