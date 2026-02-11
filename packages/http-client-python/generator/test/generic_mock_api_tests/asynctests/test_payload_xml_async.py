@@ -3,6 +3,8 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import datetime
+
 import pytest
 from payload.xml.aio import XmlClient
 from payload.xml.models import (
@@ -19,6 +21,7 @@ from payload.xml.models import (
     ModelWithDictionary,
     ModelWithEncodedNames,
     ModelWithEnum,
+    ModelWithDatetime,
     Status,
 )
 
@@ -126,6 +129,16 @@ async def test_model_with_enum(client: XmlClient):
     model = ModelWithEnum(status=Status.SUCCESS)
     assert await client.model_with_enum_value.get() == model
     await client.model_with_enum_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_datetime(client: XmlClient):
+    model = ModelWithDatetime(
+        rfc3339=datetime.datetime(2022, 8, 26, 18, 38, 0, tzinfo=datetime.timezone.utc),
+        rfc7231=datetime.datetime(2022, 8, 26, 14, 38, 0, tzinfo=datetime.timezone.utc),
+    )
+    assert await client.model_with_datetime_value.get() == model
+    await client.model_with_datetime_value.put(model)
 
 
 @pytest.mark.asyncio

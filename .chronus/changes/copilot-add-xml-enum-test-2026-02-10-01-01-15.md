@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Add test case for XML model with enum property
+Add test cases for XML model with enum and datetime properties (tests will activate when PR #9660 is merged)
