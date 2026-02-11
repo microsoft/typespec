@@ -4787,7 +4787,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @returns
    */
   function getDefaultFunctionResult(constraint: MixedParameterConstraint): Type | null {
-    if (constraint.valueType && !constraint.type) {
+    if (constraint.valueType) {
+      // If the function _can_ return a value, we will just return null. This is a bit of a hack, but it's the best fallback
+      // for a function that could return a type or value, since returning a type would cause type-in-value errors.
       return null;
     } else {
       compilerAssert(
@@ -4798,9 +4800,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // This is the strongest thing we can do in the context of an error or a template declaration, since the result
       // of the function call must be assignable to the constraint, and by the transitive property if the constraint
       // is assignable in the context of evaluation, so will be the result of any valid evaluation of the implementation.
-      // Technically, this isn't exactly ideal, since we won't do this if returning a value is possible, and that could
-      // result in "value-in-type" errors if we return `null` above, but this is a sane fallback in the vast majority of
-      // cases.
+      // Technically, this isn't exactly ideal, since it could prevent function calls that return subtypes of the constraint
+      // from assigning if the _result_ would be assignable. However, we have other cases where we check constraints in
+      // templates to try to ensure that any instance will validate. We may need to revisit this in the future, but for
+      // now, I am choosing strictness in the face of uncertainty.
       return constraint.type;
     }
   }

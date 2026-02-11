@@ -273,7 +273,7 @@ describe("usage", () => {
     });
 
     strictEqual(p.type.kind, "Intrinsic");
-    strictEqual(p.type.name, "ErrorType");
+    strictEqual(p.type.name, "unknown");
   });
 
   it("errors if argument type mismatch (value)", async () => {
