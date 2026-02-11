@@ -168,7 +168,7 @@ public final class XmlPaginationsImpl {
                     .addKeyValue("methodName", "listWithContinuation")
                     .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
-            String token = pagingOptions.getContinuationToken();
+            String marker = pagingOptions.getContinuationToken();
             return listWithContinuationSinglePage(marker);
         });
     }
@@ -204,7 +204,7 @@ public final class XmlPaginationsImpl {
                     .addKeyValue("methodName", "listWithContinuation")
                     .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
-            String token = pagingOptions.getContinuationToken();
+            String marker = pagingOptions.getContinuationToken();
             return listWithContinuationSinglePage(marker, requestContext);
         });
     }
