@@ -190,8 +190,22 @@ try {
                 Write-Host "npm install failed on public feed. Retrying with private feed..."
                 $privateFeed = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/"
                 $npmrcPath = Join-Path $httpClientDir ".npmrc"
-                $npmrcContent = "registry=$privateFeed`n//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/:_authToken=$AuthToken`n"
-                Set-Content -Path $npmrcPath -Value $npmrcContent -NoNewline
+                
+                # Encode the auth token as base64
+                $base64AuthToken = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AuthToken"))
+                
+                # Create .npmrc with proper Azure Artifacts authentication
+                $npmrcContent = @"
+registry=$privateFeed
+always-auth=true
+//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/:username=azure-sdk
+//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/:_password=$base64AuthToken
+//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/:email=not-used@example.com
+//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/:username=azure-sdk
+//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/:_password=$base64AuthToken
+//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/:email=not-used@example.com
+"@
+                Set-Content -Path $npmrcPath -Value $npmrcContent
                 try {
                     Invoke "npm install" $httpClientDir
                     if ($LASTEXITCODE -ne 0) {
