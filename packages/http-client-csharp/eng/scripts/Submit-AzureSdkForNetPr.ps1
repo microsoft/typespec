@@ -295,15 +295,18 @@ try {
     if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
         Write-Host "##[section]Generating emitter-package.json files using tsp-client..."
         
-        # Copy .npmrc to temp directory root so tsp-client can resolve packages from Azure Artifacts
+        # Copy .npmrc to the same directory as the package.json so tsp-client can resolve packages from Azure Artifacts
         $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
-        $tempDirNpmrcPath = Join-Path $tempDir ".npmrc"
+        $packageJsonDir = Split-Path -Path $TypeSpecSourcePackageJsonPath -Parent
+        $packageJsonNpmrcPath = Join-Path $packageJsonDir ".npmrc"
         
         if (Test-Path $sourceNpmrcPath) {
-            Write-Host "Copying .npmrc to temp directory for tsp-client package resolution..."
-            Copy-Item -Path $sourceNpmrcPath -Destination $tempDirNpmrcPath -Force
-            Write-Host "npm registry for tsp-client:"
-            Push-Location $tempDir
+            Write-Host "Copying .npmrc to package.json directory for tsp-client package resolution..."
+            Write-Host "  Source: $sourceNpmrcPath"
+            Write-Host "  Target: $packageJsonNpmrcPath"
+            Copy-Item -Path $sourceNpmrcPath -Destination $packageJsonNpmrcPath -Force
+            Write-Host "npm registry for tsp-client (from package.json directory):"
+            Push-Location $packageJsonDir
             try {
                 npm config get registry
             } finally {
@@ -326,10 +329,10 @@ try {
             }
             Write-Host "Successfully generated emitter-package.json files"
         } finally {
-            # Clean up .npmrc from temp directory root
-            if (Test-Path $tempDirNpmrcPath) {
-                Remove-Item $tempDirNpmrcPath -Force -ErrorAction SilentlyContinue
-                Write-Host "Cleaned up .npmrc from temp directory"
+            # Clean up .npmrc from package.json directory
+            if (Test-Path $packageJsonNpmrcPath) {
+                Remove-Item $packageJsonNpmrcPath -Force -ErrorAction SilentlyContinue
+                Write-Host "Cleaned up .npmrc from package.json directory"
             }
         }
     } else {
