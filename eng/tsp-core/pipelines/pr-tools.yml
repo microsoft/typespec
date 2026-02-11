@@ -45,16 +45,10 @@ extends:
                 inputs:
                   azureSubscription: "Azure SDK Engineering System"
                   scriptLocation: inlineScript
+                  workingDirectory: ./packages/playground-website
                   inlineScript: |
                     saw login
-                    swa deploy --swa-config-location ./packages/playground-website --env $(SWA_ENV) --verbose=silly
-                    # az storage blob upload-batch \
-                    #   --auth-mode login \
-                    #   --destination \$web \
-                    #   --account-name "cadlplayground" \
-                    #   --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-                    #   --source "./packages/playground-website/dist/web/" \
-                    #   --overwrite
+                    swa deploy --env $(SWA_ENV) --verbose=silly
 
               - task: AzureCLI@1
                 displayName: "Publish website to PR endpoint"
