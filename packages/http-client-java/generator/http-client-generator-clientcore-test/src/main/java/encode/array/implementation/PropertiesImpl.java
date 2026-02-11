@@ -1,9 +1,17 @@
 package encode.array.implementation;
 
 import encode.array.CommaDelimitedArrayProperty;
+import encode.array.CommaDelimitedEnumArrayProperty;
+import encode.array.CommaDelimitedExtensibleEnumArrayProperty;
 import encode.array.NewlineDelimitedArrayProperty;
+import encode.array.NewlineDelimitedEnumArrayProperty;
+import encode.array.NewlineDelimitedExtensibleEnumArrayProperty;
 import encode.array.PipeDelimitedArrayProperty;
+import encode.array.PipeDelimitedEnumArrayProperty;
+import encode.array.PipeDelimitedExtensibleEnumArrayProperty;
 import encode.array.SpaceDelimitedArrayProperty;
+import encode.array.SpaceDelimitedEnumArrayProperty;
+import encode.array.SpaceDelimitedExtensibleEnumArrayProperty;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
@@ -102,6 +110,86 @@ public final class PropertiesImpl {
         Response<NewlineDelimitedArrayProperty> newlineDelimited(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") NewlineDelimitedArrayProperty body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/array/property/enum/comma-delimited",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<CommaDelimitedEnumArrayProperty> enumCommaDelimited(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") CommaDelimitedEnumArrayProperty body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/array/property/enum/space-delimited",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<SpaceDelimitedEnumArrayProperty> enumSpaceDelimited(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") SpaceDelimitedEnumArrayProperty body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/array/property/enum/pipe-delimited",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<PipeDelimitedEnumArrayProperty> enumPipeDelimited(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") PipeDelimitedEnumArrayProperty body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/array/property/enum/newline-delimited",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<NewlineDelimitedEnumArrayProperty> enumNewlineDelimited(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") NewlineDelimitedEnumArrayProperty body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/array/property/extensible-enum/comma-delimited",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<CommaDelimitedExtensibleEnumArrayProperty> extensibleEnumCommaDelimited(
+            @HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") CommaDelimitedExtensibleEnumArrayProperty body,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/array/property/extensible-enum/space-delimited",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<SpaceDelimitedExtensibleEnumArrayProperty> extensibleEnumSpaceDelimited(
+            @HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") SpaceDelimitedExtensibleEnumArrayProperty body,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/array/property/extensible-enum/pipe-delimited",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<PipeDelimitedExtensibleEnumArrayProperty> extensibleEnumPipeDelimited(
+            @HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") PipeDelimitedExtensibleEnumArrayProperty body,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/array/property/extensible-enum/newline-delimited",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<NewlineDelimitedExtensibleEnumArrayProperty> extensibleEnumNewlineDelimited(
+            @HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") NewlineDelimitedExtensibleEnumArrayProperty body,
+            RequestContext requestContext);
     }
 
     /**
@@ -185,6 +273,179 @@ public final class PropertiesImpl {
                 final String contentType = "application/json";
                 final String accept = "application/json";
                 return service.newlineDelimited(this.client.getEndpoint(), contentType, accept, body, updatedContext);
+            });
+    }
+
+    /**
+     * The enumCommaDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<CommaDelimitedEnumArrayProperty>
+        enumCommaDelimitedWithResponse(CommaDelimitedEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.enumCommaDelimited", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.enumCommaDelimited(this.client.getEndpoint(), contentType, accept, body, updatedContext);
+            });
+    }
+
+    /**
+     * The enumSpaceDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<SpaceDelimitedEnumArrayProperty>
+        enumSpaceDelimitedWithResponse(SpaceDelimitedEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.enumSpaceDelimited", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.enumSpaceDelimited(this.client.getEndpoint(), contentType, accept, body, updatedContext);
+            });
+    }
+
+    /**
+     * The enumPipeDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<PipeDelimitedEnumArrayProperty> enumPipeDelimitedWithResponse(PipeDelimitedEnumArrayProperty body,
+        RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.enumPipeDelimited", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.enumPipeDelimited(this.client.getEndpoint(), contentType, accept, body, updatedContext);
+            });
+    }
+
+    /**
+     * The enumNewlineDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<NewlineDelimitedEnumArrayProperty>
+        enumNewlineDelimitedWithResponse(NewlineDelimitedEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.enumNewlineDelimited", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.enumNewlineDelimited(this.client.getEndpoint(), contentType, accept, body,
+                    updatedContext);
+            });
+    }
+
+    /**
+     * The extensibleEnumCommaDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<CommaDelimitedExtensibleEnumArrayProperty> extensibleEnumCommaDelimitedWithResponse(
+        CommaDelimitedExtensibleEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.extensibleEnumCommaDelimited",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.extensibleEnumCommaDelimited(this.client.getEndpoint(), contentType, accept, body,
+                    updatedContext);
+            });
+    }
+
+    /**
+     * The extensibleEnumSpaceDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<SpaceDelimitedExtensibleEnumArrayProperty> extensibleEnumSpaceDelimitedWithResponse(
+        SpaceDelimitedExtensibleEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.extensibleEnumSpaceDelimited",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.extensibleEnumSpaceDelimited(this.client.getEndpoint(), contentType, accept, body,
+                    updatedContext);
+            });
+    }
+
+    /**
+     * The extensibleEnumPipeDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<PipeDelimitedExtensibleEnumArrayProperty> extensibleEnumPipeDelimitedWithResponse(
+        PipeDelimitedExtensibleEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.extensibleEnumPipeDelimited",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.extensibleEnumPipeDelimited(this.client.getEndpoint(), contentType, accept, body,
+                    updatedContext);
+            });
+    }
+
+    /**
+     * The extensibleEnumNewlineDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<NewlineDelimitedExtensibleEnumArrayProperty> extensibleEnumNewlineDelimitedWithResponse(
+        NewlineDelimitedExtensibleEnumArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Array.Property.extensibleEnumNewlineDelimited",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.extensibleEnumNewlineDelimited(this.client.getEndpoint(), contentType, accept, body,
+                    updatedContext);
             });
     }
 }
