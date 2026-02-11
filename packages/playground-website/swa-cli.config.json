@@ -3,8 +3,8 @@
   "configurations": {
     "playground-website": {
       "outputLocation": "dist/web",
-      "appName": "tsp-playground-test",
-      "resourceGroup": "tiguerin-tsp-test"
+      "appName": "typespec-playground",
+      "resourceGroup": "typespec"
     }
   }
 }

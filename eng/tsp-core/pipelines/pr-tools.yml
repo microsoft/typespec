@@ -27,7 +27,7 @@ extends:
           - job: tryit
             displayName: Setup Try It
             variables:
-              TYPESPEC_WEBSITE_BASE_PATH: "/prs/$(System.PullRequest.PullRequestNumber)/"
+              SWA_ENV: "pr-$(System.PullRequest.PullRequestNumber)"
             steps:
               - checkout: self
                 persistCredentials: true
@@ -46,7 +46,7 @@ extends:
                   azureSubscription: "Azure SDK Engineering System"
                   scriptLocation: inlineScript
                   inlineScript: |
-                    swa deploy ./packages/playground-website/swa-cli.config.json
+                    swa deploy ./packages/playground-website/swa-cli.config.json --env $(SWA_ENV)
                     # az storage blob upload-batch \
                     #   --auth-mode login \
                     #   --destination \$web \
