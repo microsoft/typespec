@@ -293,15 +293,45 @@ try {
     
     # Generate emitter-package.json files using tsp-client if TypeSpec package.json is provided
     if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
-        Write-Host "Generating emitter-package.json files using tsp-client..."
+        Write-Host "##[section]Generating emitter-package.json files using tsp-client..."
+        
+        # Copy .npmrc to temp directory root so tsp-client can resolve packages from Azure Artifacts
+        $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
+        $tempDirNpmrcPath = Join-Path $tempDir ".npmrc"
+        
+        if (Test-Path $sourceNpmrcPath) {
+            Write-Host "Copying .npmrc to temp directory for tsp-client package resolution..."
+            Copy-Item -Path $sourceNpmrcPath -Destination $tempDirNpmrcPath -Force
+            Write-Host "npm registry for tsp-client:"
+            Push-Location $tempDir
+            try {
+                npm config get registry
+            } finally {
+                Pop-Location
+            }
+        } else {
+            Write-Host "No .npmrc file found - tsp-client will use default npm registry"
+        }
+        
+        Write-Host "Source package.json: $TypeSpecSourcePackageJsonPath"
+        Write-Host "Package version being installed: $PackageVersion"
+        
         $configFilesOutputDir = Join-Path $tempDir "eng"
         $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
 
-        Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to generate emitter-package.json files"
+        try {
+            Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to generate emitter-package.json files"
+            }
+            Write-Host "Successfully generated emitter-package.json files"
+        } finally {
+            # Clean up .npmrc from temp directory root
+            if (Test-Path $tempDirNpmrcPath) {
+                Remove-Item $tempDirNpmrcPath -Force -ErrorAction SilentlyContinue
+                Write-Host "Cleaned up .npmrc from temp directory"
+            }
         }
-        Write-Host "Successfully generated emitter-package.json files"
     } else {
         Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
     }
