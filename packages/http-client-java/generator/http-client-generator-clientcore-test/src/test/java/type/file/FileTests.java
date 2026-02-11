@@ -3,7 +3,7 @@
 
 package type.file;
 
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,14 +17,15 @@ public class FileTests {
 
     @Test
     public void testUploadFileSpecificContentType() {
-        client.uploadFileSpecificContentType("image/png", BinaryData.fromFile(PNG_FILE));
+        BinaryData fileData = BinaryData.fromFile(PNG_FILE);
+        client.uploadFileSpecificContentType("image/png", fileData, fileData.getLength());
     }
 
     @Test
     public void testUploadFileJsonContentType() {
         // For JSON content type, we need to send a JSON payload
         BinaryData jsonData = BinaryData.fromString("{\"message\":\"test file content\"}");
-        client.uploadFileJsonContentType(jsonData);
+        client.uploadFileJsonContentType(jsonData, jsonData.getLength());
     }
 
     @Test
@@ -41,7 +42,8 @@ public class FileTests {
 
     @Test
     public void testUploadFileMultipleContentTypes() {
-        client.uploadFileMultipleContentTypes("image/png", BinaryData.fromFile(PNG_FILE));
+        BinaryData fileData = BinaryData.fromFile(PNG_FILE);
+        client.uploadFileMultipleContentTypes("image/png", fileData, fileData.getLength());
     }
 
     @Test
@@ -52,7 +54,8 @@ public class FileTests {
 
     @Test
     public void testUploadFileDefaultContentType() {
-        client.uploadFileDefaultContentType("image/png", BinaryData.fromFile(PNG_FILE));
+        BinaryData fileData = BinaryData.fromFile(PNG_FILE);
+        client.uploadFileDefaultContentType("image/png", fileData, fileData.getLength());
     }
 
     @Test
