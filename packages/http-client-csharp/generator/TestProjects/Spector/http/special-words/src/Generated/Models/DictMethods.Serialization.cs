@@ -15,6 +15,8 @@ namespace SpecialWords._ModelProperties
 
         protected virtual DictMethods PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
         void IJsonModel<DictMethods>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,8 +26,6 @@ namespace SpecialWords._ModelProperties
         protected virtual DictMethods JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         BinaryData IPersistableModel<DictMethods>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
         DictMethods IPersistableModel<DictMethods>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 

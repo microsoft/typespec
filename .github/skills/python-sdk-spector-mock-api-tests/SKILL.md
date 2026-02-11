@@ -34,12 +34,34 @@ And a corresponding async pytest test added under the matching `asynctests/` fol
 
 Test-writing progress:
 
+- [ ] Ensure prerequisites are met (pnpm install, package build)
 - [ ] Identify the Spector case link (directly, or extracted from PR)
+- [ ] Update spec dependency version if the case is from an unreleased PR
 - [ ] Decide the destination folder(s): azure vs unbranded vs generic
+- [ ] Regenerate the specific generated client (do NOT run full regeneration)
 - [ ] Find existing test file to extend (or create a new one)
 - [ ] Implement sync + async test(s) that match the case’s request/response expectations
 - [ ] Update test requirements only if a new dependency is introduced
 - [ ] Format changed python files with Black (`python -m black <paths> -l 120`)
+- [ ] Validate test locally (start Spector mock server + run pytest)
+- [ ] Add a changelog entry under `.chronus/changes`
+
+## Prerequisites — Environment setup
+
+Before starting, ensure the build environment is ready:
+
+1. **Install dependencies** (from repo root):
+   ```bash
+   pnpm install
+   ```
+2. **Build the http-client-python package** (required before any `tsp compile`):
+   ```bash
+   cd packages/http-client-python
+   npm install
+   npm run build
+   ```
+
+> ⚠️ Do NOT run `pnpm build` at the repo root — it builds the entire monorepo (including the website) and takes 7+ minutes. Only the http-client-python package build is needed.
 
 ## Step 1 — Identify the Spector case link
 
@@ -55,7 +77,47 @@ Use it directly.
    - `packages/azure-http-specs/specs/` (Azure/typespec-azure)
 3. Extract the specific case/scenario path(s) to target.
 
-## Step 2 — Choose where to put the test
+## Step 2 — Update spec dependency (if needed)
+
+If the Spector case comes from a PR that hasn't been released yet, you must bump the spec dependency in `packages/http-client-python/package.json`:
+
+- For `Azure/typespec-azure` cases: update `@azure-tools/azure-http-specs`
+- For `microsoft/typespec` cases: update `@typespec/http-specs`
+
+To find the latest dev version, check npm:
+
+```bash
+npm view @azure-tools/azure-http-specs versions --json | tail -5
+npm view @typespec/http-specs versions --json | tail -5
+```
+
+Pick the newest version that includes the Spector case you need. Prefer a stable version (e.g., `0.1.0-alpha.38`) if one exists; only fall back to a `-dev.X` version (e.g., `0.1.0-alpha.38-dev.2`) when no stable version contains the change yet.
+
+**Example 1 — a newer stable version is available:**
+
+```jsonc
+// Before
+"@azure-tools/azure-http-specs": "0.1.0-alpha.37",
+
+// After (stable 0.1.0-alpha.38 exists and includes the case)
+"@azure-tools/azure-http-specs": "0.1.0-alpha.38",
+```
+
+**Example 2 — no new stable, only a dev version:**
+
+```jsonc
+// Before
+"@azure-tools/azure-http-specs": "0.1.0-alpha.37",
+
+// After (0.1.0-alpha.38 does not exist yet, use dev)
+"@azure-tools/azure-http-specs": "0.1.0-alpha.38-dev.2",
+```
+
+Same pattern applies to `@typespec/http-specs`.
+
+After bumping, run `npm run install` under `packages/http-client-python` to update the lock file.
+
+## Step 3 — Choose where to put the test
 
 ### Rule A: Spector in Azure/typespec-azure
 
@@ -80,7 +142,26 @@ Decide with this concrete check:
 
 Why: both azure and unbranded tox runs include `../generic_mock_api_tests`, so shared tests are preferred when they can import the same generated package.
 
-## Step 3 — Find existing test file (or create one)
+## Step 4 — Regenerate the specific generated client
+
+Generated code is gitignored (`packages/http-client-python/generator/test/**/generated/`). You must regenerate the specific spec before writing tests.
+
+**Compile only the single spec you need** (example for azure-core-page):
+
+```bash
+cd packages/http-client-python
+npm run regenerate -- --name=azure/core/page
+```
+
+> ⚠️ Do NOT run `npm run regenerate` — it compiles ALL specs and takes 40+ minutes. Only regenerate the specific spec you need.
+
+**Verify** the generated client has the expected method:
+
+```bash
+grep -r "method_name" generator/test/azure/generated/ < name > /
+```
+
+## Step 5 — Find existing test file (or create one)
 
 1. Search in the chosen folder for an existing test covering the same feature area.
    - Prefer extending an existing `test_*.py` when it already imports the same generated module.
@@ -98,7 +179,7 @@ Conventions to match:
 - For async tests: use `async def client()` fixture + `async with ...` and mark tests with `@pytest.mark.asyncio`.
 - Follow existing assertion style (direct equality for models; `list(...)` for paged results).
 
-## Step 4 — Implement the test from the Spector expectations
+## Step 6 — Implement the test from the Spector expectations
 
 1. Read the Spector case to identify:
    - operation name / route
@@ -124,7 +205,7 @@ Async client import patterns (match the folder you’re writing to):
 - Azure: import `aio` submodule alongside models, e.g. `from specs.<...> import models, aio`, then `async with aio.<Client>()` and `await client.<op>(...)`.
 - Generic/unbranded generated clients often expose `.aio` modules, e.g. `from <pkg>.aio import <Client>`.
 
-## Step 5 — Dependencies (only when needed)
+## Step 7 — Dependencies (only when needed)
 
 Default: do NOT add new dependencies.
 
@@ -136,16 +217,107 @@ Only if your new/extended test imports a package not already available:
 
 Avoid adding dependencies unless strictly required by the test.
 
-## Step 6 — Format changed files
+## Step 8 — Format changed files
 
-Format any python files you changed with Black using a 120 character line length:
+Install Black if not already available, then format any python files you changed with a 120 character line length:
 
-- `python -m black <paths> -l 120`
+```bash
+pip install black # if not already installed
+python -m black 120 < paths > -l
+```
 
 Replace `<paths>` with the specific files and/or folders you modified.
+
+## Step 9 — Validate your test locally
+
+Before opening a PR, run your new or updated test inside a virtual environment with the Spector mock API server running.
+
+1. **Determine the test root.** Pick the directory that matches the test you changed:
+   - Azure tests → `packages/http-client-python/generator/test/azure`
+   - Unbranded tests → `packages/http-client-python/generator/test/unbranded`
+
+2. **Create and activate a virtual environment** (if one does not already exist):
+
+   ```bash
+   cd packages/http-client-python/generator/test/<azure|unbranded>
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. **Install only the dependencies you need.**
+   Installing the full `requirements.txt` is slow because it includes every generated SDK. Instead, extract and install only the non-editable dependencies, then install the specific SDK(s) you need:
+
+   ```bash
+   # Install dependencies from requirements.txt, excluding generated SDKs:
+   grep -v '^-e ./generated/' requirements.txt > _requirements.txt
+   pip install -r _requirements.txt
+   rm _requirements.txt
+
+   # Install the specific generated SDK(s) your test imports:
+   pip install -e ./generated/<sdk-folder-name>
+   ```
+
+   Replace `<sdk-folder-name>` with the folder that matches the SDK under test (e.g., `azure-encode-duration`, `encode-duration`).
+
+4. **Start the Spector mock API server.**
+   The mock API tests make real HTTP requests, so the Spector server must be running before you execute pytest. Create another terminal, step into the spec package directory, and run the serve command (it runs in the foreground):
+
+   ```bash
+   # For azure-http-specs scenarios:
+   cd packages/http-client-python/node_modules/@azure-tools/azure-http-specs/
+   npm run serve
+   
+   # For http-specs (microsoft/typespec) scenarios:
+   cd packages/http-client-python/node_modules/@typespec/http-specs/
+   npm run serve
+   ```
+
+   Wait until you see the server listening message before running tests.
+
+5. **Run the test:**
+
+   ```bash
+   pytest mock_api_tests/ -v < test_file > .py
+   ```
+
+   Replace `<test_file>` with the file you added or modified. Verify that all tests pass before proceeding.
+
+## Step 10 — Add a changelog entry
+
+Create a changelog file under `.chronus/changes/` to document the change. The file should be a Markdown file with YAML frontmatter specifying the change kind and affected package(s).
+
+**File naming convention:** `<short-description>-<YYYY>-<M>-<DD>-<H>-<m>-<s>.md`
+
+**Template:**
+
+```markdown
+---
+changeKind: internal
+packages:
+  - "@typespec/http-client-python"
+---
+
+<Brief description of what was added or changed.>
+```
+
+**Available `changeKind` values:**
+
+| Kind           | When to use                                      |
+| -------------- | ------------------------------------------------ |
+| `internal`     | Internal changes not user-facing (most test PRs) |
+| `fix`          | Bug fixes to existing features                   |
+| `feature`      | New user-facing features                         |
+| `deprecation`  | Deprecating an existing feature                  |
+| `breaking`     | Breaking changes                                 |
+| `dependencies` | Dependency bumps                                 |
+
+For test additions, use `changeKind: internal` and list `@typespec/http-client-python` as the package.
 
 ## Notes
 
 - Keep the skill concise: prefer adding a single focused test per scenario.
 - Don’t duplicate existing coverage: extend an existing file when reasonable.
 - Use forward-slash paths only.
+- Generated code is gitignored — do NOT attempt to commit it. Only commit: test files, and `package.json`/`package-lock.json` (if dependency versions were updated).
+- You should still validate your test locally (Step 9) before pushing. CI runs the full regeneration and the complete test matrix, but catching failures early locally is faster.
+- Do NOT run `npm run regenerate` without `--name` for verification — CI will handle full regeneration.

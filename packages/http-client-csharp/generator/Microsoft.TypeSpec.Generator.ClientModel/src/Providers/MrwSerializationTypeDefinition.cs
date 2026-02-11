@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Xml;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
@@ -95,6 +96,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
             _xmlElementParameterSnippet = _xElementDeserializationParam.As<XElement>();
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
+            _xmlWriterSnippet = _xmlWriterParameter.As<XmlWriter>();
         }
 
         protected override FormattableString BuildDescription() => _model.Description;
@@ -179,6 +181,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // TO-DO: Add all persistable model methods when XML support is complete.
                 methods.Add(BuildPersistableModelCreateCoreMethod());
+                methods.Add(BuildPersistableModelWriteCoreMethod());
                 if (!_inputModel.IsUnknownDiscriminatorModel)
                 {
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
@@ -200,7 +203,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methods.Add(BuildDeserializationMethod());
                 // Add PersistableModel serialization methods
                 methods.Add(BuildPersistableModelWriteMethod());
-                methods.Add(BuildPersistableModelWriteCoreMethod());
                 methods.Add(BuildPersistableModelCreateMethod());
                 methods.Add(BuildPersistableModelGetFormatFromOptionsMethod());
 
@@ -225,11 +227,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_supportsXml)
             {
-                var xmlDeserializationMethod = BuildXmlDeserializationMethod();
-                if (xmlDeserializationMethod != null)
-                {
-                    methods.Add(xmlDeserializationMethod);
-                }
+                methods.AddRange(
+                    BuildXmlWriteMethod(),
+                    BuildXmlModelWriteCoreMethod(),
+                    BuildXmlDeserializationMethod());
             }
 
             if (_model is ScmModelProvider { IsDynamicModel: true, HasDynamicProperties: true })
@@ -529,7 +530,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var methodBody = new MethodBodyStatement[]
             {
-                CreateValidateJsonFormat( _persistableModelTInterface, ReadAction),
+                CreateValidateFormat(_persistableModelTInterface, ReadAction, ModelReaderWriterOptionsSnippets.JsonFormat),
                 // using var document = JsonDocument.ParseValue(ref reader);
                 UsingDeclare("document", typeof(JsonDocument), JsonDocumentSnippets.ParseValue(_utf8JsonReaderParameter.AsArgument()), out var docVariable),
                 // return DeserializeT(doc.RootElement, options);
@@ -771,7 +772,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return
             [
-                CreateValidateJsonFormat(_persistableModelTInterface, WriteAction),
+                CreateValidateFormat(_persistableModelTInterface, WriteAction, ModelReaderWriterOptionsSnippets.JsonFormat),
                 CallBaseJsonModelWriteCore(isDynamicModelWithNonDynamicBase),
                 writePropertiesStatements,
                 CreateWriteAdditionalRawDataStatement()
@@ -864,9 +865,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildPersistableModelWriteCoreMethodBody()
         {
-            var switchCase = new SwitchCaseStatement(
-                ModelReaderWriterOptionsSnippets.JsonFormat,
-                Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default])));
+            var switchCases = new List<SwitchCaseStatement>();
+
+            if (_supportsJson)
+            {
+                switchCases.Add(new SwitchCaseStatement(
+                    ModelReaderWriterOptionsSnippets.JsonFormat,
+                    Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default]))));
+            }
+
+            if (_supportsXml)
+            {
+                switchCases.Add(CreatePersistableModelWriteCoreXmlSwitchCase());
+            }
+
             var typeOfT = _persistableModelTInterface.Arguments[0];
             var defaultCase = SwitchCaseStatement.Default(
                 ThrowValidationFailException(_mrwOptionsParameterSnippet.Format(), typeOfT, WriteAction));
@@ -874,7 +886,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return
             [
                 GetConcreteFormat(_mrwOptionsParameterSnippet, _persistableModelTInterface, out VariableExpression format),
-                new SwitchStatement(format, [switchCase, defaultCase])
+                new SwitchStatement(format, [.. switchCases, defaultCase])
             ];
         }
 
@@ -1585,9 +1597,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Produces the validation body statements for the JSON serialization format.
+        /// Produces the validation body statements for the serialization format.
         /// </summary>
-        private MethodBodyStatement CreateValidateJsonFormat(CSharpType modelInterface, string action)
+        private MethodBodyStatement CreateValidateFormat(CSharpType modelInterface, string action, ValueExpression expectedFormat)
         {
             /*
                 var format = options.Format == "W" ? GetFormatFromOptions(options) : options.Format;
@@ -1599,7 +1611,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement[] statements =
             [
                 GetConcreteFormat(_mrwOptionsParameterSnippet, modelInterface, out VariableExpression format),
-                new IfStatement(format.NotEqual(ModelReaderWriterOptionsSnippets.JsonFormat))
+                new IfStatement(format.NotEqual(expectedFormat))
                 {
                     ThrowValidationFailException(format, modelInterface.Arguments[0], action)
                 },
