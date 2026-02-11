@@ -37,6 +37,7 @@ export const $lib = createTypeSpecLibrary({
   },
   state: {
     tagsMetadata: { description: "State for the @tagMetadata decorator." },
+    operationIds: { description: "State for the @operationId decorator." },
   },
 });
 

@@ -1,5 +1,4 @@
 import { expectDiagnostics, t } from "@typespec/compiler/testing";
-import type { Operation } from "@typespec/compiler";
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
 import {
@@ -41,26 +40,26 @@ describe("openapi: decorators", () => {
     });
 
     it("set operation id via decorator", async () => {
-      const { program, foo } = (await Tester.compile(t.code`
+      const { program, foo } = await Tester.compile(t.code`
         @operationId("myCustomId")
-        @test op foo(): string;
-      `)) as unknown as { program: any; foo: Operation };
+        @test op ${t.op("foo")}(): string;
+      `);
 
       deepStrictEqual(getOperationId(program, foo), "myCustomId");
     });
 
     it("getOperationId returns undefined when no operation id is set", async () => {
-      const { program, foo } = (await Tester.compile(t.code`
-        @test op foo(): string;
-      `)) as unknown as { program: any; foo: Operation };
+      const { program, foo } = await Tester.compile(t.code`
+        @test op ${t.op("foo")}(): string;
+      `);
 
       deepStrictEqual(getOperationId(program, foo), undefined);
     });
 
     it("setOperationId function sets operation id programmatically", async () => {
-      const { program, foo } = (await Tester.compile(t.code`
-        @test op foo(): string;
-      `)) as unknown as { program: any; foo: Operation };
+      const { program, foo } = await Tester.compile(t.code`
+        @test op ${t.op("foo")}(): string;
+      `);
 
       // Initially no operation id
       deepStrictEqual(getOperationId(program, foo), undefined);
@@ -73,10 +72,10 @@ describe("openapi: decorators", () => {
     });
 
     it("setOperationId function can override decorator-set operation id", async () => {
-      const { program, foo } = (await Tester.compile(t.code`
+      const { program, foo } = await Tester.compile(t.code`
         @operationId("decoratorId")
-        @test op foo(): string;
-      `)) as unknown as { program: any; foo: Operation };
+        @test op ${t.op("foo")}(): string;
+      `);
 
       // Initially has decorator id
       deepStrictEqual(getOperationId(program, foo), "decoratorId");
@@ -89,19 +88,19 @@ describe("openapi: decorators", () => {
     });
 
     it("decorator can override setOperationId function", async () => {
-      const { program, foo } = (await Tester.compile(t.code`
-        @test op foo(): string;
-      `)) as unknown as { program: any; foo: Operation };
+      const { program, foo } = await Tester.compile(t.code`
+        @test op ${t.op("foo")}(): string;
+      `);
 
       // Set programmatically first
       setOperationId(program, foo, "programmaticId");
       deepStrictEqual(getOperationId(program, foo), "programmaticId");
 
       // Recompile with decorator - this simulates the decorator being applied later
-      const { program: program2, foo: foo2 } = (await Tester.compile(t.code`
+      const { program: program2, foo: foo2 } = await Tester.compile(t.code`
         @operationId("decoratorId")
-        @test op foo(): string;
-      `)) as unknown as { program: any; foo: Operation };
+        @test op ${t.op("foo")}(): string;
+      `);
 
       // Verify decorator value takes precedence
       deepStrictEqual(getOperationId(program2, foo2), "decoratorId");
