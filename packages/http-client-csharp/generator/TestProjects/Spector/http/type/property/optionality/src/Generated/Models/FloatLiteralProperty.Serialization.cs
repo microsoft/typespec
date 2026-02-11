@@ -13,6 +13,8 @@ namespace _Type.Property.Optional
     {
         protected virtual FloatLiteralProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
         public static explicit operator FloatLiteralProperty(ClientResult result) => throw null;
 
         void IJsonModel<FloatLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,8 +26,6 @@ namespace _Type.Property.Optional
         protected virtual FloatLiteralProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         BinaryData IPersistableModel<FloatLiteralProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
         FloatLiteralProperty IPersistableModel<FloatLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 

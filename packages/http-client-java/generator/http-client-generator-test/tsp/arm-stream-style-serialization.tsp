@@ -309,6 +309,9 @@ model Builtin {
   encoding: Encoded;
   uuid: Azure.Core.uuid;
   `unknown`: unknown;
+  unknownDict: Record<unknown>;
+  unknownArray: unknown[];
+  unknownDictArray: Record<unknown>[];
 }
 
 @encode(DurationKnownEncoding.seconds, float32)

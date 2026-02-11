@@ -3,6 +3,7 @@
 
 # Those files/folders can be modified by anyone
 .chronus/changes/
+.github/skills/
 cspell.yaml
 
 ######################

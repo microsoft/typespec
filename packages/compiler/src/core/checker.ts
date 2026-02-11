@@ -3387,24 +3387,48 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
-        const aliasedSym = getAliasedSymbol(ctx, base);
-        if (!aliasedSym) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "invalid-ref",
-              messageId: "node",
-              format: {
-                id: node.id.sv,
-                nodeName: base.declarations[0]
-                  ? SyntaxKind[base.declarations[0].kind]
-                  : "Unknown node",
-              },
-              target: node,
-            }),
+        if (!options.resolveDeclarationOfTemplate && isTemplatedNode(getSymNode(base))) {
+          // This is a bare identifier reference to a templated alias, so we need to actually check this type.
+          const ty = checkTypeReferenceSymbol(
+            ctx.withMapper(undefined),
+            base,
+            node.base,
+            /* instantiateTemplates */ true,
           );
-          return undefined;
+          base = lateBindContainer(ty, base);
+
+          if (base?.members) {
+            switch (ty.kind) {
+              case "Model":
+              case "Union":
+              case "Interface":
+              case "Enum":
+              case "Scalar":
+                lateBindMembers(ty);
+            }
+          }
+
+          if (!base) return undefined;
+        } else {
+          const aliasedSym = getAliasedSymbol(ctx, base);
+          if (!aliasedSym) {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "invalid-ref",
+                messageId: "node",
+                format: {
+                  id: node.id.sv,
+                  nodeName: base.declarations[0]
+                    ? SyntaxKind[base.declarations[0].kind]
+                    : "Unknown node",
+                },
+                target: node,
+              }),
+            );
+            return undefined;
+          }
+          base = aliasedSym;
         }
-        base = aliasedSym;
       } else if (!options.resolveDeclarationOfTemplate && isTemplatedNode(getSymNode(base))) {
         const baseSym = getContainerTemplateSymbol(ctx, base, node.base);
         if (!baseSym) {

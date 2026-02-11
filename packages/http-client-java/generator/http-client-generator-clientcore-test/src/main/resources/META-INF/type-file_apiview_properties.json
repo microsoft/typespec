@@ -1,0 +1,7 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "type.file.FileClient": "Type.File.Body",
+    "type.file.FileClientBuilder": "Type.File"
+  }
+}

@@ -129,7 +129,7 @@ public class ModelTestCaseUtil {
             return "http://example.org/" + URLEncoder.encode(randomString(), StandardCharsets.UTF_8);
         } else if (type == ClassType.OBJECT || type == ClassType.BINARY_DATA) {
             // unknown type, use a simple string
-            return "data" + randomString();
+            return ClassType.STRING.defaultValueExpression("data" + randomString());
         } else if (type instanceof EnumType) {
             IType elementType = ((EnumType) type).getElementType();
             List<String> values

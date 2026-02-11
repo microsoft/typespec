@@ -1,5 +1,12 @@
 # Change Log - @typespec/versioning
 
+## 0.79.0
+
+### Bug Fixes
+
+- [#9444](https://github.com/microsoft/typespec/pull/9444) Fix incorrect incompatible versioning error in model expressions
+
+
 ## 0.78.0
 
 ### Bump dependencies
