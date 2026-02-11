@@ -23,7 +23,7 @@ public class FileTests {
     @Test
     public void testUploadFileJsonContentType() {
         // For JSON content type, we need to send a JSON payload
-        BinaryData jsonData = BinaryData.fromString("{\"data\": \"test\"}");
+        BinaryData jsonData = BinaryData.fromString("{\"message\": \"test file content\"}");
         client.uploadFileJsonContentType(jsonData);
     }
 
