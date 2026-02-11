@@ -1,5 +1,12 @@
 # Change Log - @typespec/json-schema
 
+## 1.9.0
+
+### Bug Fixes
+
+- [#9580](https://github.com/microsoft/typespec/pull/9580) Fix crash on usage of templates that cannot be named
+
+
 ## 1.8.0
 
 ### Bump dependencies

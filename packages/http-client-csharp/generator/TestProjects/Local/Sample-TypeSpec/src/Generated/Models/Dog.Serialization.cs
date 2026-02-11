@@ -38,6 +38,39 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(Dog)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<Dog>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Dog IPersistableModel<Dog>.Create(BinaryData data, ModelReaderWriterOptions options) => (Dog)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<Dog>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="dog"> The <see cref="Dog"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Dog dog)
+        {
+            if (dog == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(dog, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Dog"/> from. </param>
         public static explicit operator Dog(ClientResult result)
         {
@@ -127,39 +160,6 @@ namespace SampleTypeSpec
                 }
             }
             return new Dog(kind, name, additionalBinaryDataProperties, trained, breed);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<Dog>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(Dog)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        Dog IPersistableModel<Dog>.Create(BinaryData data, ModelReaderWriterOptions options) => (Dog)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<Dog>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="dog"> The <see cref="Dog"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(Dog dog)
-        {
-            if (dog == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(dog, ModelSerializationExtensions.WireOptions);
         }
     }
 }

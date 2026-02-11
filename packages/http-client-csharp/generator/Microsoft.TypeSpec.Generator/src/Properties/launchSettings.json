@@ -135,6 +135,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-payload-xml": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/payload/xml -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-resiliency-srv-driven-v1": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/resiliency/srv-driven/v1 -g StubLibraryGenerator",
       "commandName": "Executable",

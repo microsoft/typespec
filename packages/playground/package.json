@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.11.4",
+  "version": "0.12.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",

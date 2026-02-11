@@ -19,7 +19,7 @@ import tsptest.clientinitialization.implementation.SubClientImpl;
 /**
  * Initializes a new instance of the synchronous SubClient type.
  */
-@ServiceClient(builder = ClientInitializationClientBuilder.class)
+@ServiceClient(builder = SubClientBuilder.class)
 public final class SubClient {
     @Generated
     private final SubClientImpl serviceClient;

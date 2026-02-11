@@ -1,5 +1,9 @@
 # Change Log - @typespec/http
 
+## 1.9.0
+
+Version Bump only.
+
 ## 1.8.0
 
 ### Bump dependencies

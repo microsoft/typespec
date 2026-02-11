@@ -86,5 +86,73 @@ namespace SampleTypeSpec
             ClientResult result = await GetTreeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Tree)result, result.GetRawResponse());
         }
+
+        /// <summary>
+        /// [Protocol Method] Update a tree as a plant
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult UpdateTree(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateUpdateTreeRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Update a tree as a plant
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> UpdateTreeAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateUpdateTreeRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Update a tree as a plant. </summary>
+        /// <param name="tree"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="tree"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Tree> UpdateTree(Tree tree, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(tree, nameof(tree));
+
+            ClientResult result = UpdateTree(tree, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+        }
+
+        /// <summary> Update a tree as a plant. </summary>
+        /// <param name="tree"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="tree"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Tree>> UpdateTreeAsync(Tree tree, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(tree, nameof(tree));
+
+            ClientResult result = await UpdateTreeAsync(tree, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+        }
     }
 }
