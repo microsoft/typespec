@@ -52,6 +52,26 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<DynamicModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DynamicModel IPersistableModel<DynamicModel>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<DynamicModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="dynamicModel"> The <see cref="DynamicModel"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(DynamicModel dynamicModel)
+        {
+            if (dynamicModel == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(dynamicModel, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<DynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -733,26 +753,6 @@ namespace SampleTypeSpec
                 dictionaryListFoo,
                 listOfDictionaryFoo,
                 patch);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<DynamicModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        DynamicModel IPersistableModel<DynamicModel>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<DynamicModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="dynamicModel"> The <see cref="DynamicModel"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(DynamicModel dynamicModel)
-        {
-            if (dynamicModel == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(dynamicModel, ModelSerializationExtensions.WireOptions);
         }
 
         /// <summary></summary>

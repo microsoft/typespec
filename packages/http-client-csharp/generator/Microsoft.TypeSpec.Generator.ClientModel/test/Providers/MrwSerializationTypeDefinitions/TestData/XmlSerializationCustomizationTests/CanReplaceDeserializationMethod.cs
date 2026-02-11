@@ -11,7 +11,7 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class MockInputModel
+    public partial class MockInputModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>
     {
         protected virtual global::Sample.Models.MockInputModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
@@ -53,6 +53,12 @@ namespace Sample.Models
                     throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{options.Format}' format.");
             }
         }
+
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+
+        global::Sample.Models.MockInputModel global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "X";
 
         private void Write(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
         {

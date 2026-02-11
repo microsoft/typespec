@@ -17,14 +17,6 @@ namespace SpecialWords._Models
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        void IJsonModel<Def>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
-
-        Def IJsonModel<Def>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual Def JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
         BinaryData IPersistableModel<Def>.Write(ModelReaderWriterOptions options) => throw null;
 
         Def IPersistableModel<Def>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
@@ -32,5 +24,13 @@ namespace SpecialWords._Models
         string IPersistableModel<Def>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Def def) => throw null;
+
+        void IJsonModel<Def>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+
+        Def IJsonModel<Def>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual Def JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
     }
 }

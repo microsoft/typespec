@@ -17,6 +17,14 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        BinaryData IPersistableModel<IsUnknownAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
+
+        IsUnknownAdditionalProperties IPersistableModel<IsUnknownAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<IsUnknownAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(IsUnknownAdditionalProperties isUnknownAdditionalProperties) => throw null;
+
         public static explicit operator IsUnknownAdditionalProperties(ClientResult result) => throw null;
 
         void IJsonModel<IsUnknownAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,13 +34,5 @@ namespace _Type.Property.AdditionalProperties
         IsUnknownAdditionalProperties IJsonModel<IsUnknownAdditionalProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual IsUnknownAdditionalProperties JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<IsUnknownAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
-
-        IsUnknownAdditionalProperties IPersistableModel<IsUnknownAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<IsUnknownAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(IsUnknownAdditionalProperties isUnknownAdditionalProperties) => throw null;
     }
 }

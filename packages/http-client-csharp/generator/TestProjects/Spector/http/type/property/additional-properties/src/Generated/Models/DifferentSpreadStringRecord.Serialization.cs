@@ -17,6 +17,14 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        BinaryData IPersistableModel<DifferentSpreadStringRecord>.Write(ModelReaderWriterOptions options) => throw null;
+
+        DifferentSpreadStringRecord IPersistableModel<DifferentSpreadStringRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<DifferentSpreadStringRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(DifferentSpreadStringRecord differentSpreadStringRecord) => throw null;
+
         public static explicit operator DifferentSpreadStringRecord(ClientResult result) => throw null;
 
         void IJsonModel<DifferentSpreadStringRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,13 +34,5 @@ namespace _Type.Property.AdditionalProperties
         DifferentSpreadStringRecord IJsonModel<DifferentSpreadStringRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual DifferentSpreadStringRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<DifferentSpreadStringRecord>.Write(ModelReaderWriterOptions options) => throw null;
-
-        DifferentSpreadStringRecord IPersistableModel<DifferentSpreadStringRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<DifferentSpreadStringRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(DifferentSpreadStringRecord differentSpreadStringRecord) => throw null;
     }
 }

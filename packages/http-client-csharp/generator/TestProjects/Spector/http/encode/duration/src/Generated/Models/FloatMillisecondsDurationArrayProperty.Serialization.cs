@@ -17,6 +17,14 @@ namespace Encode.Duration._Property
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        BinaryData IPersistableModel<FloatMillisecondsDurationArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        FloatMillisecondsDurationArrayProperty IPersistableModel<FloatMillisecondsDurationArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<FloatMillisecondsDurationArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(FloatMillisecondsDurationArrayProperty floatMillisecondsDurationArrayProperty) => throw null;
+
         public static explicit operator FloatMillisecondsDurationArrayProperty(ClientResult result) => throw null;
 
         void IJsonModel<FloatMillisecondsDurationArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,13 +34,5 @@ namespace Encode.Duration._Property
         FloatMillisecondsDurationArrayProperty IJsonModel<FloatMillisecondsDurationArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual FloatMillisecondsDurationArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<FloatMillisecondsDurationArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        FloatMillisecondsDurationArrayProperty IPersistableModel<FloatMillisecondsDurationArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<FloatMillisecondsDurationArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(FloatMillisecondsDurationArrayProperty floatMillisecondsDurationArrayProperty) => throw null;
     }
 }
