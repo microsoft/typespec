@@ -15,6 +15,8 @@ namespace Payload.ContentNegotiation._DifferentBody
 
         protected virtual PngImageAsJson PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
         public static explicit operator PngImageAsJson(ClientResult result) => throw null;
 
         void IJsonModel<PngImageAsJson>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,8 +28,6 @@ namespace Payload.ContentNegotiation._DifferentBody
         protected virtual PngImageAsJson JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         BinaryData IPersistableModel<PngImageAsJson>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
         PngImageAsJson IPersistableModel<PngImageAsJson>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 

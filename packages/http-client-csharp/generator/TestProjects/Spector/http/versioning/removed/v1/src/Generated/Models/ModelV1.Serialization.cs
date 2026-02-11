@@ -15,6 +15,8 @@ namespace Versioning.Removed
 
         protected virtual ModelV1 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
         public static explicit operator ModelV1(ClientResult result) => throw null;
 
         void IJsonModel<ModelV1>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,8 +28,6 @@ namespace Versioning.Removed
         protected virtual ModelV1 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         BinaryData IPersistableModel<ModelV1>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
         ModelV1 IPersistableModel<ModelV1>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
