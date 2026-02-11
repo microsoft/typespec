@@ -60,7 +60,9 @@ npm install -g npm-check-updates
 
    Example:
    - Original: `@typespec/http-specs: 0.1.0-alpha.12-dev.5`, updated by step 4 to `0.1.0-alpha.11` → keep `0.1.0-alpha.12-dev.5`.
+   - Original: `@typespec/http-specs: 0.1.0-alpha.12-dev.5`, updated by step 4 to `0.1.0-alpha.12` → keep `0.1.0-alpha.12` (step 4 works as expected).
    - Original: `@azure-tools/azure-http-specs: 0.1.0-alpha.12-dev.2`, updated to `0.1.0-alpha.11` → keep `0.1.0-alpha.12-dev.2`.
+   - Original: `@azure-tools/azure-http-specs: 0.1.0-alpha.12-dev.2`, updated to `0.1.0-alpha.12` → keep `0.1.0-alpha.12` (step 4 works as expected).
 
 7. Run version change script:
 
