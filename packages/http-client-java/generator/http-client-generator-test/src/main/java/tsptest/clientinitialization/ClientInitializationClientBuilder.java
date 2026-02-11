@@ -40,12 +40,7 @@ import tsptest.clientinitialization.implementation.ClientInitializationClientImp
 /**
  * A builder for creating a new instance of the ClientInitializationClient type.
  */
-@ServiceClientBuilder(
-    serviceClients = {
-        ClientInitializationClient.class,
-        ClientInitializationAsyncClient.class,
-        SubClient.class,
-        SubAsyncClient.class })
+@ServiceClientBuilder(serviceClients = { ClientInitializationClient.class, ClientInitializationAsyncClient.class })
 public final class ClientInitializationClientBuilder implements HttpTrait<ClientInitializationClientBuilder>,
     ConfigurationTrait<ClientInitializationClientBuilder>, EndpointTrait<ClientInitializationClientBuilder> {
     @Generated

@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Xml;
 using System.Xml.Linq;
 using Sample.Models;
 
@@ -12,6 +13,22 @@ namespace Sample
 {
     public partial class Model
     {
+        protected virtual void XmlModelWriteCore(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        {
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "X"))
+            {
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support writing '{format}' format.");
+            }
+
+            if (global::Sample.Optional.IsDefined(Prop2))
+            {
+                writer.WriteStartElement("prop1");
+                writer.WriteValue(Prop2);
+                writer.WriteEndElement();
+            }
+        }
+
         internal static global::Sample.Models.Model DeserializeModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element == null))

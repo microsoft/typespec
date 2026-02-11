@@ -95,6 +95,24 @@ export function getParameterDecorators(
     decorators.push(...getDecoratorsForSchema(parameter.schema, context));
   }
 
+  // Add @pageSize decorator if x-ms-list-page-size extension is true
+  const xmsListPageSize = (parameter as any)["x-ms-list-page-size"];
+  if (xmsListPageSize === true) {
+    decorators.push({
+      name: "pageSize",
+      args: [],
+    });
+  }
+
+  // Handle x-ms-list-continuation-token extension on parameter itself
+  const xmsListContinuationToken = (parameter as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
+
   // Add @pageIndex decorator if x-ms-list-page-index extension is true
   const xmsListPageIndex = (parameter as any)["x-ms-list-page-index"];
   if (xmsListPageIndex === true) {
@@ -231,6 +249,22 @@ export function getDecoratorsForSchema(
   const schemaWithoutRef = schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
 
   decorators.push(...getExtensions(schemaWithoutRef));
+
+  // Handle x-ms-list-page-items extension with @pageItems decorator
+  // This must be after getExtensions to ensure both decorators are present
+  const xmsListPageItems = (schema as any)["x-ms-list-page-items"];
+  if (xmsListPageItems === true) {
+    decorators.push({ name: "pageItems", args: [] });
+  }
+
+  // Handle x-ms-list-continuation-token extension by adding @continuationToken decorator
+  const xmsListContinuationToken = (schema as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
 
   // Handle x-ms-list-*-link extensions
   decorators.push(...getPagingLinkDecorators(schemaWithoutRef));
