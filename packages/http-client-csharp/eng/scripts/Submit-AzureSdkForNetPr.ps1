@@ -183,6 +183,18 @@ try {
         Write-Host "##[section]Running npm install in eng/packages/http-client-csharp..."
         $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
         
+        # Copy .npmrc file from source directory if it exists (for internal builds)
+        $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
+        $targetNpmrcPath = Join-Path $httpClientDir ".npmrc"
+        
+        if (Test-Path $sourceNpmrcPath) {
+            Write-Host "Copying .npmrc from source directory to cloned repo..."
+            Copy-Item -Path $sourceNpmrcPath -Destination $targetNpmrcPath -Force
+            Write-Host "Successfully copied .npmrc to: $targetNpmrcPath"
+        } else {
+            Write-Host "No .npmrc file found in source directory - will use default npm registry"
+        }
+        
         # Log npm configuration before install
         Write-Host "##[group]NPM Configuration Check"
         Write-Host "Working directory: $httpClientDir"
