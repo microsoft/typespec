@@ -1,5 +1,51 @@
 # Change Log - @typespec/http
 
+## 1.9.0
+
+Version Bump only.
+
+## 1.8.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9311](https://github.com/microsoft/typespec/pull/9311) Fix empty response models with `statusCode` defined in a base model
+
+
+## 1.7.0
+
+### Features
+
+- [#8962](https://github.com/microsoft/typespec/pull/8962) support documentation on union variants for response descriptions
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8961](https://github.com/microsoft/typespec/pull/8961) Support nested unions in operation return types
+
+
+## 1.6.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8974](https://github.com/microsoft/typespec/pull/8974) Do not report `no-service-found` if there is a service even if it has no routes
+- [#8737](https://github.com/microsoft/typespec/pull/8737) Fix `@bodyIgnore` property shouldn't count as implicit body property for check
+
+
+## 1.5.0
+
+No changes, version bump only.
+
 ## 1.4.0
 
 ### Bump dependencies

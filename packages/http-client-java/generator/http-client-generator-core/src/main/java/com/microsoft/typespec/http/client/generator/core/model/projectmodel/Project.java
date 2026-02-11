@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.projectmodel;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -11,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalPackage;
 import com.microsoft.typespec.http.client.generator.core.template.TemplateHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -60,13 +60,13 @@ public class Project {
         // azure
         AZURE_CLIENT_SDK_PARENT("com.azure", "azure-client-sdk-parent", "1.7.0"),
         AZURE_CLIENT_SDK_PARENT_V2("com.azure.v2", "azure-client-sdk-parent", "2.0.0-beta.1"),
-        AZURE_CORE("com.azure", "azure-core", "1.56.0"),
+        AZURE_CORE("com.azure", "azure-core", "1.57.1"),
         AZURE_CORE_V2("com.azure.v2", "azure-core", "2.0.0-beta.1"),
-        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.19.0"),
-        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.16.0"),
-        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.11"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.17.0"),
-        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.63"),
+        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.19.3"),
+        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.16.3"),
+        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.14"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.18.2"),
+        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.66"),
 
         CLIENTCORE("io.clientcore", "core", "1.0.0-beta.11");
 

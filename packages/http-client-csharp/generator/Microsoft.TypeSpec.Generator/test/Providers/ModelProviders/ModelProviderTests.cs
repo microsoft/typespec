@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
@@ -1086,6 +1087,757 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
             Assert.IsNotNull(moreItemsProperty);
             Assert.IsTrue(moreItemsProperty!.Type.Equals(typeof(IDictionary<string, string>)));
+        }
+
+        [Test]
+        public async Task BackCompat_NonAbstractTypeIsRespected()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+        }
+
+        [Test]
+        public async Task BackCompat_NonAbstractTypeIsRespected_NamespaceChangedInVisitor()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            // simulate a visitor that changes the model's namespace
+            modelProvider!.Update(@namespace: "Sample.Models.NewNamespace");
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+        }
+
+        [Test]
+        public async Task BackCompat_NonAbstractTypeIsRespected_NameChangedInVisitor()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+            // simulate a visitor that changes the model's name
+            modelProvider!.Update(name: "NewBaseModel");
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            Assert.IsTrue(modelProvider.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
+        }
+
+        [Test]
+        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                access: "public");
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsTrue(rootTypes.Contains("Sample.Models.MockInputModel"));
+        }
+
+        [Test]
+        public void InternalModelsAreNotIncludedInAdditionalRootTypes()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                access: "internal");
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
+        }
+
+        [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
+        [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
+        [TestCase(false, true, InputModelTypeUsage.Output, true, false)]
+        [TestCase(false, false,InputModelTypeUsage.Output, true, false)]
+        [TestCase(true, true, InputModelTypeUsage.Input, true, false)]
+        [TestCase(true, true, InputModelTypeUsage.Input | InputModelTypeUsage.Output, true, true)]
+        [TestCase(true, false, InputModelTypeUsage.Input, false, false)]
+        [TestCase(false, true, InputModelTypeUsage.Input, true, true)]
+        [TestCase(false, false, InputModelTypeUsage.Input, true, true)]
+        public void ConstantPropertiesAccessibility(
+            bool isRequired,
+            bool isNullable,
+            InputModelTypeUsage usage,
+            bool shouldBePublic,
+            bool shouldHaveSetter)
+        {
+            var inputType = InputFactory.Literal.String("constant", "prop1");
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: usage,
+                properties:
+                [
+                    InputFactory.Property("prop1", isNullable? new InputNullableType(inputType) : inputType, isRequired: isRequired),
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var prop = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Prop1");
+            Assert.IsNotNull(prop);
+            Assert.AreEqual(shouldBePublic, prop!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual(shouldHaveSetter, prop.Body.HasSetter);
+        }
+
+        [Test]
+        public void ExternalTypeModelUsedAsProperty()
+        {
+            // Test a model decorated with alternateType that references System.Uri
+            var externalType = InputFactory.Union(
+                [InputPrimitiveType.String],
+                "ExternalUnion",
+                new InputExternalTypeMetadata("System.Uri", null, null));
+            var modelWithExternal = InputFactory.Model("ExternalModel");
+
+            // Create a model that uses the external type as a property
+            var containerModel = InputFactory.Model(
+                "ContainerModel",
+                properties:
+                [
+                    InputFactory.Property("externalProp", externalType),
+                    InputFactory.Property("normalProp", InputPrimitiveType.String)
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [modelWithExternal, containerModel]);
+
+            var containerProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.Name == "ContainerModel") as ModelProvider;
+            Assert.IsNotNull(containerProvider);
+
+            // The property with external type should be resolved to System.Uri
+            var externalProp = containerProvider!.Properties.FirstOrDefault(p => p.Name == "ExternalProp");
+            Assert.IsNotNull(externalProp);
+            Assert.AreEqual(typeof(Uri), externalProp!.Type.FrameworkType);
+
+            // Normal property should still work
+            var normalProp = containerProvider.Properties.FirstOrDefault(p => p.Name == "NormalProp");
+            Assert.IsNotNull(normalProp);
+            Assert.AreEqual(typeof(string), normalProp!.Type.FrameworkType);
+        }
+
+        [Test]
+        public void ExternalTypePropertyIsResolved()
+        {
+            // Test a property decorated with alternateType
+            var externalType = InputFactory.Union(
+                [InputPrimitiveType.String],
+                "ExternalUnion",
+                new InputExternalTypeMetadata("System.Net.IPAddress", "System.Net.Primitives", "4.3.0"));
+
+            var model = InputFactory.Model(
+                "ModelWithExternalProperty",
+                properties:
+                [
+                    InputFactory.Property("ipAddress", externalType),
+                    InputFactory.Property("name", InputPrimitiveType.String)
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [model]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.Name == "ModelWithExternalProperty") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            // The property with external type should be resolved
+            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IpAddress");
+            Assert.IsNotNull(ipAddressProp);
+            Assert.IsNotNull(ipAddressProp!.Type.FrameworkType);
+
+            // Verify it's the correct framework type
+            var normalProp = modelProvider.Properties.FirstOrDefault(p => p.Name == "Name");
+            Assert.IsNotNull(normalProp);
+            Assert.AreEqual(typeof(string), normalProp!.Type.FrameworkType);
+        }
+
+        [Test]
+        public void UnsupportedExternalTypeEmitsDiagnostic()
+        {
+            // Test an external type that cannot be resolved (non-framework type)
+            var externalType = InputFactory.Union(
+                [InputPrimitiveType.String],
+                "ExternalUnion",
+                new InputExternalTypeMetadata("Azure.Core.Expressions.DataFactoryExpression", null, null));
+
+            var model = InputFactory.Model(
+                "ModelWithUnsupportedExternal",
+                properties:
+                [
+                    InputFactory.Property("expression", externalType),
+                    InputFactory.Property("value", InputPrimitiveType.String)
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [model]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.Name == "ModelWithUnsupportedExternal") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            // The unsupported external type property should be skipped (null type results in skipped property)
+            // Only the normal property should remain
+            var props = modelProvider!.Properties;
+
+            // The value property should exist
+            var valueProp = props.FirstOrDefault(p => p.Name == "Value");
+            Assert.IsNotNull(valueProp);
+        }
+
+        [Test]
+        public void ModelWithOptionalDiscriminatorProperty()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel, derivedInputModel],
+                inputEnumTypes: [discriminatorEnum]);
+
+            var modelProvider =
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "DerivedModel")
+                    as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var writer = new TypeProviderWriter(modelProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultiLayerDiscriminator_IntermediateWithoutDiscriminator()
+        {
+            // Test hierarchy: Pet (base, no discriminator) → Cat (intermediate, no discriminator) → Tiger (leaf, discriminator: "tiger")
+
+            InputModelType tigerModel = InputFactory.Model(
+                "tiger",
+                discriminatedKind: "tiger",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("stripes", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+
+            InputModelType catModel = InputFactory.Model(
+                "cat",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "tiger", tigerModel } });
+
+            var baseModel = InputFactory.Model(
+                "pet",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, catModel, tigerModel]);
+
+            var tigerProvider = new ModelProvider(tigerModel);
+
+            Assert.AreEqual(2, tigerProvider.Constructors.Count);
+
+            var publicConstructor = tigerProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicConstructor);
+            Assert.AreEqual(MethodSignatureModifiers.Public, publicConstructor!.Signature.Modifiers);
+
+            // Tiger's public constructor should have parameters: name (from Pet), meows (from Cat), stripes (from Tiger)
+            var publicParams = publicConstructor.Signature.Parameters;
+            Assert.AreEqual(3, publicParams.Count);
+            Assert.AreEqual("name", publicParams[0].Name);
+            Assert.AreEqual(typeof(string), publicParams[0].Type.FrameworkType);
+            Assert.AreEqual("meows", publicParams[1].Name);
+            Assert.AreEqual(typeof(bool), publicParams[1].Type.FrameworkType);
+            Assert.AreEqual("stripes", publicParams[2].Name);
+            Assert.AreEqual(typeof(int), publicParams[2].Type.FrameworkType);
+
+            // Tiger should call base constructor with only base parameters (no discriminator from Cat since Cat doesn't have one)
+            var initializer = publicConstructor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+
+            // Should have name and meows parameters from base chain (no discriminator since Cat has no discriminatedKind)
+            Assert.AreEqual(2, initializer.Arguments.Count);
+            Assert.AreEqual("name", initializer.Arguments[0].ToDisplayString());
+            Assert.AreEqual("meows", initializer.Arguments[1].ToDisplayString());
+
+            // Verify internal (serialization) constructor signature and parameters
+            var internalConstructor = tigerProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(internalConstructor);
+            Assert.AreEqual(MethodSignatureModifiers.Internal, internalConstructor!.Signature.Modifiers);
+
+            // Internal constructor should have all parameters including serialization params
+            var internalParams = internalConstructor.Signature.Parameters;
+            Assert.IsTrue(internalParams.Count >= 4);
+
+            var internalInitializer = internalConstructor.Signature.Initializer;
+            Assert.IsNotNull(internalInitializer);
+            Assert.IsTrue(internalInitializer!.IsBase);
+        }
+
+        [Test]
+        public void TestMultiLayerDiscriminator_IntermediateWithDiscriminator()
+        {
+            // Test hierarchy: Pet (base, no discriminator) → Cat (intermediate, discriminator: "cat") → DomesticCat (leaf, discriminator: "domestic")
+
+            InputModelType domesticCatModel = InputFactory.Model(
+                "domesticCat",
+                discriminatedKind: "domestic",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("breed", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            InputModelType catModel = InputFactory.Model(
+                "cat",
+                discriminatedKind: "cat",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "domestic", domesticCatModel } });
+
+            var baseModel = InputFactory.Model(
+                "pet",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, catModel, domesticCatModel]);
+
+            var domesticCatProvider = new ModelProvider(domesticCatModel);
+            var catProvider = new ModelProvider(catModel);
+
+            Assert.AreEqual(2, domesticCatProvider.Constructors.Count);
+
+            var publicConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicConstructor);
+            Assert.AreEqual(MethodSignatureModifiers.Public, publicConstructor!.Signature.Modifiers);
+
+            // DomesticCat's public constructor should have parameters: name (from Pet), meows (from Cat), breed (from DomesticCat)
+            var publicParams = publicConstructor.Signature.Parameters;
+            Assert.AreEqual(3, publicParams.Count);
+            Assert.AreEqual("name", publicParams[0].Name);
+            Assert.AreEqual(typeof(string), publicParams[0].Type.FrameworkType);
+            Assert.AreEqual("meows", publicParams[1].Name);
+            Assert.AreEqual(typeof(bool), publicParams[1].Type.FrameworkType);
+            Assert.AreEqual("breed", publicParams[2].Name);
+            Assert.AreEqual(typeof(string), publicParams[2].Type.FrameworkType);
+
+            // DomesticCat should call Cat's dual constructor with discriminator value since Cat has discriminatedKind
+            var initializer = publicConstructor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+
+            // Should have discriminator + parameters from Cat's dual constructor pattern
+            Assert.AreEqual(3, initializer.Arguments.Count); // discriminator "domestic" + name + meows
+            Assert.AreEqual("\"domestic\"", initializer.Arguments[0].ToDisplayString());
+            Assert.AreEqual("name", initializer.Arguments[1].ToDisplayString());
+            Assert.AreEqual("meows", initializer.Arguments[2].ToDisplayString());
+
+            // Verify Cat also has dual constructor pattern (public and protected)
+            Assert.AreEqual(3, catProvider.Constructors.Count);
+
+            var internalConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsNotNull(internalConstructor);
+            Assert.AreEqual(MethodSignatureModifiers.Internal, internalConstructor!.Signature.Modifiers);
+
+            var internalInitializer = internalConstructor.Signature.Initializer;
+            Assert.IsNotNull(internalInitializer);
+            Assert.IsTrue(internalInitializer!.IsBase);
+        }
+
+        [Test]
+        public void TestMultiLayerDiscriminator_ThreeLayers()
+        {
+            // Test hierarchy: Animal (base) → Pet (discriminator: "pet") → Cat (discriminator: "cat") → DomesticCat (discriminator: "domestic")
+
+            InputModelType domesticCatModel = InputFactory.Model(
+                "domesticCat",
+                discriminatedKind: "domestic",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("breed", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            InputModelType catModel = InputFactory.Model(
+                "cat",
+                discriminatedKind: "cat",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "domestic", domesticCatModel } });
+
+            InputModelType petModel = InputFactory.Model(
+                "pet",
+                discriminatedKind: "pet",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
+
+            var animalModel = InputFactory.Model(
+                "animal",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("species", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "pet", petModel } });
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [animalModel, petModel, catModel, domesticCatModel]);
+
+            var domesticCatProvider = new ModelProvider(domesticCatModel);
+            var catProvider = new ModelProvider(catModel);
+            var petProvider = new ModelProvider(petModel);
+            var animalProvider = new ModelProvider(animalModel);
+
+            Assert.IsNotNull(domesticCatProvider.BaseModelProvider);
+            Assert.IsNotNull(domesticCatProvider.BaseModelProvider!.BaseModelProvider);
+            Assert.IsNotNull(domesticCatProvider.BaseModelProvider!.BaseModelProvider!.BaseModelProvider);
+
+            Assert.AreEqual(2, domesticCatProvider.Constructors.Count); // public, internal (leaf type)
+            Assert.AreEqual(3, catProvider.Constructors.Count); // public, protected with discriminator, internal
+            Assert.AreEqual(3, petProvider.Constructors.Count); // public, protected with discriminator, internal
+            Assert.AreEqual(2, animalProvider.Constructors.Count); // public, internal (base type)
+
+            // Verify DomesticCat's public constructor parameters: species (from Animal), name (from Pet), meows (from Cat), breed (from DomesticCat)
+            var publicConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicConstructor);
+            Assert.AreEqual(MethodSignatureModifiers.Public, publicConstructor!.Signature.Modifiers);
+
+            var publicParams = publicConstructor.Signature.Parameters;
+            Assert.AreEqual(4, publicParams.Count);
+            Assert.AreEqual("species", publicParams[0].Name);
+            Assert.AreEqual(typeof(string), publicParams[0].Type.FrameworkType);
+            Assert.AreEqual("name", publicParams[1].Name);
+            Assert.AreEqual(typeof(string), publicParams[1].Type.FrameworkType);
+            Assert.AreEqual("meows", publicParams[2].Name);
+            Assert.AreEqual(typeof(bool), publicParams[2].Type.FrameworkType);
+            Assert.AreEqual("breed", publicParams[3].Name);
+            Assert.AreEqual(typeof(string), publicParams[3].Type.FrameworkType);
+
+            var initializer = publicConstructor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+
+            Assert.AreEqual(4, initializer.Arguments.Count); // discriminator "domestic" + species + name + meows
+            Assert.AreEqual("\"domestic\"", initializer.Arguments[0].ToDisplayString());
+            Assert.AreEqual("species", initializer.Arguments[1].ToDisplayString());
+            Assert.AreEqual("name", initializer.Arguments[2].ToDisplayString());
+            Assert.AreEqual("meows", initializer.Arguments[3].ToDisplayString());
+
+            // Verify Cat's protected constructor exists and has correct signature
+            var catProtectedConstructor = catProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.IsNotNull(catProtectedConstructor);
+            Assert.IsTrue(catProtectedConstructor!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+
+            // Cat's protected constructor should have: discriminator + species + name + meows
+            var catProtectedParams = catProtectedConstructor.Signature.Parameters;
+            Assert.AreEqual(4, catProtectedParams.Count);
+            Assert.AreEqual("kind", catProtectedParams[0].Name);
+            Assert.AreEqual(typeof(string), catProtectedParams[0].Type.FrameworkType);
+            Assert.AreEqual("species", catProtectedParams[1].Name);
+            Assert.AreEqual("name", catProtectedParams[2].Name);
+            Assert.AreEqual("meows", catProtectedParams[3].Name);
+        }
+
+        [Test]
+        public void TestMultiLevelDiscriminatorConstructorParameterPassthrough()
+        {
+            // Create a three-level discriminator hierarchy: base → intermediate → derived
+            var derivedInputModel = InputFactory.Model(
+                "derived",
+                discriminatedKind: "derived",
+                properties: [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var intermediateInputModel = InputFactory.Model(
+                "intermediate",
+                discriminatedKind: "intermediate",
+                properties: [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("intermediateProperty", InputPrimitiveType.Boolean, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "derived", derivedInputModel } });
+
+            var baseInputModel = InputFactory.Model(
+                "base",
+                properties: [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("baseProperty", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "intermediate", intermediateInputModel } });
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseInputModel, intermediateInputModel, derivedInputModel]);
+
+            var intermediateProvider = new ModelProvider(intermediateInputModel);
+            var derivedProvider = new ModelProvider(derivedInputModel);
+
+            Assert.IsNotNull(intermediateProvider);
+            Assert.IsNotNull(derivedProvider);
+
+            // Verify intermediate model has expected constructor count
+            Assert.AreEqual(3, intermediateProvider.Constructors.Count);
+
+            // Get the protected constructor for intermediate model
+            var intermediateProtectedCtor = intermediateProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) &&
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+
+            Assert.IsNotNull(intermediateProtectedCtor, "Intermediate model should have a protected constructor for multi-level discriminator");
+
+            // Verify the base constructor call uses the discriminator parameter, not hardcoded literal
+            var initializer = intermediateProtectedCtor!.Signature.Initializer;
+            Assert.IsNotNull(initializer, "Protected constructor should have base initializer");
+            Assert.IsTrue(initializer!.IsBase, "Initializer should call base constructor");
+
+            // Key validation: first argument should be the discriminator parameter, not hardcoded value
+            var kindArgument = initializer!.Arguments[0].ToDisplayString();
+            Assert.AreEqual("kind", kindArgument, "Intermediate protected constructor should pass discriminator parameter to base, not hardcode literal");
+
+            // Verify derived model constructor passes discriminator correctly to intermediate
+            var derivedCtor = derivedProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(derivedCtor, "Derived model should have a public constructor");
+
+            var derivedInitializer = derivedCtor!.Signature.Initializer;
+            Assert.IsNotNull(derivedInitializer, "Derived constructor should have base initializer");
+            Assert.IsTrue(derivedInitializer!.IsBase, "Derived initializer should call base constructor");
+
+            // Derived should pass its discriminator value to intermediate constructor
+            var derivedKindArgument = derivedInitializer!.Arguments[0].ToDisplayString();
+            Assert.AreEqual("\"derived\"", derivedKindArgument, "Derived should pass its discriminator value to intermediate constructor");
+        }
+
+        [Test]
+        public void TestUpdate_ResetsSerializationProviders()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
+            // Use the subclass to ensure we populate serialization providers
+            var modelProvider = new TestModelProvider(inputModel);
+
+            var serializationProviders = modelProvider.SerializationProviders;
+            Assert.IsNotNull(serializationProviders);
+            Assert.AreEqual(1, serializationProviders.Count);
+
+            // Change name
+            modelProvider.Update(name: "NewName");
+            var newSerializationProviders = modelProvider.SerializationProviders;
+            // The serialization providers list reference should be different after update
+            Assert.AreNotSame(serializationProviders, newSerializationProviders);
+            // Verify our subclass logic ran again
+            Assert.AreEqual(1, newSerializationProviders.Count);
+
+            // Change namespace
+            modelProvider.Update(@namespace: "NewNamespace");
+            var newerSerializationProviders = modelProvider.SerializationProviders;
+            // The serialization providers list reference should be different after update
+            Assert.AreNotSame(newSerializationProviders, newerSerializationProviders);
+            Assert.AreEqual(1, newerSerializationProviders.Count);
+        }
+
+        private class TestModelProvider : ModelProvider
+        {
+            public TestModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            protected override TypeProvider[] BuildSerializationProviders()
+            {
+                // Add a dummy provider to ensure the list is populated
+                return [new Mock<TypeProvider>() { CallBase = true }.Object];
+            }
+        }
+
+        [Test]
+        public async Task BackCompat_AbstractTypeConstructorAccessibility()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+
+            // Without ProcessTypeForBackCompatibility, constructor should be private protected
+            var privateProtectedConstructor = modelProvider!.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) 
+                    && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)
+                    && c.Signature.Parameters.Count == 1);
+            Assert.IsNotNull(privateProtectedConstructor, "Expected a private protected constructor before back compat processing");
+
+            // Call ProcessTypeForBackCompatibility to apply backward compatibility logic
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            // After ProcessTypeForBackCompatibility, constructor should be public to match last contract
+            var publicConstructor = modelProvider.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) 
+                    && c.Signature.Parameters.Count == 1);
+            Assert.IsNotNull(publicConstructor, "Constructor modifier should be changed to public for backward compatibility");
+            Assert.AreEqual("baseProp", publicConstructor!.Signature.Parameters[0].Name);
+        }
+
+        [Test]
+        public async Task TestBuildProperties_WithObjectAdditionalPropertiesBackwardCompatibility()
+        {
+            // Create a model with unknown additional properties (which would normally generate BinaryData)
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true)],
+                additionalProperties: InputPrimitiveType.Any);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNotNull(modelProvider!.Properties);
+
+            // Verify that AdditionalProperties property exists and has object type for backward compatibility
+            var additionalPropertiesProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "AdditionalProperties");
+            Assert.IsNotNull(additionalPropertiesProperty, "AdditionalProperties property should be generated");
+            Assert.IsTrue(additionalPropertiesProperty!.IsAdditionalProperties, "Property should be marked as additional properties");
+
+            // Verify the type is IDictionary<string, object> for backward compatibility
+            var propertyType = additionalPropertiesProperty.Type;
+            Assert.IsTrue(propertyType.IsDictionary, "Property should be a dictionary type");
+            Assert.AreEqual(2, propertyType.Arguments.Count, "Dictionary should have 2 type arguments");
+            Assert.AreEqual(typeof(string), propertyType.Arguments[0].FrameworkType, "Key type should be string");
+            Assert.AreEqual(typeof(object), propertyType.Arguments[1].FrameworkType, "Value type should be object for backward compatibility");
         }
     }
 }

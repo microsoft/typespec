@@ -32,7 +32,9 @@ import {
   createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: built-in decorators", () => {
   let runner: BasicTestRunner;
@@ -793,6 +795,52 @@ describe("compiler: built-in decorators", () => {
             message: "Encoding 'string' cannot be used on type 's'. Expected: numeric.",
           });
         });
+      });
+    });
+
+    describe("ArrayEncoding enum", () => {
+      it("can use ArrayEncoding.pipeDelimited", async () => {
+        const { prop, program } = await Tester.compile(t.code`
+          model Foo {
+            @encode(ArrayEncoding.pipeDelimited)
+            ${t.modelProperty("prop")}: string[];
+          }
+        `);
+
+        strictEqual(getEncode(program, prop)?.encoding, "ArrayEncoding.pipeDelimited");
+      });
+
+      it("can use ArrayEncoding.spaceDelimited", async () => {
+        const { prop, program } = await Tester.compile(t.code`
+          model Foo {
+            @encode(ArrayEncoding.spaceDelimited)
+            ${t.modelProperty("prop")}: string[];
+          }
+        `);
+
+        strictEqual(getEncode(program, prop)?.encoding, "ArrayEncoding.spaceDelimited");
+      });
+
+      it("can use ArrayEncoding.commaDelimited", async () => {
+        const { prop, program } = await Tester.compile(t.code`
+          model Foo {
+            @encode(ArrayEncoding.commaDelimited)
+            ${t.modelProperty("prop")}: string[];
+          }
+        `);
+
+        strictEqual(getEncode(program, prop)?.encoding, "ArrayEncoding.commaDelimited");
+      });
+
+      it("can use ArrayEncoding.newlineDelimited", async () => {
+        const { prop, program } = await Tester.compile(t.code`
+          model Foo {
+            @encode(ArrayEncoding.newlineDelimited)
+            ${t.modelProperty("prop")}: string[];
+          }
+        `);
+
+        strictEqual(getEncode(program, prop)?.encoding, "ArrayEncoding.newlineDelimited");
       });
     });
   });

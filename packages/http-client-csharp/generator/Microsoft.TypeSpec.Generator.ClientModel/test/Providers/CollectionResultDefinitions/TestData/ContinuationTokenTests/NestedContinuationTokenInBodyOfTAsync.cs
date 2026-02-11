@@ -19,8 +19,6 @@ namespace Sample
 
         public CatClientGetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::Sample.Argument.AssertNotNullOrEmpty(myToken, nameof(myToken));
-
             _client = client;
             _myToken = myToken;
             _options = options;
@@ -36,7 +34,7 @@ namespace Sample
                 yield return result;
 
                 nextToken = ((global::Sample.Models.Page)result).NestedNext?.NextPage;
-                if ((nextToken == null))
+                if (string.IsNullOrEmpty(nextToken))
                 {
                     yield break;
                 }
@@ -47,7 +45,7 @@ namespace Sample
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
             string nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextPage;
-            if ((nextPage != null))
+            if (!string.IsNullOrEmpty(nextPage))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
             }

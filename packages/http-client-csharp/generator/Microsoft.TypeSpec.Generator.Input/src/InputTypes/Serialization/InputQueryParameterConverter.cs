@@ -64,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? collectionFormat = null;
             bool explode = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -82,7 +83,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
                     || reader.TryReadBoolean("explode", ref explode)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
 
                 if (!isKnownProperty)
                 {
@@ -103,19 +105,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputQueryParameter)} must have a serializedName.");
             parameter.IsApiVersion = isApiVersion;
             parameter.DefaultValue = defaultValue;
-
-            if (scope == null)
-            {
-                throw new JsonException("Parameter must have a scope");
-            }
-            Enum.TryParse<InputParameterScope>(scope, ignoreCase: true, out var parsedScope);
-
-            if (parsedScope == InputParameterScope.Constant && type is not InputLiteralType)
-            {
-                throw new JsonException($"Parameter '{name}' is constant, but its type is '{type.Name}'.");
-            }
-            parameter.Scope = parsedScope;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.ArraySerializationDelimiter = arraySerializationDelimiter;
+            parameter.MethodParameterSegments = methodParameterSegments;
 
             return parameter;
         }

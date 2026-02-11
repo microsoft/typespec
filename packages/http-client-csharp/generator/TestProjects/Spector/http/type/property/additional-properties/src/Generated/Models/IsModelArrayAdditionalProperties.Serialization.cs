@@ -13,6 +13,12 @@ namespace _Type.Property.AdditionalProperties
     {
         internal IsModelArrayAdditionalProperties() => throw null;
 
+        protected virtual IsModelArrayAdditionalProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator IsModelArrayAdditionalProperties(ClientResult result) => throw null;
+
         void IJsonModel<IsModelArrayAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -23,16 +29,10 @@ namespace _Type.Property.AdditionalProperties
 
         BinaryData IPersistableModel<IsModelArrayAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
         IsModelArrayAdditionalProperties IPersistableModel<IsModelArrayAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual IsModelArrayAdditionalProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<IsModelArrayAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(IsModelArrayAdditionalProperties isModelArrayAdditionalProperties) => throw null;
-
-        public static explicit operator IsModelArrayAdditionalProperties(ClientResult result) => throw null;
     }
 }

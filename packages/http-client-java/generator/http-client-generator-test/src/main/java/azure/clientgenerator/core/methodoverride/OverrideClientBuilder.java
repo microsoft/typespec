@@ -44,8 +44,12 @@ import java.util.Objects;
     serviceClients = {
         ReorderParametersClient.class,
         GroupParametersClient.class,
+        RequireOptionalParameterClient.class,
+        RemoveOptionalParameterClient.class,
         ReorderParametersAsyncClient.class,
-        GroupParametersAsyncClient.class })
+        GroupParametersAsyncClient.class,
+        RequireOptionalParameterAsyncClient.class,
+        RemoveOptionalParameterAsyncClient.class })
 public final class OverrideClientBuilder implements HttpTrait<OverrideClientBuilder>,
     ConfigurationTrait<OverrideClientBuilder>, EndpointTrait<OverrideClientBuilder> {
     @Generated
@@ -290,6 +294,26 @@ public final class OverrideClientBuilder implements HttpTrait<OverrideClientBuil
     }
 
     /**
+     * Builds an instance of RequireOptionalParameterAsyncClient class.
+     * 
+     * @return an instance of RequireOptionalParameterAsyncClient.
+     */
+    @Generated
+    public RequireOptionalParameterAsyncClient buildRequireOptionalParameterAsyncClient() {
+        return new RequireOptionalParameterAsyncClient(buildInnerClient().getRequireOptionalParameters());
+    }
+
+    /**
+     * Builds an instance of RemoveOptionalParameterAsyncClient class.
+     * 
+     * @return an instance of RemoveOptionalParameterAsyncClient.
+     */
+    @Generated
+    public RemoveOptionalParameterAsyncClient buildRemoveOptionalParameterAsyncClient() {
+        return new RemoveOptionalParameterAsyncClient(buildInnerClient().getRemoveOptionalParameters());
+    }
+
+    /**
      * Builds an instance of ReorderParametersClient class.
      * 
      * @return an instance of ReorderParametersClient.
@@ -307,6 +331,26 @@ public final class OverrideClientBuilder implements HttpTrait<OverrideClientBuil
     @Generated
     public GroupParametersClient buildGroupParametersClient() {
         return new GroupParametersClient(buildInnerClient().getGroupParameters());
+    }
+
+    /**
+     * Builds an instance of RequireOptionalParameterClient class.
+     * 
+     * @return an instance of RequireOptionalParameterClient.
+     */
+    @Generated
+    public RequireOptionalParameterClient buildRequireOptionalParameterClient() {
+        return new RequireOptionalParameterClient(buildInnerClient().getRequireOptionalParameters());
+    }
+
+    /**
+     * Builds an instance of RemoveOptionalParameterClient class.
+     * 
+     * @return an instance of RemoveOptionalParameterClient.
+     */
+    @Generated
+    public RemoveOptionalParameterClient buildRemoveOptionalParameterClient() {
+        return new RemoveOptionalParameterClient(buildInnerClient().getRemoveOptionalParameters());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(OverrideClientBuilder.class);

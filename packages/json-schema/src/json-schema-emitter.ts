@@ -11,6 +11,7 @@ import {
   type SourceFile,
   type SourceFileScope,
   TypeEmitter,
+  setProperty,
 } from "@typespec/asset-emitter";
 import {
   type BooleanLiteral,
@@ -35,6 +36,7 @@ import {
   explainStringTemplateNotSerializable,
   getDeprecated,
   getDirectoryPath,
+  getDiscriminator,
   getDoc,
   getExamples,
   getFormat,
@@ -49,6 +51,7 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
+  isStringType,
   isType,
   joinPaths,
   serializeValueAsJson,
@@ -84,34 +87,68 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #applyModelIndexer(schema: ObjectBuilder<unknown>, model: Model) {
     if (model.indexer) {
-      schema.set("unevaluatedProperties", this.emitter.emitTypeReference(model.indexer.value));
+      setProperty(
+        schema,
+        "unevaluatedProperties",
+        this.emitter.emitTypeReference(model.indexer.value),
+      );
       return;
     }
     if (!this.emitter.getOptions()["seal-object-schemas"]) return;
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     if (!derivedModels.length) {
-      schema.set("unevaluatedProperties", { not: {} });
+      setProperty(schema, "unevaluatedProperties", { not: {} });
     }
   }
 
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
+    // Check if this should emit as a discriminated union
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    const strategy = this.emitter.getOptions()["polymorphic-models-strategy"];
+    if (
+      (strategy === "oneOf" || strategy === "anyOf") &&
+      discriminator &&
+      model.derivedModels.length > 0
+    ) {
+      return this.#createDiscriminatedUnionDeclaration(model, name, discriminator, strategy);
+    }
+
+    // Check if base model is using discriminated union strategy
+    // If so, don't use allOf (to avoid circular references), inline properties instead
+    const shouldInlineBase =
+      model.baseModel && this.#isBaseUsingDiscriminatedUnion(model.baseModel);
+
     const schema = this.#initializeSchema(model, name, {
       type: "object",
-      properties: this.emitter.emitModelProperties(model),
-      required: this.#requiredModelProperties(model),
+      properties: shouldInlineBase
+        ? this.#getAllModelProperties(model)
+        : this.emitter.emitModelProperties(model),
+      required: shouldInlineBase
+        ? this.#getAllRequiredModelProperties(model)
+        : this.#requiredModelProperties(model),
     });
 
-    if (model.baseModel) {
+    if (model.baseModel && !shouldInlineBase) {
       const allOf = new ArrayBuilder();
       allOf.push(this.emitter.emitTypeReference(model.baseModel));
-      schema.set("allOf", allOf);
+      setProperty(schema, "allOf", allOf);
     }
 
     this.#applyModelIndexer(schema, model);
 
     this.#applyConstraints(model, schema);
     return this.#createDeclaration(model, name, schema);
+  }
+
+  #isBaseUsingDiscriminatedUnion(model: Model): boolean {
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    const strategy = this.emitter.getOptions()["polymorphic-models-strategy"];
+    return (
+      (strategy === "oneOf" || strategy === "anyOf") &&
+      !!discriminator &&
+      model.derivedModels.length > 0
+    );
   }
 
   modelLiteral(model: Model): EmitterOutput<object> {
@@ -161,7 +198,83 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       }
     }
 
+    // Add discriminator property to required if model has @discriminator decorator and property is not already defined
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator && !model.properties.has(discriminator.propertyName)) {
+      requiredProps.push(discriminator.propertyName);
+    }
+
     return requiredProps.length > 0 ? requiredProps : undefined;
+  }
+
+  // Get all required properties including inherited ones (for when base uses discriminated union)
+  #getAllRequiredModelProperties(model: Model): string[] | undefined {
+    const requiredProps: string[] = [];
+    const visited = new Set<Model>();
+
+    const collectRequired = (m: Model) => {
+      if (visited.has(m)) return;
+      visited.add(m);
+
+      // Collect from base first
+      if (m.baseModel) {
+        collectRequired(m.baseModel);
+      }
+
+      // Then collect from this model
+      for (const prop of m.properties.values()) {
+        if (!prop.optional && !requiredProps.includes(prop.name)) {
+          requiredProps.push(prop.name);
+        }
+      }
+
+      // Add discriminator property if defined on this model
+      const discriminator = getDiscriminator(this.emitter.getProgram(), m);
+      if (
+        discriminator &&
+        !m.properties.has(discriminator.propertyName) &&
+        !requiredProps.includes(discriminator.propertyName)
+      ) {
+        requiredProps.push(discriminator.propertyName);
+      }
+    };
+
+    collectRequired(model);
+    return requiredProps.length > 0 ? requiredProps : undefined;
+  }
+
+  // Get all properties including inherited ones (for when base uses discriminated union)
+  #getAllModelProperties(model: Model): EmitterOutput<object> {
+    const props = new ObjectBuilder();
+    const visited = new Set<Model>();
+
+    const collectProperties = (m: Model) => {
+      if (visited.has(m)) return;
+      visited.add(m);
+
+      // Collect from base first
+      if (m.baseModel) {
+        collectProperties(m.baseModel);
+      }
+
+      // Then collect from this model (overriding base if needed)
+      for (const [name, prop] of m.properties) {
+        const result = this.emitter.emitModelProperty(prop);
+        setProperty(props, name, result);
+      }
+
+      // Add discriminator property if defined on this model and not already added
+      const discriminator = getDiscriminator(this.emitter.getProgram(), m);
+      if (discriminator && !(discriminator.propertyName in props)) {
+        setProperty(props, discriminator.propertyName, {
+          type: "string",
+          description: `Discriminator property for ${m.name}.`,
+        });
+      }
+    };
+
+    collectProperties(model);
+    return props;
   }
 
   modelProperties(model: Model): EmitterOutput<object> {
@@ -169,7 +282,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     for (const [name, prop] of model.properties) {
       const result = this.emitter.emitModelProperty(prop);
-      props.set(name, result);
+      setProperty(props, name, result);
+    }
+
+    // Add discriminator property if model has @discriminator decorator and property is not already defined
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator && !(discriminator.propertyName in props)) {
+      setProperty(props, discriminator.propertyName, {
+        type: "string",
+        description: `Discriminator property for ${model.name}.`,
+      });
     }
 
     return props;
@@ -521,7 +643,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
     if (examples.length > 0) {
-      target.set(
+      setProperty(
+        target,
         "examples",
         examples.map((x) => serializeValueAsJson(program, x.value, type)),
       );
@@ -544,7 +667,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       if (constraintType) {
         const ref = this.emitter.emitTypeReference(constraintType);
         compilerAssert(ref.kind === "code", "Unexpected non-code result from emit reference");
-        schema.set(key, ref.value);
+        setProperty(schema, key, ref.value);
       }
     };
     if (type.kind !== "UnionVariant") {
@@ -589,15 +712,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       for (const item of prefixItems.values) {
         prefixItemsSchema.push(this.emitter.emitTypeReference(item));
       }
-      schema.set("prefixItems", prefixItemsSchema);
+      setProperty(schema, "prefixItems", prefixItemsSchema);
     }
 
     const extensions = getExtensions(this.emitter.getProgram(), type);
     for (const { key, value } of extensions) {
       if (this.#isTypeLike(value)) {
-        schema.set(key, this.emitter.emitTypeReference(value));
+        setProperty(schema, key, this.emitter.emitTypeReference(value));
       } else {
-        schema.set(key, value);
+        setProperty(schema, key, value);
       }
     }
   }
@@ -645,6 +768,156 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #isStdType(type: Type) {
     return this.emitter.getProgram().checker.isStdType(type);
+  }
+
+  #createDiscriminatedUnionDeclaration(
+    model: Model,
+    name: string,
+    discriminator: { propertyName: string },
+    strategy: "oneOf" | "anyOf",
+  ): EmitterOutput<object> {
+    const variants = new ArrayBuilder<Record<string, unknown>>();
+    const knownDiscriminatorValues: string[] = [];
+
+    // Collect all derived models and their discriminator values
+    for (const derived of model.derivedModels) {
+      if (!includeDerivedModel(derived)) continue;
+
+      // Add reference to each derived model
+      const derivedRef = this.emitter.emitTypeReference(derived);
+      variants.push(derivedRef);
+
+      // Collect discriminator values for catch-all generation
+      const values = this.#getDiscriminatorValues(derived, discriminator.propertyName);
+      knownDiscriminatorValues.push(...values);
+    }
+
+    // Check if this is an open discriminator (discriminator property type includes string)
+    // If so, add a catch-all variant that matches any unknown discriminator value
+    if (this.#isOpenDiscriminator(model, discriminator.propertyName)) {
+      const catchAllVariant = this.#createCatchAllVariant(
+        model,
+        discriminator.propertyName,
+        knownDiscriminatorValues,
+      );
+      variants.push(catchAllVariant);
+    }
+
+    // For discriminated unions, emit the oneOf/anyOf with base model properties
+    // Since derived models inline properties (not using allOf), we can include
+    // base properties here without creating circular references
+    const schema = this.#initializeSchema(model, name, {
+      type: "object",
+      properties: this.emitter.emitModelProperties(model),
+      required: this.#requiredModelProperties(model),
+      [strategy]: variants,
+    });
+
+    this.#applyConstraints(model, schema);
+    return this.#createDeclaration(model, name, schema);
+  }
+
+  /**
+   * Check if the discriminator property type is "open" (includes the string scalar type).
+   * This means the discriminated union can accept unknown discriminator values.
+   */
+  #isOpenDiscriminator(model: Model, discriminatorPropertyName: string): boolean {
+    const prop = model.properties.get(discriminatorPropertyName);
+    if (!prop) return false;
+
+    return this.#typeIncludesString(prop.type);
+  }
+
+  /**
+   * Check if a type includes the string scalar (not just string literals).
+   */
+  #typeIncludesString(type: Type): boolean {
+    const program = this.emitter.getProgram();
+
+    switch (type.kind) {
+      case "Scalar":
+        return isStringType(program, type);
+      case "Union":
+        // Check if any variant is the string scalar
+        for (const variant of type.variants.values()) {
+          if (this.#typeIncludesString(variant.type)) {
+            return true;
+          }
+        }
+        return false;
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Get string discriminator values from a model's discriminator property.
+   */
+  #getDiscriminatorValues(model: Model, discriminatorPropertyName: string): string[] {
+    const prop = model.properties.get(discriminatorPropertyName);
+    if (!prop) return [];
+
+    return this.#getStringLiteralValues(prop.type);
+  }
+
+  /**
+   * Extract string literal values from a type.
+   */
+  #getStringLiteralValues(type: Type): string[] {
+    switch (type.kind) {
+      case "String":
+        return [type.value];
+      case "Union":
+        return [...type.variants.values()].flatMap((v) => this.#getStringLiteralValues(v.type));
+      case "UnionVariant":
+        return this.#getStringLiteralValues(type.type);
+      case "EnumMember":
+        return typeof type.value !== "number" ? [type.value ?? type.name] : [];
+      default:
+        return [];
+    }
+  }
+
+  /**
+   * Create a catch-all variant for open discriminated unions.
+   * This variant matches any discriminator value not in the known values.
+   */
+  #createCatchAllVariant(
+    model: Model,
+    discriminatorPropertyName: string,
+    knownValues: string[],
+  ): Record<string, unknown> {
+    const properties = new ObjectBuilder();
+
+    // Emit all base model properties
+    for (const [propName, prop] of model.properties) {
+      if (propName === discriminatorPropertyName) {
+        // Override discriminator property to match any string NOT in known values
+        setProperty(properties, propName, {
+          type: "string",
+          not: { enum: knownValues },
+        });
+      } else {
+        const result = this.emitter.emitModelProperty(prop);
+        setProperty(properties, propName, result);
+      }
+    }
+
+    // If discriminator property is not explicitly defined, add it
+    if (!model.properties.has(discriminatorPropertyName)) {
+      setProperty(properties, discriminatorPropertyName, {
+        type: "string",
+        not: { enum: knownValues },
+      });
+    }
+
+    const required = this.#requiredModelProperties(model);
+
+    return {
+      type: "object",
+      properties: properties,
+      ...(required && { required }),
+    };
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {
@@ -820,7 +1093,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   modelInstantiationContext(model: Model, name: string | undefined): Context {
     if (name === undefined) {
-      return { scope: this.emitter.createScope({}, "", this.emitter.getContext().scope) };
+      return {};
     } else {
       return this.#newFileScope(model);
     }

@@ -13,6 +13,12 @@ namespace _Type.Property.Nullable
     {
         internal StringProperty() => throw null;
 
+        protected virtual StringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator StringProperty(ClientResult result) => throw null;
+
         void IJsonModel<StringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -23,14 +29,8 @@ namespace _Type.Property.Nullable
 
         BinaryData IPersistableModel<StringProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
         StringProperty IPersistableModel<StringProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual StringProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<StringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static explicit operator StringProperty(ClientResult result) => throw null;
     }
 }

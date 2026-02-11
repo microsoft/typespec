@@ -14,6 +14,12 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
     {
         internal Dinosaur() => throw null;
 
+        protected virtual Dinosaur PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator Dinosaur(ClientResult result) => throw null;
+
         void IJsonModel<Dinosaur>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,14 +30,8 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
 
         BinaryData IPersistableModel<Dinosaur>.Write(ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
         Dinosaur IPersistableModel<Dinosaur>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual Dinosaur PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<Dinosaur>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static explicit operator Dinosaur(ClientResult result) => throw null;
     }
 }

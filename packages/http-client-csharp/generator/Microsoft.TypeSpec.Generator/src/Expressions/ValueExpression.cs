@@ -59,6 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public ValueExpression NullableStructValue(CSharpType candidateType)
             => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public ScopedApi<string> InvokeToString() => Invoke(nameof(ToString)).As<string>();
+        public ScopedApi<string> InvokeToString(ValueExpression culture) => Invoke(nameof(ToString), culture).As<string>();
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
         public ValueExpression InvokeGetHashCode() => Invoke(nameof(GetHashCode));
 

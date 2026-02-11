@@ -23,7 +23,7 @@ namespace Sample
             }
             if (((p1 != null) && !((p1 is global::Sample.ChangeTrackingList<string> changeTrackingList0) && changeTrackingList0.IsUndefined)))
             {
-                uri.AppendQueryDelimited("p1", p1, "|", null, true);
+                uri.AppendQueryDelimited("p1", p1, "|", escape: true);
             }
             if (((p2Explode != null) && !((p2Explode is global::Sample.ChangeTrackingList<int> changeTrackingList1) && changeTrackingList1.IsUndefined)))
             {
@@ -34,7 +34,7 @@ namespace Sample
             }
             if (((p2 != null) && !((p2 is global::Sample.ChangeTrackingList<int> changeTrackingList2) && changeTrackingList2.IsUndefined)))
             {
-                uri.AppendQueryDelimited("p2", p2, " ", null, true);
+                uri.AppendQueryDelimited("p2", p2, " ", escape: true);
             }
             if ((optionalParam != null))
             {
@@ -55,7 +55,7 @@ namespace Sample
                     list.Add(@param.Key);
                     list.Add(@param.Value);
                 }
-                uri.AppendQueryDelimited("p3", list, ",", null, true);
+                uri.AppendQueryDelimited("p3", list, ",", escape: true);
             }
             if (((p4Explode != null) && !((p4Explode is global::Sample.ChangeTrackingList<global::Sample.Models.Foo> changeTrackingList3) && changeTrackingList3.IsUndefined)))
             {

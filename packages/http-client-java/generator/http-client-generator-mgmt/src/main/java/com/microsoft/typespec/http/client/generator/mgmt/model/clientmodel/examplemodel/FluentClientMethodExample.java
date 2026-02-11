@@ -107,6 +107,11 @@ public class FluentClientMethodExample implements FluentMethodExample {
                 // OpenAPI source of deployments moved to a separate folder
                 serviceClientReference = "deploymentClient()";
             }
+        } else if ("containerregistry".equals(lastIdentifier)) {
+            String title = settings.getAutorestSettings().getTitle();
+            if ("ContainerRegistryTasks".equals(title)) {
+                serviceClientReference = "taskClient()";
+            }
         }
 
         String methodGroupReference = "get" + CodeNamer.toPascalCase(methodGroup.getVariableName()) + "()";

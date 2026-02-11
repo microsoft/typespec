@@ -1,8 +1,8 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor }) => {
   it("does not emit warning if a non-service namespace has no routes", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `

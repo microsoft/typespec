@@ -5,6 +5,7 @@ import {
   AccessFlags,
   CollectionFormat,
   DecoratorInfo,
+  InitializedByFlags,
   SdkBuiltInKinds,
   SerializationOptions,
   UsageFlags,
@@ -16,6 +17,16 @@ import { InputServiceMethod } from "./input-service-method.js";
 import { RequestLocation } from "./request-location.js";
 
 /**
+ * External type information for types that map to external library types.
+ * @beta
+ */
+export interface InputExternalTypeMetadata {
+  identity: string;
+  package?: string;
+  minVersion?: string;
+}
+
+/**
  * The input client type for the CSharp emitter.
  * @beta
  */
@@ -25,12 +36,14 @@ export interface InputClient extends DecoratedType {
   namespace: string;
   doc?: string;
   summary?: string;
-  parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done: https://github.com/microsoft/typespec/issues/4366
+  parameters?: InputParameter[];
+  initializedBy?: InitializedByFlags;
   methods: InputServiceMethod[];
   apiVersions: string[];
   crossLanguageDefinitionId: string;
   parent?: InputClient;
   children?: InputClient[];
+  isMultiServiceClient: boolean;
 }
 
 /**
@@ -52,6 +65,7 @@ interface InputTypeBase extends DecoratedType {
   summary?: string;
   doc?: string;
   deprecation?: string;
+  external?: InputExternalTypeMetadata;
 }
 
 export type InputType =
@@ -167,6 +181,7 @@ export interface InputModelProperty extends InputPropertyTypeBase {
   serializationOptions: SerializationOptions;
   flatten: boolean;
   isHttpMetadata: boolean;
+  encode?: string;
 }
 
 export type InputProperty = InputModelProperty | InputParameter;
@@ -193,6 +208,7 @@ export interface InputQueryParameter extends InputPropertyTypeBase {
   explode: boolean;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputPathParameter extends InputPropertyTypeBase {
@@ -204,6 +220,7 @@ export interface InputPathParameter extends InputPropertyTypeBase {
   serverUrlTemplate?: string;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputHeaderParameter extends InputPropertyTypeBase {
@@ -213,6 +230,7 @@ export interface InputHeaderParameter extends InputPropertyTypeBase {
   isContentType: boolean;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputBodyParameter extends InputPropertyTypeBase {
@@ -221,6 +239,7 @@ export interface InputBodyParameter extends InputPropertyTypeBase {
   defaultContentType: string;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputEndpointParameter extends InputPropertyTypeBase {
@@ -230,6 +249,7 @@ export interface InputEndpointParameter extends InputPropertyTypeBase {
   scope: InputParameterScope;
   serializedName: string;
   isEndpoint: boolean;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputEnumType extends InputTypeBase {

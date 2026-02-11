@@ -70,8 +70,6 @@ $generateScript = {
   } elseif ($tspFile -match "tsp[\\/]versioning.tsp") {
     # test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2022-09-01"""
-    # exclude preview from service versions
-    $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
   } elseif ($tspFile -match "tsp[\\/]error.tsp") {
     # test for default-http-exception-type
     $tspOptions += " --option ""@typespec/http-client-java.use-default-http-status-code-to-exception-type-mapping=false"""
@@ -79,31 +77,38 @@ $generateScript = {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option
     $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
-  } elseif ($tspFile -match "arm.tsp") {
-    # for mgmt, do not generate tests due to random mock values
-    $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
+  } elseif ($tspFile -match "azure[\\/]resource-manager[\\/]multi-service-older-versions[\\/]") {
+    $tspOptions += " --option ""@typespec/http-client-java.metadata-suffix=older-versions"""
+  } elseif ($tspFile -match "azure[\\/]resource-manager[\\/]multi-service-shared-models[\\/]") {
+    $tspOptions += " --option ""@typespec/http-client-java.metadata-suffix=shared-models"""
+  } elseif ($tspFile -match "tsp[\\/]arm.tsp") {
     # test service-name
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
     # also test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2023-11-01"""
-    # exclude preview from service versions
-    $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
     # rename model
     $tspOptions += " --option ""@typespec/http-client-java.rename-model=TopLevelArmResourceListResult:ResourceListResult,CustomTemplateResourcePropertiesAnonymousEmptyModel:AnonymousEmptyModel"""
     # remove inner
     $tspOptions += " --option ""@typespec/http-client-java.remove-inner=NginxConfigurationResponse"""
     # generate async methods
     $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
-  } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
-    # for mgmt, do not generate tests due to random mock values
-    $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
+    # backward compatible options
+    $tspOptions += " --option ""@typespec/http-client-java.float32-as-double=false"""
+    $tspOptions += " --option ""@typespec/http-client-java.uuid-as-string=false"""
+  } elseif ($tspFile -match "tsp[\\/]arm-stream-style-serialization.tsp") {
     # test service-name
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
     # test property-include-always
     $tspOptions += " --option ""@typespec/http-client-java.property-include-always=FunctionConfiguration.input"""
     # enable client side validations
     $tspOptions += " --option ""@typespec/http-client-java.client-side-validations=true"""
-  } elseif ($tspFile -match "subclient.tsp") {
+  } elseif ($tspFile -match "tsp[\\/]arm-customization.tsp") {
+    # add customization code
+    $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/KeyVaultCustomization.java"""
+  } elseif ($tspFile -match "tsp[\\/]arm-versioned.tsp") {
+    # enable advanced versioning for resiliency test
+    $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
+  } elseif ($tspFile -match "tsp[\\/]subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
     $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
@@ -193,7 +198,13 @@ try {
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
 
-  $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
+  $specFiles = Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse
+  # ensure multi-service client specs are processed even though they do not match the default filter
+  $specFiles += Get-Item (Join-Path ./specs "azure/resource-manager/multi-service/client.tsp")
+  $specFiles += Get-Item (Join-Path ./specs "azure/resource-manager/multi-service-older-versions/client.tsp")
+  $specFiles += Get-Item (Join-Path ./specs "azure/resource-manager/multi-service-shared-models/client.tsp")
+
+  $job = $specFiles | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
   $job | Wait-Job -Timeout 1200
   $job | Receive-Job

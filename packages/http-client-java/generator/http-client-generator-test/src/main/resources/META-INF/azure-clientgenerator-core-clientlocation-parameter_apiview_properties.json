@@ -1,0 +1,13 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.clientgenerator.core.clientlocation.parameter.MoveMethodParameterToAsyncClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations",
+    "azure.clientgenerator.core.clientlocation.parameter.MoveMethodParameterToAsyncClient.getBlob": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations.getBlob",
+    "azure.clientgenerator.core.clientlocation.parameter.MoveMethodParameterToAsyncClient.getBlobWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations.getBlob",
+    "azure.clientgenerator.core.clientlocation.parameter.MoveMethodParameterToClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations",
+    "azure.clientgenerator.core.clientlocation.parameter.MoveMethodParameterToClient.getBlob": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations.getBlob",
+    "azure.clientgenerator.core.clientlocation.parameter.MoveMethodParameterToClient.getBlobWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations.getBlob",
+    "azure.clientgenerator.core.clientlocation.parameter.MoveMethodParameterToClientBuilder": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient",
+    "azure.clientgenerator.core.clientlocation.parameter.models.Blob": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.Blob"
+  }
+}

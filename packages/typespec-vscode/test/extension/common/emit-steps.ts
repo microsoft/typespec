@@ -24,6 +24,19 @@ export async function emitSelectType(page: Page, type: string, cs: CaseScreensho
     page,
     3,
     async () => {
+      const selectTypeBox = await page.getByRole("textbox", {
+        name: "Select an emitter type - Emit",
+      });
+      return (await selectTypeBox.count()) > 0;
+    },
+    `Failed to find the language for code emitting.`,
+    2,
+    cs,
+  );
+  await retry(
+    page,
+    3,
+    async () => {
       const emiSelectTypeBox = page.getByRole("option", { name: type }).locator("label");
       const emiSelectTypeBoxDescriptionArr = await emiSelectTypeBox.allTextContents();
       const emiSelectTypeBoxDescription = emiSelectTypeBoxDescriptionArr[0].slice(type.length);

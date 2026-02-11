@@ -17,6 +17,9 @@ export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
     "@typespec/versioning",
     "@typespec/openapi",
     "@typespec/xml",
+    "@typespec/streams",
+    "@typespec/events",
+    "@typespec/sse",
     "@typespec/openapi3",
   ],
 });
@@ -73,6 +76,37 @@ export async function openApiFor(code: string, options: OpenAPI3EmitterOptions =
   });
 
   return JSON.parse(outputs["openapi.json"]);
+}
+
+/**
+ * Emit multiple openapi documents from the given tsp code.
+ * @example
+ *
+ * ```ts
+ * const result = await openapisFor(`
+ *    @service namespace MyServiceV1 {}
+ *    @service namespace MyServiceV2 {}
+ * `)
+ *
+ * results => {
+ *   "openapi.MyServiceV1.json": { ... },
+ *   "openapi.MyServiceV2.json": { ... },
+ * }
+ * ```
+ */
+export async function openapisFor(
+  code: string,
+  options: OpenAPI3EmitterOptions = {},
+): Promise<Record<string, OpenAPI3Document>> {
+  const { outputs } = await SimpleTester.compile(code, {
+    compilerOptions: {
+      options: { "@typespec/openapi3": { ...options, "file-type": "json" } },
+    },
+  });
+
+  return Object.fromEntries(
+    Object.entries(outputs).map(([k, v]) => [k, JSON.parse(v) as OpenAPI3Document]),
+  );
 }
 
 export async function openApiForVersions<T extends string>(

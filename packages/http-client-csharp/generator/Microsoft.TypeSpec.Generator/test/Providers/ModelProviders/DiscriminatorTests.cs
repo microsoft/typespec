@@ -87,21 +87,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             yield return new TestCaseData(_baseModel, """
                                                       /// <summary>
                                                       /// pet description
-                                                      /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Cat"/>, <see cref="Dog"/>, and <see cref="AnotherAnimal"/>.
+                                                      /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Sample.Models.Cat"/>, <see cref="Sample.Models.Dog"/>, and <see cref="Sample.Models.AnotherAnimal"/>.
                                                       /// </summary>
 
                                                       """);
             yield return new TestCaseData(_baseEnumModel, """
                                                           /// <summary>
                                                           /// pet description
-                                                          /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Cat"/> and <see cref="Dog"/>.
+                                                          /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Sample.Models.Cat"/> and <see cref="Sample.Models.Dog"/>.
                                                           /// </summary>
 
                                                           """);
             yield return new TestCaseData(_animalModel, """
                                                         /// <summary>
                                                         /// animal description
-                                                        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Dinosaur"/>.
+                                                        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Sample.Models.Dinosaur"/>.
                                                         /// </summary>
 
                                                         """);
@@ -451,6 +451,109 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var discriminatorParam = catSerializationCtor!.Signature.Parameters.FirstOrDefault(p => p.Name == "customName");
             Assert.IsNotNull(discriminatorParam);
             Assert.IsTrue(discriminatorParam!.Property?.IsDiscriminator);
+        }
+
+        // This test validates that a derived model does not re-declare the discriminator property
+        // when the base model has a discriminator property with a different C# name but the same serialized name.
+        // This scenario can occur when the base model has a discriminator property named "OdataType"
+        // and the derived model has a discriminator property also named "OdataType" with the same
+        // serialized name "@odata.type".
+        [Test]
+        public void DerivedDoesNotDuplicateDiscriminatorWithSameSerializedName()
+        {
+            // Base model with discriminator named "OdataType" with serialized name "@odata.type"
+            var baseSkillModel = InputFactory.Model(
+                "SearchIndexerSkill",
+                properties: [InputFactory.Property("OdataType", InputPrimitiveType.String, isRequired: true, isDiscriminator: true, serializedName: "@odata.type")],
+                discriminatedModels: new Dictionary<string, InputModelType>());
+
+            // Derived model with discriminator named "OdataType" with same serialized name "@odata.type"
+            var derivedSkillModel = InputFactory.Model(
+                "ContentUnderstandingSkill",
+                discriminatedKind: "#Microsoft.Skills.Util.ContentUnderstandingSkill",
+                baseModel: baseSkillModel,
+                properties:
+                [
+                    InputFactory.Property("OdataType", InputPrimitiveType.String, isRequired: true, isDiscriminator: true, serializedName: "@odata.type"),
+                    InputFactory.Property("Inputs", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseSkillModel, derivedSkillModel]);
+            var outputLibrary = CodeModelGenerator.Instance.OutputLibrary;
+
+            var derivedModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "ContentUnderstandingSkill");
+            Assert.IsNotNull(derivedModel);
+
+            // The derived model should NOT have the OdataType property since it's already defined in the base class
+            var odataTypeProperty = derivedModel!.Properties.FirstOrDefault(p => p.Name == "OdataType");
+            Assert.IsNull(odataTypeProperty, "Derived model should not re-declare the discriminator property that exists in the base class");
+
+            // The public constructor should correctly pass the discriminator value to the base class
+            var publicCtor = derivedModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+            // The public ctor should not have an odataType parameter
+            Assert.IsFalse(publicCtor!.Signature.Parameters.Any(p => p.Name.Equals("odataType", System.StringComparison.OrdinalIgnoreCase)));
+
+            // Verify the correct discriminator value is passed to the base class
+            var init = publicCtor.Signature.Initializer;
+            Assert.IsNotNull(init);
+            var expression = init!.Arguments[0] as ScopedApi;
+            Assert.IsNotNull(expression);
+            var original = expression!.Original as LiteralExpression;
+            Assert.IsNotNull(original);
+            Assert.AreEqual("#Microsoft.Skills.Util.ContentUnderstandingSkill", original!.Literal);
+        }
+
+        // This test validates that a derived model does not re-declare the discriminator property
+        // when the base model has a discriminator property with a different C# name but the same serialized name.
+        // This scenario can occur when the base model has a discriminator property named "Type"
+        // and the derived model has a discriminator property named "OdataType" with the same
+        // serialized name "@odata.type".
+        [Test]
+        public void DerivedDoesNotDuplicateDiscriminatorWithDifferentNameButSameSerializedName()
+        {
+            // Base model with discriminator named "Type" with serialized name "@odata.type"
+            var baseSkillModel = InputFactory.Model(
+                "SearchIndexerSkill",
+                properties: [InputFactory.Property("Type", InputPrimitiveType.String, isRequired: true, isDiscriminator: true, serializedName: "@odata.type")],
+                discriminatedModels: new Dictionary<string, InputModelType>());
+
+            // Derived model with discriminator named "OdataType" with same serialized name "@odata.type"
+            var derivedSkillModel = InputFactory.Model(
+                "ContentUnderstandingSkill",
+                discriminatedKind: "#Microsoft.Skills.Util.ContentUnderstandingSkill",
+                baseModel: baseSkillModel,
+                properties:
+                [
+                    InputFactory.Property("OdataType", InputPrimitiveType.String, isRequired: true, isDiscriminator: true, serializedName: "@odata.type"),
+                    InputFactory.Property("Inputs", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseSkillModel, derivedSkillModel]);
+            var outputLibrary = CodeModelGenerator.Instance.OutputLibrary;
+
+            var derivedModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "ContentUnderstandingSkill");
+            Assert.IsNotNull(derivedModel);
+
+            // The derived model should NOT have the OdataType property since it's the same discriminator 
+            // (same serialized name) as the base class "Type" property
+            var odataTypeProperty = derivedModel!.Properties.FirstOrDefault(p => p.Name == "OdataType");
+            Assert.IsNull(odataTypeProperty, "Derived model should not re-declare the discriminator property when base has same serialized name");
+
+            // The public constructor should correctly pass the discriminator value to the base class
+            var publicCtor = derivedModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+            // The public ctor should not have an odataType parameter
+            Assert.IsFalse(publicCtor!.Signature.Parameters.Any(p => p.Name.Equals("odataType", System.StringComparison.OrdinalIgnoreCase)));
+
+            // Verify the correct discriminator value is passed to the base class
+            var init = publicCtor.Signature.Initializer;
+            Assert.IsNotNull(init);
+            var expression = init!.Arguments[0] as ScopedApi;
+            Assert.IsNotNull(expression);
+            var original = expression!.Original as LiteralExpression;
+            Assert.IsNotNull(original);
+            Assert.AreEqual("#Microsoft.Skills.Util.ContentUnderstandingSkill", original!.Literal);
         }
     }
 }

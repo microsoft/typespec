@@ -1,0 +1,221 @@
+{
+  "name": "SampleNamespace",
+  "doc": "Test namespace for dynamic model with properties",
+  "models": [
+    {
+      "$id": "1",
+      "kind": "model",
+      "name": "NestedModelType",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.NestedModelType",
+      "usage": "Input,Output,Json",
+      "doc": "A nested model type",
+      "decorators": [],
+      "properties": [
+        {
+          "$id": "2",
+          "kind": "property",
+          "name": "nestedProp",
+          "serializedName": "nestedProp",
+          "doc": "Property in nested model",
+          "type": {
+            "$id": "3",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.NestedModelType.nestedProp",
+          "serializationOptions": {
+            "json": {
+              "name": "nestedProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    },
+    {
+      "$id": "4",
+      "kind": "model",
+      "name": "ArrayElementModel",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.ArrayElementModel",
+      "usage": "Input,Output,Json",
+      "doc": "Model used in array",
+      "decorators": [],
+      "properties": [
+        {
+          "$id": "5",
+          "kind": "property",
+          "name": "arrayProp",
+          "serializedName": "arrayProp",
+          "doc": "Property in array element model",
+          "type": {
+            "$id": "6",
+            "kind": "int32",
+            "name": "int32",
+            "crossLanguageDefinitionId": "TypeSpec.int32",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.ArrayElementModel.arrayProp",
+          "serializationOptions": {
+            "json": {
+              "name": "arrayProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    },
+    {
+      "$id": "7",
+      "kind": "model",
+      "name": "BaseModelWithProperties",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.BaseModelWithProperties",
+      "usage": "Input,Output,Json",
+      "doc": "Base model with model properties",
+      "decorators": [],
+      "discriminatorProperty": {
+        "$id": "7a",
+        "kind": "property",
+        "name": "kind",
+        "serializedName": "kind",
+        "doc": "Discriminator property",
+        "type": {
+          "$id": "7b",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": true,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "SampleNamespace.BaseModelWithProperties.kind",
+        "serializationOptions": {
+          "json": {
+            "name": "kind"
+          }
+        },
+        "isHttpMetadata": false
+      },
+      "properties": [
+        {
+          "$ref": "7a"
+        },
+        {
+          "$id": "8",
+          "kind": "property",
+          "name": "NestedModel",
+          "serializedName": "nestedModel",
+          "doc": "Nested model property",
+          "type": {
+            "$ref": "1"
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.BaseModelWithProperties.NestedModel",
+          "serializationOptions": {
+            "json": {
+              "name": "nestedModel"
+            }
+          },
+          "isHttpMetadata": false
+        },
+        {
+          "$id": "9",
+          "kind": "property",
+          "name": "ArrayOfModels",
+          "serializedName": "arrayOfModels",
+          "doc": "Array of model property",
+          "type": {
+            "$id": "10",
+            "kind": "array",
+            "name": "Array",
+            "valueType": {
+              "$ref": "4"
+            },
+            "crossLanguageDefinitionId": "TypeSpec.Array",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.BaseModelWithProperties.ArrayOfModels",
+          "serializationOptions": {
+            "json": {
+              "name": "arrayOfModels"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    },
+    {
+      "$id": "11",
+      "kind": "model",
+      "name": "DerivedModelExtendingBase",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.DerivedModelExtendingBase",
+      "usage": "Input,Output,Json",
+      "doc": "Derived model with dynamic decorator",
+      "decorators": [
+        {
+          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
+          "arguments": {}
+        }
+      ],
+      "baseModel": {
+        "$ref": "7"
+      },
+      "discriminatorValue": "derived",
+      "properties": [
+        {
+          "$id": "12",
+          "kind": "property",
+          "name": "derivedProp",
+          "serializedName": "derivedProp",
+          "doc": "Property in derived model",
+          "type": {
+            "$id": "13",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.DerivedModelExtendingBase.derivedProp",
+          "serializationOptions": {
+            "json": {
+              "name": "derivedProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    }
+  ]
+}

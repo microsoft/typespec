@@ -14,6 +14,12 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
     {
         internal Snake() => throw null;
 
+        protected virtual Snake PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator Snake(ClientResult result) => throw null;
+
         void IJsonModel<Snake>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,16 +30,10 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         BinaryData IPersistableModel<Snake>.Write(ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
         Snake IPersistableModel<Snake>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual Snake PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<Snake>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Snake snake) => throw null;
-
-        public static explicit operator Snake(ClientResult result) => throw null;
     }
 }

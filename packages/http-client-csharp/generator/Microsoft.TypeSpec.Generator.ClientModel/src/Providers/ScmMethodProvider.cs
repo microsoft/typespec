@@ -5,6 +5,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
@@ -12,21 +13,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         public InputServiceMethod? ServiceMethod { get; }
         public TypeProvider? CollectionDefinition { get; }
-        public bool IsProtocolMethod { get; }
+
+        /// <summary>
+        /// Gets the kind of method (CreateRequest, Protocol, or Convenience).
+        /// </summary>
+        public ScmMethodKind Kind { get; }
 
         public ScmMethodProvider(
             MethodSignature signature,
             MethodBodyStatement bodyStatements,
             TypeProvider enclosingType,
+            ScmMethodKind methodKind,
             XmlDocProvider? xmlDocProvider = default,
             TypeProvider? collectionDefinition = default,
-            InputServiceMethod? serviceMethod = default,
-            bool isProtocolMethod = false)
+            InputServiceMethod? serviceMethod = default)
             : base(signature, bodyStatements, enclosingType, xmlDocProvider)
         {
             CollectionDefinition = collectionDefinition;
-            IsProtocolMethod = isProtocolMethod;
             ServiceMethod = serviceMethod;
+            Kind = methodKind;
         }
     }
 }

@@ -153,6 +153,50 @@
                         }
                     },
                     "isHttpMetadata": false
+                },
+                {
+                    "$id": "4278",
+                    "kind": "property",
+                    "name": "NullableUnionDynamicProperty",
+                    "serializedName": "nullableUnionDynamicProperty",
+                    "doc": "Specify which of the MCP server's tools require approval.",
+                    "type": {
+                    "$id": "4279",
+                    "kind": "nullable",
+                    "type": {
+                        "$id": "4280",
+                        "kind": "union",
+                        "name": "MCPToolRequireApproval",
+                        "variantTypes": [
+                        {
+                            "$id": "4281",
+                            "kind": "model",
+                            "name": "MCPToolRequireApproval1",
+                            "namespace": "SampleTypeSpec",
+                            "crossLanguageDefinitionId": "SampleTypeSpec.MCPTool.require_approval.anonymous",
+                            "usage": "Input,Output,Json",
+                            "decorators": [],
+                            "properties": [
+                            ]
+                        }
+                        ],
+                        "namespace": "SampleTypeSpec",
+                        "decorators": []
+                    },
+                    "namespace": "SampleTypeSpec"
+                    },
+                    "optional": true,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.MCPTool.require_approval",
+                    "serializationOptions": {
+                    "json": {
+                        "name": "require_approval"
+                    }
+                    },
+                    "isHttpMetadata": false
                 }
             ]
         },

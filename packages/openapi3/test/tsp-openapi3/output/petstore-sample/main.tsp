@@ -28,14 +28,10 @@ model Error {
 @get
 @summary("List all pets")
 op listPets(
-  /**
-   * How many items to return at one time (max 100)
-   */
+  /** How many items to return at one time (max 100) */
   @query(#{ explode: true }) limit?: int32,
 ): {
-  /**
-   * A link to the next page of responses
-   */
+  /** A link to the next page of responses */
   @header("x-next") xNext?: string;
 
   @body body: Pets;
@@ -55,9 +51,7 @@ op createPets(): CreatedResponse | GeneratedHelpers.DefaultResponse<
 @get
 @summary("Info for a specific pet")
 op showPetById(
-  /**
-   * The id of the pet to retrieve
-   */
+  /** The id of the pet to retrieve */
   @path petId: string,
 ): Pet | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
 

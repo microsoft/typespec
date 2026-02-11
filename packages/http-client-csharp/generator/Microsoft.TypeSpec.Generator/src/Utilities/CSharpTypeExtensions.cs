@@ -24,19 +24,39 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
             }
 
+            // Ensure the namespace is populated for properties that customize generated model/enum types
+            // The namespaces are not able to be resolved by Roslyn since the generated types are not part of the compilation.
+            type = EnsureNamespace(specProperty, type);
+
             // handle customized enums - we need to pull the type information from the spec property
             type = EnsureEnum(specProperty, type);
+
             // ensure literal types are correctly represented in the custom field using the info from the spec property
             type = EnsureLiteral(specProperty, type);
 
-            // Ensure the namespace is populated for properties that customize generated model/enum types
-            // The namespaces are not able to be resolved by Roslyn since the generated types are not part of the compilation.
+            return type;
+        }
+
+        private static CSharpType EnsureNamespace(InputProperty? specProperty, CSharpType type)
+        {
             if (string.IsNullOrEmpty(type.Namespace))
             {
                 InputType? inputType = GetInputModelType(specProperty?.Type);
                 if (inputType == null)
                 {
                     inputType = GetInputEnumType(specProperty?.Type);
+                }
+
+                // If we still don't have an input type (e.g., custom property without spec property),
+                // try to look up the type by name in the TypeFactory
+                if (inputType == null)
+                {
+                    // Try to resolve by looking up the CSharp type directly
+                    var resolvedType = TryFindCSharpTypeByName(type.Name);
+                    if (resolvedType != null)
+                    {
+                        return type.IsNullable ? resolvedType.WithNullable(true) : resolvedType;
+                    }
                 }
 
                 if (inputType == null)
@@ -49,11 +69,23 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 var newType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
                 if (newType != null)
                 {
-                    type.Namespace = newType.Namespace;
+                    return type.IsNullable ? newType.WithNullable(true) : newType;
                 }
             }
 
             return type;
+        }
+
+        private static CSharpType? TryFindCSharpTypeByName(string typeName)
+        {
+            // Look up type provider by name using the efficient name-based dictionary
+            // This handles cases where the type is renamed using CodeGenType attribute
+            if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(typeName, out var typeProvider))
+            {
+                return typeProvider.Type;
+            }
+
+            return null;
         }
 
         private static bool IsCustomizedEnumProperty(
@@ -78,9 +110,19 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private static CSharpType EnsureLiteral(InputProperty? specProperty, CSharpType customType)
         {
-            if (specProperty?.Type is InputLiteralType inputLiteral && (customType.IsFrameworkType || customType.IsEnum))
+            if (customType is { IsFrameworkType: false, IsEnum: false })
+            {
+                return customType;
+            }
+
+            if (specProperty?.Type is InputLiteralType inputLiteral)
             {
                 return CSharpType.FromLiteral(customType, inputLiteral.Value);
+            }
+
+            if (specProperty?.Type is InputEnumTypeValue inputEnumValue)
+            {
+                return CSharpType.FromLiteral(customType, inputEnumValue.Value);
             }
 
             return customType;
@@ -129,6 +171,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 InputNullableType nullableType => GetInputEnumType(nullableType.Type),
                 InputEnumType enumType => enumType,
+                InputEnumTypeValue enumValueType => enumValueType.EnumType,
                 InputArrayType arrayType => GetInputEnumType(arrayType.ValueType),
                 InputDictionaryType dictionaryType => GetInputEnumType(dictionaryType.ValueType),
                 _ => null

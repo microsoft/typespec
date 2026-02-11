@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 {
     public class PropertyType : TypeProvider
     {
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             return
             [

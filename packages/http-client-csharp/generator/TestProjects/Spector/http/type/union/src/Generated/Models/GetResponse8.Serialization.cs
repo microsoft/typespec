@@ -13,6 +13,12 @@ namespace _Type.Union
     {
         internal GetResponse8() => throw null;
 
+        protected virtual GetResponse8 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator GetResponse8(ClientResult result) => throw null;
+
         void IJsonModel<GetResponse8>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -23,14 +29,8 @@ namespace _Type.Union
 
         BinaryData IPersistableModel<GetResponse8>.Write(ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
         GetResponse8 IPersistableModel<GetResponse8>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        protected virtual GetResponse8 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
         string IPersistableModel<GetResponse8>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static explicit operator GetResponse8(ClientResult result) => throw null;
     }
 }

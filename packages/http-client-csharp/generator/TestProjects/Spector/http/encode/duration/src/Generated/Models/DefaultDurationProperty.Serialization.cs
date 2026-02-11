@@ -13,6 +13,12 @@ namespace Encode.Duration._Property
     {
         internal DefaultDurationProperty() => throw null;
 
+        protected virtual DefaultDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator DefaultDurationProperty(ClientResult result) => throw null;
+
         void IJsonModel<DefaultDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -23,16 +29,10 @@ namespace Encode.Duration._Property
 
         BinaryData IPersistableModel<DefaultDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
         DefaultDurationProperty IPersistableModel<DefaultDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual DefaultDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<DefaultDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(DefaultDurationProperty defaultDurationProperty) => throw null;
-
-        public static explicit operator DefaultDurationProperty(ClientResult result) => throw null;
     }
 }

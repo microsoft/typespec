@@ -23,6 +23,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override ValueExpression Content()
             => Original.Property(nameof(PipelineRequest.Content));
 
+        public override ValueExpression ClientRequestId()
+            => Original.Property(nameof(PipelineRequest.ClientRequestId));
+
         public override HttpRequestApi FromExpression(ValueExpression original)
             => new PipelineRequestProvider(original);
 

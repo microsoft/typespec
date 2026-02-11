@@ -129,7 +129,7 @@ describe("protobuf scenarios", function () {
  */
 function removeCoreDiagnostics(diagnostics: string[]): string[] {
   return diagnostics.map((d) => {
-    if (d.startsWith("/test/.tsp")) {
+    if (d.startsWith("/test/node_modules/@typespec/compiler/")) {
       return d.replace(/^[^\s]*:[0-9]+:[0-9]+ - /, "<in core> - ");
     } else return d;
   });

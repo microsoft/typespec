@@ -117,3 +117,12 @@ async def test_model_with_encoded_names(client: XmlClient):
     model = ModelWithEncodedNames(model_data=SimpleModel(name="foo", age=123), colors=["red", "green", "blue"])
     assert await client.model_with_encoded_names_value.get() == model
     await client.model_with_encoded_names_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_xml_error_value(client: XmlClient, core_library):
+    with pytest.raises(core_library.exceptions.HttpResponseError) as ex:
+        await client.xml_error_value.get()
+    assert ex.value.status_code == 400
+    assert ex.value.model.message == "Something went wrong"
+    assert ex.value.model.code == 400

@@ -1,8 +1,10 @@
 import type {
   DecoratorContext,
+  DecoratorValidatorCallbacks,
   Interface,
   Model,
   ModelProperty,
+  Namespace,
   Operation,
 } from "@typespec/compiler";
 
@@ -17,7 +19,10 @@ import type {
  * }
  * ```
  */
-export type AutoRouteDecorator = (context: DecoratorContext, target: Interface | Operation) => void;
+export type AutoRouteDecorator = (
+  context: DecoratorContext,
+  target: Interface | Operation,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Defines the preceding path segment for a
@@ -38,7 +43,7 @@ export type SegmentDecorator = (
   context: DecoratorContext,
   target: Model | ModelProperty | Operation,
   name: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Returns the URL segment of a given model if it has `@segment` and `@key` decorator.
@@ -49,18 +54,22 @@ export type SegmentOfDecorator = (
   context: DecoratorContext,
   target: Operation,
   type: Model,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Defines the separator string that is inserted before the action name in auto-generated routes for actions.
+ *
+ * When applied to a namespace, the separator applies to all action operations in that namespace and its sub-namespaces.
+ * When applied to an interface, the separator applies to all action operations in that interface and overrides any namespace-level separator.
+ * When applied to an operation, the separator applies only to that operation and overrides any interface or namespace-level separator.
  *
  * @param seperator Seperator seperating the action segment from the rest of the url
  */
 export type ActionSeparatorDecorator = (
   context: DecoratorContext,
-  target: Model | ModelProperty | Operation,
+  target: Operation | Interface | Namespace,
   seperator: "/" | ":" | "/:",
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Mark this model as a resource type with a name.
@@ -71,7 +80,7 @@ export type ResourceDecorator = (
   context: DecoratorContext,
   target: Model,
   collectionName: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Mark model as a child of the given parent resource.
@@ -82,7 +91,7 @@ export type ParentResourceDecorator = (
   context: DecoratorContext,
   target: Model,
   parent: Model,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this is a Read operation for a given resource.
@@ -96,7 +105,7 @@ export type ReadsResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this is a Create operation for a given resource.
@@ -110,7 +119,7 @@ export type CreatesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this is a CreateOrReplace operation for a given resource.
@@ -124,7 +133,7 @@ export type CreatesOrReplacesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this is a CreatesOrUpdate operation for a given resource.
@@ -138,7 +147,7 @@ export type CreatesOrUpdatesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this is a Update operation for a given resource.
@@ -152,7 +161,7 @@ export type UpdatesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this is a Delete operation for a given resource.
@@ -166,7 +175,7 @@ export type DeletesResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this is a List operation for a given resource.
@@ -180,14 +189,18 @@ export type ListsResourceDecorator = (
   context: DecoratorContext,
   target: Operation,
   resourceType: Model,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my-action)
  *
  * @param name Name of the action. If not specified, the name of the operation will be used.
  */
-export type ActionDecorator = (context: DecoratorContext, target: Operation, name?: string) => void;
+export type ActionDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  name?: string,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify this operation is a collection action. (Scopped to a resource, /pets/my-action)
@@ -203,7 +216,7 @@ export type CollectionActionDecorator = (
   target: Operation,
   resourceType: Model,
   name?: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Copy the resource key parameters on the model
@@ -214,7 +227,7 @@ export type CopyResourceKeyParametersDecorator = (
   context: DecoratorContext,
   target: Model,
   filter?: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecRestDecorators = {
   autoRoute: AutoRouteDecorator;

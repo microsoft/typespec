@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+
 namespace Microsoft.TypeSpec.Generator.Input
 {
     public abstract class InputParameter : InputProperty
@@ -23,14 +27,43 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public InputParameterScope Scope { get; internal set; }
+        public IReadOnlyList<InputMethodParameter>? MethodParameterSegments { get; internal set; }
 
         /// <summary>
         /// Update the instance with given parameters.
         /// </summary>
         /// <param name="scope">The scope of the <see cref="InputParameter"/></param>
-        public void Update(InputParameterScope scope)
+        /// <param name="name">The name of the <see cref="InputParameter"/></param>
+        /// <param name="methodParameterSegments">The method parameter segments for override scenarios</param>
+        public void Update(InputParameterScope? scope = null, string? name = null, IReadOnlyList<InputMethodParameter>? methodParameterSegments = null)
         {
-            Scope = scope;
+            if (scope.HasValue)
+            {
+                Scope = scope.Value;
+            }
+            if (name != null)
+            {
+                Name = name;
+            }
+            if (methodParameterSegments != null)
+            {
+                MethodParameterSegments = methodParameterSegments;
+            }
+        }
+
+        public static InputParameterScope ParseScope(InputType type, string name, string? scope)
+        {
+            if (scope == null)
+            {
+                throw new JsonException("Parameter must have a scope");
+            }
+            Enum.TryParse<InputParameterScope>(scope, ignoreCase: true, out var parsedScope);
+
+            if (parsedScope == InputParameterScope.Constant && type is not (InputLiteralType or InputEnumType))
+            {
+                throw new JsonException($"Parameter '{name}' is constant, but its type is '{type.Name}'.");
+            }
+            return parsedScope;
         }
     }
 }

@@ -235,7 +235,10 @@ function emitProperty(
   }
   return {
     clientName: camelToSnakeCase(property.name),
-    wireName: property.serializationOptions.json?.name ?? property.name,
+    wireName:
+      (property.serializationOptions?.multipart
+        ? property.serializationOptions?.multipart?.name
+        : property.serializationOptions?.json?.name) ?? property.name,
     type: getType(context, sourceType),
     optional: property.optional,
     description: property.summary ? property.summary : property.doc,
@@ -246,6 +249,7 @@ function emitProperty(
     flatten: property.flatten,
     isMultipartFileInput: isMultipartFileInput,
     xmlMetadata: getXmlMetadata(property),
+    encode: property.encode,
   };
 }
 
@@ -269,6 +273,12 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
       name: "HttpResponseError",
       submodule: "exceptions",
     };
+  }
+  if (type.external) {
+    return getSimpleTypeResult({
+      type: "external",
+      externalTypeInfo: type.external,
+    });
   }
   const parents: Record<string, any>[] = [];
   const newValue = {
@@ -375,12 +385,15 @@ function emitEnumMember(
   type: SdkEnumValueType,
   enumType: Record<string, any>,
 ): Record<string, any> {
+  if (typesMap.has(type)) {
+    return typesMap.get(type)!;
+  }
   // python don't generate enum created by TCGC, so we shall not generate type for enum member of the enum, either.
   if (type.enumType.isGeneratedName) {
     return getConstantFromEnumValueType(type);
   }
 
-  return {
+  const result = {
     name: enumName(type.name),
     value: type.value,
     description: type.summary ? type.summary : type.doc,
@@ -388,6 +401,8 @@ function emitEnumMember(
     type: type.kind,
     valueType: enumType["valueType"],
   };
+  typesMap.set(type, result);
+  return result;
 }
 
 function emitDurationOrDateType(type: SdkDurationType | SdkDateTimeType): Record<string, any> {
@@ -448,18 +463,39 @@ const sdkScalarKindToPythonKind: Record<string, string> = {
 function emitBuiltInType(
   type: SdkBuiltInType | SdkDurationType | SdkDateTimeType,
 ): Record<string, any> {
-  if (type.kind === "duration" && type.encode === "seconds") {
-    return getSimpleTypeResult({
-      type: sdkScalarKindToPythonKind[type.wireType.kind],
-      encode: type.encode,
-    });
+  if (type.encode) {
+    if (type.kind === "duration") {
+      if (type.encode === "ISO8601") {
+        return getSimpleTypeResult({
+          type: type.kind,
+          encode: type.encode,
+        });
+      }
+    }
+    if (type.kind === "utcDateTime" || type.kind === "offsetDateTime") {
+      if (type.encode === "unixTimestamp") {
+        return getSimpleTypeResult({
+          type: "unixtime",
+          encode: type.encode,
+        });
+      }
+      if (type.encode === "rfc3339" || type.encode === "rfc7231") {
+        return getSimpleTypeResult({
+          type: type.kind,
+          encode: type.encode,
+        });
+      }
+    }
+
+    // fallback to wire type for unknown or unsupported encode
+    if ("wireType" in type && type.wireType !== undefined) {
+      return getSimpleTypeResult({
+        type: sdkScalarKindToPythonKind[type.wireType.kind] || type.wireType.kind,
+        encode: type.encode,
+      });
+    }
   }
-  if (type.encode === "unixTimestamp") {
-    return getSimpleTypeResult({
-      type: "unixtime",
-      encode: type.encode,
-    });
-  }
+
   return getSimpleTypeResult({
     type: sdkScalarKindToPythonKind[type.kind] || type.kind, // TODO: switch to kind
     encode: type.encode,
@@ -504,10 +540,11 @@ export const KnownTypes = {
 export function emitEndpointType(
   context: PythonSdkContext,
   type: SdkEndpointType,
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   const params: Record<string, any>[] = [];
   for (const param of type.templateArguments) {
-    const paramBase = emitParamBase(context, param);
+    const paramBase = emitParamBase(context, param, undefined, serviceApiVersions);
     paramBase.clientName = context.arm ? "base_url" : paramBase.clientName;
     params.push({
       ...paramBase,

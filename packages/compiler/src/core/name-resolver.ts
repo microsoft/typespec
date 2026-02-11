@@ -167,6 +167,7 @@ export function createResolver(program: Program): NameResolver {
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const nodeLinks = new Map<number, NodeLinks>();
   const symbolLinks = new Map<number, SymbolLinks>();
+  const visitedNode = new Set<Node>();
 
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceSym = createSymbol(
@@ -321,7 +322,6 @@ export function createResolver(program: Program): NameResolver {
     }
 
     let result = resolveTypeReferenceWorker(node, options);
-
     const resolvedSym = result.resolvedSymbol;
     Object.assign(links, result);
 
@@ -788,6 +788,7 @@ export function createResolver(program: Program): NameResolver {
       sym = node.symbol;
     }
     compilerAssert(sym, "Should have a symbol");
+
     links.resolvedSymbol = sym;
     links.resolutionResult = ResolutionResultFlags.Resolved;
   }
@@ -1217,6 +1218,15 @@ export function createResolver(program: Program): NameResolver {
   }
 
   function bindAndResolveNode(node: Node) {
+    if (visitedNode.has(node)) {
+      return;
+    }
+    visitedNode.add(node);
+
+    if ("id" in node && node.kind !== SyntaxKind.MemberExpression && node.id) {
+      bindDeclarationIdentifier(node as any);
+    }
+
     switch (node.kind) {
       case SyntaxKind.TypeReference:
         resolveTypeReference(node);
@@ -1248,11 +1258,6 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.CallExpression:
         resolveTypeReference(node.target);
         break;
-        break;
-    }
-
-    if ("id" in node && node.kind !== SyntaxKind.MemberExpression && node.id) {
-      bindDeclarationIdentifier(node as any);
     }
 
     visitChildren(node, bindAndResolveNode);

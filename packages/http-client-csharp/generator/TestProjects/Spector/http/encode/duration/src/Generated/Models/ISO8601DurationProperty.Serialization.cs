@@ -13,6 +13,12 @@ namespace Encode.Duration._Property
     {
         internal ISO8601DurationProperty() => throw null;
 
+        protected virtual ISO8601DurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator ISO8601DurationProperty(ClientResult result) => throw null;
+
         void IJsonModel<ISO8601DurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -23,16 +29,10 @@ namespace Encode.Duration._Property
 
         BinaryData IPersistableModel<ISO8601DurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
         ISO8601DurationProperty IPersistableModel<ISO8601DurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual ISO8601DurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<ISO8601DurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(ISO8601DurationProperty isO8601DurationProperty) => throw null;
-
-        public static explicit operator ISO8601DurationProperty(ClientResult result) => throw null;
     }
 }

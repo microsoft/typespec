@@ -29,6 +29,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ValueExpression PositionalReference(this ParameterProvider parameter, ValueExpression value)
             => new PositionalParameterReferenceExpression(parameter.Name, value);
 
+        public static ValueExpression PositionalReference(string parameterName, ValueExpression value)
+            => new PositionalParameterReferenceExpression(parameterName, value);
+
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
         public static DictionaryExpression AsDictionary(this PropertyProvider property, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), property);
@@ -37,8 +40,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         public static ValueExpression Static<T>() => TypeReferenceExpression.FromType(typeof(T));
         //overload needed since static types cannot be usd as type arguments
-        public static ValueExpression Static(Type type) => TypeReferenceExpression.FromType(type);
-        public static ValueExpression Static(CSharpType type) => TypeReferenceExpression.FromType(type);
+        public static ValueExpression Static(Type type) => TypeReferenceExpression.FromType(new CSharpType(type).WithNullable(false));
+        public static ValueExpression Static(CSharpType type) => TypeReferenceExpression.FromType(type.WithNullable(false));
         public static ValueExpression Static() => TypeReferenceExpression.FromType(null);
 
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);

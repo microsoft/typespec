@@ -381,15 +381,15 @@ export function canAttachComment(node: Node): boolean {
   const kind = node.kind as SyntaxKind;
   return Boolean(
     kind &&
-      kind !== SyntaxKind.LineComment &&
-      kind !== SyntaxKind.BlockComment &&
-      kind !== SyntaxKind.EmptyStatement &&
-      kind !== SyntaxKind.DocParamTag &&
-      kind !== SyntaxKind.DocReturnsTag &&
-      kind !== SyntaxKind.DocTemplateTag &&
-      kind !== SyntaxKind.DocText &&
-      kind !== SyntaxKind.DocUnknownTag &&
-      !(node.flags & NodeFlags.Synthetic),
+    kind !== SyntaxKind.LineComment &&
+    kind !== SyntaxKind.BlockComment &&
+    kind !== SyntaxKind.EmptyStatement &&
+    kind !== SyntaxKind.DocParamTag &&
+    kind !== SyntaxKind.DocReturnsTag &&
+    kind !== SyntaxKind.DocTemplateTag &&
+    kind !== SyntaxKind.DocText &&
+    kind !== SyntaxKind.DocUnknownTag &&
+    !(node.flags & NodeFlags.Synthetic),
   );
 }
 

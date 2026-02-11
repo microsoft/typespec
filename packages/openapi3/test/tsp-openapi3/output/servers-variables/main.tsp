@@ -11,7 +11,7 @@ using OpenAPI;
   "http://petstore.swagger.io/{version}",
   "The main API server",
   {
-    @doc("The API version")
+    /** The API version */
     version: "v1" | "v2" = "v1",
   }
 )

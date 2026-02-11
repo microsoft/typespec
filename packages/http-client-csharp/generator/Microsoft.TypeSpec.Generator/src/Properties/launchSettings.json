@@ -10,6 +10,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-authentication-noauth-union": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/authentication/noauth/union -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-authentication-oauth2": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/authentication/oauth2 -g StubLibraryGenerator",
       "commandName": "Executable",
@@ -42,6 +47,16 @@
     },
     "http-client-structure-two-operation-group": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/client/structure/two-operation-group -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-documentation": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/documentation -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-encode-array": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/encode/array -g StubLibraryGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
@@ -82,6 +97,11 @@
     },
     "http-parameters-path": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/path -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-parameters-query": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/query -g StubLibraryGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },

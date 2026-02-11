@@ -94,7 +94,13 @@ namespace Microsoft.TypeSpec.Generator
                     }
                 }
 
-                type.Update(methods, constructors, properties, fields, serializations, nestedTypes);
+                type.Update(
+                    methods,
+                    constructors,
+                    properties,
+                    fields,
+                    serializations,
+                    nestedTypes);
                 type = PostVisitType(type);
             }
             return type;

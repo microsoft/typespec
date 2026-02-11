@@ -82,6 +82,20 @@ model ModelWithEncodedNames {
   @encodedName("application/xml", "PossibleColors") colors: string[];
 }
 
+@doc("An error response body in XML format.")
+@error
+model XmlError {
+  @statusCode _: 400;
+  @header("content-type") contentType: "application/xml";
+  @body body: XmlErrorBody;
+}
+
+@doc("The body of an XML error response.")
+model XmlErrorBody {
+  message: string;
+  code: int32;
+}
+
 @doc("Template for XML operations")
 interface XmlOperations<TModel, TDoc extends valueof string> {
   @scenario
@@ -300,3 +314,23 @@ interface ModelWithEncodedNamesValue
         </ModelWithEncodedNamesSrc>
         """
     > {}
+
+@doc("Operations that return an error response in XML format.")
+@route("/error")
+interface XmlErrorValue {
+  @scenario
+  @scenarioDoc("""
+    Expected error response body:
+    ```xml
+    <XmlErrorBody>
+      <message>Something went wrong</message>
+      <code>400</code>
+    </XmlErrorBody>
+    ```
+    """)
+  @get
+  get(): {
+    @header("content-type") contentType: "application/xml";
+    @body body: SimpleModel;
+  } | XmlError;
+}

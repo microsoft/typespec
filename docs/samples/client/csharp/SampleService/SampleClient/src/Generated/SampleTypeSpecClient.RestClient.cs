@@ -14,9 +14,9 @@ namespace SampleTypeSpec
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
 
-        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 = PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
+        private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
@@ -100,7 +100,7 @@ namespace SampleTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/helloLiteral/", false);
             uri.AppendPath(123.ToString(), true);
-            uri.AppendQuery("p3", TypeFormatters.ConvertToString(true, null), true);
+            uri.AppendQuery("p3", TypeFormatters.ConvertToString(true), true);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
             request.Headers.Set("p1", "test");
@@ -153,8 +153,10 @@ namespace SampleTypeSpec
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/anonymousBody", false);
+            uri.AppendQuery("requiredQueryParam", "someRequiredLiteralQueryParam", true);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
+            request.Headers.Set("required-header", "someRequiredLiteralHeader");
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
@@ -183,7 +185,7 @@ namespace SampleTypeSpec
             uri.AppendPath("/", false);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
-            request.Headers.Set("Repeatability-First-Sent", TypeFormatters.ConvertToString(DateTimeOffset.Now, "R"));
+            request.Headers.Set("Repeatability-First-Sent", TypeFormatters.ConvertToString(DateTimeOffset.Now, SerializationFormat.DateTime_RFC7231));
             message.Apply(options);
             return message;
         }
@@ -268,7 +270,10 @@ namespace SampleTypeSpec
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/WithApiVersion", false);
-            uri.AppendQuery("apiVersion", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("apiVersion", _apiVersion, true);
+            }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
             request.Headers.Set("p1", p1);
@@ -398,6 +403,18 @@ namespace SampleTypeSpec
             PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateGetXmlAdvancedModelRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/xmlAdvanced", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/xml");
             message.Apply(options);
             return message;
         }

@@ -6,11 +6,13 @@ package azure.resourcemanager.operationtemplates;
 
 import azure.resourcemanager.operationtemplates.fluent.OperationTemplatesClient;
 import azure.resourcemanager.operationtemplates.implementation.CheckNameAvailabilitiesImpl;
+import azure.resourcemanager.operationtemplates.implementation.LroPagingsImpl;
 import azure.resourcemanager.operationtemplates.implementation.LroesImpl;
 import azure.resourcemanager.operationtemplates.implementation.OperationTemplatesClientBuilder;
 import azure.resourcemanager.operationtemplates.implementation.OperationsImpl;
 import azure.resourcemanager.operationtemplates.implementation.OptionalBodiesImpl;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilities;
+import azure.resourcemanager.operationtemplates.models.LroPagings;
 import azure.resourcemanager.operationtemplates.models.Lroes;
 import azure.resourcemanager.operationtemplates.models.Operations;
 import azure.resourcemanager.operationtemplates.models.OptionalBodies;
@@ -52,6 +54,8 @@ public final class OperationTemplatesManager {
     private CheckNameAvailabilities checkNameAvailabilities;
 
     private Lroes lroes;
+
+    private LroPagings lroPagings;
 
     private OptionalBodies optionalBodies;
 
@@ -305,6 +309,18 @@ public final class OperationTemplatesManager {
             this.lroes = new LroesImpl(clientObject.getLroes(), this);
         }
         return lroes;
+    }
+
+    /**
+     * Gets the resource collection API of LroPagings.
+     * 
+     * @return Resource collection API of LroPagings.
+     */
+    public LroPagings lroPagings() {
+        if (this.lroPagings == null) {
+            this.lroPagings = new LroPagingsImpl(clientObject.getLroPagings(), this);
+        }
+        return lroPagings;
     }
 
     /**

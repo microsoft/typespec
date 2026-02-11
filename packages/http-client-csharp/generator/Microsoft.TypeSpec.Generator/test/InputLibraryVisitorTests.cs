@@ -57,7 +57,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
-            _mockVisitor.Protected().Verify<TypeProvider>("PreVisitEnum", Times.Once(), inputEnum, ItExpr.Is<EnumProvider>(m => m.Name == EnumProvider.Create(inputEnum, null).Name));
+            // enum is visited twice, one additional time for the variant created for extensible enums
+            _mockVisitor.Protected().Verify<TypeProvider>("PreVisitEnum", Times.Exactly(2), inputEnum, ItExpr.Is<EnumProvider>(m => m.Name == EnumProvider.Create(inputEnum, null).Name));
         }
 
         [Test]

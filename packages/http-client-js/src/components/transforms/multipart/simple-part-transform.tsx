@@ -1,8 +1,6 @@
 import { Children, code, List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { useTsp } from "@typespec/emitter-framework";
 import { HttpOperationPart } from "@typespec/http";
-import { reportDiagnostic } from "../../../lib.js";
 import { JsonTransform } from "../json/json-transform.jsx";
 
 export interface SimplePartTransformProps {
@@ -11,24 +9,14 @@ export interface SimplePartTransformProps {
 }
 
 export function SimplePartTransform(props: SimplePartTransformProps) {
-  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const applicationName = namePolicy.getName(props.part.name!, "variable");
   const partName = ts.ValueExpression({ jsValue: props.part.name });
-  const partContentType = props.part.body.contentTypes[0] ?? "application/json";
   const partRef = getPartRef(props.itemRef, applicationName);
   let bodyRef = code`${partRef}`;
 
   if (props.part.body.property) {
     bodyRef = code`${partRef}.${props.part.body.property.name}`;
-  }
-
-  if (!partContentType.startsWith("application/json")) {
-    reportDiagnostic($.program, {
-      code: "unsupported-content-type",
-      target: props.part.body.type,
-      message: `Unsupported content type: ${partContentType}`,
-    });
   }
 
   return (

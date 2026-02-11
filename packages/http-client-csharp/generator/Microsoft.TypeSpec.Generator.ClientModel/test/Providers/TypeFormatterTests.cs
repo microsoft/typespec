@@ -29,6 +29,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             new object[] { "R", new DateTimeOffset(2020, 05, 04, 03, 02, 01, 0, default), "Mon, 04 May 2020 03:02:01 GMT" },
             new object[] { "R", new DateTimeOffset(2020, 05, 04, 03, 02, 01, 0, new TimeSpan(1, 0, 0)), "Mon, 04 May 2020 02:02:01 GMT" },
         };
+        public static object[] DateTimeOffsetSerializationFormatCases =
+        {
+            new object[] { SerializationFormat.DateTime_RFC3339, new DateTimeOffset(2020, 05, 04, 03, 02, 01, 123, default), "2020-05-04T03:02:01.1230000Z" },
+            new object[] { SerializationFormat.DateTime_RFC3339, new DateTimeOffset(2020, 05, 04, 03, 02, 01, 123, new TimeSpan(1, 0, 0)), "2020-05-04T02:02:01.1230000Z" },
+            new object[] { SerializationFormat.DateTime_RFC3339, new DateTimeOffset(3155378975999999999, default), "9999-12-31T23:59:59.9999999Z" },
+            new object[] { SerializationFormat.DateTime_RFC3339, new DateTimeOffset(3155378975999999999, new TimeSpan(1, 0, 0)), "9999-12-31T22:59:59.9999999Z" },
+
+            new object[] { SerializationFormat.DateTime_RFC3339, new DateTimeOffset(2020, 05, 04, 03, 02, 01, 123, default), "2020-05-04T03:02:01.1230000Z" },
+
+            new object[] { SerializationFormat.Date_ISO8601, new DateTimeOffset(2020, 05, 04, 0,0,0,0, default), "2020-05-04" },
+
+            new object[] { SerializationFormat.DateTime_Unix, new DateTimeOffset(2020, 05, 04, 03, 02, 01, 0, default), "1588561321" },
+
+            new object[] { SerializationFormat.DateTime_RFC7231, new DateTimeOffset(2020, 05, 04, 03, 02, 01, 0, default), "Mon, 04 May 2020 03:02:01 GMT" },
+            new object[] { SerializationFormat.DateTime_RFC1123, new DateTimeOffset(2020, 05, 04, 03, 02, 01, 0, new TimeSpan(1, 0, 0)), "Mon, 04 May 2020 02:02:01 GMT" },
+        };
 
         public static object[] TimeSpanCases =
         {
@@ -36,20 +52,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             new object[] { "c", new TimeSpan(1, 2, 59, 59, 500), "1.02:59:59.5000000" }
         };
 
-        public static object[] BinaryDataCases =
+        public static object[] TimeSpanSerializationFormatCases =
         {
-            new object[] { "D", BinaryData.FromString("test"), "dGVzdA==" },
-            new object[] { "U", BinaryData.FromString("test"), "dGVzdA" }
+            new object[] { SerializationFormat.Duration_ISO8601, new TimeSpan(1, 2, 59, 59), "P1DT2H59M59S" },
+            new object[] { SerializationFormat.Duration_Constant, new TimeSpan(1, 2, 59, 59, 500), "1.02:59:59.5000000" },
+            new object[] { SerializationFormat.Default, new TimeSpan(1, 2, 59, 59, 500), "P1DT2H59M59.5S" }
         };
 
-        public static object[] TimeSpanWithoutFormatCases =
+        public static object[] BinaryDataCases =
         {
-            new object?[] { null, new TimeSpan(1, 2, 59, 59), "P1DT2H59M59S" },
+            new object[] { SerializationFormat.Bytes_Base64, BinaryData.FromString("test"), "dGVzdA==" },
+            new object[] { SerializationFormat.Bytes_Base64Url, BinaryData.FromString("test"), "dGVzdA" }
         };
 
         private static readonly object[] GuidCases = new object[]
         {
-            new object?[] { null, Guid.Parse("11111111-1111-1111-1111-111112111111"), "11111111-1111-1111-1111-111112111111" }
+            new object?[] { 0, Guid.Parse("11111111-1111-1111-1111-111112111111"), "11111111-1111-1111-1111-111112111111" }
         };
 
         [TestCaseSource(nameof(DateTimeOffsetCases))]
@@ -116,29 +134,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(duration, formatted.GetTimeSpan(format));
         }
 
-        [TestCase(null, null, "null")]
-        [TestCase(null, "str", "str")]
-        [TestCase(null, true, "true")]
-        [TestCase(null, false, "false")]
-        [TestCase(null, 42, "42")]
-        [TestCase(null, -42, "-42")]
-        [TestCase(null, 3.14f, "3.14")]
-        [TestCase(null, -3.14f, "-3.14")]
-        [TestCase(null, 3.14, "3.14")]
-        [TestCase(null, -3.14, "-3.14")]
-        [TestCase(null, 299792458L, "299792458")]
-        [TestCase(null, -299792458L, "-299792458")]
-        [TestCase("D", new byte[] { 1, 2, 3 }, "AQID")]
-        [TestCase("U", new byte[] { 4, 5, 6 }, "BAUG")]
+        [TestCase(SerializationFormat.Default, null, "null")]
+        [TestCase(SerializationFormat.Default, "str", "str")]
+        [TestCase(SerializationFormat.Default, true, "true")]
+        [TestCase(SerializationFormat.Default, false, "false")]
+        [TestCase(SerializationFormat.Default, 42, "42")]
+        [TestCase(SerializationFormat.Default, -42, "-42")]
+        [TestCase(SerializationFormat.Default, 3.14f, "3.14")]
+        [TestCase(SerializationFormat.Default, -3.14f, "-3.14")]
+        [TestCase(SerializationFormat.Default, 3.14, "3.14")]
+        [TestCase(SerializationFormat.Default, -3.14, "-3.14")]
+        [TestCase(SerializationFormat.Default, 299792458L, "299792458")]
+        [TestCase(SerializationFormat.Default, -299792458L, "-299792458")]
+        [TestCase(SerializationFormat.Bytes_Base64, new byte[] { 1, 2, 3 }, "AQID")]
+        [TestCase(SerializationFormat.Bytes_Base64Url, new byte[] { 4, 5, 6 }, "BAUG")]
         [TestCase(null, new string[] { "a", "b" }, "a,b")]
-        [TestCaseSource(nameof(DateTimeOffsetCases))]
-        [TestCaseSource(nameof(TimeSpanWithoutFormatCases))]
-        [TestCaseSource(nameof(TimeSpanCases))]
+        [TestCaseSource(nameof(DateTimeOffsetSerializationFormatCases))]
+        [TestCaseSource(nameof(TimeSpanSerializationFormatCases))]
         [TestCaseSource(nameof(GuidCases))]
         [TestCaseSource(nameof(BinaryDataCases))]
-        public void ValidateConvertToString(string? format, object? value, string expected)
+        public void ValidateConvertToString(int format, object? value, string expected)
         {
-            var result = TypeFormatters.ConvertToString(value, format);
+            var result = TypeFormatters.ConvertToString(value, (SerializationFormat)format);
 
             Assert.AreEqual(expected, result);
         }

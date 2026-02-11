@@ -25,6 +25,9 @@ from {{ code_model.core_library }}.exceptions import DeserializationError
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
 from {{ code_model.core_library }}.{{ "" if code_model.is_azure_flavor else "runtime." }}pipeline import PipelineResponse
 from {{ code_model.core_library }}.serialization import _Null
+{% if code_model.has_external_type %}
+from {{ code_model.core_library }}.serialization import TypeHandlerRegistry
+{% endif %}
 from {{ code_model.core_library }}.rest import HttpResponse
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,6 +36,11 @@ __all__ = ["SdkJSONEncoder", "Model", "rest_field", "rest_discriminator"]
 
 TZ_UTC = timezone.utc
 _T = typing.TypeVar("_T")
+_NONE_TYPE = type(None)
+
+{% if code_model.has_external_type %}
+TYPE_HANDLER_REGISTRY = TypeHandlerRegistry()
+{% endif %}
 
 
 def _timedelta_as_isostr(td: timedelta) -> str:
@@ -158,6 +166,11 @@ class SdkJSONEncoder(JSONEncoder):
             except AttributeError:
                 # This will be raised when it hits value.total_seconds in the method above
                 pass
+            {% if code_model.has_external_type %}
+            custom_serializer = TYPE_HANDLER_REGISTRY.get_serializer(o)
+            if custom_serializer:
+                return custom_serializer(o)
+            {% endif %}
             return super(SdkJSONEncoder, self).default(o)
 
 
@@ -167,6 +180,19 @@ _VALID_RFC7231 = re.compile(
     r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{4}\s\d{2}:\d{2}:\d{2}\sGMT"
 )
 
+_ARRAY_ENCODE_MAPPING = {
+    "pipeDelimited": "|",
+    "spaceDelimited": " ",
+    "commaDelimited": ",",
+    "newlineDelimited": "\n",
+}
+
+def _deserialize_array_encoded(delimit: str, attr):
+    if isinstance(attr, str):
+        if attr == "":
+            return []
+        return attr.split(delimit)
+    return attr
 
 def _deserialize_datetime(attr: typing.Union[str, datetime]) -> datetime:
     """Deserialize ISO-8601 formatted string into Datetime object.
@@ -198,7 +224,7 @@ def _deserialize_datetime(attr: typing.Union[str, datetime]) -> datetime:
     test_utc = date_obj.utctimetuple()
     if test_utc.tm_year > 9999 or test_utc.tm_year < 1:
         raise OverflowError("Hit max or min date")
-    return date_obj
+    return date_obj  # type: ignore[no-any-return]
 
 
 def _deserialize_datetime_rfc7231(attr: typing.Union[str, datetime]) -> datetime:
@@ -252,7 +278,7 @@ def _deserialize_time(attr: typing.Union[str, time]) -> time:
     """
     if isinstance(attr, time):
         return attr
-    return isodate.parse_time(attr)
+    return isodate.parse_time(attr)  # type: ignore[no-any-return]
 
 
 def _deserialize_bytes(attr):
@@ -311,9 +337,17 @@ _DESERIALIZE_MAPPING_WITHFORMAT = {
 def get_deserializer(annotation: typing.Any, rf: typing.Optional["_RestField"] = None):
     if annotation is int and rf and rf._format == "str":
         return _deserialize_int_as_str
+    if annotation is str and rf and rf._format in _ARRAY_ENCODE_MAPPING:
+        return functools.partial(_deserialize_array_encoded, _ARRAY_ENCODE_MAPPING[rf._format])
     if rf and rf._format:
         return _DESERIALIZE_MAPPING_WITHFORMAT.get(rf._format)
+    {% if code_model.has_external_type %}
+    if _DESERIALIZE_MAPPING.get(annotation):  # pyright: ignore
+        return _DESERIALIZE_MAPPING.get(annotation)  # pyright: ignore
+    return TYPE_HANDLER_REGISTRY.get_deserializer(annotation)  # pyright: ignore
+    {% else %}
     return _DESERIALIZE_MAPPING.get(annotation)  # pyright: ignore
+    {% endif %}
 
 
 def _get_type_alias_type(module_name: str, alias_name: str):
@@ -349,9 +383,39 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
         return key in self._data
 
     def __getitem__(self, key: str) -> typing.Any:
+        # If this key has been deserialized (for mutable types), we need to handle serialization
+        if hasattr(self, "_attr_to_rest_field"):
+            cache_attr = f"_deserialized_{key}"
+            if hasattr(self, cache_attr):
+                rf = _get_rest_field(getattr(self, "_attr_to_rest_field"), key)
+                if rf:
+                    value = self._data.get(key)
+                    if isinstance(value, (dict, list, set)):
+                        # For mutable types, serialize and return
+                        # But also update _data with serialized form and clear flag
+                        # so mutations via this returned value affect _data
+                        serialized = _serialize(value, rf._format)
+                        # If serialized form is same type (no transformation needed),
+                        # return _data directly so mutations work
+                        if isinstance(serialized, type(value)) and serialized == value:
+                          return self._data.get(key)
+                        # Otherwise return serialized copy and clear flag
+                        try:
+                            object.__delattr__(self, cache_attr)
+                        except AttributeError:
+                            pass
+                        # Store serialized form back
+                        self._data[key] = serialized
+                        return serialized
         return self._data.__getitem__(key)
 
     def __setitem__(self, key: str, value: typing.Any) -> None:
+        # Clear any cached deserialized value when setting through dictionary access
+        cache_attr = f"_deserialized_{key}"
+        try:
+            object.__delattr__(self, cache_attr)
+        except AttributeError:
+            pass
         self._data.__setitem__(key, value)
 
     def __delitem__(self, key: str) -> None:
@@ -479,6 +543,8 @@ def _is_model(obj: typing.Any) -> bool:
 
 def _serialize(o, format: typing.Optional[str] = None):  # pylint: disable=too-many-return-statements
     if isinstance(o, list):
+        if format in _ARRAY_ENCODE_MAPPING and all(isinstance(x, str) for x in o):
+            return _ARRAY_ENCODE_MAPPING[format].join(o)
         return [_serialize(x, format) for x in o]
     if isinstance(o, dict):
         return {k: _serialize(v, format) for k, v in o.items()}
@@ -507,6 +573,14 @@ def _serialize(o, format: typing.Optional[str] = None):  # pylint: disable=too-m
     except AttributeError:
         # This will be raised when it hits value.total_seconds in the method above
         pass
+    {% if code_model.has_external_type %}
+
+    # Check if there's a custom serializer for the type
+    custom_serializer = TYPE_HANDLER_REGISTRY.get_serializer(o)
+    if custom_serializer:
+        return custom_serializer(o)
+
+    {% endif %}
     return o
 
 
@@ -636,6 +710,12 @@ class Model(_MyMutableMapping):
                 if not rf._rest_name_input:
                     rf._rest_name_input = attr
             cls._attr_to_rest_field: dict[str, _RestField] = dict(attr_to_rest_field.items())
+            {% if code_model.has_padded_model_property %}
+            cls._backcompat_attr_to_rest_field: dict[str, _RestField] = {
+                Model._get_backcompat_attribute_name(cls._attr_to_rest_field, attr): rf for attr, rf in cls
+                ._attr_to_rest_field.items()
+            }
+            {% endif %}
             cls._calculated.add(f"{cls.__module__}.{cls.__qualname__}")
 
         return super().__new__(cls)
@@ -644,6 +724,18 @@ class Model(_MyMutableMapping):
         for base in cls.__bases__:
             if hasattr(base, "__mapping__"):
                 base.__mapping__[discriminator or cls.__name__] = cls  # type: ignore
+
+    {% if code_model.has_padded_model_property %}
+    @classmethod
+    def _get_backcompat_attribute_name(cls, attr_to_rest_field: dict[str, "_RestField"], attr_name: str) -> str:
+        rest_field_obj = attr_to_rest_field.get(attr_name)  # pylint: disable=protected-access
+        if rest_field_obj is None:
+            return attr_name
+        original_tsp_name = getattr(rest_field_obj, "_original_tsp_name", None)  # pylint: disable=protected-access
+        if original_tsp_name:
+            return original_tsp_name
+        return attr_name
+    {% endif %}
 
     @classmethod
     def _get_discriminator(cls, exist_discriminators) -> typing.Optional["_RestField"]:
@@ -756,6 +848,14 @@ def _deserialize_multiple_sequence(
     return type(obj)(_deserialize(deserializer, entry, module) for entry, deserializer in zip(obj, entry_deserializers))
 
 
+def _is_array_encoded_deserializer(deserializer: functools.partial) -> bool:
+    return (
+        isinstance(deserializer, functools.partial)
+        and isinstance(deserializer.args[0], functools.partial)
+        and deserializer.args[0].func == _deserialize_array_encoded  # pylint: disable=comparison-with-callable
+    )
+
+
 def _deserialize_sequence(
     deserializer: typing.Optional[typing.Callable],
     module: typing.Optional[str],
@@ -765,6 +865,19 @@ def _deserialize_sequence(
         return obj
     if isinstance(obj, ET.Element):
         obj = list(obj)
+
+    # encoded string may be deserialized to sequence
+    if isinstance(obj, str) and isinstance(deserializer, functools.partial):
+        # for list[str]
+        if _is_array_encoded_deserializer(deserializer):
+            return deserializer(obj)
+
+        # for list[Union[...]]
+        if isinstance(deserializer.args[0], list):
+            for sub_deserializer in deserializer.args[0]:
+                if _is_array_encoded_deserializer(sub_deserializer):
+                    return sub_deserializer(obj)
+
     return type(obj)(_deserialize(deserializer, entry, module) for entry in obj)
 
 
@@ -814,16 +927,16 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
 
     # is it optional?
     try:
-        if any(a for a in annotation.__args__ if a == type(None)):  # pyright: ignore
+        if any(a is _NONE_TYPE for a in annotation.__args__):  # pyright: ignore
             if len(annotation.__args__) <= 2:  # pyright: ignore
                 if_obj_deserializer = _get_deserialize_callable_from_annotation(
-                    next(a for a in annotation.__args__ if a != type(None)), module, rf  # pyright: ignore
+                    next(a for a in annotation.__args__ if a is not _NONE_TYPE), module, rf  # pyright: ignore
                 )
 
                 return functools.partial(_deserialize_with_optional, if_obj_deserializer)
             # the type is Optional[Union[...]], we need to remove the None type from the Union
             annotation_copy = copy.copy(annotation)
-            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a != type(None)]  # pyright: ignore
+            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a is not _NONE_TYPE]  # pyright: ignore
             return _get_deserialize_callable_from_annotation(annotation_copy, module, rf)
     except AttributeError:
         pass
@@ -949,7 +1062,7 @@ def _failsafe_deserialize(
 ) -> typing.Any:
   try:
       return _deserialize(deserializer, response.json(), module, rf, format)
-  except DeserializationError:
+  except Exception:  # pylint: disable=broad-except
       _LOGGER.warning(
           "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
           exc_info=True
@@ -959,11 +1072,11 @@ def _failsafe_deserialize(
 
 def _failsafe_deserialize_xml(
   deserializer: typing.Any,
-  response: HttpResponse, 
+  response: HttpResponse,
 ) -> typing.Any:
   try:
       return _deserialize_xml(deserializer, response.text())
-  except DeserializationError:
+  except Exception:  # pylint: disable=broad-except
       _LOGGER.warning(
           "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
           exc_info=True
@@ -971,6 +1084,9 @@ def _failsafe_deserialize_xml(
       return None
 
 
+{% if code_model.has_padded_model_property %}
+# pylint: disable=too-many-instance-attributes
+{% endif %}
 class _RestField:
     def __init__(
         self,
@@ -983,6 +1099,9 @@ class _RestField:
         format: typing.Optional[str] = None,
         is_multipart_file_input: bool = False,
         xml: typing.Optional[dict[str, typing.Any]] = None,
+        {% if code_model.has_padded_model_property %}
+        original_tsp_name: typing.Optional[str] = None,
+        {% endif %}
     ):
         self._type = type
         self._rest_name_input = name
@@ -994,10 +1113,17 @@ class _RestField:
         self._format = format
         self._is_multipart_file_input = is_multipart_file_input
         self._xml = xml if xml is not None else {}
+        {% if code_model.has_padded_model_property %}
+        self._original_tsp_name = original_tsp_name
+        {% endif %}
 
     @property
     def _class_type(self) -> typing.Any:
-        return getattr(self._type, "args", [None])[0]
+        result = getattr(self._type, "args", [None])[0]
+        # type may be wrapped by nested functools.partial so we need to check for that
+        if isinstance(result, functools.partial):
+            return getattr(result, "args", [None])[0]
+        return result
 
     @property
     def _rest_name(self) -> str:
@@ -1008,14 +1134,37 @@ class _RestField:
     def __get__(self, obj: Model, type=None):  # pylint: disable=redefined-builtin
         # by this point, type and rest_name will have a value bc we default
         # them in __new__ of the Model class
-        item = obj.get(self._rest_name)
+        # Use _data.get() directly to avoid triggering __getitem__ which clears the cache
+        item = obj._data.get(self._rest_name)
         if item is None:
             return item
         if self._is_model:
             return item
-        return _deserialize(self._type, _serialize(item, self._format), rf=self)
+
+        # For mutable types, we want mutations to directly affect _data
+        # Check if we've already deserialized this value
+        cache_attr = f"_deserialized_{self._rest_name}"
+        if hasattr(obj, cache_attr):
+            # Return the value from _data directly (it's been deserialized in place)
+            return obj._data.get(self._rest_name)
+
+        deserialized = _deserialize(self._type, _serialize(item, self._format), rf=self)
+
+        # For mutable types, store the deserialized value back in _data
+        # so mutations directly affect _data
+        if isinstance(deserialized, (dict, list, set)):
+            obj._data[self._rest_name] = deserialized
+            object.__setattr__(obj, cache_attr, True)  # Mark as deserialized
+            return deserialized
+
+        return deserialized
 
     def __set__(self, obj: Model, value) -> None:
+        # Clear the cached deserialized object when setting a new value
+        cache_attr = f"_deserialized_{self._rest_name}"
+        if hasattr(obj, cache_attr):
+            object.__delattr__(obj, cache_attr)
+
         if value is None:
             # we want to wipe out entries if users set attr to None
             try:
@@ -1045,6 +1194,9 @@ def rest_field(
     format: typing.Optional[str] = None,
     is_multipart_file_input: bool = False,
     xml: typing.Optional[dict[str, typing.Any]] = None,
+    {% if code_model.has_padded_model_property %}
+    original_tsp_name: typing.Optional[str] = None,
+    {% endif %}
 ) -> typing.Any:
     return _RestField(
         name=name,
@@ -1054,6 +1206,9 @@ def rest_field(
         format=format,
         is_multipart_file_input=is_multipart_file_input,
         xml=xml,
+        {% if code_model.has_padded_model_property %}
+        original_tsp_name=original_tsp_name,
+        {% endif %}
     )
 
 
@@ -1183,7 +1338,7 @@ def _get_wrapped_element(
         _get_element(v, exclude_readonly, meta, wrapped_element)
     else:
         wrapped_element.text = _get_primitive_type_value(v)
-    return wrapped_element
+    return wrapped_element  # type: ignore[no-any-return]
 
 
 def _get_primitive_type_value(v) -> str:
@@ -1196,7 +1351,9 @@ def _get_primitive_type_value(v) -> str:
     return str(v)
 
 
-def _create_xml_element(tag, prefix=None, ns=None):
+def _create_xml_element(
+  tag: typing.Any, prefix: typing.Optional[str] = None, ns: typing.Optional[str] = None
+) -> ET.Element:
     if prefix and ns:
         ET.register_namespace(prefix, ns)
     if ns:

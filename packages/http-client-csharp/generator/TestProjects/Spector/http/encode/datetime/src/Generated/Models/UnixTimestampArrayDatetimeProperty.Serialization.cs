@@ -13,6 +13,12 @@ namespace Encode.Datetime
     {
         internal UnixTimestampArrayDatetimeProperty() => throw null;
 
+        protected virtual UnixTimestampArrayDatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator UnixTimestampArrayDatetimeProperty(ClientResult result) => throw null;
+
         void IJsonModel<UnixTimestampArrayDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -23,16 +29,10 @@ namespace Encode.Datetime
 
         BinaryData IPersistableModel<UnixTimestampArrayDatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
         UnixTimestampArrayDatetimeProperty IPersistableModel<UnixTimestampArrayDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual UnixTimestampArrayDatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<UnixTimestampArrayDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(UnixTimestampArrayDatetimeProperty unixTimestampArrayDatetimeProperty) => throw null;
-
-        public static explicit operator UnixTimestampArrayDatetimeProperty(ClientResult result) => throw null;
     }
 }

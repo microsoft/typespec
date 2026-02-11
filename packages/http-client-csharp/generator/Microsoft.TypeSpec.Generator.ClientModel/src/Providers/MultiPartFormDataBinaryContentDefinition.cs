@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private readonly PropertyProvider _contentTypeProperty;
         private readonly PropertyProvider _httpContentProperty;
+        private readonly CSharpType _requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
         private const string ContentTypePropertyName = "ContentType";
         private const string HttpContentPropertyName = "HttpContent";
@@ -74,11 +75,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override string BuildName() => "MultiPartFormDataBinaryContent";
+        protected override string BuildName() => $"MultiPartFormData{_requestContentType.Name}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Class | TypeSignatureModifiers.Internal;
 
-        protected override CSharpType BuildBaseType() => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+        protected override CSharpType BuildBaseType() => _requestContentType;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
@@ -342,7 +343,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var streamParam = new ParameterProvider("stream", FormattableStringHelpers.Empty, typeof(Stream));
             var streamExpression = (ValueExpression)streamParam;
             var cancellationTokenParam = KnownParameters.CancellationTokenParameter;
-            var cancellatinTokenExpression = (ValueExpression)cancellationTokenParam;
+            var cancellationTokenExpression = (ValueExpression)cancellationTokenParam;
             var signature = new MethodSignature(
                 Name: "WriteTo",
                 Description: null,
@@ -363,7 +364,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfElsePreprocessorStatement(
                     "NET6_0_OR_GREATER",
                     /*_multipartContent.CopyTo(stream, cancellationToken);*/
-                    _multipartContentExpression.CopyTo(streamExpression, cancellatinTokenExpression).Terminate(),
+                    _multipartContentExpression.CopyTo(streamExpression, cancellationTokenExpression).Terminate(),
                     taskWaitCompletedStatementsList.ToArray()),
             };
             return new MethodProvider(signature, body, this);
@@ -374,7 +375,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var streamParam = new ParameterProvider("stream", FormattableStringHelpers.Empty, typeof(Stream));
             var streamExpression = (ValueExpression)streamParam;
             var cancellationTokenParam = KnownParameters.CancellationTokenParameter;
-            var cancellatinTokenExpression = (ValueExpression)cancellationTokenParam;
+            var cancellationTokenExpression = (ValueExpression)cancellationTokenParam;
 
             var signature = new MethodSignature(
                 Name: "WriteToAsync",
@@ -392,7 +393,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfElsePreprocessorStatement(
                     "NET6_0_OR_GREATER",
                     /*await _multipartContent.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);,*/
-                    _multipartContentExpression.CopyToAsync(streamExpression, cancellatinTokenExpression).Terminate(),
+                    _multipartContentExpression.CopyToAsync(streamExpression, cancellationTokenExpression).Terminate(),
                     /*await _multipartContent.CopyToAsync(stream).ConfigureAwait(false);*/
                     _multipartContentExpression.CopyToAsync(streamExpression).Terminate()),
             };

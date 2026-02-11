@@ -135,7 +135,7 @@ describe("openapi: decorators", () => {
       });
     });
 
-    it.for([
+    it.each([
       { value: `#{ name: "foo" }`, expected: { name: "foo" } },
       { value: `#{ items: #[ #{foo: "bar" }]}`, expected: { items: [{ foo: "bar" }] } },
       { value: `#["foo"]`, expected: ["foo"] },

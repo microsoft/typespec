@@ -179,7 +179,7 @@ namespace Microsoft.TypeSpec.Generator
             return generatedCodeProject;
         }
 
-        internal static async Task<GeneratedCodeWorkspace> Create()
+        internal static async Task<GeneratedCodeWorkspace> Create(bool isCustomCodeProject)
         {
             // prepare the generated code project
             var projectTask = Interlocked.Exchange(ref _cachedProject, null);
@@ -206,7 +206,9 @@ namespace Microsoft.TypeSpec.Generator
                 project = AddDirectory(project, sharedSourceFolder, folders: _sharedFolders);
             }
 
-            project = project.WithParseOptions(new CSharpParseOptions(preprocessorSymbols: new[] { "EXPERIMENTAL" }));
+            project = project.WithParseOptions(new CSharpParseOptions(
+                preprocessorSymbols: ["EXPERIMENTAL"],
+                documentationMode: isCustomCodeProject ? DocumentationMode.None : DocumentationMode.Parse));
 
             return new GeneratedCodeWorkspace(project);
         }
@@ -260,9 +262,9 @@ namespace Microsoft.TypeSpec.Generator
             var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
             var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
             var postProcessor = new PostProcessor(
-                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.TypesToKeep],
+                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.AdditionalRootTypes],
                 modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
-                additionalNonRootTypeFullNames: nonRootTypes);
+                additionalNonRootTypeNames: nonRootTypes);
 
             switch (Configuration.UnreferencedTypesHandling)
             {

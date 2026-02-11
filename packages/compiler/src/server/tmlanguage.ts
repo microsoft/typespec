@@ -67,7 +67,7 @@ const qualifiedIdentifier = `\\b${identifierStart}(?:${identifierContinue}|\\.${
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const modifierKeyword = `\\b(?:extern)\\b`;
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
-const universalEnd = `(?=,|;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
+const universalEnd = `(?=,|;|@|#[a-z]|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 const universalEndExceptComma = `(?=;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 
 /**
@@ -476,9 +476,10 @@ const spreadExpression: BeginEndRule = {
 const directive: BeginEndRule = {
   key: "directive",
   scope: meta,
-  begin: `\\s*(#${simpleIdentifier})`,
+  begin: `\\s*(#)(${simpleIdentifier})`,
   beginCaptures: {
     "1": { scope: "keyword.directive.name.tsp" },
+    "2": { scope: "keyword.directive.name.tsp" },
   },
   end: `$|${universalEnd}`,
   patterns: [stringLiteral, identifierExpression],

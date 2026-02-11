@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 public class PageableTests {
 
-    private final PageableClient pageableClient = new PageableClientBuilder().buildClient();
+    private final PageSizeClient pageableClient = new PageableClientBuilder().buildPageSizeClient();
     private final ServerDrivenPaginationClient client = new PageableClientBuilder().buildServerDrivenPaginationClient();
     private final ServerDrivenPaginationContinuationTokenClient tokenClient
         = new PageableClientBuilder().buildServerDrivenPaginationContinuationTokenClient();

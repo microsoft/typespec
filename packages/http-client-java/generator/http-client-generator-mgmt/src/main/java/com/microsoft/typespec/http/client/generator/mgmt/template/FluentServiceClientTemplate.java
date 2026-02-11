@@ -3,35 +3,20 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.azure.core.http.HttpHeaders;
-import com.azure.core.http.HttpResponse;
-import com.azure.core.http.rest.Response;
-import com.azure.core.management.exception.ManagementError;
-import com.azure.core.management.exception.ManagementException;
-import com.azure.core.management.polling.PollResult;
-import com.azure.core.management.polling.PollerFactory;
-import com.azure.core.util.Context;
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.polling.AsyncPollResponse;
-import com.azure.core.util.polling.LongRunningOperationStatus;
-import com.azure.core.util.polling.PollerFlux;
-import com.azure.core.util.serializer.SerializerEncoding;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceClientTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class FluentServiceClientTemplate extends ServiceClientTemplate {
 
@@ -39,7 +24,7 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
     static {
         if (JavaSettings.getInstance().isFluentLite()) {
             MethodTemplate getContextMethod = MethodTemplate.builder()
-                .imports(Collections.singleton(Context.class.getName()))
+                .imports(List.of(ClassType.CONTEXT.getFullName()))
                 .methodSignature("Context getContext()")
                 .comment(comment -> {
                     comment.description("Gets default client context.");
@@ -49,7 +34,8 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                 .build();
 
             MethodTemplate mergeContextMethod = MethodTemplate.builder()
-                .imports(Arrays.asList(Context.class.getName(), CoreUtils.class.getName(), Map.class.getName()))
+                .imports(
+                    List.of(ClassType.CONTEXT.getFullName(), ClassType.CORE_UTILS.getFullName(), Map.class.getName()))
                 .methodSignature("Context mergeContext(Context context)")
                 .comment(comment -> {
                     comment.description("Merges default client context with provided context.");
@@ -60,9 +46,9 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                 .build();
 
             MethodTemplate getLroResultMethod = MethodTemplate.builder()
-                .imports(Arrays.asList(PollerFlux.class.getName(), PollResult.class.getName(), Mono.class.getName(),
-                    Flux.class.getName(), Response.class.getName(), ByteBuffer.class.getName(), Type.class.getName(),
-                    PollerFactory.class.getName()))
+                .imports(List.of(ClassType.POLLER_FLUX.getFullName(), ClassType.POLL_RESULT.getFullName(),
+                    ClassType.MONO.getFullName(), ClassType.FLUX.getFullName(), ClassType.RESPONSE.getFullName(),
+                    ByteBuffer.class.getName(), Type.class.getName(), ClassType.POLLER_FACTORY.getFullName()))
                 .methodSignature(
                     "<T, U> PollerFlux<PollResult<T>, U> getLroResult(Mono<Response<Flux<ByteBuffer>>> activationResponse, HttpPipeline httpPipeline, Type pollResultType, Type finalResultType, Context context)")
                 .comment(comment -> {
@@ -81,7 +67,7 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                 .build();
 
             MethodTemplate getLroResultSyncMethod = MethodTemplate.builder()
-                .imports(Arrays.asList(PollResult.class.getName(), ClassType.RESPONSE.getFullName(),
+                .imports(List.of(ClassType.POLL_RESULT.getFullName(), ClassType.RESPONSE.getFullName(),
                     Type.class.getName(), ClassType.SYNC_POLLER_FACTORY.getFullName(),
                     ClassType.BINARY_DATA.getFullName(), ClassType.SYNC_POLLER.getFullName()))
                 .methodSignature(
@@ -101,13 +87,13 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                 .build();
 
             MethodTemplate getLroFinalResultOrErrorMethod = MethodTemplate.builder()
-                .imports(Arrays.asList(PollerFlux.class.getName(), PollResult.class.getName(), Mono.class.getName(),
-                    AsyncPollResponse.class.getName(), ManagementError.class.getName(),
-                    ManagementException.class.getName(), HttpResponse.class.getName(),
-                    LongRunningOperationStatus.class.getName(), SerializerEncoding.class.getName(),
-                    IOException.class.getName(),
+                .imports(List.of(ClassType.POLLER_FLUX.getFullName(), ClassType.POLL_RESULT.getFullName(),
+                    ClassType.MONO.getFullName(), ClassType.ASYNC_POLL_RESPONSE.getFullName(),
+                    FluentType.MANAGEMENT_ERROR.getFullName(), FluentType.MANAGEMENT_EXCEPTION.getFullName(),
+                    ClassType.HTTP_RESPONSE.getFullName(), ClassType.LONG_RUNNING_OPERATION_STATUS.getFullName(),
+                    ClassType.SERIALIZER_ENCODING.getFullName(), IOException.class.getName(),
                     // below import is actually used in HttpResponseImpl
-                    HttpHeaders.class.getName(), Charset.class.getName(), StandardCharsets.class.getName()))
+                    ClassType.HTTP_HEADERS.getFullName(), Charset.class.getName(), StandardCharsets.class.getName()))
                 .methodSignature(
                     "<T, U> Mono<U> getLroFinalResultOrError(AsyncPollResponse<PollResult<T>, U> response)")
                 .comment(comment -> {
@@ -151,33 +137,24 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                             "this.responseBody = responseBody == null ? null : responseBody.getBytes(StandardCharsets.UTF_8);");
                     });
 
-                block.publicMethod("int getStatusCode()", code -> {
-                    code.methodReturn("statusCode");
-                });
+                block.publicMethod("int getStatusCode()", code -> code.methodReturn("statusCode"));
 
-                block.publicMethod("String getHeaderValue(String s)", code -> {
-                    code.methodReturn("httpHeaders.getValue(HttpHeaderName.fromString(s))");
-                });
+                block.publicMethod("String getHeaderValue(String s)",
+                    code -> code.methodReturn("httpHeaders.getValue(HttpHeaderName.fromString(s))"));
 
-                block.publicMethod("HttpHeaders getHeaders()", code -> {
-                    code.methodReturn("httpHeaders");
-                });
+                block.publicMethod("HttpHeaders getHeaders()", code -> code.methodReturn("httpHeaders"));
 
-                block.publicMethod("Flux<ByteBuffer> getBody()", code -> {
-                    code.methodReturn("Flux.just(ByteBuffer.wrap(responseBody))");
-                });
+                block.publicMethod("Flux<ByteBuffer> getBody()",
+                    code -> code.methodReturn("Flux.just(ByteBuffer.wrap(responseBody))"));
 
-                block.publicMethod("Mono<byte[]> getBodyAsByteArray()", code -> {
-                    code.methodReturn("Mono.just(responseBody)");
-                });
+                block.publicMethod("Mono<byte[]> getBodyAsByteArray()",
+                    code -> code.methodReturn("Mono.just(responseBody)"));
 
-                block.publicMethod("Mono<String> getBodyAsString()", code -> {
-                    code.methodReturn("Mono.just(new String(responseBody, StandardCharsets.UTF_8))");
-                });
+                block.publicMethod("Mono<String> getBodyAsString()",
+                    code -> code.methodReturn("Mono.just(new String(responseBody, StandardCharsets.UTF_8))"));
 
-                block.publicMethod("Mono<String> getBodyAsString(Charset charset)", code -> {
-                    code.methodReturn("Mono.just(new String(responseBody, charset))");
-                });
+                block.publicMethod("Mono<String> getBodyAsString(Charset charset)",
+                    code -> code.methodReturn("Mono.just(new String(responseBody, charset))"));
             });
         }
     }

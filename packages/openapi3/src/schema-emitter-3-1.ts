@@ -5,6 +5,7 @@ import {
   EmitterOutput,
   ObjectBuilder,
   Placeholder,
+  setProperty,
   TypeEmitter,
 } from "@typespec/asset-emitter";
 import {
@@ -20,7 +21,6 @@ import {
   ModelProperty,
   Program,
   Scalar,
-  serializeValueAsJson,
   Tuple,
   Type,
   Union,
@@ -28,6 +28,7 @@ import {
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
+import { serializeExample } from "./examples.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-1.js";
@@ -76,9 +77,10 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
   ) {
     const examples = getExamples(program, type);
     if (examples.length > 0) {
-      target.set(
+      setProperty(
+        target,
         "examples",
-        examples.map((example) => serializeValueAsJson(program, example.value, type)),
+        examples.map((example) => serializeExample(program, example.value, type)),
       );
     }
   }
@@ -100,7 +102,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       if (constraintType) {
         const ref = this.emitter.emitTypeReference(constraintType);
         compilerAssert(ref.kind === "code", "Unexpected non-code result from emit reference");
-        target.set(key, ref.value);
+        setProperty(target, key, ref.value);
       }
     };
 
@@ -134,7 +136,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
         for (const item of prefixItems.values) {
           prefixItemsSchema.push(this.emitter.emitTypeReference(item));
         }
-        target.set("prefixItems", prefixItemsSchema as any);
+        setProperty(target, "prefixItems", prefixItemsSchema as any);
       }
     }
 
@@ -155,7 +157,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     const unevaluatedPropertiesSchema = shouldSeal
       ? { not: {} }
       : this.emitter.emitTypeReference(model.indexer!.value);
-    schema.set("unevaluatedProperties", unevaluatedPropertiesSchema);
+    setProperty(schema, "unevaluatedProperties", unevaluatedPropertiesSchema);
   }
 
   getRawBinarySchema(): OpenAPISchema3_1 {
@@ -275,7 +277,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
         } else {
           const merged = new ObjectBuilder<OpenAPISchema3_1>(schema);
           for (const [key, value] of Object.entries(additionalProps)) {
-            merged.set(key, value);
+            setProperty(merged, key, value);
           }
           return merged;
         }

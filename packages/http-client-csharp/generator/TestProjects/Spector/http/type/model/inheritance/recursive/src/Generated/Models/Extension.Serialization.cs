@@ -13,6 +13,12 @@ namespace _Type.Model.Inheritance.Recursive
     {
         internal Extension() => throw null;
 
+        protected override Element PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator Extension(ClientResult result) => throw null;
+
         void IJsonModel<Extension>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -23,16 +29,10 @@ namespace _Type.Model.Inheritance.Recursive
 
         BinaryData IPersistableModel<Extension>.Write(ModelReaderWriterOptions options) => throw null;
 
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
         Extension IPersistableModel<Extension>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected override Element PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<Extension>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Extension extension) => throw null;
-
-        public static explicit operator Extension(ClientResult result) => throw null;
     }
 }
