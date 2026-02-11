@@ -1656,4 +1656,35 @@ describe("function calls within template declarations", () => {
     strictEqual(receivedTypes[0].kind, "Scalar");
     strictEqual(receivedTypes[0].name, "string");
   });
+
+  it("calls a function once on instantiation of templated alias through 'model is'", async () => {
+    const [{ X, myProperty }, diagnostics] = (await runner.compileAndDiagnose(`
+        extern fn f(m: Reflection.Model): { myProperty: string };
+
+        alias F<M extends Model> = f(M);
+
+        model Y {
+          id: string;
+          myProperty: string;
+        }
+
+        @test
+        model X is F<Y>;
+
+        // This also checks that 'myProperty' exists as a member symbol of X, resolved from return constraint of 'f'
+        @@test(X.myProperty);
+      `)) as [{ X: Model; myProperty: ModelProperty }, Diagnostic[]];
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 1);
+    strictEqual(receivedTypes[0].kind, "Model");
+    strictEqual(receivedTypes[0].name, "Y");
+
+    const myProp = X.properties.get("myProperty");
+    ok(myProp);
+    strictEqual(myProp.type.kind, "Scalar");
+    strictEqual(myProp.type.name, "string");
+
+    strictEqual(myProperty, myProp);
+  });
 });
