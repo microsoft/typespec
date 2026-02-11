@@ -1,0 +1,10 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "playground-website": {
+      "outputLocation": "dist",
+      "appName": "typespec-website",
+      "resourceGroup": "typespec"
+    }
+  }
+}

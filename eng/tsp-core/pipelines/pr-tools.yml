@@ -27,7 +27,7 @@ extends:
           - job: tryit
             displayName: Setup Try It
             variables:
-              SWA_ENV: "pr-$(System.PullRequest.PullRequestNumber)"
+              SWA_ENV: "pr$(System.PullRequest.PullRequestNumber)"
             steps:
               - checkout: self
                 persistCredentials: true
@@ -47,22 +47,31 @@ extends:
                   scriptLocation: inlineScript
                   workingDirectory: ./packages/playground-website
                   inlineScript: |
-                    saw login
                     swa deploy --env $(SWA_ENV) --verbose=silly
+
+                    hostname=$(az staticwebapp environment show \
+                      -n typespec-playground \
+                      --environment-name $(SWA_ENV) \
+                      --query hostname -o tsv)
+                    echo "SWA hostname: $hostname"
+                    echo "##vso[task.setvariable variable=PLAYGROUND_HOSTNAME]$hostname"
 
               - task: AzureCLI@1
                 displayName: "Publish website to PR endpoint"
                 inputs:
                   azureSubscription: "Azure SDK Engineering System"
                   scriptLocation: inlineScript
+                  workingDirectory: ./website
                   inlineScript: |
-                    az storage blob upload-batch \
-                      --auth-mode login \
-                      --destination \$web \
-                      --account-name "tspwebsitepr" \
-                      --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-                      --source "./website/dist/" \
-                      --overwrite
+                    swa deploy --env $(SWA_ENV) --verbose=silly
+
+                    hostname=$(az staticwebapp environment show \
+                      -n typespec-website \
+                      --environment-name $(SWA_ENV) \
+                      --query hostname -o tsv)
+                    echo "SWA hostname: $hostname"
+                    echo "##vso[task.setvariable variable=WEBSITE_HOSTNAME]$hostname"
+
               - task: CopyFiles@2
                 displayName: "Copy VSCode extension .vsix to artifact directory"
                 inputs:
@@ -94,14 +103,3 @@ extends:
                 env:
                   GH_TOKEN: $(azuresdk-github-pat)
                   VSCODE_DOWNLOAD_URL: $(vscodeUrl)
-
-          # - job: change_comment
-          #   displayName: Describe changes on PR
-          #   condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
-          #   steps:
-          #     - checkout: self
-
-          #     - script: npx -p @chronus/github-pr-commenter@0.5.0 chronus-github-pr-commenter
-          #       displayName: Make comment about changes
-          #       env:
-          #         GITHUB_TOKEN: $(azuresdk-github-pat)
