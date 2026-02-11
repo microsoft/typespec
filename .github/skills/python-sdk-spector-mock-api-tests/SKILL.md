@@ -260,14 +260,16 @@ Before opening a PR, run your new or updated test inside a virtual environment w
    Replace `<sdk-folder-name>` with the folder that matches the SDK under test (e.g., `azure-encode-duration`, `encode-duration`).
 
 4. **Start the Spector mock API server.**
-   The mock API tests make real HTTP requests, so the Spector server must be running before you execute pytest. Start it in a **separate terminal** (it runs in the foreground):
+   The mock API tests make real HTTP requests, so the Spector server must be running before you execute pytest. Create another terminal, step into the spec package directory, and run the serve command (it runs in the foreground):
 
    ```bash
-   # From the repo root — for azure-http-specs scenarios:
-   npx spector serve packages/http-client-python/node_modules/@azure-tools/azure-http-specs/dist
+   # For azure-http-specs scenarios:
+   cd packages/http-client-python/node_modules/@azure-tools/azure-http-specs/
+   npm run serve
    
    # For http-specs (microsoft/typespec) scenarios:
-   npx spector serve packages/http-client-python/node_modules/@typespec/http-specs/dist
+   cd packages/http-client-python/node_modules/@typespec/http-specs/
+   npm run serve
    ```
 
    Wait until you see the server listening message before running tests.
