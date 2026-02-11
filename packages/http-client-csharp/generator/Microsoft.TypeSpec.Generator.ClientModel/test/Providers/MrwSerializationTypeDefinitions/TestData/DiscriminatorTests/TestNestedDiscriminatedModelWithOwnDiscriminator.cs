@@ -42,6 +42,12 @@ namespace Sample.Models
             }
         }
 
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+
+        global::Sample.Models.Tree global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.Tree)this.PersistableModelCreateCore(data, options));
+
+        string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+
         void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Tree>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
@@ -90,11 +96,5 @@ namespace Sample.Models
             }
             return global::Sample.Models.UnknownTree.DeserializeUnknownTree(element, options);
         }
-
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
-
-        global::Sample.Models.Tree global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.Tree)this.PersistableModelCreateCore(data, options));
-
-        string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }
 }

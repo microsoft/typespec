@@ -179,15 +179,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_supportsJson || _supportsXml)
             {
-                // TO-DO: Add all persistable model methods when XML support is complete.
-                methods.Add(BuildPersistableModelCreateCoreMethod());
-                methods.Add(BuildPersistableModelWriteCoreMethod());
+                // Add PersistableModel serialization methods
+                methods.AddRange(
+                    BuildPersistableModelCreateCoreMethod(),
+                    BuildPersistableModelWriteCoreMethod(),
+                    BuildPersistableModelWriteMethod(),
+                    BuildPersistableModelCreateMethod(),
+                    BuildPersistableModelGetFormatFromOptionsMethod());
+
                 if (!_inputModel.IsUnknownDiscriminatorModel)
                 {
+                    // cast operators
+                    if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
+                    {
+                        methods.Add(BuildImplicitToBinaryContent());
+                    }
+
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
                     {
                         methods.Add(GetExplicitFromClientResultMethod(_supportsJson, _supportsXml));
                     }
+                }
+
+                if (_isStruct)
+                {
+                    methods.AddRange(
+                        BuildPersistableModelWriteMethodObjectDeclaration(),
+                        BuildPersistableModelGetFormatFromOptionsObjectDeclaration(),
+                        BuildPersistableModelCreateMethodObjectDeclaration());
                 }
             }
 
@@ -201,27 +220,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methods.Add(BuildJsonModelCreateMethod());
                 methods.Add(BuildJsonModelCreateCoreMethod());
                 methods.Add(BuildDeserializationMethod());
-                // Add PersistableModel serialization methods
-                methods.Add(BuildPersistableModelWriteMethod());
-                methods.Add(BuildPersistableModelCreateMethod());
-                methods.Add(BuildPersistableModelGetFormatFromOptionsMethod());
-
-                if (!_inputModel.IsUnknownDiscriminatorModel)
-                {
-                    //cast operators
-                    if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
-                    {
-                        methods.Add(BuildImplicitToBinaryContent());
-                    }
-                }
 
                 if (_isStruct)
                 {
                     methods.Add(BuildJsonModelWriteMethodObjectDeclaration());
                     methods.Add(BuildJsonModelCreateMethodObjectDeclaration());
-                    methods.Add(BuildPersistableModelWriteMethodObjectDeclaration());
-                    methods.Add(BuildPersistableModelGetFormatFromOptionsObjectDeclaration());
-                    methods.Add(BuildPersistableModelCreateMethodObjectDeclaration());
                 }
             }
 
@@ -337,6 +340,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (_jsonModelObjectInterface != null)
                 {
                     interfaces.Add(_jsonModelObjectInterface);
+                }
+            }
+            else if (_supportsXml)
+            {
+                interfaces.Add(_persistableModelTInterface);
+                if (_persistableModelObjectInterface != null)
+                {
+                    interfaces.Add(_persistableModelObjectInterface);
                 }
             }
 
@@ -673,12 +684,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildPersistableModelGetFormatFromOptionsMethod()
         {
-            ValueExpression jsonWireFormat = SystemSnippet.JsonFormatSerialization;
+            ValueExpression wireFormat = _supportsJson ? SystemSnippet.JsonFormatSerialization : SystemSnippet.XmlFormatSerialization;
             // string IPersistableModel<T>.GetFormatFromOptions(ModelReaderWriterOptions options)
             return new MethodProvider
             (
                 new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, [_serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
-                jsonWireFormat,
+                wireFormat,
                 this
             );
         }
@@ -688,7 +699,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildPersistableModelGetFormatFromOptionsObjectDeclaration()
         {
-            ValueExpression jsonWireFormat = SystemSnippet.JsonFormatSerialization;
             var castToT = This.CastTo(_persistableModelTInterface);
 
             // string IPersistableModel<object>.GetFormatFromOptions(ModelReaderWriterOptions options) => ((IPersistableModel<T>)this).GetFormatFromOptions(options);

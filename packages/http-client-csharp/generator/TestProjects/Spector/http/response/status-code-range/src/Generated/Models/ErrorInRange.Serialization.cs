@@ -16,6 +16,12 @@ namespace Response.StatusCodeRange
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        BinaryData IPersistableModel<ErrorInRange>.Write(ModelReaderWriterOptions options) => throw null;
+
+        ErrorInRange IPersistableModel<ErrorInRange>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<ErrorInRange>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
         void IJsonModel<ErrorInRange>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -23,11 +29,5 @@ namespace Response.StatusCodeRange
         ErrorInRange IJsonModel<ErrorInRange>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual ErrorInRange JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<ErrorInRange>.Write(ModelReaderWriterOptions options) => throw null;
-
-        ErrorInRange IPersistableModel<ErrorInRange>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<ErrorInRange>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
     }
 }

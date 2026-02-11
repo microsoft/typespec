@@ -10,7 +10,7 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class OuterModel
+    public partial class OuterModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.OuterModel>
     {
         protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
@@ -37,6 +37,8 @@ namespace Sample.Models
                     throw new global::System.FormatException($"The model {nameof(global::Sample.Models.OuterModel)} does not support writing '{options.Format}' format.");
             }
         }
+
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.OuterModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
 
         private void Write(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
         {
