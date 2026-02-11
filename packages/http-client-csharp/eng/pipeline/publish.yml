@@ -106,6 +106,26 @@ extends:
 
               - task: NuGetAuthenticate@1
 
+              - pwsh: |
+                  Write-Host "Creating .npmrc file $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc for registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/"
+                  $parentFolder = Split-Path -Path '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' -Parent
+                  
+                  if (!(Test-Path $parentFolder)) {
+                    Write-Host "Creating folder $parentFolder"
+                    New-Item -Path $parentFolder -ItemType Directory | Out-Null
+                  }
+                  
+                  $content = "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/`n`nalways-auth=true"
+                  $content | Out-File '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc'
+                displayName: 'Create .npmrc'
+                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
+
+              - task: npmAuthenticate@0
+                displayName: Authenticate npm for Azure Artifacts
+                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
+                inputs:
+                  workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
+
               - download: current
                 displayName: Download pipeline artifacts
 
@@ -138,3 +158,13 @@ extends:
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+
+              - pwsh: |
+                  $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
+                  if (Test-Path $npmrcPath) {
+                    Remove-Item $npmrcPath -Force
+                    Write-Host "Cleaned up .npmrc file"
+                  }
+                displayName: Cleanup .npmrc file
+                condition: always()
+

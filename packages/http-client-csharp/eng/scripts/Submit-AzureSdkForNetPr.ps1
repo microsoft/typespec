@@ -187,38 +187,9 @@ try {
         try {
             Invoke "npm install" $httpClientDir
             if ($LASTEXITCODE -ne 0) {
-                Write-Host "npm install failed on public feed. Retrying with private feed..."
-                $privateFeed = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/"
-                $npmrcPath = Join-Path $httpClientDir ".npmrc"
-                
-                # Encode the auth token as base64
-                $base64AuthToken = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AuthToken"))
-                
-                # Create .npmrc with proper Azure Artifacts authentication
-                $npmrcContent = @"
-registry=$privateFeed
-always-auth=true
-//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/:username=azure-sdk
-//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/:_password=$base64AuthToken
-//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/:email=not-used@example.com
-//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/:username=azure-sdk
-//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/:_password=$base64AuthToken
-//pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/:email=not-used@example.com
-"@
-                Set-Content -Path $npmrcPath -Value $npmrcContent
-                try {
-                    Invoke "npm install" $httpClientDir
-                    if ($LASTEXITCODE -ne 0) {
-                        Write-Warning "npm install failed on private feed with exit code $LASTEXITCODE, skipping generation."
-                        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-                        $installSucceeded = $false
-                    }
-                } finally {
-                    # Clean up .npmrc to avoid committing auth tokens
-                    if (Test-Path $npmrcPath) {
-                        Remove-Item $npmrcPath -Force
-                    }
-                }
+                Write-Warning "npm install failed with exit code $LASTEXITCODE, skipping generation."
+                Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                $installSucceeded = $false
             }
         } catch {
             Write-Warning "npm install failed: $($_.Exception.Message), skipping generation."
