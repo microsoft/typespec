@@ -135,10 +135,7 @@ describe("inline named models", () => {
   });
 
   it("inline named model properties are accessible", async () => {
-    const {
-      Child,
-      context: { program },
-    } = await getTypes(
+    const { Child } = await getTypes(
       `
       model Parent {
         child: model Child {
