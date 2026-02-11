@@ -249,6 +249,14 @@ const diagnostics = {
   /**
    * Checker
    */
+  "experimental-feature": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
+      functionDeclarations:
+        "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+    },
+  },
   "using-invalid-ref": {
     severity: "error",
     messages: {

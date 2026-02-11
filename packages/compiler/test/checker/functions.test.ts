@@ -1,5 +1,5 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   Diagnostic,
   FunctionContext,
@@ -11,6 +11,7 @@ import {
 } from "../../src/core/types.js";
 import {
   BasicTestRunner,
+  DiagnosticMatch,
   TestHost,
   createTestHost,
   createTestRunner,
@@ -26,6 +27,20 @@ function expectFunction(ns: Namespace, name: string, impl: any) {
   const fn = ns.functionDeclarations.get(name);
   ok(fn, `Expected function ${name} to be declared.`);
   strictEqual(fn.implementation, impl);
+}
+
+function expectFunctionDiagnostics(
+  diagnostics: readonly Diagnostic[],
+  match: DiagnosticMatch | DiagnosticMatch[],
+) {
+  expect(diagnostics.some((d) => d.code === "experimental-feature")).toBeTruthy();
+  const filtered = diagnostics.filter((d) => d.code !== "experimental-feature");
+  expectDiagnostics(filtered, match);
+}
+
+function expectFunctionDiagnosticsEmpty(diagnostics: readonly Diagnostic[]) {
+  expect(diagnostics.some((d) => d.code === "experimental-feature")).toBeTruthy();
+  expectDiagnosticEmpty(diagnostics.filter((d) => d.code !== "experimental-feature"));
 }
 
 let testHost: TestHost;
@@ -59,14 +74,20 @@ describe("declaration", () => {
 
   describe("bind implementation to declaration", () => {
     it("defined at root via direct export", async () => {
-      await runner.compile(`
+      const [, diagnostics] = await runner.compileAndDiagnose(`
           extern fn testFn();
         `);
+
+      expectFunctionDiagnosticsEmpty(diagnostics);
+
       expectFunction(runner.program.getGlobalNamespaceType(), "testFn", testImpl);
     });
 
     it("in namespace via $functions map", async () => {
-      await runner.compile(`namespace Foo.Bar { extern fn nsFn(); }`);
+      const [, diagnostics] = await runner.compileAndDiagnose(
+        `namespace Foo.Bar { extern fn nsFn(); }`,
+      );
+      expectFunctionDiagnosticsEmpty(diagnostics);
       const ns = runner.program
         .getGlobalNamespaceType()
         .namespaces.get("Foo")
@@ -78,7 +99,7 @@ describe("declaration", () => {
 
   it("errors if function is missing extern modifier", async () => {
     const diagnostics = await runner.diagnose(`fn testFn();`);
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "function-extern",
       message: "A function declaration must be prefixed with the 'extern' modifier.",
     });
@@ -86,7 +107,7 @@ describe("declaration", () => {
 
   it("errors if extern function is missing implementation", async () => {
     const diagnostics = await runner.diagnose(`extern fn missing();`);
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "missing-implementation",
       message: "Extern declaration must have an implementation in JS file.",
     });
@@ -94,7 +115,7 @@ describe("declaration", () => {
 
   it("errors if rest parameter type is not array", async () => {
     const diagnostics = await runner.diagnose(`extern fn f(...rest: string);`);
-    expectDiagnostics(diagnostics, [
+    expectFunctionDiagnostics(diagnostics, [
       {
         code: "missing-implementation",
         message: "Extern declaration must have an implementation in JS file.",
@@ -156,19 +177,23 @@ describe("usage", () => {
   });
 
   it("calls function with arguments", async () => {
-    await runner.compile(`
+    const [, diagnostics] = await runner.compileAndDiagnose(`
         extern fn testFn(a: valueof string, b: valueof string, ...rest: valueof string[]): valueof string;
         
         const X = testFn("one", "two", "three");
       `);
 
+    expectFunctionDiagnosticsEmpty(diagnostics);
+
     expectCalledWith("one", "two", "three");
   });
 
   it("allows omitting optional param", async () => {
-    await runner.compile(
+    const [, diagnostics] = await runner.compileAndDiagnose(
       `extern fn testFn(a: valueof string, b?: valueof string): valueof string; const X = testFn("one");`,
     );
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     expectCalledWith("one", undefined);
   });
@@ -184,7 +209,7 @@ describe("usage", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnostics(diagnostics, []);
+    expectFunctionDiagnostics(diagnostics, []);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue.valueKind, "NumericValue");
@@ -197,7 +222,7 @@ describe("usage", () => {
         alias V = voidFn("test");
       `);
 
-    expectDiagnostics(diagnostics, []);
+    expectFunctionDiagnostics(diagnostics, []);
     expectCalledWith("test");
   });
 
@@ -207,7 +232,7 @@ describe("usage", () => {
         alias V = voidFn("test");
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "function-return",
       message:
         "Implementation of 'fn voidFn' returned value 'null', which is not assignable to the declared return type 'unknown'.",
@@ -225,7 +250,7 @@ describe("usage", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "invalid-argument-count",
       message: "Expected at least 2 arguments, but got 1.",
     });
@@ -244,7 +269,7 @@ describe("usage", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "invalid-argument-count",
       message: "Expected 1 arguments, but got 2.",
     });
@@ -267,7 +292,7 @@ describe("usage", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "invalid-argument-count",
       message: "Expected at least 1 arguments, but got 0.",
     });
@@ -282,7 +307,7 @@ describe("usage", () => {
         const X = valFirst(123);
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "unassignable",
       message: "Type '123' is not assignable to type 'string'",
     });
@@ -294,7 +319,7 @@ describe("usage", () => {
         const X = valFirst(string);
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "expect-value",
       message: "string refers to a type, but is being used as a value here.",
     });
@@ -306,7 +331,7 @@ describe("usage", () => {
         alias X = testFn("abc");
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(calledArgs?.[1].entityKind, "Type");
     strictEqual(calledArgs?.[1].kind, "String");
@@ -319,7 +344,7 @@ describe("usage", () => {
         alias X = testFn("a", "b", "c");
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     const expectedLiterals = ["a", "b", "c"];
 
@@ -341,7 +366,7 @@ describe("usage", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue.valueKind, "NumericValue");
@@ -374,7 +399,7 @@ describe("typekit construction", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     ok(p.type);
     ok($(runner.program).array.is(p.type));
@@ -439,7 +464,7 @@ describe("specific type constraints", () => {
         alias X = expectModel(TestModel);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 1);
     strictEqual(receivedTypes[0].kind, "Model");
     strictEqual(receivedTypes[0].name, "TestModel");
@@ -452,7 +477,7 @@ describe("specific type constraints", () => {
         alias X = expectEnum(TestEnum);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 1);
     strictEqual(receivedTypes[0].kind, "Enum");
     strictEqual(receivedTypes[0].name, "TestEnum");
@@ -465,7 +490,7 @@ describe("specific type constraints", () => {
         alias X = expectScalar(TestScalar);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 1);
     strictEqual(receivedTypes[0].kind, "Scalar");
     strictEqual(receivedTypes[0].name, "TestScalar");
@@ -477,7 +502,7 @@ describe("specific type constraints", () => {
         alias X = expectUnion(string | int32);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 1);
     strictEqual(receivedTypes[0].kind, "Union");
     strictEqual(receivedTypes[0].name, undefined);
@@ -492,7 +517,7 @@ describe("specific type constraints", () => {
         alias X = expectInterface(TestInterface);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 1);
     strictEqual(receivedTypes[0].kind, "Interface");
     strictEqual(receivedTypes[0].name, "TestInterface");
@@ -505,7 +530,7 @@ describe("specific type constraints", () => {
         alias X = expectNamespace(TestNs);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 1);
     strictEqual(receivedTypes[0].kind, "Namespace");
     strictEqual(receivedTypes[0].name, "TestNs");
@@ -518,7 +543,7 @@ describe("specific type constraints", () => {
         alias X = expectOperation(testOp);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 1);
     strictEqual(receivedTypes[0].kind, "Operation");
     strictEqual(receivedTypes[0].name, "testOp");
@@ -531,7 +556,7 @@ describe("specific type constraints", () => {
         alias X = expectModel(TestEnum);
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "unassignable",
       message: "Type 'TestEnum' is not assignable to type 'Model'",
     });
@@ -595,7 +620,7 @@ describe("value marshalling", () => {
         const X = expectString("hello world");
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedValues.length, 1);
     strictEqual(receivedValues[0], "hello world");
   });
@@ -606,7 +631,7 @@ describe("value marshalling", () => {
         const X = expectNumber(42);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedValues.length, 1);
     strictEqual(receivedValues[0], 42);
   });
@@ -617,7 +642,7 @@ describe("value marshalling", () => {
         const X = expectBoolean(true);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedValues.length, 1);
     strictEqual(receivedValues[0], true);
   });
@@ -628,7 +653,7 @@ describe("value marshalling", () => {
         const X = expectArray(#["a", "b", "c"]);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedValues.length, 1);
     ok(Array.isArray(receivedValues[0]));
     strictEqual(receivedValues[0].length, 3);
@@ -643,7 +668,7 @@ describe("value marshalling", () => {
         const X = expectObject(#{name: "test", age: 25});
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedValues.length, 1);
     strictEqual(typeof receivedValues[0], "object");
     strictEqual(receivedValues[0].name, "test");
@@ -656,7 +681,7 @@ describe("value marshalling", () => {
         const X = returnInvalidJsValue();
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "function-return",
       message: "Function implementation returned invalid JS value 'Symbol(invalid)'.",
     });
@@ -672,7 +697,7 @@ describe("value marshalling", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedValues.length, 0);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
@@ -731,7 +756,7 @@ describe("value marshalling", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue?.valueKind, "NumericValue");
@@ -749,7 +774,7 @@ describe("value marshalling", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(p.type.kind, "Number");
     strictEqual(p.type.value, 42);
@@ -801,7 +826,7 @@ describe("union type constraints", () => {
         alias TypeResult = acceptTypeOrValue(string);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(receivedArgs.length, 1);
   });
@@ -813,7 +838,7 @@ describe("union type constraints", () => {
         const ValueResult = acceptTypeOrValue("hello");
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(receivedArgs.length, 1);
     // Prefer value overload
@@ -831,7 +856,7 @@ describe("union type constraints", () => {
         alias EnumResult = acceptMultipleTypes(TestEnum);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(receivedArgs.length, 2);
     strictEqual(receivedArgs[0].kind, "Model");
@@ -848,7 +873,7 @@ describe("union type constraints", () => {
         const NumberResult = acceptMultipleValues(42);
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(receivedArgs.length, 2);
     strictEqual(receivedArgs[0], "test");
@@ -863,7 +888,7 @@ describe("union type constraints", () => {
         alias Result = acceptMultipleTypes(TestScalar);
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "unassignable",
       message: "Type 'TestScalar' is not assignable to type 'Model | Enum'",
     });
@@ -880,7 +905,7 @@ describe("union type constraints", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     deepStrictEqual(receivedArgs, [true]);
 
@@ -899,7 +924,7 @@ describe("union type constraints", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     deepStrictEqual(receivedArgs, [false]);
 
@@ -950,7 +975,7 @@ describe("error cases and edge cases", () => {
         alias X = returnWrongEntityKind();
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "function-return",
       message:
         "Implementation of 'fn returnWrongEntityKind' returned value '\"string value\"', which is not assignable to the declared return type 'unknown'.",
@@ -963,7 +988,7 @@ describe("error cases and edge cases", () => {
         const X = returnWrongValueType();
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "function-return",
       message:
         "Implementation of 'fn returnWrongValueType' returned value '42', which is not assignable to the declared return type 'valueof string'.",
@@ -994,7 +1019,7 @@ describe("error cases and edge cases", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue?.valueKind, "NullValue");
@@ -1010,7 +1035,7 @@ describe("error cases and edge cases", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue?.valueKind, "NullValue");
@@ -1022,7 +1047,7 @@ describe("error cases and edge cases", () => {
         const X = expectNonOptionalAfterOptional("test");
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "required-parameter-first",
       message: "A required parameter cannot follow an optional parameter.",
     });
@@ -1037,7 +1062,7 @@ describe("error cases and edge cases", () => {
         }
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "value-in-type",
       message: "A value cannot be used as a type.",
     });
@@ -1055,34 +1080,61 @@ describe("default function results", () => {
     });
   });
 
-  it("returns default unknown value for missing value-returning function", async () => {
-    const diagnostics = await runner.diagnose(`
+  it("collapses to undefined for missing value-returning function", async () => {
+    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
         extern fn missingValueFn(): valueof string;
         const X = missingValueFn();
-      `);
-    expectDiagnostics(diagnostics, {
+
+        model Observer {
+          @test p: string = X;
+        }
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+    expectFunctionDiagnostics(diagnostics, {
       code: "missing-implementation",
     });
+
+    strictEqual(p.defaultValue, undefined);
   });
 
   it("returns default type for missing type-returning function", async () => {
-    const diagnostics = await runner.diagnose(`
+    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
         extern fn missingTypeFn(): unknown;
         alias X = missingTypeFn();
-      `);
-    expectDiagnostics(diagnostics, {
+
+        model Observer {
+          @test p: X;
+        }
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+    expectFunctionDiagnostics(diagnostics, {
       code: "missing-implementation",
     });
+
+    strictEqual(p.type.kind, "Intrinsic");
+    strictEqual(p.type.name, "unknown");
   });
 
   it("returns appropriate default for union return type", async () => {
-    const diagnostics = await runner.diagnose(`
+    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
         extern fn missingUnionFn(): unknown | valueof string;
         const X = missingUnionFn();
-      `);
-    expectDiagnostics(diagnostics, {
+
+        alias T = missingUnionFn();
+
+        model Observer {
+          @test p: T = X;
+        }
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+    expectFunctionDiagnostics(diagnostics, {
       code: "missing-implementation",
     });
+
+    strictEqual(p.type.kind, "Intrinsic");
+    strictEqual(p.type.name, "ErrorType");
+
+    strictEqual(p.defaultValue, undefined);
   });
 });
 
@@ -1119,7 +1171,7 @@ describe("template and generic scenarios", () => {
         }
       `)) as [{ prop: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     ok(prop.type);
     ok($(runner.program).array.is(prop.type));
@@ -1135,7 +1187,7 @@ describe("template and generic scenarios", () => {
         alias Result = ProcessModel<TestModel>;
       `);
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
   });
 
   it("errors when template constraint not satisfied", async () => {
@@ -1148,7 +1200,7 @@ describe("template and generic scenarios", () => {
         alias Result = ProcessModel<TestEnum>;
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "invalid-argument",
     });
   });
@@ -1170,7 +1222,7 @@ describe("template and generic scenarios", () => {
         }
       `)) as [{ A: Model; B: Model }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     const aProp = A.properties.get("propA");
     const bProp = B.properties.get("propB");
@@ -1214,7 +1266,7 @@ describe("assignability of functions to fn types", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue?.valueKind, "Function");
@@ -1232,7 +1284,7 @@ describe("assignability of functions to fn types", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue?.valueKind, "Function");
@@ -1250,7 +1302,7 @@ describe("assignability of functions to fn types", () => {
         }
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue?.valueKind, "Function");
@@ -1264,7 +1316,7 @@ describe("assignability of functions to fn types", () => {
         const f: fn(arg: numeric) => string = testFn;
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "unassignable",
       message:
         "Type 'fn (a: string) => string' is not assignable to type 'fn (arg: numeric) => string'\n  Type 'numeric' is not assignable to type 'string'",
@@ -1278,7 +1330,7 @@ describe("assignability of functions to fn types", () => {
         const f: fn(arg: never) => int32 = testFn;
       `);
 
-    expectDiagnostics(diagnostics, {
+    expectFunctionDiagnostics(diagnostics, {
       code: "unassignable",
       message:
         "Type 'fn (a: string) => string' is not assignable to type 'fn (arg: never) => int32'\n  Type 'string' is not assignable to type 'int32'",
@@ -1458,10 +1510,150 @@ describe("calling template arguments", () => {
         alias Instance = Test<f>;
       `)) as [{ p: ModelProperty }, Diagnostic[]];
 
-    expectDiagnosticEmpty(diagnostics);
+    expectFunctionDiagnosticsEmpty(diagnostics);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue?.valueKind, "StringValue");
     strictEqual(p.defaultValue?.value, "Foo");
+  });
+});
+
+describe("function calls within template declarations", () => {
+  let runner: BasicTestRunner;
+  let receivedTypes: any[] = [];
+
+  beforeEach(() => {
+    receivedTypes = [];
+
+    testHost.addJsFile("fns.js", {
+      $functions: {
+        "": {
+          f(_ctx: FunctionContext, T: unknown) {
+            receivedTypes.push(T);
+            return T;
+          },
+        },
+      },
+      $decorators: {
+        "": {
+          d(_ctx: DecoratorContext, target: any) {},
+        },
+      },
+    });
+    runner = createTestWrapper(testHost, {
+      autoImports: ["./fns.js"],
+      autoUsings: ["TypeSpec.Reflection"],
+    });
+  });
+
+  it("does not call a function in a templated model declaration", async () => {
+    const diagnostics = await runner.diagnose(`
+        extern fn f(T: unknown): valueof unknown;
+
+        model Test<T> {
+          @test
+          p: T = f(T);
+        }
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 0);
+  });
+
+  it("does not call a function in a templated alias declaration", async () => {
+    const diagnostics = await runner.diagnose(`
+        extern fn f(T: unknown): valueof unknown;
+
+        alias Test<T> = f(T);
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 0);
+  });
+
+  it("does not call a function in a decorator argument of a templated operation declaration", async () => {
+    const diagnostics = await runner.diagnose(`
+        extern fn f(T: unknown): unknown;
+        extern dec d(target: unknown, arg: unknown);
+
+        @d(f(T)) op test<T>(): void;
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 0);
+  });
+
+  it("does not call a function in any position of a templated alias to a literal model", async () => {
+    const diagnostics = await runner.diagnose(`
+        extern fn f(T: unknown): unknown;
+        extern dec d(target: unknown, arg: unknown);
+
+        alias Test<T> = {
+          @d(f(T)) prop: f(T);
+        };
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 0);
+  });
+
+  it("calls a function once on instantiation of a templated model", async () => {
+    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+        extern fn f(T: unknown): unknown;
+
+        model Test<T> {
+          @test
+          p: f(T);
+        }
+        
+        alias Instance = Test<string>;
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 1);
+    strictEqual(receivedTypes[0].kind, "Scalar");
+    strictEqual(receivedTypes[0].name, "string");
+
+    strictEqual(p.type.kind, "Scalar");
+    strictEqual(p.type.name, "string");
+  });
+
+  it("calls a function twice on instantiation of a templated alias to a literal model", async () => {
+    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+        extern fn f(T: unknown): unknown;
+        extern dec d(target: unknown, arg: unknown);
+
+        alias Test<T> = {
+         @test @d(f(T)) p: f(T);
+        };
+        
+        alias Instance = Test<string>;
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 2);
+    strictEqual(receivedTypes[0].kind, "Scalar");
+    strictEqual(receivedTypes[0].name, "string");
+    strictEqual(receivedTypes[1].kind, "Scalar");
+    strictEqual(receivedTypes[1].name, "string");
+
+    strictEqual(p.type.kind, "Scalar");
+    strictEqual(p.type.name, "string");
+  });
+
+  it("calls a function on instantiation of a templated operation", async () => {
+    const diagnostics = await runner.diagnose(`
+        extern fn f(T: unknown): unknown;
+        extern dec d(target: unknown, arg: unknown);
+
+        @d(f(T)) op test<T>(): void;
+        
+        alias Instance = test<string>;
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 1);
+    strictEqual(receivedTypes[0].kind, "Scalar");
+    strictEqual(receivedTypes[0].name, "string");
   });
 });

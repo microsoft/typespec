@@ -710,6 +710,7 @@ describe("compiler: semantic walker", () => {
       const results = await runNavigator(`
         namespace Extern;
 
+        #suppress "experimental-feature"
         extern fn foo(): string;
       `);
 

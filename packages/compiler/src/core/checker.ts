@@ -2119,6 +2119,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return links.value as FunctionValue;
     }
 
+    reportCheckerDiagnostic(
+      createDiagnostic({
+        code: "experimental-feature",
+        messageId: "functionDeclarations",
+        target: node,
+      }),
+    );
+
     const namespace = getParentNamespaceType(node);
     compilerAssert(
       namespace,
@@ -5578,7 +5586,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // if the prop type is an error we don't need to validate again.
       return null;
     }
-    const defaultValue = getValueForNode(defaultNode, ctx.mapper, {
+    const defaultValue = getValueForNode(defaultNode, ctx, {
       kind: "assignment",
       type,
     });
@@ -5745,7 +5753,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       argNode: Expression,
       perParamType: MixedParameterConstraint,
     ): DecoratorArgument | undefined {
-      const arg = getTypeOrValueForNode(argNode, ctx.mapper, {
+      const arg = getTypeOrValueForNode(argNode, ctx, {
         kind: "argument",
         constraint: perParamType,
       });
