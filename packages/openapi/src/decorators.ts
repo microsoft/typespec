@@ -41,7 +41,7 @@ export const [
    * @param opId Operation ID
    */
   setOperationId,
-] = useStateMap(createStateSymbol("operationIds"));
+] = useStateMap<Operation, string>(createStateSymbol("operationIds"));
 /**
  * Set a specific operation ID.
  * @param context Decorator Context
