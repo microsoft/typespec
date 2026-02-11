@@ -35,6 +35,7 @@ import payload.multipart.models.FileSpecificContentType;
 import payload.multipart.models.FileWithHttpPartOptionalContentTypeRequest;
 import payload.multipart.models.FileWithHttpPartRequiredContentTypeRequest;
 import payload.multipart.models.FileWithHttpPartSpecificContentTypeRequest;
+import payload.multipart.models.FilesFileDetails;
 import payload.multipart.models.ImageFileDetails;
 import payload.multipart.models.JsonPartRequest;
 import payload.multipart.models.MultiBinaryPartsRequest;
