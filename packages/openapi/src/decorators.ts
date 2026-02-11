@@ -41,7 +41,7 @@ export const [
    * @param opId Operation ID
    */
   setOperationId,
-] = useStateMap(OpenAPIKeys.operationIds);
+] = useStateMap(createStateSymbol("operationIds"));
 /**
  * Set a specific operation ID.
  * @param context Decorator Context

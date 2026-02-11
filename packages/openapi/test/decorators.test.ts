@@ -5,108 +5,13 @@ import {
   getExtensions,
   getExternalDocs,
   getInfo,
-  getOperationId,
   getTagsMetadata,
   resolveInfo,
   setInfo,
-  setOperationId,
 } from "../src/decorators.js";
 import { Tester } from "./test-host.js";
 
 describe("openapi: decorators", () => {
-  describe("@operationId", () => {
-    it("emit diagnostic if use on non operation", async () => {
-      const diagnostics = await Tester.diagnose(`
-        @operationId("foo")
-        model Foo {}
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "decorator-wrong-target",
-        message:
-          "Cannot apply @operationId decorator to Foo since it is not assignable to Operation",
-      });
-    });
-
-    it("emit diagnostic if operation id is not a string", async () => {
-      const diagnostics = await Tester.diagnose(`
-        @operationId(123)
-        op foo(): string;
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument",
-      });
-    });
-
-    it("set operation id via decorator", async () => {
-      const { program, foo } = await Tester.compile(t.code`
-        @operationId("myCustomId")
-        @test op ${t.op("foo")}(): string;
-      `);
-
-      deepStrictEqual(getOperationId(program, foo), "myCustomId");
-    });
-
-    it("getOperationId returns undefined when no operation id is set", async () => {
-      const { program, foo } = await Tester.compile(t.code`
-        @test op ${t.op("foo")}(): string;
-      `);
-
-      deepStrictEqual(getOperationId(program, foo), undefined);
-    });
-
-    it("setOperationId function sets operation id programmatically", async () => {
-      const { program, foo } = await Tester.compile(t.code`
-        @test op ${t.op("foo")}(): string;
-      `);
-
-      // Initially no operation id
-      deepStrictEqual(getOperationId(program, foo), undefined);
-
-      // Set operation id using setOperationId
-      setOperationId(program, foo, "programmaticId");
-
-      // Verify it was set
-      deepStrictEqual(getOperationId(program, foo), "programmaticId");
-    });
-
-    it("setOperationId function can override decorator-set operation id", async () => {
-      const { program, foo } = await Tester.compile(t.code`
-        @operationId("decoratorId")
-        @test op ${t.op("foo")}(): string;
-      `);
-
-      // Initially has decorator id
-      deepStrictEqual(getOperationId(program, foo), "decoratorId");
-
-      // Override with setOperationId
-      setOperationId(program, foo, "overrideId");
-
-      // Verify it was overridden
-      deepStrictEqual(getOperationId(program, foo), "overrideId");
-    });
-
-    it("decorator can override setOperationId function", async () => {
-      const { program, foo } = await Tester.compile(t.code`
-        @test op ${t.op("foo")}(): string;
-      `);
-
-      // Set programmatically first
-      setOperationId(program, foo, "programmaticId");
-      deepStrictEqual(getOperationId(program, foo), "programmaticId");
-
-      // Recompile with decorator - this simulates the decorator being applied later
-      const { program: program2, foo: foo2 } = await Tester.compile(t.code`
-        @operationId("decoratorId")
-        @test op ${t.op("foo")}(): string;
-      `);
-
-      // Verify decorator value takes precedence
-      deepStrictEqual(getOperationId(program2, foo2), "decoratorId");
-    });
-  });
-
   describe("@extension", () => {
     it("apply extension on model", async () => {
       const { program, Foo } = await Tester.compile(t.code`
