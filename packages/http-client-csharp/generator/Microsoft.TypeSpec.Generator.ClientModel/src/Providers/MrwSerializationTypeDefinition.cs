@@ -55,7 +55,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly CSharpType? _jsonModelObjectInterface;
         private readonly CSharpType _persistableModelTInterface;
         private readonly CSharpType? _persistableModelObjectInterface;
-        private readonly ModelProvider _model;
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
         private readonly Lazy<PropertyProvider?> _additionalBinaryDataProperty;
@@ -73,24 +72,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
         {
-            _model = modelProvider;
+            Model = modelProvider;
             _jsonPatchProperty = _jsonPatchProperty = modelProvider is ScmModelProvider scmModel
                 ? scmModel.BaseJsonPatchProperty.Value
                 : null;
             _inputModel = inputModel;
-            _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
+            _isStruct = Model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             _supportsJson = inputModel.Usage.HasFlag(InputModelTypeUsage.Json);
             _supportsXml = inputModel.Usage.HasFlag(InputModelTypeUsage.Xml);
             // Initialize the serialization interfaces
-            var interfaceType = inputModel.IsUnknownDiscriminatorModel ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel.BaseModel!)! : _model;
+            var interfaceType = inputModel.IsUnknownDiscriminatorModel ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel.BaseModel!)! : Model;
             _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), interfaceType.Type);
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), interfaceType.Type);
             _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
-            _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+            _rawDataField = Model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
-            _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
-            _shouldOverrideMethods = _model.BaseModelProvider != null && !_isStruct;
+            _additionalProperties = new(() => [.. Model.Properties.Where(p => p.IsAdditionalProperties)]);
+            _shouldOverrideMethods = Model.BaseModelProvider != null && !_isStruct;
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -99,25 +98,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _xmlWriterSnippet = _xmlWriterParameter.As<XmlWriter>();
         }
 
-        protected override FormattableString BuildDescription() => _model.Description;
+        protected override FormattableString BuildDescription() => Model.Description;
 
-        protected override string BuildNamespace() => _model.Type.Namespace;
+        protected override string BuildNamespace() => Model.Type.Namespace;
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
-        private ConstructorProvider SerializationConstructor => _serializationConstructor ??= _model.FullConstructor;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => Model.DeclarationModifiers;
+        private ConstructorProvider SerializationConstructor => _serializationConstructor ??= Model.FullConstructor;
         private PropertyProvider[] AdditionalProperties => _additionalProperties.Value;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
-        protected override string BuildName() => _model.Name;
+        protected override string BuildName() => Model.Name;
 
-        protected override CSharpType? BuildBaseType() => _model.BaseType;
+        protected override CSharpType? BuildBaseType() => Model.BaseType;
+        public ModelProvider Model { get; }
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
-            if (_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            if (Model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
             {
-                var unknownVariant = _model.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
+                var unknownVariant = Model.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
                 if (unknownVariant != null)
                 {
                     return [new AttributeStatement(typeof(PersistableModelProxyAttribute), TypeOf(unknownVariant.Type))];
@@ -130,7 +130,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
-            var returnType = _model.BaseModelProvider?.Type ?? Type;
+            var returnType = Model.BaseModelProvider?.Type ?? Type;
             while (returnType.BaseType != null
                    && IsModelType(returnType.BaseType))
             {
@@ -149,7 +149,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<ConstructorProvider> constructors = new();
             bool ctorWithNoParamsExist = false;
 
-            foreach (var ctor in _model.Constructors)
+            foreach (var ctor in Model.Constructors)
             {
                 var initializationCtorParams = ctor.Signature.Parameters;
 
@@ -236,7 +236,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     BuildXmlDeserializationMethod());
             }
 
-            if (_model is ScmModelProvider { IsDynamicModel: true, HasDynamicProperties: true })
+            if (Model is ScmModelProvider { IsDynamicModel: true, HasDynamicProperties: true })
             {
                 methods.AddRange(BuildPropagateGetMethod(), BuildPropagateSetMethod());
             }
@@ -284,14 +284,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             MethodBodyStatement[] methodBody;
 
-            if (_model is ScmModelProvider { IsDynamicModel: true })
+            if (Model is ScmModelProvider { IsDynamicModel: true })
             {
                 methodBody =
                 [
                     responseDeclaration,
                     Declare("data", typeof(BinaryData), response.Property(nameof(HttpResponseApi.Content)), out var dataVariable),
                     UsingDeclare("document", typeof(JsonDocument), dataVariable.As<BinaryData>().Parse(ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var docVariable),
-                    Return(GetDeserializationMethodInvocationForType(_model, docVariable.As<JsonDocument>().RootElement(), dataVariable))
+                    Return(GetDeserializationMethodInvocationForType(Model, docVariable.As<JsonDocument>().RootElement(), dataVariable))
                 ];
             }
             else
@@ -300,7 +300,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [
                     responseDeclaration,
                     UsingDeclare("document", typeof(JsonDocument), response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var docVariable),
-                    Return(GetDeserializationMethodInvocationForType(_model, docVariable.As<JsonDocument>().RootElement()))
+                    Return(GetDeserializationMethodInvocationForType(Model, docVariable.As<JsonDocument>().RootElement()))
                 ];
             }
 
@@ -511,7 +511,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // is an unknown discriminated model.
             if (!createCoreReturnType.Equals(_jsonModelTInterface.Arguments[0]))
             {
-                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+                createCoreInvocation = createCoreInvocation.CastTo(Model.Type);
             }
 
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
@@ -537,7 +537,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
 
-            var typeForDeserialize = _model.IsUnknownDiscriminatorModel ? _model.Type.BaseType! : _model.Type;
+            var typeForDeserialize = Model.IsUnknownDiscriminatorModel ? Model.Type.BaseType! : Model.Type;
 
             var methodBody = new MethodBodyStatement[]
             {
@@ -562,16 +562,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildDeserializationMethod()
         {
-            var methodName = $"{DeserializationMethodNamePrefix}{_model.Name}";
+            var methodName = $"{DeserializationMethodNamePrefix}{Model.Name}";
             var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
-            List<ParameterProvider> parameters = _model is ScmModelProvider { IsDynamicModel: true }
+            List<ParameterProvider> parameters = Model is ScmModelProvider { IsDynamicModel: true }
                 ? [_jsonElementDeserializationParam, _dataParameter, _serializationOptionsParameter]
                 : [_jsonElementDeserializationParam, _serializationOptionsParameter];
 
             // internal static T DeserializeT(JsonElement element, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, parameters),
+              new MethodSignature(methodName, null, signatureModifiers, Model.Type, null, parameters),
               _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildDiscriminatedModelDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
@@ -579,13 +579,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildDiscriminatedModelDeserializationMethodBody()
         {
-            var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
-            bool onlyContainsUnknownDerivedModel = _model.DerivedModels.Count == 1;
-            var discriminator = _model.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
-            if (discriminator == null && _model.BaseModelProvider != null)
+            var unknownVariant = Model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
+            bool onlyContainsUnknownDerivedModel = Model.DerivedModels.Count == 1;
+            var discriminator = Model.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+            if (discriminator == null && Model.BaseModelProvider != null)
             {
                 // Look for discriminator property in the base model
-                discriminator = _model.BaseModelProvider.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+                discriminator = Model.BaseModelProvider.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
             }
 
             var deserializeDiscriminatedModelsConditions = BuildDiscriminatedModelsCondition(
@@ -623,11 +623,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private SwitchCaseStatement[] GetDiscriminatorSwitchCases(ModelProvider unknownVariant)
         {
-            SwitchCaseStatement[] cases = new SwitchCaseStatement[_model.DerivedModels.Count - 1];
+            SwitchCaseStatement[] cases = new SwitchCaseStatement[Model.DerivedModels.Count - 1];
             int index = 0;
             for (int i = 0; i < cases.Length; i++)
             {
-                var model = _model.DerivedModels[i];
+                var model = Model.DerivedModels[i];
                 if (ReferenceEquals(model, unknownVariant))
                 {
                     continue;
@@ -668,7 +668,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // is an unknown discriminated model.
             if (!createCoreReturnType.Equals(_persistableModelTInterface.Arguments[0]))
             {
-                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+                createCoreInvocation = createCoreInvocation.CastTo(Model.Type);
             }
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
             return new MethodProvider
@@ -746,7 +746,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildJsonModelWriteCoreMethodBody()
         {
-            bool isDynamicModelWithNonDynamicBase = _model is ScmModelProvider { IsDynamicModel: true } && _model.BaseModelProvider is ScmModelProvider { IsDynamicModel: false };
+            bool isDynamicModelWithNonDynamicBase = Model is ScmModelProvider { IsDynamicModel: true } && Model.BaseModelProvider is ScmModelProvider { IsDynamicModel: false };
             var propertiesStatements = CreateWritePropertiesStatements(isDynamicModelWithNonDynamicBase);
             var additionalPropertiesStatements = CreateWriteAdditionalPropertiesStatement();
             List<MethodBodyStatement> writePropertiesStatements =
@@ -804,7 +804,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { valueKindEqualsNullReturn },
                 GetPropertyVariableDeclarations(),
                 deserializePropertiesForEachStatement,
-                Return(New.Instance(_model.Type, GetSerializationCtorParameterValues()))
+                Return(New.Instance(Model.Type, GetSerializationCtorParameterValues()))
             ];
         }
 
@@ -829,7 +829,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
                     }
                     else if (property.Name.Equals(ScmModelProvider.JsonPatchPropertyName) &&
-                        _model is ScmModelProvider { IsDynamicModel: true })
+                        Model is ScmModelProvider { IsDynamicModel: true })
                     {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
                         var patchAssignment = New.Instance<JsonPatch>(
@@ -846,8 +846,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        var defaultValue = (property.IsDiscriminator && _model.DiscriminatorValue != null && property.Type.IsFrameworkType)
-                           ? Literal(_model.DiscriminatorValue)
+                        var defaultValue = (property.IsDiscriminator && Model.DiscriminatorValue != null && property.Type.IsFrameworkType)
+                           ? Literal(Model.DiscriminatorValue)
                            : Default;
                         propertyDeclarationStatements.Add(Declare(variableRef, defaultValue));
                     }
@@ -902,7 +902,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildPersistableModelCreateCoreMethodBody()
         {
-            var typeForDeserialize = _model.IsUnknownDiscriminatorModel ? _model.Type.BaseType! : _model.Type;
+            var typeForDeserialize = Model.IsUnknownDiscriminatorModel ? Model.Type.BaseType! : Model.Type;
             var switchCases = new List<SwitchCaseStatement>();
 
             if (_supportsJson)
@@ -1051,7 +1051,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var rawBinaryData = _rawDataField;
             if (rawBinaryData == null)
             {
-                var baseModelProvider = _model.BaseModelProvider;
+                var baseModelProvider = Model.BaseModelProvider;
                 while (baseModelProvider != null)
                 {
                     var field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
@@ -1661,7 +1661,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (isDynamicModelWithNonDynamicBase)
             {
-                var baseModelProvider = _model.BaseModelProvider;
+                var baseModelProvider = Model.BaseModelProvider;
                 while (baseModelProvider != null)
                 {
                     foreach (var property in baseModelProvider.CanonicalView.Properties)
@@ -1690,7 +1690,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // we should only write those properties with wire info and are payload properties.
             // Those properties without wireinfo indicate they are not spec properties.
-            foreach (var property in _model.CanonicalView.Properties)
+            foreach (var property in Model.CanonicalView.Properties)
             {
                 if (property.WireInfo == null || property.WireInfo.IsHttpMetadata)
                 {
@@ -1700,7 +1700,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.SerializationFormat));
             }
 
-            foreach (var field in _model.CanonicalView.Fields)
+            foreach (var field in Model.CanonicalView.Fields)
             {
                 if (field.WireInfo == null || field.WireInfo.IsHttpMetadata)
                 {
@@ -1746,7 +1746,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Check for custom serialization hooks
-            foreach (var attribute in _model.CustomCodeView?.Attributes
+            foreach (var attribute in Model.CustomCodeView?.Attributes
                          .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
             {
                 if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
@@ -2480,19 +2480,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private PropertyProvider? GetAdditionalBinaryDataPropertiesProp()
         {
-            PropertyProvider? property = _model.Properties.FirstOrDefault(
+            PropertyProvider? property = Model.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             // search in the base model if the property is not found in the current model
-            return property ?? _model.BaseModelProvider?.Properties.FirstOrDefault(
+            return property ?? Model.BaseModelProvider?.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
         }
 
         private List<AttributeStatement> GetSerializationAttributes()
         {
-            List<AttributeStatement> serializationAttributes = _model.CustomCodeView?.Attributes
+            List<AttributeStatement> serializationAttributes = Model.CustomCodeView?.Attributes
                 .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
                 .ToList() ?? [];
-            var baseModelProvider = _model.BaseModelProvider;
+            var baseModelProvider = Model.BaseModelProvider;
 
             while (baseModelProvider != null)
             {

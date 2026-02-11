@@ -262,7 +262,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new MethodProvider(
                 signature,
                 bodyStatements,
-                _model,
+                Model,
                 suppressions: [ScmModelProvider.JsonPatchSuppression]);
         }
 
@@ -288,7 +288,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new MethodProvider(
                 signature,
                 bodyStatements,
-                _model,
+                Model,
                 suppressions: [ScmModelProvider.JsonPatchSuppression]);
         }
 
@@ -302,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var allDynamicCollectionProperties = new List<PropertyProvider>();
 
             // Traverse the inheritance hierarchy to collect all dynamic properties
-            var currentModel = _model;
+            var currentModel = Model;
             while (currentModel != null)
             {
                 var properties = currentModel.CanonicalView.Properties;

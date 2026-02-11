@@ -474,7 +474,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal MethodProvider BuildXmlDeserializationMethod()
         {
-            var methodName = $"{DeserializationMethodNamePrefix}{_model.Name}";
+            var methodName = $"{DeserializationMethodNamePrefix}{Model.Name}";
             var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
             var parameters = new List<ParameterProvider>
             {
@@ -487,20 +487,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : BuildXmlDeserializationMethodBody();
 
             return new MethodProvider(
-                new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, parameters),
+                new MethodSignature(methodName, null, signatureModifiers, Model.Type, null, parameters),
                 methodBody,
                 this);
         }
 
         private MethodBodyStatement[] BuildXmlDiscriminatedModelDeserializationMethodBody()
         {
-            var unknownVariant = _model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
-            bool onlyContainsUnknownDerivedModel = _model.DerivedModels.Count == 1;
-            var discriminator = _model.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
-            if (discriminator == null && _model.BaseModelProvider != null)
+            var unknownVariant = Model.DerivedModels.First(m => m.IsUnknownDiscriminatorModel);
+            bool onlyContainsUnknownDerivedModel = Model.DerivedModels.Count == 1;
+            var discriminator = Model.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+            if (discriminator == null && Model.BaseModelProvider != null)
             {
                 // Look for discriminator property in the base model
-                discriminator = _model.BaseModelProvider.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
+                discriminator = Model.BaseModelProvider.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
             }
 
             var deserializeDiscriminatedModelsConditions = BuildXmlDiscriminatedModelsCondition(
@@ -545,11 +545,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private SwitchCaseStatement[] GetXmlDiscriminatorSwitchCases(ModelProvider unknownVariant)
         {
-            SwitchCaseStatement[] cases = new SwitchCaseStatement[_model.DerivedModels.Count - 1];
+            SwitchCaseStatement[] cases = new SwitchCaseStatement[Model.DerivedModels.Count - 1];
             int index = 0;
-            for (int i = 0; i < _model.DerivedModels.Count; i++)
+            for (int i = 0; i < Model.DerivedModels.Count; i++)
             {
-                var model = _model.DerivedModels[i];
+                var model = Model.DerivedModels[i];
                 if (ReferenceEquals(model, unknownVariant))
                 {
                     continue;
@@ -602,7 +602,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(MethodBodyStatement.EmptyLine);
             }
 
-            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues())));
+            statements.Add(Return(New.Instance(Model.Type, GetSerializationCtorParameterValues())));
 
             return [.. statements];
         }
@@ -633,7 +633,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (parameter.Property != null)
                     {
-                        ownProperties ??= [.. _model.CanonicalView.Properties];
+                        ownProperties ??= [.. Model.CanonicalView.Properties];
                         if (!ownProperties.Contains(parameter.Property))
                         {
                             continue;
@@ -641,7 +641,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Field != null)
                     {
-                        ownFields ??= [.. _model.CanonicalView.Fields];
+                        ownFields ??= [.. Model.CanonicalView.Fields];
                         if (!ownFields.Contains(parameter.Field))
                         {
                             continue;
@@ -1095,7 +1095,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private SwitchCaseStatement CreatePersistableModelWriteCoreXmlSwitchCase()
         {
-            var xmlElementName = _inputModel.SerializationOptions.Xml?.Name ?? _model.Name;
+            var xmlElementName = _inputModel.SerializationOptions.Xml?.Name ?? Model.Name;
 
             return new SwitchCaseStatement(
                 ModelReaderWriterOptionsSnippets.XmlFormat,
@@ -1165,7 +1165,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(streamVar.Equal(Null)) { Return(Default) },
                 MethodBodyStatement.EmptyLine,
                 Return(GetDeserializationMethodInvocationForType(
-                    _model,
+                    Model,
                     XElementSnippets.Load(streamVar.As<Stream>(), XmlLinqSnippets.PreserveWhitespace)))
             ];
 
@@ -1206,7 +1206,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var jsonDeserializationBlock = new MethodBodyStatement[]
             {
                 UsingDeclare("document", typeof(JsonDocument), response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var docVariable),
-                Return(GetDeserializationMethodInvocationForType(_model, docVariable.As<JsonDocument>().RootElement()))
+                Return(GetDeserializationMethodInvocationForType(Model, docVariable.As<JsonDocument>().RootElement()))
             };
 
             var xmlDeserialization = new MethodBodyStatement[]
@@ -1214,7 +1214,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 UsingDeclare("stream", typeof(Stream), response.Property(nameof(HttpResponseApi.ContentStream)), out var streamVar),
                 new IfStatement(streamVar.Equal(Null)) { Return(Default) },
                 MethodBodyStatement.EmptyLine,
-                Return(GetDeserializationMethodInvocationForType(_model, XElementSnippets.Load(streamVar.As<Stream>(), XmlLinqSnippets.PreserveWhitespace)))
+                Return(GetDeserializationMethodInvocationForType(Model, XElementSnippets.Load(streamVar.As<Stream>(), XmlLinqSnippets.PreserveWhitespace)))
             };
 
             MethodBodyStatement[] methodBody =
