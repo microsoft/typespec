@@ -43,7 +43,7 @@ extends:
                   azureSubscription: "Azure SDK Engineering System"
                   scriptLocation: inlineScript
                   inlineScript: |
-                    swa deploy swa-cli.config.json --env preview
+                    swa deploy swa-cli.config.json
                     # az storage blob upload-batch \
                     #   --auth-mode login \
                     #   --destination \$web \
