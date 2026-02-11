@@ -28,6 +28,7 @@ import payload.multipart.models.Address;
 import payload.multipart.models.BinaryArrayPartsRequest;
 import payload.multipart.models.ComplexHttpPartsModelRequest;
 import payload.multipart.models.ComplexPartsRequest;
+import payload.multipart.models.FileDetails;
 import payload.multipart.models.FileOptionalContentType;
 import payload.multipart.models.FileRequiredMetaData;
 import payload.multipart.models.FileSpecificContentType;
@@ -318,8 +319,8 @@ public class MultipartTests {
         FormDataFileClient fileClient
             = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataFileClient();
 
-        fileClient.uploadFileSpecificContentType(
-            new UploadFileSpecificContentTypeRequest(BinaryData.fromFile(PNG_FILE), "image.png"));
+        fileClient.uploadFileSpecificContentType(new UploadFileSpecificContentTypeRequest(
+            new FileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image.png")));
 
         validationPolicy.validateContentTypes("image/png");
     }
@@ -342,8 +343,8 @@ public class MultipartTests {
             = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataFileClient();
 
         fileClient.uploadFileArray(new UploadFileArrayRequest(
-            Arrays.asList(new FilesFileDetails(BinaryData.fromFile(PNG_FILE), "image1.png"),
-                new FilesFileDetails(BinaryData.fromFile(PNG_FILE), "image2.png"))));
+            Arrays.asList(new FilesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image1.png"),
+                new FilesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image2.png"))));
 
         validationPolicy.validateFilenames("image1.png", "image2.png");
         validationPolicy.validateContentTypes("image/png", "image/png");

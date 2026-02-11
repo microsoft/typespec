@@ -98,8 +98,8 @@ public final class EncodeArrayTests {
 
     @Test
     public void extensibleEnumPipeDelimitedProperty() {
-        PipeDelimitedExtensibleEnumArrayProperty response = client
-            .extensibleEnumPipeDelimited(new PipeDelimitedExtensibleEnumArrayProperty(EXTENSIBLE_ENUM_COLORS));
+        PipeDelimitedExtensibleEnumArrayProperty response
+            = client.extensibleEnumPipeDelimited(new PipeDelimitedExtensibleEnumArrayProperty(EXTENSIBLE_ENUM_COLORS));
         Assertions.assertEquals(EXTENSIBLE_ENUM_COLORS, response.getValue());
     }
 
