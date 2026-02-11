@@ -742,21 +742,41 @@ export interface FunctionType extends BaseType {
 
 /**
  * A function (`fn`) declared in the TypeSpec program.
+ *
+ * By default, function values have very restrictive types, where the parameters have type `never`, and the return type is `unknown`.
+ *
+ * To call a function, you must assert the type of the parameters. For example, if you have a `FunctionValue` that represents
+ * the following TypeSpec function:
+ *
+ * ```tsp
+ * extern fn example(a: valueof string, b: valueof int32): valueof boolean;
+ * ```
+ *
+ * You can assert the parameter types in TypeScript like this:
+ *
+ * ```ts
+ * const exampleFn: FunctionValue = ...; // however you obtain a reference to the function value, it will be strictly typed.
+ *
+ * const assertedExampleFn = exampleFn as FunctionValue<[a: string, b: number], boolean>;
+ *
+ * // Now you can call assertedExampleFn with the correct types:
+ * ctx.callFunction(assertedExampleFn.implementation, "hello", 10);
+ * ```
  */
 export interface FunctionValue<
-  Parameters extends unknown[] = unknown[],
+  Parameters extends unknown[] = never[],
   ReturnType = unknown,
 > extends BaseValue {
   valueKind: "Function";
   node?: FunctionDeclarationStatementNode;
   /**
-   * The function's name as declared in the TypeSpec source.
+   * The function's name as declared in the TypeSpec source, if any.
    */
-  name: string;
+  name?: string;
   /**
-   * The namespace in which this function was declared.
+   * The namespace in which this function was declared, if any.
    */
-  namespace: Namespace;
+  namespace?: Namespace;
   /**
    * The parameters of the function.
    */

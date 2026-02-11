@@ -140,7 +140,11 @@ export async function generateExternDecorators(
         entitiesForNamespace = [];
         entities.set(namespaceName, entitiesForNamespace);
       }
-      entitiesForNamespace.push(resolveFunctionSignature(func));
+      if (func.name !== undefined) {
+        entitiesForNamespace.push(
+          resolveFunctionSignature(func as FunctionValue & { name: string }),
+        );
+      }
     },
   };
   if (options?.namespaces) {
@@ -193,7 +197,7 @@ function resolveDecoratorSignature(decorator: Decorator): DecoratorSignature {
   };
 }
 
-function resolveFunctionSignature(func: FunctionValue): FunctionSignature {
+function resolveFunctionSignature(func: FunctionValue & { name: string }): FunctionSignature {
   return {
     kind: "Function",
     tspFunction: func,

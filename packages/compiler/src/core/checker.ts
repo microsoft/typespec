@@ -4690,7 +4690,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (target.entityKind === "Type" && target.kind === "ScalarConstructor") {
       return createScalarValue(ctx, node, target);
     } else if (target.entityKind === "Value" && target.valueKind === "Function") {
-      return checkFunctionCall(ctx, node, target);
+      return checkFunctionCall(ctx, node, target as FunctionValue<unknown[]>);
     }
 
     compilerAssert(target.entityKind === "Type", "Expected type entity");
@@ -4716,7 +4716,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkFunctionCall(
     ctx: CheckContext,
     node: CallExpressionNode,
-    target: FunctionValue,
+    target: FunctionValue<unknown[]>,
   ): Type | Value | null {
     const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target);
 

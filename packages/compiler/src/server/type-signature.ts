@@ -64,7 +64,7 @@ function getEntitySignature(
         (x) => `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getEntityName(x.type)}`,
       );
       return fence(
-        `fn ${entity.name}(${parameters.join(", ")}) => ${getEntityName(entity.returnType)}`,
+        `fn ${entity.name ?? "<anonymous>"}(${parameters.join(", ")}) => ${getEntityName(entity.returnType)}`,
       );
     }
 

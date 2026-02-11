@@ -96,7 +96,7 @@ function getValuePreview(value: Value, options?: TypeNameOptions): string {
     case "ScalarValue":
       return `${getTypeName(value.type, options)}.${value.value.name}(${value.value.args.map((x) => getValuePreview(x, options)).join(", ")}})`;
     case "Function": {
-      return `fn ${value.name}`;
+      return `fn ${value.name ?? "<anonymous>"}`;
     }
   }
 }
