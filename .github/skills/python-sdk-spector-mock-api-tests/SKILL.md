@@ -83,6 +83,37 @@ If the Spector case comes from a PR that hasn't been released yet, you must bump
 - For `Azure/typespec-azure` cases: update `@azure-tools/azure-http-specs`
 - For `microsoft/typespec` cases: update `@typespec/http-specs`
 
+To find the latest dev version, check npm:
+
+```bash
+npm view @azure-tools/azure-http-specs versions --json | tail -5
+npm view @typespec/http-specs versions --json | tail -5
+```
+
+Pick the newest version that includes the Spector case you need. Prefer a stable version (e.g., `0.1.0-alpha.38`) if one exists; only fall back to a `-dev.X` version (e.g., `0.1.0-alpha.38-dev.2`) when no stable version contains the change yet.
+
+**Example 1 — a newer stable version is available:**
+
+```jsonc
+// Before
+"@azure-tools/azure-http-specs": "0.1.0-alpha.37",
+
+// After (stable 0.1.0-alpha.38 exists and includes the case)
+"@azure-tools/azure-http-specs": "0.1.0-alpha.38",
+```
+
+**Example 2 — no new stable, only a dev version:**
+
+```jsonc
+// Before
+"@azure-tools/azure-http-specs": "0.1.0-alpha.37",
+
+// After (0.1.0-alpha.38 does not exist yet, use dev)
+"@azure-tools/azure-http-specs": "0.1.0-alpha.38-dev.2",
+```
+
+Same pattern applies to `@typespec/http-specs`.
+
 After bumping, run `npm run install` under `packages/http-client-python` to update the lock file.
 
 ## Step 3 — Choose where to put the test
@@ -191,7 +222,7 @@ Install Black if not already available, then format any python files you changed
 
 ```bash
 pip install black # if not already installed
-python -m black < paths > -l 120
+python -m black 120 < paths > -l
 ```
 
 Replace `<paths>` with the specific files and/or folders you modified.
