@@ -187,9 +187,14 @@ try {
         try {
             Invoke "npm install" $httpClientDir
             if ($LASTEXITCODE -ne 0) {
-                Write-Warning "npm install failed with exit code $LASTEXITCODE, skipping generation."
-                Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-                $installSucceeded = $false
+                Write-Host "npm install failed on public feed. Retrying with private feed..."
+                $privateFeed = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/"
+                Invoke "npm install --registry $privateFeed" $httpClientDir
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warning "npm install failed on private feed with exit code $LASTEXITCODE, skipping generation."
+                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                    $installSucceeded = $false
+                }
             }
         } catch {
             Write-Warning "npm install failed: $($_.Exception.Message), skipping generation."
