@@ -42,6 +42,7 @@ extends:
 
               - task: AzureCLI@1
                 displayName: "Publish playground to PR endpoint"
+                name: setPlaygroundHostname
                 inputs:
                   azureSubscription: "Azure SDK Engineering System"
                   scriptLocation: inlineScript
@@ -54,10 +55,11 @@ extends:
                       --environment-name $(SWA_ENV) \
                       --query hostname -o tsv)
                     echo "SWA hostname: $hostname"
-                    echo "##vso[task.setvariable variable=PLAYGROUND_HOSTNAME]$hostname"
+                    echo "##vso[task.setvariable variable=PLAYGROUND_HOSTNAME;isOutput=true]$hostname"
 
               - task: AzureCLI@1
                 displayName: "Publish website to PR endpoint"
+                name: setWebsiteHostname
                 inputs:
                   azureSubscription: "Azure SDK Engineering System"
                   scriptLocation: inlineScript
@@ -70,7 +72,7 @@ extends:
                       --environment-name $(SWA_ENV) \
                       --query hostname -o tsv)
                     echo "SWA hostname: $hostname"
-                    echo "##vso[task.setvariable variable=WEBSITE_HOSTNAME]$hostname"
+                    echo "##vso[task.setvariable variable=WEBSITE_HOSTNAME;isOutput=true]$hostname"
 
               - task: CopyFiles@2
                 displayName: "Copy VSCode extension .vsix to artifact directory"
@@ -87,6 +89,9 @@ extends:
           - job: tryit_comment
             displayName: Create TryIt comment
             dependsOn: tryit
+            variables:
+              PLAYGROUND_HOSTNAME: $[ dependencies.tryit.outputs['setPlaygroundHostname.PLAYGROUND_HOSTNAME'] ]
+              WEBSITE_HOSTNAME: $[ dependencies.tryit.outputs['setWebsiteHostname.WEBSITE_HOSTNAME'] ]
             steps:
               - pwsh: |
                   $curlCommand = 'curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension"'
@@ -103,3 +108,5 @@ extends:
                 env:
                   GH_TOKEN: $(azuresdk-github-pat)
                   VSCODE_DOWNLOAD_URL: $(vscodeUrl)
+                  WEBSITE_HOSTNAME: $(WEBSITE_HOSTNAME)
+                  PLAYGROUND_HOSTNAME: $(PLAYGROUND_HOSTNAME)
