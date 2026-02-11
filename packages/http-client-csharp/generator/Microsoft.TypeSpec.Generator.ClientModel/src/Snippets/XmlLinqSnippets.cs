@@ -7,7 +7,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
-    public class XmlLinqSnippets
+    internal class XmlLinqSnippets
     {
         public static ScopedApi<LoadOptions> PreserveWhitespace
             => Static<LoadOptions>().Property(nameof(LoadOptions.PreserveWhitespace)).As<LoadOptions>();

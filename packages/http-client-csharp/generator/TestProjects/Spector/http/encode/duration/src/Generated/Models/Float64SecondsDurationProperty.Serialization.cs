@@ -15,6 +15,16 @@ namespace Encode.Duration._Property
 
         protected virtual Float64SecondsDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<Float64SecondsDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        Float64SecondsDurationProperty IPersistableModel<Float64SecondsDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<Float64SecondsDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(Float64SecondsDurationProperty float64SecondsDurationProperty) => throw null;
+
         public static explicit operator Float64SecondsDurationProperty(ClientResult result) => throw null;
 
         void IJsonModel<Float64SecondsDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode.Duration._Property
         Float64SecondsDurationProperty IJsonModel<Float64SecondsDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Float64SecondsDurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<Float64SecondsDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        Float64SecondsDurationProperty IPersistableModel<Float64SecondsDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<Float64SecondsDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Float64SecondsDurationProperty float64SecondsDurationProperty) => throw null;
     }
 }

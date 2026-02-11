@@ -1,5 +1,21 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.32
+
+### Features
+
+- [#9390](https://github.com/microsoft/typespec/pull/9390) Add array encoding test for enum and extensible enum arrays.
+- [#9513](https://github.com/microsoft/typespec/pull/9513) Add Spector tests for File type with various content types (body and multipart)
+- [#9499](https://github.com/microsoft/typespec/pull/9499) Add test for xml error deserialization
+- [#9455](https://github.com/microsoft/typespec/pull/9455) Add test for xml pagination with next link
+- [#9455](https://github.com/microsoft/typespec/pull/9455) Add test for xml paging
+
+### Bug Fixes
+
+- [#9570](https://github.com/microsoft/typespec/pull/9570) Fix payload/xml XmlErrorValue response to wrap SimpleModel with content-type "application/xml" for consistency with XmlError
+- [#9636](https://github.com/microsoft/typespec/pull/9636) Fix expectation for query larger unit tests
+
+
 ## 0.1.0-alpha.31
 
 ### Features

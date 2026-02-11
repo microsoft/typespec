@@ -1,5 +1,13 @@
 # Change Log - @typespec/http-client-python
 
+## 0.27.1
+
+### Bug Fixes
+
+- [#9640](https://github.com/microsoft/typespec/pull/9640) Fall back to wire type for unknown or unsupported encode
+- [#9571](https://github.com/microsoft/typespec/pull/9571) Fix import for xml paging
+
+
 ## 0.27.0
 
 ### Features

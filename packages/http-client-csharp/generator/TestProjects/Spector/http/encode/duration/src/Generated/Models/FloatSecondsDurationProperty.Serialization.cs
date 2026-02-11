@@ -15,6 +15,16 @@ namespace Encode.Duration._Property
 
         protected virtual FloatSecondsDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<FloatSecondsDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        FloatSecondsDurationProperty IPersistableModel<FloatSecondsDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<FloatSecondsDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(FloatSecondsDurationProperty floatSecondsDurationProperty) => throw null;
+
         public static explicit operator FloatSecondsDurationProperty(ClientResult result) => throw null;
 
         void IJsonModel<FloatSecondsDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode.Duration._Property
         FloatSecondsDurationProperty IJsonModel<FloatSecondsDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual FloatSecondsDurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<FloatSecondsDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        FloatSecondsDurationProperty IPersistableModel<FloatSecondsDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<FloatSecondsDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(FloatSecondsDurationProperty floatSecondsDurationProperty) => throw null;
     }
 }
