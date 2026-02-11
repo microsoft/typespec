@@ -56,6 +56,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 - Ran npm install to update package-lock.json
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
 - Generated emitter-package.json artifacts using tsp-client
+- Regenerated SDK libraries using the unbranded emitter via dotnet msbuild /t:GenerateCode
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
@@ -259,6 +260,53 @@ try {
         Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
     }
     
+    # Regenerate all SDK libraries that use the unbranded emitter
+    if ($installSucceeded) {
+        Write-Host "Expanding sparse checkout to include sdk directory for SDK regeneration..."
+        git sparse-checkout add sdk
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Failed to expand sparse checkout. Skipping SDK regeneration."
+            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+        } else {
+            # Discover service directories with tsp-location.yaml referencing the unbranded emitter
+            $tspLocations = Get-ChildItem -Path (Join-Path $tempDir "sdk") -Filter "tsp-location.yaml" -Recurse
+            $serviceDirectories = @()
+            foreach ($tspLocation in $tspLocations) {
+                $content = Get-Content $tspLocation.FullName -Raw
+                if ($content -match "eng/http-client-csharp-emitter-package.json") {
+                    $relativePath = $tspLocation.DirectoryName -replace ".*[\\/]sdk[\\/]", ""
+                    $serviceDirectory = $relativePath -replace "[\\/].*", ""
+                    if ($serviceDirectories -notcontains $serviceDirectory) {
+                        $serviceDirectories += $serviceDirectory
+                    }
+                }
+            }
+
+            if ($serviceDirectories.Count -eq 0) {
+                Write-Host "No SDK libraries found using the unbranded emitter. Skipping SDK regeneration."
+            } else {
+                $serviceProj = Join-Path $tempDir "eng/service.proj"
+                foreach ($serviceDirectory in $serviceDirectories) {
+                    Write-Host "Regenerating code for service directory: $serviceDirectory"
+                    $previousErrorAction = $ErrorActionPreference
+                    $ErrorActionPreference = "Continue"
+                    try {
+                        Invoke "dotnet msbuild $serviceProj /restore /t:GenerateCode /p:ServiceDirectory=$serviceDirectory" $tempDir
+                        if ($LASTEXITCODE -ne 0) {
+                            Write-Warning "Code generation failed for $serviceDirectory with exit code $LASTEXITCODE. Continuing with next service directory."
+                            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                        }
+                    } catch {
+                        Write-Warning "Code generation failed for $serviceDirectory`: $($_.Exception.Message). Continuing with next service directory."
+                        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                    } finally {
+                        $ErrorActionPreference = $previousErrorAction
+                    }
+                }
+            }
+        }
+    }
+
     # Check if there are changes to commit
     $gitStatus = git status --porcelain
     if (-not $gitStatus) {
@@ -293,6 +341,12 @@ try {
     $emitterPackageLockPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
     if (Test-Path $emitterPackageLockPath) {
         git add $emitterPackageLockPath
+    }
+    
+    # Add any SDK regeneration changes
+    $sdkPath = Join-Path $tempDir "sdk"
+    if (Test-Path $sdkPath) {
+        git add $sdkPath
     }
     
     if ($LASTEXITCODE -ne 0) {
