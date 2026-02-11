@@ -180,16 +180,50 @@ try {
     $installSucceeded = $true
     if ($packageJsonUpdated) {
         # Run npm install in the http-client-csharp directory
-        Write-Host "Running npm install in eng/packages/http-client-csharp..."
+        Write-Host "##[section]Running npm install in eng/packages/http-client-csharp..."
         $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
+        
+        # Log npm configuration before install
+        Write-Host "##[group]NPM Configuration Check"
+        Write-Host "Working directory: $httpClientDir"
+        
+        # Check for .npmrc file in the directory
+        $npmrcPath = Join-Path $httpClientDir ".npmrc"
+        if (Test-Path $npmrcPath) {
+            Write-Host "Found .npmrc file at: $npmrcPath"
+            Write-Host "Contents (auth tokens hidden):"
+            Get-Content $npmrcPath | ForEach-Object {
+                if ($_ -match ':_password|:_authToken') {
+                    Write-Host "  [AUTH TOKEN LINE - REDACTED]"
+                } else {
+                    Write-Host "  $_"
+                }
+            }
+        } else {
+            Write-Host "No .npmrc file found in working directory - will use default npm registry"
+        }
+        
+        # Show what registry npm will use
+        Push-Location $httpClientDir
+        try {
+            $currentRegistry = npm config get registry 2>&1
+            Write-Host "Current npm registry: $currentRegistry"
+        } finally {
+            Pop-Location
+        }
+        Write-Host "##[endgroup]"
+        
         $previousErrorAction = $ErrorActionPreference
         $ErrorActionPreference = "Continue"
         try {
-            Invoke "npm install" $httpClientDir
+            Write-Host "Running: npm install --verbose"
+            Invoke "npm install --verbose" $httpClientDir
             if ($LASTEXITCODE -ne 0) {
                 Write-Warning "npm install failed with exit code $LASTEXITCODE, skipping generation."
                 Write-Host "##vso[task.complete result=SucceededWithIssues;]"
                 $installSucceeded = $false
+            } else {
+                Write-Host "##[section]npm install completed successfully"
             }
         } catch {
             Write-Warning "npm install failed: $($_.Exception.Message), skipping generation."

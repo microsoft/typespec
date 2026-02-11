@@ -117,6 +117,9 @@ extends:
                   
                   $content = "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/`n`nalways-auth=true"
                   $content | Out-File '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc'
+                  
+                  Write-Host "##[section].npmrc file created successfully. Contents:"
+                  Get-Content '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' | ForEach-Object { Write-Host "  $_" }
                 displayName: 'Create .npmrc'
                 condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
 
@@ -147,6 +150,26 @@ extends:
                 inputs:
                   useGlobalJson: true
                   workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+              - pwsh: |
+                  Write-Host "##[section]Checking npm configuration before PR submission..."
+                  Write-Host "Current npm registry:"
+                  npm config get registry
+                  
+                  Write-Host "`nChecking for .npmrc files:"
+                  $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
+                  if (Test-Path $npmrcPath) {
+                    Write-Host "Found .npmrc at: $npmrcPath"
+                    Write-Host "Contents (excluding auth tokens):"
+                    Get-Content $npmrcPath | Where-Object { $_ -notmatch ':_password|:_authToken' } | ForEach-Object { Write-Host "  $_" }
+                  } else {
+                    Write-Host ".npmrc file not found - will use default npm registry"
+                  }
+                  
+                  Write-Host "`nNpm config list (user + global):"
+                  npm config list
+                displayName: 'Log npm configuration'
+                condition: eq(${{ parameters.CreateAzureSdkForNetPR }}, true)
 
               - task: PowerShell@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
