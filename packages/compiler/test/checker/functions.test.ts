@@ -2,12 +2,14 @@ import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   Diagnostic,
+  Enum,
   FunctionContext,
   IndeterminateEntity,
   Model,
   ModelProperty,
   Namespace,
   Type,
+  Value,
 } from "../../src/core/types.js";
 import {
   BasicTestRunner,
@@ -353,6 +355,165 @@ describe("usage", () => {
       strictEqual(calledArgs?.[i].kind, "String");
       strictEqual(calledArgs?.[i].value, expectedLiterals[i - 1]);
     }
+  });
+
+  it("accepts valueof model argument", async () => {
+    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+        model M { x: string }
+        extern fn testFn(m: valueof M): valueof M;
+
+        model Observer {
+          @test
+          p: M = testFn(#{ x: "test" });
+        }
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    deepStrictEqual(calledArgs?.[1], { x: "test" });
+
+    strictEqual(p.defaultValue?.entityKind, "Value");
+    strictEqual(p.defaultValue.valueKind, "ObjectValue");
+    const props = p.defaultValue.properties;
+    strictEqual(props.size, 1);
+    const x = props.get("x");
+    ok(x);
+    strictEqual(x.value.entityKind, "Value");
+    strictEqual(x.value.valueKind, "StringValue");
+    strictEqual(x.value.value, "test");
+  });
+
+  it("does not accept invalid valueof model argument", async () => {
+    const diagnostics = await runner.diagnose(`
+        model M { x: string }
+
+        extern fn testFn(m: valueof M): valueof M;
+
+        model Observer {
+          p: M = testFn(#{ y: "test" });
+        }
+      `);
+
+    expectFunctionDiagnostics(diagnostics, {
+      code: "invalid-argument",
+      message: "Argument of type '{ y: \"test\" }' is not assignable to parameter of type 'M'",
+    });
+  });
+
+  it("accepts literal type where parameter is a union of literals", async () => {
+    const diagnostics = await runner.diagnose(`
+        extern fn testFn(arg: "a" | 10 | true): "a" | 10 | true;
+        alias X = testFn("a");
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    const arg = calledArgs?.[1] as Type;
+    ok(arg);
+    strictEqual(arg.entityKind, "Type");
+    strictEqual(arg.kind, "String");
+    strictEqual(arg.value, "a");
+  });
+
+  it("accepts literal type where parameter is an array of union of literals", async () => {
+    const diagnostics = await runner.diagnose(`
+        extern fn testFn(args: Array<"a" | 10 | true>): Array<"a" | 10 | true>;
+
+        alias X = testFn(["a", 10, true]);
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+
+    const arg = calledArgs?.[1] as Type;
+
+    ok(arg);
+
+    strictEqual(arg.entityKind, "Type");
+    strictEqual(arg.kind, "Tuple");
+    const [a, b, c] = arg.values;
+
+    strictEqual(a.entityKind, "Type");
+    strictEqual(a.kind, "String");
+    strictEqual(a.value, "a");
+
+    strictEqual(b.entityKind, "Type");
+    strictEqual(b.kind, "Number");
+    strictEqual(b.value, 10);
+
+    strictEqual(c.entityKind, "Type");
+    strictEqual(c.kind, "Boolean");
+    strictEqual(c.value, true);
+  });
+
+  it("accepts literal types where parameter is a rest array of a literal union", async () => {
+    const diagnostics = await runner.diagnose(`
+        union U { "a", 10, true }
+        extern fn testFn(...args: U[]): "a" | 10 | true;
+
+        alias X = testFn("a", 10, true);
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+
+    const arg = calledArgs?.[1] as Type;
+    ok(arg);
+    strictEqual(arg.entityKind, "Type");
+    strictEqual(arg.kind, "String");
+    strictEqual(arg.value, "a");
+
+    const arg2 = calledArgs?.[2] as Type;
+    ok(arg2);
+    strictEqual(arg2.entityKind, "Type");
+    strictEqual(arg2.kind, "Number");
+    strictEqual(arg2.value, 10);
+
+    const arg3 = calledArgs?.[3] as Type;
+    ok(arg3);
+    strictEqual(arg3.entityKind, "Type");
+    strictEqual(arg3.kind, "Boolean");
+    strictEqual(arg3.value, true);
+  });
+
+  it("accepts enum member where parameter is enum", async () => {
+    const diagnostics = await runner.diagnose(`
+        enum E { A, B }
+
+        extern fn testFn(e: E): E;
+
+        alias X = testFn(E.A);
+      `);
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    const arg = calledArgs?.[1] as Type;
+    ok(arg);
+    strictEqual(arg.entityKind, "Type");
+    strictEqual(arg.kind, "EnumMember");
+    strictEqual(arg.name, "A");
+  });
+
+  it("accepts enum value where parameter is valueof enum", async () => {
+    const [{ E, p }, diagnostics] = (await runner.compileAndDiagnose(`
+        @test
+        enum E { A, B }
+        extern fn testFn(e: valueof E): valueof E;
+
+        model Observer {
+          @test p: E = testFn(E.A);
+        }
+      `)) as [{ E: Enum; p: ModelProperty }, Diagnostic[]];
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+
+    const arg = calledArgs?.[1] as Value;
+    ok(arg);
+
+    strictEqual(arg.entityKind, "Value");
+    strictEqual(arg.valueKind, "EnumValue");
+    strictEqual(arg.value.name, "A");
+    strictEqual(arg.value.enum, E);
+
+    // Values have the same structure but are not reference-equal.
+    strictEqual(p.defaultValue?.entityKind, "Value");
+    strictEqual(p.defaultValue.valueKind, "EnumValue");
+    strictEqual(p.defaultValue.value.name, "A");
+    strictEqual(p.defaultValue.value.enum, E);
   });
 
   it("calls function bound to const", async () => {
