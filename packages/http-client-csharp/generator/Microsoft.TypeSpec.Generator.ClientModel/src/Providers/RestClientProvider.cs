@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _pipelineMessage20xClassifiers = BuildPipelineMessage20xClassifiers();
         }
 
-        internal ClientProvider ClientProvider { get; }
+        public ClientProvider ClientProvider { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
