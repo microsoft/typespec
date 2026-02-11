@@ -1,0 +1,10 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "playground-website": {
+      "outputLocation": "dist/web",
+      "appName": "tsp-playground-test",
+      "resourceGroup": "tiguerin-tsp-test"
+    }
+  }
+}
