@@ -43,6 +43,7 @@ Test-writing progress:
 - [ ] Implement sync + async test(s) that match the case’s request/response expectations
 - [ ] Update test requirements only if a new dependency is introduced
 - [ ] Format changed python files with Black (`python -m black <paths> -l 120`)
+- [ ] Validate test locally (start Spector mock server + run pytest)
 - [ ] Add a changelog entry under `.chronus/changes`
 
 ## Prerequisites — Environment setup
@@ -229,7 +230,7 @@ Replace `<paths>` with the specific files and/or folders you modified.
 
 ## Step 9 — Validate your test locally
 
-Before opening a PR, run your new or updated test inside a virtual environment.
+Before opening a PR, run your new or updated test inside a virtual environment with the Spector mock API server running.
 
 1. **Determine the test root.** Pick the directory that matches the test you changed:
    - Azure tests → `packages/http-client-python/generator/test/azure`
@@ -258,7 +259,20 @@ Before opening a PR, run your new or updated test inside a virtual environment.
 
    Replace `<sdk-folder-name>` with the folder that matches the SDK under test (e.g., `azure-encode-duration`, `encode-duration`).
 
-4. **Run the test:**
+4. **Start the Spector mock API server.**
+   The mock API tests make real HTTP requests, so the Spector server must be running before you execute pytest. Start it in a **separate terminal** (it runs in the foreground):
+
+   ```bash
+   # From the repo root — for azure-http-specs scenarios:
+   npx spector serve packages/http-client-python/node_modules/@azure-tools/azure-http-specs/dist
+   
+   # For http-specs (microsoft/typespec) scenarios:
+   npx spector serve packages/http-client-python/node_modules/@typespec/http-specs/dist
+   ```
+
+   Wait until you see the server listening message before running tests.
+
+5. **Run the test:**
 
    ```bash
    pytest mock_api_tests/ -v < test_file > .py
@@ -303,4 +317,5 @@ For test additions, use `changeKind: internal` and list `@typespec/http-client-p
 - Don’t duplicate existing coverage: extend an existing file when reasonable.
 - Use forward-slash paths only.
 - Generated code is gitignored — do NOT attempt to commit it. Only commit: test files, and `package.json`/`package-lock.json` (if dependency versions were updated).
-- Do NOT run `npm run regenerate` for verification — CI will handle full regeneration and test execution.
+- You should still validate your test locally (Step 9) before pushing. CI runs the full regeneration and the complete test matrix, but catching failures early locally is faster.
+- Do NOT run `npm run regenerate` without `--name` for verification — CI will handle full regeneration.
