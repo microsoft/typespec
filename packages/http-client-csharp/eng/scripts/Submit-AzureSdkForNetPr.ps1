@@ -293,29 +293,20 @@ try {
         $configFilesOutputDir = Join-Path $tempDir "eng"
         $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
         
-        # Copy .npmrc to the eng directory where tsp-client will work so it can resolve packages from Azure Artifacts
+        # Set NPM_CONFIG_USERCONFIG to point to our .npmrc so tsp-client's internal npm install
+        # can resolve packages from Azure Artifacts. tsp-client creates a temp directory for
+        # npm install, so a project-level .npmrc in the eng directory won't be found.
         $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
-        $targetNpmrcPath = Join-Path $configFilesOutputDir ".npmrc"
+        $previousNpmConfigUserconfig = $env:NPM_CONFIG_USERCONFIG
         
         if (Test-Path $sourceNpmrcPath) {
-            Write-Host "Copying .npmrc to azure-sdk-for-net eng directory for tsp-client package resolution..."
-            Write-Host "  Source: $sourceNpmrcPath"
-            Write-Host "  Target: $targetNpmrcPath"
+            $resolvedNpmrcPath = (Resolve-Path $sourceNpmrcPath).Path
+            Write-Host "Setting NPM_CONFIG_USERCONFIG to use .npmrc for tsp-client package resolution..."
+            Write-Host "  Source .npmrc: $resolvedNpmrcPath"
+            $env:NPM_CONFIG_USERCONFIG = $resolvedNpmrcPath
             
-            # Ensure the directory exists
-            if (!(Test-Path $configFilesOutputDir)) {
-                New-Item -Path $configFilesOutputDir -ItemType Directory -Force | Out-Null
-            }
-            
-            Copy-Item -Path $sourceNpmrcPath -Destination $targetNpmrcPath -Force
-            
-            Write-Host "npm registry for tsp-client (from eng directory):"
-            Push-Location $configFilesOutputDir
-            try {
-                npm config get registry
-            } finally {
-                Pop-Location
-            }
+            Write-Host "npm registry for tsp-client:"
+            npm config get registry
         } else {
             Write-Host "No .npmrc file found - tsp-client will use default npm registry"
         }
@@ -327,11 +318,8 @@ try {
             }
             Write-Host "Successfully generated emitter-package.json files"
         } finally {
-            # Clean up .npmrc from eng directory
-            if (Test-Path $targetNpmrcPath) {
-                Remove-Item $targetNpmrcPath -Force -ErrorAction SilentlyContinue
-                Write-Host "Cleaned up .npmrc from eng directory"
-            }
+            # Restore previous NPM_CONFIG_USERCONFIG
+            $env:NPM_CONFIG_USERCONFIG = $previousNpmConfigUserconfig
         }
     } else {
         Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
