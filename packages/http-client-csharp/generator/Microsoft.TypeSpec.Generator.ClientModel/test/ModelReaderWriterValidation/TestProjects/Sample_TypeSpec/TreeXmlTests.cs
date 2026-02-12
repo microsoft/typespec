@@ -21,28 +21,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Tree/Tree.json"));
         protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Tree/Tree.json")); // Wire format uses JSON for Tree
         protected string XmlPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Tree/Tree.xml"));
-        
-        protected override Tree ToModel(ClientResult result)
-        {
-            // Tree's cast operator checks Content-Type header to determine format (JSON vs XML)
-            // Without Content-Type, it defaults to XML which breaks JSON wire format tests
-            // For wire format (JSON), use IPersistableModel.Create with wire options
-            using var response = result.GetRawResponse();
-            
-            // If Content-Type header exists and indicates JSON, use the cast operator
-            if (response.Headers.TryGetValue("Content-Type", out string? contentType) && 
-                contentType != null &&
-                contentType.StartsWith("application/json", System.StringComparison.OrdinalIgnoreCase))
-            {
-                return (Tree)result;
-            }
-            
-            // For wire format without Content-Type, use IPersistableModel.Create
-            // This will use the model's GetFormatFromOptions which returns "J" for Tree
-            Tree dummy = new Tree("dummy", 0, 0);
-            return ((IPersistableModel<Tree>)dummy).Create(response.Content, ModelSerializationExtensions.WireOptions)!;
-        }
-        
+        protected override Tree ToModel(ClientResult result) => (Tree)result;
         protected override BinaryContent ToBinaryContent(Tree model) => model;
 
         protected override void CompareModels(Tree model, Tree model2, string format)
