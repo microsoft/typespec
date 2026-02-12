@@ -11210,7 +11210,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations.sampleTypeSpecUrl"
             }
           ],
-          "initializedBy": -1,
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.AnimalOperations",
           "apiVersions": [
@@ -11605,7 +11605,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations.sampleTypeSpecUrl"
             }
           ],
-          "initializedBy": -1,
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.PetOperations",
           "apiVersions": [
@@ -11823,7 +11823,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations.sampleTypeSpecUrl"
             }
           ],
-          "initializedBy": -1,
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.DogOperations",
           "apiVersions": [
@@ -11965,7 +11965,7 @@
               "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations.sampleTypeSpecUrl"
             }
           ],
-          "initializedBy": -1,
+          "initializedBy": 0,
           "decorators": [],
           "crossLanguageDefinitionId": "SampleTypeSpec.PlantOperations",
           "apiVersions": [
