@@ -1,5 +1,5 @@
 ---
-changeKind: internal
+changeKind: feature
 packages:
   - "@typespec/http-specs"
 ---
