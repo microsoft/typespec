@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AdvancedXmlModel id="model-123" version="1" isActive="true" xml-id="xml-id-456" xmlns:ns1="https://example.com/ns1" ns1:label="test-label" xmlns:ns2="https://example.com/ns2" xmlns:foo="http://www.contoso.com/anotherbook.dtd" xmlns:bar="http://www.contoso.com/anothermodel.dtd" xmlns:ns="http://www.example.com/namespace">
+  <name>Test Model</name>
+  <age>42</age>
+  <enabled>true</enabled>
+  <score>3.14</score>
+  <nullableString>nullable value</nullableString>
+  <RenamedProperty>renamed value</RenamedProperty>
+  <unwrappedStrings>string1</unwrappedStrings>
+  <unwrappedStrings>string2</unwrappedStrings>
+  <unwrappedCounts>10</unwrappedCounts>
+  <unwrappedCounts>20</unwrappedCounts>
+  <unwrappedItems itemId="item1">
+    <itemName>Item 1</itemName>
+    <itemValue>100</itemValue>
+  </unwrappedItems>
+  <unwrappedItems itemId="item2">
+    <itemName>Item 2</itemName>
+    <itemValue>200</itemValue>
+  </unwrappedItems>
+  <wrappedColors>
+    <string>red</string>
+    <string>blue</string>
+  </wrappedColors>
+  <ItemCollection>
+    <Item itemId="item3">
+      <itemName>Item 3</itemName>
+      <itemValue>300</itemValue>
+    </Item>
+    <Item itemId="item4">
+      <itemName>Item 4</itemName>
+      <itemValue>400</itemValue>
+    </Item>
+  </ItemCollection>
+  <nestedModel nestedId="1">
+    <value>nested value</value>
+  </nestedModel>
+  <metadata>
+    <key1>value1</key1>
+    <key2>value2</key2>
+  </metadata>
+  <createdAt>2024-01-15T10:30:00.0000000Z</createdAt>
+  <duration>PT1H30M</duration>
+  <data>SGVsbG8gV29ybGQ=</data>
+  <fixedEnum>1</fixedEnum>
+  <extensibleEnum>1</extensibleEnum>
+  <ns2:daysUsed>365</ns2:daysUsed>
+  <foo:fooItems>
+    <string>foo1</string>
+    <string>foo2</string>
+  </foo:fooItems>
+  <bar:anotherModel nestedId="2">
+    <value>another nested value</value>
+  </bar:anotherModel>
+  <modelsWithNamespaces>
+    <ns:XmlModelWithNamespace nameAttr="model1">
+      <ns:content>content1</ns:content>
+    </ns:XmlModelWithNamespace>
+  </modelsWithNamespaces>
+  <unwrappedModelsWithNamespaces>
+    <content>content2</content>
+  </unwrappedModelsWithNamespaces>
+  <listOfListFoo>
+    <Array>
+      <XmlItem itemId="nested1">
+        <itemName>Nested Item 1</itemName>
+        <itemValue>500</itemValue>
+      </XmlItem>
+    </Array>
+  </listOfListFoo>
+  <dictionaryFoo>
+    <key1 itemId="dict1">
+      <itemName>Dict Item 1</itemName>
+      <itemValue>600</itemValue>
+    </key1>
+  </dictionaryFoo>
+  <dictionaryOfDictionaryFoo>
+    <outer1>
+      <inner1 itemId="nested-dict1">
+        <itemName>Nested Dict Item 1</itemName>
+        <itemValue>700</itemValue>
+      </inner1>
+    </outer1>
+  </dictionaryOfDictionaryFoo>
+  <dictionaryListFoo>
+    <list1>
+      <XmlItem itemId="dict-list1">
+        <itemName>Dict List Item 1</itemName>
+        <itemValue>800</itemValue>
+      </XmlItem>
+    </list1>
+  </dictionaryListFoo>
+  <listOfDictionaryFoo>
+    <Record>
+      <key1 itemId="list-dict1">
+        <itemName>List Dict Item 1</itemName>
+        <itemValue>900</itemValue>
+      </key1>
+    </Record>
+  </listOfDictionaryFoo>
+</AdvancedXmlModel>
