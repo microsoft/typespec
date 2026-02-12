@@ -160,8 +160,6 @@ extends:
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
                   if (Test-Path $npmrcPath) {
                     Write-Host "Found .npmrc at: $npmrcPath"
-                    Write-Host "Contents (excluding auth tokens):"
-                    Get-Content $npmrcPath | Where-Object { $_ -notmatch ':_password|:_authToken' } | ForEach-Object { Write-Host "  $_" }
                   } else {
                     Write-Host ".npmrc file not found - will use default npm registry"
                   }
