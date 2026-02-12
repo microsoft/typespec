@@ -249,7 +249,7 @@ try {
             # Only run build and generation if npm install succeeded
             # Run npm run build
             Write-Host "Running npm run build in eng/packages/http-client-csharp..."
-            $shouldRunGenerate = $false
+            $shouldRunGenerate = $true
             $previousErrorAction = $ErrorActionPreference
             $ErrorActionPreference = "Continue"
             try {

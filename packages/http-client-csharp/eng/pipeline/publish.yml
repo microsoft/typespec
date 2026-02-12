@@ -26,7 +26,7 @@ extends:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
-          PublishDependsOnTest: false
+          PublishDependsOnTest: true
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
           Packages:
@@ -45,7 +45,7 @@ extends:
             - name: Microsoft.TypeSpec.Generator.Customization
               file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
               type: nuget
-          UnitTestArgs: ""
+          UnitTestArgs: -UnitTests
           StagePrefix: "CSharp"
           LanguageShortName: "csharp"
           HasNugetPackages: true
