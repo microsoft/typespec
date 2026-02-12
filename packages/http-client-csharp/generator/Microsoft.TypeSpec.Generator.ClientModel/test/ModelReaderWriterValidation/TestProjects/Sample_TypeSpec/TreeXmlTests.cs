@@ -21,28 +21,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Tree/Tree.json"));
         protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Tree/Tree.json")); // Wire format uses JSON for Tree
         protected string XmlPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Tree/Tree.xml"));
-        
-        protected override Tree ToModel(ClientResult result)
-        {
-            // Tree's cast operator checks Content-Type header to determine format (JSON vs XML)
-            // For wire format tests, set the header to application/json since wire format is JSON
-            using var response = result.GetRawResponse();
-            
-            // Check if Content-Type is already set
-            if (response.Headers.TryGetValue("Content-Type", out _))
-            {
-                return (Tree)result;
-            }
-            
-            // Create a new response with Content-Type header for wire format
-            var testResponse = new TestPipelineResponse(200);
-            testResponse.SetContent(response.Content.ToArray());
-            ((TestResponseHeaders)testResponse.Headers).SetHeader("Content-Type", "application/json");
-            
-            var newResult = ClientResult.FromResponse(testResponse);
-            return (Tree)newResult;
-        }
-        
+        protected override Tree ToModel(ClientResult result) => (Tree)result;
         protected override BinaryContent ToBinaryContent(Tree model) => model;
 
         protected override void CompareModels(Tree model, Tree model2, string format)
