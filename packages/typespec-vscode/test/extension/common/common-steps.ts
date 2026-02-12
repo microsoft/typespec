@@ -1,8 +1,11 @@
-import { rm } from "fs/promises";
-import fs from "node:fs";
+import { readdirSync } from "fs";
+import fs, { rmSync, writeFileSync } from "node:fs";
+import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { imagesPath, retry, screenshot } from "./utils";
+import { expect } from "vitest";
+import { RunOptions, runOrExit } from "../../../../internal-build-utils/dist/src/index.js";
+import { CaseScreenshot, npxCmd, repoRoot, retry, tempDir } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.
@@ -16,29 +19,26 @@ export async function preContrastResult(
   text: string,
   errorMessage: string,
   timeout: number = 10000,
+  cs: CaseScreenshot,
+  app?: any,
 ) {
   try {
     await page.waitForSelector(`:text("${text}")`, { timeout });
   } catch (e) {
-    throw new Error(errorMessage);
+    await cs.screenshot(page, "error");
+    app.close();
+    throw new Error(`${errorMessage} - Timed out waiting for text: "${text}" - ${e}`);
   }
 }
 
 /**
  * Results comparison
- * @param res List of expected files
+ * @param exected List of expected files
  * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
  */
-export async function contrastResult(page: Page, res: string[], dir: string) {
-  let resLength = 0;
-  if (fs.existsSync(dir)) {
-    resLength = fs.readdirSync(dir).length;
-    await rm(imagesPath, { recursive: true });
-  }
-  if (resLength !== res.length) {
-    await screenshot(page, "linux", "error");
-    throw new Error("Failed to matches all files");
-  }
+export async function expectFilesInDir(exected: string[], dir: string) {
+  const results = await readdir(dir);
+  expect(results).toEqual(exected);
 }
 
 /**
@@ -46,12 +46,14 @@ export async function contrastResult(page: Page, res: string[], dir: string) {
  * @param page vscode object
  * @param command After the top input box pops up, the command to be executed
  */
-export async function startWithCommandPalette(page: Page, command: string) {
+export async function startWithCommandPalette(page: Page, command: string, cs: CaseScreenshot) {
+  await page.waitForSelector(".explorer-viewlet");
+  await page.waitForSelector(".left-items");
   await page.keyboard.press("ControlOrMeta+Shift+P");
   await page.waitForSelector('input[aria-label="Type the name of a command to run."]', {
     state: "visible",
   });
-  await screenshot(page, "linux", "open_top_panel");
+  await cs.screenshot(page, "open_top_panel");
   await page
     .getByRole("textbox", { name: "Type the name of a command to run." })
     .first()
@@ -68,68 +70,151 @@ export async function startWithCommandPalette(page: Page, command: string) {
       return (await listForCreate.count()) > 0;
     },
     "Failed to find the specified option",
+    1,
+    cs,
   );
-  await screenshot(page, "linux", "input_command");
+  if (command.includes("Emit")) {
+    await cs.screenshot(page, "trigger_emit_typespec");
+  } else {
+    await cs.screenshot(page, "trigger_create_typespec");
+  }
   await listForCreate!.click();
 }
 
 /**
- * If the current folder is not empty, sometimes a pop-up will appear
- * asking "Do you want to continue selecting the current folder as the root directory?".
- * In this method, select "yes" because selecting "no" does not make sense.
+ * Start the Project with Right click on the file
  * @param page vscode object
+ * @param command create, emit or import
+ * @param type specify whether the click is on file, folder or empty folder
+ * command: specify which command to execute to the project
  */
-export async function notEmptyFolderContinue(page: Page) {
-  let yesBtn: Locator;
+export async function startWithRightClick(page: Page, command: string, cs: CaseScreenshot) {
+  await page.waitForSelector(".explorer-viewlet");
+  await page.waitForSelector(".letterpress");
+  await page.waitForSelector(".left-items");
+  const targetName = "ImportTypespecProjectEmptyFolder";
+  await page.getByRole("toolbar", { name: "Explorer actions" }).click();
+  const target = page.getByRole("treeitem", { name: targetName }).locator("a");
+  await target.click({ button: "right" });
   await retry(
     page,
-    5,
+    10,
     async () => {
-      yesBtn = page
-        .getByRole("option", { name: "Yes" })
-        .locator("label")
-        .filter({ hasText: "Yes" })
-        .first();
-      const noBtn = page
-        .getByRole("option", { name: "No" })
-        .locator("label")
-        .filter({ hasText: "No" })
-        .first();
-      return (await yesBtn.count()) > 0 && (await noBtn.count()) > 0;
+      const ImportBtn = page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" });
+      return (await ImportBtn.count()) > 0;
     },
-    "Failed to find yes/no button",
-    1,
+    "Failed to locate ImportBtn successfully",
+    2,
+    cs,
   );
-  await retry(
-    page,
-    5,
-    async () => {
-      const yesdescriptionBox = page.getByRole("option", { name: "Yes" }).locator("label");
-      const yesdescriptionText = await yesdescriptionBox.textContent();
-      return yesdescriptionText !== null && yesdescriptionText.includes("YesSelected folder");
-    },
-    "Failed to match the description for the non-empty folder cases",
-    1,
-  );
-  await screenshot(page, "linux", "not_empty_folder_continue");
-  await yesBtn!.click();
+  await cs.screenshot(page, "trigger_import_typespec");
+  await page.getByRole("menuitem", { name: "Import TypeSpec from OpenAPI" }).click();
 }
 
 /**
- * If the current scenario is: the folder is not empty, you need to call this method
- * @param page vscode project
+ * Tspconfig file, read and delete the first three lines
  * @param folderName The name of the folder that needs to be selected.
  */
-export function createTestFile(folderName: string) {
-  const filePath = path.join(folderName, "test.txt");
-  fs.writeFileSync(filePath, "test");
+export function readTspConfigFile(folderName: string) {
+  const filePath = path.join(folderName, "tspconfig.yaml");
+  const content = fs.readFileSync(filePath, "utf-8");
+  const lines = content.split(/\r?\n/);
+  const newLines = lines.slice(3);
+  fs.writeFileSync(filePath, newLines.join("\n"), "utf-8");
+  return { content, newLines };
 }
 
 /**
- * Placeholder file, need to be deleted
- * @param folderName The name of the folder that needs to be selected.
+ * Add the deleted three lines back to the beginning of the tspconfig.yaml file.
+ * @param folderName The folder name that needs to be operated on.
+ * @param content The full content to restore into tspconfig.yaml.
  */
-export function deleteTestFile(folderName: string) {
-  const filePath = path.join(folderName, "test.txt");
-  fs.rmSync(filePath);
+export function restoreTspConfigFile(folderName: string, lines: string) {
+  const filePath = path.join(folderName, "tspconfig.yaml");
+  fs.writeFileSync(filePath, lines, "utf-8");
+}
+
+/**
+ * Pack those packages in the repoRoot needed for testing and prepare to be linked
+ * @returns packages path map
+ */
+export async function packPackages() {
+  await runOrExit("pnpm", ["-w", "pack:all"], { cwd: repoRoot, stdio: "ignore" });
+  const outputFolder = path.join(repoRoot, "/temp/artifacts");
+  const files = readdirSync(outputFolder);
+
+  function resolvePackage(start: string, notStart?: string): string {
+    const pkgName = files.find(
+      (x: string) => x.startsWith(start) && (!notStart || !x.startsWith(notStart)),
+    );
+    if (pkgName === undefined) {
+      throw new Error(`Cannot resolve package starting with "${start}"`);
+    }
+    return path.join(outputFolder, pkgName);
+  }
+
+  return {
+    "@typespec/compiler": resolvePackage("typespec-compiler-"),
+    "@typespec/openapi3": resolvePackage("typespec-openapi3-"),
+    "@typespec/http": resolvePackage("typespec-http-"),
+    "@typespec/http-client": resolvePackage("typespec-http-client-", "typespec-http-client-js-"),
+    "@typespec/http-client-js": resolvePackage("typespec-http-client-js-"),
+    "@typespec/streams": resolvePackage("typespec-streams-"),
+    "@typespec/rest": resolvePackage("typespec-rest-"),
+    "@typespec/emitter-framework": resolvePackage("typespec-emitter-framework-"),
+    "@typespec/openapi": resolvePackage("typespec-openapi-"),
+    "@typespec/asset-emitter": resolvePackage("typespec-asset-emitter-"),
+  };
+}
+
+/**
+ * Install those packages needed for testing in the EmitTypespecProject folder
+ * @param packages packages path map
+ */
+export async function packagesInstall(packages: { [x: string]: string }, testType: string) {
+  let testCurrentDir: string;
+  if (testType === "Emit") {
+    testCurrentDir = path.join(tempDir, "EmitTypespecProject");
+    const outputDir = path.join(testCurrentDir, "tsp-output");
+    rmSync(outputDir, { recursive: true, force: true });
+  } else if (testType === "Import") {
+    testCurrentDir = path.join(tempDir, "ImportTypespecProjectOpenApi3");
+  } else if (testType === "Preview") {
+    testCurrentDir = path.join(tempDir, "PreviewTypespecProject");
+  } else {
+    throw new Error(`Unknown testType: ${testType}`);
+  }
+  const packageJson = {
+    name: "@typespec/e2e-test-typespec-vscode",
+    dependencies: {
+      "@typespec/compiler": packages["@typespec/compiler"],
+      "@typespec/http": packages["@typespec/http"],
+      "@typespec/openapi3": packages["@typespec/openapi3"],
+      "@typespec/http-client-js": packages["@typespec/http-client-js"],
+      "@typespec/streams": packages["@typespec/streams"],
+      "@typespec/rest": packages["@typespec/rest"],
+      "@typespec/emitter-framework": packages["@typespec/emitter-framework"],
+      "@typespec/openapi": packages["@typespec/openapi"],
+      "@typespec/asset-emitter": packages["@typespec/asset-emitter"],
+    },
+    private: true,
+    overrides: {
+      // override to make sure to use local http-client package, otherwise it will be installed from npm registry and may
+      // cause issues from different version (i.e. multiple version alloy libraries being complained)
+      "@typespec/http-client": packages["@typespec/http-client"],
+    },
+  };
+  writeFileSync(path.join(testCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
+
+  await runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: testCurrentDir });
+}
+
+/**
+ * Run typespec with npx
+ * @param compilerTgz The path to the TypeSpec compiler package tarball.
+ * @param args The arguments to pass to the TypeSpec compiler.
+ * @param options Additional options for running the command.
+ */
+export async function runTypeSpec(compilerTgz: string, args: any, options: RunOptions | undefined) {
+  await runOrExit(npxCmd, ["-y", "-p", compilerTgz, "tsp", ...args], { ...options });
 }

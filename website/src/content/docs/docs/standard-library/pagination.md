@@ -1,5 +1,7 @@
 ---
 title: Pagination
+description: Standard library reference to using built-in pagination patterns
+llmstxt: true
 ---
 
 TypeSpec provide built-in support for some of the common pagination pattern used.
@@ -101,6 +103,10 @@ The continuation token can be in other locations as well, for instance, the belo
 };
 ```
 
+:::note
+For HTTP services, `@nextLink` (and other link decorators like `@prevLink`, `@firstLink`, `@lastLink`) should be followed using a GET request by default. The link URIs are expected to be treated as opaque URLs that contain all necessary information to navigate to the respective page.
+:::
+
 ### Example 3: Combining client and server driven pagination for an HTTP service
 
 ```tsp
@@ -122,7 +128,7 @@ The continuation token can be in other locations as well, for instance, the belo
 A paged operation can offer additional parameters that are not used as paging control parameters like a filter parameter for example.
 The expectation is those would be carried over to the next page requests with the exception of the link cases(next, prev, first and last links) where each protocol might have a different interpretation of what the link exactly represents. The link may encode parameters such as query parameters in HTTP. In such cases those parameters must be passed.
 
-For example, HTTP links are expected to be opaque and contain all the necessary information for the next page URL. This means that query and path parameters are expected to already have been included in the link. On the other hand, any header parameters are expected to be resent in the next request as those cannot be represented in the link.
+For example, HTTP links are expected to be opaque and contain all the necessary information for the next page URL. When following these links (such as `@nextLink`, `@prevLink`, `@firstLink`, `@lastLink`), clients should use a GET request by default. This means that query and path parameters are expected to already have been included in the link. On the other hand, any header parameters are expected to be resent in the next request as those cannot be represented in the link.
 
 ### Examples
 

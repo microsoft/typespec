@@ -26,7 +26,6 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
-import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 
 /**
@@ -114,22 +113,6 @@ public final class ErrorsClientImpl implements ErrorsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<ConfidentialResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String confidentialResourceName) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (confidentialResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter confidentialResourceName is required and cannot be null."));
-        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -168,25 +151,6 @@ public final class ErrorsClientImpl implements ErrorsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ConfidentialResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
         String confidentialResourceName, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (confidentialResourceName == null) {
-            throw LOGGER.atError()
-                .log(
-                    new IllegalArgumentException("Parameter confidentialResourceName is required and cannot be null."));
-        }
         final String accept = "application/json";
         return service.getByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, confidentialResourceName, accept, context);
@@ -222,27 +186,6 @@ public final class ErrorsClientImpl implements ErrorsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<ConfidentialResourceInner>> createForUserDefinedErrorWithResponseAsync(
         String resourceGroupName, String confidentialResourceName, ConfidentialResourceInner resource) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (confidentialResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter confidentialResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
@@ -287,31 +230,6 @@ public final class ErrorsClientImpl implements ErrorsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ConfidentialResourceInner> createForUserDefinedErrorWithResponse(String resourceGroupName,
         String confidentialResourceName, ConfidentialResourceInner resource, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (confidentialResourceName == null) {
-            throw LOGGER.atError()
-                .log(
-                    new IllegalArgumentException("Parameter confidentialResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.createForUserDefinedErrorSync(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -336,6 +254,4 @@ public final class ErrorsClientImpl implements ErrorsClient {
         return createForUserDefinedErrorWithResponse(resourceGroupName, confidentialResourceName, resource,
             Context.NONE).getValue();
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(ErrorsClientImpl.class);
 }

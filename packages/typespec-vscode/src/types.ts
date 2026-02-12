@@ -1,9 +1,11 @@
+import { LmChatMesage, LmChatRequestOptions } from "./lm/language-model.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
 import { InitTemplatesUrlSetting } from "./vscode-cmd/create-tsp-project.js";
 
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
   InitTemplatesUrls = "typespec.initTemplatesUrls",
+  CompileEntrypoint = "typespec.entrypoint",
 }
 
 export const enum CommandName {
@@ -72,4 +74,13 @@ export type Result<T = void> = SuccessResult<T> | UnsuccessResult;
 export interface TypeSpecExtensionApi {
   /** Register more InitTemplateUrls which will be included in the Create TypeSpec Project scenario */
   registerInitTemplateUrls(items: InitTemplatesUrlSetting[]): void;
+}
+
+export type LspClientCustomRequest_ChatComplete_Name = "custom/chatCompletion";
+export interface LspClientCustomRequest_ChatCompletion_Params {
+  messages: LmChatMesage[];
+  modelFamily: string;
+  options?: LmChatRequestOptions;
+  /** Only for logging purpose */
+  id?: string;
 }

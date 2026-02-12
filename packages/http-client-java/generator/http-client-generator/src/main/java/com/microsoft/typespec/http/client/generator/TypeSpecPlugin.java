@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
@@ -18,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
@@ -29,8 +27,11 @@ import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
-import java.io.File;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
@@ -63,8 +64,9 @@ public class TypeSpecPlugin extends Javagen {
                     emitterOptions.getApiVersion() == null
                         ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
                         : emitterOptions.getApiVersion(),
-                    collectCrossLanguageDefinitions(client));
-            javaPackage.addTypeSpecMetadata(metadata);
+                    collectCrossLanguageDefinitions(client),
+                    FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
+            javaPackage.addTypeSpecMetadata(metadata, null);
         }
 
         return javaPackage;
@@ -148,8 +150,8 @@ public class TypeSpecPlugin extends Javagen {
 
     @Override
     public void writeFile(String fileName, String content, List<Object> sourceMap) {
-        File outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
-        LOGGER.info("Write file: {}", outputFile.getAbsolutePath());
+        Path outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
+        LOGGER.info("Write file: {}", outputFile.toAbsolutePath());
     }
 
     private static final Map<String, Object> SETTINGS_MAP = new HashMap<>();
@@ -199,6 +201,7 @@ public class TypeSpecPlugin extends Javagen {
     public TypeSpecPlugin(EmitterOptions options, boolean sdkIntegration) {
         super(new MockConnection(), "dummy", "dummy");
         this.emitterOptions = options;
+
         SETTINGS_MAP.put("namespace", options.getNamespace());
         if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
             SETTINGS_MAP.put("output-folder", options.getOutputDir());
@@ -260,6 +263,10 @@ public class TypeSpecPlugin extends Javagen {
                 options.getUseDefaultHttpStatusCodeToExceptionTypeMapping());
         }
 
+        if (options.getRenameModel() != null) {
+            SETTINGS_MAP.put("rename-model", options.getRenameModel());
+        }
+
         if (options.getFlavor() != null) {
             SETTINGS_MAP.put("flavor", options.getFlavor());
         }
@@ -308,13 +315,13 @@ public class TypeSpecPlugin extends Javagen {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValueWithJsonReader(String key, ReadValueCallback<JsonReader, T> converter) {
+    public <T> T getValueWithJsonReader(String key, IOExceptionCheckedFunction<JsonReader, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 

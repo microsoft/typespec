@@ -1,5 +1,5 @@
 import assert, { strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("bundling", () => {
@@ -42,14 +42,13 @@ describe("bundling", () => {
       { bundleId: "test.json" },
       {
         emitNamespace: false,
-        emitTypes: ["testModel", "testArray", "testUnion", "testEnum", "testScalar"],
       },
     );
 
     const defs = Object.keys(schemas["test.json"].$defs);
     strictEqual(defs.length, 5);
     ["testModel", "testArray", "testUnion", "testEnum", "testScalar"].forEach((name) => {
-      assert(defs.indexOf(name) !== -1, "defs should contain " + name);
+      expect(defs).toContain(name);
     });
   });
   it("with emitAllRefs, creates bundled schemas for referenced non-JSON Schema types", async () => {
@@ -77,7 +76,6 @@ describe("bundling", () => {
       { bundleId: "test.json", emitAllRefs: true },
       {
         emitNamespace: false,
-        emitTypes: ["testModel", "testArray", "testUnion", "testEnum", "testScalar"],
       },
     );
 
@@ -96,7 +94,7 @@ describe("bundling", () => {
       "nonEnum",
       "nonUnion",
     ].forEach((name) => {
-      assert(defs.indexOf(name) !== -1, "defs should contain " + name);
+      expect(defs).toContain(name);
     });
   });
 
@@ -143,7 +141,7 @@ describe("bundling", () => {
       "nonEnum",
       "nonUnion",
     ].forEach((name) => {
-      assert(defs.indexOf(name) !== -1, "defs should contain " + name);
+      expect(defs).toContain(name);
     });
   });
 });

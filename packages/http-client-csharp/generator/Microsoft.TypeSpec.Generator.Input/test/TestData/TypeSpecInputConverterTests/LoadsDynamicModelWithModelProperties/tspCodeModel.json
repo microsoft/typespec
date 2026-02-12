@@ -1,0 +1,445 @@
+{
+    "name": "Sample.TypeSpec",
+    "models": [
+        {
+            "$id": "9",
+            "kind": "model",
+            "name": "YetAnotherModel",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.AnotherModel",
+            "usage": "Output,Spread,Json",
+            "doc": "this is not a friendly model but with a friendly name",
+            "properties": [
+                {
+                    "$id": "10",
+                    "kind": "property",
+                    "name": "name",
+                    "serializedName": "name",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "11",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string",
+                        "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                }
+            ]
+        },
+        {
+            "$id": "7",
+            "kind": "model",
+            "name": "AnotherModel",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.AnotherModel",
+            "usage": "Output,Spread,Json",
+            "doc": "this is not a friendly model but with a friendly name",
+            "properties": [
+                {
+                    "$id": "21",
+                    "kind": "property",
+                    "name": "name",
+                    "serializedName": "name",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "15",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string",
+                        "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "26",
+                    "kind": "property",
+                    "name": "AnotherDynamicProperty",
+                    "serializedName": "anotherDynamicProperty",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$ref": "9"
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                }
+            ]
+        },
+        {
+            "$id": "18",
+            "kind": "model",
+            "name": "NullableModel",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.AnotherModel",
+            "usage": "Output,Spread,Json",
+            "doc": "this is not a friendly model but with a friendly name",
+            "properties": [
+                {
+                    "$id": "22",
+                    "kind": "property",
+                    "name": "name",
+                    "serializedName": "name",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "24",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string",
+                        "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "27",
+                    "kind": "property",
+                    "name": "AnotherDynamicProperty",
+                    "serializedName": "anotherDynamicProperty",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$ref": "9"
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "4278",
+                    "kind": "property",
+                    "name": "NullableUnionDynamicProperty",
+                    "serializedName": "nullableUnionDynamicProperty",
+                    "doc": "Specify which of the MCP server's tools require approval.",
+                    "type": {
+                    "$id": "4279",
+                    "kind": "nullable",
+                    "type": {
+                        "$id": "4280",
+                        "kind": "union",
+                        "name": "MCPToolRequireApproval",
+                        "variantTypes": [
+                        {
+                            "$id": "4281",
+                            "kind": "model",
+                            "name": "MCPToolRequireApproval1",
+                            "namespace": "SampleTypeSpec",
+                            "crossLanguageDefinitionId": "SampleTypeSpec.MCPTool.require_approval.anonymous",
+                            "usage": "Input,Output,Json",
+                            "decorators": [],
+                            "properties": [
+                            ]
+                        }
+                        ],
+                        "namespace": "SampleTypeSpec",
+                        "decorators": []
+                    },
+                    "namespace": "SampleTypeSpec"
+                    },
+                    "optional": true,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.MCPTool.require_approval",
+                    "serializationOptions": {
+                    "json": {
+                        "name": "require_approval"
+                    }
+                    },
+                    "isHttpMetadata": false
+                }
+            ]
+        },
+        {
+            "$id": "19",
+            "kind": "model",
+            "name": "UnionVariantModel1",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.AnotherModel",
+            "usage": "Output,Spread,Json",
+            "doc": "this is not a friendly model but with a friendly name",
+            "properties": [
+                {
+                    "$id": "5",
+                    "kind": "property",
+                    "name": "name",
+                    "serializedName": "name",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "23",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string",
+                        "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "13",
+                    "kind": "property",
+                    "name": "AnotherDynamicProperty",
+                    "serializedName": "anotherDynamicProperty",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$ref": "9"
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                }
+            ]
+        },
+        {
+            "$id": "20",
+            "kind": "model",
+            "name": "UnionVariantModel2",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.AnotherModel",
+            "usage": "Output,Spread,Json",
+            "doc": "this is not a friendly model but with a friendly name",
+            "properties": [
+                {
+                    "$id": "28",
+                    "kind": "property",
+                    "name": "name",
+                    "serializedName": "name",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "29",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string",
+                        "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "25",
+                    "kind": "property",
+                    "name": "AnotherDynamicProperty",
+                    "serializedName": "anotherDynamicProperty",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$ref": "9"
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                }
+            ]
+        },
+        {
+            "$id": "1",
+            "kind": "model",
+            "name": "Friend",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend",
+            "usage": "Output,Spread,Json",
+            "doc": "this is not a friendly model but with a friendly name",
+            "decorators": [
+                {
+                    "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
+                    "arguments": {}
+                }
+            ],
+            "properties": [
+                {
+                    "$id": "2",
+                    "kind": "property",
+                    "name": "name",
+                    "serializedName": "name",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "3",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string",
+                        "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "6",
+                    "kind": "property",
+                    "name": "dynamicProperty",
+                    "serializedName": "dynamicProperty",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$ref": "7"
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "12",
+                    "kind": "property",
+                    "name": "nullableDynamicProperty",
+                    "serializedName": "nullableDynamicProperty",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "14",
+                        "kind": "nullable",
+                        "type": {
+                            "$ref": "18"
+                        }
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "16",
+                    "kind": "property",
+                    "name": "unionDynamicProperty",
+                    "serializedName": "unionDynamicProperty",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "17",
+                        "kind": "union",
+                        "name": "someUnion",
+                        "variantTypes": [
+                            {
+                                "$ref": "19"
+                            },
+                            {
+                                "$ref": "20"
+                            }
+                        ]
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                }
+            ]
+        }
+    ]
+}

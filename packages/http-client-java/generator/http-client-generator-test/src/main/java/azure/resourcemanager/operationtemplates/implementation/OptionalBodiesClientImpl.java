@@ -30,7 +30,6 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
-import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 
 /**
@@ -153,21 +152,6 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<WidgetInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String widgetName) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (widgetName == null) {
-            return Mono.error(new IllegalArgumentException("Parameter widgetName is required and cannot be null."));
-        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -205,24 +189,6 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<WidgetInner> getByResourceGroupWithResponse(String resourceGroupName, String widgetName,
         Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (widgetName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter widgetName is required and cannot be null."));
-        }
         final String accept = "application/json";
         return service.getByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, widgetName, accept, context);
@@ -258,24 +224,6 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<WidgetInner>> patchWithResponseAsync(String resourceGroupName, String widgetName,
         WidgetInner properties) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (widgetName == null) {
-            return Mono.error(new IllegalArgumentException("Parameter widgetName is required and cannot be null."));
-        }
-        if (properties != null) {
-            properties.validate();
-        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.patch(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -317,27 +265,6 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<WidgetInner> patchWithResponse(String resourceGroupName, String widgetName, WidgetInner properties,
         Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (widgetName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter widgetName is required and cannot be null."));
-        }
-        if (properties != null) {
-            properties.validate();
-        }
         final String accept = "application/json";
         return service.patchSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, widgetName, accept, properties, context);
@@ -373,24 +300,6 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<ActionResultInner>> postWithResponseAsync(String resourceGroupName, String widgetName,
         ActionRequest body) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (widgetName == null) {
-            return Mono.error(new IllegalArgumentException("Parameter widgetName is required and cannot be null."));
-        }
-        if (body != null) {
-            body.validate();
-        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.post(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -430,27 +339,6 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ActionResultInner> postWithResponse(String resourceGroupName, String widgetName, ActionRequest body,
         Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (widgetName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter widgetName is required and cannot be null."));
-        }
-        if (body != null) {
-            body.validate();
-        }
         final String accept = "application/json";
         return service.postSync(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
             resourceGroupName, widgetName, accept, body, context);
@@ -483,17 +371,6 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<ChangeAllowanceResultInner>> providerPostWithResponseAsync(ChangeAllowanceRequest body) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (body != null) {
-            body.validate();
-        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.providerPost(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -526,19 +403,6 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ChangeAllowanceResultInner> providerPostWithResponse(ChangeAllowanceRequest body, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (body != null) {
-            body.validate();
-        }
         final String accept = "application/json";
         return service.providerPostSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), accept, body, context);
@@ -556,6 +420,4 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
         final ChangeAllowanceRequest body = null;
         return providerPostWithResponse(body, Context.NONE).getValue();
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(OptionalBodiesClientImpl.class);
 }

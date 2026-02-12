@@ -10,8 +10,8 @@ using TypeSpec.Rest;
 using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.ResourceManager;
-using TypeSpec.OpenAPI;
 using Azure.ClientGenerator.Core;
+using Azure.ClientGenerator.Core.Legacy;
 
 @armProviderNamespace
 @service(#{ title: "ArmResource" })
@@ -21,23 +21,15 @@ namespace TspTest.ArmResourceProvider;
 
 @doc("Azure API versions.")
 enum Versions {
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Preview API version 2022-06-01-preview.")
   v2022_06_01_preview: "2022-06-01-preview",
 
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Preview API version 2022-09-01-preview.")
   v2022_09_01_preview: "2022-09-01-preview",
 
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Public API version.")
   v2023_11_01: "2023-11-01",
 
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Preview API version 2023-12-01-preview.")
   v2023_12_01_preview: "2023-12-01-preview",
 }
@@ -85,6 +77,9 @@ model TopLevelArmResourceProperties {
 
   @visibility(Lifecycle.Create, Lifecycle.Read)
   startTimeStamp: utcDateTime; // this should be renamed to startTimestamp
+
+  @visibility(Lifecycle.Read)
+  size?: float32;
 
   @visibility(Lifecycle.Read)
   @doc("The status of the last operation.")
@@ -264,22 +259,59 @@ model NginxConfigurationRequest {
   rootFile?: string;
 }
 
+model ChildResourceListResult is Azure.Core.Page<ChildResource>;
+
+@resource("resourceLroNoBody")
+model ResourceLroNoBody is TrackedResource<ResourceLroNoBodyProperties> {
+  ...ResourceNameParameter<ResourceLroNoBody>;
+}
+
+model ResourceLroNoBodyProperties {
+  @visibility(Lifecycle.Read)
+  @doc("The status of the last operation.")
+  provisioningState?: ProvisioningState;
+}
+
+// this model should not be generated
+model ActionInitiateResult {
+  status: string;
+}
+
+// this model should be generated
+model ActionFinalResult {
+  result: string;
+}
+
 //----------------------- Paths -----------------------
 @armResourceOperations
 interface ChildResourcesInterface
   extends ResourceInstanceOperations<ChildResource, ChildResourceProperties> {
-  listByTopLevelArmResource is ArmResourceListByParent<ChildResource>;
+  listByTopLevelArmResource is ArmResourceListByParent<
+    ChildResource,
+    Response = ArmResponse<ChildResourceListResult & {
+      @header("ETag") eTag: string;
+      @header("content-type") contentType: "application/json";
+      @header("x-ms-constant-header") xMsConstantHeader: "constantValue";
+    }>
+  >;
   actionWithoutBody is ArmResourceActionAsync<ChildResource, void, void>;
 }
 
 @armResourceOperations
 interface TopLevelArmResourceInterface
   extends TrackedResourceOperations<TopLevelArmResource, TopLevelArmResourceProperties> {
-  @operationId("TopLevelArmResourceInterface_Post")
   action is ArmResourceActionAsync<
     TopLevelArmResource,
     void,
     Result,
+    Azure.ResourceManager.Foundations.BaseParameters<TopLevelArmResource>
+  >;
+
+  @action("publishxml")
+  publishXml is ArmResourceActionSync<
+    TopLevelArmResource,
+    void,
+    File<"application/xml", bytes>,
     Azure.ResourceManager.Foundations.BaseParameters<TopLevelArmResource>
   >;
 }
@@ -300,7 +332,6 @@ interface CustomTemplateResourceInterface
   #suppress "@azure-tools/typespec-azure-core/no-operation-id" "Use operationId to keep same name as deprecated update operation"
   @sharedRoute
   @added(Versions.v2023_11_01)
-  @operationId("CustomTemplateResourceInterfaces_Update")
   updateLongRunning is ArmCustomPatchAsync<CustomTemplateResource, CustomTemplateResourcePatch>;
 }
 
@@ -367,6 +398,28 @@ interface ImmutableResourceModel {
   >;
 }
 
+// LRO without body in response
+@armResourceOperations
+interface LroNoBody {
+  @put
+  createOrUpdate is Azure.ResourceManager.Legacy.CreateOrReplaceAsync<
+    ResourceLroNoBody,
+    Request = ResourceLroNoBody,
+    Response = ArmAcceptedLroResponse<LroHeaders = ArmCombinedLroHeaders<FinalResult = ResourceLroNoBody> &
+      Azure.Core.Foundations.RetryAfterHeader>
+  >;
+
+  @post
+  action is ArmResourceActionAsync<
+    ResourceLroNoBody,
+    void,
+    ActionInitiateResult,
+    LroHeaders = ArmCombinedLroHeaders<FinalResult = ActionFinalResult> &
+      Azure.Core.Foundations.RetryAfterHeader
+  >;
+}
+
+// client configure
 @@clientName(TspTest.ArmResourceProvider, "ArmClient");
 @@clientName(ManagedMaintenanceWindowStatusContent, "ManagedMaintenanceWindowStatus");
 @@clientName(ModelInterfaceDifferentName, "ModelInterfaceSameName");

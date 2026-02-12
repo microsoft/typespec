@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 from .parameter import (
     ParameterLocation,
     ParameterMethodLocation,
@@ -52,7 +52,7 @@ class RequestBuilderBodyParameter(BodyParameter):
         )
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "RequestBuilderBodyParameter":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "RequestBuilderBodyParameter":
         return super().from_yaml(yaml_data, code_model)  # type: ignore
 
     @property
@@ -67,7 +67,7 @@ class RequestBuilderParameter(Parameter):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         type: BaseType,
     ) -> None:

@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
+from ast import Mod
 import copy
 import decimal
 import json
@@ -10,13 +11,9 @@ from pathlib import Path
 from typing import (
     Any,
     Iterable,
-    List,
     Literal,
-    Dict,
     Mapping,
     Sequence,
-    Set,
-    Tuple,
     Optional,
     overload,
     Union,
@@ -49,7 +46,7 @@ class BasicResource(Model):
     platform_fault_domain_count: int = rest_field(
         name="platformFaultDomainCount"
     )  # How many times the platform fault domain has been counted
-    virtual_machines: List[Any] = rest_field(name="virtualMachines")  # List of virtual machines
+    virtual_machines: list[Any] = rest_field(name="virtualMachines")  # List of virtual machines
 
     @overload
     def __init__(
@@ -57,8 +54,24 @@ class BasicResource(Model):
         *,
         platform_update_domain_count: int,
         platform_fault_domain_count: int,
-        virtual_machines: List[Any],
+        virtual_machines: list[Any],
     ): ...
+
+    @overload
+    def __init__(self, mapping: Mapping[str, Any], /): ...
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class ModelWithArgsProperty(Model):
+    """A model that has a property named 'args' to test potential conflicts with *args."""
+
+    name: str = rest_field()
+    args: list[str] = rest_field()  # property named 'args' which could conflict with *args
+
+    @overload
+    def __init__(self, *, name: str, args: list[str]): ...
 
     @overload
     def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -107,6 +120,43 @@ def test_model_and_dict_equal():
         == 3
     )
     assert model.virtual_machines == model["virtualMachines"] == dict_response["virtualMachines"]
+
+
+def test_model_with_args_property():
+    """Test that a model with a property named 'args' works correctly."""
+    # Test initialization with keyword arguments
+    model = ModelWithArgsProperty(name="test", args=["arg1", "arg2", "arg3"])
+    assert model.name == "test"
+    assert model.args == ["arg1", "arg2", "arg3"]
+
+    # Test dict-style access
+    assert model["name"] == "test"
+    assert model["args"] == ["arg1", "arg2", "arg3"]
+
+    # Test equality with dict
+    dict_response = {"name": "test", "args": ["arg1", "arg2", "arg3"]}
+    assert model == dict_response
+
+    # Test initialization from dict (using positional argument which goes to *args)
+    model_from_dict = ModelWithArgsProperty(dict_response)
+    assert model_from_dict.name == "test"
+    assert model_from_dict.args == ["arg1", "arg2", "arg3"]
+    assert model_from_dict == model
+
+    # Test modification of the 'args' property
+    model.args = ["new_arg"]
+    assert model.args == ["new_arg"]
+    assert model["args"] == ["new_arg"]
+
+    # Test dict-style modification of 'args'
+    model["args"] = ["modified_arg1", "modified_arg2"]
+    assert model.args == ["modified_arg1", "modified_arg2"]
+
+    # Test JSON serialization roundtrip
+    json_str = json.dumps(dict(model))
+    parsed = json.loads(json_str)
+    assert parsed["name"] == "test"
+    assert parsed["args"] == ["modified_arg1", "modified_arg2"]
 
 
 def test_json_roundtrip():
@@ -185,7 +235,7 @@ def test_original_and_attr_name_same():
 class OptionalModel(Model):
     optional_str: Optional[str] = rest_field()
     optional_time: Optional[datetime.time] = rest_field()
-    optional_dict: Optional[Dict[str, Optional[Pet]]] = rest_field(name="optionalDict")
+    optional_dict: Optional[dict[str, Optional[Pet]]] = rest_field(name="optionalDict")
     optional_model: Optional[Pet] = rest_field()
     optional_myself: Optional["OptionalModel"] = rest_field()
 
@@ -195,7 +245,7 @@ class OptionalModel(Model):
         *,
         optional_str: Optional[str] = None,
         optional_time: Optional[datetime.time] = None,
-        optional_dict: Optional[Dict[str, Optional[Pet]]] = None,
+        optional_dict: Optional[dict[str, Optional[Pet]]] = None,
         optional_myself: Optional["OptionalModel"] = None,
     ): ...
 
@@ -335,6 +385,72 @@ def test_property_is_a_type():
     assert fishery.fish.species == fishery.fish["species"] == fishery["fish"]["species"] == "Salmon"
 
 
+def test_model_initialization():
+    class DatetimeModel(Model):
+        datetime_value: datetime.datetime = rest_field(name="datetimeValue")
+
+        @overload
+        def __init__(self, *, datetime_value: datetime.datetime): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    val_str = "9999-12-31T23:59:59.999000Z"
+    val = isodate.parse_datetime(val_str)
+
+    # when initialize model with dict, the dict value is shall be serialized value
+    model1 = DatetimeModel({"datetimeValue": val_str})
+    assert model1["datetimeValue"] == val_str
+    assert model1.datetime_value == val
+
+    # when initialize model with keyword args, the value is deserialized value
+    model2 = DatetimeModel(datetime_value=val)
+    assert model2["datetimeValue"] == val_str
+    assert model2.datetime_value == val
+
+    # what if we initialize with dict but the dict has deserialized value? this case show what happens.
+    # Since we always serialize the value before initializing the model from dict, we could still get correct result
+    model3 = DatetimeModel({"datetimeValue": val})
+    assert model3["datetimeValue"] == val_str
+    assert model3.datetime_value == val
+
+
+def test_model_dict_prop_initialization():
+    class DatetimeModel(Model):
+        dict_prop: dict[str, datetime.datetime] = rest_field(name="dictProp")
+
+        @overload
+        def __init__(self, *, dict_prop: dict[str, datetime.datetime]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    val_str = "9999-12-31T23:59:59.999000Z"
+    val = isodate.parse_datetime(val_str)
+
+    # when initialize model with dict, the dict value is shall be serialized value
+    model1 = DatetimeModel({"dictProp": {"key1": val_str}})
+    assert model1["dictProp"] == {"key1": val_str}
+    assert model1.dict_prop == {"key1": val}
+
+    # when initialize model with keyword args, the value is deserialized value
+    model2 = DatetimeModel(dict_prop={"key1": val})
+    assert model2["dictProp"] == {"key1": val_str}
+    assert model2.dict_prop == {"key1": val}
+
+    # what if we initialize with dict but the dict has deserialized value? this case show what happens.
+    # Since we always serialize the value before initializing the model from dict, we could still get correct result
+    model3 = DatetimeModel({"dictProp": {"key1": val}})
+    assert model3["dictProp"] == {"key1": val_str}
+    assert model3.dict_prop == {"key1": val}
+
+
 def test_datetime_deserialization():
     class DatetimeModel(Model):
         datetime_value: datetime.datetime = rest_field(name="datetimeValue")
@@ -448,7 +564,7 @@ def test_model_recursion():
 
 def test_dictionary_deserialization():
     class DictionaryModel(Model):
-        prop: Dict[str, datetime.datetime] = rest_field()
+        prop: dict[str, datetime.datetime] = rest_field()
 
         @overload
         def __init__(self, *, prop: datetime.datetime): ...
@@ -492,10 +608,10 @@ def test_attr_and_rest_case():
 
 def test_dictionary_deserialization_model():
     class DictionaryModel(Model):
-        prop: Dict[str, Pet] = rest_field()
+        prop: dict[str, Pet] = rest_field()
 
         @overload
-        def __init__(self, *, prop: Dict[str, Pet]): ...
+        def __init__(self, *, prop: dict[str, Pet]): ...
 
         @overload
         def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -539,10 +655,10 @@ def test_dictionary_deserialization_model():
 
 def test_list_deserialization():
     class ListModel(Model):
-        prop: List[datetime.datetime] = rest_field()
+        prop: list[datetime.datetime] = rest_field()
 
         @overload
-        def __init__(self, *, prop: List[datetime.datetime]): ...
+        def __init__(self, *, prop: list[datetime.datetime]): ...
 
         @overload
         def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -560,10 +676,10 @@ def test_list_deserialization():
 
 def test_list_deserialization_model():
     class ListModel(Model):
-        prop: List[Pet] = rest_field()
+        prop: list[Pet] = rest_field()
 
         @overload
-        def __init__(self, *, prop: List[Pet]): ...
+        def __init__(self, *, prop: list[Pet]): ...
 
         @overload
         def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -595,10 +711,10 @@ def test_list_deserialization_model():
 
 def test_set_deserialization():
     class SetModel(Model):
-        prop: Set[datetime.datetime] = rest_field()
+        prop: set[datetime.datetime] = rest_field()
 
         @overload
-        def __init__(self, *, prop: Set[datetime.datetime]): ...
+        def __init__(self, *, prop: set[datetime.datetime]): ...
 
         @overload
         def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -616,10 +732,10 @@ def test_set_deserialization():
 
 def test_tuple_deserialization():
     class TupleModel(Model):
-        prop: Tuple[str, datetime.datetime] = rest_field()
+        prop: tuple[str, datetime.datetime] = rest_field()
 
         @overload
-        def __init__(self, *, prop: Tuple[str, datetime.datetime]): ...
+        def __init__(self, *, prop: tuple[str, datetime.datetime]): ...
 
         @overload
         def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -650,10 +766,10 @@ def test_list_of_tuple_deserialization_model():
             super().__init__(*args, **kwargs)
 
     class ListOfTupleModel(Model):
-        prop: List[Tuple[Pet, Owner]] = rest_field()
+        prop: list[tuple[Pet, Owner]] = rest_field()
 
         @overload
-        def __init__(self, *, prop: List[Tuple[Pet, Owner]]): ...
+        def __init__(self, *, prop: list[tuple[Pet, Owner]]): ...
 
         @overload
         def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -666,7 +782,7 @@ def test_list_of_tuple_deserialization_model():
     giacamo = {"name": "Giacamo", "pet": eugene}
     elizabeth = {"name": "Elizabeth", "pet": lady}
 
-    dict_response: Dict[str, Any] = {"prop": [(eugene, giacamo), (lady, elizabeth)]}
+    dict_response: dict[str, Any] = {"prop": [(eugene, giacamo), (lady, elizabeth)]}
     model = ListOfTupleModel(dict_response)
     assert (
         model["prop"]
@@ -685,20 +801,20 @@ def test_list_of_tuple_deserialization_model():
 
 class RecursiveModel(Model):
     name: str = rest_field()
-    list_of_me: Optional[List["RecursiveModel"]] = rest_field(name="listOfMe")
-    dict_of_me: Optional[Dict[str, "RecursiveModel"]] = rest_field(name="dictOfMe")
-    dict_of_list_of_me: Optional[Dict[str, List["RecursiveModel"]]] = rest_field(name="dictOfListOfMe")
-    list_of_dict_of_me: Optional[List[Dict[str, "RecursiveModel"]]] = rest_field(name="listOfDictOfMe")
+    list_of_me: Optional[list["RecursiveModel"]] = rest_field(name="listOfMe")
+    dict_of_me: Optional[dict[str, "RecursiveModel"]] = rest_field(name="dictOfMe")
+    dict_of_list_of_me: Optional[dict[str, list["RecursiveModel"]]] = rest_field(name="dictOfListOfMe")
+    list_of_dict_of_me: Optional[list[dict[str, "RecursiveModel"]]] = rest_field(name="listOfDictOfMe")
 
     @overload
     def __init__(
         self,
         *,
         name: str,
-        list_of_me: Optional[List["RecursiveModel"]] = None,
-        dict_of_me: Optional[Dict[str, "RecursiveModel"]] = None,
-        dict_of_list_of_me: Optional[Dict[str, List["RecursiveModel"]]] = None,
-        list_of_dict_of_me: Optional[List[Dict[str, "RecursiveModel"]]] = None,
+        list_of_me: Optional[list["RecursiveModel"]] = None,
+        dict_of_me: Optional[dict[str, "RecursiveModel"]] = None,
+        dict_of_list_of_me: Optional[dict[str, list["RecursiveModel"]]] = None,
+        list_of_dict_of_me: Optional[list[dict[str, "RecursiveModel"]]] = None,
     ): ...
 
     @overload
@@ -778,7 +894,7 @@ def test_model_recursion_complex():
     assert model.list_of_me
     assert model.list_of_me[0].name == "it's me!"
     assert model.list_of_me[0].list_of_me is None
-    assert isinstance(model.list_of_me, List)
+    assert isinstance(model.list_of_me, list)
     assert isinstance(model.list_of_me[0], RecursiveModel)
 
     assert model["dictOfMe"] == {
@@ -802,7 +918,7 @@ def test_model_recursion_complex():
         )
     }
 
-    assert isinstance(model.dict_of_me, Dict)
+    assert isinstance(model.dict_of_me, dict)
     assert isinstance(model.dict_of_me["me"], RecursiveModel)
 
     assert model["dictOfListOfMe"] == {
@@ -829,8 +945,8 @@ def test_model_recursion_complex():
             )
         ]
     }
-    assert isinstance(model.dict_of_list_of_me, Dict)
-    assert isinstance(model.dict_of_list_of_me["many mes"], List)
+    assert isinstance(model.dict_of_list_of_me, dict)
+    assert isinstance(model.dict_of_list_of_me["many mes"], list)
     assert isinstance(model.dict_of_list_of_me["many mes"][0], RecursiveModel)
 
     assert model["listOfDictOfMe"] == [
@@ -857,8 +973,8 @@ def test_model_recursion_complex():
             )
         }
     ]
-    assert isinstance(model.list_of_dict_of_me, List)
-    assert isinstance(model.list_of_dict_of_me[0], Dict)
+    assert isinstance(model.list_of_dict_of_me, list)
+    assert isinstance(model.list_of_dict_of_me[0], dict)
     assert isinstance(model.list_of_dict_of_me[0]["me"], RecursiveModel)
 
     assert model.as_dict() == model == dict_response
@@ -932,9 +1048,7 @@ def test_deserialization_callback_override():
 
     model_with_callback = MyModel2(prop=[1.3, 2.4, 3.5])
     assert model_with_callback.prop == ["1.3", "2.4", "3.5"]
-    # since the deserialize function is not roundtrip-able, once we deserialize
-    # the serialized version is the same
-    assert model_with_callback["prop"] == [1.3, 2.4, 3.5]
+    assert model_with_callback["prop"] == ["1.3", "2.4", "3.5"]
 
 
 def test_deserialization_callback_override_parent():
@@ -970,7 +1084,7 @@ def test_deserialization_callback_override_parent():
 
     child_model = ChildWithCallback(prop=[1, 1, 2, 3])
     assert child_model.prop == set(["1", "1", "2", "3"])
-    assert child_model["prop"] == [1, 1, 2, 3]
+    assert child_model["prop"] == set(["1", "1", "2", "3"])
 
 
 def test_inheritance_basic():
@@ -978,11 +1092,11 @@ def test_inheritance_basic():
         return [str(e) for e in obj]
 
     class Parent(Model):
-        parent_prop: List[int] = rest_field(name="parentProp", type=_callback)
+        parent_prop: list[int] = rest_field(name="parentProp", type=_callback)
         prop: str = rest_field()
 
         @overload
-        def __init__(self, *, parent_prop: List[int], prop: str): ...
+        def __init__(self, *, parent_prop: list[int], prop: str): ...
 
         @overload
         def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -1014,10 +1128,10 @@ class ParentA(Model):
 
 class ParentB(ParentA):
     prop: str = rest_field()
-    bcd_prop: Optional[List["ParentB"]] = rest_field(name="bcdProp")
+    bcd_prop: Optional[list["ParentB"]] = rest_field(name="bcdProp")
 
     @overload
-    def __init__(self, *, prop: Any, bcd_prop: Optional[List["ParentB"]] = None): ...
+    def __init__(self, *, prop: Any, bcd_prop: Optional[list["ParentB"]] = None): ...
 
     @overload
     def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -1031,7 +1145,7 @@ class ParentC(ParentB):
     cd_prop: ParentA = rest_field(name="cdProp")
 
     @overload
-    def __init__(self, *, prop: Any, bcd_prop: List[ParentB], cd_prop: ParentA, **kwargs): ...
+    def __init__(self, *, prop: Any, bcd_prop: list[ParentB], cd_prop: ParentA, **kwargs): ...
 
     @overload
     def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -1041,16 +1155,16 @@ class ParentC(ParentB):
 
 
 class ChildD(ParentC):
-    d_prop: Tuple[ParentA, ParentB, ParentC, Optional["ChildD"]] = rest_field(name="dProp")
+    d_prop: tuple[ParentA, ParentB, ParentC, Optional["ChildD"]] = rest_field(name="dProp")
 
     @overload
     def __init__(
         self,
         *,
         prop: Any,
-        bcd_prop: List[ParentB],
+        bcd_prop: list[ParentB],
         cd_prop: ParentA,
-        d_prop: Tuple[ParentA, ParentB, ParentC, Optional["ChildD"]],
+        d_prop: tuple[ParentA, ParentB, ParentC, Optional["ChildD"]],
     ): ...
 
     @overload
@@ -1120,13 +1234,13 @@ def test_model_dict_comparisons_list():
             super().__init__(*args, **kwargs)
 
     class Outer(Model):
-        inner: List[Inner] = rest_field()
+        inner: list[Inner] = rest_field()
 
         @overload
         def __init__(
             self,
             *,
-            inner: List[Inner],
+            inner: list[Inner],
         ): ...
 
         @overload
@@ -1168,13 +1282,13 @@ def test_model_dict_comparisons_dict():
             super().__init__(*args, **kwargs)
 
     class Outer(Model):
-        inner: Dict[str, Inner] = rest_field()
+        inner: dict[str, Inner] = rest_field()
 
         @overload
         def __init__(
             self,
             *,
-            inner: Dict[str, Inner],
+            inner: dict[str, Inner],
         ): ...
 
         @overload
@@ -1366,7 +1480,7 @@ def test_multiple_inheritance_mro():
 class Feline(Model):
     meows: bool = rest_field()
     hisses: bool = rest_field()
-    siblings: Optional[List["Feline"]] = rest_field()
+    siblings: Optional[list["Feline"]] = rest_field()
 
     @overload
     def __init__(
@@ -1374,7 +1488,7 @@ class Feline(Model):
         *,
         meows: bool,
         hisses: bool,
-        siblings: Optional[List["Feline"]] = None,
+        siblings: Optional[list["Feline"]] = None,
     ): ...
 
     @overload
@@ -1429,7 +1543,7 @@ class Cat(PetModel, Feline):
         meows: bool,
         hisses: bool,
         likes_milk: bool,
-        siblings: Optional[List[Feline]],
+        siblings: Optional[list[Feline]],
     ): ...
 
     @overload
@@ -1464,7 +1578,7 @@ class Kitten(Cat, CuteThing):
         meows: bool,
         hisses: bool,
         likes_milk: bool,
-        siblings: Optional[List[Feline]],
+        siblings: Optional[list[Feline]],
         how_cute_am_i: float,
         eats_mice_yet: bool,
     ): ...
@@ -1900,10 +2014,10 @@ def test_serialization_initialization_and_setting():
 
 def test_copy_of_input():
     class TestModel(Model):
-        data: List[int] = rest_field()
+        data: list[int] = rest_field()
 
         @overload
-        def __init__(self, *, data: List[int]): ...
+        def __init__(self, *, data: list[int]): ...
 
         @overload
         def __init__(self, mapping: Mapping[str, Any], /): ...
@@ -2092,14 +2206,14 @@ def test_mutability_list():
             super().__init__(*args, **kwargs)
 
     class Middle(Model):
-        inner_property: List[Inner] = rest_field(name="innerProperty")
+        inner_property: list[Inner] = rest_field(name="innerProperty")
         prop: str = rest_field()
 
         @overload
         def __init__(
             self,
             *,
-            inner_property: List[Inner],
+            inner_property: list[Inner],
             prop: str,
         ): ...
 
@@ -2195,14 +2309,14 @@ def test_mutability_dict():
             super().__init__(*args, **kwargs)
 
     class Middle(Model):
-        inner_property: Dict[str, Inner] = rest_field(name="innerProperty")
+        inner_property: dict[str, Inner] = rest_field(name="innerProperty")
         prop: str = rest_field()
 
         @overload
         def __init__(
             self,
             *,
-            inner_property: Dict[str, Inner],
+            inner_property: dict[str, Inner],
             prop: str,
         ): ...
 
@@ -2339,14 +2453,14 @@ def test_pop_model():
             super().__init__(*args, **kwargs)
 
     class Middle(Model):
-        inner_property: Dict[str, Inner] = rest_field(name="innerProperty")
+        inner_property: dict[str, Inner] = rest_field(name="innerProperty")
         prop: str = rest_field()
 
         @overload
         def __init__(
             self,
             *,
-            inner_property: Dict[str, Inner],
+            inner_property: dict[str, Inner],
             prop: str,
         ): ...
 
@@ -2665,7 +2779,7 @@ def test_popitem():
         "cProp": {"cStrProp": "c"},
     }
 
-    def _tests(my_dict: Dict[str, Any], my_model: MainModel):
+    def _tests(my_dict: dict[str, Any], my_model: MainModel):
         my_dict = copy.deepcopy(my_dict)  # so we don't get rid of the dict each time we run tests
 
         # pop c prop
@@ -2724,7 +2838,7 @@ def test_clear():
         "cProp": {"cStrProp": "c"},
     }
 
-    def _tests(my_dict: Dict[str, Any], my_model: MainModel):
+    def _tests(my_dict: dict[str, Any], my_model: MainModel):
         my_dict = copy.deepcopy(my_dict)  # so we don't get rid of the dict each time we run tests
 
         assert my_dict["aProp"] == my_model.a_prop == my_model["aProp"] == {"aStrProp": "a"}
@@ -2772,7 +2886,7 @@ def test_update():
         "cProp": {"cStrProp": "c"},
     }
 
-    def _tests(my_dict: Dict[str, Any], my_model: MainModel):
+    def _tests(my_dict: dict[str, Any], my_model: MainModel):
         my_dict = copy.deepcopy(my_dict)  # so we don't get rid of the dict each time we run tests
 
         assert my_dict["aProp"] == my_model.a_prop == my_model["aProp"] == {"aStrProp": "a"}
@@ -2925,8 +3039,8 @@ def test_complex_byte_wrapper():
         default: Optional[bytes] = rest_field(default=None)
         base64: Optional[bytes] = rest_field(default=None, format="base64")
         base64url: Optional[bytes] = rest_field(default=None, format="base64url")
-        list_base64: Optional[List[bytes]] = rest_field(default=None, format="base64")
-        map_base64url: Optional[Dict[str, bytes]] = rest_field(default=None, format="base64url")
+        list_base64: Optional[list[bytes]] = rest_field(default=None, format="base64")
+        map_base64url: Optional[dict[str, bytes]] = rest_field(default=None, format="base64url")
 
         @overload
         def __init__(
@@ -2935,8 +3049,8 @@ def test_complex_byte_wrapper():
             default: Optional[bytes] = None,
             base64: Optional[bytes] = None,
             base64url: Optional[bytes] = None,
-            list_base64: Optional[List[bytes]] = None,
-            map_base64url: Optional[Dict[str, bytes]] = None,
+            list_base64: Optional[list[bytes]] = None,
+            map_base64url: Optional[dict[str, bytes]] = None,
         ): ...
 
         @overload
@@ -2998,8 +3112,8 @@ def test_complex_byte_array_wrapper():
         default: Optional[bytearray] = rest_field(default=None)
         base64: Optional[bytearray] = rest_field(default=None, format="base64")
         base64url: Optional[bytearray] = rest_field(default=None, format="base64url")
-        list_base64: Optional[List[bytearray]] = rest_field(default=None, format="base64")
-        map_base64url: Optional[Dict[str, bytearray]] = rest_field(default=None, format="base64url")
+        list_base64: Optional[list[bytearray]] = rest_field(default=None, format="base64")
+        map_base64url: Optional[dict[str, bytearray]] = rest_field(default=None, format="base64url")
 
         @overload
         def __init__(
@@ -3008,8 +3122,8 @@ def test_complex_byte_array_wrapper():
             default: Optional[bytearray] = None,
             base64: Optional[bytearray] = None,
             base64url: Optional[bytearray] = None,
-            list_base64: Optional[List[bytearray]] = None,
-            map_base64url: Optional[Dict[str, bytearray]] = None,
+            list_base64: Optional[list[bytearray]] = None,
+            map_base64url: Optional[dict[str, bytearray]] = None,
         ): ...
 
         @overload
@@ -3072,8 +3186,8 @@ def test_complex_datetime_wrapper():
         rfc3339: datetime.datetime = rest_field(default=None, format="rfc3339")
         rfc7231: datetime.datetime = rest_field(default=None, format="rfc7231")
         unix: datetime.datetime = rest_field(default=None, format="unix-timestamp")
-        list_rfc3339: List[datetime.datetime] = rest_field(default=None, format="rfc3339")
-        dict_rfc7231: Dict[str, datetime.datetime] = rest_field(default=None, format="rfc7231")
+        list_rfc3339: list[datetime.datetime] = rest_field(default=None, format="rfc3339")
+        dict_rfc7231: dict[str, datetime.datetime] = rest_field(default=None, format="rfc7231")
 
         @overload
         def __init__(
@@ -3083,8 +3197,8 @@ def test_complex_datetime_wrapper():
             rfc3339: Optional[datetime.datetime] = None,
             rfc7231: Optional[datetime.datetime] = None,
             unix: Optional[datetime.datetime] = None,
-            list_rfc3339: Optional[List[datetime.datetime]] = None,
-            dict_rfc7231: Optional[Dict[str, datetime.datetime]] = None,
+            list_rfc3339: Optional[list[datetime.datetime]] = None,
+            dict_rfc7231: Optional[dict[str, datetime.datetime]] = None,
         ): ...
 
         @overload
@@ -3175,13 +3289,13 @@ def test_complex_date_wrapper():
 
 
 class DictionaryWrapper(Model):
-    default_program: Dict[str, str] = rest_field(name="defaultProgram", default=None)
+    default_program: dict[str, str] = rest_field(name="defaultProgram", default=None)
 
     @overload
     def __init__(
         self,
         *,
-        default_program: Optional[Dict[str, str]] = None,
+        default_program: Optional[dict[str, str]] = None,
     ): ...
 
     @overload
@@ -3234,13 +3348,13 @@ def test_complex_dictionary_wrapper_none(model: DictionaryWrapper):
 
 
 class ArrayWrapper(Model):
-    array: Optional[List[str]] = rest_field(default=None)
+    array: Optional[list[str]] = rest_field(default=None)
 
     @overload
     def __init__(
         self,
         *,
-        array: Optional[List[str]] = None,
+        array: Optional[list[str]] = None,
     ): ...
 
     @overload
@@ -3271,7 +3385,7 @@ def test_complex_array_wrapper(model: ArrayWrapper):
 
     model["array"] = [1, 2, 3, 4, 5]
     assert model.array == ["1", "2", "3", "4", "5"]
-    assert model["array"] == [1, 2, 3, 4, 5]
+    assert model["array"] == ["1", "2", "3", "4", "5"]
 
 
 @pytest.mark.parametrize("model", [ArrayWrapper(array=[]), ArrayWrapper({"array": []})])
@@ -3332,7 +3446,7 @@ class DogComplex(PetComplex):
 
 class CatComplex(PetComplex):
     color: Optional[str] = rest_field(default=None)
-    hates: Optional[List[DogComplex]] = rest_field(default=None)
+    hates: Optional[list[DogComplex]] = rest_field(default=None)
 
     @overload
     def __init__(
@@ -3342,7 +3456,7 @@ class CatComplex(PetComplex):
         name: Optional[str] = None,
         food: Optional[str] = None,
         color: Optional[str] = None,
-        hates: Optional[List[DogComplex]] = None,
+        hates: Optional[list[DogComplex]] = None,
     ): ...
 
     @overload
@@ -3570,10 +3684,10 @@ class ModelWithNamedUnionProperty(Model):
 
 
 class ModelWithSimpleUnionProperty(Model):
-    simple_union: Union[int, List[int]] = rest_field(name="simpleUnion")
+    simple_union: Union[int, list[int]] = rest_field(name="simpleUnion")
 
     @overload
-    def __init__(self, *, simple_union: Union[int, List[int]]): ...
+    def __init__(self, *, simple_union: Union[int, list[int]]): ...
 
     @overload
     def __init__(self, mapping: Mapping[str, Any]): ...
@@ -3601,7 +3715,7 @@ def test_union():
 def test_as_dict():
     class CatComplex(PetComplex):
         color: Optional[str] = rest_field(default=None)
-        hates: Optional[List[DogComplex]] = rest_field(default=None, visibility=["read"])
+        hates: Optional[list[DogComplex]] = rest_field(default=None, visibility=["read"])
 
         @overload
         def __init__(
@@ -3611,7 +3725,7 @@ def test_as_dict():
             name: Optional[str] = None,
             food: Optional[str] = None,
             color: Optional[str] = None,
-            hates: Optional[List[DogComplex]] = None,
+            hates: Optional[list[DogComplex]] = None,
         ): ...
 
         @overload
@@ -3636,7 +3750,7 @@ def test_as_dict():
 
 
 class Fish(Model):
-    __mapping__: Dict[str, Model] = {}
+    __mapping__: dict[str, Model] = {}
     age: int = rest_field()
     kind: Literal[None] = rest_discriminator(name="kind")
 
@@ -3656,7 +3770,7 @@ class Fish(Model):
 
 
 class Shark(Fish, discriminator="shark"):
-    __mapping__: Dict[str, Model] = {}
+    __mapping__: dict[str, Model] = {}
     kind: Literal["shark"] = rest_discriminator(name="kind")
     sharktype: Literal[None] = rest_discriminator(name="sharktype")
 
@@ -3696,8 +3810,8 @@ class GoblinShark(Shark, discriminator="goblin"):
 
 class Salmon(Fish, discriminator="salmon"):
     kind: Literal["salmon"] = rest_discriminator(name="kind")
-    friends: Optional[List["Fish"]] = rest_field()
-    hate: Optional[Dict[str, "Fish"]] = rest_field()
+    friends: Optional[list["Fish"]] = rest_field()
+    hate: Optional[dict[str, "Fish"]] = rest_field()
     partner: Optional["Fish"] = rest_field()
 
     @overload
@@ -3705,8 +3819,8 @@ class Salmon(Fish, discriminator="salmon"):
         self,
         *,
         age: int,
-        friends: Optional[List["Fish"]] = None,
-        hate: Optional[Dict[str, "Fish"]] = None,
+        friends: Optional[list["Fish"]] = None,
+        hate: Optional[dict[str, "Fish"]] = None,
         partner: Optional["Fish"] = None,
     ): ...
 
@@ -3994,7 +4108,7 @@ def test_enum_deserialization():
     model = ModelWithEnumProperty(raw_input)
     check_func(model)
 
-    result = _deserialize(List[ModelWithEnumProperty], [raw_input])
+    result = _deserialize(list[ModelWithEnumProperty], [raw_input])
     for item in result:
         check_func(item)
 
@@ -4065,3 +4179,567 @@ def test_additional_properties_serialization():
     model["durationProp"] = datetime.timedelta(days=1)
 
     assert json.loads(json.dumps(model, cls=SdkJSONEncoder)) == value
+
+
+class Animal(Model):
+    __mapping__: dict[str, Model] = {}
+    kind: str = rest_discriminator(name="kind")
+    name: str = rest_field()
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+
+class AnotherPet(Animal, discriminator="pet"):
+    __mapping__: dict[str, Model] = {}
+    kind: Literal["pet"] = rest_discriminator(name="kind")
+    trained: bool = rest_field()
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.kind = "pet"
+
+
+class AnotherDog(AnotherPet, discriminator="dog"):
+    kind: Literal["dog"] = rest_discriminator(name="kind")
+    breed: str = rest_field()
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.kind = "dog"
+
+
+def test_multi_layer_discriminator():
+    pet = {"kind": "pet", "name": "Buddy", "trained": True}
+
+    dog = {"kind": "dog", "name": "Rex", "trained": True, "breed": "German Shepherd"}
+
+    model_pet = AnotherPet(pet)
+    assert model_pet == pet
+
+    model_dog = AnotherDog(dog)
+    assert model_dog == dog
+
+    assert _deserialize(Animal, pet) == model_pet
+    assert _deserialize(Animal, dog) == model_dog
+    assert _deserialize(AnotherPet, dog) == model_dog
+
+    assert AnotherPet(name="Buddy", trained=True) == model_pet
+    assert AnotherDog(name="Rex", trained=True, breed="German Shepherd") == model_dog
+
+
+def test_array_encode_comma_delimited():
+    """Test commaDelimited format for array of strings"""
+
+    class CommaDelimitedModel(Model):
+        colors: list[str] = rest_field(format="commaDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> comma-delimited string
+    model = CommaDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue,red,green"
+
+    # Test deserialization: comma-delimited string -> list[str]
+    model = CommaDelimitedModel({"colors": "blue,red,green"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue,red,green"
+
+    # Test with empty list
+    model = CommaDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+    # Test with single item
+    model = CommaDelimitedModel(colors=["blue"])
+    assert model.colors == ["blue"]
+    assert model["colors"] == "blue"
+
+
+def test_array_encode_pipe_delimited():
+    """Test pipeDelimited format for array of strings"""
+
+    class PipeDelimitedModel(Model):
+        colors: list[str] = rest_field(format="pipeDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> pipe-delimited string
+    model = PipeDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue|red|green"
+
+    # Test deserialization: pipe-delimited string -> list[str]
+    model = PipeDelimitedModel({"colors": "blue|red|green"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue|red|green"
+
+    # Test with empty list
+    model = PipeDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+
+def test_array_encode_space_delimited():
+    """Test spaceDelimited format for array of strings"""
+
+    class SpaceDelimitedModel(Model):
+        colors: list[str] = rest_field(format="spaceDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> space-delimited string
+    model = SpaceDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue red green"
+
+    # Test deserialization: space-delimited string -> list[str]
+    model = SpaceDelimitedModel({"colors": "blue red green"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue red green"
+
+    # Test with empty list
+    model = SpaceDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+
+def test_array_encode_newline_delimited():
+    """Test newlineDelimited format for array of strings"""
+
+    class NewlineDelimitedModel(Model):
+        colors: list[str] = rest_field(format="newlineDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> newline-delimited string
+    model = NewlineDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue\nred\ngreen"
+
+    # Test deserialization: newline-delimited string -> list[str]
+    model = NewlineDelimitedModel({"colors": "blue\nred\ngreen"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue\nred\ngreen"
+
+    # Test with empty list
+    model = NewlineDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+
+def test_array_encode_optional():
+    """Test array encoding with optional fields"""
+
+    class OptionalEncodedModel(Model):
+        colors: Optional[list[str]] = rest_field(default=None, format="commaDelimited")
+
+        @overload
+        def __init__(self, *, colors: Optional[list[str]] = None): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test with None
+    model = OptionalEncodedModel(colors=None)
+    assert model.colors is None
+    assert model["colors"] is None
+
+    # Test with value
+    model = OptionalEncodedModel(colors=["blue", "red"])
+    assert model.colors == ["blue", "red"]
+    assert model["colors"] == "blue,red"
+
+    # Test deserialization with None
+    model = OptionalEncodedModel({"colors": None})
+    assert model.colors is None
+
+
+def test_array_encode_modification():
+    """Test modifying array-encoded fields"""
+
+    class ModifiableModel(Model):
+        colors: list[str] = rest_field(format="commaDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    model = ModifiableModel(colors=["blue", "red"])
+    assert model.colors == ["blue", "red"]
+    assert model["colors"] == "blue,red"
+
+    # Modify through property
+    model.colors = ["green", "yellow", "purple"]
+    assert model.colors == ["green", "yellow", "purple"]
+    assert model["colors"] == "green,yellow,purple"
+
+    # Modify through dict access
+    model["colors"] = "orange,pink"
+    assert model.colors == ["orange", "pink"]
+    assert model["colors"] == "orange,pink"
+
+
+def test_array_encode_json_roundtrip():
+    """Test JSON serialization and deserialization with array encoding"""
+
+    class JsonModel(Model):
+        pipe_colors: list[str] = rest_field(name="pipeColors", format="pipeDelimited")
+        comma_colors: list[str] = rest_field(name="commaColors", format="commaDelimited")
+
+        @overload
+        def __init__(
+            self,
+            *,
+            pipe_colors: list[str],
+            comma_colors: list[str],
+        ): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    model = JsonModel(
+        pipe_colors=["blue", "red", "green"],
+        comma_colors=["small", "medium", "large"],
+    )
+
+    # Serialize to JSON
+    json_str = json.dumps(dict(model), cls=SdkJSONEncoder)
+    assert json.loads(json_str) == {
+        "pipeColors": "blue|red|green",
+        "commaColors": "small,medium,large",
+    }
+
+    # Deserialize from JSON
+    deserialized = JsonModel(json.loads(json_str))
+    assert deserialized.pipe_colors == ["blue", "red", "green"]
+    assert deserialized.comma_colors == ["small", "medium", "large"]
+
+
+def test_array_encode_with_special_characters():
+    """Test array encoding with strings containing special characters"""
+
+    class SpecialCharsModel(Model):
+        comma_values: list[str] = rest_field(name="commaValues", format="commaDelimited")
+        pipe_values: list[str] = rest_field(name="pipeValues", format="pipeDelimited")
+
+        @overload
+        def __init__(
+            self,
+            *,
+            comma_values: list[str],
+            pipe_values: list[str],
+        ): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test with strings that might contain delimiters
+    # Note: In real usage, the strings should not contain the delimiter character
+    # This test documents current behavior
+    model = SpecialCharsModel(
+        comma_values=["value with spaces", "another-value", "value_3"],
+        pipe_values=["path/to/file", "another-path", "final.path"],
+    )
+
+    assert model.comma_values == ["value with spaces", "another-value", "value_3"]
+    assert model["commaValues"] == "value with spaces,another-value,value_3"
+
+    assert model.pipe_values == ["path/to/file", "another-path", "final.path"]
+    assert model["pipeValues"] == "path/to/file|another-path|final.path"
+
+
+def test_dictionary_set():
+    """Test that dictionary mutations via attribute syntax persist and sync to dictionary syntax."""
+
+    class MyModel(Model):
+        my_dict: dict[str, int] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Basic mutation via attribute syntax
+    m = MyModel(my_dict={"a": 1, "b": 2})
+    assert m.my_dict == {"a": 1, "b": 2}
+
+    # Test 2: Add new key via attribute syntax and verify it persists
+    m.my_dict["c"] = 3
+    assert m.my_dict["c"] == 3
+    assert m.my_dict == {"a": 1, "b": 2, "c": 3}
+
+    # Test 3: Verify mutation is reflected in dictionary syntax
+    assert m["my_dict"] == {"a": 1, "b": 2, "c": 3}
+
+    # Test 4: Modify existing key via attribute syntax
+    m.my_dict["a"] = 100
+    assert m.my_dict["a"] == 100
+    assert m["my_dict"]["a"] == 100
+
+    # Test 5: Delete key via attribute syntax
+    del m.my_dict["b"]
+    assert "b" not in m.my_dict
+    assert "b" not in m["my_dict"]
+
+    # Test 6: Update via dict methods
+    m.my_dict.update({"d": 4, "e": 5})
+    assert m.my_dict["d"] == 4
+    assert m.my_dict["e"] == 5
+    assert m["my_dict"]["d"] == 4
+
+    # Test 7: Clear via attribute syntax and verify via dictionary syntax
+    m.my_dict.clear()
+    assert len(m.my_dict) == 0
+    assert len(m["my_dict"]) == 0
+
+    # Test 8: Reassign entire dictionary via attribute syntax
+    m.my_dict = {"x": 10, "y": 20}
+    assert m.my_dict == {"x": 10, "y": 20}
+    assert m["my_dict"] == {"x": 10, "y": 20}
+
+    # Test 9: Mutation after reassignment
+    m.my_dict["z"] = 30
+    assert m.my_dict["z"] == 30
+    assert m["my_dict"]["z"] == 30
+
+    # Test 10: Access via dictionary syntax first, then mutate via attribute syntax
+    m.my_dict["w"] = 40
+    assert m["my_dict"]["w"] == 40
+
+    # Test 11: Multiple accesses maintain same cached object
+    dict_ref1 = m.my_dict
+    dict_ref2 = m.my_dict
+    assert dict_ref1 is dict_ref2
+    dict_ref1["new_key"] = 999
+    assert dict_ref2["new_key"] == 999
+    assert m.my_dict["new_key"] == 999
+
+
+def test_list_set():
+    """Test that list mutations via attribute syntax persist and sync to dictionary syntax."""
+
+    class MyModel(Model):
+        my_list: list[int] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Basic mutation via attribute syntax
+    m = MyModel(my_list=[1, 2, 3])
+    assert m.my_list == [1, 2, 3]
+
+    # Test 2: Append via attribute syntax and verify it persists
+    m.my_list.append(4)
+    assert m.my_list == [1, 2, 3, 4]
+
+    # Test 3: Verify mutation is reflected in dictionary syntax
+    assert m["my_list"] == [1, 2, 3, 4]
+
+    # Test 4: Modify existing element via attribute syntax
+    m.my_list[0] = 100
+    assert m.my_list[0] == 100
+    assert m["my_list"][0] == 100
+
+    # Test 5: Extend list via attribute syntax
+    m.my_list.extend([5, 6])
+    assert m.my_list == [100, 2, 3, 4, 5, 6]
+    assert m["my_list"] == [100, 2, 3, 4, 5, 6]
+
+    # Test 6: Remove element via attribute syntax
+    m.my_list.remove(2)
+    assert 2 not in m.my_list
+    assert 2 not in m["my_list"]
+
+    # Test 7: Pop element
+    popped = m.my_list.pop()
+    assert popped == 6
+    assert 6 not in m.my_list
+    assert 6 not in m["my_list"]
+
+    # Test 8: Insert element
+    m.my_list.insert(0, 999)
+    assert m.my_list[0] == 999
+    assert m["my_list"][0] == 999
+
+    # Test 9: Clear via attribute syntax
+    m.my_list.clear()
+    assert len(m.my_list) == 0
+    assert len(m["my_list"]) == 0
+
+    # Test 10: Reassign entire list via attribute syntax
+    m.my_list = [10, 20, 30]
+    assert m.my_list == [10, 20, 30]
+    assert m["my_list"] == [10, 20, 30]
+
+    # Test 11: Mutation after reassignment
+    m.my_list.append(40)
+    assert m.my_list == [10, 20, 30, 40]
+    assert m["my_list"] == [10, 20, 30, 40]
+
+    # Test 12: Multiple accesses maintain same cached object
+    list_ref1 = m.my_list
+    list_ref2 = m.my_list
+    assert list_ref1 is list_ref2
+    list_ref1.append(50)
+    assert 50 in list_ref2
+    assert 50 in m.my_list
+
+
+def test_set_collection():
+    """Test that set mutations via attribute syntax persist and sync to dictionary syntax."""
+
+    class MyModel(Model):
+        my_set: set[int] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Basic mutation via attribute syntax
+    m = MyModel(my_set={1, 2, 3})
+    assert m.my_set == {1, 2, 3}
+
+    # Test 2: Add via attribute syntax and verify it persists
+    m.my_set.add(4)
+    assert 4 in m.my_set
+
+    # Test 3: Verify mutation is reflected in dictionary syntax
+    assert 4 in m["my_set"]
+
+    # Test 4: Remove element via attribute syntax
+    m.my_set.remove(2)
+    assert 2 not in m.my_set
+    assert 2 not in m["my_set"]
+
+    # Test 5: Update set via attribute syntax
+    m.my_set.update({5, 6, 7})
+    assert m.my_set == {1, 3, 4, 5, 6, 7}
+    assert m["my_set"] == {1, 3, 4, 5, 6, 7}
+
+    # Test 6: Discard element
+    m.my_set.discard(1)
+    assert 1 not in m.my_set
+    assert 1 not in m["my_set"]
+
+    # Test 7: Clear via attribute syntax
+    m.my_set.clear()
+    assert len(m.my_set) == 0
+    assert len(m["my_set"]) == 0
+
+    # Test 8: Reassign entire set via attribute syntax
+    m.my_set = {10, 20, 30}
+    assert m.my_set == {10, 20, 30}
+    assert m["my_set"] == {10, 20, 30}
+
+    # Test 9: Mutation after reassignment
+    m.my_set.add(40)
+    assert 40 in m.my_set
+    assert 40 in m["my_set"]
+
+    # Test 10: Multiple accesses maintain same cached object
+    set_ref1 = m.my_set
+    set_ref2 = m.my_set
+    assert set_ref1 is set_ref2
+    set_ref1.add(50)
+    assert 50 in set_ref2
+    assert 50 in m.my_set
+
+
+def test_dictionary_set_datetime():
+    """Test that dictionary with datetime values properly serializes/deserializes."""
+    from datetime import datetime, timezone
+
+    class MyModel(Model):
+        my_dict: dict[str, datetime] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Initialize with datetime values
+    dt1 = datetime(2023, 1, 15, 10, 30, 45, tzinfo=timezone.utc)
+    dt2 = datetime(2023, 6, 20, 14, 15, 30, tzinfo=timezone.utc)
+    m = MyModel(my_dict={"created": dt1, "updated": dt2})
+
+    # Test 2: Access via attribute syntax returns datetime objects
+    assert isinstance(m.my_dict["created"], datetime)
+    assert isinstance(m.my_dict["updated"], datetime)
+    assert m.my_dict["created"] == dt1
+    assert m.my_dict["updated"] == dt2
+
+    # Test 3: Access via dictionary syntax returns serialized strings (ISO format)
+    dict_access = m["my_dict"]
+    assert isinstance(dict_access["created"], str)
+    assert isinstance(dict_access["updated"], str)
+    assert dict_access["created"] == "2023-01-15T10:30:45Z"
+    assert dict_access["updated"] == "2023-06-20T14:15:30Z"
+
+    # Test 4: Mutate via attribute syntax with new datetime
+    dt3 = datetime(2023, 12, 25, 18, 0, 0, tzinfo=timezone.utc)
+    m.my_dict["holiday"] = dt3
+    assert m.my_dict["holiday"] == dt3
+
+    # Test 5: Verify mutation is serialized in dictionary syntax
+    assert m["my_dict"]["holiday"] == "2023-12-25T18:00:00Z"
+
+    # Test 6: Update existing datetime via attribute syntax
+    dt4 = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    m.my_dict["created"] = dt4
+    assert m.my_dict["created"] == dt4
+    assert m["my_dict"]["created"] == "2024-01-01T00:00:00Z"
+
+    # Test 7: Verify all datetimes are deserialized correctly after mutation
+    assert isinstance(m.my_dict["created"], datetime)
+    assert isinstance(m.my_dict["updated"], datetime)
+    assert isinstance(m.my_dict["holiday"], datetime)
+
+    # Test 8: Use dict update method with datetimes
+    dt5 = datetime(2024, 6, 15, 12, 30, 0, tzinfo=timezone.utc)
+    dt6 = datetime(2024, 7, 4, 16, 45, 0, tzinfo=timezone.utc)
+    m.my_dict.update({"event1": dt5, "event2": dt6})
+    assert m.my_dict["event1"] == dt5
+    assert m["my_dict"]["event1"] == "2024-06-15T12:30:00Z"
+
+    # Test 9: Reassign entire dictionary with new datetimes
+    dt7 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    dt8 = datetime(2025, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+    m.my_dict = {"start": dt7, "end": dt8}
+    assert m.my_dict["start"] == dt7
+    assert m.my_dict["end"] == dt8
+    assert m["my_dict"]["start"] == "2025-01-01T00:00:00Z"
+    assert m["my_dict"]["end"] == "2025-12-31T23:59:59Z"
+
+    # Test 10: Cached object maintains datetime type
+    dict_ref1 = m.my_dict
+    dict_ref2 = m.my_dict
+    assert dict_ref1 is dict_ref2
+    assert isinstance(dict_ref1["start"], datetime)
+    assert isinstance(dict_ref2["start"], datetime)

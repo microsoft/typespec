@@ -1,9 +1,11 @@
+import { Tester } from "#test/test-host.js";
+import { getProgram } from "#test/utils.js";
 import { SourceFile } from "@alloy-js/typescript";
-import type { Namespace, Operation } from "@typespec/compiler";
+import type { Namespace } from "@typespec/compiler";
+import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { TypeAliasDeclaration } from "../../../src/typescript/components/type-alias-declaration.jsx";
-import { createEmitterFrameworkTestRunner, getProgram } from "../test-host.js";
 
 describe("Typescript Type Alias Declaration", () => {
   describe("Type Alias bound to Typespec Scalar", () => {
@@ -136,10 +138,10 @@ describe("Typescript Type Alias Declaration", () => {
   });
 
   it("creates a type alias of a function", async () => {
-    const runner = await createEmitterFrameworkTestRunner();
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const runner = await Tester.createInstance();
+    const { getName } = await runner.compile(t.code`
+      @test op  ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>

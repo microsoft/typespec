@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+servers:
+  - url: http://petstore.swagger.io/{version}
+    description: The main API server
+    variables:
+      version:
+        default: "v1"
+        description: The API version
+        enum: ["v1", "v2"]
+paths:
+  /:
+    get:
+      operationId: extensive
+      parameters: []
+      responses:
+        "200":
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        4XX:
+          description: Client error
+        5XX:
+          description: Server error
+      tags:
+        - extensive
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string

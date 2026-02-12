@@ -44,7 +44,7 @@ it("generate simple decorator with no parameters", async () => {
     expected: `
 ${importLine(["Type"])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: Type) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -72,7 +72,7 @@ describe("generate target type", () => {
         expected: `
 ${importLine([expected])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: ${expected}) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: ${expected}) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -92,7 +92,7 @@ export type Decorators = {
         expected: `
 ${importLine([...expected])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: ${expected.join(" | ")}) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: ${expected.join(" | ")}) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -113,13 +113,28 @@ export type Decorators = {
         expected: `
 ${importLine([expected])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: ${expected}) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: ${expected}) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
 };
     `,
       });
+    });
+  });
+
+  it("union of union types", async () => {
+    await expectSignatures({
+      code: `extern dec simple(target: (int32 | string) | Model);`,
+      expected: `
+${importLine(["Model", "Scalar"])}
+
+export type SimpleDecorator = (context: DecoratorContext, target: Scalar | Model) => DecoratorValidatorCallbacks | void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+  `,
     });
   });
 });
@@ -143,7 +158,7 @@ describe("generate parameter type", () => {
         expected: `
 ${importLine(["Type", expected])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected}) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected}) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -163,7 +178,7 @@ export type Decorators = {
         expected: `
 ${importLine(["Type", ...expected])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected.join(" | ")}) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected.join(" | ")}) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -195,7 +210,7 @@ export type Decorators = {
         expected: `
 ${importLine(["Type", ...(expected === "Numeric" ? ["Numeric"] : [])])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected}) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected}) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -217,7 +232,7 @@ export type SimpleDecorator = (
     readonly [key: string]: number;
     readonly other: string;
   },
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -239,7 +254,22 @@ export type SimpleDecorator = (
     readonly name: string;
     readonly age?: number;
   },
-) => void;
+) => DecoratorValidatorCallbacks | void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+    `,
+      });
+    });
+
+    it("valueof int32 | string | utcDateTime", async () => {
+      await expectSignatures({
+        code: `extern dec simple(target, arg1: valueof int32 | string | utcDateTime);`,
+        expected: `
+${importLine(["ScalarValue", "Type"])}
+
+export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: number | string | ScalarValue) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -261,7 +291,7 @@ export interface Info {
   readonly age?: number;
 }
 
-export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: Info) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: Info) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -281,7 +311,7 @@ export type Decorators = {
         expected: `
 ${importLine(["Type", expected])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected}) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected}) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -304,7 +334,7 @@ ${importLine(["Type", "Model"])}
 /**
  * Some doc comment
  */
-export type SimpleDecorator = (context: DecoratorContext, target: Type, ...args: Model[]) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type, ...args: Model[]) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -332,7 +362,7 @@ export type Decorators = {
         expected: `
 ${importLine(["Type", ...(expected === "Numeric[]" ? ["Numeric"] : [])])}
 
-export type SimpleDecorator = (context: DecoratorContext, target: Type, ...args: ${expected}) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type, ...args: ${expected}) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -355,7 +385,7 @@ ${importLine(["Type"])}
 /**
  * Some doc comment
  */
-export type SimpleDecorator = (context: DecoratorContext, target: Type) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -383,7 +413,7 @@ ${importLine(["Type"])}
  * @param arg1 This is the first argument
  * @param arg2 This is the second argument
  */
-export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: Type, arg2: Type) => void;
+export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: Type, arg2: Type) => DecoratorValidatorCallbacks | void;
 
 export type Decorators = {
   simple: SimpleDecorator;
@@ -394,6 +424,6 @@ export type Decorators = {
 });
 
 function importLine(imports: string[]) {
-  const all = new Set(["DecoratorContext", ...imports]);
+  const all = new Set(["DecoratorContext", "DecoratorValidatorCallbacks", ...imports]);
   return `import type { ${[...all].sort().join(", ")} } from "@typespec/compiler";`;
 }

@@ -20,7 +20,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
@@ -52,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
@@ -86,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task CanAddMethodSameName()
         {
-            List<InputParameter> parameters = [InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))];
+            List<InputMethodParameter> parameters = [InputFactory.MethodParameter("p1", InputFactory.Array(InputPrimitiveType.String))];
             var inputOperation = InputFactory.Operation("HelloAgain", parameters: parameters);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation, parameters: parameters);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
@@ -122,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
@@ -159,9 +159,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase(false)]
         public async Task CanReplaceStructMethod(bool isStructCustomized)
         {
-            List<InputParameter> parameters = [InputFactory.Parameter("p1", InputFactory.Model("myStruct", modelAsStruct: true, @namespace: "Sample.TestClient"), isRequired: false)];
-            var inputOperation = InputFactory.Operation("HelloAgain", parameters: parameters);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("HelloAgain", inputOperation, parameters: parameters);
+            List<InputMethodParameter> methodParameters = [InputFactory.MethodParameter("p1", InputFactory.Model("myStruct", modelAsStruct: true, @namespace: "Sample.TestClient"), isRequired: false)];
+            List<InputBodyParameter> operationParameters = [InputFactory.BodyParameter("p1", InputFactory.Model("myStruct", modelAsStruct: true, @namespace: "Sample.TestClient"), isRequired: false)];
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters: operationParameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("HelloAgain", inputOperation, parameters: methodParameters);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
@@ -203,7 +204,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
@@ -239,7 +240,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
@@ -276,7 +277,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
@@ -304,7 +305,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);

@@ -21,10 +21,13 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             => new DeclarationExpression(variable, false, true).Assign(value).Terminate();
 
         public static MethodBodyStatement Declare(string name, CSharpType variableType, ValueExpression value, out VariableExpression variable)
+            => Declare(name, variableType, value, false, out variable);
+
+        public static MethodBodyStatement Declare(string name, CSharpType variableType, ValueExpression value, bool isConst, out VariableExpression variable)
         {
             var variableRef = new VariableExpression(variableType, name);
             variable = variableRef;
-            return Declare(variableRef, value);
+            return Declare(variableRef, value, isConst);
         }
 
         public static MethodBodyStatement Declare(string name, DictionaryExpression value, out DictionaryExpression variable)
@@ -43,8 +46,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             return Declare(variableExpression, value);
         }
 
-        public static MethodBodyStatement Declare(VariableExpression variable, ValueExpression value)
-            => new DeclarationExpression(variable).Assign(value).Terminate();
+        public static MethodBodyStatement Declare(VariableExpression variable, ValueExpression value, bool isConst = false)
+            => new DeclarationExpression(variable, IsConst: isConst).Assign(value).Terminate();
 
         public static MethodBodyStatement UsingDeclare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)
         {

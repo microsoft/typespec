@@ -182,6 +182,29 @@ function createMultiBinaryPartsHandler(req: MockRequest) {
   }
 }
 
+function createOptionalPartsHandler(req: MockRequest) {
+  const hasId = req.body.id !== undefined;
+  const hasProfileImage = req.files instanceof Array && req.files.length > 0;
+
+  if (hasId && hasProfileImage) {
+    checkId(req);
+    checkJpgFile(req, req.files[0]);
+    return { pass: "id,profileImage", status: 204 } as const;
+  } else if (hasId && !hasProfileImage) {
+    checkId(req);
+    return { pass: "id", status: 204 } as const;
+  } else if (!hasId && hasProfileImage) {
+    checkJpgFile(req, req.files[0]);
+    return { pass: "profileImage", status: 204 } as const;
+  } else {
+    throw new ValidationError(
+      "No id or profileImage found",
+      "At least one of id or profileImage is expected",
+      req.body,
+    );
+  }
+}
+
 Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess({
   uri: "/multipart/form-data/mixed-parts",
   method: "post",
@@ -192,6 +215,52 @@ Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess({
   handler: (req: MockRequest) => createHandler(req, [checkId, checkProfileImage]),
   kind: "MockApiDefinition",
 });
+Scenarios.Payload_MultiPart_FormData_withWireName = passOnSuccess({
+  uri: "/multipart/form-data/mixed-parts-with-wire-name",
+  method: "post",
+  request: {
+    body: multipart({ parts: { id: 123 }, files: [files[0]] }),
+  },
+  response: { status: 204 },
+  handler: (req: MockRequest) => createHandler(req, [checkId, checkProfileImage]),
+  kind: "MockApiDefinition",
+});
+Scenarios.Payload_MultiPart_FormData_optionalParts = withServiceKeys([
+  "id",
+  "profileImage",
+  "id,profileImage",
+]).pass([
+  {
+    uri: "/multipart/form-data/optional-parts",
+    method: "post",
+    request: {
+      body: multipart({ parts: { id: 123 } }),
+    },
+    response: { status: 204 },
+    handler: createOptionalPartsHandler,
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/multipart/form-data/optional-parts",
+    method: "post",
+    request: {
+      body: multipart({ files: [files[0]] }),
+    },
+    response: { status: 204 },
+    handler: createOptionalPartsHandler,
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/multipart/form-data/optional-parts",
+    method: "post",
+    request: {
+      body: multipart({ parts: { id: 123 }, files: [files[0]] }),
+    },
+    response: { status: 204 },
+    handler: createOptionalPartsHandler,
+    kind: "MockApiDefinition",
+  },
+]);
 Scenarios.Payload_MultiPart_FormData_fileArrayAndBasic = passOnSuccess({
   uri: "/multipart/form-data/complex-parts",
   method: "post",
@@ -343,5 +412,94 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_NonString_float = passOnSuccess({
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkFloat]),
+  kind: "MockApiDefinition",
+});
+
+// Helper function to check file in multipart for File type tests
+function checkMultipartFile(
+  req: MockRequest,
+  file: Record<string, any>,
+  expectedContent: Buffer,
+  expectedContentType: string,
+  fieldName: string = "file",
+  expectedFileName?: string,
+) {
+  req.expect.deepEqual(file.fieldname, fieldName);
+  req.expect.deepEqual(file.mimetype, expectedContentType);
+  req.expect.deepEqual(file.buffer, expectedContent);
+  if (expectedFileName) {
+    req.expect.deepEqual(file.originalname, expectedFileName);
+  }
+}
+
+// Multipart File type tests
+Scenarios.Payload_MultiPart_FormData_File_uploadFileSpecificContentType = passOnSuccess({
+  uri: "/multipart/form-data/file/specific-content-type",
+  method: "post",
+  request: {
+    headers: {
+      "content-type": "multipart/form-data",
+    },
+  },
+  response: {
+    status: 204,
+  },
+  handler(req: MockRequest) {
+    if (req.files instanceof Array && req.files.length === 1) {
+      const file = req.files[0];
+      checkMultipartFile(req, file, pngFile, "image/png", "file", "image.png");
+      return { status: 204 };
+    } else {
+      throw new ValidationError("Expected exactly one file", "1 file", req.files);
+    }
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Payload_MultiPart_FormData_File_uploadFileRequiredFilename = passOnSuccess({
+  uri: "/multipart/form-data/file/required-filename",
+  method: "post",
+  request: {
+    headers: {
+      "content-type": "multipart/form-data",
+    },
+  },
+  response: {
+    status: 204,
+  },
+  handler(req: MockRequest) {
+    if (req.files instanceof Array && req.files.length === 1) {
+      const file = req.files[0];
+      checkMultipartFile(req, file, pngFile, "image/png", "file", "image.png");
+      return { status: 204 };
+    } else {
+      throw new ValidationError("Expected exactly one file", "1 file", req.files);
+    }
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Payload_MultiPart_FormData_File_uploadFileArray = passOnSuccess({
+  uri: "/multipart/form-data/file/file-array",
+  method: "post",
+  request: {
+    headers: {
+      "content-type": "multipart/form-data",
+    },
+  },
+  response: {
+    status: 204,
+  },
+  handler(req: MockRequest) {
+    if (req.files instanceof Array && req.files.length === 2) {
+      for (const file of req.files) {
+        req.expect.deepEqual(file.fieldname, "files");
+        checkMultipartFile(req, file, pngFile, "image/png", "files");
+      }
+      return { status: 204 };
+    } else {
+      throw new ValidationError("Expected exactly two files", "2 files", req.files);
+    }
+  },
   kind: "MockApiDefinition",
 });

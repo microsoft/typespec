@@ -1,5 +1,5 @@
-import { TextDocumentIdentifier } from "vscode-languageserver";
-import { TextDocument } from "vscode-languageserver-textdocument";
+import { TextDocumentChangeEvent, TextDocumentIdentifier } from "vscode-languageserver";
+import { DocumentUri, TextDocument } from "vscode-languageserver-textdocument";
 import { getNormalizedRealPath } from "../utils/misc.js";
 import { ServerHost } from "./types.js";
 
@@ -12,6 +12,9 @@ export interface FileService {
   getPath(document: TextDocument | TextDocumentIdentifier): Promise<string>;
   getOpenDocument(path: string): TextDocument | undefined;
   getURL(path: string): string;
+  getOpenDocumentInitVersion(uri: string): number | undefined;
+  notifyDocumentOpened(arg: TextDocumentChangeEvent<TextDocument>): void;
+  notifyDocumentClosed(arg: TextDocumentChangeEvent<TextDocument>): void;
 }
 
 export interface FileServiceOptions {
@@ -26,6 +29,8 @@ export function createFileService({ serverHost }: FileServiceOptions): FileServi
   // URL is used as a key into the opened documents and so we must reproduce
   // it exactly.
   const pathToURLMap = new Map<string, string>();
+  /** Track the init version when a doc is opened so that we can distinguish whether the doc is opened or changed */
+  const documentsOpenedInitVersion = new Map<string, number>();
 
   return {
     upToDate,
@@ -33,6 +38,9 @@ export function createFileService({ serverHost }: FileServiceOptions): FileServi
     getPath,
     getURL,
     getOpenDocument,
+    getOpenDocumentInitVersion,
+    notifyDocumentOpened,
+    notifyDocumentClosed,
   };
 
   /**
@@ -71,6 +79,34 @@ export function createFileService({ serverHost }: FileServiceOptions): FileServi
   function getOpenDocument(path: string): TextDocument | undefined {
     const url = getURL(path);
     return url ? serverHost.getOpenDocumentByURL(url) : undefined;
+  }
+
+  function getOpenDocumentInitVersion(uri: DocumentUri): number | undefined {
+    return documentsOpenedInitVersion.get(uri) ?? undefined;
+  }
+
+  function notifyDocumentOpened(arg: TextDocumentChangeEvent<TextDocument>) {
+    if (documentsOpenedInitVersion.has(arg.document.uri)) {
+      // not expected, log something for troubleshooting
+      serverHost.log({
+        level: "debug",
+        message: "Document already opened",
+        detail: arg.document.uri,
+      });
+    }
+    documentsOpenedInitVersion.set(arg.document.uri, arg.document.version);
+  }
+
+  function notifyDocumentClosed(arg: TextDocumentChangeEvent<TextDocument>) {
+    if (!documentsOpenedInitVersion.has(arg.document.uri)) {
+      // not expected, log something for troubleshooting
+      serverHost.log({
+        level: "debug",
+        message: "Document already closed",
+        detail: arg.document.uri,
+      });
+    }
+    documentsOpenedInitVersion.delete(arg.document.uri);
   }
 }
 

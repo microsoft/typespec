@@ -18,12 +18,12 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public override InputHeaderParameter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputHeaderParameter>(_referenceHandler.CurrentResolver) ?? ReadInputHeaderParameter(ref reader, null, null, options, _referenceHandler.CurrentResolver);
+            => reader.ReadReferenceAndResolve<InputHeaderParameter>(_referenceHandler.CurrentResolver) ?? ReadInputHeaderParameter(ref reader, null, options, _referenceHandler.CurrentResolver);
 
         public override void Write(Utf8JsonWriter writer, InputHeaderParameter value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        internal static InputHeaderParameter ReadInputHeaderParameter(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputHeaderParameter ReadInputHeaderParameter(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (id == null)
             {
@@ -32,8 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             id = id ?? throw new JsonException();
 
-            // create an empty model property to resolve circular references
-            var property = new InputHeaderParameter(
+            var parameter = new InputHeaderParameter(
                 name: null!,
                 summary: null,
                 doc: null,
@@ -42,25 +41,35 @@ namespace Microsoft.TypeSpec.Generator.Input
                 isReadOnly: false,
                 access: null,
                 collectionFormat: null,
-                serializedName: null!);
-            resolver.AddReference(id, property);
+                serializedName: null!,
+                isApiVersion: false,
+                defaultValue: null,
+                scope: default,
+                arraySerializationDelimiter: null,
+                isContentType: false);
+            resolver.AddReference(id, parameter);
 
-            string? kind = null;
+            string? name = null;
             string? summary = null;
             string? doc = null;
             string? serializedName = null;
+            bool isApiVersion = false;
+            InputConstant? defaultValue = null;
+            string? scope = null;
+            string? arraySerializationDelimiter = null;
+            bool isContentType = false;
             InputType? type = null;
             bool isReadOnly = false;
             bool isOptional = false;
             string? access = null;
             string? collectionFormat = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
-                    || reader.TryReadString("kind", ref kind)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("type", options, ref type)
@@ -69,7 +78,13 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadString("collectionFormat", ref collectionFormat)
                     || reader.TryReadString("serializedName", ref serializedName)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
+                    || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
+                    || reader.TryReadString("scope", ref scope)
+                    || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
+                    || reader.TryReadBoolean("isContentType", ref isContentType)
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
 
                 if (!isKnownProperty)
                 {
@@ -77,18 +92,24 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            property.Name = name ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a name.");
-            property.Summary = summary;
-            property.Doc = doc;
-            property.Type = type ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a type.");
-            property.IsRequired = !isOptional;
-            property.IsReadOnly = isReadOnly;
-            property.Access = access;
-            property.CollectionFormat = collectionFormat;
-            property.Decorators = decorators ?? [];
-            property.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a serializedName.");
+            parameter.Name = name ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a name.");
+            parameter.Summary = summary;
+            parameter.Doc = doc;
+            parameter.Type = type ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a type.");
+            parameter.IsRequired = !isOptional;
+            parameter.IsReadOnly = isReadOnly;
+            parameter.Access = access;
+            parameter.CollectionFormat = collectionFormat;
+            parameter.Decorators = decorators ?? [];
+            parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a serializedName.");
+            parameter.IsApiVersion = isApiVersion;
+            parameter.DefaultValue = defaultValue;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);
+            parameter.ArraySerializationDelimiter = arraySerializationDelimiter;
+            parameter.IsContentType = isContentType;
+            parameter.MethodParameterSegments = methodParameterSegments;
 
-            return property;
+            return parameter;
         }
     }
 }

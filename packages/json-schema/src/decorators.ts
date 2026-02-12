@@ -1,6 +1,7 @@
 import {
   type DecoratorContext,
   type Enum,
+  isTemplateDeclaration,
   isType,
   type Model,
   type Namespace,
@@ -103,29 +104,40 @@ export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDecl
   return false;
 }
 
+type JsonSchemaDeclarationType = Model | Union | Enum | Scalar;
 /**
  * Returns types that are annotated with `@jsonSchema` or contained within a namespace that is annoted with `@jsonSchema`.
  * @param program TypeSpec program
  */
-export function getJsonSchemaTypes(program: Program): (Namespace | Model)[] {
-  const types: (Model | Namespace)[] = [];
+export function getJsonSchemaTypes(program: Program): (JsonSchemaDeclarationType | Namespace)[] {
+  const types: (JsonSchemaDeclarationType | Namespace)[] = [];
 
   function visitNamespace(ns: Namespace) {
     if (getJsonSchema(program, ns)) {
       types.push(ns);
     }
 
-    for (const member of ns.models.values()) {
-      visitModel(member);
-    }
+    visitMembers(ns.models.values());
+    visitMembers(ns.enums.values());
+    visitMembers(ns.unions.values());
+    visitMembers(ns.scalars.values());
     for (const member of ns.namespaces.values()) {
       visitNamespace(member);
     }
   }
 
-  function visitModel(model: Model) {
-    if (isJsonSchemaDeclaration(program, model)) {
-      types.push(model);
+  function visitMembers(members: Iterable<JsonSchemaDeclarationType>) {
+    for (const member of members) {
+      visitDeclaration(member);
+    }
+  }
+
+  function visitDeclaration(type: JsonSchemaDeclarationType) {
+    if (
+      !(type.kind !== "Enum" && isTemplateDeclaration(type)) &&
+      isJsonSchemaDeclaration(program, type)
+    ) {
+      types.push(type);
     }
   }
 

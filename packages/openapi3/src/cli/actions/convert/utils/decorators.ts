@@ -1,6 +1,17 @@
+import { printIdentifier } from "@typespec/compiler";
 import { ExtensionKey } from "@typespec/openapi";
-import { Extensions, OpenAPI3Parameter, OpenAPI3Schema, Refable } from "../../../../types.js";
-import { TSValue, TypeSpecDecorator } from "../interfaces.js";
+import {
+  Extensions,
+  OpenAPI3Parameter,
+  OpenAPI3Schema,
+  OpenAPIParameter3_2,
+  OpenAPISchema3_1,
+  OpenAPISchema3_2,
+  Refable,
+} from "../../../../types.js";
+import { stringLiteral } from "../generators/common.js";
+import { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
+import type { Context } from "./context.js";
 
 const validLocations = ["header", "query", "path"];
 const extensionDecoratorName = "extension";
@@ -10,9 +21,17 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
 
   for (const key of Object.keys(element)) {
     if (isExtensionKey(key)) {
+      // Handle x-ms-list extension specially
+      if (key === "x-ms-list" && element[key] === true) {
+        decorators.push({
+          name: "list",
+          args: [],
+        });
+      }
+
       decorators.push({
         name: extensionDecoratorName,
-        args: [key, element[key]],
+        args: [key, normalizeObjectValue(element[key])],
       });
     }
   }
@@ -20,15 +39,85 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
   return decorators;
 }
 
+function getPagingLinkDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // Map of x-ms-list-*-link extensions to their corresponding TypeSpec decorators
+  const linkExtensions = {
+    "x-ms-list-prev-link": "prevLink",
+    "x-ms-list-next-link": "nextLink",
+    "x-ms-list-first-link": "firstLink",
+    "x-ms-list-last-link": "lastLink",
+  } as const;
+
+  for (const [extensionKey, decoratorName] of Object.entries(linkExtensions)) {
+    const extensionValue = (schema as any)[extensionKey];
+    if (extensionValue === true) {
+      decorators.push({
+        name: decoratorName,
+        args: [],
+      });
+    }
+  }
+
+  return decorators;
+}
+
+function normalizeObjectValue(source: unknown): string | number | object | TSValue {
+  if (source !== null && typeof source === "object") {
+    const result = createTSValueFromObjectValue(source);
+    if (result) {
+      return result;
+    }
+  }
+  return source as string | number;
+}
+
 function isExtensionKey(key: string): key is ExtensionKey {
   return key.startsWith("x-");
 }
 
-export function getParameterDecorators(parameter: OpenAPI3Parameter) {
+export function getParameterDecorators(
+  parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
+  context?: Context,
+) {
   const decorators: TypeSpecDecorator[] = [];
 
   decorators.push(...getExtensions(parameter));
-  decorators.push(...getDecoratorsForSchema(parameter.schema));
+
+  // Add @offset decorator if x-ms-list-offset extension is true
+  const xMsListOffset = (parameter as any)["x-ms-list-offset"];
+  if (xMsListOffset === true) {
+    decorators.push({ name: "offset", args: [] });
+  }
+
+  if ("schema" in parameter && parameter.schema) {
+    decorators.push(...getDecoratorsForSchema(parameter.schema, context));
+  }
+
+  // Add @pageSize decorator if x-ms-list-page-size extension is true
+  const xmsListPageSize = (parameter as any)["x-ms-list-page-size"];
+  if (xmsListPageSize === true) {
+    decorators.push({
+      name: "pageSize",
+      args: [],
+    });
+  }
+
+  // Handle x-ms-list-continuation-token extension on parameter itself
+  const xmsListContinuationToken = (parameter as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
+
+  // Add @pageIndex decorator if x-ms-list-page-index extension is true
+  const xmsListPageIndex = (parameter as any)["x-ms-list-page-index"];
+  if (xmsListPageIndex === true) {
+    decorators.push({ name: "pageIndex", args: [] });
+  }
 
   const locationDecorator = getLocationDecorator(parameter);
   if (locationDecorator) decorators.push(locationDecorator);
@@ -36,7 +125,9 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter) {
   return decorators;
 }
 
-function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator | undefined {
+function getLocationDecorator(
+  parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
+): TypeSpecDecorator | undefined {
   if (!validLocations.includes(parameter.in)) return;
 
   const decorator: TypeSpecDecorator = {
@@ -47,10 +138,10 @@ function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator |
   let decoratorArgs: TypeSpecDecorator["args"][0] | undefined;
   switch (parameter.in) {
     case "header":
-      decoratorArgs = getHeaderArgs(parameter);
+      decoratorArgs = getHeaderArgs(parameter.explode ?? false);
       break;
     case "query":
-      decoratorArgs = getQueryArgs(parameter);
+      decoratorArgs = getQueryArgs({ explode: parameter.explode ?? true, style: parameter.style });
       break;
   }
 
@@ -61,20 +152,32 @@ function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator |
   return decorator;
 }
 
-function getQueryArgs(parameter: OpenAPI3Parameter): TSValue | undefined {
-  const queryOptions = getNormalizedQueryOptions(parameter);
-  if (Object.keys(queryOptions).length) {
+function createTSValueFromObjectValue(value: object): TSValue | undefined {
+  if (Object.keys(value).length || Array.isArray(value)) {
     return {
       __kind: "value",
-      value: `#{${Object.entries(queryOptions)
-        .map(([key, value]) => {
-          return `${key}: ${JSON.stringify(value)}`;
-        })
-        .join(", ")}}`,
+      value: normalizeObjectValueToTSValueExpression(value),
     };
   }
+  return undefined;
+}
+export function normalizeObjectValueToTSValueExpression(value: any): string {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    return `#{${Object.entries(value)
+      .map(([key, v]) => {
+        return `${printIdentifier(key, "disallow-reserved")}: ${normalizeObjectValueToTSValueExpression(v)}`;
+      })
+      .join(", ")}}`;
+  } else if (Array.isArray(value)) {
+    return `#[${value.map((v) => normalizeObjectValueToTSValueExpression(v)).join(", ")}]`;
+  } else if (typeof value === "string") {
+    return stringLiteral(value);
+  } else return `${JSON.stringify(value)}`;
+}
 
-  return;
+function getQueryArgs(parameter: { explode: boolean; style?: string }): TSValue | undefined {
+  const queryOptions = getNormalizedQueryOptions(parameter);
+  return createTSValueFromObjectValue(queryOptions);
 }
 
 type QueryOptions = { explode?: boolean; format?: string };
@@ -114,73 +217,195 @@ function getNormalizedQueryOptions({
   return queryOptions;
 }
 
-function getHeaderArgs({ explode }: OpenAPI3Parameter): TSValue | undefined {
+function getHeaderArgs(explode: boolean): TSValue | undefined {
   if (explode === true) {
     return createTSValue(`#{ explode: true }`);
   }
 
-  return;
+  return undefined;
 }
 
-export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpecDecorator[] {
+export function getDecoratorsForSchema(
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+  context?: Context,
+): TypeSpecDecorator[] {
   const decorators: TypeSpecDecorator[] = [];
 
+  // In JSON Schema 2020-12 (used in OpenAPI 3.1+), sibling keywords alongside $ref are allowed
+  // We should process them even when $ref is present
+  // If only $ref is present without sibling keywords, return early
   if ("$ref" in schema) {
-    return decorators;
+    // Check if there are any sibling keywords besides $ref
+    const hasSiblingKeywords = Object.keys(schema).some((key) => key !== "$ref");
+    if (!hasSiblingKeywords) {
+      return decorators;
+    }
+    // If we have sibling keywords, we need to resolve the $ref to determine the type
+    // so we can apply the correct constraint decorators
   }
 
-  decorators.push(...getExtensions(schema));
+  // At this point, either schema doesn't have $ref, or it has $ref with sibling keywords
+  // Cast to allow access to schema properties
+  const schemaWithoutRef = schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
 
-  switch (schema.type) {
+  decorators.push(...getExtensions(schemaWithoutRef));
+
+  // Handle x-ms-list-page-items extension with @pageItems decorator
+  // This must be after getExtensions to ensure both decorators are present
+  const xmsListPageItems = (schema as any)["x-ms-list-page-items"];
+  if (xmsListPageItems === true) {
+    decorators.push({ name: "pageItems", args: [] });
+  }
+
+  // Handle x-ms-list-continuation-token extension by adding @continuationToken decorator
+  const xmsListContinuationToken = (schema as any)["x-ms-list-continuation-token"];
+  if (xmsListContinuationToken === true) {
+    decorators.push({
+      name: "continuationToken",
+      args: [],
+    });
+  }
+
+  // Handle x-ms-list-*-link extensions
+  decorators.push(...getPagingLinkDecorators(schemaWithoutRef));
+
+  // Determine the effective type - if schema has $ref with sibling keywords, resolve the ref
+  let effectiveType: string | undefined;
+  if ("$ref" in schema && context) {
+    const refSchema = context.getSchemaByRef(schema.$ref);
+    if (refSchema) {
+      effectiveType = Array.isArray(refSchema.type)
+        ? refSchema.type.find((t) => t !== "null")
+        : refSchema.type;
+    }
+  } else {
+    // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
+    // Extract the non-null type to determine which decorators to apply
+    effectiveType = Array.isArray(schemaWithoutRef.type)
+      ? schemaWithoutRef.type.find((t) => t !== "null")
+      : schemaWithoutRef.type;
+  }
+
+  // Handle x-ms-duration extension with @encode decorator
+  // Must be after effectiveType extraction to handle type arrays correctly
+  const xmsDuration = (schemaWithoutRef as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    decorators.push(...getDurationSchemaDecorators(schemaWithoutRef, effectiveType));
+  }
+
+  // Handle unixtime format with @encode decorator
+  // Check both direct format and format from anyOf/oneOf members
+  let formatToUse = schemaWithoutRef.format;
+  let typeForFormat = effectiveType;
+
+  // If format is not directly on the schema, check anyOf/oneOf members for unixtime format
+  if (!formatToUse) {
+    const unionMembers = schemaWithoutRef.anyOf || schemaWithoutRef.oneOf;
+    if (unionMembers) {
+      for (const member of unionMembers) {
+        if ("$ref" in member) continue;
+        // Check if this is a non-null member with unixtime format
+        if (member.format === "unixtime" && member.type !== "null") {
+          formatToUse = member.format;
+          // Extract effective type from member (handle type arrays)
+          const memberType = Array.isArray(member.type)
+            ? member.type.find((t) => t !== "null")
+            : member.type;
+          // Only use if we found a valid type
+          if (memberType) {
+            typeForFormat = memberType;
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  if (formatToUse === "unixtime") {
+    decorators.push(...getUnixtimeSchemaDecorators(typeForFormat));
+  }
+
+  switch (effectiveType) {
     case "array":
-      decorators.push(...getArraySchemaDecorators(schema));
+      decorators.push(...getArraySchemaDecorators(schemaWithoutRef));
       break;
     case "integer":
     case "number":
-      decorators.push(...getNumberSchemaDecorators(schema));
+      decorators.push(...getNumberSchemaDecorators(schemaWithoutRef));
       break;
     case "string":
-      decorators.push(...getStringSchemaDecorators(schema));
+      decorators.push(...getStringSchemaDecorators(schemaWithoutRef));
       break;
     default:
       break;
   }
 
-  if (schema.title) {
-    decorators.push({ name: "summary", args: [schema.title] });
+  if (schemaWithoutRef.title) {
+    decorators.push({ name: "summary", args: [schemaWithoutRef.title] });
   }
 
-  if (schema.discriminator) {
-    if (schema.oneOf || schema.anyOf) {
+  if (schemaWithoutRef.discriminator) {
+    if (schemaWithoutRef.oneOf || schemaWithoutRef.anyOf) {
       decorators.push({
         name: "discriminated",
         args: [
           createTSValue(
-            `#{ envelope: "none", discriminatorPropertyName: ${JSON.stringify(schema.discriminator.propertyName)} }`,
+            `#{ envelope: "none", discriminatorPropertyName: ${JSON.stringify(schemaWithoutRef.discriminator.propertyName)} }`,
           ),
         ],
       });
     } else {
-      decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
+      decorators.push({
+        name: "discriminator",
+        args: [schemaWithoutRef.discriminator.propertyName],
+      });
     }
   }
 
-  if (schema.oneOf) {
-    decorators.push(...getOneOfSchemaDecorators(schema));
+  if (schemaWithoutRef.oneOf) {
+    decorators.push(...getOneOfSchemaDecorators(schemaWithoutRef));
   }
 
   return decorators;
+}
+
+export function getDirectivesForSchema(
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+): TypeSpecDirective[] {
+  const directives: TypeSpecDirective[] = [];
+
+  // In JSON Schema 2020-12 (used in OpenAPI 3.1+), sibling keywords alongside $ref are allowed
+  // We should process them even when $ref is present
+  // If only $ref is present without sibling keywords, return early
+  if ("$ref" in schema) {
+    // Check if there are any sibling keywords besides $ref
+    const hasSiblingKeywords = Object.keys(schema).some((key) => key !== "$ref");
+    if (!hasSiblingKeywords) {
+      return directives;
+    }
+    // If we have sibling keywords, we need to process them
+    // Cast to the non-ref type since TypeScript doesn't understand that we have sibling keywords
+  }
+
+  // At this point, either schema doesn't have $ref, or it has $ref with sibling keywords
+  const schemaWithoutRef = schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
+
+  if (schemaWithoutRef.deprecated) {
+    directives.push({ name: "deprecated", message: "deprecated" });
+  }
+
+  return directives;
 }
 
 function createTSValue(value: string): TSValue {
   return { __kind: "value", value };
 }
 
-function getOneOfSchemaDecorators(schema: OpenAPI3Schema): TypeSpecDecorator[] {
+function getOneOfSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1): TypeSpecDecorator[] {
   return [{ name: "oneOf", args: [] }];
 }
 
-function getArraySchemaDecorators(schema: OpenAPI3Schema) {
+function getArraySchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
   if (typeof schema.minItems === "number") {
@@ -194,7 +419,7 @@ function getArraySchemaDecorators(schema: OpenAPI3Schema) {
   return decorators;
 }
 
-function getNumberSchemaDecorators(schema: OpenAPI3Schema) {
+function getNumberSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
   if (typeof schema.minimum === "number") {
@@ -216,6 +441,90 @@ function getNumberSchemaDecorators(schema: OpenAPI3Schema) {
   return decorators;
 }
 
+function getUnixtimeSchemaDecorators(effectiveType: string | undefined) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // Only add @encode decorator for integer types
+  // unixTimestamp encoding on utcDateTime must be serialized as integer
+  if (effectiveType === "integer") {
+    decorators.push({
+      name: "encode",
+      args: [createTSValue("DateTimeKnownEncoding.unixTimestamp"), createTSValue("integer")],
+    });
+  }
+
+  return decorators;
+}
+
+function getDurationSchemaDecorators(
+  schema: OpenAPI3Schema | OpenAPISchema3_1,
+  effectiveType: string | undefined,
+) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // Get the x-ms-duration value (seconds or milliseconds)
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (!xmsDuration || (xmsDuration !== "seconds" && xmsDuration !== "milliseconds")) {
+    return decorators;
+  }
+
+  // Determine the encoding type based on the schema's format and type
+  let encodingType = "float32"; // default
+  const format = schema.format ?? "";
+
+  if (effectiveType === "integer") {
+    // For integer types, use the specific format or default to integer
+    switch (format) {
+      case "int8":
+      case "int16":
+      case "int32":
+      case "int64":
+      case "uint8":
+      case "uint16":
+      case "uint32":
+      case "uint64":
+        encodingType = format;
+        break;
+      default:
+        encodingType = "integer";
+    }
+  } else if (effectiveType === "number") {
+    // For number types, use the specific format or default to float32
+    switch (format) {
+      case "int8":
+      case "int16":
+      case "int32":
+      case "int64":
+      case "uint8":
+      case "uint16":
+      case "uint32":
+      case "uint64":
+        // Number type can have integer formats (e.g., type: number, format: int64)
+        encodingType = format;
+        break;
+      case "decimal":
+      case "decimal128":
+        encodingType = format;
+        break;
+      case "double":
+        encodingType = "float64";
+        break;
+      case "float":
+        encodingType = "float32";
+        break;
+      default:
+        encodingType = "float32";
+    }
+  }
+
+  decorators.push({
+    name: "encode",
+    args: [createTSValue(`"${xmsDuration}"`), createTSValue(encodingType)],
+  });
+
+  return decorators;
+}
+
 const knownStringFormats = new Set([
   "binary",
   "byte",
@@ -226,7 +535,7 @@ const knownStringFormats = new Set([
   "uri",
 ]);
 
-function getStringSchemaDecorators(schema: OpenAPI3Schema) {
+function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
   if (typeof schema.minLength === "number") {
@@ -243,6 +552,14 @@ function getStringSchemaDecorators(schema: OpenAPI3Schema) {
 
   if (typeof schema.format === "string" && !knownStringFormats.has(schema.format)) {
     decorators.push({ name: "format", args: [schema.format] });
+  }
+
+  // Handle contentEncoding: base64 for OpenAPI 3.1+ (indicates binary data encoded as base64 string)
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    decorators.push({
+      name: "encode",
+      args: [createTSValue(`"base64"`), createTSValue("string")],
+    });
   }
 
   return decorators;

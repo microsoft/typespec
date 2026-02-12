@@ -86,6 +86,11 @@ async function main() {
           .option("typekits", {
             description: "Generate typekit docs. Currently targeted for use with Astro Starlight.",
             type: "boolean",
+          })
+          .option("llmstxt", {
+            description:
+              "Add llmstxt frontmatter to generated docs to aide in generating llms.txt files.",
+            type: "boolean",
           });
       },
       async (args) => {
@@ -97,6 +102,7 @@ async function main() {
           {
             skipJSApi: args["skip-js"],
             typekits: args["typekits"],
+            llmstxt: args["llmstxt"],
           },
         );
         // const diagnostics = await generateExternSignatures(host, resolvedRoot);

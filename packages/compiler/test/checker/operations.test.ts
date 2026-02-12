@@ -1,8 +1,9 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { DecoratorContext, IntrinsicType, Operation, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";
-import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
+import { TestHost, createTestHost, expectDiagnostics, t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: operations", () => {
   let testHost: TestHost;
@@ -431,5 +432,29 @@ describe("compiler: operations", () => {
         [bar, foo],
       ]);
     });
+  });
+});
+
+describe("ensure the parameters are fully resolved before marking the operation as resolved", () => {
+  it("declared before", async () => {
+    const { myOp } = await Tester.compile(t.code`
+      model B {
+        prop: myOp;
+      }
+      op Base(...B): void;
+      op ${t.op("myOp")} is Base;
+    `);
+    expect(myOp.parameters.properties.has("prop")).toBe(true);
+  });
+
+  it("declared after", async () => {
+    const { myOp } = await Tester.compile(t.code`
+      op ${t.op("myOp")} is Base;
+      op Base(...B): void;
+      model B {
+        prop: myOp;
+      }
+    `);
+    expect(myOp.parameters.properties.has("prop")).toBe(true);
   });
 });

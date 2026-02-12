@@ -11,6 +11,7 @@ using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ClientGenerator.Core;
+using Azure.ClientGenerator.Core.Legacy;
 
 @armProviderNamespace
 @service(#{ title: "ArmStreamStyleSerialization" })
@@ -20,8 +21,6 @@ namespace TspTest.ArmStreamStyleSerialization;
 
 @doc("Azure API versions.")
 enum Versions {
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Preview API version 2023-12-01-preview.")
   v2023_12_01_preview: "2023-12-01-preview",
 }
@@ -109,11 +108,12 @@ model TopLevelArmResource is TrackedResource<TopLevelArmResourceProperties> {
 @doc("Top Level Arm Resource Properties.")
 model TopLevelArmResourceProperties {
   description?: string;
+  builtin: Builtin;
 }
 
 @error
-model ErrorResponse {
-  error: Error;
+model ErrorResponseMax {
+  error: ErrorMax;
 }
 
 @error
@@ -121,11 +121,11 @@ model ErrorResponseMin {
   error: ErrorMin;
 }
 
-model Error {
+model ErrorMax {
   code: string;
   message: string;
   target: string;
-  details?: Error[];
+  details?: ErrorMax[];
   additionalInfo?: AdditionalInfo[];
   additionalProperty: string;
 }
@@ -222,7 +222,7 @@ union Priority {
 @route("/model")
 interface Fishes {
   @get
-  getModel(): Fish | ErrorResponse;
+  getModel(): Fish | ErrorResponseMax;
 
   @put
   putModel(@body fish: Fish): Fish | ErrorResponseMin;
@@ -239,7 +239,14 @@ interface TopLevelArmResources {
 @route("/function")
 interface Functions {
   @put
-  createFunction(@body function: Function): Function;
+  createFunction(
+    @header `x-ms-authorization-auxiliary`?: string,
+    @body function: Function,
+  ): Function & {
+    @header("ETag")
+    @clientName("etag")
+    eTag: string;
+  };
 }
 
 @route("/priority")
@@ -268,6 +275,84 @@ model ListResult {
 
 model Result {
   name: string;
+
+  @visibility(Lifecycle.Read)
+  data: ResultData;
+}
+
+model ResultData {
+  prop1: string;
+
+  @visibility(Lifecycle.Read)
+  prop2: string;
+}
+
+// test the serializaton of "unknown"
+@usage(Usage.input | Usage.output)
+model Builtin {
+  boolean: boolean;
+  string: string;
+  bytes: bytes;
+  int: int32;
+  safeint: safeint;
+  decimal: decimal;
+  long: int64;
+  float: float32;
+  double: float64;
+  duration: duration;
+  date: plainDate;
+  dateTime: utcDateTime;
+  stringList: string[];
+  bytesDict: Record<bytes>;
+  url: url;
+  nullableFloatDict: Record<float64 | null>;
+  encoding: Encoded;
+  uuid: Azure.Core.uuid;
+  `unknown`: unknown;
+  unknownDict: Record<unknown>;
+  unknownArray: unknown[];
+  unknownDictArray: Record<unknown>[];
+}
+
+@encode(DurationKnownEncoding.seconds, float32)
+scalar myDuration extends duration;
+
+model Encoded {
+  @encode(DurationKnownEncoding.seconds, int32)
+  timeInSeconds?: duration;
+
+  @encode(DurationKnownEncoding.seconds, int32)
+  timeInSecondsPrimitive: duration;
+
+  timeInSecondsFraction?: myDuration;
+  timeInSecondsFractionPrimitive: myDuration;
+
+  @encode(DateTimeKnownEncoding.rfc3339)
+  dateTime?: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.rfc7231)
+  dateTimeRfc7231?: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.unixTimestamp, int64)
+  unixTimestamp?: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.unixTimestamp, int64)
+  unixTimestampPrimitive: utcDateTime;
+
+  @encode(BytesKnownEncoding.base64)
+  base64?: bytes;
+
+  @encode(BytesKnownEncoding.base64url)
+  base64url?: bytes;
+
+  @encode("unknown-duration")
+  unknownDurationFormat?: duration;
+
+  @encode("unknown-datetime")
+  unknownDateTimeFormat?: utcDateTime;
+
+  @encode("unknown-bytes")
+  unknownBytes?: bytes;
 }
 
 @@flattenProperty(Fish.properties);
@@ -275,3 +360,4 @@ model Result {
 @@flattenProperty(Fish.anotherProperties);
 @@flattenProperty(AnotherFishProperties.eyeProperties);
 @@flattenProperty(FunctionProperties.properties);
+@@flattenProperty(Result.data);

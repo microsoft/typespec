@@ -1,5 +1,7 @@
 ---
 title: Authentication
+description: Getting started with REST - 05 adding authentication
+llmstxt: true
 ---
 
 ## Introduction

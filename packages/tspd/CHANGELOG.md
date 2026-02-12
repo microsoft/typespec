@@ -1,5 +1,61 @@
 # Changelog - @typespec/tspd
 
+## 0.74.0
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.73.3
+
+### Bump dependencies
+
+- [#9202](https://github.com/microsoft/typespec/pull/9202) Update to alloy 0.22
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.73.2
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.73.1
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8580](https://github.com/microsoft/typespec/pull/8580) Handle union of union correctly for target type in decorator signature generation
+
+
+## 0.73.0
+
+### Features
+
+- [#8345](https://github.com/microsoft/typespec/pull/8345) Adds `llmstxt` frontmatter to generated reference docs to enable inclusion in llms.txt. Opt-in: specify `--llmstxt` to enable
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8362](https://github.com/microsoft/typespec/pull/8362) Upgrade alloy to 0.20
+
+
+## 0.72.2
+
+### Bump dependencies
+
+- [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.72.0
 
 ### Bump dependencies

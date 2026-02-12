@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -15,53 +16,110 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     internal sealed class ApiVersionEnumProvider : FixedEnumProvider
     {
-        private const string ApiVersionEnumName = "ServiceVersion";
+        private const string ServicePrefix = "Service";
+        private const string VersionSuffix = "Version";
+        private const string ApiVersionEnumName = $"{ServicePrefix}{VersionSuffix}";
         private const string ApiVersionEnumDescription = "The version of the service to use.";
 
-        public ApiVersionEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input, declaringType) { }
+        private readonly InputEnumType _inputEnum;
 
-        protected override string BuildName() => ApiVersionEnumName;
+        public ApiVersionEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input, declaringType)
+        {
+            _inputEnum = input;
+        }
+
+        protected override string BuildName()
+        {
+            List<InputEnumType> apiVersionEnums = [.. CodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
+                    .Where(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
+
+            if (CodeModelGenerator.Instance.InputLibrary.HasMultiServiceClient && apiVersionEnums.Count > 1)
+            {
+                var serviceNamespace = _inputEnum.Namespace;
+                if (!string.IsNullOrEmpty(serviceNamespace))
+                {
+                    return ClientHelper.BuildNameForService(serviceNamespace, ServicePrefix, VersionSuffix);
+                }
+            }
+
+            return ApiVersionEnumName;
+        }
+
         protected override FormattableString BuildDescription() => $"{ApiVersionEnumDescription}";
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
-            var customMembers = new HashSet<FieldProvider>(CustomCodeView?.Fields ?? []);
+            IReadOnlyList<FieldProvider> customFields = CustomCodeView?.Fields ?? [];
             List<EnumTypeMember> values = new(AllowedValues.Count);
+            bool shouldUseCustomMembers = customFields.Count > 0
+                && customFields.All(cm => cm.InitializationValue != null);
 
-            for (int i = 0; i < AllowedValues.Count; i++)
+            if (shouldUseCustomMembers)
             {
-                var inputValue = AllowedValues[i];
-                var modifiers = FieldModifiers.Public | FieldModifiers.Static;
-                var name = inputValue.Name.ToApiVersionMemberName();
-
-                // check if the enum member was renamed in custom code
-                string? customMemberName = null;
-                foreach (var customMember in customMembers)
+                values = BuildCustomEnumMembers(customFields);
+            }
+            else
+            {
+                var customMembers = new HashSet<FieldProvider>(customFields);
+                for (int i = 0; i < AllowedValues.Count; i++)
                 {
-                    if (customMember.OriginalName == name)
+                    var inputValue = AllowedValues[i];
+                    var modifiers = FieldModifiers.Public | FieldModifiers.Static;
+                    var name = inputValue.Name.ToApiVersionMemberName();
+
+                    // check if the enum member was renamed in custom code
+                    string? customMemberName = null;
+                    foreach (var customMember in customMembers)
                     {
-                        customMemberName = customMember.Name;
+                        if (customMember.OriginalName == name)
+                        {
+                            customMemberName = customMember.Name;
+                        }
                     }
+
+                    if (customMemberName != null)
+                    {
+                        name = customMemberName;
+                    }
+
+                    ValueExpression? initializationValue = Literal(i + 1);
+                    var field = new FieldProvider(
+                        modifiers,
+                        EnumUnderlyingType,
+                        name,
+                        this,
+                        DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
+                        initializationValue);
+
+                    values.Add(new EnumTypeMember(name, field, inputValue.Value));
                 }
-
-                if (customMemberName != null)
-                {
-                    name = customMemberName;
-                }
-
-                ValueExpression? initializationValue = Literal(i + 1);
-                var field = new FieldProvider(
-                    modifiers,
-                    EnumUnderlyingType,
-                    name,
-                    this,
-                    DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
-                    initializationValue);
-
-                values.Add(new EnumTypeMember(name, field, inputValue.Value));
             }
 
             return BuildApiVersionEnumValuesForBackwardCompatibility(values);
+        }
+
+        private List<EnumTypeMember> BuildCustomEnumMembers(IReadOnlyList<FieldProvider> customMembers)
+        {
+            List<EnumTypeMember> values = new(customMembers.Count);
+            Dictionary<string, InputEnumTypeValue> allowedValues = AllowedValues.ToDictionary(av => av.Name.ToApiVersionMemberName());
+            for (int i = 0; i < customMembers.Count; i++)
+            {
+                var member = customMembers[i];
+                var modifiers = FieldModifiers.Public | FieldModifiers.Static;
+                var field = new FieldProvider(
+                    modifiers,
+                    EnumUnderlyingType,
+                    member.Name,
+                    this,
+                    $"",
+                    member.InitializationValue);
+                object? inputValue = allowedValues.TryGetValue(member.OriginalName ?? member.Name, out var enumValue)
+                    ? enumValue.Value
+                    : member.Name;
+                values.Add(new EnumTypeMember(member.Name, field, inputValue));
+            }
+
+            return values;
         }
 
         private List<EnumTypeMember> BuildApiVersionEnumValuesForBackwardCompatibility(List<EnumTypeMember> currentApiVersions)
@@ -72,14 +130,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentApiVersions;
             }
 
-            var currentVersionNames = new HashSet<string>(currentApiVersions.Select(v => v.Name), StringComparer.OrdinalIgnoreCase);
+            var currentVersionsLookup = currentApiVersions.ToDictionary(v => v.Name, StringComparer.OrdinalIgnoreCase);
             var allMembers = new List<EnumTypeMember>(currentApiVersions.Count + lastContractFields.Count);
-            allMembers.AddRange(currentApiVersions);
-
             bool addedPreviousApiVersion = false;
+
+            // First, add all missing backward compatibility versions in their original order
             foreach (var field in lastContractFields)
             {
-                if (!currentVersionNames.Contains(field.Name))
+                if (currentVersionsLookup.TryGetValue(field.Name, out var existingMember))
+                {
+                    allMembers.Add(existingMember);
+                }
+                else
                 {
                     var (versionPrefix, versionSeparator) = ExtractVersionFormatInfo(field.Name, currentApiVersions);
                     string enumValue = field.Name.ToApiVersionValue(versionPrefix, versionSeparator);
@@ -93,7 +155,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentApiVersions;
             }
 
-            allMembers.Sort(static (x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
+            var processedNames = new HashSet<string>(lastContractFields.Select(f => f.Name), StringComparer.OrdinalIgnoreCase);
+            // Then, add new versions in the wire order
+            foreach (var currentVersion in currentApiVersions)
+            {
+                if (!processedNames.Contains(currentVersion.Name))
+                {
+                    allMembers.Add(currentVersion);
+                }
+            }
+
             for (int i = 0; i < allMembers.Count; i++)
             {
                 var member = allMembers[i];
@@ -118,6 +189,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             bool previousVersionIsDateFormat = IsDateFormat(previousVersion);
+            string? versionPrefix = null;
+            char? separator = null;
 
             // validate if any current version is also a date format, if so follow the same format
             if (previousVersionIsDateFormat)
@@ -125,11 +198,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 EnumTypeMember? dateFormatVersion = currentApiVersions.FirstOrDefault(v => v.Value is string apiValue && IsDateFormat(apiValue));
                 if (dateFormatVersion?.Value is string apiValue)
                 {
-                    string? versionPrefix = apiValue.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
+                    versionPrefix = apiValue.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
                         ? apiValue[0].ToString()
                         : null;
-                    char? separator = ExtractApiVersionSeparator(apiValue);
-                    return (versionPrefix, separator);
+                    separator = ExtractApiVersionSeparator(apiValue);
                 }
             }
             else
@@ -138,15 +210,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 EnumTypeMember? nonDateVersion = currentApiVersions.FirstOrDefault(v => v.Value is string apiValue && !IsDateFormat(apiValue));
                 if (nonDateVersion?.Value is string currentVersionValue)
                 {
-                    string? versionPrefix = currentVersionValue.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
+                    versionPrefix = currentVersionValue.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
                         ? currentVersionValue[0].ToString()
                         : null;
-                    char? separator = ExtractApiVersionSeparator(currentVersionValue);
-                    return (versionPrefix, separator);
+                    separator = ExtractApiVersionSeparator(currentVersionValue);
                 }
             }
 
-            return (null, null);
+            if (!previousVersionIsDateFormat && versionPrefix == null && IsSingleDigitVersion(previousVersion))
+            {
+                versionPrefix = "v";
+            }
+
+            return (versionPrefix, separator);
+        }
+
+        private static bool IsSingleDigitVersion(string version)
+        {
+            return version.Length == 2
+                && version.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
+                && char.IsDigit(version[1]);
         }
 
         private static bool IsDateFormat(string version)

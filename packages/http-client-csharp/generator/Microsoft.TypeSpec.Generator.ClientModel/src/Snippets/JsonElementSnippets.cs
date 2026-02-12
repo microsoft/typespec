@@ -58,6 +58,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static ValueExpression GetChar(this ScopedApi<JsonElement> jsonElement)
             => jsonElement.Invoke("GetChar");
+        public static ScopedApi<BinaryData> GetUtf8Bytes(this ScopedApi<JsonElement> jsonElement)
+            => jsonElement.Invoke("GetUtf8Bytes").As<BinaryData>();
 
         public static ValueExpression GetDateTimeOffset(this ScopedApi<JsonElement> jsonElement, string? format)
             => jsonElement.Invoke(nameof(JsonElement.GetDateTimeOffset), format is null ? [] : [Literal(format)]);

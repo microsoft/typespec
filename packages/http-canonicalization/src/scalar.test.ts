@@ -1,0 +1,153 @@
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
+import { Visibility } from "@typespec/http";
+import { beforeEach, expect, it } from "vitest";
+import { Tester } from "../test/test-host.js";
+import { HttpCanonicalizer } from "./http-canonicalization.js";
+import { ScalarHttpCanonicalization } from "./scalar.js";
+
+let runner: TesterInstance;
+beforeEach(async () => {
+  runner = await Tester.createInstance();
+});
+
+it("canonicalizes a string", async () => {
+  const { myString, program } = await runner.compile(t.code`
+    scalar ${t.scalar("myString")} extends string;
+  `);
+
+  const tk = $(program);
+  const engine = new HttpCanonicalizer(tk);
+
+  const canonicalMyString = engine.canonicalize(myString, {
+    visibility: Visibility.Read,
+  });
+
+  // No mutation happens in this case, so:
+  expectTypeEquals(canonicalMyString.sourceType, canonicalMyString.languageType);
+
+  expectTypeEquals(canonicalMyString.sourceType, canonicalMyString.wireType);
+
+  expect(canonicalMyString.codec.id).toBe("identity");
+});
+
+it("canonicalizes an int32 scalar", async () => {
+  const { myNumber, program } = await runner.compile(t.code`
+    scalar ${t.scalar("myNumber")} extends int32;
+  `);
+
+  const tk = $(program);
+  const engine = new HttpCanonicalizer(tk);
+
+  const canonicalMyNumber = engine.canonicalize(myNumber, {
+    visibility: Visibility.Read,
+    contentType: "application/json",
+  });
+
+  // We leave the language type the same
+  expectTypeEquals(canonicalMyNumber.sourceType, canonicalMyNumber.languageType);
+  // but the wire type is a float64
+  expect(canonicalMyNumber.sourceType === canonicalMyNumber.wireType).toBe(false);
+  expectTypeEquals(canonicalMyNumber.wireType, tk.builtin.float64);
+  expect(canonicalMyNumber.codec.id).toBe("coerce-to-float64");
+});
+
+it("canonicalizes a utcDateTime scalar", async () => {
+  const { myDateTime, program } = await runner.compile(t.code`
+    scalar ${t.scalar("myDateTime")} extends utcDateTime;
+  `);
+
+  const tk = $(program);
+  const engine = new HttpCanonicalizer(tk);
+
+  const canonicalMyString = engine.canonicalize(myDateTime, {
+    visibility: Visibility.Read,
+    contentType: "application/json",
+  });
+
+  expectTypeEquals(canonicalMyString.wireType, tk.builtin.string);
+  expect(canonicalMyString.codec.id).toBe("rfc3339");
+});
+
+it("canonicalizes a utcDateTime scalar with encode decorator", async () => {
+  const { myDateTime, program } = await runner.compile(t.code`
+      @encode(DateTimeKnownEncoding.rfc7231)
+      scalar ${t.scalar("myDateTime")} extends utcDateTime;
+    `);
+
+  const tk = $(program);
+  const engine = new HttpCanonicalizer(tk);
+
+  const canonicalMyString = engine.canonicalize(myDateTime, {
+    visibility: Visibility.Read,
+    contentType: "application/json",
+  });
+
+  // the codec is set appropriately
+  expect(canonicalMyString.codec.id).toBe("rfc7231");
+
+  // We leave the language type the same
+  expectTypeEquals(canonicalMyString.sourceType, canonicalMyString.languageType);
+
+  // but the wire type is a string
+  expect(canonicalMyString.sourceType === canonicalMyString.wireType).toBe(false);
+  expectTypeEquals(canonicalMyString.wireType, tk.builtin.string);
+});
+
+it("canonicalizes a utcDateTime scalar with encode decorator on a member", async () => {
+  const { Foo, program } = await runner.compile(t.code`
+      model ${t.model("Foo")} {
+        @encode(DateTimeKnownEncoding.rfc7231)
+        @visibility(Lifecycle.Read)
+        createdAt: utcDateTime;
+      }
+    `);
+
+  const tk = $(program);
+  const engine = new HttpCanonicalizer(tk);
+  const canonicalFoo = engine.canonicalize(Foo, {
+    visibility: Visibility.Read,
+    contentType: "application/json",
+  });
+
+  // navigating canonicalization
+  const canonicalDateTime = canonicalFoo.properties.get("createdAt")!
+    .type as ScalarHttpCanonicalization;
+
+  expect(canonicalDateTime).toBeInstanceOf(ScalarHttpCanonicalization);
+  expectTypeEquals(canonicalDateTime.wireType, tk.builtin.string);
+  expect(canonicalDateTime.codec.id).toBe("rfc7231");
+
+  // navigating mutated type
+  const wireFoo = canonicalFoo.wireType;
+  const wireDateType = wireFoo.properties.get("createdAt")!.type;
+  expectTypeEquals(wireDateType, tk.builtin.string);
+});
+
+it("canonicalizes a unix timestamp", async () => {
+  const { myDateTime1, myDateTime2, program } = await runner.compile(t.code`
+      @encode("unixTimestamp", int32)
+      scalar ${t.scalar("myDateTime1")} extends utcDateTime;
+      @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+      scalar ${t.scalar("myDateTime2")} extends utcDateTime;
+    `);
+
+  const tk = $(program);
+  const engine = new HttpCanonicalizer(tk);
+
+  const canonicalDate1 = engine.canonicalize(myDateTime1, {
+    visibility: Visibility.Read,
+    contentType: "application/json",
+  });
+
+  // the codec is set appropriately
+  expect(canonicalDate1.codec.id).toBe("unix-timestamp-32");
+
+  const canonicalDate2 = engine.canonicalize(myDateTime2, {
+    visibility: Visibility.Read,
+    contentType: "application/json",
+  });
+
+  // the codec is set appropriately
+  expect(canonicalDate2.codec.id).toBe("unix-timestamp-32");
+});

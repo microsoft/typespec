@@ -4,9 +4,9 @@
 import { DiscriminatedOptions } from "../../generated-defs/TypeSpec.js";
 import { createStateSymbol } from "../lib/utils.js";
 import { useStateMap } from "../utils/state-accessor.js";
-import type { Numeric } from "./numeric.js";
+import { isNumeric, type Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
-import type { Model, Type, Union } from "./types.js";
+import type { Model, ScalarValue, Type, Union } from "./types.js";
 
 const stateKeys = {
   minValues: createStateSymbol("minValues"),
@@ -27,14 +27,31 @@ const stateKeys = {
 
 // #region @minValue
 
-export function setMinValue(program: Program, target: Type, value: Numeric): void {
-  program.stateMap(stateKeys.minValues).set(target, value);
+const [
+  /** Get the min value for numeric or scalar types like date times */
+  getMinValueRaw,
+  setMinValue,
+] = useStateMap<Type, Numeric | ScalarValue>(stateKeys.minValues);
+
+export { setMinValue };
+
+/** Get the minimum value for a scalar type(datetime, duration, etc.). */
+export function getMinValueForScalar(program: Program, target: Type): ScalarValue | undefined {
+  const value = getMinValueRaw(program, target);
+  return !isNumeric(value) ? value : undefined;
 }
 
+/** Get the minimum value for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
 export function getMinValueAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(stateKeys.minValues).get(target);
+  const value = getMinValueRaw(program, target);
+  return isNumeric(value) ? value : undefined;
 }
 
+/**
+ * Get the minimum value for a numeric type.
+ * If the value cannot be represented as a JS number(Overflow) undefined will be returned
+ * See {@link getMinValueAsNumeric} to get the precise value
+ */
 export function getMinValue(program: Program, target: Type): number | undefined {
   return getMinValueAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -42,13 +59,31 @@ export function getMinValue(program: Program, target: Type): number | undefined 
 
 // #region @maxValue
 
-export function setMaxValue(program: Program, target: Type, value: Numeric): void {
-  program.stateMap(stateKeys.maxValues).set(target, value);
+const [
+  /** Get the max value for numeric or scalar types like date times */
+  getMaxValueRaw,
+  setMaxValue,
+] = useStateMap<Type, Numeric | ScalarValue>(stateKeys.maxValues);
+
+export { setMaxValue };
+
+/** Get the maximum value for a scalar type(datetime, duration, etc.). */
+export function getMaxValueForScalar(program: Program, target: Type): ScalarValue | undefined {
+  const value = getMaxValueRaw(program, target);
+  return !isNumeric(value) ? value : undefined;
 }
 
+/** Get the maximum value for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
 export function getMaxValueAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(stateKeys.maxValues).get(target);
+  const value = getMaxValueRaw(program, target);
+  return isNumeric(value) ? value : undefined;
 }
+
+/**
+ * Get the maximum value for a numeric type.
+ * If the value cannot be represented as a JS number(Overflow) undefined will be returned
+ * See {@link getMaxValueAsNumeric} to get the precise value
+ */
 export function getMaxValue(program: Program, target: Type): number | undefined {
   return getMaxValueAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -56,28 +91,69 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 
 // #region @minValueExclusive
 
-export function setMinValueExclusive(program: Program, target: Type, value: Numeric): void {
-  program.stateMap(stateKeys.minValueExclusive).set(target, value);
+const [
+  /** Get the min value exclusive for numeric or scalar types like date times */
+  getMinValueExclusiveRaw,
+  setMinValueExclusive,
+] = useStateMap<Type, Numeric | ScalarValue>(stateKeys.minValueExclusive);
+
+export { setMinValueExclusive };
+
+/** Get the minimum value exclusive for a scalar type(datetime, duration, etc.). */
+export function getMinValueExclusiveForScalar(
+  program: Program,
+  target: Type,
+): ScalarValue | undefined {
+  const value = getMinValueExclusiveRaw(program, target);
+  return !isNumeric(value) ? value : undefined;
 }
 
+/** Get the minimum value exclusive for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
 export function getMinValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(stateKeys.minValueExclusive).get(target);
+  const value = getMinValueExclusiveRaw(program, target);
+  return isNumeric(value) ? value : undefined;
 }
 
+/**
+ * Get the minimum value exclusive for a numeric type.
+ * If the value cannot be represented as a JS number(Overflow) undefined will be returned
+ * See {@link getMinValueExclusiveAsNumeric} to get the precise value
+ */
 export function getMinValueExclusive(program: Program, target: Type): number | undefined {
   return getMinValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 // #endregion @minValueExclusive
 
 // #region @maxValueExclusive
-export function setMaxValueExclusive(program: Program, target: Type, value: Numeric): void {
-  program.stateMap(stateKeys.maxValueExclusive).set(target, value);
+
+const [
+  /** Get the max value exclusive for numeric or scalar types like date times */
+  getMaxValueExclusiveRaw,
+  setMaxValueExclusive,
+] = useStateMap<Type, Numeric | ScalarValue>(stateKeys.maxValueExclusive);
+
+export { setMaxValueExclusive };
+
+/** Get the maximum value exclusive for a scalar type(datetime, duration, etc.). */
+export function getMaxValueExclusiveForScalar(
+  program: Program,
+  target: Type,
+): ScalarValue | undefined {
+  const value = getMaxValueExclusiveRaw(program, target);
+  return !isNumeric(value) ? value : undefined;
 }
 
+/** Get the maximum value exclusive for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
 export function getMaxValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(stateKeys.maxValueExclusive).get(target);
+  const value = getMaxValueExclusiveRaw(program, target);
+  return isNumeric(value) ? value : undefined;
 }
 
+/**
+ * Get the maximum value exclusive for a numeric type.
+ * If the value cannot be represented as a JS number(Overflow) undefined will be returned
+ * See {@link getMaxValueExclusiveAsNumeric} to get the precise value
+ */
 export function getMaxValueExclusive(program: Program, target: Type): number | undefined {
   return getMaxValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
 }

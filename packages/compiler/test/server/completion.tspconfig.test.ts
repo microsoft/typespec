@@ -1,6 +1,7 @@
 import { join } from "path";
 import { describe, expect, it } from "vitest";
 import { CompletionList } from "vscode-languageserver/node.js";
+import { joinPaths } from "../../src/index.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";
@@ -705,11 +706,11 @@ async function complete(
   const { source, pos } = extractCursor(sourceWithCursor);
   const testHost = await createTestServerHost(undefined);
   if (includeWorkspace) {
-    const workspaceFolder = join(__dirname, "./workspace");
+    const workspaceFolder = joinPaths(import.meta.dirname, "./workspace");
     await testHost.addRealFolder("./workspace", workspaceFolder);
   }
   const textDocument = testHost.addOrUpdateDocument(
-    join("./workspace", tspconfigPathUnderWorkspace),
+    joinPaths("./workspace", tspconfigPathUnderWorkspace),
     source,
   );
   return await testHost.server.complete({

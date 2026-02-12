@@ -41,10 +41,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         {
             var inputDerived = InputFactory.Model("mockDerivedModel");
             var inputBase = InputFactory.Model("mockBaseModel", derivedModels: [inputDerived]);
-            var (baseModel, baseSerialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputBase);
-            var (derivedModel, derivedSerialization) = MrwSerializationTypeDefinitionTests.CreateModelAndSerialization(inputDerived);
+            var derivedModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
+            var derivedSerialization = derivedModel!.SerializationProviders.First() as MrwSerializationTypeDefinition;
+            var baseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
 
-            var method = derivedSerialization.BuildPersistableModelCreateCoreMethod();
+            var method = derivedSerialization!.BuildPersistableModelCreateCoreMethod();
 
             Assert.IsNotNull(method);
 
@@ -54,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNull(methodSignature?.ExplicitInterface);
             Assert.AreEqual(2, methodSignature?.Parameters.Count);
             // for derived model, the return type of this method should be the same as the overridden base method
-            Assert.AreEqual(baseModel.Type, methodSignature?.ReturnType);
+            Assert.AreEqual(baseModel!.Type, methodSignature?.ReturnType);
 
             // Check method modifiers
             var expectedModifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;

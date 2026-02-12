@@ -28,6 +28,10 @@
     "extractorMessageReporting": {
       "default": {
         "logLevel": "error"
+      },
+      "ae-missing-release-tag": {
+        "logLevel": "none",
+        "addToApiReportFile": false
       }
     },
     "tsdocMessageReporting": {

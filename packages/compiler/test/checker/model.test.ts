@@ -1,7 +1,7 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
-import { Model, ModelProperty, Type } from "../../src/core/types.js";
+import { Model, ModelProperty, SyntaxKind, Type } from "../../src/core/types.js";
 import {
   Numeric,
   Operation,
@@ -15,7 +15,9 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: models", () => {
   let testHost: TestHost;
@@ -783,17 +785,15 @@ describe("compiler: models", () => {
     });
 
     it("keeps reference to source model in sourceModels", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        @test model A { }
-        @test model B is A { };
-        `,
-      );
-      const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
+      const { A, B, pos } = await Tester.compile(t.code`
+        model ${t.model("A")} {}
+        model ${t.model("B")} is /*ASource*/A;
+      `);
       expect(B.sourceModels).toHaveLength(1);
       strictEqual(B.sourceModels[0].model, A);
       strictEqual(B.sourceModels[0].usage, "is");
+      strictEqual(B.sourceModels[0].node?.kind, SyntaxKind.TypeReference);
+      strictEqual(B.sourceModels[0].node.pos, pos.ASource.pos);
     });
 
     it("copies decorators", async () => {
@@ -847,7 +847,7 @@ describe("compiler: models", () => {
         `,
       );
       const { A } = (await testHost.compile("main.tsp")) as { A: Model };
-      ok(isArrayModelType(testHost.program, A));
+      ok(isArrayModelType(A));
     });
 
     it("model is accept array expression of complex type", async () => {
@@ -859,8 +859,36 @@ describe("compiler: models", () => {
         `,
       );
       const { A } = (await testHost.compile("main.tsp")) as { A: Model };
-      ok(isArrayModelType(testHost.program, A));
+      ok(isArrayModelType(A));
       strictEqual(A.indexer.value.kind, "Union");
+    });
+
+    // https://github.com/microsoft/typespec/issues/2826
+    describe("ensure the target model is completely resolved before spreading", () => {
+      it("declared before", async () => {
+        const { B } = await Tester.compile(t.code`
+          model ${t.model("B")} is A;
+          model A {
+            b: B;
+            prop: string;
+          }
+        
+        `);
+        expect(B.properties.has("b")).toBe(true);
+        expect(B.properties.has("prop")).toBe(true);
+      });
+
+      it("declared after", async () => {
+        const { B } = await Tester.compile(t.code`
+          model A {
+            b: B;
+            prop: string;
+          }
+          model ${t.model("B")} is A;
+        `);
+        expect(B.properties.has("b")).toBe(true);
+        expect(B.properties.has("prop")).toBe(true);
+      });
     });
 
     it("model is array cannot have properties", async () => {
@@ -1048,6 +1076,119 @@ describe("compiler: models", () => {
       strictEqual(((C as Model).properties.get("c")?.type as any).name, "int32");
       strictEqual(((C as Model).properties.get("b")?.type as any).name, "B");
     });
+
+    it("resolves a recursive template model when the recursion is also templated", async () => {
+      const $observe = vi.fn();
+      testHost.addJsFile("utils.js", {
+        $observe,
+      });
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./utils.js";
+
+        model A<T> {
+          b: T;
+          c: C<string>;
+        }
+
+        @observe
+        model C<U> is A<int32> {
+          d: U;
+        }
+
+        @test
+        model Result is A<boolean>;
+        `,
+      );
+
+      const { Result } = (await testHost.compile("main.tsp")) as { Result: Model | undefined };
+
+      ok(Result);
+      strictEqual(Result.properties.size, 2);
+      strictEqual((Result.properties.get("b")?.type as any).name, "boolean");
+      const cProp = Result.properties.get("c")?.type;
+      ok(cProp);
+      ok(cProp.kind === "Model");
+      strictEqual(cProp.properties.size, 3);
+      strictEqual((cProp.properties.get("b")?.type as any).name, "int32");
+      strictEqual((cProp.properties.get("c")?.type as any).name, "C");
+      strictEqual((cProp.properties.get("d")?.type as any).name, "string");
+
+      // Just checking that the inner layer is identical
+      const innerCProp = cProp.properties.get("c")?.type;
+      strictEqual(innerCProp, cProp);
+
+      expect($observe).toHaveBeenCalledTimes(1);
+    });
+
+    it("resolves a cyclic recursion with a property aliased to a recursive spread", async () => {
+      const $observe = vi.fn();
+      testHost.addJsFile("utils.js", {
+        $observe,
+      });
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./utils.js";
+
+        model X<T> {
+          prop: T;
+          y: Y<T>;
+        }
+
+        model Y<T> is X<string> {
+          extra: Z<T>;
+        }
+
+        alias Z<T> = {
+          @observe foo: T;
+          ...X<string>
+        };
+
+        @test model Result is X<int32>;
+        `,
+      );
+
+      const { Result } = (await testHost.compile("main.tsp")) as { Result: Model | undefined };
+
+      ok(Result);
+      strictEqual(Result.properties.size, 2);
+      strictEqual((Result.properties.get("prop")?.type as any).name, "int32");
+      const yProp = Result.properties.get("y")?.type;
+      ok(yProp);
+      ok(yProp.kind === "Model");
+      strictEqual(yProp.properties.size, 3);
+      strictEqual((yProp.properties.get("prop")?.type as any).name, "string");
+      const zProp = yProp.properties.get("extra")?.type;
+      ok(zProp);
+      ok(zProp.kind === "Model");
+      strictEqual(zProp.properties.size, 3);
+      strictEqual((zProp.properties.get("foo")?.type as any).name, "int32");
+      strictEqual((zProp.properties.get("y")?.type as any).name, "Y");
+      strictEqual((zProp.properties.get("prop")?.type as any).name, "string");
+
+      const innerXFromZ = zProp.properties.get("y")?.type;
+      ok(innerXFromZ);
+      ok(innerXFromZ.kind === "Model");
+      strictEqual(innerXFromZ.properties.size, 3);
+      strictEqual((innerXFromZ.properties.get("prop")?.type as any).name, "string");
+      const innerYFromZ = innerXFromZ.properties.get("y")?.type;
+      ok(innerYFromZ);
+      ok(innerYFromZ.kind === "Model");
+      strictEqual(innerYFromZ.properties.size, 3);
+      strictEqual((innerYFromZ.properties.get("prop")?.type as any).name, "string");
+      const innerZFromZ = innerYFromZ.properties.get("extra")?.type;
+      ok(innerZFromZ);
+      ok(innerZFromZ.kind === "Model");
+      strictEqual(innerZFromZ.properties.size, 3);
+      strictEqual((innerZFromZ.properties.get("foo")?.type as any).name, "string");
+      strictEqual((innerZFromZ.properties.get("y")?.type as any).name, "Y");
+      strictEqual((innerZFromZ.properties.get("prop")?.type as any).name, "string");
+
+      // Called twice, once for Z<string> and once for Z<int32>
+      expect($observe).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("spread", () => {
@@ -1070,20 +1211,20 @@ describe("compiler: models", () => {
     });
 
     it("keeps reference to source model in sourceModels", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        @test model A { one: string }
-        @test model B { two: string }
-        @test model C {...A, ...B}
-        `,
-      );
-      const { A, B, C } = (await testHost.compile("main.tsp")) as { A: Model; B: Model; C: Model };
+      const { A, B, C, pos } = await Tester.compile(t.code`
+        model ${t.model("A")} { one: string }
+        model ${t.model("B")} { two: string }
+        model ${t.model("C")} {.../*ASpread*/A, .../*BSpread*/B}
+        `);
       expect(C.sourceModels).toHaveLength(2);
       strictEqual(C.sourceModels[0].model, A);
       strictEqual(C.sourceModels[0].usage, "spread");
+      strictEqual(C.sourceModels[0].node?.kind, SyntaxKind.TypeReference);
+      strictEqual(C.sourceModels[0].node.pos, pos.ASpread.pos);
       strictEqual(C.sourceModels[1].model, B);
       strictEqual(C.sourceModels[1].usage, "spread");
+      strictEqual(C.sourceModels[1].node?.kind, SyntaxKind.TypeReference);
+      strictEqual(C.sourceModels[1].node.pos, pos.BSpread.pos);
     });
 
     it("can spread a Record<T>", async () => {
@@ -1096,7 +1237,7 @@ describe("compiler: models", () => {
       const { Test } = (await testHost.compile("main.tsp")) as {
         Test: Model;
       };
-      ok(isRecordModelType(testHost.program, Test));
+      ok(isRecordModelType(Test));
       strictEqual(Test.indexer?.key.name, "string");
       strictEqual(Test.indexer?.value.kind, "Scalar");
       strictEqual(Test.indexer?.value.name, "int32");
@@ -1115,7 +1256,7 @@ describe("compiler: models", () => {
       const { Test } = (await testHost.compile("main.tsp")) as {
         Test: Model;
       };
-      ok(isRecordModelType(testHost.program, Test));
+      ok(isRecordModelType(Test));
       const nameProp = Test.properties.get("name");
       strictEqual(nameProp?.type.kind, "Scalar");
       strictEqual(nameProp?.type.name, "string");
@@ -1137,7 +1278,7 @@ describe("compiler: models", () => {
       const { Test } = (await testHost.compile("main.tsp")) as {
         Test: Model;
       };
-      ok(isRecordModelType(testHost.program, Test));
+      ok(isRecordModelType(Test));
       strictEqual(Test.indexer?.key.name, "string");
       const indexerValue = Test.indexer?.value;
       strictEqual(indexerValue.kind, "Union");

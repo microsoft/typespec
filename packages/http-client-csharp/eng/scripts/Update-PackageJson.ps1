@@ -27,9 +27,52 @@ Set-StrictMode -Version 3.0
 
 # Define the list of dependencies to inject
 $InjectedDependencies = @(
+    '@azure-tools/typespec-azure-core',
     '@azure-tools/typespec-azure-rulesets',
-    '@azure-tools/typespec-azure-resource-manager'
+    '@azure-tools/typespec-azure-resource-manager',
+    '@azure-tools/typespec-autorest'
 )
+
+# Function to check if a package version exists
+function Test-PackageVersion {
+    param(
+        [string]$PackageName,
+        [string]$Version
+    )
+    
+    Write-Host "Checking if $PackageName@$Version exists..."
+    $checkResult = & npm view "$PackageName@$Version" version 2>&1
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✓ Found $PackageName@$Version"
+        return $true
+    } else {
+        Write-Warning "✗ Package $PackageName@$Version not found"
+        return $false
+    }
+}
+
+# Function to get a specific dependency version from a package
+function Get-PackageDependencyVersion {
+    param(
+        [string]$PackageName,
+        [string]$PackageVersion,
+        [string]$DependencyName
+    )
+    
+    Write-Host "Getting $DependencyName version from $PackageName@$PackageVersion..."
+    $result = & npm view "$PackageName@$PackageVersion" devDependencies.$DependencyName 2>&1
+    
+    if ($LASTEXITCODE -eq 0 -and $result) {
+        $dependencyVersion = $result.Trim()
+        $dependencyVersion = $dependencyVersion -replace '^[\^~]', ''
+        Write-Host "Found $DependencyName version: $dependencyVersion"
+        return $dependencyVersion
+    } else {
+        Write-Warning "Could not find $DependencyName in dependencies of $PackageName@$PackageVersion"
+        return $null
+    }
+}
 
 # Resolve paths
 $PackageJsonPath = Resolve-Path $PackageJsonPath
@@ -56,20 +99,50 @@ try {
     }
 
     $packageJson = Get-Content $PackageJsonPath -Raw | ConvertFrom-Json
+    $tcgc = '@azure-tools/typespec-client-generator-core'
 
-    # Get the version of @azure-tools/typespec-azure-core from devDependencies
-    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies.'@azure-tools/typespec-azure-core') {
-        Write-Error "Could not find @azure-tools/typespec-azure-core in devDependencies"
+    # Get the version of tcgc from devDependencies
+    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies.PSObject.Properties[$tcgc]) {
+        Write-Error "Could not find $tcgc in devDependencies"
         exit 1
     }
 
-    $azureCoreVersion = $packageJson.devDependencies.'@azure-tools/typespec-azure-core'
-    Write-Host "Using version $azureCoreVersion for injected dependencies"
+    $tcgcVersion = $packageJson.devDependencies.PSObject.Properties[$tcgc].Value
+    Write-Host "Using version $tcgcVersion as base version for injected dependencies"
 
-    # Inject the required dependencies with the same version
-    Write-Host "Injecting required dependencies..."
+    # Get the fallback version from tcgc's @azure-tools/typespec-azure-core dependency
+    $fallbackVersion = Get-PackageDependencyVersion -PackageName $tcgc -PackageVersion $tcgcVersion -DependencyName '@azure-tools/typespec-azure-core'
+    if ($fallbackVersion) {
+        Write-Host "Fallback version available: $fallbackVersion"
+    }
+
+    # Validate and inject the required dependencies
+    Write-Host "Validating and injecting required dependencies..."
+    $dependencyVersions = @{}
+    
     foreach ($dependency in $InjectedDependencies) {
-        $packageJson.devDependencies | Add-Member -Type NoteProperty -Name $dependency -Value $azureCoreVersion -Force
+        $versionToUse = $tcgcVersion
+        
+        # Check if the tcgc version exists for this dependency
+        if (-not (Test-PackageVersion -PackageName $dependency -Version $tcgcVersion)) {
+            Write-Warning "Version $tcgcVersion not found for $dependency"
+            
+            # Use the version from tcgc's @azure-tools/typespec-azure-core dependency as fallback
+            if ($fallbackVersion) {
+                Write-Host "Using fallback version $fallbackVersion for all injected dependencies"
+                $versionToUse = $fallbackVersion
+            } else {
+                Write-Error "Could not determine a valid version for $dependency (no fallback available)"
+                exit 1
+            }
+        }
+        
+        # Store the version to use for this dependency
+        $dependencyVersions[$dependency] = $versionToUse
+        
+        # Add the dependency to devDependencies
+        $packageJson.devDependencies | Add-Member -Type NoteProperty -Name $dependency -Value $versionToUse -Force
+        Write-Host "Added $dependency@$versionToUse to devDependencies"
     }
 
     # Create array of all peerDependencies plus the injected dependencies
@@ -86,6 +159,12 @@ try {
     # Write the updated package.json back
     Write-Host "Writing updated package.json..."
     $packageJson | ConvertTo-Json -Depth 10 | Set-Content $PackageJsonPath
+
+    # Display summary of injected dependencies
+    Write-Host "`nSummary of injected dependencies:"
+    foreach ($dep in $dependencyVersions.Keys) {
+        Write-Host "  $dep@$($dependencyVersions[$dep])"
+    }
 
     # Validate dependencies by running npm install
     Write-Host "Validating dependencies with npm install..."

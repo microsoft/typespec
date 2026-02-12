@@ -1,5 +1,7 @@
 ---
 title: Operations
+description: Defining HTTP endpoints
+llmstxt: true
 ---
 
 ## Operation verb

@@ -117,6 +117,26 @@ public final class PatchesImpl {
         Response<BinaryData> createOrUpdateFishSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/merge-patch+json") BinaryData fish, RequestOptions requestOptions, Context context);
+
+        @Patch("/patch/fish/salmon")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<BinaryData>> createOrUpdateSalmon(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/merge-patch+json") BinaryData fish, RequestOptions requestOptions, Context context);
+
+        @Patch("/patch/fish/salmon")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<BinaryData> createOrUpdateSalmonSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/merge-patch+json") BinaryData fish, RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -564,6 +584,153 @@ public final class PatchesImpl {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
         return service.createOrUpdateFishSync(this.client.getEndpoint(), contentType, accept, fish, requestOptions,
+            Context.NONE);
+    }
+
+    /**
+     * The createOrUpdateSalmon operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     id: String (Required)
+     *     name: String (Required)
+     *     age: int (Optional, Required on create)
+     *     color: String (Optional)
+     *     friends (Optional): [
+     *          (Optional){
+     *             kind: String (Required)
+     *             id: String (Required)
+     *             name: String (Required)
+     *             age: int (Optional, Required on create)
+     *             color: String (Optional)
+     *         }
+     *     ]
+     *     hate (Optional): {
+     *         String (Required): (recursive schema, see String above)
+     *     }
+     *     partner (Optional): (recursive schema, see partner above)
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     id: String (Required)
+     *     name: String (Required)
+     *     age: int (Optional, Required on create)
+     *     color: String (Optional)
+     *     friends (Optional): [
+     *          (Optional){
+     *             kind: String (Required)
+     *             id: String (Required)
+     *             name: String (Required)
+     *             age: int (Optional, Required on create)
+     *             color: String (Optional)
+     *         }
+     *     ]
+     *     hate (Optional): {
+     *         String (Required): (recursive schema, see String above)
+     *     }
+     *     partner (Optional): (recursive schema, see partner above)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param fish The fish parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the second level model in polymorphic multiple levels inheritance which contains references to other
+     * polymorphic instances along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> createOrUpdateSalmonWithResponseAsync(BinaryData fish,
+        RequestOptions requestOptions) {
+        final String contentType = "application/merge-patch+json";
+        final String accept = "application/json";
+        return FluxUtil.withContext(context -> service.createOrUpdateSalmon(this.client.getEndpoint(), contentType,
+            accept, fish, requestOptions, context));
+    }
+
+    /**
+     * The createOrUpdateSalmon operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     id: String (Required)
+     *     name: String (Required)
+     *     age: int (Optional, Required on create)
+     *     color: String (Optional)
+     *     friends (Optional): [
+     *          (Optional){
+     *             kind: String (Required)
+     *             id: String (Required)
+     *             name: String (Required)
+     *             age: int (Optional, Required on create)
+     *             color: String (Optional)
+     *         }
+     *     ]
+     *     hate (Optional): {
+     *         String (Required): (recursive schema, see String above)
+     *     }
+     *     partner (Optional): (recursive schema, see partner above)
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     id: String (Required)
+     *     name: String (Required)
+     *     age: int (Optional, Required on create)
+     *     color: String (Optional)
+     *     friends (Optional): [
+     *          (Optional){
+     *             kind: String (Required)
+     *             id: String (Required)
+     *             name: String (Required)
+     *             age: int (Optional, Required on create)
+     *             color: String (Optional)
+     *         }
+     *     ]
+     *     hate (Optional): {
+     *         String (Required): (recursive schema, see String above)
+     *     }
+     *     partner (Optional): (recursive schema, see partner above)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param fish The fish parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the second level model in polymorphic multiple levels inheritance which contains references to other
+     * polymorphic instances along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> createOrUpdateSalmonWithResponse(BinaryData fish, RequestOptions requestOptions) {
+        final String contentType = "application/merge-patch+json";
+        final String accept = "application/json";
+        return service.createOrUpdateSalmonSync(this.client.getEndpoint(), contentType, accept, fish, requestOptions,
             Context.NONE);
     }
 }

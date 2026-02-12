@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -31,7 +33,6 @@ namespace Microsoft.TypeSpec.Generator
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
-
         internal CodeWriter()
         {
             _builder = new UnsafeBufferSequence(1024);
@@ -184,28 +185,36 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(method.XmlDocs))
             {
-                if (method.Attributes.Count > 0)
-                {
-                    foreach (var attr in method.Attributes)
-                    {
-                        attr.Write(this);
-                    }
-                }
-
                 if (method.BodyStatements is { } body)
                 {
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
                     using (WriteMethodDeclaration(method.Signature))
                     {
                         body.Write(this);
                     }
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
+                    }
                 }
                 else if (method.BodyExpression is { } expression)
                 {
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
                     using (WriteMethodDeclarationNoScope(method.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
+                    }
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
                     }
                 }
             }
@@ -217,28 +226,40 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(ctor.XmlDocs))
             {
-                if (ctor.Attributes.Count > 0)
-                {
-                    foreach (var attr in ctor.Attributes)
-                    {
-                        attr.Write(this);
-                    }
-                }
-
                 if (ctor.BodyStatements is { } body)
                 {
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
+
                     using (WriteMethodDeclaration(ctor.Signature))
                     {
                         body.Write(this);
                     }
+
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
+                    }
                 }
                 else if (ctor.BodyExpression is { } expression)
                 {
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
+
                     using (WriteMethodDeclarationNoScope(ctor.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
+                    }
+
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
                     }
                 }
             }
@@ -312,6 +333,8 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("static ", modifiers.HasFlag(MethodSignatureModifiers.Static))
                 .AppendRawIf("virtual ", modifiers.HasFlag(MethodSignatureModifiers.Virtual));
 
+            AppendRawIf("ref ", property.IsRef);
+
             Append($"{property.Type} ");
 
             if (property.ExplicitInterface is not null)
@@ -321,7 +344,7 @@ namespace Microsoft.TypeSpec.Generator
             if (property is IndexPropertyProvider indexer)
             {
                 indexerScope = AmbientScope();
-                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.AsExpression().Declaration}]");
+                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.AsVariable().Declaration}]");
             }
             else
             {
@@ -444,10 +467,11 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AppendRawIf("out ", parameter.IsOut);
+            AppendRawIf("in ", parameter.IsIn);
             AppendRawIf("ref ", parameter.IsRef);
             AppendRawIf("params ", parameter.IsParams);
 
-            Append($"{parameter.Type} {parameter.AsExpression().Declaration}");
+            Append($"{parameter.Type} {parameter.AsVariable().Declaration}");
             if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
@@ -596,11 +620,11 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly)
+        private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly, int genericDepth = 0)
         {
             if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
             {
-                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly);
+                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly, genericDepth);
                 AppendRaw("[]");
                 return;
             }
@@ -638,7 +662,7 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(_writingXmlDocumentation ? "{" : "<");
                 for (int i = 0; i < type.Arguments.Count; i++)
                 {
-                    AppendType(type.Arguments[i], false, writeTypeNameOnly);
+                    AppendType(type.Arguments[i], false, writeTypeNameOnly, genericDepth + 1);
                     if (i != type.Arguments.Count - 1)
                     {
                         AppendRaw(_writingXmlDocumentation ? "," : ", ");
@@ -647,7 +671,8 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
-            if (!_writingNewInstance && !isDeclaration && type is { IsNullable: true, IsValueType: true })
+            // Add '?' for nullable value types, but skip if we're writing new instance UNLESS we're inside generic type arguments
+            if ((!_writingNewInstance || genericDepth > 0) && !isDeclaration && type is { IsNullable: true, IsValueType: true })
             {
                 AppendRaw("?");
             }

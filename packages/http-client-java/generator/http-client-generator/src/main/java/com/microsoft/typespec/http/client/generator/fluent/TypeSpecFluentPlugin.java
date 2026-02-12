@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.fluent;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.JavaSettingsAccessor;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
@@ -14,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
@@ -24,7 +22,11 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
-import java.io.File;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,63 +38,80 @@ public class TypeSpecFluentPlugin extends FluentGen {
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeSpecFluentPlugin.class);
     private final EmitterOptions emitterOptions;
 
-    public TypeSpecFluentPlugin(EmitterOptions emitterOptions, boolean sdkIntegration) {
+    public TypeSpecFluentPlugin(EmitterOptions options, boolean sdkIntegration, String title) {
         super(new TypeSpecPlugin.MockConnection(), "dummy", "dummy");
-        this.emitterOptions = emitterOptions;
-        SETTINGS_MAP.put("namespace", emitterOptions.getNamespace());
-        if (!CoreUtils.isNullOrEmpty(emitterOptions.getOutputDir())) {
-            SETTINGS_MAP.put("output-folder", emitterOptions.getOutputDir());
+        this.emitterOptions = options;
+
+        SETTINGS_MAP.put("title", title);
+        SETTINGS_MAP.put("namespace", options.getNamespace());
+        if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
+            SETTINGS_MAP.put("output-folder", options.getOutputDir());
         }
-        if (!CoreUtils.isNullOrEmpty(emitterOptions.getServiceName())) {
-            SETTINGS_MAP.put("service-name", emitterOptions.getServiceName());
+        if (!CoreUtils.isNullOrEmpty(options.getServiceName())) {
+            SETTINGS_MAP.put("service-name", options.getServiceName());
         }
-        if (emitterOptions.getGenerateSamples() != null) {
-            SETTINGS_MAP.put("generate-samples", emitterOptions.getGenerateSamples());
+        if (options.getGenerateSamples() != null) {
+            SETTINGS_MAP.put("generate-samples", options.getGenerateSamples());
         }
-        if (emitterOptions.getGenerateTests() != null) {
-            SETTINGS_MAP.put("generate-tests", emitterOptions.getGenerateTests());
+        if (options.getGenerateTests() != null) {
+            SETTINGS_MAP.put("generate-tests", options.getGenerateTests());
         }
-        if (emitterOptions.getArm()) {
-            if (emitterOptions.getPremium()) {
+        if (options.getClientSideValidations() != null) {
+            SETTINGS_MAP.put("client-side-validations", options.getClientSideValidations());
+        }
+        if (options.getArm()) {
+            if (options.getPremium()) {
                 SETTINGS_MAP.put("fluent", "premium");
             } else {
                 SETTINGS_MAP.put("fluent", "lite");
             }
         }
-        if (emitterOptions.getPackageVersion() != null) {
-            SETTINGS_MAP.put("package-version", emitterOptions.getPackageVersion());
+        if (options.getPackageVersion() != null) {
+            SETTINGS_MAP.put("package-version", options.getPackageVersion());
         }
-        if (emitterOptions.getEnableSyncStack() != null) {
-            SETTINGS_MAP.put("enable-sync-stack", emitterOptions.getEnableSyncStack());
+        if (options.getEnableSyncStack() != null) {
+            SETTINGS_MAP.put("enable-sync-stack", options.getEnableSyncStack());
         }
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);
         SETTINGS_MAP.put("output-model-immutable", true);
-        SETTINGS_MAP.put("uuid-as-string", true);
-        SETTINGS_MAP.put("stream-style-serialization", emitterOptions.getStreamStyleSerialization());
-        SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
+        SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
+        SETTINGS_MAP.put("uuid-as-string", options.getUuidAsString());
+        SETTINGS_MAP.put("use-object-for-unknown", options.getUseObjectForUnknown());
+        if (options.getRenameModel() != null) {
+            SETTINGS_MAP.put("rename-model", options.getRenameModel());
+        }
 
         // mgmt
-        if (emitterOptions.getRenameModel() != null) {
-            SETTINGS_MAP.put("rename-model", emitterOptions.getRenameModel());
+        if (options.getAddInner() != null) {
+            SETTINGS_MAP.put("add-inner", options.getAddInner());
         }
-        if (emitterOptions.getAddInner() != null) {
-            SETTINGS_MAP.put("add-inner", emitterOptions.getAddInner());
+        if (options.getRemoveInner() != null) {
+            SETTINGS_MAP.put("remove-inner", options.getRemoveInner());
         }
-        if (emitterOptions.getRemoveInner() != null) {
-            SETTINGS_MAP.put("remove-inner", emitterOptions.getRemoveInner());
+        if (options.getPreserveModel() != null) {
+            SETTINGS_MAP.put("preserve-model", options.getPreserveModel());
         }
-        if (emitterOptions.getPreserveModel() != null) {
-            SETTINGS_MAP.put("preserve-model", emitterOptions.getPreserveModel());
+        if (options.getGenerateAsyncMethods() != null) {
+            SETTINGS_MAP.put("generate-async-methods", options.getGenerateAsyncMethods());
         }
-        if (emitterOptions.getGenerateAsyncMethods() != null) {
-            SETTINGS_MAP.put("generate-async-methods", emitterOptions.getGenerateAsyncMethods());
+        if (options.getPropertyIncludeAlways() != null) {
+            // always serialize this property, even if the value is null
+            SETTINGS_MAP.put("property-include-always", options.getPropertyIncludeAlways());
         }
-        if (emitterOptions.getResourceCollectionAssociations() != null) {
-            SETTINGS_MAP.put("resource-collection-associations", emitterOptions.getResourceCollectionAssociations());
+        if (options.getResourceCollectionAssociations() != null) {
+            SETTINGS_MAP.put("resource-collection-associations", options.getResourceCollectionAssociations());
+        }
+        if (options.getMetadataSuffix() != null) {
+            SETTINGS_MAP.put("metadata-suffix", options.getMetadataSuffix());
+        }
+
+        if (options.getCustomizationClass() != null) {
+            SETTINGS_MAP.put("customization-class",
+                Paths.get(options.getOutputDir()).resolve(options.getCustomizationClass()).toAbsolutePath().toString());
         }
 
         JavaSettingsAccessor.setHost(this);
-        LOGGER.info("Output folder: {}", emitterOptions.getOutputDir());
+        LOGGER.info("Output folder: {}", options.getOutputDir());
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());
     }
 
@@ -117,8 +136,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
-                apiVersion, collectCrossLanguageDefinitions(client));
-            javaPackage.addTypeSpecMetadata(metadata);
+                apiVersion, collectCrossLanguageDefinitions(client),
+                FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
+            javaPackage.addTypeSpecMetadata(metadata, getFluentJavaSettings().getMetadataSuffix().orElse(null));
         }
 
         return javaPackage;
@@ -126,8 +146,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
     @Override
     public void writeFile(String fileName, String content, List<Object> sourceMap) {
-        File outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
-        LOGGER.info("Write file: {}", outputFile.getAbsolutePath());
+        Path outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
+        LOGGER.info("Write file: {}", outputFile.toAbsolutePath());
     }
 
     @Override
@@ -157,37 +177,20 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("null-byte-array-maps-to-empty-array", true);
         SETTINGS_MAP.put("graal-vm-config", true);
         SETTINGS_MAP.put("sync-methods", "all");
-        SETTINGS_MAP.put("client-side-validations", true);
         SETTINGS_MAP.put("stream-style-serialization", false);
-//        SETTINGS_MAP.put("pipeline.fluentgen.naming.override", getNamingOverrides());
-    }
 
-    private static Map<String, String> getNamingOverrides() {
-        Map<String, String> namingOverrides = new HashMap<>();
-        namingOverrides.put("eTag", "etag");
-        namingOverrides.put("userName", "username");
-        namingOverrides.put("metaData", "metadata");
-        namingOverrides.put("timeStamp", "timestamp");
-        namingOverrides.put("hostName", "hostname");
-        namingOverrides.put("webHook", "webhook");
-        namingOverrides.put("coolDown", "cooldown");
-        namingOverrides.put("resourceregion", "resourceRegion");
-        namingOverrides.put("sTag", "stag");
-        namingOverrides.put("tagname", "tagName");
-        namingOverrides.put("tagvalue", "tagValue");
-
-        return namingOverrides;
+        SETTINGS_MAP.put("polling", new HashMap<String, Object>());
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValueWithJsonReader(String key, ReadValueCallback<JsonReader, T> converter) {
+    public <T> T getValueWithJsonReader(String key, IOExceptionCheckedFunction<JsonReader, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 

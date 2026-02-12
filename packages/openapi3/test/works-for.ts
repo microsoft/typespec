@@ -5,12 +5,14 @@ import {
   emitOpenApiWithDiagnostics,
   oapiForModel,
   openApiFor,
+  openapisFor,
   openapiWithOptions,
 } from "./test-host.js";
 
 export const OpenAPISpecHelpers: Record<OpenAPIVersion, SpecHelper> = {
   "3.0.0": createSpecHelpers("3.0.0"),
   "3.1.0": createSpecHelpers("3.1.0"),
+  "3.2.0": createSpecHelpers("3.2.0"),
 };
 
 export type ObjectSchemaIndexer = "additionalProperties" | "unevaluatedProperties";
@@ -19,6 +21,7 @@ export type SpecHelper = {
   version: OpenAPIVersion;
   oapiForModel: typeof oapiForModel;
   openApiFor: typeof openApiFor;
+  openapisFor: typeof openapisFor;
   openapiWithOptions: typeof openapiWithOptions;
   checkFor: typeof diagnoseOpenApiFor;
   diagnoseOpenApiFor: typeof diagnoseOpenApiFor;
@@ -35,6 +38,8 @@ function createSpecHelpers(version: OpenAPIVersion): SpecHelper {
       oapiForModel(name, modelDef, { ...options, "openapi-versions": [version] }),
     openApiFor: (...[code, options]: Parameters<typeof openApiFor>) =>
       openApiFor(code, { ...options, "openapi-versions": [version] }),
+    openapisFor: (...[code, options]: Parameters<typeof openapisFor>) =>
+      openapisFor(code, { ...options, "openapi-versions": [version] }),
     openapiWithOptions: (...[code, options]: Parameters<typeof openapiWithOptions>) =>
       openapiWithOptions(code, { ...options, "openapi-versions": [version] }),
     checkFor: (...[code, options]: Parameters<typeof diagnoseOpenApiFor>) =>
@@ -54,3 +59,5 @@ export function worksFor(versions: OpenAPIVersion[], cb: WorksForCb) {
     cb(specHelpers);
   });
 }
+
+export const supportedVersions = Object.keys(OpenAPISpecHelpers) as OpenAPIVersion[];

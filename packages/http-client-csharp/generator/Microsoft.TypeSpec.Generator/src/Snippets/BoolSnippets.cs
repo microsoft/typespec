@@ -9,6 +9,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
     {
         public static ScopedApi<bool> Or(this ScopedApi<bool> boolExpression, ValueExpression other) => new BinaryOperatorExpression("||", boolExpression, other).As<bool>();
 
+        public static ScopedApi<bool> OrPattern(this ScopedApi<bool> boolExpression, ValueExpression other) => new BinaryOperatorExpression("or", boolExpression, other).As<bool>();
+
         public static ScopedApi<bool> And(this ScopedApi<bool> boolExpression, ValueExpression other) => new BinaryOperatorExpression("&&", boolExpression, other).As<bool>();
     }
 }

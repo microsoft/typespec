@@ -78,6 +78,34 @@ public final class PageableClientImpl {
     }
 
     /**
+     * The PageSizesImpl object to access its operations.
+     */
+    private final PageSizesImpl pageSizes;
+
+    /**
+     * Gets the PageSizesImpl object to access its operations.
+     * 
+     * @return the PageSizesImpl object.
+     */
+    public PageSizesImpl getPageSizes() {
+        return this.pageSizes;
+    }
+
+    /**
+     * The XmlPaginationsImpl object to access its operations.
+     */
+    private final XmlPaginationsImpl xmlPaginations;
+
+    /**
+     * Gets the XmlPaginationsImpl object to access its operations.
+     * 
+     * @return the XmlPaginationsImpl object.
+     */
+    public XmlPaginationsImpl getXmlPaginations() {
+        return this.xmlPaginations;
+    }
+
+    /**
      * Initializes an instance of PageableClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -90,5 +118,7 @@ public final class PageableClientImpl {
         this.endpoint = endpoint;
         this.serverDrivenPaginations = new ServerDrivenPaginationsImpl(this);
         this.serverDrivenPaginationContinuationTokens = new ServerDrivenPaginationContinuationTokensImpl(this);
+        this.pageSizes = new PageSizesImpl(this);
+        this.xmlPaginations = new XmlPaginationsImpl(this);
     }
 }

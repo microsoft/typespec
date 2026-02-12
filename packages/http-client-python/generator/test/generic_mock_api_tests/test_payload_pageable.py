@@ -30,6 +30,11 @@ def test_link(client: PageableClient):
     assert_result(result)
 
 
+def test_link_string(client: PageableClient):
+    result = list(client.server_driven_pagination.link_string())
+    assert_result(result)
+
+
 def test_request_query_response_body(client: PageableClient):
     result = list(client.server_driven_pagination.continuation_token.request_query_response_body(foo="foo", bar="bar"))
     assert_result(result)
@@ -51,4 +56,38 @@ def test_request_header_response_header(client: PageableClient):
     result = list(
         client.server_driven_pagination.continuation_token.request_header_response_header(foo="foo", bar="bar")
     )
+    assert_result(result)
+
+
+def test_nested_link(client: PageableClient):
+    result = list(client.server_driven_pagination.nested_link())
+    assert_result(result)
+
+
+def test_request_query_nested_response_body(client: PageableClient):
+    result = list(
+        client.server_driven_pagination.continuation_token.request_query_nested_response_body(foo="foo", bar="bar")
+    )
+    assert_result(result)
+
+
+def test_request_header_nested_response_body(client: PageableClient):
+    result = list(
+        client.server_driven_pagination.continuation_token.request_header_nested_response_body(foo="foo", bar="bar")
+    )
+    assert_result(result)
+
+
+def test_list_without_continuation(client: PageableClient):
+    result = list(client.page_size.list_without_continuation())
+    assert_result(result)
+
+
+def test_xml_pagination_list_with_continuation(client: PageableClient):
+    result = list(client.xml_pagination.list_with_continuation())
+    assert_result(result)
+
+
+def test_xml_pagination_list_with_next_link(client: PageableClient):
+    result = list(client.xml_pagination.list_with_next_link())
     assert_result(result)

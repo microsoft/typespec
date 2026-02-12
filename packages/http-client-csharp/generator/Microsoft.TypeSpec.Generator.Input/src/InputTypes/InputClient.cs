@@ -9,7 +9,6 @@ namespace Microsoft.TypeSpec.Generator.Input
     public class InputClient
     {
         private readonly string? _key;
-        private IReadOnlyDictionary<string, InputClientExample>? _examples;
 
         public InputClient(
             string name,
@@ -17,10 +16,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             string crossLanguageDefinitionId,
             string? summary,
             string? doc,
+            bool isMultiServiceClient,
             IReadOnlyList<InputServiceMethod> methods,
             IReadOnlyList<InputParameter> parameters,
             InputClient? parent,
-            IReadOnlyList<InputClient>? children)
+            IReadOnlyList<InputClient>? children,
+            IReadOnlyList<string>? apiVersions)
         {
             Name = name;
             Namespace = @namespace;
@@ -29,22 +30,27 @@ namespace Microsoft.TypeSpec.Generator.Input
             Doc = doc;
             Methods = methods;
             Parameters = parameters;
+            IsMultiServiceClient = isMultiServiceClient;
             Parent = parent;
             Children = children ?? [];
+            ApiVersions = apiVersions ?? [];
         }
 
-        public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Array.Empty<InputServiceMethod>(), Array.Empty<InputParameter>(), null, null) { }
+        public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, false, Array.Empty<InputServiceMethod>(), Array.Empty<InputParameter>(), null, null, null) { }
 
         public string Name { get; internal set; }
         public string Namespace { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
+        public bool IsMultiServiceClient { get; internal set; }
         public IReadOnlyList<InputServiceMethod> Methods { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
+        public InputClientInitializedBy InitializedBy { get; internal set; }
         public InputClient? Parent { get; internal set; }
         public IReadOnlyList<InputClient> Children { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
+        public IReadOnlyList<string> ApiVersions { get; internal set; }
 
         public string Key
         {
@@ -52,15 +58,86 @@ namespace Microsoft.TypeSpec.Generator.Input
             init => _key = value;
         }
 
-        public IReadOnlyDictionary<string, InputClientExample> Examples => _examples ??= EnsureExamples();
-
-        private IReadOnlyDictionary<string, InputClientExample> EnsureExamples()
+        /// <summary>
+        /// Updates the properties of the input client.
+        /// </summary>
+        /// <param name="name">The new name for the client.</param>
+        /// <param name="namespace">The new namespace for the client.</param>
+        /// <param name="crossLanguageDefinitionId">The new cross-language definition ID for the client.</param>
+        /// <param name="summary">The new summary for the client.</param>
+        /// <param name="doc">The new documentation for the client.</param>
+        /// <param name="methods">The new methods for the client.</param>
+        /// <param name="parameters">The new parameters for the client.</param>
+        /// <param name="parent">The new parent client.</param>
+        /// <param name="children">The new children clients.</param>
+        /// <param name="apiVersions">The new API versions for the client.</param>
+        public void Update(
+            string? name = null,
+            string? @namespace = null,
+            string? crossLanguageDefinitionId = null,
+            string? summary = null,
+            string? doc = null,
+            bool? isMultiServiceClient = null,
+            IEnumerable<InputServiceMethod>? methods = null,
+            IEnumerable<InputParameter>? parameters = null,
+            InputClient? parent = null,
+            IEnumerable<InputClient>? children = null,
+            IEnumerable<string>? apiVersions = null)
         {
-            return new Dictionary<string, InputClientExample>()
+            if (name != null)
             {
-                [ExampleMockValueBuilder.ShortVersionMockExampleKey] = ExampleMockValueBuilder.BuildClientExample(this, false),
-                [ExampleMockValueBuilder.MockExampleAllParameterKey] = ExampleMockValueBuilder.BuildClientExample(this, true)
-            };
+                Name = name;
+            }
+
+            if (@namespace != null)
+            {
+                Namespace = @namespace;
+            }
+
+            if (crossLanguageDefinitionId != null)
+            {
+                CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            }
+
+            if (summary != null)
+            {
+                Summary = summary;
+            }
+
+            if (doc != null)
+            {
+                Doc = doc;
+            }
+
+            if (isMultiServiceClient != null)
+            {
+                IsMultiServiceClient = isMultiServiceClient.Value;
+            }
+
+            if (methods != null)
+            {
+                Methods = [.. methods];
+            }
+
+            if (parameters != null)
+            {
+                Parameters = [.. parameters];
+            }
+
+            if (parent != null)
+            {
+                Parent = parent;
+            }
+
+            if (children != null)
+            {
+                Children = [.. children];
+            }
+
+            if (apiVersions != null)
+            {
+                ApiVersions = [.. apiVersions];
+            }
         }
     }
 }

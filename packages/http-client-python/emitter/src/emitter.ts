@@ -2,6 +2,7 @@ import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
+import os from "os";
 import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
@@ -17,6 +18,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     "package-version": "1.0.0b1",
     "generate-packaging-files": true,
     "validate-versioning": true,
+    "clear-output-folder": false,
   };
   sdkContext.emitContext.options = {
     ...defaultOptions,
@@ -152,12 +154,10 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
   if (resolvedOptions["generate-packaging-files"]) {
     commandArgs["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
+    commandArgs["keep-setup-py"] = resolvedOptions["keep-setup-py"] === true ? "true" : "false";
   }
   if (sdkContext.arm === true) {
     commandArgs["azure-arm"] = "true";
-  }
-  if ((resolvedOptions as any).flavor === "azure") {
-    commandArgs["emit-cross-language-definition-file"] = "true";
   }
   commandArgs["from-typespec"] = "true";
   commandArgs["models-mode"] = (resolvedOptions as any)["models-mode"] ?? "dpg";
@@ -225,10 +225,10 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       execSync(command);
 
       const blackExcludeDirs = [
-        "__pycache__/*",
-        "node_modules/*",
-        "venv/*",
-        "env/*",
+        "__pycache__/",
+        "node_modules/",
+        "venv/",
+        "env/",
         ".direnv",
         ".eggs",
         ".git",
@@ -239,16 +239,18 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         ".mypy_cache",
         ".pytest_cache",
         ".vscode",
-        "_build",
-        "build",
+        ".*_build/",
+        "/build/",
         "dist",
         ".nox",
         ".svn",
+        "TempTypeSpecFiles/",
       ];
+      const excludePattern = blackExcludeDirs.join("|");
       execSync(
-        `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
+        `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
       );
-      checkForPylintIssues(outputDir);
+      checkForPylintIssues(outputDir, excludePattern);
     }
   }
 }
@@ -293,12 +295,21 @@ async function setupPyodideCall(root: string) {
   return pyodide;
 }
 
-function checkForPylintIssues(outputDir: string) {
+function checkForPylintIssues(outputDir: string, excludePattern: string) {
+  const excludeRegex = new RegExp(excludePattern);
+
+  const shouldExcludePath = (filePath: string): boolean => {
+    const relativePath = path.relative(outputDir, filePath);
+    const normalizedPath = relativePath.replace(/\\/g, "/");
+    return excludeRegex.test(normalizedPath);
+  };
+
   const processFile = (filePath: string) => {
     let fileContent = "";
     fileContent = fs.readFileSync(filePath, "utf-8");
     const pylintDisables: string[] = [];
-    const lines: string[] = fileContent.split("\n");
+    const lineEnding = fileContent.includes("\r\n") && os.platform() === "win32" ? "\r\n" : "\n";
+    const lines: string[] = fileContent.split(lineEnding);
     if (lines.length > 0) {
       if (!lines[0].includes("line-too-long") && lines.some((line) => line.length > 120)) {
         pylintDisables.push("line-too-long", "useless-suppression");
@@ -308,8 +319,8 @@ function checkForPylintIssues(outputDir: string) {
       }
       if (pylintDisables.length > 0) {
         fileContent = lines[0].includes("pylint: disable=")
-          ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join("\n")
-          : `# pylint: disable=${pylintDisables.join(",")}\n` + fileContent;
+          ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join(lineEnding)
+          : `# pylint: disable=${pylintDisables.join(",")}${lineEnding}` + fileContent;
       }
     }
 
@@ -317,9 +328,18 @@ function checkForPylintIssues(outputDir: string) {
   };
 
   const walkDir = (dir: string) => {
+    if (shouldExcludePath(dir)) {
+      return;
+    }
+
     const files = fs.readdirSync(dir);
     files.forEach((file) => {
       const filePath = path.join(dir, file);
+
+      if (shouldExcludePath(filePath)) {
+        return;
+      }
+
       if (fs.statSync(filePath).isDirectory()) {
         walkDir(filePath);
       } else if (file.endsWith(".py")) {

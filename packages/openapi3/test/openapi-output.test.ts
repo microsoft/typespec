@@ -1,8 +1,8 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) => {
+worksFor(supportedVersions, ({ oapiForModel, openApiFor, openapiWithOptions }) => {
   describe("openapi3: types included", () => {
     it("emit unreferenced types by default", async () => {
       const output = await openapiWithOptions(
@@ -144,6 +144,22 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
       );
 
       strictEqual(res.paths["/"].get.deprecated, true);
+    });
+
+    it("deprecate operations in deprecated interface", async () => {
+      const res = await openApiFor(
+        `
+      #deprecated "this interface is deprecated"
+      @route("/widgets")
+      interface WidgetOperations {
+        list(): string;
+        read(@path id: string): string;
+      }
+      `,
+      );
+
+      strictEqual(res.paths["/widgets"].get.deprecated, true);
+      strictEqual(res.paths["/widgets/{id}"].get.deprecated, true);
     });
   });
   it("deprecate inline parameters with #deprecated", async () => {

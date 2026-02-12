@@ -16,43 +16,46 @@ namespace SampleTypeSpec
     public static partial class SampleTypeSpecModelFactory
     {
         /// <summary> A model with a few properties of literal types. </summary>
+        /// <param name="rename"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
         /// <param name="optionalNullableString"> required optional string. </param>
-        /// <param name="requiredLiteralInt"> required literal int. </param>
-        /// <param name="requiredLiteralFloat"> required literal float. </param>
-        /// <param name="requiredLiteralBool"> required literal bool. </param>
         /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="optionalLiteralInt"> optional literal int. </param>
         /// <param name="optionalLiteralFloat"> optional literal float. </param>
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <param name="rename"></param>
+        /// <param name="propertyWithSpecialDocs">
+        /// This tests:
+        /// <list type="bullet"><item><description>Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet points within documentation comments. It should properly indent the wrapped lines.</description></item><item><description>Another bullet point with <b>bold text</b>. This bullet point is also intentionally long to see how the formatting is preserved when the text wraps onto multiple lines in the generated documentation.</description></item><item><description>Third bullet point with <i>italic text</i>. Similar to the previous points, this one is extended to ensure that the wrapping and formatting are correctly applied in the output.</description></item><item><description>Complex bullet point with <b>bold</b> and <i>italic</i> combined. This bullet point combines both bold and italic formatting and is long enough to test the wrapping behavior in such cases.</description></item><item><description><b>Bold bullet point</b>: A bullet point that is entirely bolded. This point is also made lengthy to observe how the bold formatting is maintained across wrapped lines.</description></item><item><description><i>Italic bullet point</i>: A bullet point that is entirely italicized. This final point is extended to verify that italic formatting is correctly applied even when the text spans multiple lines.</description></item></list>
+        /// </param>
         /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(BinaryData requiredUnion = default, string requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, int requiredLiteralInt = default, float requiredLiteralFloat = default, bool requiredLiteralBool = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string rename = default)
+        public static Thing Thing(string rename = default, BinaryData requiredUnion = default, string requiredNullableString = default, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string propertyWithSpecialDocs = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();
 
             return new Thing(
+                rename,
                 requiredUnion,
-                requiredLiteralString,
+                "accept",
                 requiredNullableString,
                 optionalNullableString,
-                requiredLiteralInt,
-                requiredLiteralFloat,
-                requiredLiteralBool,
+                123,
+                1.23F,
+                false,
                 optionalLiteralString,
+                requiredNullableLiteralString,
                 optionalLiteralInt,
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
                 optionalNullableList.ToList(),
                 requiredNullableList.ToList(),
-                rename,
+                propertyWithSpecialDocs,
                 additionalBinaryDataProperties: null);
         }
 
@@ -133,6 +136,16 @@ namespace SampleTypeSpec
             return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The Wrapper. </summary>
+        /// <param name="p1"> header parameter. </param>
+        /// <param name="action"> body parameter. </param>
+        /// <param name="p2"> path parameter. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Wrapper"/> instance for mocking. </returns>
+        public static Wrapper Wrapper(string p1 = default, RoundTripModel action = default, string p2 = default)
+        {
+            return new Wrapper(p1, action, p2, additionalBinaryDataProperties: null);
+        }
+
         /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
         /// <returns> A new <see cref="Models.Custom.Friend"/> instance for mocking. </returns>
@@ -142,11 +155,12 @@ namespace SampleTypeSpec
         }
 
         /// <summary> this is a model with a client name. </summary>
-        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <param name="name"> name of the NotFriend. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
         /// <returns> A new <see cref="SampleTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
-        public static RenamedModelCustom RenamedModelCustom(string name = default)
+        public static RenamedModelCustom RenamedModelCustom(string name = default, string otherName = default)
         {
-            return new RenamedModelCustom(name, additionalBinaryDataProperties: null);
+            return new RenamedModelCustom(name, additionalBinaryDataProperties: null, otherName);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>
@@ -172,6 +186,258 @@ namespace SampleTypeSpec
                 requiredQuery,
                 optionalQuery,
                 additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> A sample dynamic model. </summary>
+        /// <param name="name"></param>
+        /// <param name="optionalUnknown"></param>
+        /// <param name="optionalInt"></param>
+        /// <param name="optionalNullableList"></param>
+        /// <param name="requiredNullableList"></param>
+        /// <param name="optionalNullableDictionary"></param>
+        /// <param name="requiredNullableDictionary"></param>
+        /// <param name="primitiveDictionary"></param>
+        /// <param name="foo"></param>
+        /// <param name="listFoo"></param>
+        /// <param name="listOfListFoo"></param>
+        /// <param name="dictionaryFoo"></param>
+        /// <param name="dictionaryOfDictionaryFoo"></param>
+        /// <param name="dictionaryListFoo"></param>
+        /// <param name="listOfDictionaryFoo"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
+        public static DynamicModel DynamicModel(string name = default, BinaryData optionalUnknown = default, int? optionalInt = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, IDictionary<string, int> optionalNullableDictionary = default, IDictionary<string, int> requiredNullableDictionary = default, IDictionary<string, int> primitiveDictionary = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
+        {
+            optionalNullableList ??= new ChangeTrackingList<int>();
+            requiredNullableList ??= new ChangeTrackingList<int>();
+            optionalNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
+            requiredNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
+            primitiveDictionary ??= new ChangeTrackingDictionary<string, int>();
+            listFoo ??= new ChangeTrackingList<AnotherDynamicModel>();
+            listOfListFoo ??= new ChangeTrackingList<IList<AnotherDynamicModel>>();
+            dictionaryFoo ??= new ChangeTrackingDictionary<string, AnotherDynamicModel>();
+            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, IDictionary<string, AnotherDynamicModel>>();
+            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>();
+            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>();
+
+            return new DynamicModel(
+                name,
+                optionalUnknown,
+                optionalInt,
+                optionalNullableList.ToList(),
+                requiredNullableList.ToList(),
+                optionalNullableDictionary,
+                requiredNullableDictionary,
+                primitiveDictionary,
+                foo,
+                listFoo.ToList(),
+                listOfListFoo.ToList(),
+                dictionaryFoo,
+                dictionaryOfDictionaryFoo,
+                dictionaryListFoo,
+                listOfDictionaryFoo.ToList(),
+                default);
+        }
+
+        /// <summary> Another sample dynamic model. </summary>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.AnotherDynamicModel"/> instance for mocking. </returns>
+        public static AnotherDynamicModel AnotherDynamicModel(string bar = default)
+        {
+            return new AnotherDynamicModel(bar, default);
+        }
+
+        /// <summary> An advanced XML model for testing various property types and XML features. </summary>
+        /// <param name="name"> A simple string property. </param>
+        /// <param name="age"> An integer property. </param>
+        /// <param name="enabled"> A boolean property. </param>
+        /// <param name="score"> A float property. </param>
+        /// <param name="optionalString"> An optional string. </param>
+        /// <param name="optionalInt"> An optional integer. </param>
+        /// <param name="nullableString"> A nullable string. </param>
+        /// <param name="id"> A string as XML attribute. </param>
+        /// <param name="version"> An integer as XML attribute. </param>
+        /// <param name="isActive"> A boolean as XML attribute. </param>
+        /// <param name="originalName"> A property with a custom XML element name. </param>
+        /// <param name="xmlIdentifier"> An attribute with a custom XML name. </param>
+        /// <param name="content"> Text content in the element (unwrapped string). </param>
+        /// <param name="unwrappedStrings"> An unwrapped array of strings - items appear directly without wrapper. </param>
+        /// <param name="unwrappedCounts"> An unwrapped array of integers. </param>
+        /// <param name="unwrappedItems"> An unwrapped array of models. </param>
+        /// <param name="wrappedColors"> A wrapped array of strings (default). </param>
+        /// <param name="items"> A wrapped array with custom wrapper name. </param>
+        /// <param name="nestedModel"> A nested model property. </param>
+        /// <param name="optionalNestedModel"> An optional nested model. </param>
+        /// <param name="metadata"> A dictionary property. </param>
+        /// <param name="createdAt"> A date-time property. </param>
+        /// <param name="duration"> A duration property. </param>
+        /// <param name="data"> A bytes property. </param>
+        /// <param name="optionalRecordUnknown"> optional record of unknown. </param>
+        /// <param name="fixedEnum"> A fixed enum property. </param>
+        /// <param name="extensibleEnum"> An extensible enum property. </param>
+        /// <param name="optionalFixedEnum"> An optional fixed enum property. </param>
+        /// <param name="optionalExtensibleEnum"> An optional extensible enum property. </param>
+        /// <param name="label"></param>
+        /// <param name="daysUsed"></param>
+        /// <param name="fooItems"></param>
+        /// <param name="anotherModel"></param>
+        /// <param name="modelsWithNamespaces"></param>
+        /// <param name="unwrappedModelsWithNamespaces"></param>
+        /// <param name="listOfListFoo"></param>
+        /// <param name="dictionaryFoo"></param>
+        /// <param name="dictionaryOfDictionaryFoo"></param>
+        /// <param name="dictionaryListFoo"></param>
+        /// <param name="listOfDictionaryFoo"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlAdvancedModel"/> instance for mocking. </returns>
+        public static XmlAdvancedModel XmlAdvancedModel(string name = default, int age = default, bool enabled = default, float score = default, string optionalString = default, int? optionalInt = default, string nullableString = default, string id = default, int version = default, bool isActive = default, string originalName = default, string xmlIdentifier = default, string content = default, IEnumerable<string> unwrappedStrings = default, IEnumerable<int> unwrappedCounts = default, IEnumerable<XmlItem> unwrappedItems = default, IEnumerable<string> wrappedColors = default, IEnumerable<XmlItem> items = default, XmlNestedModel nestedModel = default, XmlNestedModel optionalNestedModel = default, IDictionary<string, string> metadata = default, DateTimeOffset createdAt = default, TimeSpan duration = default, BinaryData data = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, StringFixedEnum fixedEnum = default, StringExtensibleEnum extensibleEnum = default, IntFixedEnum? optionalFixedEnum = default, IntExtensibleEnum? optionalExtensibleEnum = default, string label = default, int daysUsed = default, IEnumerable<string> fooItems = default, XmlNestedModel anotherModel = default, IEnumerable<XmlModelWithNamespace> modelsWithNamespaces = default, IEnumerable<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default, IEnumerable<IList<XmlItem>> listOfListFoo = default, IDictionary<string, XmlItem> dictionaryFoo = default, IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<XmlItem>> dictionaryListFoo = default, IEnumerable<IDictionary<string, XmlItem>> listOfDictionaryFoo = default)
+        {
+            unwrappedStrings ??= new ChangeTrackingList<string>();
+            unwrappedCounts ??= new ChangeTrackingList<int>();
+            unwrappedItems ??= new ChangeTrackingList<XmlItem>();
+            wrappedColors ??= new ChangeTrackingList<string>();
+            items ??= new ChangeTrackingList<XmlItem>();
+            metadata ??= new ChangeTrackingDictionary<string, string>();
+            optionalRecordUnknown ??= new ChangeTrackingDictionary<string, BinaryData>();
+            fooItems ??= new ChangeTrackingList<string>();
+            modelsWithNamespaces ??= new ChangeTrackingList<XmlModelWithNamespace>();
+            unwrappedModelsWithNamespaces ??= new ChangeTrackingList<XmlModelWithNamespace>();
+            listOfListFoo ??= new ChangeTrackingList<IList<XmlItem>>();
+            dictionaryFoo ??= new ChangeTrackingDictionary<string, XmlItem>();
+            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, IDictionary<string, XmlItem>>();
+            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<XmlItem>>();
+            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, XmlItem>>();
+
+            return new XmlAdvancedModel(
+                name,
+                age,
+                enabled,
+                score,
+                optionalString,
+                optionalInt,
+                nullableString,
+                id,
+                version,
+                isActive,
+                originalName,
+                xmlIdentifier,
+                content,
+                unwrappedStrings.ToList(),
+                unwrappedCounts.ToList(),
+                unwrappedItems.ToList(),
+                wrappedColors.ToList(),
+                items.ToList(),
+                nestedModel,
+                optionalNestedModel,
+                metadata,
+                createdAt,
+                duration,
+                data,
+                optionalRecordUnknown,
+                fixedEnum,
+                extensibleEnum,
+                optionalFixedEnum,
+                optionalExtensibleEnum,
+                label,
+                daysUsed,
+                fooItems.ToList(),
+                anotherModel,
+                modelsWithNamespaces.ToList(),
+                unwrappedModelsWithNamespaces.ToList(),
+                listOfListFoo.ToList(),
+                dictionaryFoo,
+                dictionaryOfDictionaryFoo,
+                dictionaryListFoo,
+                listOfDictionaryFoo.ToList(),
+                additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> An item model for XML array testing. </summary>
+        /// <param name="itemName"> The item name. </param>
+        /// <param name="itemValue"> The item value. </param>
+        /// <param name="itemId"> Item ID as attribute. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlItem"/> instance for mocking. </returns>
+        public static XmlItem XmlItem(string itemName = default, int itemValue = default, string itemId = default)
+        {
+            return new XmlItem(itemName, itemValue, itemId, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> A nested model for XML testing. </summary>
+        /// <param name="value"> The value of the nested model. </param>
+        /// <param name="nestedId"> An attribute on the nested model. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlNestedModel"/> instance for mocking. </returns>
+        public static XmlNestedModel XmlNestedModel(string value = default, int nestedId = default)
+        {
+            return new XmlNestedModel(value, nestedId, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The XmlModelWithNamespace. </summary>
+        /// <param name="foo"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlModelWithNamespace"/> instance for mocking. </returns>
+        public static XmlModelWithNamespace XmlModelWithNamespace(string foo = default)
+        {
+            return new XmlModelWithNamespace(foo, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary>
+        /// Base animal with discriminator
+        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Pet"/> and <see cref="SampleTypeSpec.Dog"/>.
+        /// </summary>
+        /// <param name="kind"> The kind of animal. </param>
+        /// <param name="name"> Name of the animal. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Animal"/> instance for mocking. </returns>
+        public static Animal Animal(string kind = default, string name = default)
+        {
+            return new UnknownAnimal(kind, name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> Pet is a discriminated animal. </summary>
+        /// <param name="name"> Name of the animal. </param>
+        /// <param name="trained"> Whether the pet is trained. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Pet"/> instance for mocking. </returns>
+        public static Pet Pet(string name = default, bool trained = default)
+        {
+            return new Pet("pet", name, additionalBinaryDataProperties: null, trained);
+        }
+
+        /// <summary> Dog is a specific type of pet with hierarchy building. </summary>
+        /// <param name="name"> Name of the animal. </param>
+        /// <param name="trained"> Whether the pet is trained. </param>
+        /// <param name="breed"> The breed of the dog. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Dog"/> instance for mocking. </returns>
+        public static Dog Dog(string name = default, bool trained = default, string breed = default)
+        {
+            return new Dog("pet", name, additionalBinaryDataProperties: null, trained, breed);
+        }
+
+        /// <summary> Tree is a specific type of plant. </summary>
+        /// <param name="id"> The unique identifier of the plant. </param>
+        /// <param name="height"> The height of the plant in centimeters. </param>
+        /// <param name="age"> The age of the tree in years. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Tree"/> instance for mocking. </returns>
+        public static Tree Tree(string id = default, int height = default, int age = default)
+        {
+            return new Tree("tree", id, height, additionalBinaryDataProperties: null, age);
+        }
+
+        /// <summary>
+        /// Base plant with discriminator
+        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Tree"/>.
+        /// </summary>
+        /// <param name="species"> The species of plant. </param>
+        /// <param name="id"> The unique identifier of the plant. </param>
+        /// <param name="height"> The height of the plant in centimeters. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Plant"/> instance for mocking. </returns>
+        public static Plant Plant(string species = default, string id = default, int height = default)
+        {
+            return new UnknownPlant(species, id, height, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The GetWidgetMetricsResponse. </summary>
+        /// <param name="numSold"></param>
+        /// <param name="averagePrice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResponse"/> instance for mocking. </returns>
+        public static GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
+        {
+            return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
         }
     }
 }

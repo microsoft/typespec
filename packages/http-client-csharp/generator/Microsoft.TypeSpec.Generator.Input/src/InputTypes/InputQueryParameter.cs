@@ -3,22 +3,32 @@
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public class InputQueryParameter : InputProperty
+    public sealed class InputQueryParameter : InputParameter
     {
-        public InputQueryParameter(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, string serializedName, string? collectionFormat, bool explode) : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName)
+        public InputQueryParameter(
+            string name,
+            string? summary,
+            string? doc,
+            InputType type,
+            bool isRequired,
+            bool isReadOnly,
+            string? access,
+            string serializedName,
+            string? collectionFormat,
+            bool explode,
+            bool isApiVersion,
+            InputConstant? defaultValue,
+            InputParameterScope scope,
+            string? arraySerializationDelimiter)
+            : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue, scope)
         {
-            Name = name;
-            Summary = summary;
-            Doc = doc;
-            Type = type;
-            IsRequired = isRequired;
-            IsReadOnly = isReadOnly;
             CollectionFormat = collectionFormat;
-            SerializedName = serializedName;
             Explode = explode;
+            ArraySerializationDelimiter = arraySerializationDelimiter;
         }
 
         public string? CollectionFormat { get; internal set; }
         public bool Explode { get; internal set; }
+        public string? ArraySerializationDelimiter { get; internal set; }
     }
 }

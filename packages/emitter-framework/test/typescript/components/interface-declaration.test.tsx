@@ -1,10 +1,10 @@
+import { getProgram } from "#test/utils.js";
 import { For, List } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/typescript";
 import type { Namespace } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { InterfaceDeclaration } from "../../../src/typescript/components/interface-declaration.js";
-import { getProgram } from "../test-host.js";
 
 describe("Typescript Interface", () => {
   describe("Interface bound to Typespec Types", () => {
@@ -213,9 +213,7 @@ describe("Typescript Interface", () => {
             </SourceFile>
           </Output>,
         ).toRenderTo(`
-          export interface Foo extends Array<string> {
-
-          }`);
+          export interface Foo extends Array<string> {}`);
       });
 
       it("creates an interface for a model that 'is' a record ", async () => {
@@ -223,7 +221,7 @@ describe("Typescript Interface", () => {
           namespace DemoService;
 
           model Foo is Record<string>;
-          `);
+        `);
 
         const [namespace] = program.resolveTypeReference("DemoService");
         const models = (namespace as Namespace).models;
@@ -421,9 +419,7 @@ describe("Typescript Interface", () => {
             </SourceFile>
           </Output>,
         ).toRenderTo(`
-          export interface Widget {
-
-          }`);
+          export interface Widget {}`);
       });
 
       it("can override interface name", async () => {

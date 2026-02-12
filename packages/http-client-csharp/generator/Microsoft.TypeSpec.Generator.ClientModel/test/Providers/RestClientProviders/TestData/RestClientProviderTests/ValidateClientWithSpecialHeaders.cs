@@ -12,14 +12,11 @@ namespace Sample
     {
         internal global::System.ClientModel.Primitives.PipelineMessage CreateCreateMessageRequest(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
-            request.Method = "GET";
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            request.Uri = uri.ToUri();
-            request.Headers.Set("repeatability-first-sent", global::Sample.TypeFormatters.ConvertToString(global::System.DateTimeOffset.Now, "R"));
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            request.Headers.Set("repeatability-first-sent", global::Sample.TypeFormatters.ConvertToString(global::System.DateTimeOffset.Now, global::Sample.SerializationFormat.DateTime_RFC7231));
             request.Headers.Set("repeatability-request-ID", global::System.Guid.NewGuid().ToString());
             request.Content = content;
             message.Apply(options);

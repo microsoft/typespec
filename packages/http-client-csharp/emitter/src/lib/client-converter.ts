@@ -3,18 +3,29 @@
 
 import {
   SdkClientType as SdkClientTypeOfT,
+  SdkCredentialParameter,
   SdkEndpointParameter,
   SdkEndpointType,
   SdkHttpOperation,
+  SdkMethodParameter,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
-import { InputParameterKind } from "../type/input-parameter-kind.js";
-import { InputParameter } from "../type/input-parameter.js";
-import { InputClient, InputType } from "../type/input-type.js";
-import { RequestLocation } from "../type/request-location.js";
-import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
+import { InputParameterScope } from "../type/input-parameter-scope.js";
+import {
+  InputClient,
+  InputEndpointParameter,
+  InputParameter,
+  InputType,
+} from "../type/input-type.js";
+import {
+  fromMethodParameter,
+  fromSdkServiceMethod,
+  getMethodParameterSegments,
+  getParameterDefaultValue,
+} from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
+import { isMultiServiceClient, isReadOnly } from "./utils.js";
 
 type SdkClientType = SdkClientTypeOfT<SdkHttpOperation>;
 
@@ -45,23 +56,37 @@ function fromSdkClient(
     (p) => p.kind === "endpoint",
   ) as SdkEndpointParameter;
   const uri = getMethodUri(endpointParameter);
-  const clientParameters = fromSdkEndpointParameter(endpointParameter);
+
+  // Convert all clientInitialization parameters
+  const clientParameters = fromSdkClientInitializationParameters(
+    sdkContext,
+    client.clientInitialization.parameters,
+    client.namespace,
+  );
+
+  const isMultiService = isMultiServiceClient(client);
+  const clientName =
+    !client.parent && isMultiService && !client.name.toLowerCase().endsWith("client")
+      ? `${client.name}Client`
+      : client.name;
 
   inputClient = {
     kind: "client",
-    name: client.name,
+    name: clientName,
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
     methods: client.methods
-      .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions))
+      .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions, client.namespace))
       .filter((m) => m !== undefined),
     parameters: clientParameters,
+    initializedBy: client.clientInitialization.initializedBy,
     decorators: client.decorators,
     crossLanguageDefinitionId: client.crossLanguageDefinitionId,
     apiVersions: client.apiVersions,
     parent: undefined,
     children: undefined,
+    isMultiServiceClient: isMultiService,
   };
 
   sdkContext.__typeCache.updateSdkClientReferences(client, inputClient);
@@ -79,7 +104,31 @@ function fromSdkClient(
 
   return inputClient;
 
-  function fromSdkEndpointParameter(p: SdkEndpointParameter): InputParameter[] {
+  function fromSdkClientInitializationParameters(
+    sdkContext: CSharpEmitterContext,
+    parameters: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[],
+    namespace: string,
+  ): InputParameter[] {
+    const inputParameters: InputParameter[] = [];
+
+    for (const param of parameters) {
+      if (param.kind === "endpoint") {
+        // Convert endpoint parameters
+        const endpointParams = fromSdkEndpointParameter(param);
+        inputParameters.push(...endpointParams);
+      } else if (param.kind === "method") {
+        // Convert method parameters
+        const methodParam = fromMethodParameter(sdkContext, param, namespace);
+        inputParameters.push(methodParam);
+      }
+      // Note: credential parameters are handled separately in service-authentication.ts
+      // and are not included in the client parameters list
+    }
+
+    return inputParameters;
+  }
+
+  function fromSdkEndpointParameter(p: SdkEndpointParameter): InputEndpointParameter[] {
     if (p.type.kind === "union") {
       return fromSdkEndpointType(p.type.variantTypes[0]);
     } else {
@@ -87,7 +136,7 @@ function fromSdkClient(
     }
   }
 
-  function fromSdkEndpointType(type: SdkEndpointType): InputParameter[] {
+  function fromSdkEndpointType(type: SdkEndpointType): InputEndpointParameter[] {
     // TODO: support free-style endpoint url with multiple parameters
     const endpointExpr = type.serverUrl
       .replace("https://", "")
@@ -103,7 +152,7 @@ function fromSdkClient(
     }
     const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);
 
-    const parameters: InputParameter[] = [];
+    const parameters: InputEndpointParameter[] = [];
     for (const parameter of type.templateArguments) {
       const isEndpoint = parameter.name === endpointVariableName;
       const parameterType: InputType = isEndpoint
@@ -115,25 +164,26 @@ function fromSdkClient(
           }
         : fromSdkType(sdkContext, parameter.type); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
+        kind: "endpoint",
         name: parameter.name,
-        nameInRequest: parameter.serializedName,
+        serializedName: parameter.serializedName,
         summary: parameter.summary,
         doc: parameter.doc,
         type: parameterType,
-        location: RequestLocation.Uri,
         isApiVersion: parameter.isApiVersionParam,
-        isContentType: false,
-        isRequired: !parameter.optional,
+        optional: parameter.optional,
+        scope: InputParameterScope.Client,
         isEndpoint: isEndpoint,
-        skipUrlEncoding: false,
-        explode: false,
-        kind: InputParameterKind.Client,
         defaultValue: getParameterDefaultValue(
           sdkContext,
           parameter.clientDefaultValue,
           parameterType,
         ),
         serverUrlTemplate: type.serverUrl,
+        skipUrlEncoding: false,
+        readOnly: isReadOnly(parameter),
+        crossLanguageDefinitionId: parameter.crossLanguageDefinitionId,
+        methodParameterSegments: getMethodParameterSegments(sdkContext, parameter),
       });
     }
     return parameters;

@@ -29,7 +29,10 @@ param(
   [string]$BranchName = "typespec/update-http-client-$PackageVersion",
 
   [Parameter(Mandatory = $false)]
-  [string]$TypeSpecSourcePackageJsonPath
+  [string]$TypeSpecSourcePackageJsonPath,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$Internal
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -42,6 +45,9 @@ $BaseBranch = "main"
 $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
+if ($Internal) {
+    $PRTitle = "[DO NOT MERGE] $PRTitle"
+}
 $PRBody = @"
 This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json to version $PackageVersion.
 
@@ -56,6 +62,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 - Ran npm install to update package-lock.json
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
 - Generated emitter-package.json artifacts using tsp-client
+- Regenerated SDK libraries using the unbranded emitter via dotnet msbuild /t:GenerateCode
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
@@ -70,14 +77,48 @@ New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 Write-Host "Created temp directory: $tempDir"
 
 try {
-    # Clone the repository
-    Write-Host "Cloning azure-sdk-for-net repository..."
-    git clone "https://github.com/$RepoOwner/$RepoName.git" $tempDir
+    # Use sparse checkout to clone only the necessary files
+    # This significantly reduces disk space usage as azure-sdk-for-net is a very large repository
+    Write-Host "Setting up sparse checkout for azure-sdk-for-net repository..."
+    
+    # Initialize empty git repository
+    git init $tempDir
     if ($LASTEXITCODE -ne 0) {
-        throw "Failed to clone repository"
+        throw "Failed to initialize repository"
     }
-
+    
     Push-Location $tempDir
+    
+    # Add the remote
+    git remote add origin "https://github.com/$RepoOwner/$RepoName.git"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to add remote"
+    }
+    
+    # Enable sparse checkout with cone mode for better performance
+    git sparse-checkout init --cone
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to initialize sparse checkout"
+    }
+    
+    # Set the sparse checkout patterns - only the directories we need
+    git sparse-checkout set eng/packages/http-client-csharp eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to set sparse checkout patterns"
+    }
+    
+    # Fetch only the main branch with depth 1
+    Write-Host "Fetching $BaseBranch branch with sparse checkout..."
+    git fetch --depth 1 origin $BaseBranch
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to fetch repository"
+    }
+    
+    # Checkout the fetched branch
+    git checkout $BaseBranch
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to checkout $BaseBranch"
+    }
 
     # Create a new branch
     Write-Host "Creating branch $PRBranch..."
@@ -142,60 +183,201 @@ try {
     }
     
     # Only run expensive operations if we actually made updates
+    $installSucceeded = $true
     if ($packageJsonUpdated) {
         # Run npm install in the http-client-csharp directory
-        Write-Host "Running npm install in eng/packages/http-client-csharp..."
+        Write-Host "##[section]Running npm install in eng/packages/http-client-csharp..."
         $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
-        Invoke "npm install" $httpClientDir
-        if ($LASTEXITCODE -ne 0) {
-            throw "npm install failed"
+        
+        # Copy .npmrc file from source directory if it exists (for internal builds)
+        $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
+        $targetNpmrcPath = Join-Path $httpClientDir ".npmrc"
+        
+        if (Test-Path $sourceNpmrcPath) {
+            Write-Host "Copying .npmrc from source directory to cloned repo..."
+            Copy-Item -Path $sourceNpmrcPath -Destination $targetNpmrcPath -Force
+            Write-Host "Successfully copied .npmrc to: $targetNpmrcPath"
+        } else {
+            Write-Host "No .npmrc file found in source directory - will use default npm registry"
         }
         
-        # Run npm run build
-        Write-Host "Running npm run build in eng/packages/http-client-csharp..."
-        $shouldRunGenerate = $true
+        # Log npm configuration before install
+        Write-Host "##[group]NPM Configuration Check"
+        Write-Host "Working directory: $httpClientDir"
+        
+        # Check for .npmrc file in the directory
+        $npmrcPath = Join-Path $httpClientDir ".npmrc"
+        if (Test-Path $npmrcPath) {
+            Write-Host "Found .npmrc file at: $npmrcPath"
+        } else {
+            Write-Host "No .npmrc file found in working directory - will use default npm registry"
+        }
+        
+        # Show what registry npm will use
+        Push-Location $httpClientDir
+        try {
+            $currentRegistry = npm config get registry 2>&1
+            Write-Host "Current npm registry: $currentRegistry"
+        } finally {
+            Pop-Location
+        }
+        Write-Host "##[endgroup]"
+        
         $previousErrorAction = $ErrorActionPreference
         $ErrorActionPreference = "Continue"
         try {
-            Invoke "npm run build" $httpClientDir
+            Write-Host "Running: npm install --verbose"
+            Invoke "npm install --verbose" $httpClientDir
             if ($LASTEXITCODE -ne 0) {
-                Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
+                Write-Warning "npm install failed with exit code $LASTEXITCODE, skipping generation."
                 Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-                $shouldRunGenerate = $false
+                $installSucceeded = $false
+            } else {
+                Write-Host "##[section]npm install completed successfully"
             }
         } catch {
-            Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
-            $shouldRunGenerate = $false
-        } finally {
+            Write-Warning "npm install failed: $($_.Exception.Message), skipping generation."
+            $installSucceeded = $false
+        }
+        finally {
             $ErrorActionPreference = $previousErrorAction
         }
-        
-        # Run Generate.ps1 from the package root
-        if ($shouldRunGenerate -eq $true)
-        {
-            Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
-            & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
-            if ($LASTEXITCODE -ne 0) {
-                throw "Generate.ps1 failed"
+
+        if (-not $installSucceeded) {
+            Write-Host "Skipping build and generation steps."
+        } else {
+            # Only run build and generation if npm install succeeded
+            # Run npm run build
+            Write-Host "Running npm run build in eng/packages/http-client-csharp..."
+            $shouldRunGenerate = $true
+            $previousErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            try {
+                Invoke "npm run build" $httpClientDir
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
+                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                    $shouldRunGenerate = $false
+                }
+            } catch {
+                Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
+                $shouldRunGenerate = $false
+            } finally {
+                $ErrorActionPreference = $previousErrorAction
+            }
+            
+            # Run Generate.ps1 from the package root
+            if ($shouldRunGenerate -eq $true)
+            {
+                Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
+                $previousErrorAction = $ErrorActionPreference
+                $ErrorActionPreference = "Continue"
+                try {
+                    $generationScriptPath = Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1"
+                    Invoke "pwsh $generationScriptPath"
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Warning "Generate.ps1 failed with exit code $LASTEXITCODE. Continuing with emitter artifact updates."
+                        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                    }
+                } catch {
+                    Write-Warning "Generate.ps1 failed: $($_.Exception.Message). Continuing with emitter artifact updates."
+                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                } finally {
+                    $ErrorActionPreference = $previousErrorAction
+                }
             }
         }
     }
     
     # Generate emitter-package.json files using tsp-client if TypeSpec package.json is provided
     if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
-        Write-Host "Generating emitter-package.json files using tsp-client..."
+        Write-Host "##[section]Generating emitter-package.json files using tsp-client..."
+        
+        Write-Host "Source package.json: $TypeSpecSourcePackageJsonPath"
+        Write-Host "Package version being installed: $PackageVersion"
+        
         $configFilesOutputDir = Join-Path $tempDir "eng"
         $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
-
-        Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to generate emitter-package.json files"
+        
+        # Set NPM_CONFIG_USERCONFIG to point to our .npmrc so tsp-client's internal npm install
+        # can resolve packages from Azure Artifacts. tsp-client creates a temp directory for
+        # npm install, so a project-level .npmrc in the eng directory won't be found.
+        $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
+        $previousNpmConfigUserconfig = $env:NPM_CONFIG_USERCONFIG
+        
+        if (Test-Path $sourceNpmrcPath) {
+            $resolvedNpmrcPath = (Resolve-Path $sourceNpmrcPath).Path
+            Write-Host "Setting NPM_CONFIG_USERCONFIG to use .npmrc for tsp-client package resolution..."
+            Write-Host "  Source .npmrc: $resolvedNpmrcPath"
+            $env:NPM_CONFIG_USERCONFIG = $resolvedNpmrcPath
+            
+            Write-Host "npm registry for tsp-client:"
+            npm config get registry
+        } else {
+            Write-Host "No .npmrc file found - tsp-client will use default npm registry"
         }
-        Write-Host "Successfully generated emitter-package.json files"
+
+        try {
+            Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to generate emitter-package.json files"
+            }
+            Write-Host "Successfully generated emitter-package.json files"
+        } finally {
+            # Restore previous NPM_CONFIG_USERCONFIG
+            $env:NPM_CONFIG_USERCONFIG = $previousNpmConfigUserconfig
+        }
     } else {
         Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
     }
     
+    # Regenerate all SDK libraries that use the unbranded emitter
+    if ($installSucceeded) {
+        Write-Host "Expanding sparse checkout to include sdk directory for SDK regeneration..."
+        git sparse-checkout add sdk
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Failed to expand sparse checkout. Skipping SDK regeneration."
+            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+        } else {
+            # Discover service directories with tsp-location.yaml referencing the unbranded emitter
+            $tspLocations = Get-ChildItem -Path (Join-Path $tempDir "sdk") -Filter "tsp-location.yaml" -Recurse
+            $serviceDirectories = @()
+            foreach ($tspLocation in $tspLocations) {
+                $content = Get-Content $tspLocation.FullName -Raw
+                if ($content -match "eng/http-client-csharp-emitter-package.json") {
+                    $relativePath = $tspLocation.DirectoryName -replace ".*[\\/]sdk[\\/]", ""
+                    $serviceDirectory = $relativePath -replace "[\\/].*", ""
+                    if ($serviceDirectories -notcontains $serviceDirectory) {
+                        $serviceDirectories += $serviceDirectory
+                    }
+                }
+            }
+
+            if ($serviceDirectories.Count -eq 0) {
+                Write-Host "No SDK libraries found using the unbranded emitter. Skipping SDK regeneration."
+            } else {
+                $serviceProj = Join-Path $tempDir "eng/service.proj"
+                foreach ($serviceDirectory in $serviceDirectories) {
+                    Write-Host "Regenerating code for service directory: $serviceDirectory"
+                    $previousErrorAction = $ErrorActionPreference
+                    $ErrorActionPreference = "Continue"
+                    try {
+                        Invoke "dotnet msbuild $serviceProj /restore /t:GenerateCode /p:ServiceDirectory=$serviceDirectory" $tempDir
+                        if ($LASTEXITCODE -ne 0) {
+                            Write-Warning "Code generation failed for $serviceDirectory with exit code $LASTEXITCODE. Continuing with next service directory."
+                            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                        }
+                    } catch {
+                        Write-Warning "Code generation failed for $serviceDirectory`: $($_.Exception.Message). Continuing with next service directory."
+                        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                    } finally {
+                        $ErrorActionPreference = $previousErrorAction
+                    }
+                }
+            }
+        }
+    }
+
     # Check if there are changes to commit
     $gitStatus = git status --porcelain
     if (-not $gitStatus) {
@@ -207,10 +389,36 @@ try {
     Write-Host "Committing changes..."
     git add $propsFilePath
     git add (Join-Path $tempDir "eng/packages/http-client-csharp/package.json")
-    git add (Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json")
-    git add (Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/")
-    git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package.json")
-    git add (Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json")
+    
+    # Only add these files if npm install succeeded
+    if ($installSucceeded) {
+        $packageLockPath = Join-Path $tempDir "eng/packages/http-client-csharp/package-lock.json"
+        if (Test-Path $packageLockPath) {
+            git add $packageLockPath
+        }
+        
+        $testProjectsPath = Join-Path $tempDir "eng/packages/http-client-csharp/generator/TestProjects/"
+        if (Test-Path $testProjectsPath) {
+            git add $testProjectsPath
+        }
+    }
+    
+    # Only add emitter files if they were generated
+    $emitterPackageJsonPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package.json"
+    if (Test-Path $emitterPackageJsonPath) {
+        git add $emitterPackageJsonPath
+    }
+    
+    $emitterPackageLockPath = Join-Path $tempDir "eng/http-client-csharp-emitter-package-lock.json"
+    if (Test-Path $emitterPackageLockPath) {
+        git add $emitterPackageLockPath
+    }
+    
+    # Add any SDK regeneration changes
+    $sdkPath = Join-Path $tempDir "sdk"
+    if (Test-Path $sdkPath) {
+        git add $sdkPath
+    }
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
@@ -239,7 +447,11 @@ try {
     $env:GH_TOKEN = $AuthToken
     
     # Create the PR using gh CLI
-    $ghOutput = gh pr create --repo "$RepoOwner/$RepoName" --title $PRTitle --body $PRBody --base $BaseBranch --head $PRBranch 2>&1
+    $ghArgs = @("pr", "create", "--repo", "$RepoOwner/$RepoName", "--title", $PRTitle, "--body", $PRBody, "--base", $BaseBranch, "--head", $PRBranch)
+    if ($Internal) {
+        $ghArgs += @("--label", "Do Not Merge")
+    }
+    $ghOutput = & gh @ghArgs 2>&1
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to create PR using gh CLI: $ghOutput"

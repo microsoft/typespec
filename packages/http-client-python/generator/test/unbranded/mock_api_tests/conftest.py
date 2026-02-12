@@ -9,7 +9,6 @@ import signal
 import pytest
 import re
 from pathlib import Path
-from typing import List
 
 FILE_FOLDER = Path(__file__).parent
 
@@ -76,7 +75,7 @@ SPECIAL_WORDS = [
 
 
 @pytest.fixture
-def special_words() -> List[str]:
+def special_words() -> list[str]:
     return SPECIAL_WORDS
 
 

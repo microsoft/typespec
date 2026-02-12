@@ -254,8 +254,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var enumType = EnumProvider.Create(input);
 
             // String extensible enums should have both nullable and non-nullable implicit operators
-            var implicitOperators = enumType.Methods.Where(m => 
-                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) && 
+            var implicitOperators = enumType.Methods.Where(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)).ToList();
 
             Assert.AreEqual(2, implicitOperators.Count, "String extensible enum should have 2 implicit operators");
@@ -265,7 +265,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var nullableCount = implicitOperators.Count(op => op.Signature.ReturnType.IsNullable);
             var nonNullableCount = implicitOperators.Count(op => !op.Signature.ReturnType.IsNullable);
 #pragma warning restore CS8602
-            
+
             Assert.AreEqual(1, nullableCount, "Should have exactly 1 nullable implicit operator");
             Assert.AreEqual(1, nonNullableCount, "Should have exactly 1 non-nullable implicit operator");
         }
@@ -283,8 +283,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var enumType = EnumProvider.Create(input);
 
             // Int extensible enums should only have the non-nullable implicit operator
-            var implicitOperators = enumType.Methods.Where(m => 
-                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) && 
+            var implicitOperators = enumType.Methods.Where(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)).ToList();
 
             Assert.AreEqual(1, implicitOperators.Count, "Int extensible enum should have only 1 implicit operator");
@@ -294,7 +294,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var nullableCount = implicitOperators.Count(op => op.Signature.ReturnType.IsNullable);
             var nonNullableCount = implicitOperators.Count(op => !op.Signature.ReturnType.IsNullable);
 #pragma warning restore CS8602
-            
+
             Assert.AreEqual(0, nullableCount, "Should have no nullable implicit operators");
             Assert.AreEqual(1, nonNullableCount, "Should have exactly 1 non-nullable implicit operator");
         }
@@ -312,8 +312,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var enumType = EnumProvider.Create(input);
 
             // Float extensible enums should only have the non-nullable implicit operator
-            var implicitOperators = enumType.Methods.Where(m => 
-                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) && 
+            var implicitOperators = enumType.Methods.Where(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)).ToList();
 
             Assert.AreEqual(1, implicitOperators.Count, "Float extensible enum should have only 1 implicit operator");
@@ -323,9 +323,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var nullableCount = implicitOperators.Count(op => op.Signature.ReturnType.IsNullable);
             var nonNullableCount = implicitOperators.Count(op => !op.Signature.ReturnType.IsNullable);
 #pragma warning restore CS8602
-            
+
             Assert.AreEqual(0, nullableCount, "Should have no nullable implicit operators");
             Assert.AreEqual(1, nonNullableCount, "Should have exactly 1 non-nullable implicit operator");
+        }
+
+        [Test]
+        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        {
+            var inputEnum = InputFactory.StringEnum(
+                "StringEnum",
+                [("One", "1"), ("Two", "2")],
+                access: "public");
+
+            MockHelpers.LoadMockGenerator(
+                inputEnumTypes: [inputEnum]);
+
+            var enumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "StringEnum") as EnumProvider;
+            Assert.IsNotNull(enumProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsTrue(rootTypes.Contains("Sample.Models.StringEnum"));
+        }
+
+        [Test]
+        public void InternalModelsAreNotIncludedInAdditionalRootTypes()
+        {
+            var inputEnum = InputFactory.StringEnum(
+                "StringEnum",
+                [("One", "1"), ("Two", "2")],
+                access: "internal");
+
+            MockHelpers.LoadMockGenerator(
+                inputEnumTypes: [inputEnum]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "StringEnum") as EnumProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsFalse(rootTypes.Contains("Sample.Models.StringEnum"));
         }
 
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)

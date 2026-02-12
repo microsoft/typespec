@@ -29,17 +29,17 @@ describe("compiler: libraries", () => {
 
   it("detects compiler version mismatches", async () => {
     const testHost = await createTestHost();
-    testHost.addTypeSpecFile("main.tsp", "");
+    testHost.addTypeSpecFile("other/main.tsp", "");
     testHost.addTypeSpecFile(
-      "./node_modules/@typespec/compiler/package.json",
+      "./other/node_modules/@typespec/compiler/package.json",
       JSON.stringify({
         name: "@typespec/compiler",
         main: "index.js",
         version: "0.1.0-notthesame.1",
       }),
     );
-    testHost.addJsFile("./node_modules/@typespec/compiler/index.js", {});
-    const diagnostics = await testHost.diagnose("main.tsp");
+    testHost.addJsFile("./other/node_modules/@typespec/compiler/index.js", {});
+    const diagnostics = await testHost.diagnose("other/main.tsp");
     expectDiagnostics(diagnostics, {
       code: "compiler-version-mismatch",
       severity: "warning",

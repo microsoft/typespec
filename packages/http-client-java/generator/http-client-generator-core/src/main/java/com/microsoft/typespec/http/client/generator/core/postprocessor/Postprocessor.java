@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor;
 
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.customization.Customization;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
@@ -12,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.partialupdate.util.PartialUpdateHandler;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
+import io.clientcore.core.serialization.json.JsonReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -143,6 +143,7 @@ public class Postprocessor {
 
     public static Class<? extends Customization> loadCustomizationClassFromJavaCode(String filePath,
         String baseDirectory, Logger logger) {
+        final Path originCustomizationFile = Paths.get(filePath);
         Path customizationFile = Paths.get(filePath);
         if (!customizationFile.isAbsolute()) {
             if (baseDirectory != null) {
@@ -155,7 +156,7 @@ public class Postprocessor {
             return loadCustomizationClass(customizationFile.getFileName().toString().replace(".java", ""), code);
         } catch (IOException e) {
             logger.error("Cannot read customization from base directory {} and file {}", baseDirectory,
-                customizationFile);
+                originCustomizationFile);
             return null;
         }
     }

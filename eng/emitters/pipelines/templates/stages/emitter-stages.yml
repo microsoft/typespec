@@ -109,6 +109,7 @@ stages:
           Os: linux
           EmitArtifacts: true # Emit artifacts only for the first job
           PythonVersion: ${{ parameters.PythonVersion }}
+          RunSDLTools: true
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
         parameters:
           BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}

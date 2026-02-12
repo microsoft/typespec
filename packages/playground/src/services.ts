@@ -9,6 +9,7 @@ import * as lsp from "vscode-languageserver";
 import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
+import { MonacoToLsp } from "./lsp/monaco-to-lsp.js";
 import type { BrowserHost } from "./types.js";
 
 function getIndentAction(
@@ -57,7 +58,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     compilerHost: host,
     getOpenDocumentByURL(url: string) {
       const model = monaco.editor.getModel(monaco.Uri.parse(url));
-      return model ? textDocumentForModel(model) : undefined;
+      return model ? MonacoToLsp.textDocumentForModel(model) : undefined;
     },
     sendDiagnostics() {},
     log: (log) => {
@@ -100,18 +101,24 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   });
   serverLib.initialized({});
 
-  function textDocumentForModel(model: monaco.editor.IModel) {
-    return TextDocument.create(
-      model.uri.toString(),
-      "typespec",
-      model.getVersionId(),
-      model.getValue(),
-    );
+  monaco.editor.onDidCreateModel((model) => {
+    if (model.getLanguageId() !== "typespec") return;
+    model.onDidChangeContent(async (changes) => {
+      serverLib.checkChange(monacoToLspChangeEvent(model));
+    });
+  });
+
+  function monacoToLspChangeEvent(
+    model: monaco.editor.ITextModel,
+  ): lsp.TextDocumentChangeEvent<TextDocument> {
+    return {
+      document: MonacoToLsp.textDocumentForModel(model),
+    };
   }
 
   function lspDocumentArgs(model: monaco.editor.ITextModel) {
     return {
-      textDocument: textDocumentForModel(model),
+      textDocument: MonacoToLsp.textDocumentForModel(model),
     };
   }
 

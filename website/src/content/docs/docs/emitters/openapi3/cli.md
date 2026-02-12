@@ -17,7 +17,7 @@ The generated TypeSpec depends on the `@typespec/http`, `@typespec/openapi` and 
 1. via the command line
 
 ```bash
-tsp-openapi3 ./openapi3spec.yml --output-dir ./tsp-output
+tsp-openapi3 ./openapi3spec.yml --output-dir ./tsp-output [--namespace MyNamespace]
 ```
 
 ### tsp-openapi3 arguments
@@ -26,10 +26,11 @@ The path to the OpenAPI3 yaml or json file **must** be passed as a position argu
 
 The named arguments are:
 
-| Name       | Type    | Required | Description                                                                              |
-| ---------- | ------- | -------- | ---------------------------------------------------------------------------------------- |
-| output-dir | string  | required | The output directory for generated TypeSpec files. Will be created if it does not exist. |
-| help       | boolean | optional | Show help.                                                                               |
+| Name       | Type    | Required | Description                                                                                                                           |
+| ---------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| output-dir | string  | required | The output directory for generated TypeSpec files. Will be created if it does not exist.                                              |
+| help       | boolean | optional | Show help.                                                                                                                            |
+| namespace  | string  | optional | The namespace to use for the generated TypeSpec files. Defaults to a sanitized version of the description info title if not provided. |
 
 ## Examples
 

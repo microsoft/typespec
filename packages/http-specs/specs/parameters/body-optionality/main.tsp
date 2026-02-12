@@ -33,8 +33,10 @@ op requiredExplicit(@body body: BodyModel): NoContentResponse;
   ```json
   { "name": "foo" }
   ```
+  Expected Content-Type header: application/json
   
   Expected no request body for `omit`
+  Expected Content-Type header: must NOT be present
   """)
 @route("/optional-explicit")
 namespace OptionalExplicit {

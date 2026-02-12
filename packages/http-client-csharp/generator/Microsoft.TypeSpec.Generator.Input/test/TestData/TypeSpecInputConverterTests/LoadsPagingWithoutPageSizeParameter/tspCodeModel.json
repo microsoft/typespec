@@ -1,0 +1,7 @@
+{
+  "itemPropertySegments": ["items"],
+  "nextLink": {
+    "responseSegments": ["next"],
+    "responseLocation": "Body"
+  }
+}

@@ -220,23 +220,21 @@ public final class TopLevelArmResourceInner extends Resource {
     }
 
     /**
+     * Get the size property: The size property.
+     * 
+     * @return the size value.
+     */
+    public Float size() {
+        return this.innerProperties() == null ? null : this.innerProperties().size();
+    }
+
+    /**
      * Get the provisioningState property: The status of the last operation.
      * 
      * @return the provisioningState value.
      */
     public ProvisioningState provisioningState() {
         return this.innerProperties() == null ? null : this.innerProperties().provisioningState();
-    }
-
-    /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
-        if (innerProperties() != null) {
-            innerProperties().validate();
-        }
     }
 
     /**

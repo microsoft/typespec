@@ -1,5 +1,7 @@
 ---
 title: Common Parameters
+description: Getting started with REST - 04 reuse common parameters
+llmstxt: true
 ---
 
 ## Introduction

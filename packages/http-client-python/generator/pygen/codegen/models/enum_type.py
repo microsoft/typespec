@@ -3,11 +3,12 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, List, TYPE_CHECKING, Optional, cast
+from typing import Any, TYPE_CHECKING, Optional, cast
 
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
-from .utils import NamespaceType
+from .utils import NamespaceType, add_to_pylint_disable
+from ...utils import NAME_LENGTH_LIMIT
 
 
 if TYPE_CHECKING:
@@ -24,7 +25,7 @@ class EnumValue(BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         enum_type: "EnumType",
         value_type: BaseType,
@@ -52,7 +53,10 @@ class EnumValue(BaseType):
         """The python type used for RST syntax input and type annotation."""
 
         type_annotation = self.value_type.type_annotation(**kwargs)
-        enum_type_annotation = f"{self.enum_type.client_namespace}.models.{self.name}"
+        client_namespace = self.enum_type.client_namespace
+        if self.code_model.options.get("generation-subdir"):
+            client_namespace += f".{self.code_model.options['generation-subdir']}"
+        enum_type_annotation = f"{client_namespace}.models.{self.name}"
         return f"{type_annotation} or ~{enum_type_annotation}"
 
     def get_json_template_representation(
@@ -91,7 +95,7 @@ class EnumValue(BaseType):
         return file_import
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "EnumValue":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "EnumValue":
         """Constructs an EnumValue from yaml data.
 
         :param yaml_data: the yaml data from which we will construct this object
@@ -124,9 +128,9 @@ class EnumType(BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
-        values: List["EnumValue"],
+        values: list["EnumValue"],
         value_type: BaseType,
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
@@ -186,6 +190,12 @@ class EnumType(BaseType):
             return f"Union[{self.value_type.type_annotation(**kwargs)}, {model_name}]"
         return self.value_type.type_annotation(**kwargs)
 
+    def pylint_disable(self) -> str:
+        retval: str = ""
+        if len(self.name) > NAME_LENGTH_LIMIT:
+            retval = add_to_pylint_disable(retval, "name-too-long")
+        return retval
+
     def get_declaration(self, value: Any) -> str:
         return self.value_type.get_declaration(value)
 
@@ -216,12 +226,12 @@ class EnumType(BaseType):
     def instance_check_template(self) -> str:
         return self.value_type.instance_check_template
 
-    def fill_instance_from_yaml(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def fill_instance_from_yaml(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         for value in yaml_data["values"]:
             self.values.append(EnumValue.from_yaml(value, code_model))
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "EnumType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "EnumType":
         raise ValueError(
             "You shouldn't call from_yaml for EnumType to avoid recursion. "
             "Please initial a blank EnumType, then call .fill_instance_from_yaml on the created type."
@@ -231,7 +241,7 @@ class EnumType(BaseType):
         file_import = FileImport(self.code_model)
         file_import.merge(self.value_type.imports(**kwargs))
         if self.code_model.options["models-mode"]:
-            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.REGULAR)
 
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)

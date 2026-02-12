@@ -13,7 +13,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -103,6 +102,7 @@ namespace Microsoft.TypeSpec.Generator
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()
         {
             List<Task<Document>> documents = new List<Task<Document>>();
+            var memberRemover = new MemberRemoverRewriter();
             foreach (Document document in _project.Documents)
             {
                 if (!IsGeneratedDocument(document))
@@ -110,16 +110,16 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                documents.Add(ProcessDocument(document));
+                documents.Add(ProcessDocument(document, memberRemover));
             }
             var docs = await Task.WhenAll(documents);
 
+            LoggingHelpers.LogElapsedTime("Roslyn post processing complete");
+
             foreach (var doc in docs)
             {
-                var processed = doc;
-
-                var text = await processed.GetSyntaxTreeAsync();
-                yield return (processed.Name, text!.ToString());
+                var text = await doc.GetTextAsync();
+                yield return (doc.Name, text.ToString());
             }
 
             foreach (var (file, content) in PlainFiles)
@@ -128,24 +128,24 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private async Task<Document> ProcessDocument(Document document)
+        private async Task<Document> ProcessDocument(Document document, MemberRemoverRewriter memberRemover)
         {
-            var syntaxTree = await document.GetSyntaxTreeAsync();
-            var compilation = await GetCompilationAsync();
-            if (syntaxTree != null)
-            {
-                var semanticModel = compilation.GetSemanticModel(syntaxTree);
-                var modelRemoveRewriter = new MemberRemoverRewriter(_project, semanticModel);
-                var root = await syntaxTree.GetRootAsync();
-                root = modelRemoveRewriter.Visit(root);
+            var root = await document.GetSyntaxRootAsync();
+            var semanticModel = await document.GetSemanticModelAsync();
 
-                foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
-                {
-                    rewriter.SemanticModel = semanticModel;
-                    root = rewriter.Visit(root);
-                }
-                document = document.WithSyntaxRoot(root);
+            if (semanticModel == null || root == null)
+            {
+                return document;
             }
+
+            root = memberRemover.Visit(root);
+
+            foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
+            {
+                rewriter.SemanticModel = semanticModel;
+                root = rewriter.Visit(root);
+            }
+            document = document.WithSyntaxRoot(root);
 
             document = await Simplifier.ReduceAsync(document);
 
@@ -179,7 +179,7 @@ namespace Microsoft.TypeSpec.Generator
             return generatedCodeProject;
         }
 
-        internal static async Task<GeneratedCodeWorkspace> Create()
+        internal static async Task<GeneratedCodeWorkspace> Create(bool isCustomCodeProject)
         {
             // prepare the generated code project
             var projectTask = Interlocked.Exchange(ref _cachedProject, null);
@@ -206,7 +206,9 @@ namespace Microsoft.TypeSpec.Generator
                 project = AddDirectory(project, sharedSourceFolder, folders: _sharedFolders);
             }
 
-            project = project.WithParseOptions(new CSharpParseOptions(preprocessorSymbols: new[] { "EXPERIMENTAL" }));
+            project = project.WithParseOptions(new CSharpParseOptions(
+                preprocessorSymbols: ["EXPERIMENTAL"],
+                documentationMode: isCustomCodeProject ? DocumentationMode.None : DocumentationMode.Parse));
 
             return new GeneratedCodeWorkspace(project);
         }
@@ -215,11 +217,18 @@ namespace Microsoft.TypeSpec.Generator
         {
             var workspace = new AdhocWorkspace();
             Project project = workspace.AddProject("LastContract", LanguageNames.CSharp);
+            XmlDocumentationProvider? documentationProvider = File.Exists(xmlDocumentationpath)
+               ? XmlDocumentationProvider.CreateFromFile(xmlDocumentationpath)
+               : null;
+            List<MetadataReference> metadataReferences =
+            [
+                .. _assemblyMetadataReferences.Value.Concat(CodeModelGenerator.Instance.AdditionalMetadataReferences),
+                MetadataReference.CreateFromFile(dllPath, documentation: documentationProvider)
+            ];
             project = project
-                .AddMetadataReferences(_assemblyMetadataReferences.Value)
+                .AddMetadataReferences(metadataReferences)
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
-            project = project.AddMetadataReference(MetadataReference.CreateFromFile(dllPath, documentation: XmlDocumentationProvider.CreateFromFile(xmlDocumentationpath)));
             return await project.GetCompilationAsync();
         }
 
@@ -253,9 +262,9 @@ namespace Microsoft.TypeSpec.Generator
             var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
             var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
             var postProcessor = new PostProcessor(
-                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.TypesToKeep],
+                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.AdditionalRootTypes],
                 modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
-                additionalNonRootTypeFullNames: nonRootTypes);
+                additionalNonRootTypeNames: nonRootTypes);
 
             switch (Configuration.UnreferencedTypesHandling)
             {

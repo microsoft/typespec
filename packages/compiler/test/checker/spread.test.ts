@@ -1,115 +1,70 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
-import { Model, Type } from "../../src/core/types.js";
-import {
-  BasicTestRunner,
-  createTestHost,
-  createTestWrapper,
-  expectDiagnostics,
-  extractSquiggles,
-} from "../../src/testing/index.js";
+import { describe, expect, it } from "vitest";
+import { Type } from "../../src/core/types.js";
+import { expectDiagnostics, extractSquiggles, mockFile, t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
-describe("compiler: spread", () => {
+it("clones decorated properties", async () => {
   const blues = new WeakSet();
   function $blue(_: any, target: Type) {
     blues.add(target);
   }
+  const { C } = await Tester.files({ "blue.js": mockFile.js({ $blue }) }).compile(t.code`
+    import "./blue.js";
+    model A { @blue foo: string }
+    model B { @blue bar: string }
+    @test model ${t.model("C")} { ... A, ... B }
+  `);
 
-  let runner: BasicTestRunner;
+  strictEqual(C.properties.size, 2);
 
-  beforeEach(async () => {
-    const host = await createTestHost();
-    host.addJsFile("blue.js", { $blue });
-    runner = createTestWrapper(host);
-  });
+  for (const [_, prop] of C.properties) {
+    ok(blues.has(prop), prop.name + " is blue");
+  }
+});
 
-  it("clones decorated properties", async () => {
-    const { C } = (await runner.compile(`
-      import "./blue.js";
-      model A { @blue foo: string }
-      model B { @blue bar: string }
-      @test model C { ... A, ... B }
-      `)) as { C: Model };
-
-    strictEqual(C.kind, "Model");
-    strictEqual(C.properties.size, 2);
-
-    for (const [_, prop] of C.properties) {
-      ok(blues.has(prop), prop.name + " is blue");
-    }
-  });
-
-  it("doesn't emit additional diagnostic if spread reference is invalid-ref", async () => {
-    const diagnostics = await runner.diagnose(`
+it("doesn't emit additional diagnostic if spread reference is invalid-ref", async () => {
+  const diagnostics = await Tester.diagnose(`
       model Foo {
         ...NotDefined
       }
       `);
 
-    expectDiagnostics(diagnostics, {
-      code: "invalid-ref",
-      message: "Unknown identifier NotDefined",
-    });
+  expectDiagnostics(diagnostics, {
+    code: "invalid-ref",
+    message: "Unknown identifier NotDefined",
   });
+});
 
-  it("emit diagnostic if spreading non model type", async () => {
-    const diagnostics = await runner.diagnose(`
+it("emit diagnostic if spreading non model type", async () => {
+  const diagnostics = await Tester.diagnose(`
       alias U = (string | int32);
       model Foo {
         ...U
       }
       `);
 
-    expectDiagnostics(diagnostics, {
-      code: "spread-model",
-      message: "Cannot spread properties of non-model type.",
-    });
+  expectDiagnostics(diagnostics, {
+    code: "spread-model",
+    message: "Cannot spread properties of non-model type.",
   });
+});
 
-  it("emit diagnostic if model spreads itself", async () => {
-    const diagnostics = await runner.diagnose(`
-      model Foo {
-        ...Foo,
-        name: string,
-      }
-      `);
-
-    expectDiagnostics(diagnostics, {
-      code: "spread-model",
-      message: "Cannot spread type within its own declaration.",
-    });
-  });
-
-  it("emit diagnostic if model spreads itself through alias", async () => {
-    const diagnostics = await runner.diagnose(`
-      model Foo {
-        ...Bar,
-        name: string,
-      }
-      alias Bar = Foo;
-      `);
-
-    expectDiagnostics(diagnostics, {
-      code: "spread-model",
-      message: "Cannot spread type within its own declaration.",
-    });
-  });
-
-  it("emit diagnostic if spreading scalar type", async () => {
-    const diagnostics = await runner.diagnose(`
+it("emit diagnostic if spreading scalar type", async () => {
+  const diagnostics = await Tester.diagnose(`
       model Foo {
         ...string
       }
       `);
 
-    expectDiagnostics(diagnostics, {
-      code: "spread-model",
-      message: "Cannot spread properties of non-model type.",
-    });
+  expectDiagnostics(diagnostics, {
+    code: "spread-model",
+    message: "Cannot spread properties of non-model type.",
   });
+});
 
-  it("emits duplicate diagnostic at correct location", async () => {
-    const { source, pos, end } = extractSquiggles(`
+it("emits duplicate diagnostic at correct location", async () => {
+  const { source, pos, end } = extractSquiggles(`
       model Foo { 
         x: string 
       } 
@@ -119,11 +74,129 @@ describe("compiler: spread", () => {
       }
     `);
 
-    const diagnostics = await runner.diagnose(source);
+  const diagnostics = await Tester.diagnose(source);
+  expectDiagnostics(diagnostics, {
+    code: "duplicate-property",
+    pos,
+    end,
+  });
+});
+
+describe("circular reference", () => {
+  it("emit diagnostic if model spreads itself", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model Foo {
+        ...Foo,
+        name: string,
+      }
+    `);
+
     expectDiagnostics(diagnostics, {
-      code: "duplicate-property",
-      pos,
-      end,
+      code: "spread-model",
+      message: "Cannot spread type within its own declaration.",
+    });
+  });
+
+  it("emit diagnostic if model spreads itself through alias", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model Foo {
+        ...Bar,
+        name: string,
+      }
+      alias Bar = Foo;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "spread-model",
+      message: "Cannot spread type within its own declaration.",
+    });
+  });
+
+  // https://github.com/microsoft/typespec/issues/7956
+  it.skip("emit diagnostic if models spread each other", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model Foo { ...Bar }
+      model Bar { ...Foo }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "spread-model",
+      message: "Cannot spread type within its own declaration.",
+    });
+  });
+});
+
+// https://github.com/microsoft/typespec/issues/2826
+describe("ensure the target model is completely resolved before spreading", () => {
+  describe("spread in model statement", () => {
+    it("declared before", async () => {
+      const { B } = await Tester.compile(t.code`
+      model ${t.model("B")} {  ...A }
+      model A {
+        b: B;
+        prop: string;
+      }
+    
+    `);
+      expect(B.properties.has("b")).toBe(true);
+      expect(B.properties.has("prop")).toBe(true);
+    });
+
+    it("declared after", async () => {
+      const { B } = await Tester.compile(t.code`
+      model A {
+        b: B;
+        prop: string;
+      }
+      model ${t.model("B")} {  ...A }
+    `);
+      expect(B.properties.has("b")).toBe(true);
+      expect(B.properties.has("prop")).toBe(true);
+    });
+  });
+
+  describe("spread in model expression", () => {
+    it("declared before", async () => {
+      const { B } = await Tester.compile(t.code`
+      model ${t.model("B")} {  ...Alias }
+      alias Alias =  { ...A };
+      model A {
+        b: B;
+        prop: string;
+      }
+    
+    `);
+      expect(B.properties.has("b")).toBe(true);
+      expect(B.properties.has("prop")).toBe(true);
+    });
+
+    it("declared after", async () => {
+      const { B } = await Tester.compile(t.code`
+      model A {
+        b: B;
+        prop: string;
+      }
+      alias Alias =  { ...A };
+      model ${t.model("B")} {  ...Alias }
+    `);
+      expect(B.properties.has("b")).toBe(true);
+      expect(B.properties.has("prop")).toBe(true);
+    });
+  });
+
+  describe("multiple spreads", () => {
+    it("in the middle", async () => {
+      const { B } = await Tester.compile(t.code`
+      model A {  ...C }
+      model ${t.model("B")} {  ...A }
+      model C {
+        b: B;
+        prop: string;
+      }
+    
+    `);
+      expect(B.properties.has("b")).toBe(true);
+      expect(B.properties.has("prop")).toBe(true);
     });
   });
 });

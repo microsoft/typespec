@@ -24,7 +24,11 @@ export function convertDiagnosticToLsp(
   document: TextDocument,
   diagnostic: Diagnostic,
 ): [VSDiagnostic, TextDocument][] {
-  const root = getVSLocation(getSourceLocation(diagnostic.target, { locateId: true }), document);
+  const root = getVSLocation(
+    fileService,
+    getSourceLocation(diagnostic.target, { locateId: true }),
+    document,
+  );
   if (root === undefined || !fileService.upToDate(root.document)) return [];
 
   const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
@@ -32,7 +36,7 @@ export function convertDiagnosticToLsp(
   const relatedDiagnostics: [VSDiagnostic, TextDocument][] = [];
   if (instantiationNodes.length > 0) {
     const items = instantiationNodes
-      .map((node) => getVSLocationWithTypeInfo(program, node, document))
+      .map((node) => getVSLocationWithTypeInfo(program, fileService, node, document))
       .filter(isDefined);
 
     for (const location of items) {
@@ -87,11 +91,27 @@ function createLspDiagnostic(diag: Omit<VSDiagnostic, "source">): VSDiagnostic {
 }
 
 function getDocumentForLocation(
+  fileService: FileService,
   location: SourceLocation,
   currentDocument: TextDocument,
 ): TextDocument | undefined {
   if (location?.file) {
-    return (location.file as ServerSourceFile).document;
+    const doc = (location.file as ServerSourceFile).document;
+    if (doc) {
+      return doc;
+    }
+    // Since we are using cache between compilations, it's possible that when the result is used as cache, the file is actually opened or closed,
+    // so need to do some handling for the open case here. No special handling for the closed case which will just be ignored by client
+    const opened = fileService.getOpenDocument(location.file.path);
+    if (opened) {
+      // the doc is opened now and return it if it's not out-of-date
+      // compared to when it was first opened.
+      const initVersion = fileService.getOpenDocumentInitVersion(opened.uri);
+      if (opened.version === initVersion) {
+        return opened;
+      }
+    }
+    return undefined;
   } else {
     // https://github.com/microsoft/language-server-protocol/issues/256
     //
@@ -108,11 +128,12 @@ interface VSLocation {
 }
 
 function getVSLocation(
+  fileService: FileService,
   location: SourceLocation | undefined,
   currentDocument: TextDocument,
 ): VSLocation | undefined {
   if (location === undefined) return undefined;
-  const document = getDocumentForLocation(location, currentDocument);
+  const document = getDocumentForLocation(fileService, location, currentDocument);
   if (!document) {
     return undefined;
   }
@@ -129,10 +150,15 @@ interface VSLocationWithTypeInfo extends VSLocation {
 }
 function getVSLocationWithTypeInfo(
   program: Program,
+  fileService: FileService,
   node: Node,
   document: TextDocument,
 ): VSLocationWithTypeInfo | undefined {
-  const location = getVSLocation(getSourceLocation(node, { locateId: true }), document);
+  const location = getVSLocation(
+    fileService,
+    getSourceLocation(node, { locateId: true }),
+    document,
+  );
   if (location === undefined) return undefined;
   return {
     ...location,

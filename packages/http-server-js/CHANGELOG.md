@@ -1,5 +1,63 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.24
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.58.0-alpha.23
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9176](https://github.com/microsoft/typespec/pull/9176) Fixed a bug that caused optional query/header parameters to be improperly converted to primitive types when not provided in a request.
+
+
+## 0.58.0-alpha.22
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.58.0-alpha.21
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.58.0-alpha.20
+
+No changes, version bump only.
+
+## 0.58.0-alpha.19
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.58.0-alpha.18
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8084](https://github.com/microsoft/typespec/pull/8084) Corrected an error that caused Array and Record responses to fail to serialize correctly when they were variants of a Union return type.
+- [#7940](https://github.com/microsoft/typespec/pull/7940) Fixed an issue where JSON serialization would not correctly handle optional properties in some cases.
+  
+  Fixed an issue where body serialization would sometimes fail to name anonymous response items, even if a name is required
+  to dispatch serialization code.
+
+
 ## 0.58.0-alpha.16
 
 ### Bump dependencies

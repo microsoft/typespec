@@ -218,6 +218,20 @@ public final class XmlClientImpl {
     }
 
     /**
+     * The XmlErrorValuesImpl object to access its operations.
+     */
+    private final XmlErrorValuesImpl xmlErrorValues;
+
+    /**
+     * Gets the XmlErrorValuesImpl object to access its operations.
+     * 
+     * @return the XmlErrorValuesImpl object.
+     */
+    public XmlErrorValuesImpl getXmlErrorValues() {
+        return this.xmlErrorValues;
+    }
+
+    /**
      * Initializes an instance of XmlClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -240,5 +254,6 @@ public final class XmlClientImpl {
         this.modelWithTextValues = new ModelWithTextValuesImpl(this);
         this.modelWithDictionaryValues = new ModelWithDictionaryValuesImpl(this);
         this.modelWithEncodedNamesValues = new ModelWithEncodedNamesValuesImpl(this);
+        this.xmlErrorValues = new XmlErrorValuesImpl(this);
     }
 }

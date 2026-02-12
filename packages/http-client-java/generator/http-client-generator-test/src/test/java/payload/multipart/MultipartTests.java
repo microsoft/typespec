@@ -18,21 +18,30 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
+import payload.multipart.formdata.file.models.FileWithRequiredFilename;
+import payload.multipart.formdata.file.models.UploadFileArrayRequest;
+import payload.multipart.formdata.file.models.UploadFileRequiredFilenameRequest;
+import payload.multipart.formdata.file.models.UploadFileSpecificContentTypeRequest;
 import payload.multipart.formdata.httpparts.nonstring.models.FloatRequest;
 import payload.multipart.formdata.models.AnonymousModelRequest;
 import payload.multipart.models.Address;
 import payload.multipart.models.BinaryArrayPartsRequest;
 import payload.multipart.models.ComplexHttpPartsModelRequest;
 import payload.multipart.models.ComplexPartsRequest;
+import payload.multipart.models.FileDetails;
 import payload.multipart.models.FileOptionalContentType;
 import payload.multipart.models.FileRequiredMetaData;
 import payload.multipart.models.FileSpecificContentType;
 import payload.multipart.models.FileWithHttpPartOptionalContentTypeRequest;
 import payload.multipart.models.FileWithHttpPartRequiredContentTypeRequest;
 import payload.multipart.models.FileWithHttpPartSpecificContentTypeRequest;
+import payload.multipart.models.FilesFileDetails;
+import payload.multipart.models.ImageFileDetails;
 import payload.multipart.models.JsonPartRequest;
 import payload.multipart.models.MultiBinaryPartsRequest;
+import payload.multipart.models.MultiPartOptionalRequest;
 import payload.multipart.models.MultiPartRequest;
+import payload.multipart.models.MultiPartRequestWithWireName;
 import payload.multipart.models.PictureFileDetails;
 import payload.multipart.models.PicturesFileDetails;
 import payload.multipart.models.ProfileImageFileDetails;
@@ -173,6 +182,32 @@ public class MultipartTests {
     }
 
     @Test
+    public void testWithWireName() {
+        MultiPartRequestWithWireName request = new MultiPartRequestWithWireName("123",
+            new ImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
+
+        client.withWireName(request);
+        asyncClient.withWireName(request).block();
+    }
+
+    @Test
+    public void testOptionalParts() {
+        // Test with only id
+        MultiPartOptionalRequest requestWithIdOnly = new MultiPartOptionalRequest().setId("123");
+        client.optionalParts(requestWithIdOnly);
+
+        // Test with only profileImage
+        MultiPartOptionalRequest requestWithImageOnly = new MultiPartOptionalRequest()
+            .setProfileImage(new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
+        asyncClient.optionalParts(requestWithImageOnly).block();
+
+        // Test with both id and profileImage
+        MultiPartOptionalRequest requestWithBoth = new MultiPartOptionalRequest().setId("123")
+            .setProfileImage(new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
+        client.optionalParts(requestWithBoth);
+    }
+
+    @Test
     public void testJson() {
         client.jsonPart(new JsonPartRequest(new Address("X"),
             new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg")));
@@ -278,5 +313,41 @@ public class MultipartTests {
             = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataHttpPartsNonStringClient();
 
         client.floatMethod(new FloatRequest(0.5));
+    }
+
+    @Test
+    public void testUploadFileSpecificContentType() {
+        FormDataFileClient fileClient
+            = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataFileClient();
+
+        fileClient.uploadFileSpecificContentType(new UploadFileSpecificContentTypeRequest(
+            new FileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image.png")));
+
+        validationPolicy.validateContentTypes("image/png");
+    }
+
+    @Test
+    public void testUploadFileRequiredFilename() {
+        FormDataFileClient fileClient
+            = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataFileClient();
+
+        fileClient.uploadFileRequiredFilename(new UploadFileRequiredFilenameRequest(
+            new FileWithRequiredFilename(BinaryData.fromFile(PNG_FILE), "image.png")));
+
+        validationPolicy.validateFilenames("image.png");
+        validationPolicy.validateContentTypes("image/png");
+    }
+
+    @Test
+    public void testUploadFileArray() {
+        FormDataFileClient fileClient
+            = new MultiPartClientBuilder().addPolicy(validationPolicy).buildFormDataFileClient();
+
+        fileClient.uploadFileArray(new UploadFileArrayRequest(
+            Arrays.asList(new FilesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image1.png"),
+                new FilesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("image2.png"))));
+
+        validationPolicy.validateFilenames("image1.png", "image2.png");
+        validationPolicy.validateContentTypes("image/png", "image/png");
     }
 }

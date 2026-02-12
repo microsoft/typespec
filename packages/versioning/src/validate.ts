@@ -1,6 +1,7 @@
 import {
   getNamespaceFullName,
   getTypeName,
+  isTemplateDeclaration,
   isTemplateInstance,
   isType,
   navigateProgram,
@@ -63,6 +64,14 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
+        // Decorators are not run on declaration so can't validate reference
+        if (isTemplateDeclaration(model)) {
+          return;
+        }
+        // Model expression should just inherit their validation from the their parent type
+        if (!model.name) {
+          return;
+        }
         addNamespaceDependency(model.namespace, model.sourceModel);
         addNamespaceDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
@@ -94,6 +103,10 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(union)) {
           return;
         }
+        // Decorators are not run on declaration so can't validate reference
+        if (isTemplateDeclaration(union)) {
+          return;
+        }
         if (union.namespace === undefined) {
           return;
         }
@@ -105,6 +118,10 @@ export function $onValidate(program: Program) {
       operation: (op) => {
         // If this is an instantiated type we don't want to keep the mapping.
         if (isTemplateInstance(op)) {
+          return;
+        }
+        // Decorators are not run on declaration so can't validate reference
+        if (isTemplateDeclaration(op)) {
           return;
         }
 
@@ -137,6 +154,10 @@ export function $onValidate(program: Program) {
         }
       },
       interface: (iface) => {
+        // Decorators are not run on declaration so can't validate reference
+        if (isTemplateDeclaration(iface)) {
+          return;
+        }
         for (const source of iface.sourceInterfaces) {
           validateReference(program, iface, source);
         }
@@ -514,7 +535,16 @@ function validateReference(program: Program, source: Type | Type[], target: Type
     }
   }
 
+  const sources = Array.isArray(source) ? source : [source];
   switch (target.kind) {
+    case "Model":
+      // For anonymous model expressions (inline models), validate their properties
+      if (!target.name) {
+        for (const prop of target.properties.values()) {
+          validateReference(program, [prop, ...sources], prop.type);
+        }
+      }
+      break;
     case "Union":
       if (typeof target.name !== "string") {
         for (const variant of target.variants.values()) {

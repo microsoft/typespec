@@ -1,3 +1,4 @@
+import { getProgram } from "#test/utils.js";
 import { code } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
@@ -5,7 +6,7 @@ import type { Namespace } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { FunctionDeclaration } from "../../../src/typescript/components/function-declaration.js";
-import { getProgram } from "../test-host.js";
+
 describe("Typescript Function Declaration", () => {
   describe("Function bound to Typespec Types", () => {
     describe("Bound to Operation", () => {

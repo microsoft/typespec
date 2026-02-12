@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Optional, List
+from typing import Optional
 from jinja2 import Environment
 from .base_serializer import BaseSerializer
 from ..models import FileImport, CodeModel, EnumType
@@ -17,7 +17,7 @@ class EnumSerializer(BaseSerializer):
         env: Environment,
         async_mode: bool = False,
         *,
-        enums: List[EnumType],
+        enums: list[EnumType],
         client_namespace: Optional[str] = None
     ):
         super().__init__(code_model, env, async_mode=async_mode, client_namespace=client_namespace)

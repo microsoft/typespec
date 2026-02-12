@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             public static IndexableExpression Array(CSharpType? elementType, bool isInline, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items, isInline)));
             public static IndexableExpression Array(CSharpType? elementType, bool isInline, bool isStackAlloc, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items, isInline), IsStackAlloc: isStackAlloc));
             public static IndexableExpression Array(CSharpType? elementType, ValueExpression size) => new(new NewArrayExpression(elementType, Size: size));
-
+            public static IndexableExpression Array(CSharpType? elementType, bool isStackAlloc, ValueExpression size) => new(new NewArrayExpression(elementType, Size: size, IsStackAlloc: isStackAlloc));
             public static DictionaryExpression ReadOnlyDictionary(CSharpType keyType, CSharpType valueType, params ValueExpression[] items)
                 => new(new NewInstanceExpression(new CSharpType(typeof(System.Collections.ObjectModel.ReadOnlyDictionary<,>), keyType, valueType), items));
             public static DictionaryExpression Dictionary(CSharpType keyType, CSharpType valueType)

@@ -5,17 +5,24 @@ using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public class InputBodyParameter : InputProperty
+    public sealed class InputBodyParameter : InputParameter
     {
-        public InputBodyParameter(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, string serializedName, IReadOnlyList<string> contentTypes, string defaultContentType) : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName)
+        public InputBodyParameter(
+            string name,
+            string? summary,
+            string? doc,
+            InputType type,
+            bool isRequired,
+            bool isReadOnly,
+            string? access,
+            string serializedName,
+            bool isApiVersion,
+            InputConstant? defaultValue,
+            InputParameterScope scope,
+            IReadOnlyList<string> contentTypes,
+            string defaultContentType)
+            : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue, scope)
         {
-            Name = name;
-            Summary = summary;
-            Doc = doc;
-            Type = type;
-            IsRequired = isRequired;
-            IsReadOnly = isReadOnly;
-            SerializedName = serializedName;
             ContentTypes = contentTypes;
             DefaultContentType = defaultContentType;
         }

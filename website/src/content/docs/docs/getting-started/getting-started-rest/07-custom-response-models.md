@@ -1,5 +1,7 @@
 ---
 title: Custom Response Models
+description: Getting started with REST - 07 customize API response models
+llmstxt: true
 ---
 
 ## Introduction

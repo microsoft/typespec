@@ -15,6 +15,7 @@ import {
 } from "../../src/index.js";
 import { mockFile } from "../../src/testing/fs.js";
 import { t } from "../../src/testing/marked-template.js";
+import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 import { createTester } from "../../src/testing/tester.js";
 
 const Tester = createTester(resolvePath(import.meta.dirname, "../.."), { libraries: [] });
@@ -49,8 +50,16 @@ describe("extract types", () => {
     expect(res.Bar.kind).toBe("Enum");
   });
 
-  it("extract with fourslash syntax", async () => {
+  it("extract with fourslash syntax with t.code", async () => {
     const res = await Tester.compile(t.code`
+      model /*ExtractedFoo*/Foo {}
+    `);
+    strictEqual(res.ExtractedFoo.entityKind, "Type");
+    expect(res.ExtractedFoo.kind).toBe("Model");
+  });
+
+  it("extract with fourslash syntax without t.code", async () => {
+    const res = await Tester.compile(`
       model /*ExtractedFoo*/Foo {}
     `);
     strictEqual(res.ExtractedFoo.entityKind, "Type");
@@ -236,6 +245,48 @@ it("add extra files via fs api", async () => {
       model Bar {}
     `,
   );
+});
+
+describe("marker position", () => {
+  function indexOfMarker(code: string, marker: `/*${string}*/`) {
+    return code.indexOf(marker) + marker.length;
+  }
+  it("collect position from simple code", async () => {
+    const tester = await Tester.createInstance();
+    const code = `
+      model /*A*/Foo {}
+      enum /*B*/Bar {}
+    `;
+    const res = await tester.compile(code);
+    expect(res.pos.A.pos).toEqual(indexOfMarker(code, "/*A*/"));
+    expect(res.pos.B.pos).toEqual(indexOfMarker(code, "/*B*/"));
+  });
+
+  it("collect position with wrap, imports", async () => {
+    const tester = await Tester.import("./other.tsp")
+      .files({
+        "other.tsp": `model Other {}`,
+      })
+      .wrap((x) => `model Added {};\n${x}`)
+      .createInstance();
+    const code = `
+      model /*A*/Foo {}
+    `;
+    const renderedCode = `import "./other.tsp";\nmodel Added {};\n${code}`;
+    const res = await tester.compile(code);
+    expect(res.fs.fs.get(resolveVirtualPath("main.tsp"))).toEqual(renderedCode); // ensure our code is what we expect
+    expect(res.pos.A.pos).toEqual(indexOfMarker(renderedCode, "/*A*/"));
+  });
+
+  it("collect position from typed markers", async () => {
+    const tester = await Tester.createInstance();
+    const res = await tester.compile(t.code`
+      model ${t.model("Foo")} {}
+      enum ${t.enum("Bar")} {}
+    `);
+    expect(res.pos.Foo.pos).toEqual(20);
+    expect(res.pos.Bar.pos).toEqual(45);
+  });
 });
 
 describe("emitter", () => {

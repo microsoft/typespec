@@ -135,7 +135,7 @@ public final class UsageClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> inputWithResponse(InputRecord input, RequestContext requestContext) {
@@ -152,7 +152,7 @@ public final class UsageClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return record used in operation return type.
+     * @return record used in operation return type along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<OutputRecord> outputWithResponse(RequestContext requestContext) {
@@ -171,7 +171,7 @@ public final class UsageClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return record used both as operation parameter and return type.
+     * @return record used both as operation parameter and return type along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<InputOutputRecord> inputAndOutputWithResponse(InputOutputRecord body,

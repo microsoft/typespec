@@ -13,7 +13,9 @@ import {
   expectTypeEquals,
   extractCursor,
   extractSquiggles,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: templates", () => {
   let testHost: TestHost;
@@ -627,7 +629,9 @@ describe("compiler: templates", () => {
   describe("doesn't run decorators when checking template declarations", () => {
     async function expectMarkDecoratorNotCalled(code: string) {
       testHost.addJsFile("mark.js", {
-        $mark: () => fail("Should not have called decorator"),
+        $mark: () => {
+          fail("Should not have called decorator");
+        },
       });
 
       testHost.addTypeSpecFile(
@@ -667,6 +671,46 @@ describe("compiler: templates", () => {
         @mark(T)
         union Foo<T> {}
       `);
+    });
+
+    describe("within aliases", () => {
+      it("on model property", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Foo<T> = {
+            @mark(T) prop: string;
+          };
+        `);
+      });
+
+      it("on model property, when no argument is provided", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Foo<T> = {
+            @mark prop: string;
+          };
+        `);
+      });
+
+      it("when instantiation is indirect", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Bar<T> = Foo<T>;
+
+          alias Foo<T> = {
+            @mark(T) prop: string;
+          };
+        `);
+      });
+
+      it("when instantiation is indirect and nested", async () => {
+        await expectMarkDecoratorNotCalled(`
+          alias Bar<T> = {
+            nested: Foo<T>;
+          };
+
+          alias Foo<T> = {
+            @mark(T) prop: string;
+          };
+        `);
+      });
     });
 
     describe("on model properties", () => {
@@ -1134,5 +1178,37 @@ describe("compiler: templates", () => {
           "Argument of type '{ foo: string }' is not assignable to parameter of type '{ foo: int32 }'",
       });
     });
+  });
+});
+
+describe("ensure default pointing back to template are resolved correctly", () => {
+  it("declared before", async () => {
+    const { B } = await Tester.compile(t.code`
+      model A<T = B> {
+        t: T;
+      }
+
+      model ${t.model("B")} {
+        a: A;
+      }
+    `);
+    const A = B.properties.get("a")?.type;
+    strictEqual(A?.kind, "Model");
+    expectTypeEquals(A.properties.get("t")?.type, B);
+  });
+
+  it("declared after", async () => {
+    const { B } = await Tester.compile(t.code`
+      model ${t.model("B")} {
+        a: A;
+      }
+
+      model A<T = B> {
+        t: T;
+      }
+    `);
+    const A = B.properties.get("a")?.type;
+    strictEqual(A?.kind, "Model");
+    expectTypeEquals(A.properties.get("t")?.type, B);
   });
 });

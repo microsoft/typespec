@@ -128,6 +128,12 @@ public final class Builtin implements JsonSerializable<Builtin> {
     @Generated
     private final Encoded encoded;
 
+    /*
+     * The uuid property.
+     */
+    @Generated
+    private final String uuid;
+
     /**
      * Creates an instance of Builtin class.
      * 
@@ -148,12 +154,13 @@ public final class Builtin implements JsonSerializable<Builtin> {
      * @param url the url value to set.
      * @param nullableFloatDict the nullableFloatDict value to set.
      * @param encoded the encoded value to set.
+     * @param uuid the uuid value to set.
      */
     @Generated
     public Builtin(boolean booleanProperty, String string, byte[] bytes, int intProperty, long safeint,
         BigDecimal decimal, long longProperty, double floatProperty, double doubleProperty, Duration duration,
         LocalDate date, OffsetDateTime dateTime, List<String> stringList, Map<String, byte[]> bytesDict, String url,
-        Map<String, Double> nullableFloatDict, Encoded encoded) {
+        Map<String, Double> nullableFloatDict, Encoded encoded, String uuid) {
         this.booleanProperty = booleanProperty;
         this.string = string;
         this.bytes = bytes;
@@ -171,6 +178,7 @@ public final class Builtin implements JsonSerializable<Builtin> {
         this.url = url;
         this.nullableFloatDict = nullableFloatDict;
         this.encoded = encoded;
+        this.uuid = uuid;
     }
 
     /**
@@ -344,6 +352,16 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Get the uuid property: The uuid property.
+     * 
+     * @return the uuid value.
+     */
+    @Generated
+    public String getUuid() {
+        return this.uuid;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated
@@ -369,6 +387,7 @@ public final class Builtin implements JsonSerializable<Builtin> {
         jsonWriter.writeMapField("nullableFloatDict", this.nullableFloatDict,
             (writer, element) -> writer.writeNumber(element));
         jsonWriter.writeJsonField("encoded", this.encoded);
+        jsonWriter.writeStringField("uuid", this.uuid);
         return jsonWriter.writeEndObject();
     }
 
@@ -401,6 +420,7 @@ public final class Builtin implements JsonSerializable<Builtin> {
             String url = null;
             Map<String, Double> nullableFloatDict = null;
             Encoded encoded = null;
+            String uuid = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -440,13 +460,15 @@ public final class Builtin implements JsonSerializable<Builtin> {
                     nullableFloatDict = reader.readMap(reader1 -> reader1.getNullable(JsonReader::getDouble));
                 } else if ("encoded".equals(fieldName)) {
                     encoded = Encoded.fromJson(reader);
+                } else if ("uuid".equals(fieldName)) {
+                    uuid = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
             return new Builtin(booleanProperty, string, bytes, intProperty, safeint, decimal, longProperty,
                 floatProperty, doubleProperty, duration, date, dateTime, stringList, bytesDict, url, nullableFloatDict,
-                encoded);
+                encoded, uuid);
         });
     }
 }

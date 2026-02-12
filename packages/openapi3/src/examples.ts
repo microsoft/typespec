@@ -373,6 +373,10 @@ function getQueryParameterValue(
       return getParameterDelimitedValue(program, originalValue, property, " ");
     case "pipeDelimited":
       return getParameterDelimitedValue(program, originalValue, property, "|");
+    case "commaDelimited":
+      return getParameterDelimitedValue(program, originalValue, property, ",");
+    case "newlineDelimited":
+      return getParameterDelimitedValue(program, originalValue, property, "\n");
   }
 }
 
@@ -518,7 +522,7 @@ function getParameterDelimitedValue(
   program: Program,
   originalValue: Value,
   property: Extract<HttpParameterProperties, { kind: "query" }>,
-  delimiter: " " | "|",
+  delimiter: " " | "|" | "," | "\n",
 ): Value | undefined {
   const { explode, name } = property.options;
   // Serialization is undefined for explode=true
@@ -686,4 +690,24 @@ function getValueByPath(value: Value, path: (string | number)[]): Value | undefi
     }
   }
   return current;
+}
+
+export function serializeExample(program: Program, value: Value, type: Type): unknown | undefined {
+  return serializeValueAsJson(program, value, type, undefined, {
+    serializeScalarValue: (value, type, encodeAs, originalFn) => {
+      const scalar = value.scalar;
+      if (scalar.name === "utcDateTime" && value.value.name === "now") {
+        return new Date().toUTCString();
+      } else if (scalar.name === "offsetDateTime" && value.value.name === "now") {
+        return new Date().toUTCString();
+      } else if (scalar.name === "plainDate" && value.value.name === "now") {
+        const now = new Date();
+        return now.toISOString().split("T")[0];
+      } else if (scalar.name === "plainTime" && value.value.name === "now") {
+        const now = new Date();
+        return now.toISOString().split("T")[1].replace("Z", "");
+      }
+      return originalFn(value, type, encodeAs);
+    },
+  });
 }

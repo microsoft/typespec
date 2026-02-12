@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
-from typing import Dict, Any, Union, Tuple
+from typing import Any, Union
 from jinja2 import Environment
 
 from ..models.operation import OperationBase
@@ -20,7 +20,7 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
-from .._utils import get_parent_namespace
+from .utils import create_fake_value
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class SampleSerializer(BaseSerializer):
         env: Environment,
         operation_group: OperationGroup,
         operation: OperationBase[Any],
-        sample: Dict[str, Any],
+        sample: dict[str, Any],
         file_name: str,
     ) -> None:
         super().__init__(code_model, env)
@@ -41,15 +41,20 @@ class SampleSerializer(BaseSerializer):
         self.sample = sample
         self.file_name = file_name
         self.sample_params = sample.get("parameters", {})
+        self._imports: str = ""
 
-    def _imports(self) -> FileImportSerializer:
+    @property
+    def imports(self) -> str:
+        return self._imports
+
+    @imports.setter
+    def imports(self, value: str) -> None:
+        self._imports = value
+
+    def get_file_import(self) -> FileImport:
         imports = FileImport(self.code_model)
         client = self.operation_group.client
-        namespace = (
-            get_parent_namespace(client.client_namespace)
-            if self.code_model.options["multiapi"]
-            else client.client_namespace
-        )
+        namespace = client.client_namespace
         imports.add_submodule_import(namespace, client.name, ImportType.LOCAL)
         credential_type = getattr(client.credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):
@@ -64,16 +69,21 @@ class SampleSerializer(BaseSerializer):
         for param in self.operation.parameters.positional + self.operation.parameters.keyword_only:
             if param.client_default_value is None and not param.optional and param.wire_name in self.sample_params:
                 imports.merge(param.type.imports_for_sample())
-        return FileImportSerializer(imports, True)
 
-    def _client_params(self) -> Dict[str, Any]:
+        return imports
+
+    @staticmethod
+    def get_imports_from_file_import(file_import: FileImport) -> str:
+        return str(FileImportSerializer(file_import, True))
+
+    def _client_params(self) -> dict[str, Any]:
         # client params
-        special_param = {}
+        special_param: dict[str, str] = {}
         credential_type = getattr(self.operation_group.client.credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):
-            special_param.update({"credential": "DefaultAzureCredential()"})
+            special_param |= {"credential": "DefaultAzureCredential()"}
         elif isinstance(credential_type, KeyCredentialType):
-            special_param.update({"credential": 'AzureKeyCredential(key=os.getenv("AZURE_KEY"))'})
+            special_param |= {"credential": 'AzureKeyCredential(key=os.getenv("AZURE_KEY"))'}
 
         params = [
             p
@@ -101,20 +111,15 @@ class SampleSerializer(BaseSerializer):
         return param.type.serialize_sample_value(param_value)
 
     # prepare operation parameters
-    def _operation_params(self) -> Dict[str, Any]:
-        params = [
-            p
-            for p in (self.operation.parameters.positional + self.operation.parameters.keyword_only)
-            if not p.client_default_value
-        ]
-        failure_info = "fail to find required param named {}"
+    def _operation_params(self) -> dict[str, Any]:
         operation_params = {}
-        for param in params:
-            if not param.optional:
+        for param in self.operation.parameters.positional + self.operation.parameters.keyword_only:
+            if not param.optional and not param.client_default_value:
                 param_value = self.sample_params.get(param.wire_name)
                 if not param_value:
-                    raise Exception(failure_info.format(param.client_name))  # pylint: disable=broad-exception-raised
-                operation_params[param.client_name] = self.handle_param(param, param_value)
+                    operation_params[param.client_name] = create_fake_value(param.type)
+                else:
+                    operation_params[param.client_name] = self.handle_param(param, param_value)
         return operation_params
 
     def _operation_group_name(self) -> str:
@@ -122,7 +127,7 @@ class SampleSerializer(BaseSerializer):
             return ""
         return f".{self.operation_group.property_name}"
 
-    def _operation_result(self) -> Tuple[str, str]:
+    def _operation_result(self) -> tuple[str, str]:
         is_response_none = "None" in self.operation.response_type_annotation(async_mode=False)
         lro = ".result()"
         if is_response_none:
@@ -159,7 +164,7 @@ class SampleSerializer(BaseSerializer):
             operation_params=self._operation_params(),
             operation_group_name=self._operation_group_name(),
             operation_name=self._operation_name(),
-            imports=self._imports(),
+            imports=self.imports,
             client_params=self._client_params(),
             origin_file=self._origin_file(),
             return_var=return_var,

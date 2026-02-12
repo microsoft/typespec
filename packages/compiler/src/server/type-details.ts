@@ -22,7 +22,7 @@ interface GetSymbolDetailsOptions {
  * @param program The program
  * @internal
  */
-export function getSymbolDetails(
+export async function getSymbolDetails(
   program: Program,
   symbol: Sym,
   options: GetSymbolDetailsOptions = {
@@ -30,10 +30,10 @@ export function getSymbolDetails(
     includeParameterTags: true,
     includeExpandedDefinition: false,
   },
-): string {
+): Promise<string> {
   const lines = [];
   if (options.includeSignature) {
-    lines.push(getSymbolSignature(program, symbol));
+    lines.push(await getSymbolSignature(program, symbol));
   }
   const doc = getSymbolDocumentation(program, symbol);
   if (doc) {
@@ -58,7 +58,7 @@ export function getSymbolDetails(
   if (options.includeExpandedDefinition) {
     lines.push(`*Full Definition:*`);
     lines.push(
-      getSymbolSignature(program, symbol, {
+      await getSymbolSignature(program, symbol, {
         includeBody: true,
       }),
     );

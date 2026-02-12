@@ -4,7 +4,10 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
-from typing import Any, List
+from typing import Any
+import re
+import tomli as tomllib
+from packaging.version import parse as parse_version
 from .import_serializer import FileImportSerializer, TypingSection
 from ..models.imports import MsrestImportType, FileImport
 from ..models import (
@@ -20,7 +23,7 @@ VERSION_MAP = {
     "msrest": "0.7.1",
     "isodate": "0.6.1",
     "azure-mgmt-core": "1.6.0",
-    "azure-core": "1.35.0",
+    "azure-core": "1.37.0",
     "typing-extensions": "4.6.0",
     "corehttp": "1.0.0b6",
 }
@@ -39,11 +42,95 @@ class GeneralSerializer(BaseSerializer):
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
         }
-        params.update({"options": self.code_model.options})
+        params |= {"options": self.code_model.options}
         return template.render(code_model=self.code_model, **params)
 
-    def serialize_package_file(self, template_name: str, **kwargs: Any) -> str:
+    def _extract_min_dependency(self, s):
+        # Extract the minimum version from a dependency string.
+        #
+        # Handles formats like:
+        # - >=1.2.3
+        # - >=0.1.0b1 (beta versions)
+        # - >=1.2.3rc2 (release candidates)
+        #
+        # Returns the parsed version if found, otherwise version "0".
+        m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
+        return parse_version(m.group(1)) if m else parse_version("0")
+
+    def _update_version_map(self, version_map: dict[str, str], dep_name: str, dep: str) -> None:
+        # For tracked dependencies, check if the version is higher than our default
+        default_version = parse_version(version_map[dep_name])
+        dep_version = self._extract_min_dependency(dep)
+        # If the version is higher than the default, update VERSION_MAP
+        # with higher min dependency version
+        if dep_version > default_version:
+            version_map[dep_name] = str(dep_version)
+
+    def external_lib_version_map(self, file_content: str, additional_version_map: dict[str, str]) -> dict:
+        # Load the pyproject.toml file if it exists and extract fields to keep.
+        result: dict = {"KEEP_FIELDS": {}}
+        try:
+            loaded_pyproject_toml = tomllib.loads(file_content)
+        except Exception:  # pylint: disable=broad-except
+            # If parsing the pyproject.toml fails, we assume the it does not exist or is incorrectly formatted.
+            return result
+
+        # Keep "azure-sdk-*" and "packaging" configuration
+        if "tool" in loaded_pyproject_toml:
+            for key in loaded_pyproject_toml["tool"]:
+                if key.startswith("azure-sdk"):
+                    result["KEEP_FIELDS"][f"tool.{key}"] = loaded_pyproject_toml["tool"][key]
+        if "packaging" in loaded_pyproject_toml:
+            result["KEEP_FIELDS"]["packaging"] = loaded_pyproject_toml["packaging"]
+
+        # Process dependencies
+        if "project" in loaded_pyproject_toml:
+            # Handle main dependencies
+            if "dependencies" in loaded_pyproject_toml["project"]:
+                kept_deps = []
+                for dep in loaded_pyproject_toml["project"]["dependencies"]:
+                    dep_name = re.split(r"[<>=\[]", dep)[0].strip()
+
+                    # Check if dependency is one we track in version map
+                    if dep_name in VERSION_MAP:
+                        self._update_version_map(VERSION_MAP, dep_name, dep)
+                    elif dep_name in additional_version_map:
+                        self._update_version_map(additional_version_map, dep_name, dep)
+                    else:
+                        # Keep non-default dependencies
+                        kept_deps.append(dep)
+
+                if kept_deps:
+                    result["KEEP_FIELDS"]["project.dependencies"] = kept_deps
+
+            # Keep optional dependencies
+            if "optional-dependencies" in loaded_pyproject_toml["project"]:
+                result["KEEP_FIELDS"]["project.optional-dependencies"] = loaded_pyproject_toml["project"][
+                    "optional-dependencies"
+                ]
+
+        return result
+
+    def serialize_package_file(self, template_name: str, file_content: str, **kwargs: Any) -> str:
         template = self.env.get_template(template_name)
+
+        additional_version_map = {}
+        if self.code_model.has_external_type:
+            for item in self.code_model.external_types:
+                if item.package_name:
+                    if item.min_version:
+                        additional_version_map[item.package_name] = item.min_version
+                    else:
+                        # Use "0" as a placeholder when min_version is not specified for external types.
+                        # This allows the dependency to be included without a specific version constraint.
+                        additional_version_map[item.package_name] = "0"
+
+        # Add fields to keep from an existing pyproject.toml
+        if template_name == "pyproject.toml.jinja2":
+            params = self.external_lib_version_map(file_content, additional_version_map)
+        else:
+            params = {}
+
         package_parts = (
             self.code_model.namespace.split(".")[:-1]
             if self.code_model.is_tsp
@@ -57,7 +144,8 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
-        params = {
+
+        params |= {
             "code_model": self.code_model,
             "dev_status": dev_status,
             "token_credential": token_credential,
@@ -67,16 +155,17 @@ class GeneralSerializer(BaseSerializer):
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
+            "ADDITIONAL_DEPENDENCIES": [f"{item[0]}>={item[1]}" for item in additional_version_map.items()],
         }
-        params.update({"options": self.code_model.options})
-        params.update(kwargs)
+        params |= {"options": self.code_model.options}
+        params |= kwargs
         return template.render(file_import=FileImport(self.code_model), **params)
 
     def serialize_pkgutil_init_file(self) -> str:
         template = self.env.get_template("pkgutil_init.py.jinja2")
         return template.render()
 
-    def serialize_init_file(self, clients: List[Client]) -> str:
+    def serialize_init_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("init.py.jinja2")
         return template.render(
             code_model=self.code_model,
@@ -85,7 +174,7 @@ class GeneralSerializer(BaseSerializer):
             serialize_namespace=self.serialize_namespace,
         )
 
-    def serialize_service_client_file(self, clients: List[Client]) -> str:
+    def serialize_service_client_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("client_container.py.jinja2")
 
         imports = FileImport(self.code_model)
@@ -135,13 +224,10 @@ class GeneralSerializer(BaseSerializer):
             )
         if self.code_model.need_utils_form_data(self.async_mode, self.client_namespace):
             file_import.add_submodule_import("typing", "IO", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "Tuple", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Mapping", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
-            file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
             file_import.add_submodule_import(
                 ".._utils.model_base",
                 "SdkJSONEncoder",
@@ -164,7 +250,7 @@ class GeneralSerializer(BaseSerializer):
             client_namespace=self.client_namespace,
         )
 
-    def serialize_config_file(self, clients: List[Client]) -> str:
+    def serialize_config_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("config_container.py.jinja2")
         imports = FileImport(self.code_model)
         for client in self.code_model.clients:
@@ -207,40 +293,35 @@ class GeneralSerializer(BaseSerializer):
             f"{model.client_namespace}.models.{model.name}": model.cross_language_definition_id
             for model in self.code_model.public_model_types
         }
-        cross_langauge_def_dict.update(
-            {
-                f"{self.code_model.namespace}.models.{enum.name}": enum.cross_language_definition_id
-                for enum in self.code_model.enums
-                if not enum.internal
-            }
-        )
+        cross_langauge_def_dict |= {
+            f"{self.code_model.namespace}.models.{enum.name}": enum.cross_language_definition_id
+            for enum in self.code_model.enums
+            if not enum.internal
+        }
+
         for client in self.code_model.clients:
             for operation_group in client.operation_groups:
                 for operation in operation_group.operations:
                     if operation.name.startswith("_"):
                         continue
-                    cross_langauge_def_dict.update(
-                        {
-                            f"{self.code_model.namespace}."
-                            + (
-                                f"{client.name}."
-                                if operation_group.is_mixin
-                                else f"operations.{operation_group.class_name}."
-                            )
-                            + f"{operation.name}": operation.cross_language_definition_id
-                        }
-                    )
-                    cross_langauge_def_dict.update(
-                        {
-                            f"{self.code_model.namespace}.aio."
-                            + (
-                                f"{client.name}."
-                                if operation_group.is_mixin
-                                else f"operations.{operation_group.class_name}."
-                            )
-                            + f"{operation.name}": operation.cross_language_definition_id
-                        }
-                    )
+                    cross_langauge_def_dict |= {
+                        f"{self.code_model.namespace}."
+                        + (
+                            f"{client.name}."
+                            if operation_group.is_mixin
+                            else f"operations.{operation_group.class_name}."
+                        )
+                        + f"{operation.name}": operation.cross_language_definition_id
+                    }
+                    cross_langauge_def_dict |= {
+                        f"{self.code_model.namespace}.aio."
+                        + (
+                            f"{client.name}."
+                            if operation_group.is_mixin
+                            else f"operations.{operation_group.class_name}."
+                        )
+                        + f"{operation.name}": operation.cross_language_definition_id
+                    }
         return json.dumps(
             {
                 "CrossLanguagePackageId": self.code_model.cross_language_package_id,

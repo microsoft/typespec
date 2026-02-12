@@ -1,4 +1,4 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
+import { MockRequest, passOnCode, passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -233,3 +233,21 @@ const Payload_Xml_ModelWithEncodedNames = createServerTests(
 );
 Scenarios.Payload_Xml_ModelWithEncodedNamesValue_get = Payload_Xml_ModelWithEncodedNames.get;
 Scenarios.Payload_Xml_ModelWithEncodedNamesValue_put = Payload_Xml_ModelWithEncodedNames.put;
+
+export const xmlError = `
+<XmlErrorBody>
+  <message>Something went wrong</message>
+  <code>400</code>
+</XmlErrorBody>
+`;
+
+Scenarios.Payload_Xml_XmlErrorValue_get = passOnCode(400, {
+  uri: "/payload/xml/error",
+  method: "get",
+  request: {},
+  response: {
+    status: 400,
+    body: xml(xmlError),
+  },
+  kind: "MockApiDefinition",
+});

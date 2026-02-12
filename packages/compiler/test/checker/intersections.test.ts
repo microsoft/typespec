@@ -1,5 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
+import { SyntaxKind } from "../../src/core/types.js";
 import { Model, ModelProperty } from "../../src/index.js";
 import {
   BasicTestRunner,
@@ -7,7 +8,9 @@ import {
   createTestWrapper,
   expectDiagnostics,
   extractSquiggles,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: intersections", () => {
   let runner: BasicTestRunner;
@@ -32,24 +35,21 @@ describe("compiler: intersections", () => {
   });
 
   it("keeps reference to source model in sourceModels", async () => {
-    const { A, B, prop } = (await runner.compile(`
-      @test model A { one: string }
-      @test model B { two: string }
-      model Foo {
-        @test prop: A & B;
-      }
-      `)) as {
-      A: Model;
-      B: Model;
-      prop: ModelProperty;
-    };
-    const intersection = prop.type;
+    const { A, B, intersection, pos } = await Tester.compile(t.code`
+      model ${t.model("A")} { one: string }
+      model ${t.model("B")} { two: string }
+      alias ${t.model("intersection")} = /*ASource*/A & /*BSource*/B;
+      `);
     strictEqual(intersection.kind, "Model");
     expect(intersection.sourceModels).toHaveLength(2);
     strictEqual(intersection.sourceModels[0].model, A);
     strictEqual(intersection.sourceModels[0].usage, "intersection");
+    strictEqual(intersection.sourceModels[0].node?.kind, SyntaxKind.TypeReference);
+    strictEqual(intersection.sourceModels[0].node.pos, pos.ASource.pos);
     strictEqual(intersection.sourceModels[1].model, B);
     strictEqual(intersection.sourceModels[1].usage, "intersection");
+    strictEqual(intersection.sourceModels[1].node?.kind, SyntaxKind.TypeReference);
+    strictEqual(intersection.sourceModels[1].node.pos, pos.BSource.pos);
   });
 
   it("intersection type belong to namespace it is declared in", async () => {
@@ -105,5 +105,39 @@ describe("compiler: intersections", () => {
       pos,
       end,
     });
+  });
+});
+
+// https://github.com/microsoft/typespec/issues/2826
+describe("ensure the target model is completely resolved before intersecting", () => {
+  it("declared before", async () => {
+    const { A } = await Tester.compile(t.code`
+      model ${t.model("A")} { ...Alias }
+
+      model B {
+        b: A;
+        prop: string;
+      }
+
+      alias Alias = B & {};
+
+    `);
+    expect(A.properties.has("b")).toBe(true);
+    expect(A.properties.has("prop")).toBe(true);
+  });
+
+  it("declared after", async () => {
+    const { A } = await Tester.compile(t.code`
+      model B {
+        b: A;
+        prop: string;
+      }
+
+      alias Alias = B & {};
+
+      model ${t.model("A")} { ...Alias }
+    `);
+    expect(A.properties.has("b")).toBe(true);
+    expect(A.properties.has("prop")).toBe(true);
   });
 });

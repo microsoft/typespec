@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Dict, List, Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from .utils import OrderedSet
 
@@ -26,11 +26,11 @@ class OperationGroup(BaseModel):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
-        operations: List["OperationType"],
-        api_versions: List[str],
+        operations: list["OperationType"],
+        api_versions: list[str],
     ) -> None:
         super().__init__(yaml_data, code_model)
         self.client = client
@@ -38,7 +38,7 @@ class OperationGroup(BaseModel):
         self.property_name: str = yaml_data["propertyName"]
         self.operations = operations
         self.api_versions = api_versions
-        self.operation_groups: List[OperationGroup] = []
+        self.operation_groups: list[OperationGroup] = []
         if self.code_model.options["show-operations"]:
             self.operation_groups = [
                 OperationGroup.from_yaml(op_group, code_model, client)
@@ -53,7 +53,7 @@ class OperationGroup(BaseModel):
     @property
     def class_name(self) -> str:
         """The class name of the operation group."""
-        if self.is_mixin and not self.code_model.options["multiapi"]:
+        if self.is_mixin:
             return "_" + self.yaml_data["className"]
         return self.yaml_data["className"]
 
@@ -73,21 +73,10 @@ class OperationGroup(BaseModel):
         pipeline_client = (
             f"{'Async' if async_mode else ''}PipelineClient[HttpRequest, {'Async' if async_mode else ''}HttpResponse]"
         )
-        base_classes: List[str] = []
+        base_classes: list[str] = []
         if self.is_mixin:
             base_classes.append(f"ClientMixinABC[{pipeline_client}, {self.client.name}Configuration]")
         return ", ".join(base_classes)
-
-    def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
-        file_import = FileImport(self.code_model)
-        relative_path = ".." if async_mode else "."
-        for operation in self.operations:
-            file_import.merge(operation.imports_for_multiapi(async_mode, **kwargs))
-        if (self.code_model.model_types or self.code_model.enums) and self.code_model.options[
-            "models-mode"
-        ] == "msrest":
-            file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
-        return file_import
 
     def pylint_disable(self) -> str:
         retval: str = ""
@@ -104,7 +93,9 @@ class OperationGroup(BaseModel):
     @property
     def need_validation(self) -> bool:
         """Whether any of its operations need validation"""
-        return any(o for o in self.operations if o.need_validation)
+        return any(o for o in self.operations if o.need_validation) or any(
+            og for og in self.operation_groups if og.need_validation
+        )
 
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
@@ -141,7 +132,7 @@ class OperationGroup(BaseModel):
                         og.class_name,
                         ImportType.LOCAL,
                     )
-        # for multiapi
+        # shared code for imports
         if (
             (self.code_model.public_model_types)
             and self.code_model.options["models-mode"] == "msrest"
@@ -204,9 +195,9 @@ class OperationGroup(BaseModel):
             )
         if all(o.abstract for o in self.operations):
             return file_import
-        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.REGULAR)
         file_import.define_mypy_type("T", "TypeVar('T')")
-        type_value = "Optional[Callable[[PipelineResponse[HttpRequest, {}HttpResponse], T, Dict[str, Any]], Any]]"
+        type_value = "Optional[Callable[[PipelineResponse[HttpRequest, {}HttpResponse], T, dict[str, Any]], Any]]"
         file_import.define_mypy_type("ClsType", type_value.format(""), type_value.format("Async"))
         return file_import
 
@@ -233,7 +224,7 @@ class OperationGroup(BaseModel):
             raise KeyError(f"No operation with id {operation_id} found.") from exc
 
     @property
-    def lro_operations(self) -> List["OperationType"]:
+    def lro_operations(self) -> list["OperationType"]:
         return [operation for operation in self.operations if operation.operation_type in ("lro", "lropaging")] + [
             operation for operation_group in self.operation_groups for operation in operation_group.lro_operations
         ]
@@ -250,7 +241,7 @@ class OperationGroup(BaseModel):
     @classmethod
     def from_yaml(
         cls,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
     ) -> "OperationGroup":

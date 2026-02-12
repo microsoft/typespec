@@ -3,14 +3,13 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List
 from jinja2 import Environment
 
 from ..models import CodeModel, OperationGroup
 
 
-def get_pylint_disable(code_model: CodeModel, og: OperationGroup) -> str:
-    if og.is_mixin and not code_model.options["multiapi"]:
+def get_pylint_disable(og: OperationGroup) -> str:
+    if og.is_mixin:
         return " # pylint: disable=unused-import"
     return ""
 
@@ -19,7 +18,7 @@ class OperationsInitSerializer:
     def __init__(
         self,
         code_model: CodeModel,
-        operation_groups: List[OperationGroup],
+        operation_groups: list[OperationGroup],
         env: Environment,
         async_mode: bool,
     ) -> None:
@@ -28,12 +27,12 @@ class OperationsInitSerializer:
         self.env = env
         self.async_mode = async_mode
 
-    def operation_group_imports(self) -> List[str]:
+    def operation_group_imports(self) -> list[str]:
         def _get_filename(operation_group: OperationGroup) -> str:
             return "_operations" if self.code_model.options["combine-operation-files"] else operation_group.filename
 
         return [
-            f"from .{_get_filename(og)} import {og.class_name} # type: ignore{get_pylint_disable(self.code_model, og)}"
+            f"from .{_get_filename(og)} import {og.class_name} # type: ignore{get_pylint_disable(og)}"
             for og in self.operation_groups
         ]
 

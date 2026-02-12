@@ -1622,7 +1622,7 @@ export function skipTriviaBackward(
     // it's possible if the pos is at the end of the file, just treat it as trivia
     position--;
   } else if (position > input.length) {
-    compilerAssert(false, "position out of range");
+    compilerAssert(false, `position out of range: ${position}, text length: ${input.length}`);
   }
 
   while (position > endPosition) {

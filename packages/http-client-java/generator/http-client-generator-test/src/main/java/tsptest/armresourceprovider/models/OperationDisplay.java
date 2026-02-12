@@ -12,7 +12,7 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * Localized display information for and operation.
+ * Localized display information for an operation.
  */
 @Immutable
 public final class OperationDisplay implements JsonSerializable<OperationDisplay> {
@@ -83,14 +83,6 @@ public final class OperationDisplay implements JsonSerializable<OperationDisplay
      */
     public String description() {
         return this.description;
-    }
-
-    /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
     }
 
     /**

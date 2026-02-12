@@ -35,13 +35,10 @@ class {{ operation_group.class_name }}: {{ operation_group.pylint_disable() }}
         self._config: {{ operation_group.client.name }}Configuration = input_args.pop(0) if input_args else kwargs.pop("config")
         self._serialize: Serializer = input_args.pop(0) if input_args else kwargs.pop("serializer")
         self._deserialize: Deserializer = input_args.pop(0) if input_args else kwargs.pop("deserializer")
-        {% if code_model.options["multiapi"] %}
-        self._api_version = input_args.pop(0) if input_args else kwargs.pop("api_version")
-        {% endif %}
 
         {% for og in operation_group.operation_groups %}
         self.{{ og.property_name }} = {{ og.class_name }}(
-            self._client, self._config, self._serialize, self._deserialize{{ ", self._api_version" if code_model.options["multiapi"] else "" }}
+            self._client, self._config, self._serialize, self._deserialize
         )
         {% endfor %}
 
@@ -50,13 +47,6 @@ class {{ operation_group.class_name }}: {{ operation_group.pylint_disable() }}
 
     def __init__(self) -> None:
 {{ check_abstract_methods() }}
-{% endif %}
-{% if operation_group.is_mixin and code_model.options["multiapi"] %}
-    def _api_version(self, op_name: str) -> str:  # pylint: disable=unused-argument
-        try:
-            return self._config.api_version
-        except:  # pylint: disable=bare-except
-            return ""
 {% endif %}
 {% for operation in operation_group.operations if not operation.abstract %}
 

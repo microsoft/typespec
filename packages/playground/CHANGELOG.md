@@ -1,5 +1,79 @@
 # Change Log - @typespec/playground
 
+## 0.12.0
+
+### Features
+
+- [#9535](https://github.com/microsoft/typespec/pull/9535) Update sample dropdown to a drawer opening a sample gallery
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.11.4
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9174](https://github.com/microsoft/typespec/pull/9174) [a11y] Fix problem pane not usable via keyboard
+
+
+## 0.11.3
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.11.2
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8714](https://github.com/microsoft/typespec/pull/8714) Fix regression in recent performance optimization of language server that crashed the playground when completing
+
+
+## 0.11.1
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+
+## 0.11.0
+
+### Features
+
+- [#4383](https://github.com/microsoft/typespec/pull/4383) Add new import from remote typespec functionality
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.10.0
+
+### Features
+
+- [#8013](https://github.com/microsoft/typespec/pull/8013) Add button to bookmark types in the type graph into `window.vars`
+- [#7944](https://github.com/microsoft/typespec/pull/7944) Exposed some debugging variables in the playground console, including the Program, a bound Typekit, and the compiler host.
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7959](https://github.com/microsoft/typespec/pull/7959) Fix loading monaco web workers
+
+
 ## 0.9.0
 
 ### Features

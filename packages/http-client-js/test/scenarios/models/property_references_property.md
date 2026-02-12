@@ -48,7 +48,7 @@ export function jsonBarToTransportTransform(input_?: Bar | null): any {
 Should emit an operation serializer
 
 ```ts src/models/internal/serializers.ts
-import { Bar } from "../models.js";
+import type { Bar } from "../models.js";
 
 export function decodeBase64(value: string): Uint8Array | undefined {
   if (!value) {

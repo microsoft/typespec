@@ -2,9 +2,10 @@ import { DiagnosticTarget } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { emitOpenApiWithDiagnostics } from "./test-host.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
   it("defines models", async () => {
     const res = await oapiForModel(
       "Foo",
@@ -283,6 +284,19 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     );
 
     expect(res.schemas.Test.properties.minDate.default).toEqual("Mon, 01 Jan 2024 11:32:00 GMT");
+  });
+
+  it("throw warning for scalar constructor that don't have equivalent", async () => {
+    const [res, diagnostics] = await emitOpenApiWithDiagnostics(
+      `model Test { minDate: utcDateTime = utcDateTime.now(); }`,
+    );
+
+    expect((res as any).components?.schemas?.Test?.properties?.minDate.default).toEqual(undefined);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/default-not-supported",
+      message:
+        "Default value is not supported in OpenAPI 3.0 Cannot serialize scalar 'utcDateTime' with constructor 'now'. Supported constructors: fromISO",
+    });
   });
 
   it("object value used as a default value", async () => {
@@ -1007,6 +1021,26 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
       deepStrictEqual(res.components.schemas.Foo.properties.prop, {
         allOf: [{ $ref: "#/components/schemas/Foo" }],
         description: "Some doc",
+      });
+    });
+  });
+
+  describe("can use special words as properties", () => {
+    it.each(["set", "constructor"])("%s", async (property) => {
+      const res = await oapiForModel(
+        "Test",
+        `
+        model Test {
+          before: string;
+          ${property}: string;
+          after: string;
+        };
+        `,
+      );
+      expect(res.schemas.Test.properties).toEqual({
+        before: { type: "string" },
+        [property]: { type: "string" },
+        after: { type: "string" },
       });
     });
   });

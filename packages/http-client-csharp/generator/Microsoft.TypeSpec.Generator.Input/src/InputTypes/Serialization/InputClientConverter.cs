@@ -38,12 +38,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? @namespace = null;
             string? summary = null;
             string? doc = null;
+            bool isMultiServiceClient = false;
             IReadOnlyList<InputServiceMethod>? methods = null;
             IReadOnlyList<InputParameter>? parameters = null;
+            int initializedByValue = 0;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             string? crossLanguageDefinitionId = null;
             InputClient? parent = null;
             IReadOnlyList<InputClient>? children = null;
+            IReadOnlyList<string>? apiVersions = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -51,12 +54,15 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("namespace", ref @namespace)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
+                    || reader.TryReadBoolean("isMultiServiceClient", ref isMultiServiceClient)
                     || reader.TryReadComplexType("methods", options, ref methods)
                     || reader.TryReadComplexType("parameters", options, ref parameters)
+                    || reader.TryReadInt32("initializedBy", ref initializedByValue)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadComplexType("parent", options, ref parent)
-                    || reader.TryReadComplexType("children", options, ref children);
+                    || reader.TryReadComplexType("children", options, ref children)
+                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions);
 
                 if (!isKnownProperty)
                 {
@@ -69,11 +75,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             client.Summary = summary;
             client.Doc = doc;
+            client.IsMultiServiceClient = isMultiServiceClient;
             client.Methods = methods ?? [];
             client.Parameters = parameters ?? [];
+            client.InitializedBy = (InputClientInitializedBy)initializedByValue;
             client.Decorators = decorators ?? [];
             client.Parent = parent;
             client.Children = children ?? [];
+            client.ApiVersions = apiVersions ?? [];
 
             return client;
         }

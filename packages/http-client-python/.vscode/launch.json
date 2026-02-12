@@ -10,7 +10,7 @@
       "cwd": "${workspaceFolder}",
       "args": [
         "compile",
-        "${workspaceFolder}/node_modules/@azure-tools/azure-http-specs/specs/azure/core/page",
+        "${workspaceFolder}/node_modules/@typespec/http-specs/specs/type/array",
         "--emit=${workspaceFolder}",
         "--option=@typespec/http-client-python.debug=true"
       ],

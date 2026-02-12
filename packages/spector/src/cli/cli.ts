@@ -304,7 +304,6 @@ async function main() {
         await uploadScenarioManifest({
           scenariosPaths: args.scenariosPaths,
           storageAccountName: args.storageAccountName,
-          setNames: args.setName,
           containerName: args.containerName,
         });
       },

@@ -1,4 +1,6 @@
 export { usePlaygroundContext } from "./context/index.js";
+export { DiagnosticList } from "./diagnostic-list/diagnostic-list.js";
+export type { DiagnosticListProps } from "./diagnostic-list/diagnostic-list.js";
 export { Editor, useMonacoModel, type EditorProps } from "./editor.js";
 export {
   Footer,

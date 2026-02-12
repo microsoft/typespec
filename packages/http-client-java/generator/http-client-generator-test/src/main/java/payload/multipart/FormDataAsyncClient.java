@@ -24,7 +24,9 @@ import payload.multipart.models.BinaryArrayPartsRequest;
 import payload.multipart.models.ComplexPartsRequest;
 import payload.multipart.models.JsonPartRequest;
 import payload.multipart.models.MultiBinaryPartsRequest;
+import payload.multipart.models.MultiPartOptionalRequest;
 import payload.multipart.models.MultiPartRequest;
+import payload.multipart.models.MultiPartRequestWithWireName;
 import payload.multipart.models.PicturesFileDetails;
 import reactor.core.publisher.Mono;
 
@@ -63,6 +65,44 @@ public final class FormDataAsyncClient {
         // Operation 'basic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
         return this.serviceClient.basicWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Void>> withWireNameWithResponse(BinaryData body, RequestOptions requestOptions) {
+        // Operation 'withWireName' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
+        return this.serviceClient.withWireNameWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Void>> optionalPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+        // Operation 'optionalParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
+        return this.serviceClient.optionalPartsWithResponseAsync(body, requestOptions);
     }
 
     /**
@@ -201,6 +241,60 @@ public final class FormDataAsyncClient {
                 body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
             .end()
             .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> withWireName(MultiPartRequestWithWireName body) {
+        // Generated convenience method for withWireNameWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return withWireNameWithResponse(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getIdentifier())
+                .serializeFileField("profileImage", body.getImage().getContent(), body.getImage().getContentType(),
+                    body.getImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> optionalParts(MultiPartOptionalRequest body) {
+        // Generated convenience method for optionalPartsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return optionalPartsWithResponse(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeFileField("profileImage",
+                    body.getProfileImage() == null ? null : body.getProfileImage().getContent(),
+                    body.getProfileImage() == null ? null : body.getProfileImage().getContentType(),
+                    body.getProfileImage() == null ? null : body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

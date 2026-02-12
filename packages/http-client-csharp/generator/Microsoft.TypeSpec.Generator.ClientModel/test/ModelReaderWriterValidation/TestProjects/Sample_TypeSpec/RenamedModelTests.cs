@@ -11,13 +11,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
 {
     internal class RenamedModelTests : LocalModelJsonTests<RenamedModelCustom>
     {
-        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ProjectedModel/ProjectedModel.json"));
-        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ProjectedModel/ProjectedModelWireFormat.json"));
+        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/RenamedModel/RenamedModel.json"));
+        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/RenamedModel/RenamedModelWireFormat.json"));
         protected override RenamedModelCustom ToModel(ClientResult result) => (RenamedModelCustom)result;
         protected override BinaryContent ToBinaryContent(RenamedModelCustom model) => model;
 
         protected override void CompareModels(RenamedModelCustom model, RenamedModelCustom model2, string format)
         {
+            Assert.AreEqual(model.OtherName, model2.OtherName);
             Assert.AreEqual(model.Name, model2.Name);
 
             if (format == "J")
@@ -33,6 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
 
         protected override void VerifyModel(RenamedModelCustom model, string format)
         {
+            Assert.AreEqual("anotherName", model.OtherName);
             Assert.AreEqual("projectedModel", model.Name);
 
             var rawData = GetRawData(model);

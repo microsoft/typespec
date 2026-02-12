@@ -1,5 +1,42 @@
 # Change Log - typespec-vs
 
+## 1.9.0
+
+No changes, version bump only.
+
+## 1.8.0
+
+### Bump dependencies
+
+- [#9335](https://github.com/microsoft/typespec/pull/9335) Bump tcgc dep to `0.63.4`
+
+
+## 1.7.0
+
+No changes, version bump only.
+
+## 1.6.0
+
+No changes, version bump only.
+
+## 1.5.1
+
+### Bug Fixes
+
+- [#8745](https://github.com/microsoft/typespec/pull/8745) Upgrade VS dependencies to fix vulnerability 
+
+## 1.5.0
+
+No changes, version bump only.
+
+## 1.4.0
+
+No changes, version bump only.
+
+## 1.3.0
+
+No changes, version bump only.
+
 ## 1.2.0
 
 No changes, version bump only.

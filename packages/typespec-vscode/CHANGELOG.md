@@ -1,5 +1,73 @@
 # Change Log - typespec-vscode
 
+## 1.9.0
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 1.8.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 1.7.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 1.6.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8735](https://github.com/microsoft/typespec/pull/8735) Fix `pnpm clean && pnpm build` create diff in vscode package folder
+
+
+## 1.5.0
+
+### Features
+
+- [#7929](https://github.com/microsoft/typespec/pull/7929) Allow configuring which file names to use as entrypoints
+- [#8346](https://github.com/microsoft/typespec/pull/8346) 1. Limit the vscode tasks to be created when the extension is starting
+  2. Do not include the emitters by default when compiling in LSP. Setting 'typespec.lsp.emit' can be used to configure the emitters to include explicitly (set to ['<config:defaults>'] to include all the emitters defined in tspconfig.yaml)
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+
+## 1.4.0
+
+### Features
+
+- [#7691](https://github.com/microsoft/typespec/pull/7691) Prefill all available emitter options as comments when adding a new emitter
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 1.3.0
+
+### Features
+
+- [#7830](https://github.com/microsoft/typespec/pull/7830) Get emitter options from the `resolveCompilerOptions` function of the compiler
+- [#6802](https://github.com/microsoft/typespec/pull/6802) Add test case for TypeSpec Extension
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 1.2.0
 
 ### Features

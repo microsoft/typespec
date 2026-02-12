@@ -1,5 +1,7 @@
 ---
 title: Handling Errors
+description: Getting started with REST - 03 handling errors in your API
+llmstxt: true
 ---
 
 ## Introduction

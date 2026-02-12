@@ -3,15 +3,14 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from specs.azure.clientgenerator.core.clientinitialization import (
+from specs.azure.clientgenerator.core.clientinitialization.default import (
     HeaderParamClient,
     MultipleParamsClient,
     MixedParamsClient,
     PathParamClient,
     ParamAliasClient,
-    ParentClient,
 )
-from specs.azure.clientgenerator.core.clientinitialization.models import Input
+from specs.azure.clientgenerator.core.clientinitialization.default.models import Input
 
 
 def test_header_param_client():

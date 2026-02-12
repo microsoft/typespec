@@ -78,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
         protected override FieldProvider? VisitField(FieldProvider field)
         {
             // For ClientOptions, keep the non-public field as this currently represents the latest service version for a client.
-            return (field.Modifiers.HasFlag(FieldModifiers.Public) || field.EnclosingType.Implements.Any(i => i.Equals(typeof(ClientPipelineOptions))))
+            return (field.Modifiers.HasFlag(FieldModifiers.Public) || field.EnclosingType.BaseType?.Equals(typeof(ClientPipelineOptions)) == true)
                 ? field
                 : null;
         }

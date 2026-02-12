@@ -10,6 +10,7 @@ import {
   createTestRunner,
   expectDiagnostics,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: interfaces", () => {
   let testHost: TestHost;
@@ -250,6 +251,57 @@ describe("compiler: interfaces", () => {
     });
   });
 
+  it("report error if trying to instantiate a templated interface without providing type arguments", async () => {
+    const [{ pos }, diagnostics] = await Tester.compileAndDiagnose(`
+      interface Base<T> {
+        bar(): T;
+      }
+      op test is /*Base*/Base.bar;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "invalid-template-args",
+      message: "Template argument 'T' is required and not specified.",
+      pos: pos.Base.pos,
+    });
+  });
+
+  describe("report error if trying to reference another op in the same template", () => {
+    it("before", async () => {
+      const [{ pos }, diagnostics] = await Tester.compileAndDiagnose(`
+      interface Base<A> {
+        Custom<T>(): T;
+        Default is /*Base*/Base.Custom<A>;
+      }
+    `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-template-args",
+          message: "Template argument 'A' is required and not specified.",
+          pos: pos.Base.pos,
+        },
+      ]);
+    });
+
+    it("after", async () => {
+      const [{ pos }, diagnostics] = await Tester.compileAndDiagnose(`
+      interface Base<A> {
+        Default is /*Base*/Base.Custom<A>;
+        Custom<T>(): T;
+      }
+    `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-template-args",
+          message: "Template argument 'A' is required and not specified.",
+          pos: pos.Base.pos,
+        },
+      ]);
+    });
+  });
+
   describe("templated operations", () => {
     it("can instantiate template operation inside non-templated interface", async () => {
       const { Foo, bar } = (await runner.compile(`
@@ -391,14 +443,18 @@ describe("compiler: interfaces", () => {
     });
 
     it("instantiating an templated interface doesn't finish template operation inside", async () => {
-      const $track = vi.fn();
-      testHost.addJsFile("dec.js", { $track });
+      const _track = vi.fn();
+      testHost.addJsFile("dec.js", {
+        $track() {
+          _track();
+        },
+      });
       testHost.addTypeSpecFile(
         "main.tsp",
         `
         import "./dec.js";
          
-         interface Base<A> {
+        interface Base<A> {
           @track bar<B>(input: A): B;
         }
 
@@ -406,7 +462,7 @@ describe("compiler: interfaces", () => {
         `,
       );
       await testHost.compile("./");
-      expect($track).not.toHaveBeenCalled();
+      expect(_track).not.toHaveBeenCalled();
     });
 
     it("templated interface extending another templated interface doesn't run decorator on extended interface operations", async () => {

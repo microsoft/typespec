@@ -1,6 +1,8 @@
 ---
 id: unions
 title: Unions
+description: "Language basics - unions"
+llmstxt: true
 ---
 
 Unions define a type that must be exactly one of several possible variants. There are two types of unions:

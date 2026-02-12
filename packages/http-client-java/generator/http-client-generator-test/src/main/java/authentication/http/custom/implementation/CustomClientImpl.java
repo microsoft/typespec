@@ -6,7 +6,6 @@ package authentication.http.custom.implementation;
 
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
-import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
 import com.azure.core.annotation.ReturnType;
@@ -145,8 +144,8 @@ public final class CustomClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> invalid(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions, Context context);
+        Mono<Response<Void>> invalid(@HostParam("endpoint") String endpoint, RequestOptions requestOptions,
+            Context context);
 
         @Get("/authentication/http/custom/invalid")
         @ExpectedResponses({ 204 })
@@ -154,8 +153,8 @@ public final class CustomClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> invalidSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions, Context context);
+        Response<Void> invalidSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions,
+            Context context);
     }
 
     /**
@@ -200,8 +199,7 @@ public final class CustomClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> invalidWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.invalid(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil.withContext(context -> service.invalid(this.getEndpoint(), requestOptions, context));
     }
 
     /**
@@ -216,7 +214,6 @@ public final class CustomClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> invalidWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.invalidSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.invalidSync(this.getEndpoint(), requestOptions, Context.NONE);
     }
 }

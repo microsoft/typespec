@@ -4,7 +4,6 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { RequestLocation } from "../../src/type/request-location.js";
 import { ResponseLocation } from "../../src/type/response-location.js";
 import {
   createCSharpSdkContext,
@@ -57,11 +56,11 @@ describe("Next link operations", () => {
     const program = await typeSpecCompile(
       `
         @route("foo")
+        @list
         op link(...RequestOptions): LinkResult;
 
-        @pagedResult
         model LinkResult {
-          @items
+          @pageItems
           items: Foo[];
 
           @nextLink
@@ -111,11 +110,11 @@ describe("Next link operations", () => {
     ok(parameterizedNextLink);
     strictEqual(parameterizedNextLink.length, 3);
     strictEqual(parameterizedNextLink[0].name, "includePending");
-    strictEqual(parameterizedNextLink[0].location, RequestLocation.Query);
+    strictEqual(parameterizedNextLink[0].kind, "query");
     strictEqual(parameterizedNextLink[1].name, "includeExpired");
-    strictEqual(parameterizedNextLink[1].location, RequestLocation.Query);
+    strictEqual(parameterizedNextLink[1].kind, "query");
     strictEqual(parameterizedNextLink[2].name, "etagHeader");
-    strictEqual(parameterizedNextLink[2].location, RequestLocation.Header);
+    strictEqual(parameterizedNextLink[2].kind, "header");
   });
 
   // skipped until https://github.com/Azure/typespec-azure/issues/2341 is fixed
@@ -268,7 +267,7 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Header);
+    strictEqual(continuationToken.parameter.kind, "header");
     strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "next-token");
@@ -303,8 +302,8 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.nameInRequest, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Header);
+    strictEqual(continuationToken.parameter.serializedName, "token");
+    strictEqual(continuationToken.parameter.kind, "header");
     strictEqual(continuationToken.responseLocation, ResponseLocation.Body);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "nextToken");
@@ -339,8 +338,8 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.nameInRequest, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.parameter.serializedName, "token");
+    strictEqual(continuationToken.parameter.kind, "query");
     strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "next-token");
@@ -375,8 +374,8 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.nameInRequest, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.parameter.serializedName, "token");
+    strictEqual(continuationToken.parameter.kind, "query");
     strictEqual(continuationToken.responseLocation, ResponseLocation.Body);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "nextToken");
@@ -411,8 +410,8 @@ describe("Continuation token operations", () => {
     const continuationToken = paging.continuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.parameter.name, "token");
-    strictEqual(continuationToken.parameter.nameInRequest, "token");
-    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.parameter.serializedName, "token");
+    strictEqual(continuationToken.parameter.kind, "query");
     strictEqual(continuationToken.responseLocation, ResponseLocation.None);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "nextToken");
@@ -425,5 +424,80 @@ describe("Continuation token operations", () => {
       program.diagnostics[0].message,
       `Unsupported continuation location for operation ${root.clients[0].methods[0].operation.crossLanguageDefinitionId}.`,
     );
+  });
+});
+
+describe("PageSize parameter operations", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("pageSize parameter with query", async () => {
+    const program = await typeSpecCompile(
+      `
+        @list
+        op link(@pageSize @query maxpagesize?: int32): {
+          @pageItems
+          items: Foo[];
+          @nextLink
+          next?: url;
+        };
+        model Foo {
+          bar: string;
+          baz: int32;
+        };
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
+    ok(paging);
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+
+    // Check if pageSizeParameterSegments is populated when @pageSize is present
+    if (paging.pageSizeParameterSegments) {
+      strictEqual(paging.pageSizeParameterSegments.length, 1);
+      strictEqual(paging.pageSizeParameterSegments[0], "maxpagesize");
+    }
+  });
+
+  it("should use original name for itemPropertySegments when pageItems is renamed via clientName", async () => {
+    const program = await typeSpecCompile(
+      `
+        @list
+        op link(): {
+          @pageItems
+          @clientName("RenamedItems")
+          items: Foo[];
+
+          @nextLink
+          next?: url;
+        };
+        model Foo {
+          bar: string;
+          baz: int32;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
+    ok(paging);
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
   });
 });

@@ -1,51 +1,31 @@
-import { SourceLocation } from "@typespec/compiler";
-import { ServerDiagnostic } from "@typespec/compiler/internals";
-import { readFile } from "fs/promises";
-import path from "path";
+import { ServerLog, SourceLocation } from "@typespec/compiler";
+import {
+  NodeSystemHost,
+  resolveEntrypointFile,
+  ServerDiagnostic,
+} from "@typespec/compiler/internals";
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
-import { getDirectoryPath, joinPaths, normalizeSlashes } from "./path-utils.js";
-import { Result, ResultCode } from "./types.js";
+import { joinPaths, normalizeSlashes } from "./path-utils.js";
+import { Result, ResultCode, SettingName } from "./types.js";
 import { ConfirmOptions, QuickPickOptionsWithExternalLink, tryExecuteWithUi } from "./ui-utils.js";
-import { isFile, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
+import { isFile, loadModule, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
-  const isFilePath = await isFile(tspPath);
-  let baseDir = isFilePath ? getDirectoryPath(tspPath) : tspPath;
-
-  while (true) {
-    const pkgPath = path.resolve(baseDir, "package.json");
-    if (await isFile(pkgPath)) {
-      /* get the tspMain from package.json. */
-      try {
-        const data = await readFile(pkgPath, { encoding: "utf-8" });
-        const packageJson = JSON.parse(data);
-        const tspMain = packageJson.tspMain;
-        if (typeof tspMain === "string") {
-          const tspMainFile = path.resolve(baseDir, tspMain);
-          if (await isFile(tspMainFile)) {
-            logger.debug(`tspMain file ${tspMainFile} selected as entrypoint file.`);
-            return tspMainFile;
-          }
-        }
-      } catch (error) {
-        logger.error(`An error occurred while reading the package.json file ${pkgPath}`, [error]);
-      }
-    }
-
-    const mainTspFile = path.resolve(baseDir, StartFileName);
-    if (await isFile(mainTspFile)) {
-      return mainTspFile;
-    }
-    const parentDir = getDirectoryPath(baseDir);
-    if (parentDir === baseDir) {
-      break;
-    }
-    baseDir = parentDir;
-  }
-
-  return undefined;
+  const configEntrypoints = vscode.workspace
+    .getConfiguration()
+    .get<string[]>(SettingName.CompileEntrypoint);
+  const logAdapter = (log: ServerLog) => {
+    logger.log(log.level, log.message, log.detail as any);
+  };
+  return await resolveEntrypointFile(
+    NodeSystemHost,
+    configEntrypoints,
+    tspPath,
+    undefined,
+    logAdapter,
+  );
 }
 
 export async function TraverseMainTspFileInWorkspace() {
@@ -197,4 +177,29 @@ export async function installCompilerWithUi(
     );
   }
   return result;
+}
+
+export async function loadEmitterOptions(
+  baseDir: string,
+  packageName: string,
+): Promise<Record<string, any> | undefined> {
+  try {
+    const moduleResult = await loadModule(baseDir, packageName);
+    if (!moduleResult) {
+      logger.debug(`Failed to resolve module ${packageName}`);
+      return undefined;
+    }
+
+    const mainFilePath = moduleResult.type === "file" ? moduleResult.path : moduleResult.mainFile;
+    const moduleExports = await import(vscode.Uri.file(mainFilePath).toString());
+    if (moduleExports.$lib?.emitter?.options) {
+      return moduleExports.$lib.emitter.options;
+    }
+
+    logger.debug(`No emitter options schema found in ${packageName}`);
+    return undefined;
+  } catch (error) {
+    logger.debug(`Error extracting schema from ${packageName}:`, [error]);
+    return undefined;
+  }
 }
