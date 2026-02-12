@@ -27,7 +27,7 @@ if (-not $LaunchOnly) {
 
        Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
 
-       Invoke "npm install --no-package-lock" $sampleDir
+       Invoke "npm install --no-package-lock --force" $sampleDir
 
        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 
