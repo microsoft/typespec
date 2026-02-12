@@ -216,7 +216,7 @@ it("generates standard scalar properties", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "public byte[] BytesProp { get; set; }",
+      "public byte[]? BytesProp { get; set; }",
       "public SByte? SignedByteProp { get; set; }",
       "public Byte? ByteProp { get; set; }",
       "public Int16? Int16Prop { get; set; }",
@@ -234,10 +234,10 @@ it("generates standard scalar properties", async () => {
       "public TimeSpan? DurationProp { get; set; }",
       "public DateTimeOffset? UtcDateTimeProp { get; set; }",
       "public DateTimeOffset? OffsetDateTimeProp { get; set; }",
-      "public string StringProp { get; set; }",
+      "public string? StringProp { get; set; }",
       "[JsonConverter( typeof(UnixEpochDateTimeOffsetConverter))]",
       "public DateTimeOffset? TimestampProp { get; set; }",
-      "public string UrlProp { get; set; }",
+      "public string? UrlProp { get; set; }",
       "public long? SafeIntProp { get; set; }",
       "public decimal? DecimalProp { get; set; }",
       "public decimal? Decimal128Prop { get; set; }",
@@ -295,7 +295,7 @@ it("generates string constraints", async () => {
     [
       "public partial class Foo",
       "[StringConstraint( MinLength = 3, MaxLength = 72)]",
-      "public string StringProp { get; set; }",
+      "public string? StringProp { get; set; }",
     ],
   );
 });
@@ -315,7 +315,7 @@ it("handles scalar extensions", async () => {
       }
       `,
     "Foo.cs",
-    ["public partial class Foo", `public string AdminPassword { get; set; }`],
+    ["public partial class Foo", `public required string AdminPassword { get; set; }`],
   );
 });
 
@@ -331,7 +331,7 @@ it("handles scalar templates", async () => {
       }
       `,
     "Foo.cs",
-    ["public partial class Foo", `public string Id { get; set; }`],
+    ["public partial class Foo", `public required string Id { get; set; }`],
   );
 });
 
@@ -353,7 +353,7 @@ it("handles encoded property names", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      `public string AdminPassword { get; set; }`,
+      `public required string AdminPassword { get; set; }`,
       `[JsonPropertyName( "pass")]`,
     ],
   );
@@ -401,7 +401,7 @@ it("generates literal properties", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      `public string StringLiteralProp { get; } = "This is a string literal";`,
+      `public string? StringLiteralProp { get; } = "This is a string literal";`,
       "public bool? BoolLiteralProp { get; } = true;",
       "public int? NumericLiteralProp { get; } = 17",
     ],
@@ -425,7 +425,7 @@ it("generates default values in properties", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      `public string StringLiteralProp { get; set; } = "This is a string literal";`,
+      `public string? StringLiteralProp { get; set; } = "This is a string literal";`,
       "public bool? BoolLiteralProp { get; set; } = true;",
       "public int? NumericLiteralProp { get; set; } = 17;",
     ],
@@ -501,23 +501,23 @@ it("generates standard scalar array properties", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "public SByte[] ArrSbyteProp { get; set; }",
-      "public Byte[] ArrByteProp { get; set; }",
-      "public Int16[] Arrint16Prop { get; set; }",
-      "public int[] Arrint32Prop { get; set; }",
-      "public long[] Arrint64Prop { get; set; }",
-      "public UInt16[] ArrayUint16Prop { get; set; }",
-      "public UInt32[] ArrayUint32Prop { get; set; }",
-      "public UInt64[] ArrayUint64Prop { get; set; }",
-      "public float[] ArrayF32Prop { get; set; }",
-      "public double[] ArrayF64Prop { get; set; }",
-      "public bool[] ArrayBoolProp { get; set; }",
-      "public DateTime[] ArrdateProp { get; set; }",
-      "public DateTime[] ArrtimeProp { get; set; }",
-      "public TimeSpan[] ArrdurationProp { get; set; }",
-      "public DateTimeOffset[] ArrutcDateTimeProp { get; set; }",
-      "public DateTimeOffset[] ArroffsetDateTimeProp { get; set; }",
-      "public string[] ArrStringProp { get; set; }",
+      "public required SByte[] ArrSbyteProp { get; set; }",
+      "public required Byte[] ArrByteProp { get; set; }",
+      "public required Int16[] Arrint16Prop { get; set; }",
+      "public required int[] Arrint32Prop { get; set; }",
+      "public required long[] Arrint64Prop { get; set; }",
+      "public required UInt16[] ArrayUint16Prop { get; set; }",
+      "public required UInt32[] ArrayUint32Prop { get; set; }",
+      "public required UInt64[] ArrayUint64Prop { get; set; }",
+      "public required float[] ArrayF32Prop { get; set; }",
+      "public required double[] ArrayF64Prop { get; set; }",
+      "public required bool[] ArrayBoolProp { get; set; }",
+      "public required DateTime[] ArrdateProp { get; set; }",
+      "public required DateTime[] ArrtimeProp { get; set; }",
+      "public required TimeSpan[] ArrdurationProp { get; set; }",
+      "public required DateTimeOffset[] ArrutcDateTimeProp { get; set; }",
+      "public required DateTimeOffset[] ArroffsetDateTimeProp { get; set; }",
+      "public required string[] ArrStringProp { get; set; }",
     ],
   );
 });
@@ -541,9 +541,9 @@ it("generates standard scalar array constraints", async () => {
     [
       "public partial class Foo",
       "[ArrayConstraint<SByte>( MinItems = 1, MaxItems = 10)]",
-      "public SByte[] ArrSbyteProp { get; set; }",
+      "public required SByte[] ArrSbyteProp { get; set; }",
       "[ArrayConstraint<Byte>( MaxItems = 10)]",
-      "public Byte[] ArrByteProp { get; set; }",
+      "public required Byte[] ArrByteProp { get; set; }",
     ],
   );
 });
@@ -571,8 +571,8 @@ it("generates standard scalar array for uniqueItems properties", async () => {
         "Foo.cs",
         [
           "public partial class Foo",
-          "public ISet<string> ArrUniqueNames { get; set; }",
-          "public ISet<string> ArrUniqueColors { get; set; }",
+          "public required ISet<string> ArrUniqueNames { get; set; }",
+          "public required ISet<string> ArrUniqueColors { get; set; }",
         ],
       ],
       [
@@ -619,8 +619,8 @@ it("generates standard array properties", async () => {
         "Foo.cs",
         [
           "public partial class Foo",
-          "public string[] ArrNames { get; set; }",
-          "public string[] ArrColors { get; set; }",
+          "public required string[] ArrNames { get; set; }",
+          "public required string[] ArrColors { get; set; }",
         ],
       ],
       [
@@ -652,8 +652,8 @@ it("generates bytes array properties", async () => {
         "Foo.cs",
         [
           "public partial class Foo",
-          "public Byte[] ArrBytes { get; set; }",
-          "public SByte[] ArrSBytes { get; set; }",
+          "public required Byte[] ArrBytes { get; set; }",
+          "public required SByte[] ArrSBytes { get; set; }",
         ],
       ],
       ["IContosoOperations.cs", ["Task<SByte[]> UpdateAsync( Byte[] arrBytes, SByte[] arrSBytes)"]],
@@ -692,7 +692,7 @@ it("handles enum, complex type properties, and circular references", async () =>
         [
           "public partial class Foo",
           `public SimpleBar? BarProp { get; set; }`,
-          `public Baz BazProp { get; set; }`,
+          `public Baz? BazProp { get; set; }`,
         ],
       ],
       [
@@ -732,8 +732,8 @@ it("handles enum, complex type properties, and circular references", async () =>
         "Baz.cs",
         [
           "public partial class Baz",
-          `public Foo FooProp { get; set; }`,
-          `public Baz NextBazProp { get; set; }`,
+          `public Foo? FooProp { get; set; }`,
+          `public Baz? NextBazProp { get; set; }`,
         ],
       ],
     ],
@@ -761,7 +761,7 @@ it("handles integer enums", async () => {
         [
           "public partial class Foo",
           `public IntegerEnum? BarProp { get; set; }`,
-          `public IntegerEnum BazProp { get; set; }`,
+          `public required IntegerEnum BazProp { get; set; }`,
         ],
       ],
     ],
@@ -793,9 +793,9 @@ it("handles non-integer numeric enums", async () => {
         "Foo.cs",
         [
           "public partial class Foo",
-          `public double BarProp { get; set; }`,
+          `public required double BarProp { get; set; }`,
           `public double? BarNullableProp { get; set; }`,
-          `public double BazProp { get; set; }`,
+          `public required double BazProp { get; set; }`,
           `public double? BazNullableProp { get; set; }`,
         ],
       ],
@@ -870,9 +870,9 @@ it("handles extensible enums and discriminators for inheritance", async () => {
         [
           "public partial class Pet",
           "[JsonConverter(typeof(JsonStringEnumConverter))]",
-          `public PetType Kind { get; set; }`,
-          `public string Name { get; set; }`,
-          `public long Age { get; set; }`,
+          `public required PetType Kind { get; set; }`,
+          `public required string Name { get; set; }`,
+          `public required long Age { get; set; }`,
         ],
       ],
       [
@@ -880,7 +880,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
         [
           "public partial class Animal",
           "[JsonConverter(typeof(JsonStringEnumConverter))]",
-          `public AnimalType Kind { get; set; }`,
+          `public required AnimalType Kind { get; set; }`,
         ],
       ],
       [
@@ -888,7 +888,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
         [
           "public partial class Dog : Pet {",
           `public new PetType Kind { get; } = PetType.Dog;`,
-          `public string Tail { get; set; }`,
+          `public required string Tail { get; set; }`,
         ],
       ],
       [
@@ -896,7 +896,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
         [
           "public partial class Cat : Pet {",
           `public new PetType Kind { get; } = PetType.Cat;`,
-          `public string Hair { get; set; }`,
+          `public required string Hair { get; set; }`,
         ],
       ],
       [
@@ -904,7 +904,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
         [
           "public partial class Bear : Animal {",
           `public new AnimalType Kind { get; } = AnimalType.Bear;`,
-          `public string Color { get; set; }`,
+          `public required string Color { get; set; }`,
         ],
       ],
       [
@@ -958,7 +958,7 @@ it("processes sub-namespaces of a service", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      `public string GeneratedInvalidName { get; set; } = "This is a string literal";`,
+      `public string? GeneratedInvalidName { get; set; } = "This is a string literal";`,
     ],
   );
 });
@@ -979,7 +979,7 @@ it("creates Valid Identifiers", async () => {
     [
       "public partial class Foo",
       `[JsonPropertyName( "**()invalid~~Name")]`,
-      `public string GeneratedInvalidName { get; set; } = "This is a string literal";`,
+      `public string? GeneratedInvalidName { get; set; } = "This is a string literal";`,
     ],
   );
 });
@@ -999,8 +999,8 @@ it("Coalesces union types", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      `public object ObjectUnionProp { get; set; }`,
-      `public string StringUnionProp { get; set; }`,
+      `public required object ObjectUnionProp { get; set; }`,
+      `public required string StringUnionProp { get; set; }`,
     ],
   );
 });
@@ -1095,10 +1095,13 @@ it("Generates good names for anonymous responses", async () => {
        op foo(): { /** a property */ foo: Foo<Toy>};
     `,
     [
-      ["FooToy.cs", ["public partial class FooToy", "public Toy Prop { get; set; }"]],
+      ["FooToy.cs", ["public partial class FooToy", "public required Toy Prop { get; set; }"]],
       [
         "ContosoOperationsFooResponse.cs",
-        ["public partial class ContosoOperationsFooResponse", "public FooToy Foo { get; set; }"],
+        [
+          "public partial class ContosoOperationsFooResponse",
+          "public required FooToy Foo { get; set; }",
+        ],
       ],
       [
         "ContosoOperationsController.cs",
@@ -1195,9 +1198,9 @@ interface Widgets {
         "WidgetMergePatchUpdate.cs",
         [
           "namespace TypeSpec.Http {",
-          "public string Id { get; set; }",
+          "public string? Id { get; set; }",
           "public int? Weight { get; set; }",
-          "public string Color { get; set; }",
+          "public string? Color { get; set; }",
         ],
       ],
     ],
@@ -1429,8 +1432,8 @@ it("generates appropriate types for records", async () => {
           "using System.Text.Json.Nodes;",
           "namespace Microsoft.Contoso",
           "public partial class BarResponse",
-          "public JsonObject RecordProp { get; set; }",
-          "public JsonObject StringMap { get; set; }",
+          "public required JsonObject RecordProp { get; set; }",
+          "public required JsonObject StringMap { get; set; }",
         ],
       ],
       [
@@ -1439,7 +1442,7 @@ it("generates appropriate types for records", async () => {
           "using System.Text.Json.Nodes;",
           "namespace Microsoft.Contoso",
           "public partial class ContosoOperationsFooRequest",
-          "public JsonObject RecordProp { get; set; }",
+          "public required JsonObject RecordProp { get; set; }",
         ],
       ],
       [
@@ -1496,7 +1499,7 @@ it("generates appropriate types for inherited instantiated models", async () => 
           "using System.Text.Json.Nodes;",
           "namespace Microsoft.Contoso",
           "public partial class ContosoOperationsFooRequest",
-          "public JsonObject RecordProp { get; set; }",
+          "public required JsonObject RecordProp { get; set; }",
         ],
       ],
       [
@@ -1562,8 +1565,8 @@ it("generates appropriate types for arrays", async () => {
         [
           "namespace TypeName.Array",
           "public partial class InnerModel",
-          "public string Property { get; set; }",
-          "public InnerModel[] Children { get; set; }",
+          "public required string Property { get; set; }",
+          "public InnerModel[]? Children { get; set; }",
         ],
       ],
       [
@@ -1667,7 +1670,10 @@ it("generates valid code for overridden parameters", async () => {
       @route("/foo") op foo(): void;
       `,
     [
-      ["FooBase.cs", ["public partial class FooBase", "public int[] IntProp { get; set; }"]],
+      [
+        "FooBase.cs",
+        ["public partial class FooBase", "public required int[] IntProp { get; set; }"],
+      ],
       [
         "Foo.cs",
         ["public partial class Foo : FooBase", "public new int[] IntProp { get; } = [8, 10]"],
@@ -1703,16 +1709,16 @@ it("generates valid code for anonymous models", async () => {
       @route("/foo") op foo(): void;
       `,
     [
-      ["Model0.cs", ["public partial class Model0", "public string Bar { get; set; }"]],
-      ["Model1.cs", ["public partial class Model1", "public string Baz { get; set; }"]],
+      ["Model0.cs", ["public partial class Model0", "public required string Bar { get; set; }"]],
+      ["Model1.cs", ["public partial class Model1", "public required string Baz { get; set; }"]],
       [
         "Foo.cs",
         [
           "public partial class Foo",
           "public int[] IntProp { get; } = [8, 10]",
-          "public Model0 ModelProp { get; set; }",
-          "public Model1 AnotherModelProp { get; set; }",
-          "public Model0 YetAnother { get; set; }",
+          "public required Model0 ModelProp { get; set; }",
+          "public required Model1 AnotherModelProp { get; set; }",
+          "public required Model0 YetAnother { get; set; }",
         ],
       ],
       ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
@@ -1748,17 +1754,17 @@ it("handles nullable types correctly", async () => {
       @route("/foo") op foo(): void;
       `,
     [
-      ["Model0.cs", ["public partial class Model0", "public string Bar { get; set; }"]],
-      ["Model1.cs", ["public partial class Model1", "public string Baz { get; set; }"]],
+      ["Model0.cs", ["public partial class Model0", "public required string Bar { get; set; }"]],
+      ["Model1.cs", ["public partial class Model1", "public required string Baz { get; set; }"]],
       [
         "Foo.cs",
         [
           "public partial class Foo",
-          "public int? IntProp { get; set; }",
-          "public string StringProp { get; set; }",
-          "public Model0 ModelProp { get; set; }",
-          "public Model1 AnotherModelProp { get; set; }",
-          "public Model0 YetAnother { get; set; }",
+          "public required int? IntProp { get; set; }",
+          "public required string? StringProp { get; set; }",
+          "public required Model0? ModelProp { get; set; }",
+          "public required Model1 AnotherModelProp { get; set; }",
+          "public required Model0? YetAnother { get; set; }",
         ],
       ],
       ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
@@ -1828,9 +1834,9 @@ it("handles multipartBody requests and shared routes", async () => {
         "FooJsonRequest.cs",
         [
           "public partial class FooJsonRequest",
-          "public string MediaType { get; set; }",
-          "public string Filename { get; set; }",
-          "public byte[] Contents { get; set; }",
+          "public required string MediaType { get; set; }",
+          "public required string Filename { get; set; }",
+          "public required byte[] Contents { get; set; }",
         ],
       ],
       [
@@ -1857,9 +1863,9 @@ it("handles multipartBody requests and shared routes", async () => {
         "BarFooJsonRequest.cs",
         [
           "public partial class BarFooJsonRequest",
-          "public string MediaType { get; set; }",
-          "public string Filename { get; set; }",
-          "public byte[] Contents { get; set; }",
+          "public required string MediaType { get; set; }",
+          "public required string Filename { get; set; }",
+          "public required byte[] Contents { get; set; }",
         ],
       ],
     ],
@@ -1930,9 +1936,9 @@ it("handles complex multipartBody requests", async () => {
         "FooJsonRequest.cs",
         [
           "public partial class FooJsonRequest",
-          "public string MediaType { get; set; }",
-          "public string Filename { get; set; }",
-          "public byte[] Contents { get; set; }",
+          "public required string MediaType { get; set; }",
+          "public required string Filename { get; set; }",
+          "public required byte[] Contents { get; set; }",
         ],
       ],
       [
@@ -2379,7 +2385,7 @@ it("generates one line `@doc` decorator comments", async () => {
       "///<summary>",
       "/// Pet name in the format of a string",
       "///</summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2405,7 +2411,7 @@ it("generates multiline jsdoc comments", async () => {
       "/// for the dog. It is suggested to keep it short and simple. Pets have a",
       "/// difficult time understanding and learning complex names.",
       "///</summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2430,7 +2436,7 @@ it("generates multiline jsdoc comments with long non-space words", async () => {
       "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
       "/// where you can find many unique names.",
       "///</summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2472,7 +2478,7 @@ it("generates correct (awkward) multiline jsdoc comments without multiline aster
       "/// identifier for the dog. It is suggested to keep it short and simple.  ",
       "///  Pets have a difficult time understanding and learning complex names.",
       "///</summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2571,7 +2577,7 @@ it("generates correct (awkward) multiline jsdoc comments with long non-space wor
       "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
       "/// where you can find many unique names.",
       "///</summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2597,7 +2603,7 @@ it("generates multiline `@doc` decorator comments", async () => {
       "/// for the dog. It is suggested to keep it short and simple. Pets have a",
       "/// difficult time understanding and learning complex names.",
       "///</summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2622,7 +2628,7 @@ it("generates multiline `@doc` decorator comments with long non-space words", as
       "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
       "/// where you can find many unique names.",
       "///</summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2642,7 +2648,7 @@ it("generates single line `@doc` decorator comments", async () => {
       "///<summary>",
       "/// Pet name in the format of a string",
       "///</summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2664,7 +2670,7 @@ it("generates jsdoc comments", async () => {
       "///<summary>",
       "/// Pet name in the format of a string",
       "///</summary>",
-      "public string Name { get; set; }",
+      "public string? Name { get; set; }",
     ],
   );
 });
@@ -2682,7 +2688,9 @@ describe("emit correct code for `@error` models", () => {
       `,
       "NotFoundError.cs",
       [
+        "using System.Diagnostics.CodeAnalysis;",
         "public partial class NotFoundError : HttpServiceException {",
+        "[SetsRequiredMembers]",
         `public NotFoundError(string code = "not-found") : base(404,`,
         "value: new{code = code}) ",
       ],
@@ -2700,6 +2708,7 @@ describe("emit correct code for `@error` models", () => {
       "NotFoundError.cs",
       [
         "public partial class NotFoundError : HttpServiceException {",
+        "[SetsRequiredMembers]",
         "public NotFoundError() : base(404)",
       ],
     );
@@ -2719,6 +2728,7 @@ describe("emit correct code for `@error` models", () => {
       "ErrorInRange.cs",
       [
         "public partial class ErrorInRange : HttpServiceException {",
+        "[SetsRequiredMembers]",
         "public ErrorInRange() : base(500)",
       ],
     );
@@ -2741,6 +2751,7 @@ describe("emit correct code for `@error` models", () => {
       "Error.cs",
       [
         "public partial class Error : HttpServiceException {",
+        "[SetsRequiredMembers]",
         "public Error(int statusCode) : base(statusCode)",
       ],
     );
@@ -2758,6 +2769,7 @@ describe("emit correct code for `@error` models", () => {
       "Error.cs",
       [
         "public partial class Error : HttpServiceException {",
+        "[SetsRequiredMembers]",
         "public Error(int statusCode) : base(statusCode)",
       ],
     );
@@ -2782,12 +2794,13 @@ describe("emit correct code for `@error` models", () => {
           "ApiError.cs",
           [
             "public partial class ApiError : HttpServiceException {",
+            "[SetsRequiredMembers]",
             "public ApiError(string code, string message) : base(400,",
-            "public string Code { get; set; }",
-            "public string MessageProp { get; set; }",
+            "public required string Code { get; set; }",
+            "public required string MessageProp { get; set; }",
           ],
         ],
-        ["Error.cs", ["public partial class Error : ApiError {", "public Error() : base(500)"]],
+        ["Error.cs", ["public partial class Error : ApiError {", "[SetsRequiredMembers]", "public Error() : base(500)"]],
       ],
     );
   });
@@ -2807,6 +2820,7 @@ describe("emit correct code for `@error` models", () => {
       `,
       "Error.cs",
       [
+        "[SetsRequiredMembers]",
         `public Error(string code, string message, string optionalMessage = default, string defined = "default message") : base(200,`,
       ],
     );
@@ -2824,6 +2838,7 @@ describe("emit correct code for `@error` models", () => {
       `,
       "Error.cs",
       [
+        "[SetsRequiredMembers]",
         `public Error(string code, string customHeader) : base(200,`,
         ` headers: new(){{"x-ms-error-code", code}, {"custom-header", customHeader}})`,
       ],
@@ -2841,6 +2856,7 @@ describe("emit correct code for `@error` models", () => {
       `,
       "Error.cs",
       [
+        "[SetsRequiredMembers]",
         `public Error(string code, string message) : base(400,`,
         `value: new{code = code,message = message}) `,
       ],
@@ -2860,6 +2876,7 @@ describe("emit correct code for `@error` models", () => {
       `,
       "Error.cs",
       [
+        "[SetsRequiredMembers]",
         `public Error(string code, string message) : base(200,`,
         `Code = code;`,
         `MessageProp = message;`,
@@ -2889,6 +2906,7 @@ describe("emit correct code for `@error` models", () => {
       `,
       "Error.cs",
       [
+        "[SetsRequiredMembers]",
         `public Error(string code, string message, string value, string headers, string stackTrace, string source, string innerException, string hResult, string data, string targetSite, string helpLink) : base(200,`,
         `Code = code;`,
         `MessageProp = message;`,
@@ -2901,17 +2919,17 @@ describe("emit correct code for `@error` models", () => {
         `DataProp = data;`,
         `TargetSiteProp = targetSite;`,
         `HelpLinkProp = helpLink;`,
-        `public string Code { get; set; }`,
-        `public string MessageProp { get; set; }`,
-        `public string ValueName { get; set; }`,
-        `public string HeadersProp { get; set; }`,
-        `public string StackTraceProp { get; set; }`,
-        `public string SourceProp { get; set; }`,
-        `public string InnerExceptionProp { get; set; }`,
-        `public string HResultProp { get; set; }`,
-        `public string DataProp { get; set; }`,
-        `public string TargetSiteProp { get; set; }`,
-        `public string HelpLinkProp { get; set; }`,
+        `public required string Code { get; set; }`,
+        `public required string MessageProp { get; set; }`,
+        `public required string ValueName { get; set; }`,
+        `public required string HeadersProp { get; set; }`,
+        `public required string StackTraceProp { get; set; }`,
+        `public required string SourceProp { get; set; }`,
+        `public required string InnerExceptionProp { get; set; }`,
+        `public required string HResultProp { get; set; }`,
+        `public required string DataProp { get; set; }`,
+        `public required string TargetSiteProp { get; set; }`,
+        `public required string HelpLinkProp { get; set; }`,
       ],
     );
   });
@@ -2965,16 +2983,16 @@ describe("collection type: defined as emitter option", () => {
         [
           "Foo.cs",
           [
-            `public Byte[] ByteProp { get; set; }`,
-            "public SByte[] SbyteProp { get; set; }",
-            "public IEnumerable<int> IntProp { get; set; }",
-            "public IEnumerable<string> StringProp { get; set; }",
-            "public IEnumerable<FooProp> ModelProp { get; set; }",
+            `public required Byte[] ByteProp { get; set; }`,
+            "public required SByte[] SbyteProp { get; set; }",
+            "public required IEnumerable<int> IntProp { get; set; }",
+            "public required IEnumerable<string> StringProp { get; set; }",
+            "public required IEnumerable<FooProp> ModelProp { get; set; }",
             "public IEnumerable<int> IntPropInitialized { get; } = new List<int> {8, 10};",
-            "public IEnumerable<int> IntArr { get; set; }",
-            "public IEnumerable<string> StringArr { get; set; }",
-            "public IEnumerable<FooProp> ModelArr { get; set; }",
-            "public ISet<string> StringUnique { get; set; }",
+            "public required IEnumerable<int> IntArr { get; set; }",
+            "public required IEnumerable<string> StringArr { get; set; }",
+            "public required IEnumerable<FooProp> ModelArr { get; set; }",
+            "public required ISet<string> StringUnique { get; set; }",
           ],
         ],
         [
@@ -2996,16 +3014,16 @@ describe("collection type: defined as emitter option", () => {
       [
         "Foo.cs",
         [
-          `public Byte[] ByteProp { get; set; }`,
-          "public SByte[] SbyteProp { get; set; }",
-          "public int[] IntProp { get; set; }",
-          "public string[] StringProp { get; set; }",
-          "public FooProp[] ModelProp { get; set; }",
+          `public required Byte[] ByteProp { get; set; }`,
+          "public required SByte[] SbyteProp { get; set; }",
+          "public required int[] IntProp { get; set; }",
+          "public required string[] StringProp { get; set; }",
+          "public required FooProp[] ModelProp { get; set; }",
           "public int[] IntPropInitialized { get; } = [8, 10];",
-          "public int[] IntArr { get; set; }",
-          "public string[] StringArr { get; set; }",
-          "public FooProp[] ModelArr { get; set; }",
-          "public ISet<string> StringUnique { get; set; }",
+          "public required int[] IntArr { get; set; }",
+          "public required string[] StringArr { get; set; }",
+          "public required FooProp[] ModelArr { get; set; }",
+          "public required ISet<string> StringUnique { get; set; }",
         ],
       ],
       ["IContosoOperations.cs", ["Task<Foo[]> FooAsync( );"]],
@@ -3019,16 +3037,16 @@ describe("collection type: defined as emitter option", () => {
         [
           "Foo.cs",
           [
-            `public Byte[] ByteProp { get; set; }`,
-            "public SByte[] SbyteProp { get; set; }",
-            "public int[] IntProp { get; set; }",
-            "public string[] StringProp { get; set; }",
-            "public FooProp[] ModelProp { get; set; }",
+            `public required Byte[] ByteProp { get; set; }`,
+            "public required SByte[] SbyteProp { get; set; }",
+            "public required int[] IntProp { get; set; }",
+            "public required string[] StringProp { get; set; }",
+            "public required FooProp[] ModelProp { get; set; }",
             "public int[] IntPropInitialized { get; } = [8, 10];",
-            "public int[] IntArr { get; set; }",
-            "public string[] StringArr { get; set; }",
-            "public FooProp[] ModelArr { get; set; }",
-            "public ISet<string> StringUnique { get; set; }",
+            "public required int[] IntArr { get; set; }",
+            "public required string[] StringArr { get; set; }",
+            "public required FooProp[] ModelArr { get; set; }",
+            "public required ISet<string> StringUnique { get; set; }",
           ],
         ],
         ["IContosoOperations.cs", ["Task<Foo[]> FooAsync( );", "Task<string[][]> BarAsync( );"]],
