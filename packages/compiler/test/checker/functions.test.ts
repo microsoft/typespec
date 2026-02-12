@@ -2,27 +2,23 @@ import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   Diagnostic,
-  Enum,
   FunctionContext,
   IndeterminateEntity,
   Model,
-  ModelProperty,
   Namespace,
   Type,
   Value,
 } from "../../src/core/types.js";
 import {
-  BasicTestRunner,
   DiagnosticMatch,
-  TestHost,
-  createTestHost,
-  createTestRunner,
-  createTestWrapper,
+  type Tester,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  mockFile,
+  t,
 } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
-import { defineTest } from "../test-utils.js";
+import { Tester as BaseTester } from "../tester.js";
 
 /** Helper to assert a function declaration was bound to the js implementation */
 function expectFunction(ns: Namespace, name: string, impl: any) {
@@ -45,62 +41,55 @@ function expectFunctionDiagnosticsEmpty(diagnostics: readonly Diagnostic[]) {
   expectDiagnosticEmpty(diagnostics.filter((d) => d.code !== "experimental-feature"));
 }
 
-let testHost: TestHost;
-
-beforeEach(async () => {
-  testHost = await createTestHost();
-});
+let tester: Tester = BaseTester;
 
 describe("declaration", () => {
-  let runner: BasicTestRunner;
   let testImpl: any;
   let nsFnImpl: any;
   beforeEach(() => {
     testImpl = (_ctx: FunctionContext) => undefined;
     nsFnImpl = (_ctx: FunctionContext) => undefined;
-    testHost.addJsFile("test.js", {
-      $functions: {
-        "": {
-          testFn: testImpl,
+
+    tester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            testFn: testImpl,
+          },
+          "Foo.Bar": {
+            nsFn: nsFnImpl,
+          },
         },
-        "Foo.Bar": {
-          nsFn: nsFnImpl,
-        },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./test.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
   });
 
   describe("bind implementation to declaration", () => {
     it("defined at root via direct export", async () => {
-      const [, diagnostics] = await runner.compileAndDiagnose(`
+      const [{ program }, diagnostics] = await tester.compileAndDiagnose(`
           extern fn testFn();
         `);
 
       expectFunctionDiagnosticsEmpty(diagnostics);
 
-      expectFunction(runner.program.getGlobalNamespaceType(), "testFn", testImpl);
+      expectFunction(program.getGlobalNamespaceType(), "testFn", testImpl);
     });
 
     it("in namespace via $functions map", async () => {
-      const [, diagnostics] = await runner.compileAndDiagnose(
-        `namespace Foo.Bar { extern fn nsFn(); }`,
-      );
+      const [{ program }, diagnostics] = await tester.compileAndDiagnose(`
+        namespace Foo.Bar { extern fn nsFn(); }
+      `);
       expectFunctionDiagnosticsEmpty(diagnostics);
-      const ns = runner.program
-        .getGlobalNamespaceType()
-        .namespaces.get("Foo")
-        ?.namespaces.get("Bar");
+      const ns = program.getGlobalNamespaceType().namespaces.get("Foo")?.namespaces.get("Bar");
       ok(ns);
       expectFunction(ns, "nsFn", nsFnImpl);
     });
   });
 
   it("errors if function is missing extern modifier", async () => {
-    const diagnostics = await runner.diagnose(`fn testFn();`);
+    const diagnostics = await tester.diagnose(`fn testFn();`);
     expectFunctionDiagnostics(diagnostics, {
       code: "function-extern",
       message: "A function declaration must be prefixed with the 'extern' modifier.",
@@ -108,7 +97,7 @@ describe("declaration", () => {
   });
 
   it("errors if extern function is missing implementation", async () => {
-    const diagnostics = await runner.diagnose(`extern fn missing();`);
+    const diagnostics = await tester.diagnose(`extern fn missing();`);
     expectFunctionDiagnostics(diagnostics, {
       code: "missing-implementation",
       message: "Extern declaration must have an implementation in JS file.",
@@ -116,7 +105,7 @@ describe("declaration", () => {
   });
 
   it("errors if rest parameter type is not array", async () => {
-    const diagnostics = await runner.diagnose(`extern fn f(...rest: string);`);
+    const diagnostics = await tester.diagnose(`extern fn f(...rest: string);`);
     expectFunctionDiagnostics(diagnostics, [
       {
         code: "missing-implementation",
@@ -131,35 +120,39 @@ describe("declaration", () => {
 });
 
 describe("usage", () => {
-  let runner: BasicTestRunner;
   let calledArgs: any[] | undefined;
   beforeEach(() => {
     calledArgs = undefined;
-    testHost.addJsFile("test.js", {
-      $functions: {
-        "": {
-          testFn(ctx: FunctionContext, a: any, b: any, ...rest: any[]) {
-            calledArgs = [ctx, a, b, ...rest];
-            return a; // Return first arg
-          },
-          sum(_ctx: FunctionContext, ...addends: number[]) {
-            return addends.reduce((a, b) => a + b, 0);
-          },
-          valFirst(_ctx: FunctionContext, v: any) {
-            return v;
-          },
-          voidFn(ctx: FunctionContext, arg: any) {
-            calledArgs = [ctx, arg];
-            // No return value
+
+    tester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            testFn(ctx: FunctionContext, a: any, b: any, ...rest: any[]) {
+              calledArgs = [ctx, a, b, ...rest];
+              return a; // Return first arg
+            },
+            sum(_ctx: FunctionContext, ...addends: number[]) {
+              return addends.reduce((a, b) => a + b, 0);
+            },
+            valFirst(_ctx: FunctionContext, v: any) {
+              return v;
+            },
+            voidFn(ctx: FunctionContext, arg: any) {
+              calledArgs = [ctx, arg];
+              // No return value
+            },
           },
         },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./test.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
   });
+
+  function expectNotCalled() {
+    ok(calledArgs === undefined, "Expected function not to be called.");
+  }
 
   function expectCalledWith(...args: any[]) {
     ok(calledArgs, "Function was not called.");
@@ -169,8 +162,43 @@ describe("usage", () => {
     }
   }
 
+  async function expectFunctionTypeUsage(
+    signature: string,
+    call: string,
+    match: DiagnosticMatch[] = [],
+  ): Promise<Type> {
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+        ${signature};
+        
+        model Observer {
+          ${t.modelProperty("p")}: ${call};
+    }`);
+
+    expectFunctionDiagnostics(diagnostics, match);
+
+    return p.type;
+  }
+
+  async function expectFunctionValueUsage(
+    signature: string,
+    call: string,
+    match: DiagnosticMatch[] = [],
+  ): Promise<Value | undefined> {
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+        ${signature};
+
+        model Observer {
+          ${t.modelProperty("p")}: unknown = ${call};
+        }
+      `);
+
+    expectFunctionDiagnostics(diagnostics, match);
+
+    return p.defaultValue;
+  }
+
   it("errors if function not declared", async () => {
-    const diagnostics = await runner.diagnose(`const X = missing();`);
+    const diagnostics = await tester.diagnose(`const X = missing();`);
 
     expectDiagnostics(diagnostics, {
       code: "invalid-ref",
@@ -179,194 +207,196 @@ describe("usage", () => {
   });
 
   it("calls function with arguments", async () => {
-    const [, diagnostics] = await runner.compileAndDiagnose(`
-        extern fn testFn(a: valueof string, b: valueof string, ...rest: valueof string[]): valueof string;
-        
-        const X = testFn("one", "two", "three");
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
+    const v = await expectFunctionValueUsage(
+      "extern fn testFn(a: valueof string, b: valueof string, ...rest: valueof string[]): valueof string",
+      'testFn("one", "two", "three")',
+    );
 
     expectCalledWith("one", "two", "three");
+    strictEqual(v?.entityKind, "Value");
+    strictEqual(v.valueKind, "StringValue");
+    strictEqual(v.value, "one");
   });
 
   it("allows omitting optional param", async () => {
-    const [, diagnostics] = await runner.compileAndDiagnose(
-      `extern fn testFn(a: valueof string, b?: valueof string): valueof string; const X = testFn("one");`,
+    const v = await expectFunctionValueUsage(
+      "extern fn testFn(a: valueof string, b?: valueof string): valueof string",
+      'testFn("one")',
     );
 
-    expectFunctionDiagnosticsEmpty(diagnostics);
-
     expectCalledWith("one", undefined);
+
+    strictEqual(v?.entityKind, "Value");
+    strictEqual(v.valueKind, "StringValue");
+    strictEqual(v.value, "one");
   });
 
   it("allows zero args for rest-only", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
-        extern fn sum(...addends: valueof int32[]): valueof int32;
-        const S = sum();
+    const v = await expectFunctionValueUsage(
+      "extern fn sum(...addends: valueof int32[]): valueof int32",
+      "sum()",
+    );
 
-        model Observer {
-          @test
-          p: int32 = S;
-        }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
-
-    expectFunctionDiagnostics(diagnostics, []);
-
-    strictEqual(p.defaultValue?.entityKind, "Value");
-    strictEqual(p.defaultValue.valueKind, "NumericValue");
-    strictEqual(p.defaultValue.value.asNumber(), 0);
+    strictEqual(v?.entityKind, "Value");
+    strictEqual(v.valueKind, "NumericValue");
+    strictEqual(v.value.asNumber(), 0);
   });
 
   it("accepts function with explicit void return type", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn voidFn(a: valueof string): void;
-        alias V = voidFn("test");
-      `);
-
-    expectFunctionDiagnostics(diagnostics, []);
+    const t = await expectFunctionTypeUsage(
+      "extern fn voidFn(a: valueof string): void",
+      'voidFn("test")',
+    );
     expectCalledWith("test");
+
+    strictEqual(t.kind, "Intrinsic");
+    strictEqual(t.name, "void");
   });
 
   it("errors if non-void function returns undefined", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn voidFn(a: valueof string): unknown;
-        alias V = voidFn("test");
-      `);
-
-    expectFunctionDiagnostics(diagnostics, {
-      code: "function-return",
-      message:
-        "Implementation of 'fn voidFn' returned value 'null', which is not assignable to the declared return type 'unknown'.",
-    });
+    const t = await expectFunctionTypeUsage(
+      "extern fn voidFn(a: valueof string): unknown",
+      'voidFn("test")',
+      [
+        {
+          code: "function-return",
+          message:
+            "Implementation of 'fn voidFn' returned value 'null', which is not assignable to the declared return type 'unknown'.",
+        },
+      ],
+    );
     expectCalledWith("test");
+    // Function returned wrong type, so we expect it to transpose to ErrorType.
+    strictEqual(t.kind, "Intrinsic");
+    strictEqual(t.name, "ErrorType");
   });
 
   it("errors if not enough args", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
-        extern fn testFn(a: valueof string, b: valueof string): valueof string;
-        const X = testFn("one");
+    const v = await expectFunctionValueUsage(
+      "extern fn testFn(a: valueof string, b: valueof string): valueof string",
+      'testFn("one")',
+      [
+        {
+          code: "invalid-argument-count",
+          message: "Expected at least 2 arguments, but got 1.",
+        },
+      ],
+    );
 
-        model Observer {
-          @test p: string = X;
-        }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
-
-    expectFunctionDiagnostics(diagnostics, {
-      code: "invalid-argument-count",
-      message: "Expected at least 2 arguments, but got 1.",
-    });
+    expectNotCalled();
 
     // Because the const is invalid (transposed to null in the checker), we expect no default value.
-    strictEqual(p.defaultValue, undefined);
+    strictEqual(v, undefined);
   });
 
   it("errors if too many args", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
-        extern fn testFn(a: valueof string): valueof string;
-        const X = testFn("one", "two");
-
-        model Observer {
-          @test p: string = X;
-        }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
-
-    expectFunctionDiagnostics(diagnostics, {
-      code: "invalid-argument-count",
-      message: "Expected 1 arguments, but got 2.",
-    });
+    const v = await expectFunctionValueUsage(
+      "extern fn testFn(a: valueof string): valueof string",
+      'testFn("one", "two")',
+      [
+        {
+          code: "invalid-argument-count",
+          message: "Expected 1 arguments, but got 2.",
+        },
+      ],
+    );
 
     expectCalledWith("one", undefined);
 
-    strictEqual(p.defaultValue?.entityKind, "Value");
-    strictEqual(p.defaultValue.valueKind, "StringValue");
-    strictEqual(p.defaultValue.value, "one");
+    strictEqual(v?.entityKind, "Value");
+    strictEqual(v.valueKind, "StringValue");
+    strictEqual(v.value, "one");
   });
 
   it("errors if too few with rest", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
-        extern fn testFn(a: string, ...rest: string[]);
+    const t = await expectFunctionTypeUsage(
+      "extern fn testFn(a: string, ...rest: string[])",
+      "testFn()",
+      [
+        {
+          code: "invalid-argument-count",
+          message: "Expected at least 1 arguments, but got 0.",
+        },
+      ],
+    );
 
-        alias X = testFn();
+    expectNotCalled();
 
-        model Observer {
-          @test p: X;
-        }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
-
-    expectFunctionDiagnostics(diagnostics, {
-      code: "invalid-argument-count",
-      message: "Expected at least 1 arguments, but got 0.",
-    });
-
-    strictEqual(p.type.kind, "Intrinsic");
-    strictEqual(p.type.name, "unknown");
+    // In this case, we did not call the function, so we expect the constraint.
+    strictEqual(t.kind, "Intrinsic");
+    strictEqual(t.name, "unknown");
   });
 
   it("errors if argument type mismatch (value)", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn valFirst(a: valueof string): valueof string;
-        const X = valFirst(123);
-      `);
+    const v = await expectFunctionValueUsage(
+      "extern fn valFirst(a: valueof string): valueof string",
+      "valFirst(123)",
+      [
+        {
+          code: "unassignable",
+          message: "Type '123' is not assignable to type 'string'",
+        },
+      ],
+    );
 
-    expectFunctionDiagnostics(diagnostics, {
-      code: "unassignable",
-      message: "Type '123' is not assignable to type 'string'",
-    });
+    expectNotCalled();
+
+    strictEqual(v, undefined);
   });
 
   it("errors if passing type where value expected", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn valFirst(a: valueof string): valueof string;
-        const X = valFirst(string);
-      `);
+    const v = await expectFunctionValueUsage(
+      "extern fn valFirst(a: valueof string): valueof string",
+      "valFirst(string)",
+      [
+        {
+          code: "expect-value",
+          message: "string refers to a type, but is being used as a value here.",
+        },
+      ],
+    );
 
-    expectFunctionDiagnostics(diagnostics, {
-      code: "expect-value",
-      message: "string refers to a type, but is being used as a value here.",
-    });
+    strictEqual(v, undefined);
   });
 
   it("accepts string literal for type param", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn testFn(a: string);
-        alias X = testFn("abc");
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
+    const t = await expectFunctionTypeUsage("extern fn testFn(a: string)", 'testFn("abc")');
 
     strictEqual(calledArgs?.[1].entityKind, "Type");
-    strictEqual(calledArgs?.[1].kind, "String");
-    strictEqual(calledArgs?.[1].value, "abc");
+    strictEqual(calledArgs[1].kind, "String");
+    strictEqual(calledArgs[1].value, "abc");
+
+    strictEqual(t.kind, "String");
+    strictEqual(t.value, "abc");
   });
 
   it("accepts arguments matching rest", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn testFn(a: string, ...rest: string[]);
-        alias X = testFn("a", "b", "c");
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
+    const t = await expectFunctionTypeUsage(
+      "extern fn testFn(a: string, ...rest: string[])",
+      'testFn("a", "b", "c")',
+    );
 
     const expectedLiterals = ["a", "b", "c"];
 
     for (let i = 1; i < calledArgs!.length; i++) {
       strictEqual(calledArgs?.[i].entityKind, "Type");
-      strictEqual(calledArgs?.[i].kind, "String");
-      strictEqual(calledArgs?.[i].value, expectedLiterals[i - 1]);
+      strictEqual(calledArgs[i].kind, "String");
+      strictEqual(calledArgs[i].value, expectedLiterals[i - 1]);
     }
+
+    strictEqual(t.kind, "String");
+    strictEqual(t.value, "a");
   });
 
   it("accepts valueof model argument", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         model M { x: string }
         extern fn testFn(m: valueof M): valueof M;
 
         model Observer {
-          @test
-          p: M = testFn(#{ x: "test" });
+          ${t.modelProperty("p")}: M = testFn(#{ x: "test" });
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
     deepStrictEqual(calledArgs?.[1], { x: "test" });
@@ -383,7 +413,7 @@ describe("usage", () => {
   });
 
   it("does not accept invalid valueof model argument", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         model M { x: string }
 
         extern fn testFn(m: valueof M): valueof M;
@@ -400,27 +430,26 @@ describe("usage", () => {
   });
 
   it("accepts literal type where parameter is a union of literals", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn testFn(arg: "a" | 10 | true): "a" | 10 | true;
-        alias X = testFn("a");
-      `);
+    const t = await expectFunctionTypeUsage(
+      'extern fn testFn(arg: "a" | 10 | true): "a" | 10 | true',
+      'testFn("a")',
+    );
 
-    expectFunctionDiagnosticsEmpty(diagnostics);
     const arg = calledArgs?.[1] as Type;
     ok(arg);
     strictEqual(arg.entityKind, "Type");
     strictEqual(arg.kind, "String");
     strictEqual(arg.value, "a");
+
+    strictEqual(t.kind, "String");
+    strictEqual(t.value, "a");
   });
 
   it("accepts literal type where parameter is an array of union of literals", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn testFn(args: Array<"a" | 10 | true>): Array<"a" | 10 | true>;
-
-        alias X = testFn(["a", 10, true]);
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
+    const t = await expectFunctionTypeUsage(
+      'extern fn testFn(args: Array<"a" | 10 | true>): Array<"a" | 10 | true>',
+      'testFn(["a", 10, true])',
+    );
 
     const arg = calledArgs?.[1] as Type;
 
@@ -441,11 +470,22 @@ describe("usage", () => {
     strictEqual(c.entityKind, "Type");
     strictEqual(c.kind, "Boolean");
     strictEqual(c.value, true);
+
+    strictEqual(t.kind, "Tuple");
+    strictEqual(t.values.length, 3);
+    const [tA, tB, tC] = t.values;
+
+    strictEqual(tA.kind, "String");
+    strictEqual(tA.value, "a");
+    strictEqual(tB.kind, "Number");
+    strictEqual(tB.value, 10);
+    strictEqual(tC.kind, "Boolean");
+    strictEqual(tC.value, true);
   });
 
   it("accepts literal types where parameter is a rest array of a literal union", async () => {
-    const diagnostics = await runner.diagnose(`
-        union U { "a", 10, true }
+    const diagnostics = await tester.diagnose(`
+        alias U = "a" | 10 | true;
         extern fn testFn(...args: U[]): "a" | 10 | true;
 
         alias X = testFn("a", 10, true);
@@ -473,7 +513,7 @@ describe("usage", () => {
   });
 
   it("accepts enum member where parameter is enum", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         enum E { A, B }
 
         extern fn testFn(e: E): E;
@@ -489,15 +529,14 @@ describe("usage", () => {
   });
 
   it("accepts enum value where parameter is valueof enum", async () => {
-    const [{ E, p }, diagnostics] = (await runner.compileAndDiagnose(`
-        @test
-        enum E { A, B }
+    const [{ E, p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+        enum ${t.enum("E")} { A, B }
         extern fn testFn(e: valueof E): valueof E;
 
         model Observer {
-          @test p: E = testFn(E.A);
+          ${t.modelProperty("p")}: E = testFn(E.A);
         }
-      `)) as [{ E: Enum; p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -517,15 +556,15 @@ describe("usage", () => {
   });
 
   it("calls function bound to const", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn sum(...addends: valueof int32[]): valueof int32;
 
         const f = sum;
 
         model Observer {
-          @test p: int32 = f(1, 2, 3);
+          ${t.modelProperty("p")}: int32 = f(1, 2, 3);
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -537,334 +576,293 @@ describe("usage", () => {
 
 describe("typekit construction", () => {
   it("can construct array with typekit in impl", async () => {
-    testHost.addJsFile("test.js", {
-      $functions: {
-        "": {
-          makeArray(ctx: FunctionContext, t: Type) {
-            return $(ctx.program).array.create(t);
+    tester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            makeArray(ctx: FunctionContext, t: Type) {
+              return $(ctx.program).array.create(t);
+            },
           },
         },
-      },
-    });
-    const runner = createTestWrapper(testHost, {
-      autoImports: ["./test.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
+
+    const [{ program, p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn makeArray(T: unknown);
         
         alias X = makeArray(string);
 
         model M {
-          @test p: X;
+          ${t.modelProperty("p")}: X;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
     ok(p.type);
-    ok($(runner.program).array.is(p.type));
+    ok($(program).array.is(p.type));
 
     const arrayIndexerType = p.type.indexer.value;
 
     ok(arrayIndexerType);
-    ok($(runner.program).scalar.isString(arrayIndexerType));
+    ok($(program).scalar.isString(arrayIndexerType));
   });
 });
 
 describe("specific type constraints", () => {
-  let runner: BasicTestRunner;
-  let receivedTypes: Type[] = [];
+  let receivedType: Type | undefined;
 
   beforeEach(() => {
-    receivedTypes = [];
-    testHost.addJsFile("test.js", {
-      $functions: {
-        "": {
-          expectModel(_ctx: FunctionContext, model: Type) {
-            receivedTypes.push(model);
-            return model;
-          },
-          expectEnum(_ctx: FunctionContext, enumType: Type) {
-            receivedTypes.push(enumType);
-            return enumType;
-          },
-          expectScalar(_ctx: FunctionContext, scalar: Type) {
-            receivedTypes.push(scalar);
-            return scalar;
-          },
-          expectUnion(_ctx: FunctionContext, union: Type) {
-            receivedTypes.push(union);
-            return union;
-          },
-          expectInterface(_ctx: FunctionContext, iface: Type) {
-            receivedTypes.push(iface);
-            return iface;
-          },
-          expectNamespace(_ctx: FunctionContext, ns: Type) {
-            receivedTypes.push(ns);
-            return ns;
-          },
-          expectOperation(_ctx: FunctionContext, op: Type) {
-            receivedTypes.push(op);
-            return op;
+    receivedType = undefined;
+
+    tester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            expect(_ctx: FunctionContext, arg: Type) {
+              receivedType = arg;
+              return arg;
+            },
           },
         },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./test.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
   });
 
-  it("accepts Reflection.Model parameter", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectModel(m: Reflection.Model): Reflection.Model;
-        model TestModel { x: string; }
-        alias X = expectModel(TestModel);
+  async function expectReflectionUsage(
+    kind: Type["kind"],
+    declaration: string,
+    reference: string,
+    match: DiagnosticMatch[] = [],
+  ) {
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+        ${declaration}
+        extern fn expect(arg: Reflection.${kind}): Reflection.${kind};
+
+        model Observer {
+          ${t.modelProperty("p")}: expect(${reference});
+        }
       `);
 
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedTypes.length, 1);
-    strictEqual(receivedTypes[0].kind, "Model");
-    strictEqual(receivedTypes[0].name, "TestModel");
+    expectFunctionDiagnostics(diagnostics, match);
+
+    return p.type;
+  }
+
+  async function expectReflectionUsageSimple(
+    kind: Extract<Type, { name: string }>["kind"],
+    declaration: string,
+    reference: string,
+  ): Promise<void> {
+    const t = await expectReflectionUsage(kind, declaration, reference);
+
+    strictEqual(receivedType?.kind, kind);
+    strictEqual(receivedType.name, reference);
+    strictEqual(t, receivedType);
+  }
+
+  it("accepts Reflection.Model parameter", async () => {
+    await expectReflectionUsageSimple("Model", "model TestModel { x: string; }", "TestModel");
   });
 
   it("accepts Reflection.Enum parameter", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectEnum(e: Reflection.Enum): Reflection.Enum;
-        enum TestEnum { A, B }
-        alias X = expectEnum(TestEnum);
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedTypes.length, 1);
-    strictEqual(receivedTypes[0].kind, "Enum");
-    strictEqual(receivedTypes[0].name, "TestEnum");
+    await expectReflectionUsageSimple("Enum", "enum TestEnum { A, B }", "TestEnum");
   });
 
   it("accepts Reflection.Scalar parameter", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectScalar(s: Reflection.Scalar): Reflection.Scalar;
-        scalar TestScalar extends string;
-        alias X = expectScalar(TestScalar);
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedTypes.length, 1);
-    strictEqual(receivedTypes[0].kind, "Scalar");
-    strictEqual(receivedTypes[0].name, "TestScalar");
+    await expectReflectionUsageSimple("Scalar", "scalar TestScalar extends string;", "TestScalar");
   });
 
   it("accepts Reflection.Union parameter", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectUnion(u: Reflection.Union): Reflection.Union;
-        alias X = expectUnion(string | int32);
-      `);
+    const t = await expectReflectionUsage("Union", "", "string | int32");
 
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedTypes.length, 1);
-    strictEqual(receivedTypes[0].kind, "Union");
-    strictEqual(receivedTypes[0].name, undefined);
+    strictEqual(receivedType?.kind, "Union");
+    strictEqual(receivedType.name, undefined);
+    strictEqual(receivedType.variants.size, 2);
+    const [stringVariant, intVariant] = receivedType.variants.values();
+    strictEqual(stringVariant.type.kind, "Scalar");
+    strictEqual(stringVariant.type.name, "string");
+    strictEqual(intVariant.type.kind, "Scalar");
+    strictEqual(intVariant.type.name, "int32");
+    strictEqual(t, receivedType);
   });
 
   it("accepts Reflection.Interface parameter", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectInterface(i: Reflection.Interface): Reflection.Interface;
-        interface TestInterface { 
-          testOp(): void; 
-        }
-        alias X = expectInterface(TestInterface);
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedTypes.length, 1);
-    strictEqual(receivedTypes[0].kind, "Interface");
-    strictEqual(receivedTypes[0].name, "TestInterface");
+    await expectReflectionUsageSimple(
+      "Interface",
+      "interface TestInterface { testOp(): void; }",
+      "TestInterface",
+    );
   });
 
   it("accepts Reflection.Namespace parameter", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectNamespace(ns: Reflection.Namespace): Reflection.Namespace;
-        namespace TestNs {}
-        alias X = expectNamespace(TestNs);
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedTypes.length, 1);
-    strictEqual(receivedTypes[0].kind, "Namespace");
-    strictEqual(receivedTypes[0].name, "TestNs");
+    await expectReflectionUsageSimple("Namespace", "namespace TestNs { }", "TestNs");
   });
 
   it("accepts Reflection.Operation parameter", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectOperation(operation: Reflection.Operation): Reflection.Operation;
-        op testOp(): string;
-        alias X = expectOperation(testOp);
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedTypes.length, 1);
-    strictEqual(receivedTypes[0].kind, "Operation");
-    strictEqual(receivedTypes[0].name, "testOp");
+    await expectReflectionUsageSimple("Operation", "op testOp(): string;", "testOp");
   });
 
   it("errors when wrong type kind is passed", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectModel(m: Reflection.Model): Reflection.Model;
-        enum TestEnum { A, B }
-        alias X = expectModel(TestEnum);
-      `);
+    const t = await expectReflectionUsage("Model", "enum TestEnum { A, B }", "TestEnum", [
+      {
+        code: "unassignable",
+        message: "Type 'TestEnum' is not assignable to type 'Model'",
+      },
+    ]);
 
-    expectFunctionDiagnostics(diagnostics, {
-      code: "unassignable",
-      message: "Type 'TestEnum' is not assignable to type 'Model'",
-    });
+    strictEqual(receivedType, undefined);
+    // Since we didn't call the function, we get back the constraint type, which is Reflection.Model.
+    strictEqual(t.kind, "Model");
+    strictEqual(t.name, "Model");
   });
 });
 
 describe("value marshalling", () => {
-  let runner: BasicTestRunner;
-  let receivedValues: any[] = [];
+  let receivedValue: any;
 
   beforeEach(() => {
-    receivedValues = [];
-    testHost.addJsFile("test.js", {
-      $functions: {
-        "": {
-          expectString(ctx: FunctionContext, str: string) {
-            receivedValues.push(str);
-            return str;
-          },
-          expectNumber(ctx: FunctionContext, num: number) {
-            receivedValues.push(num);
-            return num;
-          },
-          expectBoolean(ctx: FunctionContext, bool: boolean) {
-            receivedValues.push(bool);
-            return bool;
-          },
-          expectArray(ctx: FunctionContext, arr: any[]) {
-            receivedValues.push(arr);
-            return arr;
-          },
-          expectObject(ctx: FunctionContext, obj: Record<string, any>) {
-            receivedValues.push(obj);
-            return obj;
-          },
-          returnInvalidJsValue(ctx: FunctionContext) {
-            return Symbol("invalid");
-          },
-          returnComplexObject(ctx: FunctionContext) {
-            return {
-              nested: { value: 42 },
-              array: [1, "test", true],
-              null: null,
-            };
-          },
-          returnIndeterminate(ctx: FunctionContext): IndeterminateEntity {
-            return { entityKind: "Indeterminate", type: $(ctx.program).literal.create(42) };
+    receivedValue = undefined;
+    tester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            expect(_ctx: FunctionContext, arg: any) {
+              receivedValue = arg;
+              return arg;
+            },
+            returnInvalidJsValue(_ctx: FunctionContext) {
+              return Symbol("invalid");
+            },
+            returnComplexObject(_ctx: FunctionContext) {
+              return {
+                nested: { value: 42 },
+                array: [1, "test", true],
+                null: null,
+              };
+            },
+            returnIndeterminate(ctx: FunctionContext): IndeterminateEntity {
+              return { entityKind: "Indeterminate", type: $(ctx.program).literal.create(42) };
+            },
           },
         },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./test.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
   });
 
-  it("marshals string values correctly", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectString(s: valueof string): valueof string;
-        const X = expectString("hello world");
+  async function expectValueUsage(
+    signature: string,
+    argument: string,
+    match: DiagnosticMatch[] = [],
+  ): Promise<Value | undefined> {
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
+        ${signature};
+
+        model Observer {
+          ${t.modelProperty("p")}: unknown = ${argument};
+        }
       `);
 
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedValues.length, 1);
-    strictEqual(receivedValues[0], "hello world");
+    expectFunctionDiagnostics(diagnostics, match);
+
+    return p.defaultValue;
+  }
+
+  async function expectValueSimple(valueType: string, argument: any) {
+    await expectValueUsage(
+      `extern fn expect(v: valueof ${valueType}): valueof ${valueType}`,
+      `expect(${JSON.stringify(argument)})`,
+    );
+
+    strictEqual(receivedValue, argument);
+  }
+
+  it("marshals string values correctly", async () => {
+    await expectValueSimple("string", "hello world");
   });
 
   it("marshals numeric values correctly", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectNumber(n: valueof int32): valueof int32;
-        const X = expectNumber(42);
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedValues.length, 1);
-    strictEqual(receivedValues[0], 42);
+    await expectValueSimple("int32", 42);
   });
 
   it("marshals boolean values correctly", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectBoolean(b: valueof boolean): valueof boolean;
-        const X = expectBoolean(true);
-      `);
-
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedValues.length, 1);
-    strictEqual(receivedValues[0], true);
+    await expectValueSimple("boolean", true);
   });
 
   it("marshals array values correctly", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectArray(arr: valueof string[]): valueof string[];
-        const X = expectArray(#["a", "b", "c"]);
-      `);
+    const v = await expectValueUsage(
+      `extern fn expect(arr: valueof string[]): valueof string[]`,
+      `expect(#["a", "b", "c"])`,
+    );
 
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedValues.length, 1);
-    ok(Array.isArray(receivedValues[0]));
-    strictEqual(receivedValues[0].length, 3);
-    strictEqual(receivedValues[0][0], "a");
-    strictEqual(receivedValues[0][1], "b");
-    strictEqual(receivedValues[0][2], "c");
+    deepStrictEqual(receivedValue, ["a", "b", "c"]);
+    strictEqual(v?.valueKind, "ArrayValue");
+    strictEqual(v.values.length, 3);
+    const [a, b, c] = v.values;
+    strictEqual(a.valueKind, "StringValue");
+    strictEqual(a.value, "a");
+    strictEqual(b.valueKind, "StringValue");
+    strictEqual(b.value, "b");
+    strictEqual(c.valueKind, "StringValue");
+    strictEqual(c.value, "c");
   });
 
   it("marshals object values correctly", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn expectObject(obj: valueof {name: string, age: int32}): valueof {name: string, age: int32};
-        const X = expectObject(#{name: "test", age: 25});
-      `);
+    const v = await expectValueUsage(
+      `extern fn expect(obj: valueof {name: string, age: int32}): valueof {name: string, age: int32}`,
+      `expect(#{name: "test", age: 25})`,
+    );
 
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedValues.length, 1);
-    strictEqual(typeof receivedValues[0], "object");
-    strictEqual(receivedValues[0].name, "test");
-    strictEqual(receivedValues[0].age, 25);
+    strictEqual(receivedValue.name, "test");
+    strictEqual(receivedValue.age, 25);
+
+    strictEqual(v?.valueKind, "ObjectValue");
+    const props = v.properties;
+    strictEqual(props.size, 2);
+    const nameProp = props.get("name");
+    ok(nameProp);
+    strictEqual(nameProp.name, "name");
+    strictEqual(nameProp.value.valueKind, "StringValue");
+    strictEqual(nameProp.value.value, "test");
+    const ageProp = props.get("age");
+    ok(ageProp);
+    strictEqual(ageProp.name, "age");
+    strictEqual(ageProp.value.valueKind, "NumericValue");
+    strictEqual(ageProp.value.value.asNumber(), 25);
   });
 
   it("handles invalid JS return values gracefully", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn returnInvalidJsValue(): valueof string;
-        const X = returnInvalidJsValue();
-      `);
+    const v = await expectValueUsage(
+      `extern fn returnInvalidJsValue(): valueof string`,
+      `returnInvalidJsValue()`,
+      [
+        {
+          code: "function-return",
+          message: "Function implementation returned invalid JS value 'Symbol(invalid)'.",
+        },
+      ],
+    );
 
-    expectFunctionDiagnostics(diagnostics, {
-      code: "function-return",
-      message: "Function implementation returned invalid JS value 'Symbol(invalid)'.",
-    });
+    strictEqual(v, undefined);
   });
 
   it("unmarshal complex JS objects to values", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
-        extern fn returnComplexObject(): valueof unknown;
-        const X = returnComplexObject();
+    const v = await expectValueUsage(
+      `extern fn returnComplexObject(): valueof unknown`,
+      `returnComplexObject()`,
+    );
 
-        model Observer {
-          @test p: unknown = X;
-        }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+    strictEqual(v?.entityKind, "Value");
+    strictEqual(v.valueKind, "ObjectValue");
 
-    expectFunctionDiagnosticsEmpty(diagnostics);
-    strictEqual(receivedValues.length, 0);
-
-    strictEqual(p.defaultValue?.entityKind, "Value");
-    strictEqual(p.defaultValue?.valueKind, "ObjectValue");
-
-    const obj = p.defaultValue!.properties;
+    const obj = v.properties;
     strictEqual(obj.size, 3);
 
     const nested = obj.get("nested")?.value;
@@ -907,15 +905,15 @@ describe("value marshalling", () => {
   });
 
   it("handles indeterminate entities coerced to values", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn returnIndeterminate(): valueof int32;
-        extern fn expectNumber(n: valueof int32): valueof int32;
-        const X = expectNumber(returnIndeterminate());
+        extern fn expect(n: valueof int32): valueof int32;
+        const X = expect(returnIndeterminate());
 
         model Observer {
-          @test p: int32 = X;
+          ${t.modelProperty("p")}: int32 = X;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -925,15 +923,15 @@ describe("value marshalling", () => {
   });
 
   it("handles indeterminate entities coerced to types", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn returnIndeterminate(): int32;
 
         alias X = returnIndeterminate();
 
         model Observer {
-          @test p: X;
+          ${t.modelProperty("p")}: X;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -943,151 +941,133 @@ describe("value marshalling", () => {
 });
 
 describe("union type constraints", () => {
-  let runner: BasicTestRunner;
-  let receivedArgs: any[] = [];
+  let receivedArg: any;
 
   beforeEach(() => {
-    receivedArgs = [];
-    testHost.addJsFile("test.js", {
-      $functions: {
-        "": {
-          acceptTypeOrValue(_ctx: FunctionContext, arg: any) {
-            receivedArgs.push(arg);
-            return arg;
-          },
-          acceptMultipleTypes(_ctx: FunctionContext, arg: any) {
-            receivedArgs.push(arg);
-            return arg;
-          },
-          acceptMultipleValues(_ctx: FunctionContext, arg: any) {
-            receivedArgs.push(arg);
-            return arg;
-          },
-          returnTypeOrValue(ctx: FunctionContext, returnType: boolean) {
-            receivedArgs.push(returnType);
-            if (returnType) {
-              return ctx.program.checker.getStdType("string");
-            } else {
-              return "hello";
-            }
+    receivedArg = undefined;
+
+    tester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            accept(_ctx: FunctionContext, arg: any) {
+              receivedArg = arg;
+              return arg;
+            },
+            returnTypeOrValue(ctx: FunctionContext, returnType: boolean) {
+              receivedArg = returnType;
+              if (returnType) {
+                return ctx.program.checker.getStdType("string");
+              } else {
+                return "hello";
+              }
+            },
           },
         },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./test.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
   });
 
   it("accepts type parameter", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn acceptTypeOrValue(arg: unknown | valueof unknown): unknown;
+    const diagnostics = await tester.diagnose(`
+        extern fn accept(arg: unknown | valueof unknown): unknown;
         
-        alias TypeResult = acceptTypeOrValue(string);
+        alias TypeResult = accept(string);
       `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
-    strictEqual(receivedArgs.length, 1);
+    strictEqual(receivedArg.entityKind, "Type");
+    strictEqual(receivedArg.kind, "Scalar");
+    strictEqual(receivedArg.name, "string");
   });
 
   it("prefers value when applicable", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn acceptTypeOrValue(arg: string | valueof string): valueof string;
+    const diagnostics = await tester.diagnose(`
+        extern fn accept(arg: string | valueof string): valueof string;
         
-        const ValueResult = acceptTypeOrValue("hello");
+        const ValueResult = accept("hello");
       `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
-    strictEqual(receivedArgs.length, 1);
-    // Prefer value overload
-    strictEqual(receivedArgs[0], "hello");
+    strictEqual(receivedArg, "hello");
   });
 
   it("accepts multiple specific types", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn acceptMultipleTypes(arg: Reflection.Model | Reflection.Enum): Reflection.Model | Reflection.Enum;
+    const diagnostics = await tester.diagnose(`
+        extern fn accept(arg: Reflection.Model | Reflection.Enum): Reflection.Model | Reflection.Enum;
         
         model TestModel {}
         enum TestEnum { A }
         
-        alias ModelResult = acceptMultipleTypes(TestModel);
-        alias EnumResult = acceptMultipleTypes(TestEnum);
+        alias ModelResult = accept(TestModel);
+        alias EnumResult = accept(TestEnum);
       `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
-
-    strictEqual(receivedArgs.length, 2);
-    strictEqual(receivedArgs[0].kind, "Model");
-    strictEqual(receivedArgs[0].name, "TestModel");
-    strictEqual(receivedArgs[1].kind, "Enum");
-    strictEqual(receivedArgs[1].name, "TestEnum");
   });
 
   it("accepts multiple value types", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn acceptMultipleValues(arg: valueof (string | int32)): valueof (string | int32);
+    const diagnostics = await tester.diagnose(`
+        extern fn accept(arg: valueof (string | int32)): valueof (string | int32);
         
-        const StringResult = acceptMultipleValues("test");
-        const NumberResult = acceptMultipleValues(42);
+        const StringResult = accept("test");
+        const NumberResult = accept(42);
       `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
-
-    strictEqual(receivedArgs.length, 2);
-    strictEqual(receivedArgs[0], "test");
-    strictEqual(receivedArgs[1], 42);
   });
 
   it("errors when argument doesn't match union constraint", async () => {
-    const diagnostics = await runner.diagnose(`
-        extern fn acceptMultipleTypes(arg: Reflection.Model | Reflection.Enum): Reflection.Model | Reflection.Enum;
+    const diagnostics = await tester.diagnose(`
+        extern fn accept(arg: Reflection.Model | Reflection.Enum): Reflection.Model | Reflection.Enum;
         
         scalar TestScalar extends string;
-        alias Result = acceptMultipleTypes(TestScalar);
+        alias Result = accept(TestScalar);
       `);
 
     expectFunctionDiagnostics(diagnostics, {
       code: "unassignable",
       message: "Type 'TestScalar' is not assignable to type 'Model | Enum'",
     });
+
+    strictEqual(receivedArg, undefined);
   });
 
   it("can return type from function", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn returnTypeOrValue(returnType: valueof boolean): unknown;
-        
-        alias TypeResult = returnTypeOrValue(true);
 
         model Observer {
-          @test p: TypeResult;
+          ${t.modelProperty("p")}: returnTypeOrValue(true);
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
-    deepStrictEqual(receivedArgs, [true]);
+    strictEqual(receivedArg, true);
 
     strictEqual(p.type.kind, "Scalar");
     strictEqual(p.type.name, "string");
   });
 
   it("can return value from function", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn returnTypeOrValue(returnType: valueof boolean): valueof string;
         
         const ValueResult = returnTypeOrValue(false);
 
         model Observer {
-          @test p: string = ValueResult;
+          ${t.modelProperty("p")}: string = ValueResult;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
-    deepStrictEqual(receivedArgs, [false]);
+    strictEqual(receivedArg, false);
 
     strictEqual(p.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue?.valueKind, "StringValue");
@@ -1096,42 +1076,40 @@ describe("union type constraints", () => {
 });
 
 describe("error cases and edge cases", () => {
-  let runner: BasicTestRunner;
-
   beforeEach(() => {
-    testHost.addJsFile("test.js", {
-      $functions: {
-        "": {
-          testFn() {},
-          returnWrongEntityKind(_ctx: FunctionContext) {
-            return "string value"; // Returns value when type expected
-          },
-          returnWrongValueType(_ctx: FunctionContext) {
-            return 42; // Returns number when string expected
-          },
-          throwError(_ctx: FunctionContext) {
-            throw new Error("JS error");
-          },
-          returnUndefined(_ctx: FunctionContext) {
-            return undefined;
-          },
-          returnNull(_ctx: FunctionContext) {
-            return null;
-          },
-          expectNonOptionalAfterOptional(_ctx: FunctionContext, _opt: any, req: any) {
-            return req;
+    tester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            testFn() {},
+            returnWrongEntityKind(_ctx: FunctionContext) {
+              return "string value"; // Returns value when type expected
+            },
+            returnWrongValueType(_ctx: FunctionContext) {
+              return 42; // Returns number when string expected
+            },
+            throwError(_ctx: FunctionContext) {
+              throw new Error("JS error");
+            },
+            returnUndefined(_ctx: FunctionContext) {
+              return undefined;
+            },
+            returnNull(_ctx: FunctionContext) {
+              return null;
+            },
+            expectNonOptionalAfterOptional(_ctx: FunctionContext, _opt: any, req: any) {
+              return req;
+            },
           },
         },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./test.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
+      }),
+    })
+      .import("./test.js")
+      .using("TypeSpec.Reflection");
   });
 
   it("errors when function returns wrong entity kind", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn returnWrongEntityKind(): unknown;
         alias X = returnWrongEntityKind();
       `);
@@ -1144,7 +1122,7 @@ describe("error cases and edge cases", () => {
   });
 
   it("errors when function returns wrong value type", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn returnWrongValueType(): valueof string;
         const X = returnWrongValueType();
       `);
@@ -1158,7 +1136,7 @@ describe("error cases and edge cases", () => {
 
   it("thrown JS error bubbles up as ICE", async () => {
     try {
-      const _diagnostics = await runner.diagnose(`
+      await tester.diagnose(`
           extern fn throwError(): unknown;
           alias X = throwError();
         `);
@@ -1171,14 +1149,13 @@ describe("error cases and edge cases", () => {
   });
 
   it("returns null for undefined return in value position", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn returnUndefined(): valueof unknown;
-        const X = returnUndefined();
 
         model Observer {
-          @test p: unknown = X;
+          ${t.modelProperty("p")}: unknown = returnUndefined();
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -1187,14 +1164,14 @@ describe("error cases and edge cases", () => {
   });
 
   it("handles null return value", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn returnNull(): valueof unknown;
         const X = returnNull();
 
         model Observer {
-          @test p: unknown = X;
+          ${t.modelProperty("p")}: unknown = X;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -1203,7 +1180,7 @@ describe("error cases and edge cases", () => {
   });
 
   it("validates required parameter after optional not allowed in regular param position", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn expectNonOptionalAfterOptional(opt?: valueof string, req: valueof string): valueof string;
         const X = expectNonOptionalAfterOptional("test");
       `);
@@ -1214,8 +1191,8 @@ describe("error cases and edge cases", () => {
     });
   });
 
-  it("cannot be used as a regular type", async () => {
-    const diagnostics = await runner.diagnose(`
+  it("cannot be used as a type", async () => {
+    const diagnostics = await tester.diagnose(`
         extern fn testFn(): unknown;
         
         model M {
@@ -1231,25 +1208,15 @@ describe("error cases and edge cases", () => {
 });
 
 describe("default function results", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(() => {
-    testHost.addJsFile("missing-impl.js", {});
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./missing-impl.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
-  });
-
   it("collapses to undefined for missing value-returning function", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn missingValueFn(): valueof string;
         const X = missingValueFn();
 
         model Observer {
-          @test p: string = X;
+          ${t.modelProperty("p")}: string = X;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnostics(diagnostics, {
       code: "missing-implementation",
@@ -1259,14 +1226,14 @@ describe("default function results", () => {
   });
 
   it("returns default type for missing type-returning function", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn missingTypeFn(): unknown;
         alias X = missingTypeFn();
 
         model Observer {
-          @test p: X;
+          ${t.modelProperty("p")}: X;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnostics(diagnostics, {
       code: "missing-implementation",
@@ -1277,16 +1244,16 @@ describe("default function results", () => {
   });
 
   it("returns appropriate default for union return type", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn missingUnionFn(): unknown | valueof string;
         const X = missingUnionFn();
 
         alias T = missingUnionFn();
 
         model Observer {
-          @test p: T = X;
+          ${t.modelProperty("p")}: T = X;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnostics(diagnostics, {
       code: "missing-implementation",
@@ -1300,46 +1267,44 @@ describe("default function results", () => {
 });
 
 describe("template and generic scenarios", () => {
-  let runner: BasicTestRunner;
-
   beforeEach(() => {
-    testHost.addJsFile("templates.js", {
-      $functions: {
-        "": {
-          processGeneric(ctx: FunctionContext, type: Type) {
-            return $(ctx.program).array.create(type);
-          },
-          processConstrainedGeneric(_ctx: FunctionContext, type: Type) {
-            return type;
+    tester = BaseTester.files({
+      "templates.js": mockFile.js({
+        $functions: {
+          "": {
+            processGeneric(ctx: FunctionContext, type: Type) {
+              return $(ctx.program).array.create(type);
+            },
+            processConstrainedGeneric(_ctx: FunctionContext, type: Type) {
+              return type;
+            },
           },
         },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./templates.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
+      }),
+    })
+      .import("./templates.js")
+      .using("TypeSpec.Reflection");
   });
 
   it("works with template aliases", async () => {
-    const [{ prop }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ program, prop }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn processGeneric(T: unknown): unknown;
         
         alias ArrayOf<T> = processGeneric(T);
         
         model TestModel {
-          @test prop: ArrayOf<string>;
+          ${t.modelProperty("prop")}: ArrayOf<string>;
         }
-      `)) as [{ prop: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
     ok(prop.type);
-    ok($(runner.program).array.is(prop.type));
+    ok($(program).array.is(prop.type));
   });
 
   it("works with constrained templates", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn processConstrainedGeneric(T: Reflection.Model): Reflection.Model;
         
         alias ProcessModel<T extends Reflection.Model> = processConstrainedGeneric(T);
@@ -1352,7 +1317,7 @@ describe("template and generic scenarios", () => {
   });
 
   it("errors when template constraint not satisfied", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn processConstrainedGeneric(T: Reflection.Model): Reflection.Model;
         
         alias ProcessModel<T extends Reflection.Model> = processConstrainedGeneric(T);
@@ -1367,21 +1332,19 @@ describe("template and generic scenarios", () => {
   });
 
   it("template instantiations of function calls yield identical instances", async () => {
-    const [{ A, B }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ program, A, B }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn processGeneric(T: unknown): unknown;
         
         alias ArrayOf<T> = processGeneric(T);
         
-        @test
-        model A {
+        model ${t.model("A")} {
           propA: ArrayOf<string>;
         }
         
-        @test
-        model B {
+        model ${t.model("B")} {
           propB: ArrayOf<string>;
         }
-      `)) as [{ A: Model; B: Model }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -1391,41 +1354,38 @@ describe("template and generic scenarios", () => {
     ok(aProp);
     ok(bProp);
 
-    ok($(runner.program).array.is(aProp.type));
-    ok($(runner.program).array.is(bProp.type));
+    ok($(program).array.is(aProp.type));
+    ok($(program).array.is(bProp.type));
 
     strictEqual(aProp.type, bProp.type);
   });
 });
 
 describe("assignability of functions to fn types", () => {
-  let runner: BasicTestRunner;
-
   beforeEach(() => {
-    testHost.addJsFile("test.js", {
-      $functions: {
-        "": {
-          testFn(_ctx: FunctionContext, a: string): string {
-            return a;
+    tester = BaseTester.files({
+      "test.js": mockFile.js({
+        $functions: {
+          "": {
+            testFn(_ctx: FunctionContext, a: string): string {
+              return a;
+            },
           },
         },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./test.js"],
-    });
+      }),
+    }).import("./test.js");
   });
 
   it("can be assigned to a Function type", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn testFn(a: string): string;
 
         const f: fn(arg: never) => unknown = testFn;
         
         model Observer {
-          @test p: fn(arg: never) => unknown = f;
+          ${t.modelProperty("p")}: fn(arg: never) => unknown = f;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -1435,15 +1395,15 @@ describe("assignability of functions to fn types", () => {
   });
 
   it("can be assigned to a function type with specified parameters", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn testFn(a: string): string;
 
         const f: fn(arg: string) => unknown = testFn;
 
         model Observer {
-          @test p: fn(arg: string) => unknown = f;
+          ${t.modelProperty("p")}: fn(arg: string) => unknown = f;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -1453,15 +1413,15 @@ describe("assignability of functions to fn types", () => {
   });
 
   it("can be assigned to a function type with specified return type", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ p }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn testFn(a: string): string;
 
         const f: fn(arg: never) => string = testFn;
 
         model Observer {
-          @test p: fn(arg: never) => string = f;
+          ${t.modelProperty("p")}: fn(arg: never) => string = f;
         }
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
@@ -1471,7 +1431,7 @@ describe("assignability of functions to fn types", () => {
   });
 
   it("errors when assigned to function type with incompatible parameters", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn testFn(a: string): string;
 
         const f: fn(arg: numeric) => string = testFn;
@@ -1485,7 +1445,7 @@ describe("assignability of functions to fn types", () => {
   });
 
   it("errors when assigned to function type with incompatible return type", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn testFn(a: string): string;
 
         const f: fn(arg: never) => int32 = testFn;
@@ -1500,21 +1460,17 @@ describe("assignability of functions to fn types", () => {
 });
 
 describe("function type assignability", () => {
-  const { diagnose: diagnoseFunctionAssignment } = defineTest(
-    async (source: string, target: string) => {
-      const runner = await createTestRunner();
+  async function diagnoseFunctionAssignment(source: string, target: string) {
+    const diagnostics = await tester.diagnose(`
+        alias Source = ${source};
+        alias Target = ${target};
 
-      const diagnostics = await runner.diagnose(`
-          alias Source = ${source};
-          alias Target = ${target};
+        model Expect<T extends Target> {}
 
-          model Expect<T extends Target> {}
-
-          alias Test = Expect<Source>;
-        `);
-      return [undefined, diagnostics];
-    },
-  );
+        alias Test = Expect<Source>;
+      `);
+    return diagnostics;
+  }
 
   function expectAssignmentOk(source: string, target: string) {
     it(`allows assignment from '${source}' to '${target}'`, async () => {
@@ -1609,28 +1565,25 @@ describe("function type assignability", () => {
 });
 
 describe("calling template arguments", () => {
-  let runner: BasicTestRunner;
-
   beforeEach(() => {
-    testHost.addJsFile("templates.js", {
-      $functions: {
-        "": {
-          f(_ctx: FunctionContext, T: Model) {
-            return T.name;
+    tester = BaseTester.files({
+      "templates.js": mockFile.js({
+        $functions: {
+          "": {
+            f(_ctx: FunctionContext, T: Model) {
+              return T.name;
+            },
           },
         },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./templates.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
+      }),
+    })
+      .import("./templates.js")
+      .using("TypeSpec.Reflection");
   });
 
   it("does not allow calling an unconstrained template parameter", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         model Test<T extends Model, F> {
-          @test
           p: string = F();
         }
       `);
@@ -1643,9 +1596,8 @@ describe("calling template arguments", () => {
   });
 
   it("does not allow calling a template paremeter constrained to a type that is possibly not a function", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         model Test<F extends Model | valueof fn() => valueof string> {
-          @test
           p: string = F();
         }
       `);
@@ -1658,61 +1610,64 @@ describe("calling template arguments", () => {
   });
 
   it("allows calling a template parameter constrained to a function value", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ Instance }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn f(T: Model): valueof string;
 
         model Foo {}
 
         model Test<F extends valueof fn(T: Model) => valueof string> {
-          @test
           p: string = F(Foo);
         }
 
-        alias Instance = Test<f>;
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+        model ${t.model("Instance")} is Test<f>;
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
 
-    strictEqual(p.defaultValue?.entityKind, "Value");
+    const p = Instance.properties.get("p");
+
+    strictEqual(p?.defaultValue?.entityKind, "Value");
     strictEqual(p.defaultValue?.valueKind, "StringValue");
     strictEqual(p.defaultValue?.value, "Foo");
   });
 });
 
 describe("function calls within template declarations", () => {
-  let runner: BasicTestRunner;
   let receivedTypes: any[] = [];
+  let observed: any;
 
   beforeEach(() => {
     receivedTypes = [];
 
-    testHost.addJsFile("fns.js", {
-      $functions: {
-        "": {
-          f(_ctx: FunctionContext, T: unknown) {
-            receivedTypes.push(T);
-            return T;
+    tester = BaseTester.files({
+      "fns.js": mockFile.js({
+        $functions: {
+          "": {
+            f(_ctx: FunctionContext, T: unknown) {
+              receivedTypes.push(T);
+              return T;
+            },
           },
         },
-      },
-      $decorators: {
-        "": {
-          d(_ctx: DecoratorContext, target: any) {},
+        $decorators: {
+          "": {
+            d(_ctx: DecoratorContext, target: any) {},
+            test(_ctx: DecoratorContext, target: any) {
+              observed = target;
+            },
+          },
         },
-      },
-    });
-    runner = createTestWrapper(testHost, {
-      autoImports: ["./fns.js"],
-      autoUsings: ["TypeSpec.Reflection"],
-    });
+      }),
+    })
+      .import("./fns.js")
+      .using("TypeSpec.Reflection");
   });
 
   it("does not call a function in a templated model declaration", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn f(T: unknown): valueof unknown;
 
         model Test<T> {
-          @test
           p: T = f(T);
         }
       `);
@@ -1722,7 +1677,7 @@ describe("function calls within template declarations", () => {
   });
 
   it("does not call a function in a templated alias declaration", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn f(T: unknown): valueof unknown;
 
         alias Test<T> = f(T);
@@ -1733,7 +1688,7 @@ describe("function calls within template declarations", () => {
   });
 
   it("does not call a function in a decorator argument of a templated operation declaration", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn f(T: unknown): unknown;
         extern dec d(target: unknown, arg: unknown);
 
@@ -1745,7 +1700,7 @@ describe("function calls within template declarations", () => {
   });
 
   it("does not call a function in any position of a templated alias to a literal model", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn f(T: unknown): unknown;
         extern dec d(target: unknown, arg: unknown);
 
@@ -1759,37 +1714,40 @@ describe("function calls within template declarations", () => {
   });
 
   it("calls a function once on instantiation of a templated model", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ Instance }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn f(T: unknown): unknown;
 
         model Test<T> {
-          @test
           p: f(T);
         }
         
-        alias Instance = Test<string>;
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+        model ${t.model("Instance")} is Test<string>;
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 1);
     strictEqual(receivedTypes[0].kind, "Scalar");
     strictEqual(receivedTypes[0].name, "string");
 
-    strictEqual(p.type.kind, "Scalar");
+    const p = Instance.properties.get("p");
+
+    strictEqual(p?.type.kind, "Scalar");
     strictEqual(p.type.name, "string");
   });
 
   it("calls a function twice on instantiation of a templated alias to a literal model", async () => {
-    const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ Instance }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn f(T: unknown): unknown;
         extern dec d(target: unknown, arg: unknown);
 
         alias Test<T> = {
-         @test @d(f(T)) p: f(T);
+         @d(f(T)) p: f(T);
         };
         
-        alias Instance = Test<string>;
-      `)) as [{ p: ModelProperty }, Diagnostic[]];
+        model ${t.model("Instance")} {
+          outer: Test<string>;
+        }
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 2);
@@ -1798,12 +1756,19 @@ describe("function calls within template declarations", () => {
     strictEqual(receivedTypes[1].kind, "Scalar");
     strictEqual(receivedTypes[1].name, "string");
 
+    const outer = Instance.properties.get("outer");
+    ok(outer);
+
+    strictEqual(outer.type.kind, "Model");
+    const p = outer.type.properties.get("p");
+    ok(p);
+
     strictEqual(p.type.kind, "Scalar");
     strictEqual(p.type.name, "string");
   });
 
   it("calls a function on instantiation of a templated operation", async () => {
-    const diagnostics = await runner.diagnose(`
+    const diagnostics = await tester.diagnose(`
         extern fn f(T: unknown): unknown;
         extern dec d(target: unknown, arg: unknown);
 
@@ -1819,7 +1784,7 @@ describe("function calls within template declarations", () => {
   });
 
   it("calls a function once on instantiation of templated alias through 'model is'", async () => {
-    const [{ X, myProperty }, diagnostics] = (await runner.compileAndDiagnose(`
+    const [{ X }, diagnostics] = await tester.compileAndDiagnose(t.code`
         extern fn f(m: Reflection.Model): { myProperty: string };
 
         alias F<M extends Model> = f(M);
@@ -1829,12 +1794,12 @@ describe("function calls within template declarations", () => {
           myProperty: string;
         }
 
-        @test
-        model X is F<Y>;
+        
+        model ${t.model("X")} is F<Y>;
 
         // This also checks that 'myProperty' exists as a member symbol of X, resolved from return constraint of 'f'
-        @@test(X.myProperty);
-      `)) as [{ X: Model; myProperty: ModelProperty }, Diagnostic[]];
+        @@global.test(X.myProperty);
+      `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);
     strictEqual(receivedTypes.length, 1);
@@ -1846,6 +1811,6 @@ describe("function calls within template declarations", () => {
     strictEqual(myProp.type.kind, "Scalar");
     strictEqual(myProp.type.name, "string");
 
-    strictEqual(myProperty, myProp);
+    strictEqual(observed, myProp);
   });
 });
