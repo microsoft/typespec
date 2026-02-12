@@ -3,6 +3,13 @@ id: functions
 title: Functions
 ---
 
+:::warning
+Functions are an experimental TypeSpec feature. The API and behavior of functions may reasonably be expected to change in
+future releases as we gather feedback. If you choose to use functions in your TypeSpec libraries and programs, please be
+aware that you may need to make adjustments to your code when updating to new versions of TypeSpec. Declaring a function
+will yield a warning (you may suppress the warning with `#suppress "experimental-feature"`).
+:::
+
 Functions in TypeSpec allow library developers to compute and return types or values based on their inputs. Compared to
 [decorators](./decorators.md), functions provide an input-output based approach to creating type or value instances,
 offering more flexibility than decorators for creating new types dynamically. Functions enable complex type
@@ -140,6 +147,42 @@ model Config {
 }
 ```
 
+### Accepting options objects
+
+You may find it useful to accept an "options" object as a parameter to a function. In such cases, it's a good idea to
+define a model for the options structure, to provide better type safety and documentation for the expected options. You
+can then use `valueof` to accept an instance of the options model as an argument to the function call.
+
+```typespec
+/** Options for the `createDerivedModel` function. */
+model CreateDerivedModelOptions {
+  /**
+   * If set, overrides the name of the derived model.
+   */
+  name?: string;
+}
+
+/**
+ * Creates a new model derived from the input model, with some optional modifications.
+ *
+ * @param m the input model to derive from
+ * @param options optional parameters to control how the model is derived
+ * @returns a new model derived from `m` with the specified options applied
+ */
+extern fn createDerivedModel(
+  m: Reflection.Model,
+  options?: valueof CreateDerivedModelOptions
+): Reflection.Model;
+
+// Example usage:
+model BaseModel {
+  id: int32;
+}
+
+alias DefaultDerived = createDerivedModel(BaseModel);
+alias CustomDerived = createDerivedModel(BaseModel, #{ name: "CustomName" });
+```
+
 ## Function _types_
 
 A function itself is a _value_, and can be assigned to a constant:
@@ -198,7 +241,7 @@ Functions may be assigned to any function type that is compatible with its call 
 
 Compared to TypeScript function types, TypeSpec function types are a little bit stricter: a rest parameter cannot satisfy a required parameter (`fn (x: valueof string)` is not assignable to `fn (...args: valueof string[])`), but it can satisfy an _optional_ parameter (`fn (x?: valueof string)` is assignable to `fn(...args: valueof string[])`).
 
-Here are some example functions and whether or not they are assignable to each other:
+Here are some example functions and whether they are assignable to each other:
 
 | Function A                               | Function B                               | Is A assignable to B? | Explanation                                                                                                                            |
 | ---------------------------------------- | ---------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |

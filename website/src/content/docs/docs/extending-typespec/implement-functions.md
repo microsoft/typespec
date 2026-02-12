@@ -3,6 +3,12 @@ id: implement-functions
 title: Functions
 ---
 
+:::warning
+Functions are an experimental TypeSpec feature. The API and behavior of functions may reasonably be expected to change in
+future releases as we gather feedback. If you choose to use functions in your TypeSpec libraries and programs, please be
+aware that you may need to make adjustments to your code when updating to new versions of TypeSpec.
+:::
+
 TypeSpec functions, like [Decorators](./create-decorators.md), are implemented using JavaScript functions. To provide
 a function in your library, you must:
 
