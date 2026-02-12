@@ -30,7 +30,15 @@ namespace Sample
         internal global::System.ClientModel.Primitives.PipelineMessage CreateNextGetCatsRequest(global::System.Uri nextPage, string p1, int? maxPageSize, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            uri.Reset(nextPage);
+            if (nextPage.IsAbsoluteUri)
+            {
+                uri.Reset(nextPage);
+            }
+            else
+            {
+                uri.Reset(_endpoint);
+                uri.AppendPath(nextPage.OriginalString, false);
+            }
             uri.AppendQuery("p1", p1, true);
             if ((maxPageSize != null))
             {
