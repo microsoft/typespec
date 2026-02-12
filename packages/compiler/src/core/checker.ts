@@ -10,7 +10,7 @@ import {
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { compilerAssert, ignoreDiagnostics, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -58,6 +58,7 @@ import {
   DecoratorContext,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
+  DecoratorValidatorCallbacks,
   Diagnostic,
   DiagnosticTarget,
   DocContent,
@@ -96,7 +97,6 @@ import {
   ModelProperty,
   ModelPropertyNode,
   ModelStatementNode,
-  ModifierFlags,
   Namespace,
   NamespaceStatementNode,
   NeverType,
@@ -138,7 +138,6 @@ import {
   SymbolTable,
   SyntaxKind,
   TemplateArgumentNode,
-  TemplateDeclarationNode,
   TemplateParameter,
   TemplateParameterDeclarationNode,
   TemplateableNode,
@@ -159,12 +158,154 @@ import {
   UnionVariantNode,
   UnknownType,
   UsingStatementNode,
+  ValidatorFn,
   Value,
   ValueWithTemplate,
   VoidType,
 } from "./types.js";
 
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
+
+enum CheckFlags {
+  /** No flags set. */
+  None = 0,
+  /** Currently checking within an uninstantiated template declaration. */
+  InTemplateDeclaration = 1 << 0,
+}
+
+class CheckContext<Mapper extends TypeMapper | undefined = TypeMapper | undefined> {
+  /** The type mapper associated with this context, if any. */
+  mapper: Mapper;
+  /** The flags enabled in this context. */
+  flags: CheckFlags;
+
+  #templateParametersObserved: Set<TemplateParameter> | undefined;
+
+  /**
+   * Creates a new CheckContext from a type mapper.
+   * @param mapper - the type mapper
+   */
+  static from(mapper: TypeMapper): CheckContext<TypeMapper>;
+  /**
+   * Creates a new CheckContext with no mapper.
+   */
+  static from(mapper: undefined): CheckContext<undefined>;
+  /**
+   * Creates a new CheckContext from an optional TypeMapper.
+   * @param mapper
+   */
+  static from(mapper: TypeMapper | undefined): CheckContext;
+  /**
+   * Copies an existing CheckContext.
+   * @param context
+   */
+  static from<C extends CheckContext>(context: C): C;
+  /**
+   * Coerces a CheckContext from either a CheckContext or TypeMapper.
+   */
+  static from(contextOrMapper: CheckContext | TypeMapper | undefined): CheckContext;
+  static from(contextOrMapper: CheckContext | TypeMapper | undefined): CheckContext {
+    if (contextOrMapper instanceof CheckContext) {
+      return contextOrMapper;
+    }
+
+    return new CheckContext(contextOrMapper, CheckFlags.None);
+  }
+
+  /**
+   * The default CheckContext to use at API entrypoints.
+   */
+  static DEFAULT = new CheckContext(undefined, CheckFlags.None);
+
+  private constructor(
+    mapper: Mapper,
+    flags: CheckFlags,
+    templateParametersObserved?: Set<TemplateParameter>,
+  ) {
+    this.mapper = mapper;
+    this.flags = flags;
+    this.#templateParametersObserved = templateParametersObserved;
+    Object.freeze(this);
+  }
+
+  /**
+   * Returns a new context with the given flags _added_ to the existing flags.
+   *
+   * @param flags - the flags to enable
+   * @returns a new CheckContext with the given flags enabled.
+   */
+  withFlags(flags: CheckFlags): CheckContext<Mapper> {
+    return new CheckContext(this.mapper, this.flags | flags, this.#templateParametersObserved);
+  }
+
+  /**
+   * Returns a new context with the given flags disabled.
+   *
+   * @param flags - the flags to disable
+   * @returns a new CheckContext with the given flags disabled.
+   */
+  maskFlags(flags: CheckFlags): CheckContext<Mapper> {
+    return new CheckContext(this.mapper, this.flags & ~flags, this.#templateParametersObserved);
+  }
+
+  /**
+   * Returns true if ALL of the given flags are enabled in this context.
+   */
+  hasFlags(flags: CheckFlags): boolean {
+    return (this.flags & flags) === flags;
+  }
+
+  /**
+   * Returns a new context with the given mapper.
+   *
+   * @param mapper - the new type mapper, or undefined to clear the mapper
+   * @returns a new CheckContext with the given mapper.
+   */
+  withMapper<NewMapper extends TypeMapper | undefined>(mapper: NewMapper): CheckContext<NewMapper> {
+    return new CheckContext(mapper, this.flags, this.#templateParametersObserved);
+  }
+
+  /**
+   * Observes a template parameter within the current observation scope, if any.
+   *
+   * @param param - the TemplateParameter type instance to observe
+   */
+  observeTemplateParameter(param: TemplateParameter): void {
+    this.#templateParametersObserved?.add(param);
+  }
+
+  /**
+   * Returns a new CheckContext with a new (empty) template parameter observation scope.
+   *
+   * Call this when you need to observe template parameters used within a specific context.
+   *
+   * @returns a new CheckContext with an empty template parameter observation scope.
+   */
+  enterTemplateObserverScope(): CheckContext<Mapper> {
+    return new CheckContext(this.mapper, this.flags, new Set<TemplateParameter>());
+  }
+
+  /**
+   * Creates a new CheckContext with no template parameter observation enabled.
+   *
+   * Call this when the checker is moving from one declaration to another, where usage of template parameters
+   * from the next scope should not impact the usage from the previous scope.
+   *
+   * @returns a new CheckContext with no template parameter observation.
+   */
+  exitTemplateObserverScope(): CheckContext<Mapper> {
+    return new CheckContext(this.mapper, this.flags, undefined);
+  }
+
+  /**
+   * @returns true if the observer scope in this context has seen any template parameter usage.
+   */
+  hasObservedTemplateParameters(): boolean {
+    return this.#templateParametersObserved !== undefined
+      ? this.#templateParametersObserved.size > 0
+      : false;
+  }
+}
 
 export interface Checker {
   /** @internal */
@@ -202,7 +343,7 @@ export interface Checker {
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
-  createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
   createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   createLiteralType(
     value: string | number | boolean,
@@ -224,6 +365,20 @@ export interface Checker {
   isTypeAssignableTo(
     source: Entity,
     target: Entity,
+    diagnosticTarget: DiagnosticTarget,
+  ): [boolean, readonly Diagnostic[]];
+
+  /**
+   * Check if the value is assignable to the given type
+   * @param source Source value, should be assignable to the target type.
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
+   * @returns [related, list of diagnostics]
+   * @internal
+   */
+  isValueOfType(
+    source: Value,
+    target: Type,
     diagnosticTarget: DiagnosticTarget,
   ): [boolean, readonly Diagnostic[]];
 
@@ -357,6 +512,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
@@ -396,10 +552,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueExactType,
     getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
+    isValueOfType: undefined!,
     stats,
   };
   const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
+  checker.isValueOfType = relation.isValueOfType;
 
   return checker;
 
@@ -455,9 +613,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const sym = typespecNamespaceBinding?.exports?.get(name);
     compilerAssert(sym, `Unexpected missing symbol to std type "${name}"`);
     if (sym.flags & SymbolFlags.Model) {
-      checkModelStatement(sym!.declarations[0] as any, undefined);
+      checkModelStatement(CheckContext.DEFAULT, sym!.declarations[0] as any);
     } else {
-      checkScalar(sym.declarations[0] as any, undefined);
+      checkScalar(CheckContext.DEFAULT, sym.declarations[0] as any);
     }
 
     const loadedType = stdTypes[name];
@@ -476,17 +634,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @param type Type
    * @param mapper Type mapper if in an template instantiation
    */
-  function linkType(links: SymbolLinks, type: Type, mapper: TypeMapper | undefined) {
-    if (mapper === undefined) {
+  function linkType(ctx: CheckContext, links: SymbolLinks, type: Type) {
+    if (ctx.mapper === undefined) {
       links.declaredType = type;
       links.instantiations = new TypeInstantiationMap();
     } else if (links.instantiations) {
-      links.instantiations.set(mapper.args, type);
+      links.instantiations.set(ctx.mapper.args, type);
     }
   }
 
-  function linkMemberType(links: SymbolLinks, type: Type, mapper: TypeMapper | undefined) {
-    if (mapper === undefined) {
+  function linkMemberType(ctx: CheckContext, links: SymbolLinks, type: Type) {
+    if (ctx.mapper === undefined) {
       links.declaredType = type;
     }
   }
@@ -497,17 +655,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @param mapper Type mapper.
    * @returns Checked type for the given member symbol.
    */
-  function checkMemberSym(sym: Sym, mapper: TypeMapper | undefined): Type {
+  function checkMemberSym(ctx: CheckContext, sym: Sym): Type {
     const symbolLinks = getSymbolLinks(sym);
-    const memberContainer = getTypeForNode(getSymNode(sym.parent!), mapper);
+    const memberContainer = getTypeForNode(getSymNode(sym.parent!), ctx);
     const type = symbolLinks.declaredType ?? symbolLinks.type;
 
     if (type) {
       return type;
     } else {
       return checkMember(
+        ctx,
         getSymNode(sym) as MemberNode,
-        mapper,
         memberContainer as MemberContainerType,
       )!;
     }
@@ -521,21 +679,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @returns Checked member
    */
   function checkMember(
+    ctx: CheckContext,
     node: MemberNode,
-    mapper: TypeMapper | undefined,
     containerType: MemberContainerType,
   ): Type {
     switch (node.kind) {
       case SyntaxKind.ModelProperty:
-        return checkModelProperty(node, mapper);
+        return checkModelProperty(ctx, node);
       case SyntaxKind.EnumMember:
-        return checkEnumMember(node, mapper, containerType as Enum);
+        return checkEnumMember(ctx, node, containerType as Enum);
       case SyntaxKind.OperationStatement:
-        return checkOperation(node, mapper, containerType as Interface);
+        return checkOperation(ctx, node, containerType as Interface);
       case SyntaxKind.UnionVariant:
-        return checkUnionVariant(node, mapper);
+        return checkUnionVariant(ctx, node);
       case SyntaxKind.ScalarConstructor:
-        return checkScalarConstructor(node, mapper, containerType as Scalar);
+        return checkScalarConstructor(ctx, node, containerType as Scalar);
     }
   }
 
@@ -546,8 +704,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return entity;
   }
 
-  function getTypeForNode(node: Node, mapper?: TypeMapper): Type {
-    const entity = checkNode(node, mapper);
+  function getTypeForNode(node: Node, mapperOrContext?: TypeMapper | CheckContext): Type {
+    const ctx = CheckContext.from(mapperOrContext);
+    const entity = checkNode(ctx, node);
     if (entity === null) {
       return errorType;
     }
@@ -580,10 +739,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function getValueForNode(
     node: Node,
-    mapper?: TypeMapper,
+    mapperOrContext?: TypeMapper | CheckContext,
     constraint?: CheckValueConstraint,
   ): Value | null {
-    const initial = checkNode(node, mapper, constraint);
+    const ctx = CheckContext.from(mapperOrContext);
+    const initial = checkNode(ctx, node, constraint);
     if (initial === null) {
       return null;
     }
@@ -604,8 +764,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       entity.kind === "TemplateParameter" &&
       entity.constraint?.valueType &&
       entity.constraint.type === undefined &&
-      mapper === undefined
+      ctx.mapper === undefined
     ) {
+      // We must also observe that the template parameter is used here.
+      // ctx.observeTemplateParameter(entity);
       return createValue(
         {
           entityKind: "Value",
@@ -756,8 +918,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper?: TypeMapper,
     constraint?: CheckConstraint | undefined,
   ): Type | Value | null {
+    const ctx = CheckContext.from(mapper);
     const valueConstraint = extractValueOfConstraints(constraint);
-    const entity = checkNode(node, mapper, valueConstraint);
+    const entity = checkNode(ctx, node, valueConstraint);
     if (entity === null) {
       return entity;
     } else if (isType(entity)) {
@@ -804,36 +967,36 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * It is the job of of the consumer to decide if it should be a type or a value depending on the context.
    */
   function checkNode(
+    ctx: CheckContext,
     node: Node,
-    mapper?: TypeMapper,
     valueConstraint?: CheckValueConstraint | undefined,
   ): Type | Value | IndeterminateEntity | null {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
-        return checkModel(node, mapper);
+        return checkModel(ctx, node);
       case SyntaxKind.ModelStatement:
-        return checkModel(node, mapper);
+        return checkModel(ctx, node);
       case SyntaxKind.ModelProperty:
-        return checkModelProperty(node, mapper);
+        return checkModelProperty(ctx, node);
       case SyntaxKind.ScalarStatement:
-        return checkScalar(node, mapper);
+        return checkScalar(ctx, node);
       case SyntaxKind.AliasStatement:
-        return checkAlias(node, mapper);
+        return checkAlias(ctx, node);
       case SyntaxKind.EnumStatement:
-        return checkEnum(node, mapper);
+        return checkEnum(ctx, node);
       case SyntaxKind.EnumMember:
-        return checkEnumMember(node, mapper);
+        return checkEnumMember(ctx, node);
       case SyntaxKind.InterfaceStatement:
-        return checkInterface(node, mapper);
+        return checkInterface(ctx, node);
       case SyntaxKind.UnionStatement:
-        return checkUnion(node, mapper);
+        return checkUnion(ctx, node);
       case SyntaxKind.UnionVariant:
-        return checkUnionVariant(node, mapper);
+        return checkUnionVariant(ctx, node);
       case SyntaxKind.NamespaceStatement:
       case SyntaxKind.JsNamespaceDeclaration:
-        return checkNamespace(node);
+        return checkNamespace(ctx, node);
       case SyntaxKind.OperationStatement:
-        return checkOperation(node, mapper);
+        return checkOperation(ctx, node);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -841,25 +1004,25 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case SyntaxKind.StringLiteral:
         return checkStringLiteral(node);
       case SyntaxKind.TupleExpression:
-        return checkTupleExpression(node, mapper);
+        return checkTupleExpression(ctx, node);
       case SyntaxKind.StringTemplateExpression:
-        return checkStringTemplateExpresion(node, mapper);
+        return checkStringTemplateExpresion(ctx, node);
       case SyntaxKind.ArrayExpression:
-        return checkArrayExpression(node, mapper);
+        return checkArrayExpression(ctx, node);
       case SyntaxKind.UnionExpression:
-        return checkUnionExpression(node, mapper);
+        return checkUnionExpression(ctx, node);
       case SyntaxKind.IntersectionExpression:
-        return checkIntersectionExpression(node, mapper);
+        return checkIntersectionExpression(ctx, node);
       case SyntaxKind.DecoratorDeclarationStatement:
-        return checkDecoratorDeclaration(node, mapper);
+        return checkDecoratorDeclaration(ctx, node);
       case SyntaxKind.FunctionDeclarationStatement:
-        return checkFunctionDeclaration(node, mapper);
+        return checkFunctionDeclaration(ctx, node);
       case SyntaxKind.TypeReference:
-        return checkTypeOrValueReference(node, mapper);
+        return checkTypeOrValueReference(ctx, node);
       case SyntaxKind.TemplateArgument:
-        return checkTemplateArgument(node, mapper);
+        return checkTemplateArgument(ctx, node);
       case SyntaxKind.TemplateParameterDeclaration:
-        return checkTemplateParameterDeclaration(node, mapper);
+        return checkTemplateParameterDeclaration(ctx, node);
       case SyntaxKind.VoidKeyword:
         return voidType;
       case SyntaxKind.NeverKeyword:
@@ -867,19 +1030,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case SyntaxKind.UnknownKeyword:
         return unknownType;
       case SyntaxKind.ObjectLiteral:
-        return checkObjectValue(node, mapper, valueConstraint);
+        return checkObjectValue(ctx, node, valueConstraint);
       case SyntaxKind.ArrayLiteral:
-        return checkArrayValue(node, mapper, valueConstraint);
+        return checkArrayValue(ctx, node, valueConstraint);
       case SyntaxKind.ConstStatement:
         return checkConst(node);
       case SyntaxKind.CallExpression:
-        return checkCallExpression(node, mapper);
+        return checkCallExpression(ctx, node);
       case SyntaxKind.TypeOfExpression:
-        return checkTypeOfExpression(node, mapper);
+        return checkTypeOfExpression(ctx, node);
       case SyntaxKind.AugmentDecoratorStatement:
-        return checkAugmentDecorator(node);
+        return checkAugmentDecorator(ctx, node);
       case SyntaxKind.UsingStatement:
-        return checkUsings(node);
+        return checkUsings(ctx, node);
       default:
         return errorType;
     }
@@ -925,20 +1088,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkTemplateParameterDeclaration(
+    ctx: CheckContext<undefined>,
     node: TemplateParameterDeclarationNode,
-    mapper: undefined,
   ): TemplateParameter;
   function checkTemplateParameterDeclaration(
+    ctx: CheckContext,
     node: TemplateParameterDeclarationNode,
-    mapper: TypeMapper,
   ): Type | Value | IndeterminateEntity;
   function checkTemplateParameterDeclaration(
+    ctx: CheckContext,
     node: TemplateParameterDeclarationNode,
-    mapper: TypeMapper | undefined,
-  ): Type | Value | IndeterminateEntity;
-  function checkTemplateParameterDeclaration(
-    node: TemplateParameterDeclarationNode,
-    mapper: TypeMapper | undefined,
   ): Type | Value | IndeterminateEntity {
     const parentNode = node.parent!;
     const grandParentNode = parentNode.parent;
@@ -949,7 +1108,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (pendingResolutions.has(getNodeSym(node), ResolutionKind.Constraint)) {
-      if (mapper === undefined) {
+      if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "circular-constraint",
@@ -982,13 +1141,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       if (node.constraint) {
         pendingResolutions.start(getNodeSym(node), ResolutionKind.Constraint);
-        type.constraint = getParamConstraintEntityForNode(node.constraint);
+        type.constraint = getParamConstraintEntityForNode(ctx, node.constraint);
         pendingResolutions.finish(getNodeSym(node), ResolutionKind.Constraint);
       }
       if (node.default) {
         // Set this to unknownType in case the default points back to the template itself causing failures
         type.default = unknownType;
         type.default = checkTemplateParameterDefault(
+          ctx,
           node.default,
           parentNode.templateParameters,
           index,
@@ -996,13 +1156,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       }
     }
-    return mapper ? mapper.getMappedType(type) : type;
+    return ctx.mapper ? ctx.mapper.getMappedType(type) : type;
   }
 
   function getResolvedTypeParameterDefault(
+    ctx: CheckContext<TypeMapper>,
     declaredType: TemplateParameter,
     node: TemplateParameterDeclarationNode,
-    mapper: TypeMapper,
   ): Type | Value | IndeterminateEntity | null | undefined {
     if (declaredType.default === undefined) {
       return undefined;
@@ -1014,17 +1174,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return declaredType.default;
     }
 
-    return checkNode(node.default!, mapper);
+    return checkNode(ctx, node.default!);
   }
 
   function checkTemplateParameterDefault(
+    ctx: CheckContext,
     nodeDefault: Expression,
     templateParameters: readonly TemplateParameterDeclarationNode[],
     index: number,
     constraint: Entity | undefined,
   ): Type | Value | IndeterminateEntity {
     function visit(node: Node) {
-      const entity = checkNode(node);
+      const entity = checkNode(ctx, node);
       let hasError = false;
       if (entity !== null && "kind" in entity && entity.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
@@ -1063,16 +1224,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @returns Resolved type.
    */
   function checkTypeReference(
+    ctx: CheckContext,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined,
     instantiateTemplate = true,
   ): Type {
-    const sym = resolveTypeReferenceSym(node, mapper);
+    const sym = resolveTypeReferenceSym(ctx, node);
     if (!sym) {
       return errorType;
     }
 
-    const type = checkTypeReferenceSymbol(sym, node, mapper, instantiateTemplate);
+    const type = checkTypeReferenceSymbol(ctx, sym, node, instantiateTemplate);
     return type;
   }
 
@@ -1084,23 +1245,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @returns Resolved type.
    */
   function checkTypeOrValueReference(
+    ctx: CheckContext,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined,
     instantiateTemplate = true,
   ): Type | Value | IndeterminateEntity {
-    const sym = resolveTypeReferenceSym(node, mapper);
+    const sym = resolveTypeReferenceSym(ctx, node);
     if (!sym) {
       return errorType;
     }
 
-    return checkTypeOrValueReferenceSymbol(sym, node, mapper, instantiateTemplate) ?? errorType;
+    return checkTypeOrValueReferenceSymbol(ctx, sym, node, instantiateTemplate) ?? errorType;
   }
 
   function checkTemplateArgument(
+    ctx: CheckContext,
     node: TemplateArgumentNode,
-    mapper: TypeMapper | undefined,
   ): Type | Value | IndeterminateEntity | null {
-    return checkNode(node.argument, mapper);
+    return checkNode(ctx, node.argument);
   }
 
   function resolveTypeOrValueReference(
@@ -1109,7 +1270,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const oldDiagnosticHook = onCheckerDiagnostic;
     const diagnostics: Diagnostic[] = [];
     onCheckerDiagnostic = (x: Diagnostic) => diagnostics.push(x);
-    const entity = checkTypeOrValueReference(node, undefined, false);
+    const entity = checkTypeOrValueReference(CheckContext.DEFAULT, node, false);
     onCheckerDiagnostic = oldDiagnosticHook;
     return [entity === errorType ? undefined : entity, diagnostics];
   }
@@ -1120,7 +1281,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const oldDiagnosticHook = onCheckerDiagnostic;
     const diagnostics: Diagnostic[] = [];
     onCheckerDiagnostic = (x: Diagnostic) => diagnostics.push(x);
-    const type = checkTypeReference(node, undefined, false);
+    const type = checkTypeReference(CheckContext.DEFAULT, node, false);
     onCheckerDiagnostic = oldDiagnosticHook;
     return [type === errorType ? undefined : type, diagnostics];
   }
@@ -1136,14 +1297,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (node) {
       const deprecationDetails = getDeprecationDetails(program, node);
       if (deprecationDetails) {
-        reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+        reportDeprecated(program, deprecationDetails.message, target, reportCheckerDiagnostic);
         return;
       }
     }
 
     const deprecationDetails = getDeprecationDetails(program, type);
     if (deprecationDetails) {
-      reportDeprecation(program, target, deprecationDetails.message, reportCheckerDiagnostic);
+      reportDeprecated(program, deprecationDetails.message, target, reportCheckerDiagnostic);
     }
   }
 
@@ -1190,10 +1351,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkTemplateInstantiationArgs(
+    ctx: CheckContext,
     node: Node,
     args: readonly TemplateArgumentNode[],
     decls: readonly TemplateParameterDeclarationNode[],
-    mapper: TypeMapper | undefined,
     parentMapper?: TypeMapper,
   ): Map<TemplateParameter, Type | Value | IndeterminateEntity> {
     const params = new Map<string, TemplateParameter>();
@@ -1205,7 +1366,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     const initMap = new Map<TemplateParameter, TemplateParameterInit>(
       decls.map((decl) => {
-        const declaredType = checkTemplateParameterDeclaration(decl, undefined);
+        const declaredType = checkTemplateParameterDeclaration(CheckContext.DEFAULT, decl);
 
         positional.push(declaredType);
         params.set(decl.id.sv, declaredType);
@@ -1224,7 +1385,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     for (const [arg, idx] of args.map((v, i) => [v, i] as const)) {
       function deferredCheck(): [Node, Type | Value | IndeterminateEntity | null] {
-        return [arg, checkNode(arg.argument, mapper)];
+        return [arg, checkNode(ctx, arg.argument)];
       }
 
       if (arg.name) {
@@ -1307,10 +1468,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const argumentMapper = createTypeMapper(
           mapperParams,
           mapperArgs,
-          { node, mapper },
+          { node, mapper: ctx.mapper },
           parentMapper,
         );
-        const defaultValue = getResolvedTypeParameterDefault(param, decl, argumentMapper);
+        const defaultValue = getResolvedTypeParameterDefault(
+          ctx.withMapper(argumentMapper),
+          param,
+          decl,
+        );
         if (defaultValue) {
           commit(param, defaultValue);
         } else {
@@ -1391,12 +1556,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @returns resolved type.
    */
   function checkTypeReferenceSymbol(
+    ctx: CheckContext,
     sym: Sym,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined,
     instantiateTemplates = true,
   ): Type {
-    const result = checkTypeOrValueReferenceSymbol(sym, node, mapper, instantiateTemplates);
+    const result = checkTypeOrValueReferenceSymbol(ctx, sym, node, instantiateTemplates);
     if (result === null || isValue(result)) {
       reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node }));
       return errorType;
@@ -1408,27 +1573,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkTypeOrValueReferenceSymbol(
+    ctx: CheckContext,
     sym: Sym,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined,
     instantiateTemplates = true,
   ): Type | Value | IndeterminateEntity | null {
-    const entity = checkTypeOrValueReferenceSymbolWorker(sym, node, mapper, instantiateTemplates);
+    const entity = checkTypeOrValueReferenceSymbolWorker(ctx, sym, node, instantiateTemplates);
 
     if (entity !== null && isType(entity) && entity.kind === "TemplateParameter") {
+      ctx.observeTemplateParameter(entity);
       templateParameterUsageMap.set(entity.node!, true);
     }
     return entity;
   }
 
   function checkTypeOrValueReferenceSymbolWorker(
+    ctx: CheckContext,
     sym: Sym,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined,
     instantiateTemplates = true,
   ): Type | Value | IndeterminateEntity | null {
     if (sym.flags & SymbolFlags.Const) {
-      return getValueForNode(sym.declarations[0], mapper);
+      return getValueForNode(sym.declarations[0], ctx.mapper);
     }
 
     if (sym.flags & SymbolFlags.Decorator) {
@@ -1462,6 +1628,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ) {
       const decl = sym.declarations[0] as TemplateableNode;
       if (!isTemplatedNode(decl)) {
+        // Not a templated node, and we are moving through a typeref to a new declaration.
+        // Therefore, we are no longer in a template declaration if we were before, and we are
+        // visiting a new declaration, so we exit the active template observer scope, if any.
+        const innerCtx = ctx
+          .maskFlags(CheckFlags.InTemplateDeclaration)
+          .exitTemplateObserverScope();
         if (argumentNodes.length > 0) {
           reportCheckerDiagnostic(
             createDiagnostic({
@@ -1478,27 +1650,40 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         } else if (symbolLinks.declaredType) {
           baseType = symbolLinks.declaredType;
         } else if (sym.flags & SymbolFlags.Member) {
-          baseType = checkMemberSym(sym, mapper);
+          baseType = checkMemberSym(innerCtx, sym);
         } else {
-          baseType = checkDeclaredTypeOrIndeterminate(sym, decl, mapper);
+          //
+          baseType = checkDeclaredTypeOrIndeterminate(innerCtx, sym, decl);
         }
       } else {
-        const declaredType = getOrCheckDeclaredType(sym, decl, mapper);
+        // Checking the declaration to ensure we have the template itself, so we don't need the mapper.
+        const declaredType = getOrCheckDeclaredType(ctx.withMapper(undefined), sym, decl);
 
         const templateParameters = decl.templateParameters;
+        const instantiationArgsCtx = ctx.enterTemplateObserverScope();
         const instantiation = checkTemplateInstantiationArgs(
+          instantiationArgsCtx,
           node,
           argumentNodes,
           templateParameters,
-          mapper,
           declaredType.templateMapper,
         );
 
+        // If we didn't see any template parameters during argument checking, then this type reference is "pure"
+        // and we can mask the InTemplateDeclaration flag downstream. In either case, we are going to a new declaration
+        // so we exit the active template observer scope, if any.
+        const innerCtx = (
+          instantiationArgsCtx.hasObservedTemplateParameters()
+            ? ctx
+            : ctx.maskFlags(CheckFlags.InTemplateDeclaration)
+        ).exitTemplateObserverScope();
+
         baseType = getOrInstantiateTemplate(
+          innerCtx,
           decl,
           [...instantiation.keys()],
           [...instantiation.values()],
-          { node, mapper },
+          { node, mapper: ctx.mapper },
           declaredType.templateMapper,
           instantiateTemplates,
         );
@@ -1521,8 +1706,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return sym.type;
       } else if (sym.flags & SymbolFlags.TemplateParameter) {
         const mapped = checkTemplateParameterDeclaration(
+          ctx,
           symNode as TemplateParameterDeclarationNode,
-          mapper,
         );
         baseType = mapped as any;
       } else if (symbolLinks.type) {
@@ -1532,10 +1717,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         baseType = symbolLinks.declaredType;
       } else {
         if (sym.flags & SymbolFlags.Member) {
-          baseType = checkMemberSym(sym, mapper);
+          baseType = checkMemberSym(ctx, sym);
         } else {
           // don't have a cached type for this symbol, so go grab it and cache it
-          baseType = getTypeForNode(symNode, mapper);
+          baseType = getTypeForNode(symNode, ctx);
           symbolLinks.type = baseType;
         }
       }
@@ -1545,7 +1730,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     // don't raise deprecation when the usage site is also a deprecated
     // declaration.
     const declarationNode = getSymNode(sym);
-    if (declarationNode && mapper === undefined && isType(baseType)) {
+    if (declarationNode && ctx.mapper === undefined && isType(baseType)) {
       if (!isTypeReferenceContextDeprecated(node.parent!)) {
         checkDeprecated(baseType, declarationNode, node);
       }
@@ -1570,9 +1755,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @returns The declared type for the given node.
    */
   function getOrCheckDeclaredType(
+    ctx: CheckContext,
     sym: Sym,
     decl: TemplateableNode,
-    mapper: TypeMapper | undefined,
   ): TemplatedType {
     const symbolLinks = getSymbolLinks(sym);
     if (symbolLinks.declaredType) {
@@ -1585,9 +1770,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (sym.flags & SymbolFlags.Member) {
-      return checkMemberSym(sym, mapper) as TemplatedType;
+      return checkMemberSym(ctx, sym) as TemplatedType;
     } else {
-      return checkDeclaredType(sym, decl, mapper) as TemplatedType;
+      return checkDeclaredType(ctx, sym, decl) as TemplatedType;
     }
   }
 
@@ -1599,35 +1784,32 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @returns The declared type for the given node.
    */
   function checkDeclaredTypeOrIndeterminate(
+    ctx: CheckContext,
     sym: Sym,
     node: TemplateableNode,
-    mapper: TypeMapper | undefined,
   ): Type | IndeterminateEntity {
     const type =
       sym.flags & SymbolFlags.Model
-        ? checkModelStatement(node as ModelStatementNode, mapper)
+        ? checkModelStatement(ctx, node as ModelStatementNode)
         : sym.flags & SymbolFlags.Scalar
-          ? checkScalar(node as ScalarStatementNode, mapper)
+          ? checkScalar(ctx, node as ScalarStatementNode)
           : sym.flags & SymbolFlags.Alias
-            ? checkAlias(node as AliasStatementNode, mapper)
+            ? checkAlias(ctx, node as AliasStatementNode)
             : sym.flags & SymbolFlags.Interface
-              ? checkInterface(node as InterfaceStatementNode, mapper)
+              ? checkInterface(ctx, node as InterfaceStatementNode)
               : sym.flags & SymbolFlags.Operation
-                ? checkOperation(node as OperationStatementNode, mapper)
-                : checkUnion(node as UnionStatementNode, mapper);
+                ? checkOperation(ctx, node as OperationStatementNode)
+                : checkUnion(ctx, node as UnionStatementNode);
 
     return type;
   }
 
-  function checkDeclaredType(
-    sym: Sym,
-    node: TemplateableNode,
-    mapper: TypeMapper | undefined,
-  ): Type {
-    return getTypeForTypeOrIndeterminate(checkDeclaredTypeOrIndeterminate(sym, node, mapper));
+  function checkDeclaredType(ctx: CheckContext, sym: Sym, node: TemplateableNode): Type {
+    return getTypeForTypeOrIndeterminate(checkDeclaredTypeOrIndeterminate(ctx, sym, node));
   }
 
   function getOrInstantiateTemplate(
+    ctx: CheckContext,
     templateNode: TemplateableNode,
     params: TemplateParameter[],
     args: (Type | Value | IndeterminateEntity)[],
@@ -1665,7 +1847,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return cached;
     }
     if (instantiateTempalates) {
-      return instantiateTemplate(symbolLinks.instantiations, templateNode, params, mapper);
+      return instantiateTemplate(
+        ctx.withMapper(mapper),
+        symbolLinks.instantiations,
+        templateNode,
+        params,
+      );
     } else {
       return errorType;
     }
@@ -1680,14 +1867,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * are ever in scope at once.
    */
   function instantiateTemplate(
+    ctx: CheckContext<TypeMapper>,
     instantiations: TypeInstantiationMap,
     templateNode: TemplateableNode,
     params: TemplateParameter[],
-    mapper: TypeMapper,
   ): Type {
-    const type = getTypeForNode(templateNode, mapper);
-    if (!instantiations.get(mapper.args)) {
-      instantiations.set(mapper.args, type);
+    const type = getTypeForNode(templateNode, ctx);
+    if (!instantiations.get(ctx.mapper.args)) {
+      instantiations.set(ctx.mapper.args, type);
     }
     if (type.kind === "Model") {
       type.templateNode = templateNode;
@@ -1697,13 +1884,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   /** Check a union expresion used in a parameter constraint, those allow the use of `valueof` as a variant. */
   function checkMixedParameterConstraintUnion(
+    ctx: CheckContext,
     node: UnionExpressionNode,
-    mapper: TypeMapper | undefined,
   ): MixedParameterConstraint {
     const values: Type[] = [];
     const types: Type[] = [];
     for (const option of node.options) {
-      const [kind, type] = getTypeOrValueOfTypeForNode(option, mapper);
+      const [kind, type] = getTypeOrValueOfTypeForNode(ctx, option);
       if (kind === "value") {
         values.push(type);
       } else {
@@ -1756,7 +1943,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return union;
   }
 
-  function checkUnionExpression(node: UnionExpressionNode, mapper: TypeMapper | undefined): Union {
+  function checkUnionExpression(ctx: CheckContext, node: UnionExpressionNode): Union {
     const unionType: Union = createAndFinishType({
       kind: "Union",
       node,
@@ -1770,7 +1957,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     });
 
     for (const o of node.options) {
-      const type = getTypeForNode(o, mapper);
+      const type = getTypeForNode(o, ctx);
 
       // The type `A | never` is just `A`
       if (type === neverType) {
@@ -1794,7 +1981,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    linkMapper(unionType, mapper);
+    linkMapper(unionType, ctx.mapper);
 
     return unionType;
   }
@@ -1804,26 +1991,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * So this doesn't work if we don't have a known set of properties (e.g.
    * with unions). The resulting model is anonymous.
    */
-  function checkIntersectionExpression(
-    node: IntersectionExpressionNode,
-    mapper: TypeMapper | undefined,
-  ) {
+  function checkIntersectionExpression(ctx: CheckContext, node: IntersectionExpressionNode) {
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && mapper === undefined) {
+    if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
 
     const intersection: Model = initModel(node);
-    const options = node.options.map((o): [Expression, Type] => [o, getTypeForNode(o, mapper)]);
+    const options = node.options.map((o): [Expression, Type] => [o, getTypeForNode(o, ctx)]);
 
     ensureResolved(
       options.map(([, type]) => type),
       intersection,
       () => {
-        const type = mergeModelTypes(node.symbol, node, options, mapper, intersection);
-        linkType(links, type, mapper);
+        const type = mergeModelTypes(ctx, node.symbol, node, options, intersection);
+        linkType(ctx, links, type);
         finishType(intersection);
       },
     );
@@ -1865,13 +2049,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkDecoratorDeclaration(
+    ctx: CheckContext,
     node: DecoratorDeclarationStatementNode,
-    mapper: TypeMapper | undefined,
   ): Decorator {
     checkModifiers(program, node);
+
     const symbol = getMergedSymbol(node.symbol);
     const links = getSymbolLinks(symbol);
-    if (links.declaredType && mapper === undefined) {
+    if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this operation and we've already checked it
       return links.declaredType as Decorator;
     }
@@ -1883,10 +2068,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
     const name = node.id.sv;
 
-    if (!(node.modifierFlags & ModifierFlags.Extern)) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "decorator-extern", target: node }));
-    }
-
     const implementation = symbol.value;
     if (implementation === undefined) {
       reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
@@ -1896,40 +2077,37 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       name: `@${name}`,
       namespace,
       node,
-      target: checkFunctionParameter(node.target, mapper, true),
-      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, true)),
+      target: checkFunctionParameter(ctx, node.target, true),
+      parameters: node.parameters.map((param) => checkFunctionParameter(ctx, param, true)),
       implementation: implementation ?? (() => {}),
     });
 
     namespace.decoratorDeclarations.set(name, decoratorType);
 
-    linkType(links, decoratorType, mapper);
+    linkType(ctx, links, decoratorType);
 
     return decoratorType;
   }
 
-  function checkFunctionDeclaration(
-    node: FunctionDeclarationStatementNode,
-    mapper: TypeMapper | undefined,
-  ) {
+  function checkFunctionDeclaration(ctx: CheckContext, node: FunctionDeclarationStatementNode) {
     checkModifiers(program, node);
     reportCheckerDiagnostic(createDiagnostic({ code: "function-unsupported", target: node }));
     return errorType;
   }
 
   function checkFunctionParameter(
+    ctx: CheckContext,
     node: FunctionParameterNode,
-    mapper: TypeMapper | undefined,
     mixed: true,
   ): MixedFunctionParameter;
   function checkFunctionParameter(
+    ctx: CheckContext,
     node: FunctionParameterNode,
-    mapper: TypeMapper | undefined,
     mixed: false,
   ): SignatureFunctionParameter;
   function checkFunctionParameter(
+    ctx: CheckContext,
     node: FunctionParameterNode,
-    mapper: TypeMapper | undefined,
     mixed: boolean,
   ): FunctionParameter {
     const links = getSymbolLinks(node.symbol);
@@ -1963,7 +2141,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     if (mixed) {
       const type = node.type
-        ? getParamConstraintEntityForNode(node.type)
+        ? getParamConstraintEntityForNode(ctx, node.type)
         : ({
             entityKind: "MixedParameterConstraint",
             type: unknownType,
@@ -1983,30 +2161,30 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       });
     }
 
-    linkType(links, parameterType, mapper);
+    linkType(ctx, links, parameterType);
 
     return parameterType;
   }
 
-  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper): ["type" | "value", Type] {
+  function getTypeOrValueOfTypeForNode(ctx: CheckContext, node: Node): ["type" | "value", Type] {
     switch (node.kind) {
       case SyntaxKind.ValueOfExpression:
-        const target = getTypeForNode(node.target, mapper);
+        const target = getTypeForNode(node.target, ctx);
         return ["value", target];
       default:
-        return ["type", getTypeForNode(node, mapper)];
+        return ["type", getTypeForNode(node, ctx)];
     }
   }
 
   function getParamConstraintEntityForNode(
+    ctx: CheckContext,
     node: Expression,
-    mapper?: TypeMapper,
   ): MixedParameterConstraint {
     switch (node.kind) {
       case SyntaxKind.UnionExpression:
-        return checkMixedParameterConstraintUnion(node, mapper);
+        return checkMixedParameterConstraintUnion(ctx, node);
       default:
-        const [kind, entity] = getTypeOrValueOfTypeForNode(node, mapper);
+        const [kind, entity] = getTypeOrValueOfTypeForNode(ctx, node);
         return {
           entityKind: "MixedParameterConstraint",
           node: node,
@@ -2017,10 +2195,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function mergeModelTypes(
+    ctx: CheckContext,
     parentModelSym: Sym | undefined,
     node: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode,
     options: [Node, Type][],
-    mapper: TypeMapper | undefined,
     intersection: Model,
   ) {
     const properties = intersection.properties;
@@ -2054,8 +2232,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
       }
     }
-    for (const [_, option] of modelOptions) {
-      intersection.sourceModels.push({ usage: "intersection", model: option });
+    for (const [optionNode, option] of modelOptions) {
+      intersection.sourceModels.push({ usage: "intersection", model: option, node: optionNode });
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
@@ -2078,7 +2256,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           ? cloneTypeForSymbol(memberSym, prop, overrides)
           : cloneType(prop, overrides);
         properties.set(prop.name, newPropType);
-        linkIndirectMember(node, newPropType, mapper);
+        linkIndirectMember(ctx, node, newPropType);
 
         for (const indexer of indexers.filter((x) => x !== option.indexer)) {
           checkPropertyCompatibleWithIndexer(indexer, prop, node);
@@ -2092,33 +2270,43 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       intersection.indexer = {
         key: indexers[0].key,
         value: mergeModelTypes(
+          ctx,
           undefined,
           node,
           indexers.map((x) => [x.value.node!, x.value]),
-          mapper,
           initModel(node),
         ),
       };
     }
-    linkMapper(intersection, mapper);
+    linkMapper(intersection, ctx.mapper);
     return finishType(intersection);
   }
 
-  function checkArrayExpression(node: ArrayExpressionNode, mapper: TypeMapper | undefined): Model {
-    const elementType = getTypeForNode(node.elementType, mapper);
+  function checkArrayExpression(ctx: CheckContext, node: ArrayExpressionNode): Model {
+    const elementCtx = ctx.enterTemplateObserverScope();
+    const elementType = getTypeForNode(node.elementType, elementCtx);
+
+    const instantiationCtx = elementCtx.hasObservedTemplateParameters()
+      ? ctx
+      : ctx.maskFlags(CheckFlags.InTemplateDeclaration);
+
     const arrayType = getStdType("Array");
     const arrayNode: ModelStatementNode = arrayType.node as any;
     const param: TemplateParameter = getTypeForNode(arrayNode.templateParameters[0]) as any;
     return getOrInstantiateTemplate(
+      instantiationCtx,
       arrayNode,
       [param],
       [elementType],
-      { node, mapper },
+      { node, mapper: ctx.mapper },
       undefined,
     ) as Model;
   }
 
-  function checkNamespace(node: NamespaceStatementNode | JsNamespaceDeclarationNode) {
+  function checkNamespace(
+    ctx: CheckContext,
+    node: NamespaceStatementNode | JsNamespaceDeclarationNode,
+  ) {
     const links = getSymbolLinks(getMergedSymbol(node.symbol));
     let type = links.type as Namespace;
     if (!type) {
@@ -2128,9 +2316,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (node.kind === SyntaxKind.NamespaceStatement) {
       checkModifiers(program, node);
       if (isArray(node.statements)) {
-        node.statements.forEach((x) => checkNode(x));
+        node.statements.forEach((x) => checkNode(ctx, x));
       } else if (node.statements) {
-        const subNs = checkNamespace(node.statements);
+        const subNs = checkNamespace(ctx, node.statements);
         type.namespaces.set(subNs.name, subNs);
       }
     }
@@ -2166,7 +2354,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       for (const sourceNode of mergedSymbol.declarations) {
         // namespaces created from TypeSpec scripts don't have decorators
         if (sourceNode.kind !== SyntaxKind.NamespaceStatement) continue;
-        type.decorators = type.decorators.concat(checkDecorators(type, sourceNode, undefined));
+        type.decorators = type.decorators.concat(
+          checkDecorators(CheckContext.DEFAULT, type, sourceNode),
+        );
       }
       finishType(type);
 
@@ -2260,33 +2450,38 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkOperation(
+    ctx: CheckContext,
     node: OperationStatementNode,
-    mapper: TypeMapper | undefined,
     parentInterface?: Interface,
   ): Operation {
     checkModifiers(program, node);
     const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
     const symbol = inInterface ? getSymbolForMember(node) : node.symbol;
     const links = symbol && getSymbolLinks(symbol);
+
     if (links) {
-      if (links.declaredType && mapper === undefined) {
+      if (links.declaredType && ctx.mapper === undefined) {
         // we're not instantiating this operation and we've already checked it
         return links.declaredType as Operation;
       }
     }
 
-    if (mapper === undefined && inInterface) {
+    if (ctx.mapper === undefined && inInterface) {
       compilerAssert(
         parentInterface,
         "Operation in interface should already have been checked.",
         node.parent,
       );
     }
-    checkTemplateDeclaration(node, mapper);
+    checkTemplateDeclaration(ctx, node);
 
     // If we are instantating operation inside of interface
-    if (isTemplatedNode(node) && mapper !== undefined && parentInterface) {
-      mapper = { ...mapper, partial: true };
+    if (isTemplatedNode(node) && ctx.mapper !== undefined && parentInterface) {
+      ctx = ctx.withMapper({ ...ctx.mapper, partial: true });
+    }
+
+    if ((ctx.mapper === undefined || ctx.mapper.partial) && node.templateParameters.length > 0) {
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
     const namespace = getParentNamespaceType(node);
@@ -2319,7 +2514,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       interface: parentInterface,
     });
     if (links) {
-      linkType(links, operationType, mapper);
+      linkType(ctx, links, operationType);
     }
 
     const parent = node.parent!;
@@ -2327,18 +2522,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     function finishOperation() {
       operationType.parameters.namespace = namespace;
 
-      operationType.decorators.push(...checkDecorators(operationType, node, mapper));
-      const runDecorators =
-        parent.kind === SyntaxKind.InterfaceStatement
-          ? shouldRunDecorators(parent, mapper) && shouldRunDecorators(node, mapper)
-          : shouldRunDecorators(node, mapper);
+      operationType.decorators.push(...checkDecorators(ctx, operationType, node));
 
-      return finishType(operationType, { skipDecorators: !runDecorators });
+      return finishType(operationType, {
+        skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
+      });
     }
     // Is this a definition or reference?
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
       // Attempt to resolve the operation
-      const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
+      const baseOperation = checkOperationIs(ctx, node, node.signature.baseOperation);
       if (baseOperation) {
         ensureResolved([baseOperation], operationType, () => {
           operationType.sourceOperation = baseOperation;
@@ -2370,15 +2563,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         finishOperation();
       }
     } else {
-      operationType.parameters = getTypeForNode(node.signature.parameters, mapper) as Model;
-      operationType.returnType = getTypeForNode(node.signature.returnType, mapper);
+      operationType.parameters = getTypeForNode(node.signature.parameters, ctx) as Model;
+      operationType.returnType = getTypeForNode(node.signature.returnType, ctx);
       ensureResolved([operationType.parameters], operationType, () => {
         finishOperation();
       });
     }
 
-    linkMapper(operationType, mapper);
-    if (parent.kind !== SyntaxKind.InterfaceStatement && mapper === undefined) {
+    linkMapper(operationType, ctx.mapper);
+    if (parent.kind !== SyntaxKind.InterfaceStatement && ctx.mapper === undefined) {
       namespace?.operations.set(name, operationType);
     }
 
@@ -2386,9 +2579,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkOperationIs(
+    ctx: CheckContext,
     operation: OperationStatementNode,
     opReference: TypeReferenceNode | undefined,
-    mapper: TypeMapper | undefined,
   ): Operation | undefined {
     if (!opReference) return undefined;
     // Ensure that we don't end up with a circular reference to the same operation
@@ -2401,7 +2594,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // Did we encounter a circular operation reference?
     if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
-      if (mapper === undefined) {
+      if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "circular-op-signature",
@@ -2415,7 +2608,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     // Resolve the base operation type
-    const baseOperation = getTypeForNode(opReference, mapper);
+    const baseOperation = getTypeForNode(opReference, ctx);
     if (opSymId) {
       pendingResolutions.finish(opSymId, ResolutionKind.BaseType);
     }
@@ -2441,11 +2634,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return resolver.symbols.global.declarations[0] as any;
   }
 
-  function checkTupleExpression(node: TupleExpressionNode, mapper: TypeMapper | undefined): Tuple {
+  function checkTupleExpression(ctx: CheckContext, node: TupleExpressionNode): Tuple {
     return createAndFinishType({
       kind: "Tuple",
       node: node,
-      values: node.values.map((v) => getTypeForNode(v, mapper)),
+      values: node.values.map((v) => getTypeForNode(v, ctx)),
     });
   }
 
@@ -2454,6 +2647,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function resolveRelatedSymbols(id: IdentifierNode, mapper?: TypeMapper): Sym[] | undefined {
+    const ctx = CheckContext.from(mapper);
     let sym: Sym | undefined;
     const { node, kind } = getIdentifierContext(id);
 
@@ -2487,10 +2681,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             resolveDecorator = false;
           }
         }
-        sym = resolveTypeReferenceSym(ref, mapper, resolveDecorator);
+        sym = resolveTypeReferenceSym(ctx, ref, resolveDecorator);
         break;
       case IdentifierKind.TemplateArgument:
-        const templates = getTemplateDeclarationsForArgument(node as TemplateArgumentNode, mapper);
+        const templates = getTemplateDeclarationsForArgument(ctx, node as TemplateArgumentNode);
 
         const firstMatchingParameter = templates
           .flatMap((t) => t.templateParameters)
@@ -2516,17 +2710,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return undefined; //sym?.symbolSource ?? sym;
   }
 
-  function getTemplateDeclarationsForArgument(
-    node: TemplateArgumentNode,
-    mapper: TypeMapper | undefined,
-  ) {
+  function getTemplateDeclarationsForArgument(ctx: CheckContext, node: TemplateArgumentNode) {
     const ref = node.parent as TypeReferenceNode;
-    let resolved = resolveTypeReferenceSym(ref, mapper, false);
+    let resolved = resolveTypeReferenceSym(ctx, ref, false);
     // if the reference type can't be resolved and has parse error,
     // it likely means the reference type hasn't been completed yet. i.e. Foo<string,
     // so try to resolve it by it's target directly to see if we can find its sym
     if (!resolved && hasParseError(ref) && ref.target !== undefined) {
-      resolved = resolveTypeReferenceSym(ref.target, mapper, false);
+      resolved = resolveTypeReferenceSym(ctx, ref.target, false);
     }
     return (resolved?.declarations.filter((n) => isTemplatedNode(n)) ?? []) as TemplateableNode[];
   }
@@ -2676,9 +2867,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const argNode = node.parent;
         const refNode = node.parent.parent;
         const decl = getTemplateDeclarationsForArgument(
-          argNode,
           // We should be giving the argument so the mapper here should be undefined
-          undefined /* mapper */,
+          CheckContext.DEFAULT,
+          argNode,
         );
 
         const index = refNode.arguments.findIndex((n) => n === argNode);
@@ -2722,7 +2913,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return undefined;
       }
 
-      const ctorType = checkCallExpressionTarget(callExpNode, undefined);
+      const ctorType = checkCallExpressionTarget(CheckContext.DEFAULT, callExpNode);
 
       if (ctorType?.kind !== "ScalarConstructor") {
         return undefined;
@@ -2819,8 +3010,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return completions; // cannot complete, name can be chosen arbitrarily
       case IdentifierKind.TemplateArgument: {
         const templates = getTemplateDeclarationsForArgument(
+          CheckContext.DEFAULT,
           ancestor as TemplateArgumentNode,
-          undefined,
         );
 
         for (const template of templates) {
@@ -2884,7 +3075,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       if (base) {
         if (base.flags & SymbolFlags.Alias) {
-          base = getAliasedSymbol(base, undefined);
+          base = getAliasedSymbol(CheckContext.DEFAULT, base);
         }
 
         if (base) {
@@ -2917,8 +3108,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         ancestor.parent.name === undefined
       ) {
         const templates = getTemplateDeclarationsForArgument(
+          CheckContext.DEFAULT,
           ancestor.parent as TemplateArgumentNode,
-          undefined,
         );
 
         for (const template of templates) {
@@ -3026,8 +3217,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function resolveTypeReferenceSym(
+    ctx: CheckContext,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined,
     options?: Partial<SymbolResolutionOptions> | boolean,
     locationContext?: LocationContext,
   ): Sym | undefined {
@@ -3035,22 +3226,25 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       typeof options === "boolean"
         ? { ...defaultSymbolResolutionOptions, resolveDecorators: options }
         : { ...defaultSymbolResolutionOptions, ...(options ?? {}) };
-    if (mapper === undefined && resolvedOptions.checkTemplateTypes && referenceSymCache.has(node)) {
+    if (
+      ctx.mapper === undefined &&
+      !resolvedOptions.resolveDeclarationOfTemplate &&
+      referenceSymCache.has(node)
+    ) {
       return referenceSymCache.get(node);
     }
-
     locationContext ??= getLocationContext(program, node);
 
-    const sym = resolveTypeReferenceSymInternal(node, mapper, resolvedOptions, locationContext);
-    if (resolvedOptions.checkTemplateTypes) {
+    const sym = resolveTypeReferenceSymInternal(ctx, node, resolvedOptions, locationContext);
+    if (!resolvedOptions.resolveDeclarationOfTemplate) {
       referenceSymCache.set(node, sym);
     }
     return sym;
   }
 
   function resolveTypeReferenceSymInternal(
+    ctx: CheckContext,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined,
     options: SymbolResolutionOptions,
     locationContext: LocationContext,
   ): Sym | undefined {
@@ -3060,12 +3254,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
     if (node.kind === SyntaxKind.TypeReference) {
-      return resolveTypeReferenceSym(node.target, mapper, options, locationContext);
+      return resolveTypeReferenceSym(ctx, node.target, options, locationContext);
     } else if (node.kind === SyntaxKind.Identifier) {
       const links = resolver.getNodeLinks(node);
-      if (mapper === undefined && links.resolutionResult) {
+      if (ctx.mapper === undefined && links.resolutionResult) {
         if (
-          mapper === undefined && // do not report error when instantiating
+          ctx.mapper === undefined && // do not report error when instantiating
           links.resolutionResult & (ResolutionResultFlags.NotFound | ResolutionResultFlags.Unknown)
         ) {
           reportCheckerDiagnostic(
@@ -3089,8 +3283,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return sym;
     } else if (node.kind === SyntaxKind.MemberExpression) {
       let base = resolveTypeReferenceSym(
+        ctx,
         node.base,
-        mapper,
         {
           ...options,
           resolveDecorators: false, // when resolving decorator the base cannot also be one
@@ -3104,24 +3298,54 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
-        const aliasedSym = getAliasedSymbol(base, mapper);
-        if (!aliasedSym) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "invalid-ref",
-              messageId: "node",
-              format: {
-                id: node.id.sv,
-                nodeName: base.declarations[0]
-                  ? SyntaxKind[base.declarations[0].kind]
-                  : "Unknown node",
-              },
-              target: node,
-            }),
+        if (!options.resolveDeclarationOfTemplate && isTemplatedNode(getSymNode(base))) {
+          // This is a bare identifier reference to a templated alias, so we need to actually check this type.
+          const ty = checkTypeReferenceSymbol(
+            ctx.withMapper(undefined),
+            base,
+            node.base,
+            /* instantiateTemplates */ true,
           );
+          base = lateBindContainer(ty, base);
+
+          if (base?.members) {
+            switch (ty.kind) {
+              case "Model":
+              case "Union":
+              case "Interface":
+              case "Enum":
+              case "Scalar":
+                lateBindMembers(ty);
+            }
+          }
+
+          if (!base) return undefined;
+        } else {
+          const aliasedSym = getAliasedSymbol(ctx, base);
+          if (!aliasedSym) {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "invalid-ref",
+                messageId: "node",
+                format: {
+                  id: node.id.sv,
+                  nodeName: base.declarations[0]
+                    ? SyntaxKind[base.declarations[0].kind]
+                    : "Unknown node",
+                },
+                target: node,
+              }),
+            );
+            return undefined;
+          }
+          base = aliasedSym;
+        }
+      } else if (!options.resolveDeclarationOfTemplate && isTemplatedNode(getSymNode(base))) {
+        const baseSym = getContainerTemplateSymbol(ctx, base, node.base);
+        if (!baseSym) {
           return undefined;
         }
-        base = aliasedSym;
+        base = baseSym;
       }
       const sym = resolveMemberInContainer(base, node, options);
 
@@ -3287,7 +3511,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * (i.e. they contain symbols we don't know until we've instantiated the type and the type is an
    * instantiation) we late bind the container which creates the symbol that will hold its members.
    */
-  function getAliasedSymbol(aliasSymbol: Sym, mapper: TypeMapper | undefined): Sym | undefined {
+  function getAliasedSymbol(ctx: CheckContext, aliasSymbol: Sym): Sym | undefined {
     const node = getSymNode(aliasSymbol);
     const links = resolver.getSymbolLinks(aliasSymbol);
     if (!links.aliasResolutionIsTemplate) {
@@ -3295,35 +3519,70 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     // Otherwise for templates we need to get the type and retrieve the late bound symbol.
-    const aliasType = getTypeForNode(node as AliasStatementNode, mapper);
-    if (isErrorType(aliasType)) {
+    const aliasType = getTypeForNode(node as AliasStatementNode, ctx);
+    return lateBindContainer(aliasType, aliasSymbol);
+  }
+
+  /** Check case where a template type member is referenced like
+   * ```
+   * model Foo<T> {t: T}
+   * model Test { t: Foo.t } // check `Foo` is correctly used as template
+   * ```
+   */
+  function getContainerTemplateSymbol(
+    ctx: CheckContext,
+    sym: Sym,
+    node: MemberExpressionNode | IdentifierNode,
+  ): Sym | undefined {
+    if (pendingResolutions.has(sym, ResolutionKind.Type)) {
+      if (ctx.mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-alias-type",
+            format: { typeName: sym.name },
+            target: node,
+          }),
+        );
+      }
       return undefined;
     }
-    switch (aliasType.kind) {
+
+    pendingResolutions.start(sym, ResolutionKind.Type);
+    const type = checkTypeReferenceSymbol(ctx, sym, node);
+    pendingResolutions.finish(sym, ResolutionKind.Type);
+
+    return lateBindContainer(type, sym);
+  }
+
+  function lateBindContainer(type: Type, sym: Sym) {
+    if (isErrorType(type)) {
+      return undefined;
+    }
+    switch (type.kind) {
       case "Model":
       case "Interface":
       case "Union":
-        if (isTemplateInstance(aliasType)) {
+        if (isTemplateInstance(type)) {
           // this is an alias for some instantiation, so late-bind the instantiation
-          lateBindMemberContainer(aliasType);
-          return aliasType.symbol!;
+          lateBindMemberContainer(type);
+          return type.symbol!;
         }
       // fallthrough
       default:
         // get the symbol from the node aliased type's node, or just return the base
         // if it doesn't have a symbol (which will likely result in an error later on)
-        return getMergedSymbol(aliasType.node!.symbol) ?? aliasSymbol;
+        return getMergedSymbol(type.node!.symbol) ?? sym;
     }
   }
 
   function checkStringTemplateExpresion(
+    ctx: CheckContext,
     node: StringTemplateExpressionNode,
-    mapper: TypeMapper | undefined,
   ): IndeterminateEntity | StringValue | null {
     let hasType = false;
     let hasValue = false;
     const spanTypeOrValues = node.spans.map(
-      (span) => [span, checkNode(span.expression, mapper)] as const,
+      (span) => [span, checkNode(ctx, span.expression)] as const,
     );
     for (const [_, typeOrValue] of spanTypeOrValues) {
       if (typeOrValue !== null) {
@@ -3494,6 +3753,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     internalDecoratorValidation();
     assertNoPendingResolutions();
+    runPostValidators(postCheckValidators);
   }
 
   function assertNoPendingResolutions() {
@@ -3569,7 +3829,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkSourceFile(file: TypeSpecScriptNode) {
     for (const statement of file.statements) {
-      checkNode(statement, undefined);
+      checkNode(CheckContext.DEFAULT, statement, undefined);
     }
   }
 
@@ -3578,35 +3838,37 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @param node Node with template parameters
    * @param mapper Type mapper, set if instantiating the template, undefined otherwise.
    */
-  function checkTemplateDeclaration(node: TemplateableNode, mapper: TypeMapper | undefined) {
+  function checkTemplateDeclaration(ctx: CheckContext, node: TemplateableNode) {
     // If mapper is undefined it means we are checking the declaration of the template.
-    if (mapper === undefined) {
+    if (ctx.mapper === undefined) {
       for (const templateParameter of node.templateParameters) {
-        checkTemplateParameterDeclaration(templateParameter, undefined);
+        checkTemplateParameterDeclaration(ctx, templateParameter);
       }
     }
   }
 
-  function checkModel(
-    node: ModelExpressionNode | ModelStatementNode,
-    mapper: TypeMapper | undefined,
-  ): Model {
+  function checkModel(ctx: CheckContext, node: ModelExpressionNode | ModelStatementNode): Model {
     if (node.kind === SyntaxKind.ModelStatement) {
-      return checkModelStatement(node, mapper);
+      return checkModelStatement(ctx, node);
     } else {
-      return checkModelExpression(node, mapper);
+      return checkModelExpression(ctx, node);
     }
   }
 
-  function checkModelStatement(node: ModelStatementNode, mapper: TypeMapper | undefined): Model {
+  function checkModelStatement(ctx: CheckContext, node: ModelStatementNode): Model {
     checkModifiers(program, node);
+
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && mapper === undefined) {
+    if (ctx.mapper === undefined && node.templateParameters.length > 0) {
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
+    }
+
+    if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
-    checkTemplateDeclaration(node, mapper);
+    checkTemplateDeclaration(ctx, node);
 
     const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
@@ -3619,7 +3881,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       sourceModels: [],
       derivedModels: [],
     });
-    linkType(links, type, mapper);
+    linkType(ctx, links, type);
 
     if (node.symbol.members) {
       const members = resolver.getAugmentedSymbolTable(node.symbol.members);
@@ -3632,19 +3894,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    const isBase = checkModelIs(node, node.is, mapper);
+    const isBase = checkModelIs(ctx, node, node.is);
     ensureResolved(
       [
         isBase,
         ...node.properties
           .filter((x) => x.kind === SyntaxKind.ModelSpreadProperty)
-          .map((x) => checkSpreadTarget(node, x.target, mapper)),
+          .map((x) => checkSpreadTarget(ctx, node, x.target)),
       ],
       type,
       () => {
         if (isBase) {
           type.sourceModel = isBase;
-          type.sourceModels.push({ usage: "is", model: isBase });
+          type.sourceModels.push({ usage: "is", model: isBase, node: node.is });
           decorators.push(...isBase.decorators);
           if (isBase.indexer) {
             type.indexer = isBase.indexer;
@@ -3656,7 +3918,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
               sourceProperty: prop,
               model: type,
             });
-            linkIndirectMember(node, newProp, mapper);
+            linkIndirectMember(ctx, node, newProp);
             type.properties.set(prop.name, newProp);
           }
         }
@@ -3664,7 +3926,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         if (isBase) {
           type.baseModel = isBase.baseModel;
         } else if (node.extends) {
-          type.baseModel = checkClassHeritage(node, node.extends, mapper);
+          type.baseModel = checkClassHeritage(ctx, node, node.extends);
           if (type.baseModel) {
             copyDeprecation(type.baseModel, type);
           }
@@ -3676,17 +3938,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
         // Hold on to the model type that's being defined so that it
         // can be referenced
-        if (mapper === undefined) {
+        if (ctx.mapper === undefined) {
           type.namespace?.models.set(type.name, type);
         }
 
         // Evaluate the properties after
-        checkModelProperties(node, type.properties, type, mapper);
+        checkModelProperties(ctx, node, type.properties, type);
 
-        decorators.push(...checkDecorators(type, node, mapper));
+        decorators.push(...checkDecorators(ctx, type, node));
 
-        linkMapper(type, mapper);
-        finishType(type, { skipDecorators: !shouldRunDecorators(node, mapper) });
+        linkMapper(type, ctx.mapper);
+        finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
 
         lateBindMemberContainer(type);
         lateBindMembers(type);
@@ -3706,46 +3968,27 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return type;
   }
 
-  function shouldRunDecorators(node: TemplateDeclarationNode, mapper: TypeMapper | undefined) {
-    // Node is not a template we should create the type.
-    if (node.templateParameters.length === 0) {
-      return true;
-    }
-    // There is no mapper so we shouldn't be instantiating the template.
-    if (mapper === undefined) {
-      return false;
-    }
-
-    // Some of the mapper args are still template parameter so we shouldn't create the type.
-    return (
-      !mapper.partial &&
-      mapper.args.every(
-        (t) => isValue(t) || t.entityKind === "Indeterminate" || t.kind !== "TemplateParameter",
-      )
-    );
-  }
-
-  function checkModelExpression(node: ModelExpressionNode, mapper: TypeMapper | undefined) {
+  function checkModelExpression(ctx: CheckContext, node: ModelExpressionNode) {
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && mapper === undefined) {
+    if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
 
     const type = initModel(node);
     const properties = type.properties;
-    linkType(links, type, mapper);
-    linkMapper(type, mapper);
+    linkType(ctx, links, type);
+    linkMapper(type, ctx.mapper);
 
     ensureResolved(
       node.properties
         .filter((x) => x.kind === SyntaxKind.ModelSpreadProperty)
-        .map((x) => checkSpreadTarget(node, x.target, mapper)),
+        .map((x) => checkSpreadTarget(ctx, node, x.target)),
       type,
       () => {
-        checkModelProperties(node, properties, type, mapper);
-        finishType(type);
+        checkModelProperties(ctx, node, properties, type);
+        finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
       },
     );
     return type;
@@ -3810,25 +4053,25 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkModelProperties(
+    ctx: CheckContext,
     node: ModelExpressionNode | ModelStatementNode,
     properties: Map<string, ModelProperty>,
     parentModel: Model,
-    mapper: TypeMapper | undefined,
   ) {
     let spreadIndexers: ModelIndexer[] | undefined;
     for (const prop of node.properties!) {
       if ("id" in prop) {
-        const newProp = checkModelProperty(prop, mapper);
+        const newProp = checkModelProperty(ctx, prop);
         newProp.model = parentModel;
         checkPropertyCompatibleWithModelIndexer(parentModel, newProp, prop);
         defineProperty(properties, newProp);
       } else {
         // spread property
         const [newProperties, additionalIndexer] = checkSpreadProperty(
+          ctx,
           node.symbol,
           prop.target,
           parentModel,
-          mapper,
         );
 
         if (additionalIndexer) {
@@ -3839,7 +4082,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           }
         }
         for (const newProp of newProperties) {
-          linkIndirectMember(node, newProp, mapper);
+          linkIndirectMember(ctx, node, newProp);
           checkPropertyCompatibleWithModelIndexer(parentModel, newProp, prop);
           defineProperty(properties, newProp, prop);
         }
@@ -3859,11 +4102,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkObjectValue(
+    ctx: CheckContext,
     node: ObjectLiteralNode,
-    mapper: TypeMapper | undefined,
     constraint: CheckValueConstraint | undefined,
   ): ObjectValue | null {
-    const properties = checkObjectLiteralProperties(node, mapper);
+    const properties = checkObjectLiteralProperties(ctx, node);
     if (properties === null) {
       return null;
     }
@@ -3919,21 +4162,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkObjectLiteralProperties(
+    ctx: CheckContext,
     node: ObjectLiteralNode,
-    mapper: TypeMapper | undefined,
   ): Map<string, ObjectValuePropertyDescriptor> | null {
     const properties = new Map<string, ObjectValuePropertyDescriptor>();
     let hasError = false;
     for (const prop of node.properties!) {
       if ("id" in prop) {
-        const value = getValueForNode(prop.value, mapper);
+        const value = getValueForNode(prop.value, ctx.mapper);
         if (value === null) {
           hasError = true;
         } else {
           properties.set(prop.id.sv, { name: prop.id.sv, value: value, node: prop });
         }
       } else {
-        const targetType = checkObjectSpreadProperty(prop.target, mapper);
+        const targetType = checkObjectSpreadProperty(ctx, prop.target);
         if (targetType) {
           for (const [name, value] of targetType.properties) {
             properties.set(name, { ...value });
@@ -3945,10 +4188,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkObjectSpreadProperty(
+    ctx: CheckContext,
     targetNode: TypeReferenceNode,
-    mapper: TypeMapper | undefined,
   ): ObjectValue | null {
-    const value = getValueForNode(targetNode, mapper);
+    const value = getValueForNode(targetNode, ctx.mapper);
     if (value === null) {
       return null;
     }
@@ -3961,13 +4204,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkArrayValue(
+    ctx: CheckContext,
     node: ArrayLiteralNode,
-    mapper: TypeMapper | undefined,
     constraint: CheckValueConstraint | undefined,
   ): ArrayValue | null {
     let hasError = false;
     const values = node.values.map((itemNode) => {
-      const value = getValueForNode(itemNode, mapper);
+      const value = getValueForNode(itemNode, ctx.mapper);
       if (value === null) {
         hasError = true;
       }
@@ -4173,10 +4416,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkCallExpressionTarget(
+    ctx: CheckContext,
     node: CallExpressionNode,
-    mapper: TypeMapper | undefined,
   ): ScalarConstructor | Scalar | null {
-    const target = checkTypeReference(node.target, mapper);
+    const target = checkTypeReference(ctx, node.target);
 
     if (target.kind === "Scalar" || target.kind === "ScalarConstructor") {
       return target;
@@ -4230,8 +4473,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function createScalarValue(
+    ctx: CheckContext,
     node: CallExpressionNode,
-    mapper: TypeMapper | undefined,
     declaration: ScalarConstructor,
   ): ScalarValue | null {
     let hasError = false;
@@ -4281,7 +4524,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           for (let i = index; i < node.arguments.length; i++) {
             const argNode = node.arguments[i];
             if (argNode) {
-              const arg = getValueForNode(argNode, mapper, { kind: "argument", type: restType });
+              const arg = getValueForNode(argNode, ctx.mapper, {
+                kind: "argument",
+                type: restType,
+              });
               if (arg === null) {
                 hasError = true;
                 continue;
@@ -4298,7 +4544,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       const argNode = node.arguments[index];
       if (argNode) {
-        const arg = getValueForNode(argNode, mapper, {
+        const arg = getValueForNode(argNode, ctx.mapper, {
           kind: "argument",
           type: parameter.type,
         });
@@ -4328,16 +4574,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     };
   }
 
-  function checkCallExpression(
-    node: CallExpressionNode,
-    mapper: TypeMapper | undefined,
-  ): Value | null {
-    const target = checkCallExpressionTarget(node, mapper);
+  function checkCallExpression(ctx: CheckContext, node: CallExpressionNode): Value | null {
+    const target = checkCallExpressionTarget(ctx, node);
     if (target === null) {
       return null;
     }
     if (target.kind === "ScalarConstructor") {
-      return createScalarValue(node, mapper, target);
+      return createScalarValue(ctx, node, target);
     }
 
     if (relation.areScalarsRelated(target, getStdType("string"))) {
@@ -4358,8 +4601,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function checkTypeOfExpression(node: TypeOfExpressionNode, mapper: TypeMapper | undefined): Type {
-    const entity = checkNode(node.target, mapper, undefined);
+  function checkTypeOfExpression(ctx: CheckContext, node: TypeOfExpressionNode): Type {
+    const entity = checkNode(ctx, node.target, undefined);
     if (entity === null) {
       // Shouldn't need to emit error as we assume null value already emitted error when produced
       return errorType;
@@ -4568,9 +4811,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
   function checkClassHeritage(
+    ctx: CheckContext,
     model: ModelStatementNode,
     heritageRef: Expression,
-    mapper: TypeMapper | undefined,
   ): Model | undefined {
     if (heritageRef.kind === SyntaxKind.ModelExpression) {
       reportCheckerDiagnostic(
@@ -4599,7 +4842,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const target = resolver.getNodeLinks(heritageRef).resolvedSymbol;
     if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
-      if (mapper === undefined) {
+      if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "circular-base-type",
@@ -4610,7 +4853,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
-    const heritageType = getTypeForNode(heritageRef, mapper);
+    const heritageType = getTypeForNode(heritageRef, ctx);
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
@@ -4636,9 +4879,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkModelIs(
+    ctx: CheckContext,
     model: ModelStatementNode,
     isExpr: Expression | undefined,
-    mapper: TypeMapper | undefined,
   ): Model | undefined {
     if (!isExpr) return undefined;
 
@@ -4655,11 +4898,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
       return undefined;
     } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
-      isType = checkArrayExpression(isExpr, mapper);
+      isType = checkArrayExpression(ctx, isExpr);
     } else if (isExpr.kind === SyntaxKind.TypeReference) {
       const target = resolver.getNodeLinks(isExpr).resolvedSymbol;
       if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
-        if (mapper === undefined) {
+        if (ctx.mapper === undefined) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "circular-base-type",
@@ -4670,7 +4913,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         return undefined;
       }
-      isType = getTypeForNode(isExpr, mapper);
+      isType = getTypeForNode(isExpr, ctx);
     } else {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
       return undefined;
@@ -4695,15 +4938,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   /** Get the type for the spread target */
   function checkSpreadTarget(
+    ctx: CheckContext,
     model: ModelStatementNode | ModelExpressionNode,
     target: TypeReferenceNode,
-    mapper: TypeMapper | undefined,
   ): Type | undefined {
     const modelSymId = getNodeSym(model);
 
     const targetSym = resolver.getNodeLinks(target).resolvedSymbol;
     if (targetSym === modelSymId) {
-      if (mapper === undefined) {
+      if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "spread-model",
@@ -4714,17 +4957,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
-    const type = getTypeForNode(target, mapper);
+    const type = getTypeForNode(target, ctx);
     return type;
   }
 
   function checkSpreadProperty(
+    ctx: CheckContext,
     parentModelSym: Sym,
     targetNode: TypeReferenceNode,
     parentModel: Model,
-    mapper: TypeMapper | undefined,
   ): [ModelProperty[], ModelIndexer | undefined] {
-    const targetType = getTypeForNode(targetNode, mapper);
+    const targetType = getTypeForNode(targetNode, ctx);
 
     if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
       return [[], undefined];
@@ -4732,19 +4975,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (targetType.kind !== "Model") {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "spread-model", target: targetNode }),
-        mapper,
+        ctx.mapper,
       );
       return [[], undefined];
     }
-    if (isArrayModelType(program, targetType)) {
+    if (isArrayModelType(targetType)) {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "spread-model", target: targetNode }),
-        mapper,
+        ctx.mapper,
       );
       return [[], undefined];
     }
 
-    parentModel.sourceModels.push({ usage: "spread", model: targetType });
+    parentModel.sourceModels.push({ usage: "spread", model: targetType, node: targetNode });
 
     const props: ModelProperty[] = [];
     // copy each property
@@ -4768,11 +5011,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @param mapper Type Mapper.
    */
   function linkIndirectMember(
+    ctx: CheckContext,
     containerNode: MemberContainerNode,
     member: MemberType,
-    mapper: TypeMapper | undefined,
   ) {
-    if (mapper !== undefined) {
+    if (ctx.mapper !== undefined) {
       return;
     }
     compilerAssert(typeof member.name === "string", "Cannot link unmapped unions");
@@ -4783,18 +5026,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const memberSym = getMemberSymbol(containerNode.symbol, member.name);
     if (memberSym) {
       const links = resolver.getSymbolLinks(memberSym);
-      linkMemberType(links, member, mapper);
+      linkMemberType(ctx, links, member);
     }
   }
 
-  function checkModelProperty(
-    prop: ModelPropertyNode,
-    mapper: TypeMapper | undefined,
-  ): ModelProperty {
+  function checkModelProperty(ctx: CheckContext, prop: ModelPropertyNode): ModelProperty {
     const sym = getSymbolForMember(prop)!;
     const links = getSymbolLinksForMember(prop);
 
-    if (links && links.declaredType && mapper === undefined) {
+    if (links && links.declaredType && ctx.mapper === undefined) {
       return links.declaredType as ModelProperty;
     }
     const name = prop.id.sv;
@@ -4808,7 +5048,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
     });
 
-    if (pendingResolutions.has(sym, ResolutionKind.Type) && mapper === undefined) {
+    if (pendingResolutions.has(sym, ResolutionKind.Type) && ctx.mapper === undefined) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "circular-prop",
@@ -4819,33 +5059,32 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       type.type = errorType;
     } else {
       pendingResolutions.start(sym, ResolutionKind.Type);
-      type.type = getTypeForNode(prop.value, mapper);
+      type.type = getTypeForNode(prop.value, ctx);
       if (prop.default) {
-        const defaultValue = checkDefaultValue(prop.default, type.type, mapper);
+        const defaultValue = checkDefaultValue(ctx, prop.default, type.type);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
         }
       }
       if (links) {
-        linkType(links, type, mapper);
+        linkType(ctx, links, type);
       }
     }
 
-    type.decorators = checkDecorators(type, prop, mapper);
+    type.decorators = checkDecorators(ctx, type, prop);
     const parentTemplate = getParentTemplateNode(prop);
-    linkMapper(type, mapper);
+    linkMapper(type, ctx.mapper);
 
-    let runDecorators = false;
-    if (!parentTemplate || shouldRunDecorators(parentTemplate, mapper)) {
+    const shouldRunDecorators = !ctx.hasFlags(CheckFlags.InTemplateDeclaration);
+    if (!parentTemplate || shouldRunDecorators) {
       const docComment = docFromCommentForSym.get(sym);
       if (docComment) {
         type.decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
-      runDecorators = true;
     }
 
     pendingResolutions.finish(sym, ResolutionKind.Type);
-    return finishType(type, { skipDecorators: !runDecorators });
+    return finishType(type, { skipDecorators: !shouldRunDecorators });
   }
 
   function createDocFromCommentDecorator(key: "self" | "returns" | "errors", doc: string) {
@@ -4858,16 +5097,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     };
   }
 
-  function checkDefaultValue(
-    defaultNode: Node,
-    type: Type,
-    mapper: TypeMapper | undefined,
-  ): Value | null {
+  function checkDefaultValue(ctx: CheckContext, defaultNode: Node, type: Type): Value | null {
     if (isErrorType(type)) {
       // if the prop type is an error we don't need to validate again.
       return null;
     }
-    const defaultValue = getValueForNode(defaultNode, mapper, {
+    const defaultValue = getValueForNode(defaultNode, ctx.mapper, {
       kind: "assignment",
       type,
     });
@@ -4888,11 +5123,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkDecoratorApplication(
+    ctx: CheckContext,
     targetType: Type,
     decNode: DecoratorExpressionNode | AugmentDecoratorStatementNode,
-    mapper: TypeMapper | undefined,
   ): DecoratorApplication | undefined {
-    const sym = resolveTypeReferenceSym(decNode.target, undefined, true);
+    const sym = resolveTypeReferenceSym(ctx.withMapper(undefined), decNode.target, true);
     if (!sym) {
       // Error should already have been reported above
       return undefined;
@@ -4918,7 +5153,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             x.kind === SyntaxKind.DecoratorDeclarationStatement,
         );
       if (decoratorDeclNode) {
-        checkDecoratorDeclaration(decoratorDeclNode, undefined);
+        checkDecoratorDeclaration(ctx.withMapper(undefined), decoratorDeclNode);
       }
     }
     if (symbolLinks.declaredType) {
@@ -4930,11 +5165,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         hasError = true;
       }
     }
-    const [argsHaveError, args] = checkDecoratorArguments(
-      decNode,
-      mapper,
-      symbolLinks.declaredType,
-    );
+    const [argsHaveError, args] = checkDecoratorArguments(ctx, decNode, symbolLinks.declaredType);
 
     if (hasError || argsHaveError) {
       return undefined;
@@ -4973,8 +5204,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkDecoratorArguments(
+    ctx: CheckContext,
     node: DecoratorExpressionNode | AugmentDecoratorStatementNode,
-    mapper: TypeMapper | undefined,
     declaration: Decorator | undefined,
   ): [boolean, DecoratorArgument[]] {
     // if we don't have a declaration we can just return the types or values if
@@ -4982,7 +5213,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return [
         false,
         node.arguments.map((argNode): DecoratorArgument => {
-          let type = checkNode(argNode, mapper) ?? errorType;
+          let type = checkNode(ctx, argNode) ?? errorType;
           if (type.entityKind === "Indeterminate") {
             type = type.type;
           }
@@ -5038,7 +5269,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       argNode: Expression,
       perParamType: MixedParameterConstraint,
     ): DecoratorArgument | undefined {
-      const arg = getTypeOrValueForNode(argNode, mapper, {
+      const arg = getTypeOrValueForNode(argNode, ctx.mapper, {
         kind: "argument",
         constraint: perParamType,
       });
@@ -5102,17 +5333,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     let valueType: Type | undefined;
     let type: Type | undefined;
     if (constraint.valueType) {
-      if (
-        constraint.valueType.kind === "Model" &&
-        isArrayModelType(program, constraint.valueType)
-      ) {
+      if (constraint.valueType.kind === "Model" && isArrayModelType(constraint.valueType)) {
         valueType = constraint.valueType.indexer.value;
       } else {
         return undefined;
       }
     }
     if (constraint.type) {
-      if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
+      if (constraint.type.kind === "Model" && isArrayModelType(constraint.type)) {
         type = constraint.type.indexer.value;
       } else {
         return undefined;
@@ -5166,15 +5394,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkAugmentDecorators(
+    ctx: CheckContext,
     sym: Sym,
     targetType: Type,
-    mapper: TypeMapper | undefined,
   ): DecoratorApplication[] {
     const augmentDecoratorNodes = resolver.getAugmentDecoratorsForSym(sym);
     const decorators: DecoratorApplication[] = [];
 
     for (const decNode of augmentDecoratorNodes) {
-      const decorator = checkDecoratorApplication(targetType, decNode, mapper);
+      const decorator = checkDecoratorApplication(ctx, targetType, decNode);
       if (decorator) {
         decorators.unshift(decorator);
       }
@@ -5185,9 +5413,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /**
    * Check that augment decorator are targeting valid symbols.
    */
-  function checkAugmentDecorator(node: AugmentDecoratorStatementNode) {
+  function checkAugmentDecorator(ctx: CheckContext, node: AugmentDecoratorStatementNode) {
     // This will validate the target type is pointing to a valid ref.
-    resolveTypeReferenceSym(node.targetType, undefined);
+    resolveTypeReferenceSym(ctx.withMapper(undefined), node.targetType, {
+      resolveDeclarationOfTemplate: true,
+    });
+
     const links = resolver.getNodeLinks(node.targetType);
     if (links.isTemplateInstantiation) {
       program.reportDiagnostic(
@@ -5234,8 +5465,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /**
    * Check that using statements are targeting valid symbols.
    */
-  function checkUsings(node: UsingStatementNode) {
-    const usedSym = resolveTypeReferenceSym(node.name, undefined);
+  function checkUsings(ctx: CheckContext, node: UsingStatementNode) {
+    const usedSym = resolveTypeReferenceSym(ctx.withMapper(undefined), node.name);
     if (usedSym) {
       if (~usedSym.flags & SymbolFlags.Namespace) {
         reportCheckerDiagnostic(createDiagnostic({ code: "using-invalid-ref", target: node.name }));
@@ -5245,9 +5476,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return errorType;
   }
   function checkDecorators(
+    ctx: CheckContext,
     targetType: Type,
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
-    mapper: TypeMapper | undefined,
   ) {
     const sym = isMemberNode(node)
       ? (getSymbolForMember(node) ?? node.symbol)
@@ -5260,7 +5491,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ...node.decorators,
     ];
     for (const decNode of decoratorNodes) {
-      const decorator = checkDecoratorApplication(targetType, decNode, mapper);
+      const decorator = checkDecoratorApplication(ctx, targetType, decNode);
       if (decorator) {
         decorators.unshift(decorator);
       }
@@ -5284,15 +5515,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return decorators;
   }
 
-  function checkScalar(node: ScalarStatementNode, mapper: TypeMapper | undefined): Scalar {
+  function checkScalar(ctx: CheckContext, node: ScalarStatementNode): Scalar {
     checkModifiers(program, node);
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && mapper === undefined) {
+    if (ctx.mapper === undefined && node.templateParameters.length > 0) {
+      // This is a templated declaration and we are not instantiating it, so we need to update the flags.
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
+    }
+
+    if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
-    checkTemplateDeclaration(node, mapper);
+    checkTemplateDeclaration(ctx, node);
 
     const decorators: DecoratorApplication[] = [];
 
@@ -5305,33 +5541,33 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators,
       derivedScalars: [],
     });
-    linkType(links, type, mapper);
+    linkType(ctx, links, type);
 
     if (node.extends) {
-      type.baseScalar = checkScalarExtends(node, node.extends, mapper);
+      type.baseScalar = checkScalarExtends(ctx, node, node.extends);
       if (type.baseScalar) {
         copyDeprecation(type.baseScalar, type);
         type.baseScalar.derivedScalars.push(type);
       }
     }
-    checkScalarConstructors(type, node, type.constructors, mapper);
-    decorators.push(...checkDecorators(type, node, mapper));
+    checkScalarConstructors(ctx, type, node, type.constructors);
+    decorators.push(...checkDecorators(ctx, type, node));
 
-    if (mapper === undefined) {
+    if (ctx.mapper === undefined) {
       type.namespace?.scalars.set(type.name, type);
     }
-    linkMapper(type, mapper);
+    linkMapper(type, ctx.mapper);
     if (isInTypeSpecNamespace(type)) {
       stdTypes[type.name as any as keyof StdTypes] = type as any;
     }
 
-    return finishType(type, { skipDecorators: !shouldRunDecorators(node, mapper) });
+    return finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
   }
 
   function checkScalarExtends(
+    ctx: CheckContext,
     scalar: ScalarStatementNode,
     extendsRef: TypeReferenceNode,
-    mapper: TypeMapper | undefined,
   ): Scalar | undefined {
     const symId = getNodeSym(scalar);
     pendingResolutions.start(symId, ResolutionKind.BaseType);
@@ -5339,7 +5575,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const target = resolver.getNodeLinks(extendsRef).resolvedSymbol;
 
     if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
-      if (mapper === undefined) {
+      if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "circular-base-type",
@@ -5350,7 +5586,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
-    const extendsType = getTypeForNode(extendsRef, mapper);
+    const extendsType = getTypeForNode(extendsRef, ctx);
     pendingResolutions.finish(symId, ResolutionKind.BaseType);
     if (isErrorType(extendsType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", extendsRef);
@@ -5366,10 +5602,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkScalarConstructors(
+    ctx: CheckContext,
     parentScalar: Scalar,
     node: ScalarStatementNode,
     constructors: Map<string, ScalarConstructor>,
-    mapper: TypeMapper | undefined,
   ) {
     if (parentScalar.baseScalar) {
       for (const member of parentScalar.baseScalar.constructors.values()) {
@@ -5380,12 +5616,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             scalar: parentScalar,
           },
         );
-        linkIndirectMember(node, newConstructor, mapper);
+        linkIndirectMember(ctx, node, newConstructor);
         constructors.set(member.name, newConstructor);
       }
     }
     for (const member of node.members) {
-      const constructor = checkScalarConstructor(member, mapper, parentScalar);
+      const constructor = checkScalarConstructor(ctx, member, parentScalar);
       if (constructors.has(constructor.name as string)) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -5401,13 +5637,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkScalarConstructor(
+    ctx: CheckContext,
     node: ScalarConstructorNode,
-    mapper: TypeMapper | undefined,
     parentScalar: Scalar,
   ): ScalarConstructor {
     const name = node.id.sv;
     const links = getSymbolLinksForMember(node);
-    if (links && links.declaredType && mapper === undefined) {
+    if (links && links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this scalar constructor and we've already checked it
       return links.declaredType as ScalarConstructor;
     }
@@ -5417,34 +5653,36 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       scalar: parentScalar,
       name,
       node,
-      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, false)),
+      parameters: node.parameters.map((x) => checkFunctionParameter(ctx, x, false)),
     });
-    linkMapper(member, mapper);
+    linkMapper(member, ctx.mapper);
     if (links) {
-      linkType(links, member, mapper);
+      linkType(ctx, links, member);
     }
 
     return finishType(member, {
-      skipDecorators: !shouldRunDecorators(node.parent!, mapper),
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
     });
   }
 
-  function checkAlias(
-    node: AliasStatementNode,
-    mapper: TypeMapper | undefined,
-  ): Type | IndeterminateEntity {
+  function checkAlias(ctx: CheckContext, node: AliasStatementNode): Type | IndeterminateEntity {
     checkModifiers(program, node);
 
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && mapper === undefined) {
+    if (ctx.mapper === undefined && node.templateParameters.length > 0) {
+      // This is a templated declaration and we are not instantiating it, so we need to update the flags.
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
+    }
+
+    if (links.declaredType && ctx.mapper === undefined) {
       return links.declaredType;
     }
-    checkTemplateDeclaration(node, mapper);
+    checkTemplateDeclaration(ctx, node);
 
     const aliasSymId = getNodeSym(node);
     if (pendingResolutions.has(aliasSymId, ResolutionKind.Type)) {
-      if (mapper === undefined) {
+      if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "circular-alias-type",
@@ -5458,7 +5696,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
-    const type = checkNode(node.value, mapper);
+    const type = checkNode(ctx, node.value);
     if (type === null) {
       links.declaredType = errorType;
       return errorType;
@@ -5468,7 +5706,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       links.declaredType = errorType;
       return errorType;
     }
-    linkType(links, type as any, mapper);
+    linkType(ctx, links, type as any);
     pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
 
     return type;
@@ -5525,7 +5763,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function checkEnum(node: EnumStatementNode, mapper: TypeMapper | undefined): Type {
+  function checkEnum(ctx: CheckContext, node: EnumStatementNode): Type {
     checkModifiers(program, node);
 
     const links = getSymbolLinks(node.symbol);
@@ -5542,7 +5780,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       for (const member of node.members) {
         if (member.kind === SyntaxKind.EnumMember) {
-          const memberType = checkEnumMember(member, mapper, enumType);
+          const memberType = checkEnumMember(ctx, member, enumType);
           if (memberNames.has(memberType.name)) {
             reportCheckerDiagnostic(
               createDiagnostic({
@@ -5557,14 +5795,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           enumType.members.set(memberType.name, memberType);
         } else {
           const members = checkEnumSpreadMember(
+            ctx,
             node.symbol,
             enumType,
             member.target,
-            mapper,
             memberNames,
           );
           for (const memberType of members) {
-            linkIndirectMember(node, memberType, mapper);
+            linkIndirectMember(ctx, node, memberType);
             enumType.members.set(memberType.name, memberType);
           }
         }
@@ -5573,23 +5811,29 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       const namespace = getParentNamespaceType(node);
       enumType.namespace = namespace;
       enumType.namespace?.enums.set(enumType.name!, enumType);
-      enumType.decorators = checkDecorators(enumType, node, mapper);
-      linkMapper(enumType, mapper);
+      enumType.decorators = checkDecorators(ctx, enumType, node);
+      linkMapper(enumType, ctx.mapper);
       finishType(enumType);
     }
 
     return links.type;
   }
 
-  function checkInterface(node: InterfaceStatementNode, mapper: TypeMapper | undefined): Interface {
+  function checkInterface(ctx: CheckContext, node: InterfaceStatementNode): Interface {
     checkModifiers(program, node);
+
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && mapper === undefined) {
+    if (ctx.mapper === undefined && node.templateParameters.length > 0) {
+      // This is a templated declaration and we are not instantiating it, so we need to update the flags.
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
+    }
+
+    if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this interface and we've already checked it
       return links.declaredType as Interface;
     }
-    checkTemplateDeclaration(node, mapper);
+    checkTemplateDeclaration(ctx, node);
 
     const interfaceType: Interface = createType({
       kind: "Interface",
@@ -5601,14 +5845,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       name: node.id.sv,
     });
 
-    linkType(links, interfaceType, mapper);
+    linkType(ctx, links, interfaceType);
 
-    interfaceType.decorators = checkDecorators(interfaceType, node, mapper);
+    interfaceType.decorators = checkDecorators(ctx, interfaceType, node);
 
-    const ownMembers = checkInterfaceMembers(node, mapper, interfaceType);
+    const ownMembers = checkInterfaceMembers(ctx, node, interfaceType);
 
     for (const extendsNode of node.extends) {
-      const extendsType = getTypeForNode(extendsNode, mapper);
+      const extendsType = getTypeForNode(extendsNode, ctx);
       if (extendsType.kind !== "Interface") {
         reportCheckerDiagnostic(
           createDiagnostic({ code: "extends-interface", target: extendsNode }),
@@ -5632,7 +5876,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         });
         // Don't link it it is overritten
         if (!ownMembers.has(member.name)) {
-          linkIndirectMember(node, newMember, mapper);
+          linkIndirectMember(ctx, node, newMember);
         }
 
         // Clone deprecation information
@@ -5647,28 +5891,36 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       interfaceType.operations.set(key, value);
     }
 
-    linkMapper(interfaceType, mapper);
+    linkMapper(interfaceType, ctx.mapper);
 
-    if (mapper === undefined) {
+    if (ctx.mapper === undefined) {
       interfaceType.namespace?.interfaces.set(interfaceType.name, interfaceType);
     }
 
     lateBindMemberContainer(interfaceType);
     lateBindMembers(interfaceType);
     return finishType(interfaceType, {
-      skipDecorators: !shouldRunDecorators(node, mapper),
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
     });
   }
 
   function checkInterfaceMembers(
+    ctx: CheckContext,
     node: InterfaceStatementNode,
-    mapper: TypeMapper | undefined,
     interfaceType: Interface,
   ): Map<string, Operation> {
     const ownMembers = new Map<string, Operation>();
 
+    // Preregister each operation sym links instantiation to make sure there is no race condition when instantiating templated interface
     for (const opNode of node.operations) {
-      const opType = checkOperation(opNode, mapper, interfaceType);
+      const symbol = getSymbolForMember(opNode);
+      const links = symbol && getSymbolLinks(symbol);
+      if (links) {
+        links.instantiations = new TypeInstantiationMap();
+      }
+    }
+    for (const opNode of node.operations) {
+      const opType = checkOperation(ctx, opNode, interfaceType);
       if (ownMembers.has(opType.name)) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -5684,15 +5936,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return ownMembers;
   }
 
-  function checkUnion(node: UnionStatementNode, mapper: TypeMapper | undefined) {
+  function checkUnion(ctx: CheckContext, node: UnionStatementNode) {
     checkModifiers(program, node);
+
     const links = getSymbolLinks(node.symbol);
 
-    if (links.declaredType && mapper === undefined) {
+    if (ctx.mapper === undefined && node.templateParameters.length > 0) {
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
+    }
+
+    if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this union and we've already checked it
       return links.declaredType as Union;
     }
-    checkTemplateDeclaration(node, mapper);
+    checkTemplateDeclaration(ctx, node);
 
     const variants = createRekeyableMap<string, UnionVariant>();
     const unionType: Union = createType({
@@ -5707,31 +5964,33 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       },
       expression: false,
     });
-    linkType(links, unionType, mapper);
+    linkType(ctx, links, unionType);
 
-    unionType.decorators = checkDecorators(unionType, node, mapper);
+    unionType.decorators = checkDecorators(ctx, unionType, node);
 
-    checkUnionVariants(unionType, node, variants, mapper);
+    checkUnionVariants(ctx, unionType, node, variants);
 
-    linkMapper(unionType, mapper);
+    linkMapper(unionType, ctx.mapper);
 
-    if (mapper === undefined) {
+    if (ctx.mapper === undefined) {
       unionType.namespace?.unions.set(unionType.name!, unionType);
     }
 
     lateBindMemberContainer(unionType);
     lateBindMembers(unionType);
-    return finishType(unionType, { skipDecorators: !shouldRunDecorators(node, mapper) });
+    return finishType(unionType, {
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
+    });
   }
 
   function checkUnionVariants(
+    ctx: CheckContext,
     parentUnion: Union,
     node: UnionStatementNode,
     variants: Map<string, UnionVariant>,
-    mapper: TypeMapper | undefined,
   ) {
     for (const variantNode of node.options) {
-      const variantType = checkUnionVariant(variantNode, mapper);
+      const variantType = checkUnionVariant(ctx, variantNode);
       variantType.union = parentUnion;
       if (variants.has(variantType.name as string)) {
         reportCheckerDiagnostic(
@@ -5747,18 +6006,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function checkUnionVariant(
-    variantNode: UnionVariantNode,
-    mapper: TypeMapper | undefined,
-  ): UnionVariant {
+  function checkUnionVariant(ctx: CheckContext, variantNode: UnionVariantNode): UnionVariant {
     const links = getSymbolLinksForMember(variantNode);
-    if (links && links.declaredType && mapper === undefined) {
+    if (links && links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this union variant and we've already checked it
       return links.declaredType as UnionVariant;
     }
 
     const name = variantNode.id ? variantNode.id.sv : Symbol("name");
-    const type = getTypeForNode(variantNode.value, mapper);
+    const type = getTypeForNode(variantNode.value, ctx);
     const variantType: UnionVariant = createType({
       kind: "UnionVariant",
       name,
@@ -5767,14 +6023,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       type,
       union: undefined as any,
     });
-    variantType.decorators = checkDecorators(variantType, variantNode, mapper);
+    variantType.decorators = checkDecorators(ctx, variantType, variantNode);
 
-    linkMapper(variantType, mapper);
+    linkMapper(variantType, ctx.mapper);
     if (links) {
-      linkType(links, variantType, mapper);
+      linkType(ctx, links, variantType);
     }
     return finishType(variantType, {
-      skipDecorators: !shouldRunDecorators(variantNode.parent!, mapper),
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
     });
   }
 
@@ -5800,11 +6056,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return sym ? (getSymNode(sym) === node ? getSymbolLinks(sym) : undefined) : undefined;
   }
 
-  function checkEnumMember(
-    node: EnumMemberNode,
-    mapper: TypeMapper | undefined,
-    parentEnum?: Enum,
-  ): EnumMember {
+  function checkEnumMember(ctx: CheckContext, node: EnumMemberNode, parentEnum?: Enum): EnumMember {
     const name = node.id.sv;
     const links = getSymbolLinksForMember(node);
     if (links?.type) {
@@ -5825,19 +6077,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       links.type = member;
     }
 
-    member.decorators = checkDecorators(member, node, mapper);
+    member.decorators = checkDecorators(ctx, member, node);
     return finishType(member);
   }
 
   function checkEnumSpreadMember(
+    ctx: CheckContext,
     parentEnumSym: Sym,
     parentEnum: Enum,
     targetNode: TypeReferenceNode,
-    mapper: TypeMapper | undefined,
     existingMemberNames: Set<string>,
   ): EnumMember[] {
     const members: EnumMember[] = [];
-    const targetType = getTypeForNode(targetNode, mapper);
+    const targetType = getTypeForNode(targetNode, ctx);
 
     if (!isErrorType(targetType)) {
       if (targetType.kind !== "Enum") {
@@ -5966,17 +6218,40 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     stats.finishedTypes++;
 
     if (!options.skipDecorators) {
+      let postSelfValidators: ValidatorFn[] = [];
       if ("decorators" in typeDef) {
-        for (const decApp of typeDef.decorators) {
-          applyDecoratorToType(program, decApp, typeDef);
-        }
+        postSelfValidators = applyDecoratorsToType(typeDef);
       }
       typeDef.isFinished = true;
       Object.setPrototypeOf(typeDef, typePrototype);
+      runPostValidators(postSelfValidators);
     }
 
     markAsChecked(typeDef);
     return typeDef;
+  }
+
+  function applyDecoratorsToType(
+    typeDef: Type & { decorators: DecoratorApplication[] },
+  ): ValidatorFn[] {
+    const postSelfValidators: ValidatorFn[] = [];
+    for (const decApp of typeDef.decorators) {
+      const validators = applyDecoratorToType(program, decApp, typeDef);
+      if (validators?.onTargetFinish) {
+        postSelfValidators.push(validators.onTargetFinish);
+      }
+      if (validators?.onGraphFinish) {
+        postCheckValidators.push(validators.onGraphFinish);
+      }
+    }
+    return postSelfValidators;
+  }
+
+  /** Run a list of post validator */
+  function runPostValidators(validators: ValidatorFn[]) {
+    for (const validator of validators) {
+      program.reportDiagnostics(validator());
+    }
   }
 
   function markAsChecked<T extends Type>(type: T) {
@@ -6027,7 +6302,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
     });
     getSymbolLinks(sym).type = type;
-    type.decorators = checkAugmentDecorators(sym, type, undefined);
+    type.decorators = checkAugmentDecorators(CheckContext.DEFAULT, sym, type);
     return finishType(type);
   }
 
@@ -6160,7 +6435,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (docComment) {
         clone.decorators.push(createDocFromCommentDecorator("self", docComment));
       }
-      for (const dec of checkAugmentDecorators(sym, clone, undefined)) {
+      for (const dec of checkAugmentDecorators(CheckContext.DEFAULT, sym, clone)) {
         clone.decorators.push(dec);
       }
     }
@@ -6179,14 +6454,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       | StringTemplateMiddleNode
       | StringTemplateTailNode,
   ): StringLiteral;
-  function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  function createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
   function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
     node?: LiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral;
   function createLiteralType(
-    value: string | number | boolean,
+    value: string | number | boolean | Numeric,
     node?: LiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral {
     if (program.literalTypes.has(value)) {
@@ -6219,6 +6494,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           numericValue: Numeric(valueAsString),
         });
         break;
+      default:
+        type = createType({
+          kind: "Number",
+          value: value.asNumber() ?? 0,
+          valueAsString: value.toString(),
+          numericValue: value,
+        });
     }
     program.literalTypes.set(value, type);
     return finishType(type);
@@ -6654,26 +6936,11 @@ function getDocContent(content: readonly DocContent[]) {
   return docs.join("");
 }
 
-function reportDeprecation(
+function applyDecoratorToType(
   program: Program,
-  target: DiagnosticTarget,
-  message: string,
-  reportFunc: (d: Diagnostic) => void,
-): void {
-  if (program.compilerOptions.ignoreDeprecated !== true) {
-    reportFunc(
-      createDiagnostic({
-        code: "deprecated",
-        format: {
-          message,
-        },
-        target,
-      }),
-    );
-  }
-}
-
-function applyDecoratorToType(program: Program, decApp: DecoratorApplication, target: Type) {
+  decApp: DecoratorApplication,
+  target: Type,
+): DecoratorValidatorCallbacks | void {
   compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
 
   for (const arg of decApp.args) {
@@ -6687,12 +6954,7 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
   if (decApp.definition) {
     const deprecation = getDeprecationDetails(program, decApp.definition);
     if (deprecation !== undefined) {
-      reportDeprecation(
-        program,
-        decApp.node ?? target,
-        deprecation.message,
-        program.reportDiagnostic,
-      );
+      reportDeprecated(program, deprecation.message, decApp.node ?? target);
     }
   }
 
@@ -6701,7 +6963,7 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
     const args = decApp.args.map((x) => x.jsValue);
     const fn = decApp.decorator;
     const context = createDecoratorContext(program, decApp);
-    fn(context, target, ...args);
+    return fn(context, target, ...args);
   } catch (error: any) {
     // do not fail the language server for exceptions in decorators
     if (program.compilerOptions.designTimeBuild) {
@@ -6789,15 +7051,21 @@ interface SymbolResolutionOptions {
   resolveDecorators: boolean;
 
   /**
-   * Should the symbol resolution instantiate templates and do a late bind of symbols.
-   * @default true
+   * When resolving a symbol should it resolve to the declaration or template instance for ambiguous cases
+   * ```tsp
+   * model Foo<T = string> {}
+   * ```
+   *
+   * Does `Foo` reference to the `Foo<T>` or `Foo<string>` instance. By default it is the instance. Only case looking for declaration are augment decorator target
+   *
+   * @default false
    */
-  checkTemplateTypes: boolean;
+  resolveDeclarationOfTemplate: boolean;
 }
 
 const defaultSymbolResolutionOptions: SymbolResolutionOptions = {
   resolveDecorators: false,
-  checkTemplateTypes: true,
+  resolveDeclarationOfTemplate: false,
 };
 
 function printTypeReferenceNode(

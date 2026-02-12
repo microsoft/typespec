@@ -44,27 +44,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 
+        private protected override bool FilterCustomizedMembers => false;
+
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
         }
 
-        private protected override PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] canonicalProperties) => canonicalProperties;
-        private protected override FieldProvider[] FilterCustomizedFields(FieldProvider[] canonicalFields) => canonicalFields;
-
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             return [.. _generatedTypeProvider.Constructors, .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return [.. _generatedTypeProvider.Methods, .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             var generatedProperties = _generatedTypeProvider.Properties;
             var customProperties = _generatedTypeProvider.CustomCodeView?.Properties ?? [];
@@ -92,6 +91,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     specProperty = candidateSpecProperty;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                     customProperty.IsDiscriminator = customProperty.WireInfo.IsDiscriminator;
+                    customProperty.Update(description: customProperty.WireInfo.Description);
+
                     _propertyProviderMap[specProperty] = customProperty;
                 }
 
@@ -119,6 +120,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             customProperty.Type.IsNullable,
                             false,
                             serializedName ?? customProperty.Name.ToVariableName(),
+                            false,
                             false);
                     }
                     else
@@ -128,6 +130,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 customProperty.Type = customProperty.Type.ApplyInputSpecProperty(specProperty);
+                customProperty.InputProperty = specProperty;
             }
 
             if (_specProperties.Count > 0)
@@ -186,7 +189,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [..generatedProperties, ..customProperties];
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             var generatedFields = _generatedTypeProvider.Fields;
             var customFields = _generatedTypeProvider.CustomCodeView?.Fields ?? [];
@@ -208,6 +211,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     specProperty = candidateSpecProperty;
                     customField.WireInfo = new PropertyWireInformation(specProperty);
+                    customField.Update(description: customField.WireInfo.Description);
                 }
 
                 string? serializedName = specProperty?.SerializedName;
@@ -234,6 +238,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             customField.Type.IsNullable,
                             false,
                             serializedName ?? customField.Name.ToVariableName(),
+                            false,
                             false);
                     }
                     else

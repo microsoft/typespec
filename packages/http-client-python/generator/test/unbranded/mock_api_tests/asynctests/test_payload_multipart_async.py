@@ -8,6 +8,7 @@ import pytest
 from payload.multipart import models
 from payload.multipart.aio import MultiPartClient
 from payload.multipart.formdata.httpparts.nonstring.models import FloatRequest
+from payload.multipart.formdata.file import models as file_models
 
 JPG = Path(__file__).parent.parent / "data/image.jpg"
 PNG = Path(__file__).parent.parent / "data/image.png"
@@ -152,3 +153,66 @@ async def test_complex_with_http_part(client: MultiPartClient):
 @pytest.mark.asyncio
 async def test_http_parts_non_string_float(client: MultiPartClient):
     await client.form_data.http_parts.non_string.float(FloatRequest(temperature=0.5))
+
+
+@pytest.mark.asyncio
+async def test_with_wire_name(client: MultiPartClient):
+    await client.form_data.with_wire_name(
+        models.MultiPartRequestWithWireName(
+            identifier="123",
+            image=open(str(JPG), "rb"),
+        )
+    )
+
+
+@pytest.mark.asyncio
+async def test_optional_parts(client: MultiPartClient):
+    # First time with only id
+    await client.form_data.optional_parts(
+        models.MultiPartOptionalRequest(
+            id="123",
+        )
+    )
+    # Second time with only profileImage
+    await client.form_data.optional_parts(
+        models.MultiPartOptionalRequest(
+            profile_image=open(str(JPG), "rb"),
+        )
+    )
+    # Third time with both id and profileImage
+    await client.form_data.optional_parts(
+        models.MultiPartOptionalRequest(
+            id="123",
+            profile_image=open(str(JPG), "rb"),
+        )
+    )
+
+
+@pytest.mark.asyncio
+async def test_file_upload_file_specific_content_type(client: MultiPartClient):
+    await client.form_data.file.upload_file_specific_content_type(
+        file_models.UploadFileSpecificContentTypeRequest(
+            file=("image.png", open(str(PNG), "rb"), "image/png"),
+        )
+    )
+
+
+@pytest.mark.asyncio
+async def test_file_upload_file_required_filename(client: MultiPartClient):
+    await client.form_data.file.upload_file_required_filename(
+        file_models.UploadFileRequiredFilenameRequest(
+            file=("image.png", open(str(PNG), "rb"), "image/png"),
+        )
+    )
+
+
+@pytest.mark.asyncio
+async def test_file_upload_file_array(client: MultiPartClient):
+    await client.form_data.file.upload_file_array(
+        file_models.UploadFileArrayRequest(
+            files=[
+                ("image.png", open(str(PNG), "rb"), "image/png"),
+                ("image.png", open(str(PNG), "rb"), "image/png"),
+            ],
+        )
+    )

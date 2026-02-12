@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using Moq;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 {
@@ -16,6 +17,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             MockHelpers.LoadMockGenerator();
 
             var multiPartFormData = new MultiPartFormDataBinaryContentDefinition();
+            Assert.AreEqual("MultiPartFormDataBinaryContent", multiPartFormData.Name);
             Assert.IsNotNull(multiPartFormData.Methods);
             var writeToMethod = multiPartFormData.Methods.Single(m => m.Signature.Name == "WriteTo");
             Assert.IsNotNull(writeToMethod);
@@ -29,11 +31,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             MockHelpers.LoadMockGenerator();
 
             var multiPartFormData = new MultiPartFormDataBinaryContentDefinition();
+            Assert.AreEqual("MultiPartFormDataBinaryContent", multiPartFormData.Name);
             Assert.IsNotNull(multiPartFormData.Methods);
             var writeToMethod = multiPartFormData.Methods.Single(m => m.Signature.Name == "WriteToAsync");
             Assert.IsNotNull(writeToMethod);
             Assert.IsNotNull(writeToMethod.BodyStatements);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writeToMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void NameRespectsRequestContentType()
+        {
+            MockHelpers.LoadMockGenerator(requestContentApi: TestRequestContentApi.Instance);
+            var multiPartFormData = new MultiPartFormDataBinaryContentDefinition();
+
+            Assert.AreEqual("MultiPartFormDataTestRequestContent", multiPartFormData.Name);
         }
     }
 }

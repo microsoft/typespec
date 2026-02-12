@@ -2,7 +2,11 @@ import { mkdir } from "fs/promises";
 import path from "node:path";
 import { rimraf } from "rimraf";
 import { beforeEach, describe } from "vitest";
-import { contrastResult, preContrastResult, startWithCommandPalette } from "./common/common-steps";
+import {
+  expectFilesInDir,
+  preContrastResult,
+  startWithCommandPalette,
+} from "./common/common-steps";
 import { inputProjectName, selectEmitters, selectTemplate } from "./common/create-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
 import { CaseScreenshot, tempDir, test } from "./common/utils";
@@ -21,6 +25,7 @@ type CreateConfigType = {
   expectedResults: string[];
 };
 
+// Move to the temp directory to execute the test
 const CreateTypespecProjectFolderPath = path.resolve(tempDir, "CreateTypespecProject");
 
 const createCase = "CreateTypespecProject";
@@ -80,7 +85,7 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       cs,
       app,
     );
-    await contrastResult(expectedResults, workspacePath, cs);
+    await expectFilesInDir(expectedResults, workspacePath);
     app.close();
   });
 });

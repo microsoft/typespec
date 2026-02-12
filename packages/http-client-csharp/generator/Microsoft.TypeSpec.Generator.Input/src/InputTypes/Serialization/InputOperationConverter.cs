@@ -53,7 +53,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool generateProtocolMethod = false;
             bool generateConvenienceMethod = false;
             string? crossLanguageDefinitionId = null;
+            string? ns = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputOperationExample>? examples = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -74,7 +76,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("generateProtocolMethod", ref generateProtocolMethod)
                     || reader.TryReadBoolean("generateConvenienceMethod", ref generateConvenienceMethod)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("examples", options, ref examples)
+                    || reader.TryReadString("namespace", ref ns);
 
                 if (!isKnownProperty)
                 {
@@ -100,6 +104,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             operation.GenerateConvenienceMethod = generateConvenienceMethod;
             operation.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? throw new JsonException("InputOperation must have CrossLanguageDefinitionId");
             operation.Decorators = decorators ?? [];
+            operation.Examples = examples ?? [];
+            operation.Namespace = ns;
 
             return operation;
         }

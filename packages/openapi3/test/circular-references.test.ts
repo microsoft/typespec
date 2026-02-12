@@ -1,8 +1,8 @@
 import { deepStrictEqual } from "assert";
 import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
+worksFor(supportedVersions, ({ oapiForModel }) => {
   it("can reference itself via a property", async () => {
     const res = await oapiForModel(
       "Pet",

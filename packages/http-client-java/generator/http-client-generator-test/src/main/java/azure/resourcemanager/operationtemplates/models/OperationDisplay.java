@@ -12,7 +12,7 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * Localized display information for and operation.
+ * Localized display information for an operation.
  */
 @Immutable
 public final class OperationDisplay implements JsonSerializable<OperationDisplay> {

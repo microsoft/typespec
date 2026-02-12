@@ -1,5 +1,49 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.23
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.1.0-alpha.22
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.1.0-alpha.21
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8985](https://github.com/microsoft/typespec/pull/8985) Add new `sourceUrl` handling for the go to source navigation
+- [#9016](https://github.com/microsoft/typespec/pull/9016) Switch `js-yaml` to `yaml` library
+
+
+## 0.1.0-alpha.20
+
+### Features
+
+- [#8938](https://github.com/microsoft/typespec/pull/8938) Resolve packageName and spec display name from spec set package.json
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.1.0-alpha.19
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+
 ## 0.1.0-alpha.18
 
 ### Bump dependencies

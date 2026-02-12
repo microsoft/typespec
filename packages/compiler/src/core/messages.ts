@@ -528,12 +528,6 @@ const diagnostics = {
       default: "A rest parameter must be of an array type.",
     },
   },
-  "decorator-extern": {
-    severity: "error",
-    messages: {
-      default: "A decorator declaration must be prefixed with the 'extern' modifier.",
-    },
-  },
   "function-extern": {
     severity: "error",
     messages: {

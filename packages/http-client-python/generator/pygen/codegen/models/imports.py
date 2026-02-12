@@ -23,9 +23,8 @@ class ImportType(str, Enum):
 
 
 class TypingSection(str, Enum):
-    REGULAR = "regular"  # this import is always a typing import
-    CONDITIONAL = "conditional"  # is a typing import when we're dealing with files that py2 will use, else regular
-    TYPING = "typing"  # never a typing import
+    REGULAR = "regular"  # this import is always a regular import
+    TYPING = "typing"  # this import goes under TYPE_CHECKING
 
 
 class MsrestImportType(Enum):
@@ -254,7 +253,7 @@ class FileImport:
         msrest_import_type: MsrestImportType,
         typing_section: TypingSection,
     ):
-        if self.code_model.options["client-side-validation"]:
+        if not self.code_model.need_utils_serialization:
             if msrest_import_type == MsrestImportType.Module:
                 self.add_import("msrest.serialization", ImportType.SDKCORE, typing_section)
             else:

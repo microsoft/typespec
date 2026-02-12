@@ -5,6 +5,7 @@
 using System.ClientModel.Primitives;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using Sample;
 
 namespace Sample.Models
@@ -29,6 +30,7 @@ namespace Sample.Models
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
+        [global::System.Text.Json.Serialization.JsonIgnoreAttribute]
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
         public ref global::System.ClientModel.Primitives.JsonPatch Patch => ref _patch;

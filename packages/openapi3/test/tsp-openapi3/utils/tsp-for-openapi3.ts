@@ -12,7 +12,6 @@ import {
   OpenAPI3Document,
   OpenAPI3Header,
   OpenAPI3Parameter,
-  OpenAPI3PathItem,
   OpenAPI3RequestBody,
   OpenAPI3Response,
   OpenAPI3Schema,
@@ -25,13 +24,12 @@ function wrapCodeInTest(code: string): string {
   return `${code.slice(0, serviceIndex)}@test\n${code.slice(serviceIndex)}`;
 }
 
-export interface OpenAPI3Options {
+export interface OpenAPI3Options extends Partial<OpenAPI3Document> {
   headers?: Record<string, OpenAPI3Header>;
   responses?: Record<string, OpenAPI3Response>;
   requestBodies?: Record<string, Refable<OpenAPI3RequestBody>>;
   schemas?: Record<string, Refable<OpenAPI3Schema>>;
   parameters?: Record<string, Refable<OpenAPI3Parameter>>;
-  paths?: Record<string, OpenAPI3PathItem>;
 }
 
 async function createTestHost() {
@@ -86,28 +84,30 @@ export async function renderTypeSpecForOpenAPI3(props: OpenAPI3Options): Promise
 }
 
 function buildOpenAPI3Doc(props: OpenAPI3Options): OpenAPI3Document {
+  const { headers, responses, requestBodies, schemas, parameters, ...rest } = props;
   return {
     info: {
       title: "Test Service",
       version: "1.0.0",
     },
     openapi: "3.0.0",
-    paths: { ...props.paths },
+    ...rest,
+    paths: rest.paths || {},
     components: {
       headers: {
-        ...(props.headers as any),
+        ...(headers as any),
       },
       responses: {
-        ...(props.responses as any),
+        ...(responses as any),
       },
       requestBodies: {
-        ...(props.requestBodies as any),
+        ...(requestBodies as any),
       },
       schemas: {
-        ...(props.schemas as any),
+        ...(schemas as any),
       },
       parameters: {
-        ...(props.parameters as any),
+        ...(parameters as any),
       },
     },
   };

@@ -89,7 +89,7 @@ public final class ModelWithAttributesValuesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return contains fields that are XML attributes.
+     * @return contains fields that are XML attributes along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelWithAttributes> getWithResponse(RequestContext requestContext) {
@@ -108,7 +108,7 @@ public final class ModelWithAttributesValuesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ModelWithAttributes input, RequestContext requestContext) {

@@ -7,7 +7,7 @@ from enum import Enum
 from collections import OrderedDict
 from typing import Any, Optional, TYPE_CHECKING, cast
 import sys
-from .utils import add_to_pylint_disable, NamespaceType
+from .utils import add_to_pylint_disable, NamespaceType, LOCALS_LENGTH_LIMIT
 from .base import BaseType
 from .constant_type import ConstantType
 from .property import Property
@@ -244,7 +244,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
     @property
     def init_pylint_disable(self) -> str:
         retval: str = ""
-        if len(self.properties) > 23:
+        if len(self.properties) > LOCALS_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "too-many-locals")
         return retval
 
@@ -270,7 +270,7 @@ class JSONModelType(ModelType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
         file_import.define_mutable_mapping_type()
         if self.is_xml:
             file_import.add_submodule_import("xml.etree", "ElementTree", ImportType.STDLIB, alias="ET")
@@ -351,7 +351,7 @@ class MsrestModelType(GeneratedModelType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
         return file_import
 
 

@@ -3,13 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -95,11 +95,26 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
      * @return The predefined type.
      */
     protected ClassType mapPredefinedModel(ObjectSchema compositeType) {
+        ClassType type = null;
         if (JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
-            return SchemaUtil.mapExternalModel(compositeType);
-        } else {
-            return null;
+            type = SchemaUtil.mapExternalModel(compositeType);
         }
+
+        if (type == null
+            && compositeType.getUsage() != null
+            && compositeType.getUsage().contains(SchemaContext.EXTERNAL)
+            && compositeType.getLanguage() != null
+            && compositeType.getLanguage().getJava() != null
+            && compositeType.getLanguage().getJava().getNamespace() != null
+            && compositeType.getLanguage().getJava().getName() != null) {
+
+            // schema is external model
+            String namespace = compositeType.getLanguage().getJava().getNamespace();
+            String name = compositeType.getLanguage().getJava().getName();
+            type = new ClassType.Builder().packageName(namespace).name(name).build();
+        }
+
+        return type;
     }
 
     /**

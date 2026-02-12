@@ -12,10 +12,6 @@ export {
   isTypeSpecValueTypeOf,
   typespecTypeToJson,
   validateDecoratorNotOnType,
-  // TODO: decide what to do with those, dec should use extern dec instead
-  // if we remove, remove from decorator-utils too
-  // validateDecoratorParamCount,
-  // validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
   type DecoratorDefinition,
   type DecoratorParamDefinition,
@@ -81,6 +77,8 @@ export {
   getMaxValueAsNumeric,
   getMaxValueExclusive,
   getMaxValueExclusiveAsNumeric,
+  getMaxValueExclusiveForScalar,
+  getMaxValueForScalar,
   getMinItems,
   getMinItemsAsNumeric,
   getMinLength,
@@ -89,6 +87,8 @@ export {
   getMinValueAsNumeric,
   getMinValueExclusive,
   getMinValueExclusiveAsNumeric,
+  getMinValueExclusiveForScalar,
+  getMinValueForScalar,
   type Discriminator,
 } from "./core/intrinsic-type-state.js";
 export {
@@ -243,7 +243,11 @@ export const $decorators = {
 };
 
 export { applyCodeFix, applyCodeFixes } from "./core/code-fixes.js";
-export { createSuppressCodeFix } from "./core/compiler-code-fixes/suppress.codefix.js";
+export { createAddDecoratorCodeFix } from "./core/compiler-code-fixes/create-add-decorator/create-add-decorator.codefix.js";
+export {
+  createSuppressCodeFix,
+  createSuppressCodeFixes,
+} from "./core/compiler-code-fixes/suppress.codefix.js";
 export {
   ensureTrailingDirectorySeparator,
   getAnyExtensionFromPath,
@@ -280,6 +284,7 @@ export {
   type NavigationOptions,
 } from "./core/semantic-walker.js";
 export { createSourceFile, getSourceFileKindFromExt } from "./core/source-file.js";
+/* eslint-disable @typescript-eslint/no-deprecated -- exporting deprecated overloads for backward compatibility */
 export {
   isArrayModelType,
   isDeclaredInNamespace,
@@ -297,6 +302,7 @@ export {
   isValue,
   isVoidType,
 } from "./core/type-utils.js";
+/* eslint-enable @typescript-eslint/no-deprecated */
 export { ListenerFlow, NoTarget } from "./core/types.js";
 export type {
   ArrayModelType,
@@ -321,6 +327,7 @@ export type {
   DecoratorContext,
   DecoratorFunction,
   DecoratorImplementations,
+  DecoratorValidatorCallbacks,
   DeprecatedDirective,
   Diagnostic,
   DiagnosticCreator,

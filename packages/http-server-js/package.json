@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-js",
-  "version": "0.58.0-alpha.19",
+  "version": "0.58.0-alpha.24",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP server code generator for JavaScript",
   "homepage": "https://github.com/microsoft/typespec",
@@ -36,7 +36,7 @@
     "build": "pnpm build:helpers && pnpm build:src",
     "build:src": "tsc -p ./tsconfig.json",
     "build:helpers": "tsx ./build-helpers.ts",
-    "watch": "tsc -p . --watch",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
@@ -59,13 +59,13 @@
     }
   },
   "dependencies": {
-    "prettier": "~3.6.2",
-    "yaml": "~2.8.0"
+    "prettier": "~3.8.0",
+    "yaml": "~2.8.2"
   },
   "devDependencies": {
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.9",
-    "@types/node": "~24.3.0",
+    "@types/node": "~25.0.2",
     "@types/swagger-ui-express": "^4.1.8",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -74,23 +74,23 @@
     "@typespec/openapi3": "workspace:^",
     "@typespec/spector": "workspace:^",
     "@typespec/tspd": "workspace:^",
-    "@vitest/coverage-v8": "^3.1.2",
-    "@vitest/ui": "^3.1.2",
+    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/ui": "^4.0.15",
     "decimal.js": "^10.5.0",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "fs-extra": "^11.2.0",
-    "globby": "~14.1.0",
-    "inquirer": "^12.5.0",
+    "globby": "~16.1.0",
+    "inquirer": "^13.1.0",
     "morgan": "^1.10.0",
-    "ora": "^8.1.1",
+    "ora": "^9.0.0",
     "p-limit": "^7.1.1",
     "pathe": "^2.0.3",
     "picocolors": "~1.1.1",
     "swagger-ui-express": "^5.0.1",
     "temporal-polyfill": "^0.3.0",
-    "tsx": "^4.19.3",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.2",
-    "vitest": "^3.1.2",
+    "vitest": "^4.0.15",
     "yargs": "~18.0.0"
   }
 }

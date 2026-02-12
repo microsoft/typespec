@@ -85,7 +85,6 @@ export function checkModifiers(program: Program, node: Declaration): boolean {
     // There is at least one required modifier missing from this syntax node.
     isValid = false;
 
-    // TODO: report diagnostic "Modifier 'X' is required for Y declarations."
     for (const missing of getNamesOfModifierFlags(missingRequiredModifiers)) {
       program.reportDiagnostic(
         createDiagnostic({

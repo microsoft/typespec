@@ -64,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? access = null;
             string? collectionFormat = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -82,7 +83,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
                     || reader.TryReadBoolean("isContentType", ref isContentType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
 
                 if (!isKnownProperty)
                 {
@@ -102,9 +104,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a serializedName.");
             parameter.IsApiVersion = isApiVersion;
             parameter.DefaultValue = defaultValue;
-            parameter.Scope = InputParameter.ParseScope(type, name, scope);;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.ArraySerializationDelimiter = arraySerializationDelimiter;
             parameter.IsContentType = isContentType;
+            parameter.MethodParameterSegments = methodParameterSegments;
 
             return parameter;
         }

@@ -93,7 +93,9 @@ class OperationGroup(BaseModel):
     @property
     def need_validation(self) -> bool:
         """Whether any of its operations need validation"""
-        return any(o for o in self.operations if o.need_validation)
+        return any(o for o in self.operations if o.need_validation) or any(
+            og for og in self.operation_groups if og.need_validation
+        )
 
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
@@ -193,7 +195,7 @@ class OperationGroup(BaseModel):
             )
         if all(o.abstract for o in self.operations):
             return file_import
-        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.REGULAR)
         file_import.define_mypy_type("T", "TypeVar('T')")
         type_value = "Optional[Callable[[PipelineResponse[HttpRequest, {}HttpResponse], T, dict[str, Any]], Any]]"
         file_import.define_mypy_type("ClsType", type_value.format(""), type_value.format("Async"))

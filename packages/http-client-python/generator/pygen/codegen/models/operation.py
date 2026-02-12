@@ -16,7 +16,7 @@ from typing import (
 
 from .request_builder_parameter import RequestBuilderParameter
 
-from .utils import OrderedSet, add_to_pylint_disable
+from .utils import OrderedSet, add_to_pylint_disable, LOCALS_LENGTH_LIMIT, OPERATION_BODY_VARIABLES_LENGTH
 from .base_builder import BaseBuilder
 from .imports import FileImport, ImportType, TypingSection
 from .response import (
@@ -143,6 +143,12 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             retval = add_to_pylint_disable(retval, "inconsistent-return-statements")
         if len(self.name) > NAME_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "name-too-long")
+        method_params = self.parameters.method
+        if self.is_overload and len(method_params) > LOCALS_LENGTH_LIMIT:
+            retval = add_to_pylint_disable(retval, "too-many-locals")
+        elif not self.is_overload and len(method_params) > (LOCALS_LENGTH_LIMIT - OPERATION_BODY_VARIABLES_LENGTH):
+            retval = add_to_pylint_disable(retval, "too-many-locals")
+
         return retval
 
     def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
@@ -200,10 +206,10 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         if isinstance(exception_schema, ModelType):
             pylint_disable = "  # pylint: disable=protected-access" if exception_schema.internal else ""
             return (
-                exception_schema.type_annotation(skip_quote=True, serialize_namespace=serialize_namespace)
-                + pylint_disable
+                f"{exception_schema.type_annotation(skip_quote=True, serialize_namespace=serialize_namespace)},"
+                f"{pylint_disable}"
             )
-        return None if self.code_model.options["models-mode"] == "dpg" else "'object'"
+        return None if self.code_model.options["models-mode"] == "dpg" else "'object',"
 
     @property
     def non_default_errors(self) -> list[Response]:
@@ -278,6 +284,10 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
     def need_deserialize(self) -> bool:
         return any(r.type and not isinstance(r.type, BinaryIteratorType) for r in self.responses)
 
+    @property
+    def enable_import_deserialize_xml(self) -> bool:
+        return any(xml_serializable(str(r.default_content_type)) for r in self.responses + self.exceptions)
+
     def imports(  # pylint: disable=too-many-branches, disable=too-many-statements
         self, async_mode: bool, **kwargs: Any
     ) -> FileImport:
@@ -286,11 +296,11 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
 
         response_types = [r.type_annotation(async_mode=async_mode, **kwargs) for r in self.responses if r.type]
         if len(set(response_types)) > 1:
-            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.REGULAR)
         if self.added_on:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
@@ -396,9 +406,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             ImportType.SDKCORE,
         )
         file_import.add_submodule_import("rest", "HttpRequest", ImportType.SDKCORE)
-        file_import.add_submodule_import("typing", "Callable", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Callable", ImportType.STDLIB, TypingSection.REGULAR)
+        file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.REGULAR)
+        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.REGULAR)
         if self.code_model.options["tracing"] and self.want_tracing and not async_mode:
             file_import.add_submodule_import(
                 "azure.core.tracing.decorator",
@@ -408,6 +418,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         file_import.merge(self.get_request_builder_import(self.request_builder, async_mode, serialize_namespace))
         if self.overloads:
             file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
+            for overload in self.overloads:
+                if overload.parameters.has_body:
+                    file_import.merge(overload.parameters.body_parameter.type.imports(**kwargs))
         if self.code_model.options["models-mode"] == "dpg":
             relative_path = self.code_model.get_relative_import_path(
                 serialize_namespace, module_name="_utils.model_base"
@@ -434,12 +447,24 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                         ImportType.LOCAL,
                     )
                     file_import.add_import("json", ImportType.STDLIB)
-            if any(xml_serializable(str(r.default_content_type)) for r in self.responses + self.exceptions):
+            if self.enable_import_deserialize_xml:
                 file_import.add_submodule_import(relative_path, "_deserialize_xml", ImportType.LOCAL)
             elif self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
             if self.default_error_deserialization(serialize_namespace) or self.non_default_errors:
-                file_import.add_submodule_import(relative_path, "_failsafe_deserialize", ImportType.LOCAL)
+                xml_non_default_errors = any(
+                    xml_serializable(str(e.default_content_type)) for e in self.non_default_errors
+                )
+                try:
+                    default_error = next(e for e in self.exceptions if "default" in e.status_codes and e.type)
+                except StopIteration:
+                    default_error = None
+                if xml_non_default_errors or (
+                    default_error and xml_serializable(str(default_error.default_content_type))
+                ):
+                    file_import.add_submodule_import(relative_path, "_failsafe_deserialize_xml", ImportType.LOCAL)
+                else:
+                    file_import.add_submodule_import(relative_path, "_failsafe_deserialize", ImportType.LOCAL)
         return file_import
 
     def get_response_from_status(self, status_code: Optional[Union[str, int]]) -> ResponseType:

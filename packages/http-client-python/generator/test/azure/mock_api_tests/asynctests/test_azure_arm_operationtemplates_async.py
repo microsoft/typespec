@@ -174,3 +174,32 @@ async def test_optional_body_provider_post_with_body(client):
     )
     assert result.total_allowed == 100
     assert result.status == "Changed to requested allowance"
+
+
+@pytest.mark.asyncio
+async def test_lro_begin_export_array(client):
+    result = await (
+        await client.lro.begin_export_array(
+            body=models.ExportRequest(format="csv"),
+        )
+    ).result()
+    assert len(result) == 2
+    assert result[0].content == "order1,product1,1"
+    assert result[1].content == "order2,product2,2"
+
+
+@pytest.mark.asyncio
+async def test_lro_paging_begin_post_paging_lro(client):
+    poller = await client.lro_paging.begin_post_paging_lro(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        product_name="default",
+    )
+    result = await poller.result()
+    items = [item async for item in result]
+    assert len(items) == 2
+    assert items[0].name == "product1"
+    assert items[0].properties.product_id == "product1"
+    assert items[0].properties.provisioning_state == "Succeeded"
+    assert items[1].name == "product2"
+    assert items[1].properties.product_id == "product2"
+    assert items[1].properties.provisioning_state == "Succeeded"

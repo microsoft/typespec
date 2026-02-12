@@ -1,12 +1,12 @@
-import OpenAPIParser from "@apidevtools/swagger-parser";
+import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
 import { Context, createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Document, OpenAPI3Schema, Refable } from "../../src/types.js";
+import { OpenAPI3Document, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "../../src/types.js";
 
 interface TestScenario {
-  schema: Refable<OpenAPI3Schema>;
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1>;
   expected: string;
 }
 
@@ -49,6 +49,23 @@ const testScenarios: TestScenario[] = [
   { schema: { type: "number", format: "double" }, expected: "float64" },
   { schema: { type: "number", format: "float" }, expected: "float32" },
   { schema: { type: "number", enum: [3.14, 6.28, 42] }, expected: "3.14 | 6.28 | 42" },
+  // Duration tests with x-ms-duration extension
+  {
+    schema: { type: "integer", format: "int32", "x-ms-duration": "seconds" } as any,
+    expected: "duration",
+  },
+  {
+    schema: { type: "integer", format: "int32", "x-ms-duration": "milliseconds" } as any,
+    expected: "duration",
+  },
+  {
+    schema: { type: "number", format: "float", "x-ms-duration": "seconds" } as any,
+    expected: "duration",
+  },
+  {
+    schema: { type: "number", format: "float", "x-ms-duration": "milliseconds" } as any,
+    expected: "duration",
+  },
   // strings
   { schema: { type: "string" }, expected: "string" },
   {
@@ -62,6 +79,8 @@ const testScenarios: TestScenario[] = [
   },
   { schema: { type: "string", format: "binary" }, expected: "bytes" },
   { schema: { type: "string", format: "byte" }, expected: "bytes" },
+  // OpenAPI 3.1+ contentEncoding: base64 should be bytes
+  { schema: { type: "string", contentEncoding: "base64" }, expected: "bytes" },
   { schema: { type: "string", format: "date" }, expected: "plainDate" },
   { schema: { type: "string", format: "date-time" }, expected: "utcDateTime" },
   { schema: { type: "string", format: "duration" }, expected: "duration" },
@@ -274,18 +293,43 @@ const testScenarios: TestScenario[] = [
     },
     expected: "{missingTypeProp: { foo?: string}}",
   },
+  // OpenAPI 3.1 type arrays
+  { schema: { type: ["integer", "null"] as any, format: "int32" }, expected: "int32 | null" },
+  { schema: { type: ["string", "null"] as any }, expected: "string | null" },
+  { schema: { type: ["boolean", "null"] as any }, expected: "boolean | null" },
+  { schema: { type: ["number", "null"] as any, format: "float" }, expected: "float32 | null" },
+  {
+    schema: { type: ["integer", "null"] as any, format: "int32", minimum: 1, maximum: 20 },
+    expected: "int32 | null",
+  },
+  {
+    schema: { type: ["string", "null"] as any, format: "date-time" },
+    expected: "utcDateTime | null",
+  },
+  // Multiple non-null types in array (edge case - not supported, falls back to unknown)
+  {
+    schema: { type: ["string", "integer"] as any },
+    expected: "unknown",
+  },
+  // Type array with three types including null (edge case - not supported, falls back to unknown)
+  {
+    schema: { type: ["string", "integer", "null"] as any },
+    expected: "unknown",
+  },
 ];
 
 describe("tsp-openapi: generate-type", () => {
   let context: Context;
   beforeAll(async () => {
-    const parser = new OpenAPIParser();
-    const doc = await parser.bundle({
+    const { specification } = await dereference({
       openapi: "3.0.0",
       info: { title: "Test", version: "1.0.0" },
       paths: {},
     });
-    context = createContext(parser, doc as OpenAPI3Document);
+    if (!specification) {
+      throw new Error("Failed to dereference OpenAPI document");
+    }
+    context = createContext(specification as OpenAPI3Document);
   });
   testScenarios.forEach((t) =>
     it(`${generateScenarioName(t)}`, async () => {

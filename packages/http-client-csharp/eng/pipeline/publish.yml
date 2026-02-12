@@ -5,6 +5,8 @@ trigger:
   paths:
     include:
       - packages/http-client-csharp/
+    exclude:
+      - packages/http-client-csharp/eng/
 
 pr: none
 
@@ -60,6 +62,13 @@ extends:
               inputs:
                 displayName: "Install .NET 9"
                 performMultiLevelLookup: true
+                useGlobalJson: false
+                version: 9.x
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 10"
+                performMultiLevelLookup: true
                 useGlobalJson: true
                 workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
 
@@ -95,6 +104,31 @@ extends:
                 inputs:
                   version: "22.x"
 
+              - task: NuGetAuthenticate@1
+
+              - pwsh: |
+                  Write-Host "Creating .npmrc file $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc for registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/"
+                  $parentFolder = Split-Path -Path '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' -Parent
+
+                  if (!(Test-Path $parentFolder)) {
+                    Write-Host "Creating folder $parentFolder"
+                    New-Item -Path $parentFolder -ItemType Directory | Out-Null
+                  }
+
+                  $content = "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/`n`nalways-auth=true"
+                  $content | Out-File '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc'
+
+                  Write-Host "##[section].npmrc file created successfully. Contents:"
+                  Get-Content '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' | ForEach-Object { Write-Host "  $_" }
+                displayName: "Create .npmrc"
+                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
+
+              - task: npmAuthenticate@0
+                displayName: Authenticate npm for Azure Artifacts
+                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
+                inputs:
+                  workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
+
               - download: current
                 displayName: Download pipeline artifacts
 
@@ -117,6 +151,24 @@ extends:
                   useGlobalJson: true
                   workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
 
+              - pwsh: |
+                  Write-Host "##[section]Checking npm configuration before PR submission..."
+                  Write-Host "Current npm registry:"
+                  npm config get registry
+
+                  Write-Host "`nChecking for .npmrc files:"
+                  $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
+                  if (Test-Path $npmrcPath) {
+                    Write-Host "Found .npmrc at: $npmrcPath"
+                  } else {
+                    Write-Host ".npmrc file not found - will use default npm registry"
+                  }
+
+                  Write-Host "`nNpm config list (user + global):"
+                  npm config list
+                displayName: "Log npm configuration"
+                condition: eq(${{ parameters.CreateAzureSdkForNetPR }}, true)
+
               - task: PowerShell@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
@@ -127,3 +179,13 @@ extends:
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
+
+              - pwsh: |
+                  $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
+                  if (Test-Path $npmrcPath) {
+                    Remove-Item $npmrcPath -Force
+                    Write-Host "Cleaned up .npmrc file"
+                  }
+                displayName: Cleanup .npmrc file
+                condition: always()

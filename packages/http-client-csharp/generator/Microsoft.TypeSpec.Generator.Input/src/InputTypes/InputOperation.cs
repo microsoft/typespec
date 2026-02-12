@@ -28,7 +28,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool bufferResponse,
             bool generateProtocolMethod,
             bool generateConvenienceMethod,
-            string crossLanguageDefinitionId)
+            string crossLanguageDefinitionId,
+            string? ns)
         {
             Name = name;
             ResourceName = resourceName;
@@ -47,6 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             GenerateProtocolMethod = generateProtocolMethod;
             GenerateConvenienceMethod = generateConvenienceMethod;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            Namespace = ns;
         }
 
         public InputOperation() : this(
@@ -66,7 +68,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bufferResponse: false,
             generateProtocolMethod: true,
             generateConvenienceMethod: false,
-            crossLanguageDefinitionId: string.Empty)
+            crossLanguageDefinitionId: string.Empty,
+            ns: null)
         { }
 
         public string Name { get; internal set; }
@@ -75,6 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Doc { get; internal set; }
         public string? Deprecated { get; internal set; }
         public string? Accessibility { get; internal set; }
+        public string? Namespace { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public IReadOnlyList<InputOperationResponse> Responses { get; internal set; }
         public string HttpMethod { get; internal set; }
@@ -87,18 +91,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool GenerateConvenienceMethod { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
-
-        private IReadOnlyDictionary<string, InputOperationExample>? _examples;
-        internal IReadOnlyDictionary<string, InputOperationExample> Examples => _examples ??= EnsureExamples();
-
-        private IReadOnlyDictionary<string, InputOperationExample> EnsureExamples()
-        {
-            return new Dictionary<string, InputOperationExample>()
-            {
-                [ExampleMockValueBuilder.ShortVersionMockExampleKey] = ExampleMockValueBuilder.BuildOperationExample(this, false),
-                [ExampleMockValueBuilder.MockExampleAllParameterKey] = ExampleMockValueBuilder.BuildOperationExample(this, true)
-            };
-        }
+        public IReadOnlyList<InputOperationExample> Examples { get; internal set; } = new List<InputOperationExample>();
 
         private bool? _isMultipartFormData;
         public bool IsMultipartFormData => _isMultipartFormData ??= RequestMediaTypes is not null && RequestMediaTypes.Count == 1 && RequestMediaTypes[0] == "multipart/form-data";
@@ -120,7 +113,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool? bufferResponse = null,
             bool? generateProtocolMethod = null,
             bool? generateConvenienceMethod = null,
-            string? crossLanguageDefinitionId = null)
+            string? crossLanguageDefinitionId = null,
+            string? ns = null)
         {
             if (name != null)
             {
@@ -189,6 +183,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (crossLanguageDefinitionId != null)
             {
                 CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            }
+            if (ns != null)
+            {
+                Namespace = ns;
             }
         }
     }

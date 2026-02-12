@@ -16,7 +16,7 @@ import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
-import { flushEmittedFilesPaths } from "./emitter-utils.js";
+import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
@@ -30,9 +30,11 @@ import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver, createResolver } from "./name-resolver.js";
+import { Numeric } from "./numeric.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
+import { createPerfReporter, perf } from "./perf.js";
 import {
   SourceLoader,
   SourceResolution,
@@ -41,7 +43,7 @@ import {
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
 import { createStateAccessors } from "./state-accessors.js";
-import { ComplexityStats, RuntimeStats, Stats, startTimer, time, timeAsync } from "./stats.js";
+import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -60,6 +62,7 @@ import {
   Namespace,
   NoTarget,
   Node,
+  PerfReporter,
   SourceFile,
   Sym,
   SymbolFlags,
@@ -81,7 +84,7 @@ export interface Program {
   jsSourceFiles: Map<string, JsSourceFileNode>;
 
   /** @internal */
-  literalTypes: Map<string | number | boolean, LiteralType>;
+  literalTypes: Map<string | number | boolean | Numeric, LiteralType>;
   host: CompilerHost;
   tracer: Tracer;
   trace(area: string, message: string): void;
@@ -146,7 +149,9 @@ interface EmitterRef {
 
 interface Validator {
   metadata: LibraryMetadata;
-  callback: (program: Program) => void | Promise<void>;
+  callback: (
+    program: Program,
+  ) => void | readonly Diagnostic[] | Promise<void> | Promise<readonly Diagnostic[]>;
 }
 
 interface TypeSpecLibraryReference {
@@ -183,17 +188,17 @@ export async function compile(
     total: 0,
     emitters: {},
   };
-  const timer = startTimer();
+  const timer = perf.startTimer();
   // Emitter stage
   for (const emitter of program.emitters) {
     // If in dry mode run and an emitter doesn't support it we have to skip it.
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
       continue;
     }
-    const { duration } = await emit(emitter, program);
-    emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = duration;
+    const emitterStats = await emit(emitter, program);
+    emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = emitterStats;
     if (options.listFiles) {
-      logEmittedFilesPath(host.logSink);
+      logEmittedFilesPath(program);
     }
   }
   emitStats.total = timer.end();
@@ -275,7 +280,7 @@ async function createProgram(
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
 
-  runtimeStats.loader = await timeAsync(() => loadSources(resolvedMain));
+  runtimeStats.loader = await perf.timeAsync(() => loadSources(resolvedMain));
 
   const emit = options.noEmit ? [] : (options.emit ?? []);
   const emitterOptions = options.options;
@@ -294,7 +299,7 @@ async function createProgram(
   oldProgram = undefined;
 
   const resolver = (program.resolver = createResolver(program));
-  runtimeStats.resolver = time(() => resolver.resolveProgram());
+  runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
 
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
@@ -303,7 +308,7 @@ async function createProgram(
   }
 
   program.checker = createChecker(program, resolver);
-  runtimeStats.checker = time(() => program.checker.checkProgram());
+  runtimeStats.checker = perf.time(() => program.checker.checkProgram());
 
   complexityStats.createdTypes = program.checker.stats.createdTypes;
   complexityStats.finishedTypes = program.checker.stats.finishedTypes;
@@ -324,7 +329,7 @@ async function createProgram(
   }
 
   // Linter stage
-  const lintResult = linter.lint();
+  const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
 
@@ -631,13 +636,16 @@ async function createProgram(
   }
 
   async function runValidators() {
-    const start = startTimer();
+    const start = perf.startTimer();
     runtimeStats.validation = { total: 0, validators: {} };
     runCompilerValidators();
     runtimeStats.validation.validators.compiler = start.end();
     for (const validator of validateCbs) {
-      const start = startTimer();
-      await runValidator(validator);
+      const start = perf.startTimer();
+      const diagnostics = await runValidator(validator);
+      if (diagnostics && Array.isArray(diagnostics)) {
+        program.reportDiagnostics(diagnostics);
+      }
       runtimeStats.validation.validators[validator.metadata.name ?? "<unnamed>"] = start.end();
     }
     runtimeStats.validation.total = start.end();
@@ -645,7 +653,7 @@ async function createProgram(
 
   async function runValidator(validator: Validator) {
     try {
-      await validator.callback(program);
+      return await validator.callback(program);
     } catch (error: any) {
       if (options.designTimeBuild) {
         program.reportDiagnostic(
@@ -966,7 +974,10 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
   return { ...options };
 }
 
-async function emit(emitter: EmitterRef, program: Program): Promise<{ duration: number }> {
+async function emit(
+  emitter: EmitterRef,
+  program: Program,
+): Promise<{ total: number; steps: Record<string, number> }> {
   const emitterName = emitter.metadata.name ?? "";
   const relativePathForEmittedFiles =
     transformPathForSink(program.host.logSink, emitter.emitterOutputDir) + "/";
@@ -975,8 +986,8 @@ async function emit(emitter: EmitterRef, program: Program): Promise<{ duration: 
   const warnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
   const logger = createLogger({ sink: program.host.logSink });
   return await logger.trackAction(`Running ${emitterName}...`, "", async (task) => {
-    const start = startTimer();
-    await runEmitter(emitter, program);
+    const start = perf.startTimer();
+    const emitterPerfReporter = await runEmitter(emitter, program);
     const duration = start.end();
     const message = `${emitterName} ${pc.green(`${Math.round(duration)}ms`)} ${pc.dim(relativePathForEmittedFiles)}`;
     const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
@@ -988,30 +999,33 @@ async function emit(emitter: EmitterRef, program: Program): Promise<{ duration: 
     } else {
       task.succeed(message);
     }
-    return { duration };
+    return { total: duration, steps: emitterPerfReporter.measures };
   });
 }
 
 /**
  * @param emitter Emitter ref to run
  */
-async function runEmitter(emitter: EmitterRef, program: Program) {
+async function runEmitter(emitter: EmitterRef, program: Program): Promise<PerfReporter> {
+  const perfReporter = createPerfReporter();
   const context: EmitContext<any> = {
     program,
     emitterOutputDir: emitter.emitterOutputDir,
     options: emitter.options,
+    perf: perfReporter,
   };
   try {
     await emitter.emitFunction(context);
+    return perfReporter;
   } catch (error: unknown) {
     throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
   }
 }
 
-function logEmittedFilesPath(logSink: LogSink) {
-  flushEmittedFilesPaths().forEach((filePath) => {
+function logEmittedFilesPath(program: Program) {
+  getEmittedFilesForProgram(program).forEach((filePath) => {
     // eslint-disable-next-line no-console
-    console.log(`    ${pc.dim(transformPathForSink(logSink, filePath))}`);
+    console.log(`    ${pc.dim(transformPathForSink(program.host.logSink, filePath))}`);
   });
 }
 function transformPathForSink(logSink: LogSink, path: string) {

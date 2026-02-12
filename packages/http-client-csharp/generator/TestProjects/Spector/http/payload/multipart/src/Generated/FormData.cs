@@ -19,6 +19,14 @@ namespace Payload.MultiPart._FormData
 
         public virtual Task<ClientResult> BasicAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
+        public virtual ClientResult WithWireName(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> WithWireNameAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult OptionalParts(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> OptionalPartsAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+
         public virtual ClientResult FileArrayAndBasic(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> FileArrayAndBasicAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;

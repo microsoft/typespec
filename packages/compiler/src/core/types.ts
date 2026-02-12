@@ -48,9 +48,33 @@ export interface DecoratorApplication {
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
 }
 
+/**
+ * Signature for a decorator JS implementation function.
+ * Use `@typespec/tspd` to generate an accurate signature from the `extern dec`
+ */
 export interface DecoratorFunction {
-  (program: DecoratorContext, target: any, ...customArgs: any[]): void;
+  (
+    program: DecoratorContext,
+    target: any,
+    ...customArgs: any[]
+  ): DecoratorValidatorCallbacks | void;
   namespace?: string;
+}
+
+export type ValidatorFn = () => readonly Diagnostic[];
+
+export interface DecoratorValidatorCallbacks {
+  /**
+   * Run validation after all decorators are run on the same type. Useful if trying to validate this decorator is compatible with other decorators without relying on the order they are applied.
+   * @note This is meant for validation which means the type graph should be treated as readonly in this function.
+   */
+  readonly onTargetFinish?: ValidatorFn;
+
+  /**
+   * Run validation after everything is checked in the type graph. Useful when trying to get an overall view of the program.
+   * @note This is meant for validation which means the type graph should be treated as readonly in this function.
+   */
+  readonly onGraphFinish?: ValidatorFn;
 }
 
 export interface BaseType {
@@ -296,6 +320,9 @@ export interface SourceModel {
   readonly usage: "is" | "spread" | "intersection";
   /** Source model */
   readonly model: Model;
+
+  /** Node where this source model was referenced. */
+  readonly node?: Node;
 }
 
 export interface ModelProperty extends BaseType, DecoratedType {
@@ -2335,7 +2362,7 @@ export interface LinterResolvedDefinition {
   };
 }
 
-export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> {
+interface LinterRuleDefinitionBase<N extends string, DM extends DiagnosticMessages> {
   /** Rule name (without the library name) */
   name: N;
   /** Rule default severity. */
@@ -2346,16 +2373,44 @@ export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMes
   url?: string;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
-  /** Creator */
-  create(context: LinterRuleContext<DM>): SemanticNodeListener;
 }
 
+interface LinterRuleDefinitionSync<
+  N extends string,
+  DM extends DiagnosticMessages,
+> extends LinterRuleDefinitionBase<N, DM> {
+  /** Whether this is an async rule. Default is false */
+  async?: false;
+  /** Creator */
+  create(
+    context: LinterRuleContext<DM>,
+  ): SemanticNodeListener & { exit?: (context: Program) => void | undefined };
+}
+
+interface LinterRuleDefinitionAsync<
+  N extends string,
+  DM extends DiagnosticMessages,
+> extends LinterRuleDefinitionBase<N, DM> {
+  /** Whether this is an async rule. Default is false */
+  async: true;
+  /** Creator */
+  create(
+    context: LinterRuleContext<DM>,
+  ): SemanticNodeListener & { exit?: (context: Program) => Promise<void | undefined> };
+}
+
+export type LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> =
+  | LinterRuleDefinitionSync<N, DM>
+  | LinterRuleDefinitionAsync<N, DM>;
+
 /** Resolved instance of a linter rule that will run. */
-export interface LinterRule<N extends string, DM extends DiagnosticMessages>
-  extends LinterRuleDefinition<N, DM> {
+export type LinterRule<N extends string, DM extends DiagnosticMessages> = LinterRuleDefinition<
+  N,
+  DM
+> & {
   /** Expanded rule id in format `<library-name>:<rule-name>` */
   id: string;
-}
+};
 
 /** Reference to a rule. In this format `<library name>:<rule/ruleset name>` */
 export type RuleRef = `${string}/${string}`;
@@ -2482,6 +2537,55 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * Emitter custom options defined in createTypeSpecLibrary
    */
   options: TOptions;
+
+  /**
+   * Performance measurement utilities.
+   * Use this to report performance of areas of your emitter.
+   * The information will be displayed when the compiler is run with `--stats` flag.
+   */
+  readonly perf: PerfReporter;
+}
+
+export interface Timer {
+  end: () => number;
+}
+
+export interface PerfReporter {
+  /**
+   * Start timer for the given label.
+   *
+   * @example
+   * ```ts
+   * const timer = emitContext.perf.startTimer("my-emitter-task");
+   * // ... do work
+   * const elapsed = timer.end(); // my-emitter-task automatically reported to the compiler
+   * ```
+   */
+  startTimer(label: string): Timer;
+  /** Report a sync function elapsed time.  */
+  time<T>(label: string, callback: () => T): T;
+  /** Report an async function elapsed time.  */
+  timeAsync<T>(label: string, callback: () => Promise<T>): Promise<T>;
+
+  /**
+   * Report a custom elapsed time for the given label.
+   * Can be used with {@link import("./perf.js").perf}
+   * @example
+   * ```ts
+   * import { perf } from "@typespec/compiler";
+   *
+   * // somewhere in your emitter
+   * const start = perf.now();
+   * await doSomething();
+   * const end = perf.now();
+   *
+   * emitContext.perf.report("doSomething", end - start);
+   * ```
+   */
+  report(label: string, milliseconds: number): void;
+
+  /** @internal */
+  readonly measures: Readonly<Record<string, number>>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";

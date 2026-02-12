@@ -11,6 +11,8 @@ namespace Sample
 {
     public partial class DynamicModel
     {
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.DynamicModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+
         void global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.DynamicModel>.Write(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -55,7 +57,5 @@ namespace Sample
             Patch.WriteTo(writer);
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         }
-
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.DynamicModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
     }
 }

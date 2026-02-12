@@ -101,6 +101,20 @@ If true, then for models emitted as object schemas we default `unevaluatedProper
 if not explicitly specified elsewhere.
 Default: `false`
 
+### `polymorphic-models-strategy`
+
+**Type:** `"ignore" | "oneOf" | "anyOf"`
+
+Strategy for emitting models with the @discriminator decorator:
+
+- ignore: Emit as regular object schema (default). Derived models use allOf to reference their base model.
+- oneOf: Emit a oneOf schema with references to all derived models (closed union)
+- anyOf: Emit an anyOf schema with references to all derived models (open union)
+
+When using oneOf or anyOf, derived models will inline all properties from their base model
+instead of using allOf references. This avoids circular references in the generated schemas,
+since the base model references derived models via oneOf/anyOf.
+
 ## Decorators
 
 ### TypeSpec.JsonSchema

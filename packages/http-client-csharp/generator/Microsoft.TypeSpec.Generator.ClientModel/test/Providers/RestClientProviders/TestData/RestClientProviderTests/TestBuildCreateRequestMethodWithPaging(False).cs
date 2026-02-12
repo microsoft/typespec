@@ -17,7 +17,7 @@ namespace Sample
             uri.AppendQuery("someOtherName", p1, true);
             if (((p2 != null) && !((p2 is global::Sample.ChangeTrackingList<int> changeTrackingList) && changeTrackingList.IsUndefined)))
             {
-                uri.AppendQueryDelimited("p2", p2, " ", null, true);
+                uri.AppendQueryDelimited("p2", p2, " ", escape: true);
             }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;

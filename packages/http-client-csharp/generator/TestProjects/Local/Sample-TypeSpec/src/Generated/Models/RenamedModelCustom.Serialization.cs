@@ -22,6 +22,64 @@ namespace SampleTypeSpec
         {
         }
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override Friend PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeRenamedModelCustom(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(RenamedModelCustom)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(RenamedModelCustom)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<RenamedModelCustom>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        RenamedModelCustom IPersistableModel<RenamedModelCustom>.Create(BinaryData data, ModelReaderWriterOptions options) => (RenamedModelCustom)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<RenamedModelCustom>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="renamedModelCustom"> The <see cref="RenamedModelCustom"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(RenamedModelCustom renamedModelCustom)
+        {
+            if (renamedModelCustom == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(renamedModelCustom, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RenamedModelCustom"/> from. </param>
+        public static explicit operator RenamedModelCustom(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeRenamedModelCustom(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<RenamedModelCustom>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -91,64 +149,6 @@ namespace SampleTypeSpec
                 }
             }
             return new RenamedModelCustom(name, additionalBinaryDataProperties, otherName);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<RenamedModelCustom>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(RenamedModelCustom)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        RenamedModelCustom IPersistableModel<RenamedModelCustom>.Create(BinaryData data, ModelReaderWriterOptions options) => (RenamedModelCustom)PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override Friend PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
-                    {
-                        return DeserializeRenamedModelCustom(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(RenamedModelCustom)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<RenamedModelCustom>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="renamedModelCustom"> The <see cref="RenamedModelCustom"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(RenamedModelCustom renamedModelCustom)
-        {
-            if (renamedModelCustom == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(renamedModelCustom, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RenamedModelCustom"/> from. </param>
-        public static explicit operator RenamedModelCustom(ClientResult result)
-        {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeRenamedModelCustom(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

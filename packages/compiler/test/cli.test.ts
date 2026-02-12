@@ -62,6 +62,14 @@ describe("compiler: cli", () => {
       });
     });
 
+    it("should properly resolve --ignore-deprecated", async () => {
+      const options = await resolveCompilerOptions({
+        "ignore-deprecated": true,
+      });
+
+      strictEqual(options.ignoreDeprecated, true);
+    });
+
     it("--option without an emitter are moved to miscOptions", async () => {
       const options = await resolveCompilerOptions({
         options: [`test-debug=true`],

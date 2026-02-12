@@ -1,0 +1,18 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.clientgenerator.core.clientlocation.rootclient.MoveToRootAsyncClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient",
+    "azure.clientgenerator.core.clientlocation.rootclient.MoveToRootAsyncClient.getHealthStatus": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getHealthStatus",
+    "azure.clientgenerator.core.clientlocation.rootclient.MoveToRootAsyncClient.getHealthStatusWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getHealthStatus",
+    "azure.clientgenerator.core.clientlocation.rootclient.MoveToRootClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient",
+    "azure.clientgenerator.core.clientlocation.rootclient.MoveToRootClient.getHealthStatus": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getHealthStatus",
+    "azure.clientgenerator.core.clientlocation.rootclient.MoveToRootClient.getHealthStatusWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getHealthStatus",
+    "azure.clientgenerator.core.clientlocation.rootclient.MoveToRootClientBuilder": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient",
+    "azure.clientgenerator.core.clientlocation.rootclient.ResourceOperationsAsyncClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations",
+    "azure.clientgenerator.core.clientlocation.rootclient.ResourceOperationsAsyncClient.getResource": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getResource",
+    "azure.clientgenerator.core.clientlocation.rootclient.ResourceOperationsAsyncClient.getResourceWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getResource",
+    "azure.clientgenerator.core.clientlocation.rootclient.ResourceOperationsClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations",
+    "azure.clientgenerator.core.clientlocation.rootclient.ResourceOperationsClient.getResource": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getResource",
+    "azure.clientgenerator.core.clientlocation.rootclient.ResourceOperationsClient.getResourceWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getResource"
+  }
+}

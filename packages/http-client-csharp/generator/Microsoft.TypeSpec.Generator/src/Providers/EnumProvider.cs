@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     public abstract class EnumProvider : TypeProvider
     {
-        private readonly InputEnumType _inputType;
+        private readonly InputEnumType? _inputType;
 
         public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
         {
@@ -21,31 +21,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? new ApiVersionEnumProvider(input, declaringType)
                 : new FixedEnumProvider(input, declaringType);
             var extensibleEnumProvider = new ExtensibleEnumProvider(input, declaringType);
+            fixedEnumProvider.ExtensibleEnumView = extensibleEnumProvider;
+            extensibleEnumProvider.FixedEnumView = fixedEnumProvider;
 
-            // Check to see if there is custom code that customizes the enum.
-            var customCodeView = fixedEnumProvider.CustomCodeView ?? extensibleEnumProvider.CustomCodeView;
-
-            EnumProvider provider = customCodeView switch
-            {
-                { Type: { IsValueType: true, IsStruct: true } } => extensibleEnumProvider,
-                { Type: { IsValueType: true, IsStruct: false } } => fixedEnumProvider,
-                _ => input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider
-            };
-
-            if (input.Access == "public")
-            {
-                CodeModelGenerator.Instance.AddTypeToKeep(provider);
-            }
-
-            return provider;
+            return input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider;
         }
 
-        protected EnumProvider(InputEnumType input)
+        protected EnumProvider(InputEnumType? input)
         {
             _inputType = input;
-            _deprecated = input.Deprecation;
-            IsExtensible = input.IsExtensible;
+            _deprecated = input?.Deprecation;
+            IsExtensible = input?.IsExtensible ?? false;
+            InputNamespace = input?.Namespace;
         }
+
+        internal EnumProvider? FixedEnumView { get; set; }
+        internal EnumProvider? ExtensibleEnumView { get; set; }
+
+        public string? InputNamespace { get; }
 
         public bool IsExtensible { get; }
         private bool? _isIntValue;
@@ -58,19 +51,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputType.Name.ToIdentifierName();
-        protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputType.Summary, _inputType.Doc) ?? FormattableStringHelpers.Empty;
+        protected override string BuildName() => _inputType!.Name.ToIdentifierName();
+        protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputType!.Summary, _inputType.Doc) ?? FormattableStringHelpers.Empty;
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType, this)];
+            return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType!, this)];
         }
-        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputType.Namespace) ?
+        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputType?.Namespace) ?
             // TODO - this should not be necessary as every enum should have a namespace https://github.com/Azure/typespec-azure/issues/2210
             CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace : // we default to this model namespace when the namespace is empty
             CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputType.Namespace);
 
         protected override bool GetIsEnum() => true;
-        protected override CSharpType BuildEnumUnderlyingType() => CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");
+        protected override CSharpType BuildEnumUnderlyingType() => CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputType!.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");
     }
 }

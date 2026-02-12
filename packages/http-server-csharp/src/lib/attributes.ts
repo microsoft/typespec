@@ -308,7 +308,7 @@ export function getArrayConstraintAttribute(
   const maxItems = getMaxItems(program, type);
   if (minItems === undefined && maxItems === undefined) return undefined;
   if (type.kind !== "ModelProperty" || type.type.kind !== "Model") return undefined;
-  if (!isArrayModelType(program, type.type)) return undefined;
+  if (!isArrayModelType(type.type)) return undefined;
   const arrayType = type.type;
   const elementType = arrayType.indexer.value;
   if (elementType.kind !== "Scalar") return undefined;

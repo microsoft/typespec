@@ -40,12 +40,19 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkBasicServiceMethod<TServiceOperation>,
   operationGroupName: string,
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitBasicHttpMethod(context, rootClient, method, operationGroupName);
+      return emitBasicHttpMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        serviceApiVersions,
+      );
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -56,12 +63,13 @@ function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroServiceMethod<TServiceOperation>,
   operationGroupName: string,
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitLroHttpMethod(context, rootClient, method, operationGroupName);
+      return emitLroHttpMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -72,12 +80,19 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitPagingHttpMethod(context, rootClient, method, operationGroupName);
+      return emitPagingHttpMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        serviceApiVersions,
+      );
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -88,12 +103,19 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitLroPagingHttpMethod(context, rootClient, method, operationGroupName);
+      return emitLroPagingHttpMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        serviceApiVersions,
+      );
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -102,16 +124,18 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
 function emitMethodParameter(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter,
+  serviceApiVersions: string[] = [],
 ): Record<string, any>[] {
   if (parameter.kind === "endpoint") {
     if (parameter.type.kind === "union") {
       for (const endpointVal of parameter.type.variantTypes) {
-        return emitEndpointType(context, endpointVal as SdkEndpointType);
+        return emitEndpointType(context, endpointVal as SdkEndpointType, serviceApiVersions);
       }
     } else {
-      return emitEndpointType(context, parameter.type);
+      return emitEndpointType(context, parameter.type, serviceApiVersions);
     }
   }
+  let optional = parameter.optional;
   // filter out credential that python does not support for now
   if (parameter.kind === "credential") {
     const filteredCredentialType = [];
@@ -124,6 +148,8 @@ function emitMethodParameter(
         (credentialType.scheme.type === "apiKey" && credentialType.scheme.in === "header")
       ) {
         filteredCredentialType.push(credentialType);
+      } else if (credentialType.scheme.type === "noAuth") {
+        optional = true;
       }
     }
     if (filteredCredentialType.length === 0) {
@@ -135,10 +161,11 @@ function emitMethodParameter(
     }
   }
   const base = {
-    ...emitParamBase(context, parameter),
+    ...emitParamBase(context, parameter, undefined, serviceApiVersions),
     implementation: getImplementation(context, parameter),
     clientDefaultValue: parameter.clientDefaultValue,
     location: parameter.kind,
+    optional,
   };
   if (parameter.isApiVersionParam) {
     return [
@@ -158,39 +185,51 @@ function emitMethod<TServiceOperation extends SdkServiceOperation>(
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
   operationGroupName: string,
+  serviceApiVersions: string[],
 ): Record<string, any>[] {
   switch (method.kind) {
     case "basic":
-      return emitBasicMethod(context, rootClient, method, operationGroupName);
+      return emitBasicMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
     case "lro":
-      return emitLroMethod(context, rootClient, method, operationGroupName);
+      return emitLroMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
     case "paging":
-      return emitPagingMethod(context, rootClient, method, operationGroupName);
+      return emitPagingMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
     default:
-      return emitLroPagingMethod(context, rootClient, method, operationGroupName);
+      return emitLroPagingMethod(
+        context,
+        rootClient,
+        method,
+        operationGroupName,
+        serviceApiVersions,
+      );
   }
 }
 
+// TCGC does not supply apiVersions information for each type that could facilitate versioning at the service level,
+// therefore, it is necessary to provide it incrementally so that the `getAddedOn` function can use.
 function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   client: SdkClientType<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
   prefix: string,
+  serviceApiVersions: string[],
 ): Record<string, any>[] | undefined {
   const operationGroups: Record<string, any>[] = [];
 
   for (const operationGroup of client.children ?? []) {
     const name = `${prefix}${operationGroup.name}`;
     let operations: Record<string, any>[] = [];
+    const apiVersions =
+      serviceApiVersions.length > 0 ? serviceApiVersions : operationGroup.apiVersions;
     for (const method of operationGroup.methods) {
-      operations = operations.concat(emitMethod(context, rootClient, method, name));
+      operations = operations.concat(emitMethod(context, rootClient, method, name, apiVersions));
     }
     operationGroups.push({
       name: name,
       className: name,
       propertyName: operationGroup.name,
       operations: operations,
-      operationGroups: emitOperationGroups(context, operationGroup, rootClient, name),
+      operationGroups: emitOperationGroups(context, operationGroup, rootClient, name, apiVersions),
       clientNamespace: getClientNamespace(context, operationGroup.namespace),
     });
   }
@@ -199,7 +238,9 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   if (prefix === "") {
     let operations: Record<string, any>[] = [];
     for (const method of client.methods) {
-      operations = operations.concat(emitMethod(context, rootClient, method, ""));
+      operations = operations.concat(
+        emitMethod(context, rootClient, method, "", serviceApiVersions),
+      );
     }
     if (operations.length > 0) {
       operationGroups.push({
@@ -233,10 +274,14 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   // get all init parameters including children clients
   const initParameters: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[] = [];
   const paramNames = new Set<string>();
+  const serviceApiVersions = client.apiVersions;
   function collectParameters(client: SdkClientType<TServiceOperation>) {
     if (client.clientInitialization?.parameters) {
       for (const param of client.clientInitialization.parameters) {
-        if (!paramNames.has(param.name)) {
+        if (param.isApiVersionParam && serviceApiVersions.length === 0) {
+          // for multi-service client with different api-versions, skip adding api-version param here
+          continue;
+        } else if (!paramNames.has(param.name)) {
           initParameters.push(param);
           paramNames.add(param.name);
         }
@@ -249,12 +294,14 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   collectParameters(client);
 
   const parameters =
-    initParameters.map((x) => emitMethodParameter(context, x)).reduce((a, b) => [...a, ...b]) ?? [];
+    initParameters
+      .map((x) => emitMethodParameter(context, x, client.apiVersions))
+      .reduce((a, b) => [...a, ...b]) ?? [];
 
   const endpointParameter = initParameters.find((x) => x.kind === "endpoint") as
     | SdkEndpointParameter
     | undefined;
-  const operationGroups = emitOperationGroups(context, client, client, "");
+  const operationGroups = emitOperationGroups(context, client, client, "", client.apiVersions);
   let url: string | undefined;
   if (endpointParameter?.type.kind === "union") {
     url = (endpointParameter.type.variantTypes[0] as SdkEndpointType).serverUrl;
@@ -262,7 +309,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
     url = endpointParameter?.type.serverUrl;
   }
   return {
-    name: client.name,
+    name: client.name.endsWith("Client") ? client.name : `${client.name}Client`,
     description: (client.summary ? client.summary : client.doc) ?? "",
     parameters,
     operationGroups,
@@ -353,7 +400,11 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
   ];
   codeModel["crossLanguagePackageId"] = ignoreDiagnostics(getCrossLanguagePackageId(sdkContext));
   if ((sdkContext.emitContext.options as any).flavor === "azure") {
-    codeModel["metadata"] = sdkPackage.metadata;
+    const metadata = { ...sdkPackage.metadata } as any;
+    if (metadata.apiVersions) {
+      metadata.apiVersions = Object.fromEntries(metadata.apiVersions);
+    }
+    codeModel["metadata"] = metadata;
   }
   return codeModel;
 }

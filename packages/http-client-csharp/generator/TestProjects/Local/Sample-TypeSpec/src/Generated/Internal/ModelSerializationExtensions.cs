@@ -11,9 +11,12 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
@@ -23,6 +26,18 @@ namespace SampleTypeSpec
         internal static readonly JsonDocumentOptions JsonDocumentOptions = new JsonDocumentOptions
         {
             MaxDepth = 256
+        };
+        internal static readonly XmlWriterSettings XmlWriterSettings = new XmlWriterSettings
+        {
+            Encoding = new UTF8Encoding(false)
+        };
+        private static readonly XmlReaderSettings XmlReaderSettings = new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            MaxCharactersInDocument = 30000000,
+            IgnoreProcessingInstructions = true,
+            IgnoreComments = true
         };
 
         public static object GetObject(this JsonElement element)
@@ -258,6 +273,15 @@ namespace SampleTypeSpec
             writer.WriteObjectValue<object>(value, options);
         }
 
+        public static BinaryData GetUtf8Bytes(this JsonElement element)
+        {
+#if NET9_0_OR_GREATER
+            return new global::System.BinaryData(global::System.Runtime.InteropServices.JsonMarshal.GetRawUtf8Value(element).ToArray());
+#else
+            return BinaryData.FromString(element.GetRawText());
+#endif
+        }
+
         public static ReadOnlySpan<byte> SliceToStartOfPropertyName(this ReadOnlySpan<byte> jsonPath)
         {
             ReadOnlySpan<byte> local = jsonPath;
@@ -304,15 +328,6 @@ namespace SampleTypeSpec
             return key;
         }
 
-        public static BinaryData GetUtf8Bytes(this JsonElement element)
-        {
-#if NET9_0_OR_GREATER
-            return new global::System.BinaryData(global::System.Runtime.InteropServices.JsonMarshal.GetRawUtf8Value(element).ToArray());
-#else
-            return BinaryData.FromString(element.GetRawText());
-#endif
-        }
-
         public static bool TryGetIndex(this ReadOnlySpan<byte> indexSlice, out int index, out int bytesConsumed)
         {
             index = -1;
@@ -341,6 +356,60 @@ namespace SampleTypeSpec
         public static ReadOnlySpan<byte> GetRemainder(this ReadOnlySpan<byte> jsonPath, int index)
         {
             return index >= jsonPath.Length ? ReadOnlySpan<byte>.Empty : jsonPath[index] == '.' ? jsonPath.Slice(index) : jsonPath.Slice(index + 2);
+        }
+
+        public static DateTimeOffset GetDateTimeOffset(this XElement element, string format) => format switch
+        {
+            "U" => DateTimeOffset.FromUnixTimeSeconds((long)element),
+            _ => TypeFormatters.ParseDateTimeOffset(element.Value, format)
+        };
+
+        public static TimeSpan GetTimeSpan(this XElement element, string format) => TypeFormatters.ParseTimeSpan(element.Value, format);
+
+        public static byte[] GetBytesFromBase64(this XElement element, string format) => format switch
+        {
+            "U" => TypeFormatters.FromBase64UrlString(element.Value),
+            "D" => Convert.FromBase64String(element.Value),
+            _ => throw new ArgumentException("Format is not supported: ", nameof(format))
+        };
+
+        public static void WriteStringValue(this XmlWriter writer, DateTimeOffset value, string format)
+        {
+            writer.WriteValue(TypeFormatters.ToString(value, format));
+        }
+
+        public static void WriteStringValue(this XmlWriter writer, TimeSpan value, string format)
+        {
+            writer.WriteValue(TypeFormatters.ToString(value, format));
+        }
+
+        public static void WriteBase64StringValue(this XmlWriter writer, byte[] value, string format)
+        {
+            writer.WriteValue(TypeFormatters.ToString(value, format));
+        }
+
+        public static void WriteObjectValue<T>(this XmlWriter writer, T value, ModelReaderWriterOptions options = null)
+        {
+            switch (value)
+            {
+                case IPersistableModel<T> persistableModel:
+                    BinaryData data = ModelReaderWriter.Write(persistableModel, options ?? WireOptions, SampleTypeSpecContext.Default);
+                    using (Stream stream = data.ToStream())
+                    {
+                        using (XmlReader reader = XmlReader.Create(stream, XmlReaderSettings))
+                        {
+                            reader.MoveToContent();
+                            reader.ReadStartElement();
+                            while (reader.NodeType != XmlNodeType.EndElement)
+                            {
+                                writer.WriteNode(reader, true);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    throw new NotSupportedException($"Not supported type {typeof(T)}");
+            }
         }
     }
 }

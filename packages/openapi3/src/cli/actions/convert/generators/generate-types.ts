@@ -1,9 +1,9 @@
 import { printIdentifier } from "@typespec/compiler";
 import {
   OpenAPI3Encoding,
-  OpenAPI3Schema,
-  OpenAPI3SchemaProperty,
+  OpenAPISchema3_2,
   Refable,
+  SupportedOpenAPISchema,
 } from "../../../../types.js";
 import { Context } from "../utils/context.js";
 import {
@@ -17,19 +17,38 @@ export class SchemaToExpressionGenerator {
   constructor(public rootNamespace: string) {}
 
   public generateTypeFromRefableSchema(
-    schema: Refable<OpenAPI3Schema>,
+    schema: Refable<SupportedOpenAPISchema>,
     callingScope: string[],
     isHttpPart = false,
     encoding?: Record<string, OpenAPI3Encoding>,
     context?: Context,
   ): string {
     const hasRef = "$ref" in schema;
-    return hasRef
-      ? this.getRefName(schema.$ref, callingScope)
-      : this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);
+    if (hasRef) {
+      // In JSON Schema 2020-12 (used in OpenAPI 3.1+), sibling keywords alongside $ref are allowed
+      // Check if there's a default value alongside the $ref
+      let type = this.getRefName(schema.$ref, callingScope);
+
+      // Cast to allow access to sibling properties
+      const schemaWithSiblings = schema as SupportedOpenAPISchema & { $ref: string };
+      if (schemaWithSiblings.default !== undefined) {
+        const defaultValue = this.generateDefaultValueForRef(
+          schemaWithSiblings,
+          schema.$ref,
+          callingScope,
+          context,
+        );
+        if (defaultValue) {
+          type += ` = ${defaultValue}`;
+        }
+      }
+
+      return type;
+    }
+    return this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);
   }
 
-  public generateArrayType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  public generateArrayType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
     const items = schema.items;
     if (!items) {
       return "unknown[]";
@@ -85,7 +104,7 @@ export class SchemaToExpressionGenerator {
   }
 
   private getTypeFromSchema(
-    schema: OpenAPI3Schema,
+    schema: SupportedOpenAPISchema,
     callingScope: string[],
     isHttpPart = false,
     encoding?: Record<string, OpenAPI3Encoding>,
@@ -93,7 +112,29 @@ export class SchemaToExpressionGenerator {
   ): string {
     let type = "unknown";
 
-    if (schema.const !== undefined) {
+    // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
+    // Only handle the case of exactly 2 types where one is "null"
+    if (Array.isArray(schema.type) && schema.type.length === 2 && schema.type.includes("null")) {
+      const types: string[] = [];
+      for (const t of schema.type) {
+        if (t === "null") {
+          types.push("null");
+        } else {
+          // Create a schema with a single type to reuse existing type extraction logic
+          // Remove type array, nullable, and default to avoid double-processing
+          const singleTypeSchema: SupportedOpenAPISchema = {
+            ...schema,
+            type: t as any,
+            nullable: undefined,
+            default: undefined,
+          };
+          types.push(
+            this.getTypeFromSchema(singleTypeSchema, callingScope, isHttpPart, encoding, context),
+          );
+        }
+      }
+      type = types.join(" | ");
+    } else if (schema.const !== undefined) {
       type = JSON.stringify(schema.const);
     } else if (schema.enum) {
       type = getEnum(schema.enum);
@@ -132,7 +173,7 @@ export class SchemaToExpressionGenerator {
       type = this.generateArrayType(schema, callingScope);
     }
 
-    if (schema.nullable) {
+    if ("nullable" in schema && schema.nullable) {
       type += ` | null`;
     }
 
@@ -148,7 +189,7 @@ export class SchemaToExpressionGenerator {
   }
 
   private generateDefaultValue(
-    schema: OpenAPI3Schema,
+    schema: SupportedOpenAPISchema,
     callingScope: string[],
     context?: Context,
   ): string | undefined {
@@ -202,9 +243,46 @@ export class SchemaToExpressionGenerator {
     return undefined; // Return undefined to indicate no default found
   }
 
-  private getAllOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  /**
+   * Generate a default value for a schema that has a $ref and a sibling default keyword.
+   * This handles the case where a schema references another schema but overrides the default value.
+   */
+  private generateDefaultValueForRef(
+    schema: SupportedOpenAPISchema & { $ref: string },
+    ref: string,
+    callingScope: string[],
+    context?: Context,
+  ): string | undefined {
+    if (!schema.default) {
+      return undefined;
+    }
+
+    if (typeof schema.default === "object") {
+      return normalizeObjectValueToTSValueExpression(schema.default);
+    }
+
+    // Check if the referenced schema is an enum
+    if (context) {
+      const refSchema = context.getSchemaByRef(ref);
+      if (
+        refSchema?.enum &&
+        refSchema.type === "string" &&
+        refSchema.enum.includes(schema.default)
+      ) {
+        const enumRefName = this.getRefName(ref, callingScope);
+        // Convert the default value to a valid identifier for the enum member
+        const memberName = printIdentifier(schema.default as string, "disallow-reserved");
+        return `${enumRefName}.${memberName}`;
+      }
+    }
+
+    // For non-enum types, just use JSON.stringify
+    return JSON.stringify(schema.default);
+  }
+
+  private getAllOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
     const requiredProps: string[] = schema.required || [];
-    let properties: Record<string, Refable<OpenAPI3Schema>> = {};
+    let properties: Record<string, Refable<SupportedOpenAPISchema>> = {};
     const baseTypes: string[] = [];
 
     for (const member of schema.allOf || []) {
@@ -239,7 +317,9 @@ export class SchemaToExpressionGenerator {
     }
   }
 
-  private stripDefaultsFromSchema(schema: Refable<OpenAPI3Schema>): Refable<OpenAPI3Schema> {
+  private stripDefaultsFromSchema(
+    schema: Refable<SupportedOpenAPISchema>,
+  ): Refable<SupportedOpenAPISchema> {
     if ("$ref" in schema) {
       return schema;
     }
@@ -252,24 +332,31 @@ export class SchemaToExpressionGenerator {
       strippedSchema.items = this.stripDefaultsFromSchema(strippedSchema.items);
     }
 
+    // in the next blocks the casts are ugly but safe because the stripped schema is going to be the same as the original one
     if (strippedSchema.anyOf) {
-      strippedSchema.anyOf = strippedSchema.anyOf.map((item) => this.stripDefaultsFromSchema(item));
+      strippedSchema.anyOf = strippedSchema.anyOf.map((item) =>
+        this.stripDefaultsFromSchema(item),
+      ) as unknown as OpenAPISchema3_2[];
     }
 
     if (strippedSchema.oneOf) {
-      strippedSchema.oneOf = strippedSchema.oneOf.map((item) => this.stripDefaultsFromSchema(item));
+      strippedSchema.oneOf = strippedSchema.oneOf.map((item) =>
+        this.stripDefaultsFromSchema(item),
+      ) as unknown as OpenAPISchema3_2[];
     }
 
     if (strippedSchema.allOf) {
-      strippedSchema.allOf = strippedSchema.allOf.map((item) => this.stripDefaultsFromSchema(item));
+      strippedSchema.allOf = strippedSchema.allOf.map((item) =>
+        this.stripDefaultsFromSchema(item),
+      ) as unknown as OpenAPISchema3_2[];
     }
 
     if (strippedSchema.properties) {
-      const strippedProperties: Record<string, Refable<OpenAPI3Schema>> = {};
+      const strippedProperties: Record<string, Refable<SupportedOpenAPISchema>> = {};
       for (const [key, prop] of Object.entries(strippedSchema.properties)) {
         strippedProperties[key] = this.stripDefaultsFromSchema(prop);
       }
-      strippedSchema.properties = strippedProperties;
+      strippedSchema.properties = strippedProperties as unknown as Record<string, OpenAPISchema3_2>;
     }
 
     if (
@@ -284,7 +371,7 @@ export class SchemaToExpressionGenerator {
     return strippedSchema;
   }
 
-  private getAnyOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  private getAnyOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
     const definitions: string[] = [];
 
     for (const item of schema.anyOf ?? []) {
@@ -296,7 +383,7 @@ export class SchemaToExpressionGenerator {
     return definitions.join(" | ");
   }
 
-  private getOneOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  private getOneOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
     const definitions: string[] = [];
 
     for (const item of schema.oneOf ?? []) {
@@ -386,7 +473,7 @@ export class SchemaToExpressionGenerator {
   public static readonly decoratorNamesToExcludeForParts: string[] = ["minValue", "maxValue"];
 
   private getObjectType(
-    schema: OpenAPI3Schema,
+    schema: SupportedOpenAPISchema,
     callingScope: string[],
     isHttpPart = false,
     encoding?: Record<string, OpenAPI3Encoding>,
@@ -411,7 +498,7 @@ export class SchemaToExpressionGenerator {
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
 
         const decorators = generateDecorators(
-          getDecoratorsForSchema(originalPropSchema),
+          getDecoratorsForSchema(originalPropSchema, context),
           isHttpPart ? SchemaToExpressionGenerator.decoratorNamesToExcludeForParts : [],
         )
           .map((d) => `${d}\n`)
@@ -444,7 +531,7 @@ export class SchemaToExpressionGenerator {
 }
 
 export function isReferencedEnumType(
-  propSchema: OpenAPI3SchemaProperty,
+  propSchema: Refable<SupportedOpenAPISchema>,
   context: Context,
 ): boolean {
   let isEnumType = false;
@@ -464,7 +551,7 @@ export function isReferencedEnumType(
 }
 
 export function isReferencedUnionType(
-  propSchema: OpenAPI3SchemaProperty,
+  propSchema: Refable<SupportedOpenAPISchema>,
   context: Context,
 ): boolean {
   let isUnionType = false;
@@ -487,7 +574,7 @@ export function isReferencedUnionType(
   return isUnionType;
 }
 
-export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string | undefined {
+export function getTypeSpecPrimitiveFromSchema(schema: SupportedOpenAPISchema): string | undefined {
   if (schema.type === "boolean") {
     return "boolean";
   } else if ((schema as any).type === "null") {
@@ -502,8 +589,15 @@ export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string |
   return;
 }
 
-function getIntegerType(schema: OpenAPI3Schema): string {
+function getIntegerType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
+
+  // Check for x-ms-duration extension
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    return "duration";
+  }
+
   switch (format) {
     case "int8":
     case "int16":
@@ -516,13 +610,22 @@ function getIntegerType(schema: OpenAPI3Schema): string {
       return format;
     case "double-int":
       return "safeint";
+    case "unixtime":
+      return "utcDateTime";
     default:
       return "integer";
   }
 }
 
-function getNumberType(schema: OpenAPI3Schema): string {
+function getNumberType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
+
+  // Check for x-ms-duration extension
+  const xmsDuration = (schema as any)["x-ms-duration"];
+  if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
+    return "duration";
+  }
+
   switch (format) {
     case "decimal":
     case "decimal128":
@@ -537,8 +640,14 @@ function getNumberType(schema: OpenAPI3Schema): string {
   }
 }
 
-function getStringType(schema: OpenAPI3Schema): string {
+function getStringType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
+
+  // Handle contentEncoding: base64 for OpenAPI 3.1+ (indicates binary data encoded as base64 string)
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    return "bytes";
+  }
+
   let type = "string";
   switch (format) {
     case "binary":
@@ -566,6 +675,6 @@ function getStringType(schema: OpenAPI3Schema): string {
   return type;
 }
 
-function getEnum(schemaEnum: (string | number | boolean)[]): string {
+function getEnum(schemaEnum: (string | number | boolean | null)[]): string {
   return schemaEnum.map((e) => JSON.stringify(e)).join(" | ");
 }

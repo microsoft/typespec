@@ -133,6 +133,9 @@ export function createLinterRuleTester(
     const context = createLinterRuleContext(runner.program, rule, diagnostics);
     const listener = ruleDef.create(context);
     navigateProgram(runner.program, listener);
+    if (listener.exit) {
+      await listener.exit(runner.program);
+    }
     // No diagnostics should have been reported to the program. If it happened the rule is calling reportDiagnostic directly and should NOT be doing that.
     expectDiagnosticEmpty(runner.program.diagnostics);
     return [res, diagnostics.diagnostics];

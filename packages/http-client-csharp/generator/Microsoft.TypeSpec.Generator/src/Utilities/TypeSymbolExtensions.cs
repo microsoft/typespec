@@ -199,6 +199,15 @@ namespace Microsoft.TypeSpec.Generator
                 ns = string.Join('.', pieces.Take(pieces.Length - 2));
             }
 
+            CSharpType? baseType = null;
+            if (typeSymbol.BaseType is not null &&
+                typeSymbol.BaseType.TypeKind != TypeKind.Error &&
+                !isNullableUnknownType &&
+                !ContainsTypeAsArgument(typeSymbol.BaseType, typeSymbol))
+            {
+                baseType = GetCSharpType(typeSymbol.BaseType);
+            }
+
             return new CSharpType(
                 name,
                 ns,
@@ -208,12 +217,21 @@ namespace Microsoft.TypeSpec.Generator
                 arguments,
                 typeSymbol.DeclaredAccessibility == Accessibility.Public,
                 isValueType && !isEnum,
-                baseType: typeSymbol.BaseType is not null && typeSymbol.BaseType.TypeKind != TypeKind.Error && !isNullableUnknownType
-                    ? GetCSharpType(typeSymbol.BaseType)
-                    : null,
+                baseType: baseType,
                 underlyingEnumType: enumUnderlyingType != null
                     ? GetCSharpType(enumUnderlyingType).FrameworkType
                     : null);
+        }
+
+        internal static bool ContainsTypeAsArgument(ITypeSymbol potentialGenericType, ITypeSymbol targetType)
+        {
+            if (potentialGenericType is not INamedTypeSymbol namedType || !namedType.IsGenericType)
+            {
+                return false;
+            }
+
+            return namedType.TypeArguments.Any(arg =>
+                SymbolEqualityComparer.Default.Equals(arg, targetType));
         }
 
         private static bool IsCollectionType(INamedTypeSymbol typeSymbol)

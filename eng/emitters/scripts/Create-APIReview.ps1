@@ -4,15 +4,13 @@ Param (
   [array] $ArtifactList,
   [Parameter(Mandatory=$True)]
   [string] $ArtifactPath,  
-  [Parameter(Mandatory=$True)]
-  [string] $APIKey,  
   [string] $SourceBranch,
   [string] $DefaultBranch,
   [string] $RepoName,
   [string] $BuildId,
   [string] $PackageName = "",
   [string] $ConfigFileDir = "",
-  [string] $APIViewUri = "https://apiview.dev/AutoReview",
+  [string] $APIViewUri = "https://apiview.dev/autoreview",
   [string] $ArtifactName = "packages",
   [bool] $MarkPackageAsShipped = $false,
   [string] $LanguageShortName = "Unknown"
@@ -21,6 +19,24 @@ Param (
 Set-StrictMode -Version 3
 . (Join-Path $PSScriptRoot ApiView-Helpers.ps1)
 . (Join-Path $PSScriptRoot SemVer.ps1)
+
+# Get Bearer token for APIView authentication
+# In Azure DevOps, this uses the service connection's Managed Identity/Service Principal
+function Get-ApiViewBearerToken()
+{
+    try {
+        $tokenResponse = az account get-access-token --resource "api://apiview" --output json 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to acquire access token. Please ensure Azure CLI is authenticated and has access to the APIView resource."
+            return $null
+        }
+        return ($tokenResponse | ConvertFrom-Json).accessToken
+    }
+    catch {
+        Write-Error "Failed to acquire access token: $($_.Exception.Message)"
+        return $null
+    }
+}
 
 if ($LanguageShortName -eq "Unknown")
 {
@@ -86,9 +102,17 @@ function Upload-SourceArtifact($filePath, $apiLabel, $releaseStatus, $packageVer
         Write-Host "Request param, compareAllRevisions: true"
     }
 
-    $uri = "${APIViewUri}/UploadAutoReview"
+    $uri = "${APIViewUri}/upload"
+    
+    # Get Bearer token for authentication
+    $bearerToken = Get-ApiViewBearerToken
+    if (-not $bearerToken) {
+        Write-Error "Failed to acquire Bearer token for APIView authentication."
+        return [System.Net.HttpStatusCode]::Unauthorized
+    }
+    
     $headers = @{
-        "ApiKey" = $apiKey;
+        "Authorization" = "Bearer $bearerToken";
         "content-type" = "multipart/form-data"
     }
 
@@ -100,7 +124,12 @@ function Upload-SourceArtifact($filePath, $apiLabel, $releaseStatus, $packageVer
     }
     catch
     {
-        Write-Host "Exception details: $($_.Exception.Response)"
+        Write-Host "ERROR: API request failed" -ForegroundColor Red
+        Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)" -ForegroundColor Yellow
+        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Yellow
+        if ($_.ErrorDetails.Message) {
+            Write-Host "Details: $($_.ErrorDetails.Message)" -ForegroundColor Yellow
+        }
         $StatusCode = $_.Exception.Response.StatusCode
     }
 
@@ -118,26 +147,39 @@ function Upload-ReviewTokenFile($packageName, $apiLabel, $releaseStatus, $review
     if($MarkPackageAsShipped) {
         $params += "&setReleaseTag=true"
     }
-    $uri = "${APIViewUri}/CreateApiReview?${params}"
+    $uri = "${APIViewUri}/create?${params}"
     if ($releaseStatus -and ($releaseStatus -ne "Unreleased"))
     {
         $uri += "&compareAllRevisions=true"
     }
 
     Write-Host "Request to APIView: $uri"
+    
+    # Get Bearer token for authentication
+    $bearerToken = Get-ApiViewBearerToken
+    if (-not $bearerToken) {
+        Write-Error "Failed to acquire Bearer token for APIView authentication."
+        return [System.Net.HttpStatusCode]::Unauthorized
+    }
+    
     $headers = @{
-        "ApiKey" = $APIKey;
+        "Authorization" = "Bearer $bearerToken"
     }
 
     try
     {
-        $Response = Invoke-WebRequest -Method 'GET' -Uri $uri -Headers $headers
+        $Response = Invoke-WebRequest -Method 'POST' -Uri $uri -Headers $headers
         Write-Host "API review: $($Response.Content)"
         $StatusCode = $Response.StatusCode
     }
     catch
     {
-        Write-Host "Exception details: $($_.Exception)"
+        Write-Host "ERROR: API request failed" -ForegroundColor Red
+        Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)" -ForegroundColor Yellow
+        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Yellow
+        if ($_.ErrorDetails.Message) {
+            Write-Host "Details: $($_.ErrorDetails.Message)" -ForegroundColor Yellow
+        }
         $StatusCode = $_.Exception.Response.StatusCode
     }
 

@@ -1,8 +1,8 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) => {
+worksFor(supportedVersions, ({ oapiForModel, openApiFor, openapiWithOptions }) => {
   describe("openapi3: types included", () => {
     it("emit unreferenced types by default", async () => {
       const output = await openapiWithOptions(

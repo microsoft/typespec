@@ -11,7 +11,7 @@ export const AreaLabels = defineLabels({
     color: "453261",
     description: "Issues for @typespec/compiler",
   },
-  "compiler:emitter-framework": {
+  "emitter-framework": {
     color: "453261",
     description: "Issues for the emitter framework",
   },
@@ -210,14 +210,6 @@ export default defineConfig({
     misc: {
       description: "Misc labels",
       labels: {
-        "1_0_E2E": {
-          color: "5319E7",
-          description: "",
-        },
-        "Client Emitter Migration": {
-          color: "FD92F0",
-          description: "",
-        },
         "good first issue": {
           color: "7057ff",
           description: "Good for newcomers",

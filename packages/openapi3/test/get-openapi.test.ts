@@ -22,7 +22,10 @@ it("can get openapi as an object", async () => {
   const output = await getOpenAPI3(program, { "omit-unreachable-types": false });
   const documentRecord = output[0];
   ok(!documentRecord.versioned, "should not be versioned");
-  strictEqual(documentRecord.document.components!.schemas!["Item"].type, "object");
+  const itemSchema = documentRecord.document.components!.schemas!["Item"];
+  ok(itemSchema, "should have Item schema");
+  ok("type" in itemSchema, "Item schema should have type");
+  strictEqual(itemSchema.type, "object");
 });
 
 it("has diagnostics", async () => {

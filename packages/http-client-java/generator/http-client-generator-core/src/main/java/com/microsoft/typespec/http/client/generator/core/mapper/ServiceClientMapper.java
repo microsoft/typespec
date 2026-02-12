@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.*;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -13,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;

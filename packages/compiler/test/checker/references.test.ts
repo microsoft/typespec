@@ -260,6 +260,97 @@ describe("compiler: references", () => {
         strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
       });
     });
+
+    it("member reference via templated alias with default parameters", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model M<T = string> { prop: T; } 
+        alias A<T = string> = M<T>;
+
+        @test model X { y: A.prop; }
+        `,
+      );
+
+      const { X } = (await testHost.compile("./main.tsp")) as { X: Model };
+      const y = X.properties.get("y")!;
+      strictEqual(y.type.kind, "ModelProperty");
+      strictEqual(y.type.type.kind, "Scalar");
+      strictEqual(y.type.type.name, "string");
+    });
+
+    it("member reference via templated alias with different alias defaults", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          model M<T = string> { prop: T; }
+          alias A<U = boolean> = M<U>;
+
+          @test model X { y: A.prop; }
+        `,
+      );
+
+      const { X } = (await testHost.compile("./main.tsp")) as { X: Model };
+      const y = X.properties.get("y")!;
+      strictEqual(y.type.kind, "ModelProperty");
+      strictEqual(y.type.type.kind, "Scalar");
+      strictEqual(y.type.type.name, "boolean");
+    });
+
+    it("member reference via alias-of-alias (templated, defaultable)", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          model M<T> { prop: T; }
+
+          alias A<T> = M<T>;
+          alias B<T = boolean> = A<T>;
+
+          @test model X { y: B.prop; }
+        `,
+      );
+
+      const { X } = (await testHost.compile("./main.tsp")) as { X: Model };
+      const y = X.properties.get("y")!;
+      strictEqual(y.type.kind, "ModelProperty");
+      strictEqual(y.type.type.kind, "Scalar");
+      strictEqual(y.type.type.name, "boolean");
+    });
+
+    it("member reference via templated alias to model literal with default argument", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        alias A<T = string> = { t: T; };
+        @test model Example { prop: A.t }
+        `,
+      );
+
+      const { Example } = (await testHost.compile("./main.tsp")) as { Example: Model };
+      const prop = Example.properties.get("prop")!;
+      strictEqual(prop.type.kind, "ModelProperty");
+      strictEqual(prop.type.type.kind, "Scalar");
+      strictEqual(prop.type.type.name, "string");
+    });
+
+    it("reports an error when referencing an uninstantiated alias", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        alias A<T> = { t: T; };
+        @test model Example { prop: A.t }
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("./main.tsp");
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-template-args",
+          message: "Template argument 'T' is required and not specified.",
+        },
+      ]);
+    });
   });
 
   describe("enum members", () => {
@@ -522,6 +613,57 @@ describe("compiler: references", () => {
         };
         strictEqual(linkedValue, Foo.operations.get("a"));
       });
+    });
+
+    it("operation reference via templated alias with default parameters", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          interface I<T = string> { o(): T; }
+          alias A<T = string> = I<T>;
+
+          @test op example is A.o;
+        `,
+      );
+      const { example } = (await testHost.compile("./main.tsp")) as { example: Operation };
+      strictEqual(example.kind, "Operation");
+      strictEqual(example.returnType.kind, "Scalar");
+      strictEqual(example.returnType.name, "string");
+    });
+
+    it("operation reference via templated alias with different alias defaults", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          interface I<T = string> { o(): T; }
+          alias A<U = boolean> = I<U>;
+
+          @test op example is A.o;
+        `,
+      );
+
+      const { example } = (await testHost.compile("./main.tsp")) as { example: Operation };
+      strictEqual(example.kind, "Operation");
+      strictEqual(example.returnType.kind, "Scalar");
+      strictEqual(example.returnType.name, "boolean");
+    });
+
+    it("operation reference via alias-of-alias (templated, defaultable)", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          interface I<T> { o(): T; }
+          alias A<T> = I<T>;
+          alias B<T = boolean> = A<T>;
+          
+          @test op example is B.o;
+        `,
+      );
+
+      const { example } = (await testHost.compile("./main.tsp")) as { example: Operation };
+      strictEqual(example.kind, "Operation");
+      strictEqual(example.returnType.kind, "Scalar");
+      strictEqual(example.returnType.name, "boolean");
     });
   });
 

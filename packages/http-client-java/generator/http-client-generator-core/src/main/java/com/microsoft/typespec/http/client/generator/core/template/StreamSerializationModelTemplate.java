@@ -6,8 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME;
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.includePropertyInConstructor;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.xml.XmlSerializable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertyWithMetadata;
@@ -17,6 +15,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvertFromJsonTypeTrait;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvertToJsonTypeTrait;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
@@ -28,12 +28,15 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfB
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -94,6 +97,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         imports.add(Base64.class.getName());
         imports.add(LinkedHashMap.class.getName());
         imports.add(List.class.getName());
+        imports.add(LinkedList.class.getName());
+        imports.add(Arrays.class.getName());
+        imports.add(Collectors.class.getName());
         imports.add(Map.class.getName());
         imports.add(Objects.class.getName());
     }
@@ -110,7 +116,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         }
 
         String interfaceName = (model.getXmlName() != null)
-            ? XmlSerializable.class.getSimpleName()
+            ? ClassType.XML_SERIALIZABLE.getName()
             : ClassType.JSON_SERIALIZABLE.getName();
 
         return classSignature + " implements " + interfaceName + "<" + model.getName() + ">";
@@ -743,9 +749,39 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         .line("jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");");
                 }
             } else if (wireType instanceof IterableType) {
-                serializeJsonContainerProperty(methodBlock, "writeArrayField", wireType,
-                    ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
-                    isJsonMergePatch);
+                if (property.getArrayEncoding() == null) {
+                    serializeJsonContainerProperty(methodBlock, "writeArrayField", wireType,
+                        ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
+                        isJsonMergePatch);
+                } else {
+                    IType wireElementType = ((IterableType) wireType).getElementType();
+                    if (wireElementType == ClassType.STRING) {
+                        // wireType is String
+                        methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
+                            String serializeExpression = propertyValueGetter
+                                + ".stream().map(element -> element == null ? \"\" : element).collect(Collectors.joining(\""
+                                + property.getArrayEncoding().getDelimiter() + "\"))";
+                            methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
+                                serializeExpression);
+                        });
+                    } else {
+                        // wireType need to be converted to String
+                        if (wireElementType instanceof ConvertToJsonTypeTrait) {
+                            String convertToJsonExpression
+                                = ((ConvertToJsonTypeTrait) wireElementType).convertToJsonType("element");
+                            methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
+                                String serializeExpression = propertyValueGetter + ".stream().map(element -> "
+                                    + convertToJsonExpression + ").collect(Collectors.joining(\""
+                                    + property.getArrayEncoding().getDelimiter() + "\"))";
+                                methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
+                                    serializeExpression);
+                            });
+                        } else {
+                            throw new RuntimeException("Unable to convert type " + wireElementType
+                                + " to String for ArrayEncoding serialization.");
+                        }
+                    }
+                }
             } else if (wireType instanceof MapType) {
                 // Assumption is that the key type for the Map is a String. This may not always hold true and when that
                 // becomes reality this will need to be reworked to handle that case.
@@ -843,7 +879,11 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             }
 
             methodBlock.indent(() -> {
-                if (valueSerializationMethod != null) {
+                if (elementType == ClassType.BINARY_DATA) {
+                    // Special handling for BinaryData
+                    methodBlock.line("{ if (%1$s == null) { %2$s.writeNull(); } else { %1$s.writeTo(%2$s); } }",
+                        elementName, lambdaWriterName);
+                } else if (valueSerializationMethod != null) {
                     if (isJsonMergePatch && containerType instanceof MapType) {
                         methodBlock.block("", codeBlock -> codeBlock.ifBlock(elementName + "!= null", ifBlock -> {
                             if (elementType instanceof ClassType && ((ClassType) elementType).isSwaggerType()) {
@@ -872,8 +912,6 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     serializeJsonContainerProperty(methodBlock, "writeMap", elementType,
                         ((MapType) elementType).getValueType(), serializedName, propertyValueGetter, depth + 1,
                         isJsonMergePatch);
-                } else if (elementType == ClassType.BINARY_DATA) {
-                    methodBlock.line(elementName + ".writeTo(" + lambdaWriterName + ")");
                 } else {
                     throw new RuntimeException("Unknown value type " + elementType + " in " + containerType
                         + " serialization. Need to add support for it.");
@@ -1588,13 +1626,51 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     deserializationBlock.line(property.getName() + " = reader.readUntyped();");
                 }
             } else if (wireType instanceof IterableType) {
+                IType wireElementType = ((IterableType) wireType).getElementType();
+
                 if (!propertiesManager.hasConstructorArguments()) {
                     deserializationBlock.text(property.getClientType() + " ");
                 }
 
                 deserializationBlock.text(property.getName() + " = ");
-                deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType,
-                    ((IterableType) wireType).getElementType(), ((IterableType) clientType).getElementType(), 0);
+                if (property.getArrayEncoding() == null) {
+                    deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType, wireElementType,
+                        ((IterableType) clientType).getElementType(), 0);
+                } else {
+                    final String propertyStringVariableName = property.getName() + "EncodedAsString";
+                    // LinkedList is used to be consistent with internal code of core, e.g. "readArray" API
+                    if (wireElementType == ClassType.STRING) {
+                        // wireType is String
+                        deserializationBlock.line("reader.getNullable(nonNullReader -> {");
+                        deserializationBlock.indent(() -> {
+                            deserializationBlock.line("String %1$s = nonNullReader.getString();",
+                                propertyStringVariableName);
+                            deserializationBlock.line(
+                                "return %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
+                                propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
+                        });
+                        deserializationBlock.line("});");
+                    } else {
+                        // wireType need to be converted from String
+                        if (wireElementType instanceof ConvertFromJsonTypeTrait) {
+                            String conversionExpress
+                                = ((ConvertFromJsonTypeTrait) wireElementType).convertFromJsonType("valueAsString");
+                            deserializationBlock.line("reader.getNullable(nonNullReader -> {");
+                            deserializationBlock.indent(() -> {
+                                deserializationBlock.line("String %1$s = nonNullReader.getString();",
+                                    propertyStringVariableName);
+                                deserializationBlock.line(
+                                    "return %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.stream(%1$s.split(\"%2$s\", -1)).map(valueAsString -> %3$s).collect(Collectors.toList()));",
+                                    propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter(),
+                                    conversionExpress);
+                            });
+                            deserializationBlock.line("});");
+                        } else {
+                            throw new RuntimeException("Unable to convert type " + wireElementType
+                                + " from String for ArrayEncoding serialization.");
+                        }
+                    }
+                }
 
                 if (!propertiesManager.hasConstructorArguments()) {
                     handleSettingDeserializedValue(deserializationBlock, property, property.getName(), fromSuper);

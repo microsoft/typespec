@@ -52,6 +52,15 @@ function generateOperationParameter(
     definitions.push(generateDocs(parameter.doc));
   }
 
+  // Directives come before decorators
+  if (parameter.directives && parameter.directives.length > 0) {
+    definitions.push(
+      ...parameter.directives.map((d) => {
+        return `#${d.name}`;
+      }),
+    );
+  }
+
   definitions.push(...generateDecorators(parameter.decorators));
 
   definitions.push(
@@ -71,25 +80,18 @@ function generateRequestBodyParameters(
 
   const definitions: string[] = [];
 
-  // Check if any content type is multipart
-  const hasMultipart = requestBodies.some((r) => r.contentType.startsWith("multipart/"));
-
-  // Filter request bodies: if multipart is present, only keep multipart types
-  const filteredBodies = hasMultipart
-    ? requestBodies.filter((r) => r.contentType.startsWith("multipart/"))
-    : requestBodies;
-
   // Generate the content-type header if defined content-types is not just 'application/json'
-  const contentTypes = filteredBodies.map((r) => r.contentType);
+  const contentTypes = requestBodies.map((r) => r.contentType);
   if (!supportsOnlyJson(contentTypes)) {
     definitions.push(`@header contentType: ${contentTypes.map((c) => `"${c}"`).join(" | ")}`);
   }
 
-  const isMultipart = hasMultipart;
+  // Check if any content type is multipart
+  const isMultipart = requestBodies.some((r) => r.contentType.startsWith("multipart/"));
   // Get the set of referenced types
   const body = Array.from(
     new Set(
-      filteredBodies
+      requestBodies
         .filter((r) => !!r.schema)
         .map((r) => context.generateTypeFromRefableSchema(r.schema!, [], isMultipart, r.encoding)),
     ),
@@ -97,8 +99,8 @@ function generateRequestBodyParameters(
 
   if (body) {
     let doc = "";
-    if (filteredBodies[0].doc) {
-      doc = generateDocs(filteredBodies[0].doc);
+    if (requestBodies[0].doc) {
+      doc = generateDocs(requestBodies[0].doc);
     }
     if (isMultipart) {
       definitions.push(`${doc}@multipartBody body: ${body}`);

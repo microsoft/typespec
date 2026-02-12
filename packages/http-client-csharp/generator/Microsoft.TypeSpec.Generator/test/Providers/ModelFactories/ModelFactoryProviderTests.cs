@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [SetUp]
         public void Setup()
         {
-            _instance = MockHelpers.LoadMockGenerator(inputModelTypes: ModelList).Object;
+            _instance = MockHelpers.LoadMockGenerator(inputNamespaceName: "Sample.Namespace", inputModelTypes: ModelList).Object;
         }
 
         [Test]
@@ -135,11 +135,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_NewModelPropertyAdded()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
             var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
             Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
 
             var methods = modelFactory.Methods;
             // There should be an additional method for backward compatibility
@@ -200,11 +203,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_OnlyParamOrderingChanged()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
             var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
             Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
 
             var methods = modelFactory.Methods;
             Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), methods.Count);
@@ -250,8 +256,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
-                "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
-                "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
                 "return new global::Sample.Models.PublicModel1(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
 
@@ -259,8 +265,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             result = body!.ToDisplayString();
             Assert.AreEqual(
-                "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
-                "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
                 "return new global::Sample.Models.PublicModel2(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
         }
@@ -269,11 +275,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_NoCurrentOverloadFound()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
             var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
             Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
 
             var methods = modelFactory.Methods;
             // There should be an additional method for backward compatibility
@@ -320,6 +329,66 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var result = body!.ToDisplayString();
             Assert.AreEqual(
                 "return new global::Sample.Models.PublicModel1(stringProp, default, default, default, additionalBinaryDataProperties: null);\n",
+                result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ExactMatchWithCompatibleOverload()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+            // Should have the same number of methods - no additional overloads created since exact match exists
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), methods.Count);
+
+            var publicModel1Methods = methods.Where(m => m.Signature.Name == "PublicModel1").ToList();
+            // Should have only one method for PublicModel1 (exact match found, no additional overload needed)
+            Assert.AreEqual(1, publicModel1Methods.Count);
+            Assert.IsTrue(publicModel1Methods[0]!.EnclosingType is ModelFactoryProvider);
+
+            var publicModel1Method = publicModel1Methods.First();
+            Assert.IsNotNull(publicModel1Method);
+
+            // Validate that no EditorBrowsable attribute is added since this is the exact match
+            var attributes = publicModel1Method!.Signature.Attributes;
+            Assert.AreEqual(0, attributes.Count);
+
+            // Validate parameters remain in the exact match order from previous contract
+            var parameters = publicModel1Method!.Signature.Parameters;
+            Assert.AreEqual(4, parameters.Count);
+            Assert.AreEqual("stringProp", parameters[0].Name);
+            Assert.AreEqual("modelProp", parameters[1].Name);
+            Assert.AreEqual("listProp", parameters[2].Name);
+            Assert.AreEqual("dictProp", parameters[3].Name);
+
+            // All parameters should have default values
+            foreach (var param in parameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
+
+            // Validate parameter types remain unchanged
+            Assert.AreEqual(typeof(string), parameters[0].Type.FrameworkType);
+            Assert.IsTrue(parameters[1].Type.Name == "Thing");
+            Assert.AreEqual(typeof(IEnumerable<>), parameters[2].Type.FrameworkType);
+            Assert.AreEqual(typeof(IDictionary<,>), parameters[3].Type.FrameworkType);
+
+            // Validate the body remains the same (standard factory method body)
+            var body = publicModel1Method!.BodyStatements;
+            Assert.IsNotNull(body);
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
+                "return new global::Sample.Models.PublicModel1(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
         }
 

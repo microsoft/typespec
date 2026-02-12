@@ -38,7 +38,7 @@ keywords = ["azure", "azure sdk"]
 {% endif %}
 
 dependencies = [
-    {% if code_model.is_legacy %}
+    {% if code_model.is_legacy and not code_model.need_utils_serialization %}
     "msrest>={{ VERSION_MAP['msrest'] }}",
     {% else %}
     "isodate>={{ VERSION_MAP['isodate'] }}",
@@ -56,6 +56,9 @@ dependencies = [
     "{{ dep }}",
     {% endfor %}
     {% endif %}
+    {% for dep in ADDITIONAL_DEPENDENCIES %}
+    "{{ dep }}",
+    {% endfor %}
 ]
 dynamic = [
     {% if options.get('package-mode') %}"version", {% endif %}"readme"
@@ -106,11 +109,15 @@ exclude = [
 [tool.setuptools.package-data]
 pytyped = ["py.typed"]
 {% endif %}
-{% if KEEP_FIELDS and KEEP_FIELDS.get('tool.azure-sdk-build') %}
+{% if KEEP_FIELDS %}
+{% for field_key, field_val in KEEP_FIELDS.items() %}
+{% if field_key.startswith('tool.azure-sdk') %}
 
-[tool.azure-sdk-build]
-{% for key, val in KEEP_FIELDS.get('tool.azure-sdk-build').items() %}
+[{{ field_key }}]
+{% for key, val in field_val.items() %}
 {{ key }} = {{ val|tojson }}
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}
 {% if KEEP_FIELDS and KEEP_FIELDS.get('packaging') %}
