@@ -143,27 +143,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return existingProvider;
                 }
 
-                // If not found, try to look it up from Roslyn's customization compilation
-                var customization = CodeModelGenerator.Instance.SourceInputModel.Customization;
-                if (customization != null)
-                {
-                    // Construct the fully qualified metadata name in .NET format
-                    // For generic types, this uses backtick notation (e.g., "System.Collections.Generic.List`1")
-                    var fullyQualifiedName = baseType.IsGenericType
-                        ? $"{baseType.Namespace}.{baseType.Name}`{baseType.Arguments.Count}"
-                        : $"{baseType.Namespace}.{baseType.Name}";
+                // Try to find the type in the customization compilation (excluding referenced assemblies)
+                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                    baseType.Namespace,
+                    baseType.Name,
+                    baseType.DeclaringType?.Name);
 
-                    var baseTypeSymbol = customization.GetTypeByMetadataName(fullyQualifiedName);
-                    if (baseTypeSymbol != null)
-                    {
-                        var baseTypeProvider = new NamedTypeSymbolProvider(baseTypeSymbol, customization);
-                        // Cache it in CSharpTypeMap for future lookups
-                        CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = baseTypeProvider;
-                        return baseTypeProvider;
-                    }
+                if (baseTypeProvider != null)
+                {
+                    // Cache it in CSharpTypeMap for future lookups
+                    CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = baseTypeProvider;
+                    return baseTypeProvider;
                 }
 
-                // If we couldn't find the type symbol (e.g., type is from a referenced assembly not in customization),
+                // If we couldn't find the type symbol (e.g., type is from a referenced assembly),
                 // create a SystemObjectTypeProvider that represents the external type
                 var systemObjectTypeProvider = new SystemObjectTypeProvider(baseType);
                 // Cache it in CSharpTypeMap for future lookups

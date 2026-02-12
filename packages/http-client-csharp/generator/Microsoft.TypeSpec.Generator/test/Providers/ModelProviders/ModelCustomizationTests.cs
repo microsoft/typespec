@@ -1637,10 +1637,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // The BaseModelProvider should be null since the base is not a generated model
             Assert.IsNull(modelProvider.BaseModelProvider);
 
-            // System types from referenced assemblies are found via GetTypeByMetadataName
-            // because the test compilation includes system assembly references
-            Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider,
-                "System.Exception is found in the compilation and uses NamedTypeSymbolProvider");
+            // System types from referenced assemblies are NOT found by FindForTypeInCustomization
+            // (which only searches the customization assembly, not references), so they use SystemObjectTypeProvider
+            Assert.IsInstanceOf<SystemObjectTypeProvider>(modelProvider.BaseTypeProvider,
+                "System.Exception is from a referenced assembly and should use SystemObjectTypeProvider");
         }
 
         private class TestNameVisitor : NameVisitor
