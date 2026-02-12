@@ -170,82 +170,6 @@ namespace SampleTypeSpec
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
         }
 
-        /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
-        /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
-        /// <param name="requiredHeader"> required header parameter. </param>
-        /// <param name="optionalHeader"> optional header parameter. </param>
-        /// <param name="requiredQuery"> required query parameter. </param>
-        /// <param name="optionalQuery"> optional query parameter. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/> instance for mocking. </returns>
-        public static ModelWithEmbeddedNonBodyParameters ModelWithEmbeddedNonBodyParameters(string name = default, string requiredHeader = default, string optionalHeader = default, string requiredQuery = default, string optionalQuery = default)
-        {
-            return new ModelWithEmbeddedNonBodyParameters(
-                name,
-                requiredHeader,
-                optionalHeader,
-                requiredQuery,
-                optionalQuery,
-                additionalBinaryDataProperties: null);
-        }
-
-        /// <summary> A sample dynamic model. </summary>
-        /// <param name="name"></param>
-        /// <param name="optionalUnknown"></param>
-        /// <param name="optionalInt"></param>
-        /// <param name="optionalNullableList"></param>
-        /// <param name="requiredNullableList"></param>
-        /// <param name="optionalNullableDictionary"></param>
-        /// <param name="requiredNullableDictionary"></param>
-        /// <param name="primitiveDictionary"></param>
-        /// <param name="foo"></param>
-        /// <param name="listFoo"></param>
-        /// <param name="listOfListFoo"></param>
-        /// <param name="dictionaryFoo"></param>
-        /// <param name="dictionaryOfDictionaryFoo"></param>
-        /// <param name="dictionaryListFoo"></param>
-        /// <param name="listOfDictionaryFoo"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
-        public static DynamicModel DynamicModel(string name = default, BinaryData optionalUnknown = default, int? optionalInt = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, IDictionary<string, int> optionalNullableDictionary = default, IDictionary<string, int> requiredNullableDictionary = default, IDictionary<string, int> primitiveDictionary = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
-        {
-            optionalNullableList ??= new ChangeTrackingList<int>();
-            requiredNullableList ??= new ChangeTrackingList<int>();
-            optionalNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
-            requiredNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
-            primitiveDictionary ??= new ChangeTrackingDictionary<string, int>();
-            listFoo ??= new ChangeTrackingList<AnotherDynamicModel>();
-            listOfListFoo ??= new ChangeTrackingList<IList<AnotherDynamicModel>>();
-            dictionaryFoo ??= new ChangeTrackingDictionary<string, AnotherDynamicModel>();
-            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, IDictionary<string, AnotherDynamicModel>>();
-            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>();
-            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>();
-
-            return new DynamicModel(
-                name,
-                optionalUnknown,
-                optionalInt,
-                optionalNullableList.ToList(),
-                requiredNullableList.ToList(),
-                optionalNullableDictionary,
-                requiredNullableDictionary,
-                primitiveDictionary,
-                foo,
-                listFoo.ToList(),
-                listOfListFoo.ToList(),
-                dictionaryFoo,
-                dictionaryOfDictionaryFoo,
-                dictionaryListFoo,
-                listOfDictionaryFoo.ToList(),
-                default);
-        }
-
-        /// <summary> Another sample dynamic model. </summary>
-        /// <param name="bar"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.AnotherDynamicModel"/> instance for mocking. </returns>
-        public static AnotherDynamicModel AnotherDynamicModel(string bar = default)
-        {
-            return new AnotherDynamicModel(bar, default);
-        }
-
         /// <summary> An advanced XML model for testing various property types and XML features. </summary>
         /// <param name="name"> A simple string property. </param>
         /// <param name="age"> An integer property. </param>
@@ -375,6 +299,91 @@ namespace SampleTypeSpec
         public static XmlModelWithNamespace XmlModelWithNamespace(string foo = default)
         {
             return new XmlModelWithNamespace(foo, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The PageRange. </summary>
+        /// <param name="start"> The start of the byte range. </param>
+        /// <param name="end"> The end of the byte range. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.PageRange"/> instance for mocking. </returns>
+        public static PageRange PageRange(long start = default, long end = default)
+        {
+            return new PageRange(start, end, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
+        /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
+        /// <param name="requiredHeader"> required header parameter. </param>
+        /// <param name="optionalHeader"> optional header parameter. </param>
+        /// <param name="requiredQuery"> required query parameter. </param>
+        /// <param name="optionalQuery"> optional query parameter. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/> instance for mocking. </returns>
+        public static ModelWithEmbeddedNonBodyParameters ModelWithEmbeddedNonBodyParameters(string name = default, string requiredHeader = default, string optionalHeader = default, string requiredQuery = default, string optionalQuery = default)
+        {
+            return new ModelWithEmbeddedNonBodyParameters(
+                name,
+                requiredHeader,
+                optionalHeader,
+                requiredQuery,
+                optionalQuery,
+                additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> A sample dynamic model. </summary>
+        /// <param name="name"></param>
+        /// <param name="optionalUnknown"></param>
+        /// <param name="optionalInt"></param>
+        /// <param name="optionalNullableList"></param>
+        /// <param name="requiredNullableList"></param>
+        /// <param name="optionalNullableDictionary"></param>
+        /// <param name="requiredNullableDictionary"></param>
+        /// <param name="primitiveDictionary"></param>
+        /// <param name="foo"></param>
+        /// <param name="listFoo"></param>
+        /// <param name="listOfListFoo"></param>
+        /// <param name="dictionaryFoo"></param>
+        /// <param name="dictionaryOfDictionaryFoo"></param>
+        /// <param name="dictionaryListFoo"></param>
+        /// <param name="listOfDictionaryFoo"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
+        public static DynamicModel DynamicModel(string name = default, BinaryData optionalUnknown = default, int? optionalInt = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, IDictionary<string, int> optionalNullableDictionary = default, IDictionary<string, int> requiredNullableDictionary = default, IDictionary<string, int> primitiveDictionary = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
+        {
+            optionalNullableList ??= new ChangeTrackingList<int>();
+            requiredNullableList ??= new ChangeTrackingList<int>();
+            optionalNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
+            requiredNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
+            primitiveDictionary ??= new ChangeTrackingDictionary<string, int>();
+            listFoo ??= new ChangeTrackingList<AnotherDynamicModel>();
+            listOfListFoo ??= new ChangeTrackingList<IList<AnotherDynamicModel>>();
+            dictionaryFoo ??= new ChangeTrackingDictionary<string, AnotherDynamicModel>();
+            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, IDictionary<string, AnotherDynamicModel>>();
+            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>();
+            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>();
+
+            return new DynamicModel(
+                name,
+                optionalUnknown,
+                optionalInt,
+                optionalNullableList.ToList(),
+                requiredNullableList.ToList(),
+                optionalNullableDictionary,
+                requiredNullableDictionary,
+                primitiveDictionary,
+                foo,
+                listFoo.ToList(),
+                listOfListFoo.ToList(),
+                dictionaryFoo,
+                dictionaryOfDictionaryFoo,
+                dictionaryListFoo,
+                listOfDictionaryFoo.ToList(),
+                default);
+        }
+
+        /// <summary> Another sample dynamic model. </summary>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.AnotherDynamicModel"/> instance for mocking. </returns>
+        public static AnotherDynamicModel AnotherDynamicModel(string bar = default)
+        {
+            return new AnotherDynamicModel(bar, default);
         }
 
         /// <summary>

@@ -1379,6 +1379,54 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult XmlListWithNextLink(RequestOptions options)
+        {
+            return new SampleTypeSpecClientXmlListWithNextLinkCollectionResult(this, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult XmlListWithNextLinkAsync(RequestOptions options)
+        {
+            return new SampleTypeSpecClientXmlListWithNextLinkAsyncCollectionResult(this, options);
+        }
+
+        /// <summary> List things with nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<XmlAdvancedModel> XmlListWithNextLink(CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientXmlListWithNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> List things with nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<XmlAdvancedModel> XmlListWithNextLinkAsync(CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientXmlListWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithNextLink(RequestOptions options)
         {
             return new SampleTypeSpecClientGetWithNextLinkCollectionResult(this, options);
@@ -1514,6 +1562,58 @@ namespace SampleTypeSpec
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary>
+        /// [Protocol Method] List range with continuation token
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="marker"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult XmlListWithContinuationToken(string marker, RequestOptions options)
+        {
+            return new SampleTypeSpecClientXmlListWithContinuationTokenCollectionResult(this, marker, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List range with continuation token
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="marker"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult XmlListWithContinuationTokenAsync(string marker, RequestOptions options)
+        {
+            return new SampleTypeSpecClientXmlListWithContinuationTokenAsyncCollectionResult(this, marker, options);
+        }
+
+        /// <summary> List range with continuation token. </summary>
+        /// <param name="marker"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<PageRange> XmlListWithContinuationToken(string marker = default, CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientXmlListWithContinuationTokenCollectionResultOfT(this, marker, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> List range with continuation token. </summary>
+        /// <param name="marker"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<PageRange> XmlListWithContinuationTokenAsync(string marker = default, CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientXmlListWithContinuationTokenAsyncCollectionResultOfT(this, marker, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
