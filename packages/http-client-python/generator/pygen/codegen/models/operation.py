@@ -296,11 +296,11 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
 
         response_types = [r.type_annotation(async_mode=async_mode, **kwargs) for r in self.responses if r.type]
         if len(set(response_types)) > 1:
-            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.REGULAR)
         if self.added_on:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
@@ -406,9 +406,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             ImportType.SDKCORE,
         )
         file_import.add_submodule_import("rest", "HttpRequest", ImportType.SDKCORE)
-        file_import.add_submodule_import("typing", "Callable", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Callable", ImportType.STDLIB, TypingSection.REGULAR)
+        file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.REGULAR)
+        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.REGULAR)
         if self.code_model.options["tracing"] and self.want_tracing and not async_mode:
             file_import.add_submodule_import(
                 "azure.core.tracing.decorator",

@@ -15,26 +15,12 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import tsptest.clientinitialization.ClientInitializationClient;
 import tsptest.clientinitialization.ClientInitializationClientBuilder;
-import tsptest.clientinitialization.SubClient;
-import tsptest.clientinitialization.SubClientBuilder;
 
-class SubClientTestBase extends TestProxyTestBase {
-    protected SubClient subClient;
-
+class ClientInitializationClientTestBase extends TestProxyTestBase {
     protected ClientInitializationClient clientInitializationClient;
 
     @Override
     protected void beforeTest() {
-        SubClientBuilder subClientbuilder = new SubClientBuilder()
-            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .name(Configuration.getGlobalConfiguration().get("NAME", "name"))
-            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.RECORD) {
-            subClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
-        }
-        subClient = subClientbuilder.buildClient();
-
         ClientInitializationClientBuilder clientInitializationClientbuilder = new ClientInitializationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))

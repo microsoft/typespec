@@ -3170,6 +3170,126 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <summary>
+        /// [Protocol Method] Update an advanced XML model with various property types
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult UpdateXmlAdvancedModel(BinaryContent content, RequestOptions options = null)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateXmlAdvancedModel.");
+                Argument.AssertNotNull(content, nameof(content));
+
+                using PipelineMessage message = CreateUpdateXmlAdvancedModelRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateXmlAdvancedModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateXmlAdvancedModel.");
+            }
+        }
+
+        /// <summary>
+        /// [Protocol Method] Update an advanced XML model with various property types
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> UpdateXmlAdvancedModelAsync(BinaryContent content, RequestOptions options = null)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateXmlAdvancedModelAsync.");
+                Argument.AssertNotNull(content, nameof(content));
+
+                using PipelineMessage message = CreateUpdateXmlAdvancedModelRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateXmlAdvancedModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateXmlAdvancedModelAsync.");
+            }
+        }
+
+        /// <summary> Update an advanced XML model with various property types. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<XmlAdvancedModel> UpdateXmlAdvancedModel(XmlAdvancedModel body, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateXmlAdvancedModel.");
+                Argument.AssertNotNull(body, nameof(body));
+
+                ClientResult result = UpdateXmlAdvancedModel(body, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateXmlAdvancedModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateXmlAdvancedModel.");
+            }
+        }
+
+        /// <summary> Update an advanced XML model with various property types. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<XmlAdvancedModel>> UpdateXmlAdvancedModelAsync(XmlAdvancedModel body, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateXmlAdvancedModelAsync.");
+                Argument.AssertNotNull(body, nameof(body));
+
+                ClientResult result = await UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateXmlAdvancedModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateXmlAdvancedModelAsync.");
+            }
+        }
+
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()
         {
