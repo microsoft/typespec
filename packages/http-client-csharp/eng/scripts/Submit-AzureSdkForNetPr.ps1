@@ -203,14 +203,6 @@ try {
         $npmrcPath = Join-Path $httpClientDir ".npmrc"
         if (Test-Path $npmrcPath) {
             Write-Host "Found .npmrc file at: $npmrcPath"
-            Write-Host "Contents (auth tokens hidden):"
-            Get-Content $npmrcPath | ForEach-Object {
-                if ($_ -match ':_password|:_authToken') {
-                    Write-Host "  [AUTH TOKEN LINE - REDACTED]"
-                } else {
-                    Write-Host "  $_"
-                }
-            }
         } else {
             Write-Host "No .npmrc file found in working directory - will use default npm registry"
         }
@@ -295,18 +287,30 @@ try {
     if ($TypeSpecSourcePackageJsonPath -and (Test-Path $TypeSpecSourcePackageJsonPath)) {
         Write-Host "##[section]Generating emitter-package.json files using tsp-client..."
         
-        # Copy .npmrc to the same directory as the package.json so tsp-client can resolve packages from Azure Artifacts
+        Write-Host "Source package.json: $TypeSpecSourcePackageJsonPath"
+        Write-Host "Package version being installed: $PackageVersion"
+        
+        $configFilesOutputDir = Join-Path $tempDir "eng"
+        $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
+        
+        # Copy .npmrc to the eng directory where tsp-client will work so it can resolve packages from Azure Artifacts
         $sourceNpmrcPath = Join-Path $PSScriptRoot "../../.npmrc"
-        $packageJsonDir = Split-Path -Path $TypeSpecSourcePackageJsonPath -Parent
-        $packageJsonNpmrcPath = Join-Path $packageJsonDir ".npmrc"
+        $targetNpmrcPath = Join-Path $configFilesOutputDir ".npmrc"
         
         if (Test-Path $sourceNpmrcPath) {
-            Write-Host "Copying .npmrc to package.json directory for tsp-client package resolution..."
+            Write-Host "Copying .npmrc to azure-sdk-for-net eng directory for tsp-client package resolution..."
             Write-Host "  Source: $sourceNpmrcPath"
-            Write-Host "  Target: $packageJsonNpmrcPath"
-            Copy-Item -Path $sourceNpmrcPath -Destination $packageJsonNpmrcPath -Force
-            Write-Host "npm registry for tsp-client (from package.json directory):"
-            Push-Location $packageJsonDir
+            Write-Host "  Target: $targetNpmrcPath"
+            
+            # Ensure the directory exists
+            if (!(Test-Path $configFilesOutputDir)) {
+                New-Item -Path $configFilesOutputDir -ItemType Directory -Force | Out-Null
+            }
+            
+            Copy-Item -Path $sourceNpmrcPath -Destination $targetNpmrcPath -Force
+            
+            Write-Host "npm registry for tsp-client (from eng directory):"
+            Push-Location $configFilesOutputDir
             try {
                 npm config get registry
             } finally {
@@ -315,12 +319,6 @@ try {
         } else {
             Write-Host "No .npmrc file found - tsp-client will use default npm registry"
         }
-        
-        Write-Host "Source package.json: $TypeSpecSourcePackageJsonPath"
-        Write-Host "Package version being installed: $PackageVersion"
-        
-        $configFilesOutputDir = Join-Path $tempDir "eng"
-        $emitterPackageJsonPath = Join-Path $configFilesOutputDir "http-client-csharp-emitter-package.json"
 
         try {
             Invoke "tsp-client generate-config-files --package-json $TypeSpecSourcePackageJsonPath --emitter-package-json-path $emitterPackageJsonPath --output-dir $configFilesOutputDir" $tempDir
@@ -329,10 +327,10 @@ try {
             }
             Write-Host "Successfully generated emitter-package.json files"
         } finally {
-            # Clean up .npmrc from package.json directory
-            if (Test-Path $packageJsonNpmrcPath) {
-                Remove-Item $packageJsonNpmrcPath -Force -ErrorAction SilentlyContinue
-                Write-Host "Cleaned up .npmrc from package.json directory"
+            # Clean up .npmrc from eng directory
+            if (Test-Path $targetNpmrcPath) {
+                Remove-Item $targetNpmrcPath -Force -ErrorAction SilentlyContinue
+                Write-Host "Cleaned up .npmrc from eng directory"
             }
         }
     } else {
