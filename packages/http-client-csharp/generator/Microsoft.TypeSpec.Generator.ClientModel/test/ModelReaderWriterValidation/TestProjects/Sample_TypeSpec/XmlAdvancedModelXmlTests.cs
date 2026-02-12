@@ -3,10 +3,7 @@
 
 using System;
 using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.IO;
-using System.Linq;
-using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using SampleTypeSpec;
@@ -15,57 +12,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
 {
     /// <summary>
     /// Tests for XmlAdvancedModel XML serialization.
-    /// Since XmlAdvancedModel is XML-only, we only test the "X" format.
+    /// Since XmlAdvancedModel is XML-only, it extends LocalModelXmlTests
+    /// and does not include JSON format tests.
     /// </summary>
-    internal class XmlAdvancedModelXmlTests
+    internal class XmlAdvancedModelXmlTests : LocalModelXmlTests<XmlAdvancedModel>
     {
-        private string XmlPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/XmlAdvancedModel/XmlAdvancedModel.xml"));
+        protected override string JsonPayload => string.Empty; // XmlAdvancedModel does not support JSON
+        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/XmlAdvancedModel/XmlAdvancedModel.xml"));
+        protected override string XmlPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/XmlAdvancedModel/XmlAdvancedModel.xml"));
+        protected override XmlAdvancedModel ToModel(ClientResult result) => (XmlAdvancedModel)result;
+        protected override BinaryContent ToBinaryContent(XmlAdvancedModel model) => model;
 
-        [Test]
-        public void RoundTripWithModelReaderWriter()
-        {
-            RoundTripTestXml(new ModelReaderWriterStrategy<XmlAdvancedModel>());
-        }
-
-        [Test]
-        public void RoundTripWithModelReaderWriterNonGeneric()
-        {
-            RoundTripTestXml(new ModelReaderWriterNonGenericStrategy<XmlAdvancedModel>());
-        }
-
-        [Test]
-        public void RoundTripWithModelInterface()
-        {
-            RoundTripTestXml(new ModelInterfaceStrategy<XmlAdvancedModel>());
-        }
-
-        [Test]
-        public void RoundTripWithModelInterfaceNonGeneric()
-        {
-            RoundTripTestXml(new ModelInterfaceAsObjectStrategy<XmlAdvancedModel>());
-        }
-
-        private void RoundTripTestXml(RoundTripStrategy<XmlAdvancedModel> strategy)
-        {
-            string serviceResponse = XmlPayload;
-            ModelReaderWriterOptions options = new ModelReaderWriterOptions("X");
-
-            XmlAdvancedModel model = (XmlAdvancedModel)strategy.Read(serviceResponse, null!, options);
-            VerifyModel(model);
-
-            var data = strategy.Write(model, options);
-            string roundTrip = data.ToString();
-
-            // Parse XML to ensure it's valid
-            var expectedXml = XElement.Parse(serviceResponse);
-            var resultXml = XElement.Parse(roundTrip);
-
-            // Deserialize again and compare models
-            XmlAdvancedModel model2 = (XmlAdvancedModel)strategy.Read(roundTrip, null!, options);
-            CompareModels(model, model2);
-        }
-
-        private void CompareModels(XmlAdvancedModel model, XmlAdvancedModel model2)
+        protected override void CompareModels(XmlAdvancedModel model, XmlAdvancedModel model2, string format)
         {
             // Compare basic properties
             Assert.AreEqual(model.Name, model2.Name);
@@ -111,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.AreEqual(model.DaysUsed, model2.DaysUsed);
         }
 
-        private void VerifyModel(XmlAdvancedModel model)
+        protected override void VerifyModel(XmlAdvancedModel model, string format)
         {
             // Verify basic properties
             Assert.AreEqual("Test Model", model.Name);
