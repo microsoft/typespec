@@ -21,7 +21,7 @@ import tsptest.clientinitialization.implementation.SubClientImpl;
 /**
  * Initializes a new instance of the asynchronous SubClient type.
  */
-@ServiceClient(builder = SubClientBuilder.class, isAsync = true)
+@ServiceClient(builder = ClientInitializationClientBuilder.class, isAsync = true)
 public final class SubAsyncClient {
     @Generated
     private final SubClientImpl serviceClient;

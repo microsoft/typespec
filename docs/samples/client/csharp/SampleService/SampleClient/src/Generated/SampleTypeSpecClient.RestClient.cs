@@ -418,5 +418,19 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
+
+        internal PipelineMessage CreateUpdateXmlAdvancedModelRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/xmlAdvanced", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/xml");
+            request.Headers.Set("Accept", "application/xml");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
     }
 }
