@@ -198,17 +198,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         {
             var responseWithBody = new TestPipelineResponse(200);
             responseWithBody.SetContent(payload);
-            
-            // Set Content-Type header to help models that support multiple formats
-            // Determine format based on payload content
-            if (payload.TrimStart().StartsWith("{") || payload.TrimStart().StartsWith("["))
-            {
-                ((TestResponseHeaders)responseWithBody.Headers).SetHeader("Content-Type", "application/json");
-            }
-            else if (payload.TrimStart().StartsWith("<"))
-            {
-                ((TestResponseHeaders)responseWithBody.Headers).SetHeader("Content-Type", "application/xml");
-            }
 
             ClientResult result = ClientResult.FromResponse(responseWithBody);
             return _fromResult(result);
