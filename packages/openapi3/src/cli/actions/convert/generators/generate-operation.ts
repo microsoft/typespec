@@ -52,6 +52,15 @@ function generateOperationParameter(
     definitions.push(generateDocs(parameter.doc));
   }
 
+  // Directives come before decorators
+  if (parameter.directives && parameter.directives.length > 0) {
+    definitions.push(
+      ...parameter.directives.map((d) => {
+        return `#${d.name}`;
+      }),
+    );
+  }
+
   definitions.push(...generateDecorators(parameter.decorators));
 
   definitions.push(

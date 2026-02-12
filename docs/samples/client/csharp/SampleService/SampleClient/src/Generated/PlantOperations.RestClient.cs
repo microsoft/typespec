@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System.ClientModel;
 using System.ClientModel.Primitives;
 
 namespace SampleTypeSpec
@@ -21,6 +22,20 @@ namespace SampleTypeSpec
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/xml");
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateUpdateTreeRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/plants/tree/as-plant", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "PUT", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Content-Type", "application/xml");
+            request.Headers.Set("Accept", "application/xml");
+            request.Content = content;
             message.Apply(options);
             return message;
         }

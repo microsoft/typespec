@@ -129,6 +129,13 @@ export const modelWithEnum = `
 </ModelWithEnum>
 `;
 
+export const modelWithDatetime = `
+<ModelWithDatetime>
+  <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+</ModelWithDatetime>
+`;
+
 function createServerTests(uri: string, data?: any) {
   return {
     get: passOnSuccess({
@@ -243,6 +250,13 @@ Scenarios.Payload_Xml_ModelWithEncodedNamesValue_put = Payload_Xml_ModelWithEnco
 const Payload_Xml_ModelWithEnum = createServerTests("/payload/xml/modelWithEnum", modelWithEnum);
 Scenarios.Payload_Xml_ModelWithEnumValue_get = Payload_Xml_ModelWithEnum.get;
 Scenarios.Payload_Xml_ModelWithEnumValue_put = Payload_Xml_ModelWithEnum.put;
+
+const Payload_Xml_ModelWithDatetime = createServerTests(
+  "/payload/xml/modelWithDatetime",
+  modelWithDatetime,
+);
+Scenarios.Payload_Xml_ModelWithDatetimeValue_get = Payload_Xml_ModelWithDatetime.get;
+Scenarios.Payload_Xml_ModelWithDatetimeValue_put = Payload_Xml_ModelWithDatetime.put;
 
 export const xmlError = `
 <XmlErrorBody>

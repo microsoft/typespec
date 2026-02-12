@@ -241,7 +241,7 @@ class EnumType(BaseType):
         file_import = FileImport(self.code_model)
         file_import.merge(self.value_type.imports(**kwargs))
         if self.code_model.options["models-mode"]:
-            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.REGULAR)
 
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)

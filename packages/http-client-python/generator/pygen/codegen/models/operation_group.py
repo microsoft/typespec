@@ -195,7 +195,7 @@ class OperationGroup(BaseModel):
             )
         if all(o.abstract for o in self.operations):
             return file_import
-        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.REGULAR)
         file_import.define_mypy_type("T", "TypeVar('T')")
         type_value = "Optional[Callable[[PipelineResponse[HttpRequest, {}HttpResponse], T, dict[str, Any]], Any]]"
         file_import.define_mypy_type("ClsType", type_value.format(""), type_value.format("Async"))

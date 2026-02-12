@@ -1,11 +1,11 @@
 ---
 name: http-client-python-bump-and-release
-description: Create a PR to bump dependencies or release a new version of the http-client-python package. Use when the user wants to bump TypeSpec/Azure-tools dependencies, update peer dependencies, or release a new version of the Python HTTP client.
+description: Create a PR to bump TypeSpec/Azure Tools dependencies, update peer dependencies, or release a new version of the http-client-python package.
 ---
 
 # HTTP Client Python Bump and Release
 
-Create a new PR to bump dependencies and release a new version of the http-client-python package.
+Create a PR to bump dependencies and release a new version of the http-client-python package.
 
 > **Note:** `{REPO}` refers to the root folder of the `microsoft/typespec` repository.
 
@@ -53,23 +53,34 @@ npm install -g npm-check-updates
    - If format is `">=0.a.b <1.0.0"`: Update only the `0.a.b` portion, keep the range format unchanged
    - If format is `"^1.a.b"`: Update to the latest version
 
-6. Run version change script:
+6. Verify `devDependencies` versions for specs:
+   - Check `@typespec/http-specs` and `@azure-tools/azure-http-specs`
+   - If the original version in `package.json` is newer than the updated value, keep the original version
+   - Dev versions are typically in the form `x.y.z-alpha.N-dev.M` (e.g., `0.1.0-alpha.37-dev.3`).
+
+   Example:
+   - Original: `@typespec/http-specs: 0.1.0-alpha.12-dev.5`, updated by step 4 to `0.1.0-alpha.11` → keep `0.1.0-alpha.12-dev.5`.
+   - Original: `@typespec/http-specs: 0.1.0-alpha.12-dev.5`, updated by step 4 to `0.1.0-alpha.12` → keep `0.1.0-alpha.12` (step 4 works as expected).
+   - Original: `@azure-tools/azure-http-specs: 0.1.0-alpha.12-dev.2`, updated to `0.1.0-alpha.11` → keep `0.1.0-alpha.12-dev.2`.
+   - Original: `@azure-tools/azure-http-specs: 0.1.0-alpha.12-dev.2`, updated to `0.1.0-alpha.12` → keep `0.1.0-alpha.12` (step 4 works as expected).
+
+7. Run version change script:
 
    ```bash
    npm run change:version
    ```
 
-7. Build and commit:
+8. Build and commit:
 
    ```bash
    npm install && npm run build && git add -u && git commit -m "bump version"
    ```
 
-8. Push and create PR:
+9. Push and create PR:
 
    ```bash
    cd {REPO}
    git push origin HEAD
    ```
 
-9. Create PR with title `[python] release new version` and no description.
+10. Create PR with title `[python] release new version` and no description.

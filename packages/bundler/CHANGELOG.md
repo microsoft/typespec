@@ -1,5 +1,12 @@
 # Change Log - @typespec/bundler
 
+## 0.5.0
+
+### Features
+
+- [#9536](https://github.com/microsoft/typespec/pull/9536) Minify bundler output
+
+
 ## 0.4.7
 
 ### Bump dependencies

@@ -412,6 +412,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _properties = null;
             _fields = null;
             _constructors = null;
+            _implements = null;
             _serializationProviders = null;
             _nestedTypes = null;
             _xmlDocs = null;
@@ -438,6 +439,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="fields">The new fields.</param>
         /// <param name="serializations">The new serializations.</param>
         /// <param name="nestedTypes">The new nested types.</param>
+        /// <param name="attributes">The new attributes.</param>
+        /// <param name="implements"> The new implemented interfaces.</param>
         /// <param name="xmlDocs">The new XML docs.</param>
         /// <param name="modifiers">The new modifiers.</param>
         /// <param name="name">The new name.</param>
@@ -453,6 +456,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
             IEnumerable<AttributeStatement>? attributes = default,
+            IEnumerable<CSharpType>? implements = null,
             XmlDocProvider? xmlDocs = null,
             TypeSignatureModifiers? modifiers = null,
             string? name = null,
@@ -479,6 +483,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (constructors != null)
             {
                 _constructors = (constructors as IReadOnlyList<ConstructorProvider>) ?? constructors.ToList();
+            }
+            if (implements != null)
+            {
+                _implements = (implements as IReadOnlyList<CSharpType>) ?? implements.ToList();
             }
             if (serializations != null)
             {
@@ -543,10 +551,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void EnsureBuilt()
         {
-            _ = Methods;
-            _ = Constructors;
-            _ = Properties;
-            _ = Fields;
+            // Build all members without applying customization filtering.
+            // Filtering is deferred to CSharpGen.ExecuteAsync after visitors have had a chance
+            // to transform members (e.g., merging parameters). This ensures visitors see the
+            // full set of members before customization filtering is applied.
+            _methods ??= BuildMethods();
+            _constructors ??= BuildConstructors();
+            _properties ??= BuildProperties();
+            _fields ??= BuildFields();
             _ = Implements;
             if (IsEnum)
             {

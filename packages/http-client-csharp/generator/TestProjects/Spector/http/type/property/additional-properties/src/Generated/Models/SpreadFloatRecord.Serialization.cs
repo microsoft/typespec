@@ -15,6 +15,16 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual SpreadFloatRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<SpreadFloatRecord>.Write(ModelReaderWriterOptions options) => throw null;
+
+        SpreadFloatRecord IPersistableModel<SpreadFloatRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<SpreadFloatRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(SpreadFloatRecord spreadFloatRecord) => throw null;
+
         public static explicit operator SpreadFloatRecord(ClientResult result) => throw null;
 
         void IJsonModel<SpreadFloatRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace _Type.Property.AdditionalProperties
         SpreadFloatRecord IJsonModel<SpreadFloatRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual SpreadFloatRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<SpreadFloatRecord>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        SpreadFloatRecord IPersistableModel<SpreadFloatRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<SpreadFloatRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(SpreadFloatRecord spreadFloatRecord) => throw null;
     }
 }

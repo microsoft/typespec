@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>TestProjects.Spector.Tests</RootNamespace>
@@ -48,6 +48,7 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\media-type\src\Payload.MediaType.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\multipart\src\Payload.MultiPart.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\pageable\src\Payload.Pageable.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\payload\xml\src\Payload.Xml.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\resiliency\srv-driven\v1\src\Resiliency.SrvDriven.V1.csproj" Aliases="SrvDrivenV1" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\resiliency\srv-driven\v2\src\Resiliency.SrvDriven.V2.csproj" Aliases="SrvDrivenV2" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\response\status-code-range\src\Response.StatusCodeRange.csproj" />
@@ -77,7 +78,7 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\type\scalar\src\Type.Scalar.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\type\union\src\Type.Union.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\versioning\added\v1\src\Versioning.Added.V1.csproj" Aliases="VersioningAddedV1" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\versioning\added\v2\src\Versioning.Added.V2.csproj" Aliases="VersioningAddedV2"/>
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\versioning\added\v2\src\Versioning.Added.V2.csproj" Aliases="VersioningAddedV2" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\versioning\madeOptional\v1\src\Versioning.MadeOptional.V1.csproj" Aliases="MadeOptionalV1" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\versioning\madeOptional\v2\src\Versioning.MadeOptional.V2.csproj" Aliases="MadeOptionalV2" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\versioning\removed\v1\src\Versioning.Removed.V1.csproj" Aliases="RemovedV1" />
