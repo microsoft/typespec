@@ -1,5 +1,0 @@
-emit:
- - "@typespec/http-client-python"
-options:
- "@typespec/http-client-python":
-   flavor: azure
