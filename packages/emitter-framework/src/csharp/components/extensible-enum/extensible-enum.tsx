@@ -1,4 +1,3 @@
-import { useTsp } from "#core/context/tsp-context.js";
 import { code, For, List, refkey, type Children } from "@alloy-js/core";
 import { Constructor, Field, Method, Property, StructDeclaration } from "@alloy-js/csharp";
 import type { Union } from "@typespec/compiler";
@@ -10,7 +9,6 @@ export interface EnumDeclarationProps {
 }
 
 export function ExtensibleEnumDeclaration(props: EnumDeclarationProps): Children {
-  const { $ } = useTsp();
   const variants: ExtensibleEnumVariant[] = getExtensibleEnumVariantsFromUnion(props.type);
   return (
     <ExtensibleEnumFromVariants
