@@ -45,7 +45,7 @@ extends:
             - name: Microsoft.TypeSpec.Generator.Customization
               file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
               type: nuget
-          UnitTestArgs: -UnitTests
+          UnitTestArgs: ""
           StagePrefix: "CSharp"
           LanguageShortName: "csharp"
           HasNugetPackages: true
