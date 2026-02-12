@@ -15,6 +15,16 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual IsFloatAdditionalProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<IsFloatAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
+
+        IsFloatAdditionalProperties IPersistableModel<IsFloatAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<IsFloatAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(IsFloatAdditionalProperties isFloatAdditionalProperties) => throw null;
+
         public static explicit operator IsFloatAdditionalProperties(ClientResult result) => throw null;
 
         void IJsonModel<IsFloatAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace _Type.Property.AdditionalProperties
         IsFloatAdditionalProperties IJsonModel<IsFloatAdditionalProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual IsFloatAdditionalProperties JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<IsFloatAdditionalProperties>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        IsFloatAdditionalProperties IPersistableModel<IsFloatAdditionalProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<IsFloatAdditionalProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(IsFloatAdditionalProperties isFloatAdditionalProperties) => throw null;
     }
 }

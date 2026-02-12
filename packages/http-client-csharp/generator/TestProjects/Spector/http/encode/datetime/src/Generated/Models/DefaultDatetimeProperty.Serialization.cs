@@ -15,6 +15,16 @@ namespace Encode.Datetime
 
         protected virtual DefaultDatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<DefaultDatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        DefaultDatetimeProperty IPersistableModel<DefaultDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<DefaultDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(DefaultDatetimeProperty defaultDatetimeProperty) => throw null;
+
         public static explicit operator DefaultDatetimeProperty(ClientResult result) => throw null;
 
         void IJsonModel<DefaultDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode.Datetime
         DefaultDatetimeProperty IJsonModel<DefaultDatetimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual DefaultDatetimeProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<DefaultDatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        DefaultDatetimeProperty IPersistableModel<DefaultDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<DefaultDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(DefaultDatetimeProperty defaultDatetimeProperty) => throw null;
     }
 }

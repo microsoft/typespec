@@ -11,7 +11,7 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class OuterModel
+    public partial class OuterModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.OuterModel>
     {
         protected virtual global::Sample.Models.OuterModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {

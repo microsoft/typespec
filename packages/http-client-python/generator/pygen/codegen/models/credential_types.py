@@ -213,6 +213,6 @@ class KeyCredentialType(CredentialType[KeyCredentialPolicyType]):
             "credentials",
             self.policy.credential_name,
             ImportType.SDKCORE,
-            typing_section=TypingSection.CONDITIONAL,
+            typing_section=TypingSection.REGULAR,
         )
         return file_import
