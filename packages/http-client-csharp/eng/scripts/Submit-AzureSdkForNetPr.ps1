@@ -29,7 +29,10 @@ param(
   [string]$BranchName = "typespec/update-http-client-$PackageVersion",
 
   [Parameter(Mandatory = $false)]
-  [string]$TypeSpecSourcePackageJsonPath
+  [string]$TypeSpecSourcePackageJsonPath,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$Internal
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -42,6 +45,9 @@ $BaseBranch = "main"
 $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
+if ($Internal) {
+    $PRTitle = "[DO NOT MERGE] $PRTitle"
+}
 $PRBody = @"
 This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json to version $PackageVersion.
 
@@ -243,7 +249,7 @@ try {
             # Only run build and generation if npm install succeeded
             # Run npm run build
             Write-Host "Running npm run build in eng/packages/http-client-csharp..."
-            $shouldRunGenerate = $true
+            $shouldRunGenerate = $false
             $previousErrorAction = $ErrorActionPreference
             $ErrorActionPreference = "Continue"
             try {
@@ -441,7 +447,11 @@ try {
     $env:GH_TOKEN = $AuthToken
     
     # Create the PR using gh CLI
-    $ghOutput = gh pr create --repo "$RepoOwner/$RepoName" --title $PRTitle --body $PRBody --base $BaseBranch --head $PRBranch 2>&1
+    $ghArgs = @("pr", "create", "--repo", "$RepoOwner/$RepoName", "--title", $PRTitle, "--body", $PRBody, "--base", $BaseBranch, "--head", $PRBranch)
+    if ($Internal) {
+        $ghArgs += @("--label", "Do Not Merge")
+    }
+    $ghOutput = & gh @ghArgs 2>&1
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to create PR using gh CLI: $ghOutput"

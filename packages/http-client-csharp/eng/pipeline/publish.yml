@@ -26,7 +26,7 @@ extends:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
-          PublishDependsOnTest: false
+          PublishDependsOnTest: true
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
           Packages:
@@ -179,6 +179,7 @@ extends:
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
