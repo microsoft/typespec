@@ -15,6 +15,16 @@ namespace _Type.Property.AdditionalProperties
 
         protected virtual SpreadRecordForNonDiscriminatedUnion2 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<SpreadRecordForNonDiscriminatedUnion2>.Write(ModelReaderWriterOptions options) => throw null;
+
+        SpreadRecordForNonDiscriminatedUnion2 IPersistableModel<SpreadRecordForNonDiscriminatedUnion2>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<SpreadRecordForNonDiscriminatedUnion2>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(SpreadRecordForNonDiscriminatedUnion2 spreadRecordForNonDiscriminatedUnion2) => throw null;
+
         public static explicit operator SpreadRecordForNonDiscriminatedUnion2(ClientResult result) => throw null;
 
         void IJsonModel<SpreadRecordForNonDiscriminatedUnion2>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace _Type.Property.AdditionalProperties
         SpreadRecordForNonDiscriminatedUnion2 IJsonModel<SpreadRecordForNonDiscriminatedUnion2>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual SpreadRecordForNonDiscriminatedUnion2 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<SpreadRecordForNonDiscriminatedUnion2>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        SpreadRecordForNonDiscriminatedUnion2 IPersistableModel<SpreadRecordForNonDiscriminatedUnion2>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<SpreadRecordForNonDiscriminatedUnion2>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(SpreadRecordForNonDiscriminatedUnion2 spreadRecordForNonDiscriminatedUnion2) => throw null;
     }
 }

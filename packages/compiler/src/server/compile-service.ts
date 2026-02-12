@@ -20,6 +20,7 @@ import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
+import { debugLoggers } from "./debug.js";
 import { resolveEntrypointFile } from "./entrypoint-resolver.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
@@ -90,6 +91,8 @@ export function createCompileService({
   const eventListeners = new Map<string, (...args: unknown[]) => void | Promise<void>>();
   const compileManager = new ServerCompileManager(updateManager, compilerHost, log);
   let configFilePath: string | undefined;
+  const debug = debugLoggers.compileConfig;
+  const logDebug = debug.enabled ? log : () => {};
 
   return { compile, getScript, on, notifyChange, getMainFileForDocument };
 
@@ -129,7 +132,7 @@ export function createCompileService({
     }
     const mainFile = await getMainFileForDocument(path);
     if (mainFile === undefined) {
-      log({ level: "debug", message: `failed to resolve main file for ${path}` });
+      logDebug({ level: "debug", message: `failed to resolve main file for ${path}` });
       return undefined;
     }
     if (!mainFile.endsWith(".tsp")) {
@@ -137,7 +140,7 @@ export function createCompileService({
     }
     const config = await getConfig(mainFile);
     configFilePath = config.filename;
-    log({ level: "debug", message: `config resolved`, detail: config });
+    logDebug({ level: "debug", message: `config resolved`, detail: config });
     const [optionsFromConfig, _] = resolveOptionsFromConfig(config, {
       cwd: getDirectoryPath(path),
     });
@@ -217,7 +220,7 @@ export function createCompileService({
       ) {
         // If the file that changed wasn't imported by anything from the main
         // file, retry using the file itself as the main file.
-        log({
+        logDebug({
           level: "debug",
           message: `target file was not included in compiling, try to compile ${path} as main file directly`,
         });
@@ -246,7 +249,7 @@ export function createCompileService({
         const [yamlScript] = parseYaml(await serverHost.compilerHost.readFile(configFilePath));
         const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
         if (target.pos === 0) {
-          log({
+          logDebug({
             level: "debug",
             message: `Unexpected situation, can't find emitter '${emitterName}' in config file '${configFilePath}'`,
           });
@@ -286,7 +289,7 @@ export function createCompileService({
     const lookupDir = entrypointStat.isDirectory() ? mainFile : getDirectoryPath(mainFile);
     const configPath = await findTypeSpecConfigPath(compilerHost, lookupDir, true);
     if (!configPath) {
-      log({
+      logDebug({
         level: "debug",
         message: `can't find path with config file, try to use default config`,
       });
@@ -337,7 +340,10 @@ export function createCompileService({
    */
   async function getMainFileForDocument(path: string) {
     if (path.startsWith("untitled:")) {
-      log({ level: "debug", message: `untitled document treated as its own main file: ${path}` });
+      logDebug({
+        level: "debug",
+        message: `untitled document treated as its own main file: ${path}`,
+      });
       return path;
     }
 
