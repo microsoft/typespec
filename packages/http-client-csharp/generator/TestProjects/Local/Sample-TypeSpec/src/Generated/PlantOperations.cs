@@ -138,7 +138,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = UpdateTree(tree, cancellationToken.ToRequestOptions());
+            ClientResult result = UpdateTree(tree.ToBinaryContent("X"), cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Tree)result, result.GetRawResponse());
         }
 
@@ -151,7 +151,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = await UpdateTreeAsync(tree, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            ClientResult result = await UpdateTreeAsync(tree.ToBinaryContent("X"), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Tree)result, result.GetRawResponse());
         }
     }

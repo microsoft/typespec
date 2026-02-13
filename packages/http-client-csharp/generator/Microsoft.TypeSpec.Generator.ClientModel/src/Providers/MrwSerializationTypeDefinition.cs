@@ -193,6 +193,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
                     {
                         methods.Add(BuildImplicitToBinaryContent());
+                        // Add internal ToBinaryContent helper for format-specific serialization
+                        if (_supportsJson && _supportsXml)
+                        {
+                            methods.Add(BuildInternalToBinaryContentMethod());
+                        }
                     }
 
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
@@ -322,6 +327,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     !_isStruct ? new IfStatement(model.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
                     ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
+                },
+                this);
+        }
+
+        private MethodProvider BuildInternalToBinaryContentMethod()
+        {
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            var formatParameter = new ParameterProvider("format", $"The format to use for serialization (\"J\" for JSON, \"X\" for XML)", typeof(string));
+            var modifiers = MethodSignatureModifiers.Internal;
+            var mrwOptionsType = typeof(ModelReaderWriterOptions);
+
+            // ModelReaderWriterOptions options = new ModelReaderWriterOptions(format);
+            // return BinaryContent.Create(this, options);
+            return new MethodProvider(
+                new MethodSignature("ToBinaryContent", FormattableStringHelpers.FromString($"Converts the model to {requestContentType:C} using the specified format"), modifiers, requestContentType, null, [formatParameter]),
+                new MethodBodyStatement[]
+                {
+                    Declare("options", mrwOptionsType, New.Instance(mrwOptionsType, formatParameter), out var options),
+                    Return(RequestContentApiSnippets.Create(This, options.As<ModelReaderWriterOptions>()))
                 },
                 this);
         }

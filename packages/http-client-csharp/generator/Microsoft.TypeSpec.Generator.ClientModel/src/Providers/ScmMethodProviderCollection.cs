@@ -684,7 +684,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else
                         {
-                            AddArgument(protocolParam, convenienceParam);
+                            // Check if we need to call ToBinaryContent with a specific format
+                            var requestMediaType = ServiceMethod.Operation.RequestMediaTypes?.FirstOrDefault();
+                            if (requestMediaType != null &&
+                                (requestMediaType.StartsWith("application/xml", StringComparison.OrdinalIgnoreCase) ||
+                                 requestMediaType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)) &&
+                                ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(convenienceParam.Type, out var typeProvider) &&
+                                typeProvider is ModelProvider modelProvider)
+                            {
+                                // Check if the model supports both JSON and XML by finding it in the input namespace
+                                var inputModel = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models
+                                    .FirstOrDefault(m => m.Name == modelProvider.Name);
+                                if (inputModel != null &&
+                                    inputModel.Usage.HasFlag(InputModelTypeUsage.Json) &&
+                                    inputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
+                                {
+                                    // Determine the format string: "J" for JSON, "X" for XML
+                                    var format = requestMediaType!.StartsWith("application/xml", StringComparison.OrdinalIgnoreCase) ? "X" : "J";
+                                    // Call the internal ToBinaryContent helper: parameter.ToBinaryContent("X" or "J")
+                                    AddArgument(protocolParam, convenienceParam.Invoke("ToBinaryContent", Literal(format)));
+                                }
+                                else
+                                {
+                                    // Use implicit operator as fallback
+                                    AddArgument(protocolParam, convenienceParam);
+                                }
+                            }
+                            else
+                            {
+                                // Use implicit operator as fallback
+                                AddArgument(protocolParam, convenienceParam);
+                            }
                         }
                     }
                     else if (convenienceParam.Type.IsEnum)
