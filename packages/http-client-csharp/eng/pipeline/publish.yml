@@ -8,7 +8,15 @@ trigger:
     exclude:
       - packages/http-client-csharp/eng/
 
-pr: none
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - packages/http-client-csharp/
+    exclude:
+      - packages/http-client-csharp/eng/
 
 parameters:
   - name: CreateAzureSdkForNetPR
