@@ -688,34 +688,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else
                         {
-                            // Check if we need to call ToBinaryContent with a specific format
-                            string? matchedMediaType = null;
-                            if (ServiceMethod.Operation.RequestMediaTypes != null)
+                            // Check if we need to call ToBinaryContent with a specific format for dual-format models
+                            if (TryGetFormatArgumentForDualFormatModel(bodyModel, bodyInputModel, out var format))
                             {
-                                foreach (var mediaType in ServiceMethod.Operation.RequestMediaTypes)
-                                {
-                                    if (mediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
-                                        mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        matchedMediaType = mediaType;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (matchedMediaType != null &&
-                                bodyModel != null &&
-                                bodyInputModel != null &&
-                                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Json) &&
-                                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
-                            {
-                                // Determine the format: XML or JSON
-                                var format = matchedMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
-                                    ? ModelReaderWriterOptionsSnippets.XmlFormat
-                                    : ModelReaderWriterOptionsSnippets.JsonFormat;
                                 // Call the internal ToBinaryContent helper dynamically: parameter.To{RequestContentType.Name}("X" or "J")
                                 var methodName = $"To{ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.Name}";
-                                AddArgument(protocolParam, convenienceParam.Invoke(methodName, format));
+                                AddArgument(protocolParam, convenienceParam.Invoke(methodName, format!));
                             }
                             else
                             {
@@ -1094,6 +1072,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return type.Equals(typeof(TimeSpan)) || type.Equals(typeof(BinaryData));
+        }
+
+        private bool TryGetFormatArgumentForDualFormatModel(
+            ModelProvider? bodyModel,
+            InputModelType? bodyInputModel,
+            out ScopedApi<string>? format)
+        {
+            format = null;
+
+            // Find the first JSON or XML media type
+            string? matchedMediaType = null;
+            if (ServiceMethod.Operation.RequestMediaTypes != null)
+            {
+                foreach (var mediaType in ServiceMethod.Operation.RequestMediaTypes)
+                {
+                    if (mediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
+                        mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matchedMediaType = mediaType;
+                        break;
+                    }
+                }
+            }
+
+            // Check if this is a dual-format model
+            if (matchedMediaType != null &&
+                bodyModel != null &&
+                bodyInputModel != null &&
+                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Json) &&
+                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
+            {
+                // Determine the format: XML or JSON
+                format = matchedMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
+                    ? ModelReaderWriterOptionsSnippets.XmlFormat
+                    : ModelReaderWriterOptionsSnippets.JsonFormat;
+                return true;
+            }
+
+            return false;
         }
     }
 }

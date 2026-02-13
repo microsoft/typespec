@@ -75,5 +75,50 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Tree model2 = (Tree)strategy.Read(roundTrip, modelInstance, options);
             CompareModels(model, model2, format);
         }
+
+        [Test]
+        public void ToBinaryContent_WithJsonFormat_ProducesJsonPayload()
+        {
+            var tree = GetModelInstance();
+
+            // Use reflection to call the internal ToBinaryContent method
+            var method = typeof(Tree).GetMethod("ToBinaryContent",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            Assert.IsNotNull(method, "ToBinaryContent method should exist on Tree");
+
+            var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "J" })!;
+
+            // Verify it's JSON by parsing as JSON
+            using var stream = binaryContent.ToStream();
+            using var reader = new System.IO.StreamReader(stream);
+            var content = reader.ReadToEnd();
+
+            Assert.That(content, Does.Contain("\"id\""));
+            Assert.That(content, Does.Contain("\"age\""));
+            Assert.That(content, Does.Contain("\"height\""));
+            Assert.That(content, Does.Not.Contain("<Tree"));
+        }
+
+        [Test]
+        public void ToBinaryContent_WithXmlFormat_ProducesXmlPayload()
+        {
+            var tree = GetModelInstance();
+
+            // Use reflection to call the internal ToBinaryContent method
+            var method = typeof(Tree).GetMethod("ToBinaryContent",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            Assert.IsNotNull(method, "ToBinaryContent method should exist on Tree");
+
+            var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "X" })!;
+
+            // Verify it's XML by parsing as XML
+            using var stream = binaryContent.ToStream();
+            var xml = XElement.Load(stream);
+
+            Assert.That(xml.Name.LocalName, Is.EqualTo("Tree"));
+            Assert.That(xml.Element("id")?.Value, Is.EqualTo("tree-123"));
+            Assert.That(xml.Element("age")?.Value, Is.EqualTo("100"));
+            Assert.That(xml.Element("height")?.Value, Is.EqualTo("500"));
+        }
     }
 }
