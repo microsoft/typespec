@@ -62,15 +62,15 @@ $BaseBranch = "main"
 $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
-if ($RegenerateAzureLibraries -and $RegenerateMgmtLibraries) {
-    $PRTitle = "Update GeneratorVersion to $PackageVersion (all libraries)"
-} elseif ($RegenerateAzureLibraries) {
-    $PRTitle = "Update GeneratorVersion to $PackageVersion (Azure data plane)"
-} elseif ($RegenerateMgmtLibraries) {
-    $PRTitle = "Update GeneratorVersion to $PackageVersion (Azure mgmt)"
+if ($Internal -or $RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
+    $PRTitle = "[DO NOT MERGE] Preview Generator Version $PackageVersion"
 }
-if ($Internal) {
-    $PRTitle = "[DO NOT MERGE] $PRTitle"
+if ($RegenerateAzureLibraries -and $RegenerateMgmtLibraries) {
+    $PRTitle += " (Azure data plane + mgmt)"
+} elseif ($RegenerateAzureLibraries) {
+    $PRTitle += " (Azure data plane)"
+} elseif ($RegenerateMgmtLibraries) {
+    $PRTitle += " (Azure mgmt)"
 }
 $PRBody = @"
 This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json to version $PackageVersion.
