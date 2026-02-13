@@ -5,7 +5,6 @@ import {
   SdkClientType,
   SdkEnumType,
   SdkHttpOperation,
-  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
@@ -14,11 +13,7 @@ import { fromSdkClients } from "./client-converter.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
-import {
-  containsMultiServiceClient,
-  firstLetterToUpperCase,
-  getClientNamespaceString,
-} from "./utils.js";
+import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
  * Creates the code model from the SDK context.
@@ -75,15 +70,10 @@ function parseApiVersions(
   enums: SdkEnumType[],
   rootClients: SdkClientType<SdkHttpOperation>[],
 ): string[] {
-  if (containsMultiServiceClient(rootClients)) {
-    return rootClients[0]?.apiVersions ?? [];
-  }
-
-  const apiVersionEnum = enums.find((e) => (e.usage & UsageFlags.ApiVersionEnum) !== 0);
-  if (apiVersionEnum) {
-    return apiVersionEnum.values.map((v) => v.value as string);
-  }
-
+  // Always use client.apiVersions as the source of truth.
+  // TCGC correctly populates this with all versions from the @versioned enum.
+  // Previously, this function would read from the enum values directly, which could
+  // miss versions if the enum wasn't fully populated at the time this runs.
   return rootClients[0]?.apiVersions ?? [];
 }
 
