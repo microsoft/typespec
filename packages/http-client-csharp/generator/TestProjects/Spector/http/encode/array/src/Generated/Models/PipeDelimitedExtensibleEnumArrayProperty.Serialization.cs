@@ -15,6 +15,16 @@ namespace Encode._Array
 
         protected virtual PipeDelimitedExtensibleEnumArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<PipeDelimitedExtensibleEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        PipeDelimitedExtensibleEnumArrayProperty IPersistableModel<PipeDelimitedExtensibleEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<PipeDelimitedExtensibleEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(PipeDelimitedExtensibleEnumArrayProperty pipeDelimitedExtensibleEnumArrayProperty) => throw null;
+
         public static explicit operator PipeDelimitedExtensibleEnumArrayProperty(ClientResult result) => throw null;
 
         void IJsonModel<PipeDelimitedExtensibleEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode._Array
         PipeDelimitedExtensibleEnumArrayProperty IJsonModel<PipeDelimitedExtensibleEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual PipeDelimitedExtensibleEnumArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<PipeDelimitedExtensibleEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        PipeDelimitedExtensibleEnumArrayProperty IPersistableModel<PipeDelimitedExtensibleEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<PipeDelimitedExtensibleEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(PipeDelimitedExtensibleEnumArrayProperty pipeDelimitedExtensibleEnumArrayProperty) => throw null;
     }
 }

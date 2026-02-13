@@ -4,13 +4,24 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Xml;
 
 namespace Payload.Pageable
 {
-    public partial class XmlPet
+    public partial class XmlPet : IPersistableModel<XmlPet>
     {
         internal XmlPet() => throw null;
 
         protected virtual XmlPet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<XmlPet>.Write(ModelReaderWriterOptions options) => throw null;
+
+        XmlPet IPersistableModel<XmlPet>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<XmlPet>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options) => throw null;
     }
 }

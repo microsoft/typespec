@@ -15,6 +15,16 @@ namespace Encode._Array
 
         protected virtual PipeDelimitedEnumArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<PipeDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        PipeDelimitedEnumArrayProperty IPersistableModel<PipeDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<PipeDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(PipeDelimitedEnumArrayProperty pipeDelimitedEnumArrayProperty) => throw null;
+
         public static explicit operator PipeDelimitedEnumArrayProperty(ClientResult result) => throw null;
 
         void IJsonModel<PipeDelimitedEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode._Array
         PipeDelimitedEnumArrayProperty IJsonModel<PipeDelimitedEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual PipeDelimitedEnumArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<PipeDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        PipeDelimitedEnumArrayProperty IPersistableModel<PipeDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<PipeDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(PipeDelimitedEnumArrayProperty pipeDelimitedEnumArrayProperty) => throw null;
     }
 }

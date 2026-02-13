@@ -15,6 +15,16 @@ namespace Encode._Array
 
         protected virtual CommaDelimitedEnumArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<CommaDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        CommaDelimitedEnumArrayProperty IPersistableModel<CommaDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<CommaDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(CommaDelimitedEnumArrayProperty commaDelimitedEnumArrayProperty) => throw null;
+
         public static explicit operator CommaDelimitedEnumArrayProperty(ClientResult result) => throw null;
 
         void IJsonModel<CommaDelimitedEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode._Array
         CommaDelimitedEnumArrayProperty IJsonModel<CommaDelimitedEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual CommaDelimitedEnumArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<CommaDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        CommaDelimitedEnumArrayProperty IPersistableModel<CommaDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<CommaDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(CommaDelimitedEnumArrayProperty commaDelimitedEnumArrayProperty) => throw null;
     }
 }

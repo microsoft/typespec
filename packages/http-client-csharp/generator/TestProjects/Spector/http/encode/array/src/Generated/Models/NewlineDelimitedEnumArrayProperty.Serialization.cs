@@ -15,6 +15,16 @@ namespace Encode._Array
 
         protected virtual NewlineDelimitedEnumArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<NewlineDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        NewlineDelimitedEnumArrayProperty IPersistableModel<NewlineDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<NewlineDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(NewlineDelimitedEnumArrayProperty newlineDelimitedEnumArrayProperty) => throw null;
+
         public static explicit operator NewlineDelimitedEnumArrayProperty(ClientResult result) => throw null;
 
         void IJsonModel<NewlineDelimitedEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode._Array
         NewlineDelimitedEnumArrayProperty IJsonModel<NewlineDelimitedEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual NewlineDelimitedEnumArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<NewlineDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        NewlineDelimitedEnumArrayProperty IPersistableModel<NewlineDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<NewlineDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(NewlineDelimitedEnumArrayProperty newlineDelimitedEnumArrayProperty) => throw null;
     }
 }

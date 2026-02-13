@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public static implicit operator DurationKnownEncoding(string value) => new DurationKnownEncoding(value);
 
         /// <inheritdoc/>
-        public bool Equals(DurationKnownEncoding other) => string.Equals(_value, other._value, StringComparison.Ordinal);
+        public bool Equals(DurationKnownEncoding other) => string.Equals(_value, other._value, StringComparison.OrdinalIgnoreCase);
 
         /// <inheritdoc/>
         public override bool Equals(object? obj) => obj is DurationKnownEncoding other && Equals(other);

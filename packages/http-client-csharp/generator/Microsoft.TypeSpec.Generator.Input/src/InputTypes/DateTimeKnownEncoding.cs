@@ -53,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public static implicit operator DateTimeKnownEncoding(string value) => new DateTimeKnownEncoding(value);
 
         /// <inheritdoc/>
-        public bool Equals(DateTimeKnownEncoding other) => string.Equals(_value, other._value, StringComparison.Ordinal);
+        public bool Equals(DateTimeKnownEncoding other) => string.Equals(_value, other._value, StringComparison.OrdinalIgnoreCase);
 
         /// <inheritdoc/>
         public override bool Equals(object? obj) => obj is DateTimeKnownEncoding other && Equals(other);

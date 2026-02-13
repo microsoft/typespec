@@ -15,6 +15,16 @@ namespace Encode._Array
 
         protected virtual SpaceDelimitedEnumArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<SpaceDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        SpaceDelimitedEnumArrayProperty IPersistableModel<SpaceDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<SpaceDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(SpaceDelimitedEnumArrayProperty spaceDelimitedEnumArrayProperty) => throw null;
+
         public static explicit operator SpaceDelimitedEnumArrayProperty(ClientResult result) => throw null;
 
         void IJsonModel<SpaceDelimitedEnumArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode._Array
         SpaceDelimitedEnumArrayProperty IJsonModel<SpaceDelimitedEnumArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual SpaceDelimitedEnumArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<SpaceDelimitedEnumArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        SpaceDelimitedEnumArrayProperty IPersistableModel<SpaceDelimitedEnumArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<SpaceDelimitedEnumArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(SpaceDelimitedEnumArrayProperty spaceDelimitedEnumArrayProperty) => throw null;
     }
 }
