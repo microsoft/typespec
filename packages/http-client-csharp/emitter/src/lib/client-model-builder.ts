@@ -71,9 +71,6 @@ function parseApiVersions(
   rootClients: SdkClientType<SdkHttpOperation>[],
 ): string[] {
   // Always use client.apiVersions as the source of truth.
-  // TCGC correctly populates this with all versions from the @versioned enum.
-  // Previously, this function would read from the enum values directly, which could
-  // miss versions if the enum wasn't fully populated at the time this runs.
   return rootClients[0]?.apiVersions ?? [];
 }
 
