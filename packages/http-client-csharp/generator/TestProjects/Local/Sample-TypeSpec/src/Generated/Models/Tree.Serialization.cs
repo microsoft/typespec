@@ -95,7 +95,7 @@ namespace SampleTypeSpec
             return BinaryContent.Create(tree, ModelSerializationExtensions.WireOptions);
         }
 
-        /// <summary> Converts the model to global::System.ClientModel.BinaryContent using the specified format. </summary>
+        /// <summary> Converts the model to BinaryContent using the specified format. </summary>
         /// <param name="format"> The format to use for serialization. </param>
         internal BinaryContent ToBinaryContent(string format)
         {

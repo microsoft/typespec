@@ -190,7 +190,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = UpdateTree(tree.ToBinaryContent("X"), cancellationToken.ToRequestOptions());
+            using BinaryContent content = tree.ToBinaryContent("X");
+            ClientResult result = UpdateTree(content, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Tree)result, result.GetRawResponse());
         }
 
@@ -203,7 +204,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = await UpdateTreeAsync(tree.ToBinaryContent("X"), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = tree.ToBinaryContent("X");
+            ClientResult result = await UpdateTreeAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Tree)result, result.GetRawResponse());
         }
 
@@ -258,7 +260,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = UpdateTreeAsJson(tree.ToBinaryContent("J"), cancellationToken.ToRequestOptions());
+            using BinaryContent content = tree.ToBinaryContent("J");
+            ClientResult result = UpdateTreeAsJson(content, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Tree)result, result.GetRawResponse());
         }
 
@@ -271,7 +274,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = await UpdateTreeAsJsonAsync(tree.ToBinaryContent("J"), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = tree.ToBinaryContent("J");
+            ClientResult result = await UpdateTreeAsJsonAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Tree)result, result.GetRawResponse());
         }
     }

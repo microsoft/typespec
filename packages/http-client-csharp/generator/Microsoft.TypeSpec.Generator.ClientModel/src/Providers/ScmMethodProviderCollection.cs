@@ -227,8 +227,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             SerializationFormat.Default));
                         declarations["content"] = content;
                     }
-                    // else rely on implicit operator to convert to BinaryContent
-                    // For BinaryData we have special handling as well
+                    else
+                    {
+                        // Check if this is a dual-format model that needs explicit serialization
+                        ModelProvider? bodyModel = null;
+                        InputModelType? bodyInputModel = null;
+                        if (parameter.Type is { IsFrameworkType: false })
+                        {
+                            var inputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
+                            if (inputParam?.Type is InputModelType model)
+                            {
+                                bodyInputModel = model;
+                                bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                            }
+                        }
+
+                        if (TryGetFormatArgumentForDualFormatModel(bodyModel, bodyInputModel, out var format))
+                        {
+                            // Create using declaration for BinaryContent
+                            var methodName = $"To{requestContentType.Name}";
+                            statements.Add(UsingDeclare("content", requestContentType, parameter.Invoke(methodName, format), out var content));
+                            declarations["content"] = content;
+                        }
+                        // else rely on implicit operator to convert to BinaryContent
+                        // For BinaryData we have special handling as well
+                    }
                 }
             }
 
@@ -689,12 +712,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else
                         {
-                            // Check if we need to call ToBinaryContent with a specific format for dual-format models
-                            if (TryGetFormatArgumentForDualFormatModel(bodyModel, bodyInputModel, out var format))
+                            // Check if we created a using declaration for dual-format model
+                            if (declarations.TryGetValue("content", out var content))
                             {
-                                // Call the internal ToBinaryContent helper dynamically: parameter.To{RequestContentType.Name}("X" or "J")
-                                var methodName = $"To{ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.Name}";
-                                AddArgument(protocolParam, convenienceParam.Invoke(methodName, format));
+                                AddArgument(protocolParam, content);
                             }
                             else
                             {
