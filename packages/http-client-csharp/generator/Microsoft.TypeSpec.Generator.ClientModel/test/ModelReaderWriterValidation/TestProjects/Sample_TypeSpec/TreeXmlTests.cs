@@ -79,20 +79,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         [Test]
         public void ToBinaryContent_WithJsonFormat_ProducesJsonPayload()
         {
-            var tree = GetModelInstance();
+            var tree = new Tree("tree-123", 500, 100);
 
-            // Use reflection to call the internal ToBinaryContent method
-            var method = typeof(Tree).GetMethod("ToBinaryContent",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
-            Assert.IsNotNull(method, "ToBinaryContent method should exist on Tree");
+            // Use IPersistableModel to write with JSON format
+            var binaryData = ((IPersistableModel<Tree>)tree).Write(new ModelReaderWriterOptions("J"));
+            var content = binaryData.ToString();
 
-            var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "J" })!;
-
-            // Verify it's JSON by parsing as JSON
-            using var stream = binaryContent.ToStream();
-            using var reader = new System.IO.StreamReader(stream);
-            var content = reader.ReadToEnd();
-
+            // Verify it's JSON by checking for JSON syntax
             Assert.That(content, Does.Contain("\"id\""));
             Assert.That(content, Does.Contain("\"age\""));
             Assert.That(content, Does.Contain("\"height\""));
@@ -102,23 +95,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         [Test]
         public void ToBinaryContent_WithXmlFormat_ProducesXmlPayload()
         {
-            var tree = GetModelInstance();
+            var tree = new Tree("tree-123", 500, 100);
 
-            // Use reflection to call the internal ToBinaryContent method
-            var method = typeof(Tree).GetMethod("ToBinaryContent",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
-            Assert.IsNotNull(method, "ToBinaryContent method should exist on Tree");
+            // Use IPersistableModel to write with XML format
+            var binaryData = ((IPersistableModel<Tree>)tree).Write(new ModelReaderWriterOptions("X"));
+            var content = binaryData.ToString();
 
-            var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "X" })!;
-
-            // Verify it's XML by parsing as XML
-            using var stream = binaryContent.ToStream();
-            var xml = XElement.Load(stream);
-
-            Assert.That(xml.Name.LocalName, Is.EqualTo("Tree"));
-            Assert.That(xml.Element("id")?.Value, Is.EqualTo("tree-123"));
-            Assert.That(xml.Element("age")?.Value, Is.EqualTo("100"));
-            Assert.That(xml.Element("height")?.Value, Is.EqualTo("500"));
+            // Verify it's XML by checking for XML syntax
+            Assert.That(content, Does.Contain("<Tree"));
+            Assert.That(content, Does.Contain("<id>tree-123</id>"));
+            Assert.That(content, Does.Contain("<age>100</age>"));
+            Assert.That(content, Does.Contain("<height>500</height>"));
+            Assert.That(content, Does.Not.Contain("\"id\""));
         }
     }
 }

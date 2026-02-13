@@ -339,7 +339,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // return BinaryContent.Create(this, options);
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
             return new MethodProvider(
-                new MethodSignature($"To{requestContentType.Name}", FormattableStringHelpers.FromString($"Converts the model to {requestContentType:C} using the specified format"), MethodSignatureModifiers.Internal, requestContentType, null, [formatParameter]),
+                new MethodSignature($"To{requestContentType.Name}", FormattableStringHelpers.FromString($"Converts the model to {requestContentType.Name} using the specified format"), MethodSignatureModifiers.Internal, requestContentType, null, [formatParameter]),
                 new MethodBodyStatement[]
                 {
                     Declare("options", typeof(ModelReaderWriterOptions), New.Instance(typeof(ModelReaderWriterOptions), formatParameter), out var options),
