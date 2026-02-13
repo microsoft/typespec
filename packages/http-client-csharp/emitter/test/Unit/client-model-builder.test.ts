@@ -452,7 +452,12 @@ describe("parseApiVersions", () => {
   it("should include all API versions from @versioned enum", async () => {
     const program = await typeSpecCompile(
       `
+      @service(#{
+        title: "Test Service",
+      })
       @versioned(Versions)
+      namespace TestService;
+      
       enum Versions {
         v1: "v1",
         v2: "v2",
@@ -463,7 +468,7 @@ describe("parseApiVersions", () => {
       op test(): void;
       `,
       runner,
-      { IsVersionNeeded: false },
+      { IsNamespaceNeeded: false },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
@@ -479,7 +484,12 @@ describe("parseApiVersions", () => {
   it("should preserve version order from TCGC", async () => {
     const program = await typeSpecCompile(
       `
+      @service(#{
+        title: "Test Service",
+      })
       @versioned(Versions)
+      namespace TestService;
+      
       enum Versions {
         "2023-01-01",
         "2024-01-01",
@@ -490,7 +500,7 @@ describe("parseApiVersions", () => {
       op test(): void;
       `,
       runner,
-      { IsVersionNeeded: false },
+      { IsNamespaceNeeded: false },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
