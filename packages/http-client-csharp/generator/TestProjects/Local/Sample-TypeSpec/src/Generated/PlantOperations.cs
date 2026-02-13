@@ -88,6 +88,58 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] Get a tree as a plant
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetTreeAsJson(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetTreeAsJsonRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Get a tree as a plant
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetTreeAsJsonAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetTreeAsJsonRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Get a tree as a plant. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Tree> GetTreeAsJson(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetTreeAsJson(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+        }
+
+        /// <summary> Get a tree as a plant. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Tree>> GetTreeAsJsonAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetTreeAsJsonAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+        }
+
+        /// <summary>
         /// [Protocol Method] Update a tree as a plant
         /// <list type="bullet">
         /// <item>
@@ -152,6 +204,74 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(tree, nameof(tree));
 
             ClientResult result = await UpdateTreeAsync(tree.ToBinaryContent("X"), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] Update a tree as a plant
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult UpdateTreeAsJson(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateUpdateTreeAsJsonRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Update a tree as a plant
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> UpdateTreeAsJsonAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateUpdateTreeAsJsonRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Update a tree as a plant. </summary>
+        /// <param name="tree"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="tree"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Tree> UpdateTreeAsJson(Tree tree, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(tree, nameof(tree));
+
+            ClientResult result = UpdateTreeAsJson(tree.ToBinaryContent("J"), cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+        }
+
+        /// <summary> Update a tree as a plant. </summary>
+        /// <param name="tree"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="tree"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Tree>> UpdateTreeAsJsonAsync(Tree tree, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(tree, nameof(tree));
+
+            ClientResult result = await UpdateTreeAsJsonAsync(tree.ToBinaryContent("J"), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Tree)result, result.GetRawResponse());
         }
     }
