@@ -17,6 +17,8 @@ The path to the TypeSpec package.json file to use for generating emitter-package
 When specified, builds the Azure emitter locally and regenerates Azure data plane SDK libraries.
 .PARAMETER RegenerateMgmtLibraries
 When specified, builds the management plane emitter locally and regenerates mgmt SDK libraries. Implies Azure emitter build since mgmt depends on it.
+.PARAMETER BuildArtifactsPath
+Path to the build artifacts directory containing the published .tgz and .nupkg files. Required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -42,7 +44,10 @@ param(
   [switch]$RegenerateAzureLibraries,
 
   [Parameter(Mandatory = $false)]
-  [switch]$RegenerateMgmtLibraries
+  [switch]$RegenerateMgmtLibraries,
+
+  [Parameter(Mandatory = $false)]
+  [string]$BuildArtifactsPath
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -386,65 +391,27 @@ try {
                 if ($RegenerateMgmtLibraries) { $regenScope += "mgmt" }
                 Write-Host "##[section]Building emitters locally for: $($regenScope -join ', ')..."
                 
-                # Build NuGet packages for generator framework (needed by Azure generator)
-                Write-Host "Building NuGet generator packages..."
-                $typespecPackageRoot = Join-Path $PSScriptRoot ".." ".."
-                $generatorRoot = Join-Path $typespecPackageRoot "generator"
-                $nugetProjects = @(
-                    (Join-Path "Microsoft.TypeSpec.Generator" "src" "Microsoft.TypeSpec.Generator.csproj"),
-                    (Join-Path "Microsoft.TypeSpec.Generator.Input" "src" "Microsoft.TypeSpec.Generator.Input.csproj"),
-                    (Join-Path "Microsoft.TypeSpec.Generator.ClientModel" "src" "Microsoft.TypeSpec.Generator.ClientModel.csproj")
-                )
-                
-                $debugFolder = Join-Path $typespecPackageRoot "debug"
-                if (-not (Test-Path $debugFolder)) {
-                    New-Item -ItemType Directory -Path $debugFolder -Force | Out-Null
+                # Locate the unbranded .tgz and .nupkg files from build artifacts
+                if (-not $BuildArtifactsPath -or -not (Test-Path $BuildArtifactsPath)) {
+                    throw "BuildArtifactsPath is required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified. Path: $BuildArtifactsPath"
                 }
                 
-                foreach ($project in $nugetProjects) {
-                    $projectPath = Join-Path $generatorRoot $project
-                    if (Test-Path $projectPath) {
-                        Write-Host "Packing: $(Split-Path $projectPath -Leaf)"
-                        $packCmd = "dotnet pack $projectPath /p:Version=$PackageVersion /p:PackageVersion=$PackageVersion /p:PackageOutputPath=$debugFolder --configuration Debug --no-build --nologo -v:quiet"
-                        $previousErrorAction = $ErrorActionPreference
-                        $ErrorActionPreference = "Continue"
-                        try {
-                            Invoke $packCmd $generatorRoot
-                        } finally {
-                            $ErrorActionPreference = $previousErrorAction
-                        }
-                    }
+                $debugFolder = Join-Path ([System.IO.Path]::GetTempPath()) "csharp-debug-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                New-Item -ItemType Directory -Path $debugFolder -Force | Out-Null
+                
+                # Find unbranded .tgz from build artifacts
+                $unbrandedTgz = Get-ChildItem -Path $BuildArtifactsPath -Filter "typespec-http-client-csharp-*.tgz" -Recurse | Select-Object -First 1
+                if (-not $unbrandedTgz) {
+                    throw "Could not find unbranded emitter .tgz in build artifacts at: $BuildArtifactsPath"
                 }
+                $unbrandedPackagePath = $unbrandedTgz.FullName
+                Write-Host "Using unbranded package from build artifacts: $unbrandedPackagePath"
                 
-                # Package the unbranded emitter as a local .tgz for the Azure generator to depend on
-                Write-Host "Packaging local unbranded emitter..."
-                $unbrandedPackageJson = Join-Path $typespecPackageRoot "package.json"
-                $originalUnbrandedPackageJson = Get-Content $unbrandedPackageJson -Raw
-                
-                try {
-                    $unbrandedPkgJson = Get-Content $unbrandedPackageJson -Raw | ConvertFrom-Json
-                    $unbrandedPkgJson.version = $PackageVersion
-                    $unbrandedPkgJson | ConvertTo-Json -Depth 100 | Set-Content $unbrandedPackageJson -Encoding utf8
-                    
-                    Push-Location $typespecPackageRoot
-                    try {
-                        $packOutput = & npm pack 2>&1
-                        $packageLine = ($packOutput | Where-Object { $_ -match '\.tgz$' } | Select-Object -First 1).ToString().Trim()
-                        if ($packageLine -match 'filename:\s*(.+\.tgz)') {
-                            $packageFile = $Matches[1].Trim()
-                        } else {
-                            $packageFile = $packageLine
-                        }
-                        $unbrandedPackagePath = Join-Path $typespecPackageRoot $packageFile
-                        $debugUnbrandedPath = Join-Path $debugFolder $packageFile
-                        Move-Item $unbrandedPackagePath $debugUnbrandedPath -Force
-                        $unbrandedPackagePath = $debugUnbrandedPath
-                        Write-Host "Created local unbranded package: $unbrandedPackagePath"
-                    } finally {
-                        Pop-Location
-                    }
-                } finally {
-                    Set-Content $unbrandedPackageJson $originalUnbrandedPackageJson -Encoding utf8 -NoNewline
+                # Copy .nupkg files from build artifacts to debug folder
+                $nupkgFiles = Get-ChildItem -Path $BuildArtifactsPath -Filter "*.nupkg" -Recurse
+                foreach ($nupkg in $nupkgFiles) {
+                    Copy-Item $nupkg.FullName -Destination $debugFolder -Force
+                    Write-Host "Copied NuGet package: $($nupkg.Name)"
                 }
                 
                 # Build and package Azure generator (needed for both Azure data plane and mgmt)
