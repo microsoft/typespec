@@ -131,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     // For operators, the return type is crucial for matching
                     if (x.ReturnType != null && y.ReturnType != null)
                     {
-                        if (!IsNameMatch(x.ReturnType, y.ReturnType))
+                        if (!x.ReturnType.AreNamesEqual(y.ReturnType))
                         {
                             return false;
                         }
@@ -144,9 +144,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
                 for (int i = 0; i < x.Parameters.Count; i++)
                 {
-                    // The namespace may not be available for generated types as they are not yet generated
-                    // so Roslyn will not have the namespace information.
-                    if (!IsNameMatch(x.Parameters[i].Type, y.Parameters[i].Type))
+                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type))
                     {
                         return false;
                     }
@@ -158,18 +156,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             public int GetHashCode([DisallowNull] MethodSignatureBase obj)
             {
                 return HashCode.Combine(obj.Name, obj.ReturnType);
-            }
-
-            private static bool IsNameMatch(CSharpType typeFromCustomization, CSharpType generatedType)
-            {
-                // The namespace may not be available for generated types referenced from customization as they
-                // are not yet generated so Roslyn will not have the namespace information.
-                if (string.IsNullOrEmpty(typeFromCustomization.Namespace))
-                {
-                    return typeFromCustomization.Name == generatedType.Name;
-                }
-
-                return typeFromCustomization.FullyQualifiedName == generatedType.FullyQualifiedName;
             }
 
             private static string GetFullMethodName(MethodSignatureBase method)

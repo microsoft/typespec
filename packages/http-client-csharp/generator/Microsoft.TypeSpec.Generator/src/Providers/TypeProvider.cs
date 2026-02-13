@@ -600,7 +600,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customConstructors = constructor.EnclosingType.CustomCodeView?.Constructors ?? [];
             foreach (var customConstructor in customConstructors)
             {
-                if (IsMatch(customConstructor.Signature, constructor.Signature))
+                if (MethodSignatureBase.SignatureComparer.Equals(customConstructor.Signature, constructor.Signature))
                 {
                     return false;
                 }
@@ -632,7 +632,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customMethods = method.EnclosingType.CustomCodeView?.Methods ?? [];
             foreach (var customMethod in customMethods)
             {
-                if (IsMatch(customMethod.Signature, method.Signature))
+                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature))
                 {
                     return false;
                 }
@@ -720,11 +720,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return true;
-        }
-
-        private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
-        {
-            return MethodSignatureBase.SignatureComparer.Equals(customMethod, method);
         }
 
         private static bool IsNameMatch(CSharpType typeFromCustomization, CSharpType generatedType)
