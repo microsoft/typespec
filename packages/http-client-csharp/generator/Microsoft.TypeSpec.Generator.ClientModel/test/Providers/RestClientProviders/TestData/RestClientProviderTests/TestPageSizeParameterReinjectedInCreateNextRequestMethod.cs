@@ -36,8 +36,7 @@ namespace Sample
             }
             else
             {
-                uri.Reset(_endpoint);
-                uri.AppendPath(nextPage.OriginalString, false);
+                uri.Reset(new global::System.Uri(_endpoint, nextPage));
             }
             uri.AppendQuery("p1", p1, true);
             if ((maxPageSize != null))

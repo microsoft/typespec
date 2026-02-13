@@ -32,8 +32,7 @@ namespace Sample
             }
             else
             {
-                uri.Reset(_endpoint);
-                uri.AppendPath(nextPage.OriginalString, false);
+                uri.Reset(new global::System.Uri(_endpoint, nextPage));
             }
             uri.AppendQuery("someOtherName", p1, true);
             uri.AppendQuery("p2", p2, true);
