@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { promises } from "fs";
 import { dirname, join, relative, resolve } from "path";
 
