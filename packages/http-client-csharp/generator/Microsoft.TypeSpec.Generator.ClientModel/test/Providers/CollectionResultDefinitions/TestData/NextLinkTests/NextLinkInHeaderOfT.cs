@@ -32,7 +32,7 @@ namespace Sample
 
                 if ((result.GetRawResponse().Headers.TryGetValue("nextCat", out string value) && !string.IsNullOrEmpty(value)))
                 {
-                    nextPageUri = new global::System.Uri(value);
+                    nextPageUri = new global::System.Uri(value, global::System.UriKind.RelativeOrAbsolute);
                 }
                 else
                 {

@@ -51,6 +51,16 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ListWithContinuationTokenHeaderResponseResponse IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenHeaderResponseResponse"/> from. </param>
         public static explicit operator ListWithContinuationTokenHeaderResponseResponse(ClientResult result)
         {
@@ -147,15 +157,5 @@ namespace SampleTypeSpec
             }
             return new ListWithContinuationTokenHeaderResponseResponse(things, additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ListWithContinuationTokenHeaderResponseResponse IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

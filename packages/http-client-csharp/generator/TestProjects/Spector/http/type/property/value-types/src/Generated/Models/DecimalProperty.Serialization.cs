@@ -17,6 +17,14 @@ namespace _Type.Property.ValueTypes
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        BinaryData IPersistableModel<DecimalProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        DecimalProperty IPersistableModel<DecimalProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<DecimalProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(DecimalProperty decimalProperty) => throw null;
+
         public static explicit operator DecimalProperty(ClientResult result) => throw null;
 
         void IJsonModel<DecimalProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,13 +34,5 @@ namespace _Type.Property.ValueTypes
         DecimalProperty IJsonModel<DecimalProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual DecimalProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<DecimalProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        DecimalProperty IPersistableModel<DecimalProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<DecimalProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(DecimalProperty decimalProperty) => throw null;
     }
 }

@@ -15,8 +15,11 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of <see cref="XmlModelWithNamespace"/>. </summary>
         /// <param name="foo"></param>
-        internal XmlModelWithNamespace(string foo)
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> is null. </exception>
+        public XmlModelWithNamespace(string foo)
         {
+            Argument.AssertNotNull(foo, nameof(foo));
+
             Foo = foo;
         }
 
@@ -29,7 +32,7 @@ namespace SampleTypeSpec
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
-        /// <summary> Gets the Foo. </summary>
-        public string Foo { get; }
+        /// <summary> Gets or sets the Foo. </summary>
+        public string Foo { get; set; }
     }
 }

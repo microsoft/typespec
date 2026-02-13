@@ -215,10 +215,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (isNextLinkRequest && nextLink != null)
             {
-                statements.AddRange([
-                    declareUri,
-                    uri.Reset(ScmKnownParameters.NextPage.AsVariable()).Terminate()
-                ]);
+                var nextPageVar = ScmKnownParameters.NextPage.AsVariable();
+                statements.Add(declareUri);
+                statements.Add(new IfElseStatement(
+                    new IfStatement(nextPageVar.Property(nameof(Uri.IsAbsoluteUri)))
+                    {
+                        uri.Reset(nextPageVar).Terminate()
+                    },
+                    new MethodBodyStatements(
+                    [
+                        uri.Reset(ClientProvider.EndpointField).Terminate(),
+                        uri.AppendPath(nextPageVar.Property(nameof(Uri.OriginalString)), false).Terminate()
+                    ])));
 
                 // handle reinjected parameters for URI
                 var reinjectedParamsMap = GetReinjectedParametersMap(nextLink, pagingServiceMethod, operation, paramMap);

@@ -152,6 +152,21 @@ public class OperationTests {
         Assertions.assertEquals("product2", product2.properties().productId());
     }
 
+    @Test
+    public void testExportArray() {
+        List<ExportResult> exportResults = manager.lroes().exportArray(new ExportRequest().withFormat("csv"));
+        Assertions.assertFalse(exportResults.isEmpty());
+        Assertions.assertEquals(2, exportResults.size());
+
+        ExportResult result1 = exportResults.get(0);
+        Assertions.assertNotNull(result1);
+        Assertions.assertEquals("order1,product1,1", result1.content());
+
+        ExportResult result2 = exportResults.get(1);
+        Assertions.assertNotNull(result2);
+        Assertions.assertEquals("order2,product2,2", result2.content());
+    }
+
     // for LRO operations, we need to override default poll interval
     private static OperationTemplatesManager buildManager() {
         try {

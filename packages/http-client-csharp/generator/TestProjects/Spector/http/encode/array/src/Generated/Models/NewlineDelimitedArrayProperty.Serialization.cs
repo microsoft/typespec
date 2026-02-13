@@ -17,6 +17,14 @@ namespace Encode._Array
 
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
+        BinaryData IPersistableModel<NewlineDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        NewlineDelimitedArrayProperty IPersistableModel<NewlineDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<NewlineDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(NewlineDelimitedArrayProperty newlineDelimitedArrayProperty) => throw null;
+
         public static explicit operator NewlineDelimitedArrayProperty(ClientResult result) => throw null;
 
         void IJsonModel<NewlineDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -26,13 +34,5 @@ namespace Encode._Array
         NewlineDelimitedArrayProperty IJsonModel<NewlineDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual NewlineDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<NewlineDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        NewlineDelimitedArrayProperty IPersistableModel<NewlineDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<NewlineDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(NewlineDelimitedArrayProperty newlineDelimitedArrayProperty) => throw null;
     }
 }
