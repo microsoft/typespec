@@ -694,7 +694,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             {
                                 // Call the internal ToBinaryContent helper dynamically: parameter.To{RequestContentType.Name}("X" or "J")
                                 var methodName = $"To{ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.Name}";
-                                AddArgument(protocolParam, convenienceParam.Invoke(methodName, format!));
+                                AddArgument(protocolParam, convenienceParam.Invoke(methodName, format));
                             }
                             else
                             {
