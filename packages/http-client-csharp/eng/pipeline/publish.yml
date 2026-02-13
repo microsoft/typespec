@@ -26,6 +26,11 @@ parameters:
     type: boolean
     default: false
 
+  - name: RunTests
+    displayName: Run unit tests
+    type: boolean
+    default: true
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -55,7 +60,8 @@ extends:
             - name: Microsoft.TypeSpec.Generator.Customization
               file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
               type: nuget
-          UnitTestArgs: -UnitTests
+          ${{ if parameters.RunTests }}:
+            UnitTestArgs: -UnitTests
           StagePrefix: "CSharp"
           LanguageShortName: "csharp"
           HasNugetPackages: true
