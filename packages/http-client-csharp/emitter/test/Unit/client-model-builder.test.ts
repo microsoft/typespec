@@ -463,6 +463,7 @@ describe("parseApiVersions", () => {
       op test(): void;
       `,
       runner,
+      { IsVersionNeeded: false },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
@@ -489,6 +490,7 @@ describe("parseApiVersions", () => {
       op test(): void;
       `,
       runner,
+      { IsVersionNeeded: false },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
