@@ -14,6 +14,9 @@
     <None Update="ModelReaderWriterValidation\TestProjects\**\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="ModelReaderWriterValidation\TestProjects\**\*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
