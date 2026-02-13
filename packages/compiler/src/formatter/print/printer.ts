@@ -22,6 +22,7 @@ import {
   EnumMemberNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
+  Expression,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
   IdentifierNode,
@@ -1267,12 +1268,29 @@ export function printNamespaceStatement(
   return [decorators, `namespace `, join(".", names), suffix];
 }
 
+function shouldWrapOperationSignatureDeclarationInNewLines(returnType: Expression) {
+  if (
+    returnType.kind === SyntaxKind.TypeReference ||
+    returnType.kind === SyntaxKind.ModelExpression
+  ) {
+    return returnType.docs && returnType.docs.length > 0;
+  }
+  return false;
+}
+
 export function printOperationSignatureDeclaration(
   path: AstPath<OperationSignatureDeclarationNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  return ["(", path.call(print, "parameters"), "): ", path.call(print, "returnType")];
+  const node = path.node;
+  let closeParenColon = "): ";
+  // if inline doc comments on return type, move to new line
+  const shouldAddNewLine = shouldWrapOperationSignatureDeclarationInNewLines(node.returnType);
+  if (shouldAddNewLine) {
+    closeParenColon = "):\n";
+  }
+  return ["(", path.call(print, "parameters"), closeParenColon, path.call(print, "returnType")];
 }
 
 export function printOperationSignatureReference(
