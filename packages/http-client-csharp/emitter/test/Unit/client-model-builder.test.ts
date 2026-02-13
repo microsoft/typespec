@@ -452,7 +452,6 @@ describe("parseApiVersions", () => {
   it("should include all API versions from @versioned enum", async () => {
     const program = await typeSpecCompile(
       `
-      @service({title: "Test Service"})
       @versioned(Versions)
       enum Versions {
         v1: "v1",
@@ -479,7 +478,6 @@ describe("parseApiVersions", () => {
   it("should preserve version order from TCGC", async () => {
     const program = await typeSpecCompile(
       `
-      @service({title: "Test Service"})
       @versioned(Versions)
       enum Versions {
         "2023-01-01",
