@@ -28,6 +28,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
+        private const string JsonMediaType = "application/json";
+        private const string XmlMediaType = "application/xml";
         private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
         private IList<ParameterProvider>? _protocolMethodParameters;
 
@@ -577,9 +579,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool addedSpreadSource = false;
 
             ModelProvider? bodyModel = null;
+            InputModelType? bodyInputModel = null;
             InputParameter? methodBodyParameter = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
             if (methodBodyParameter?.Type is InputModelType model)
             {
+                bodyInputModel = model;
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
             }
 
@@ -687,28 +691,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             // Check if we need to call ToBinaryContent with a specific format
                             var requestMediaType = ServiceMethod.Operation.RequestMediaTypes?.FirstOrDefault();
                             if (requestMediaType != null &&
-                                (requestMediaType.StartsWith("application/xml", StringComparison.OrdinalIgnoreCase) ||
-                                 requestMediaType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)) &&
-                                ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(convenienceParam.Type, out var typeProvider) &&
-                                typeProvider is ModelProvider modelProvider)
+                                (requestMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
+                                 requestMediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase)) &&
+                                bodyModel != null &&
+                                bodyInputModel != null &&
+                                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Json) &&
+                                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
                             {
-                                // Check if the model supports both JSON and XML by finding it in the input namespace
-                                var inputModel = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models
-                                    .FirstOrDefault(m => m.Name == modelProvider.Name);
-                                if (inputModel != null &&
-                                    inputModel.Usage.HasFlag(InputModelTypeUsage.Json) &&
-                                    inputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
-                                {
-                                    // Determine the format string: "J" for JSON, "X" for XML
-                                    var format = requestMediaType!.StartsWith("application/xml", StringComparison.OrdinalIgnoreCase) ? "X" : "J";
-                                    // Call the internal ToBinaryContent helper: parameter.ToBinaryContent("X" or "J")
-                                    AddArgument(protocolParam, convenienceParam.Invoke("ToBinaryContent", Literal(format)));
-                                }
-                                else
-                                {
-                                    // Use implicit operator as fallback
-                                    AddArgument(protocolParam, convenienceParam);
-                                }
+                                // Determine the format: XML or JSON
+                                var format = requestMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
+                                    ? ModelReaderWriterOptionsSnippets.XmlFormat
+                                    : ModelReaderWriterOptionsSnippets.JsonFormat;
+                                // Call the internal ToBinaryContent helper: parameter.ToBinaryContent("X" or "J")
+                                AddArgument(protocolParam, convenienceParam.Invoke("ToBinaryContent", format));
                             }
                             else
                             {

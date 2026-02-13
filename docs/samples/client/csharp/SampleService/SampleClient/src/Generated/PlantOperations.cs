@@ -45,8 +45,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetTree(RequestOptions options)
         {
-            using PipelineMessage message = CreateGetTreeRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method GetTree.");
+                using PipelineMessage message = CreateGetTreeRequest(options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetTree: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetTree.");
+            }
         }
 
         /// <summary>
@@ -62,8 +75,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> GetTreeAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateGetTreeRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method GetTreeAsync.");
+                using PipelineMessage message = CreateGetTreeRequest(options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetTreeAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetTreeAsync.");
+            }
         }
 
         /// <summary> Get a tree as a plant. </summary>
@@ -71,8 +97,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Tree> GetTree(CancellationToken cancellationToken = default)
         {
-            ClientResult result = GetTree(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method GetTree.");
+                ClientResult result = GetTree(cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetTree: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetTree.");
+            }
         }
 
         /// <summary> Get a tree as a plant. </summary>
@@ -80,8 +119,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Tree>> GetTreeAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await GetTreeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method GetTreeAsync.");
+                ClientResult result = await GetTreeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetTreeAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetTreeAsync.");
+            }
         }
 
         /// <summary>
@@ -97,8 +149,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetTreeAsJson(RequestOptions options)
         {
-            using PipelineMessage message = CreateGetTreeAsJsonRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method GetTreeAsJson.");
+                using PipelineMessage message = CreateGetTreeAsJsonRequest(options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetTreeAsJson: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetTreeAsJson.");
+            }
         }
 
         /// <summary>
@@ -114,8 +179,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> GetTreeAsJsonAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateGetTreeAsJsonRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method GetTreeAsJsonAsync.");
+                using PipelineMessage message = CreateGetTreeAsJsonRequest(options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetTreeAsJsonAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetTreeAsJsonAsync.");
+            }
         }
 
         /// <summary> Get a tree as a plant. </summary>
@@ -123,8 +201,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Tree> GetTreeAsJson(CancellationToken cancellationToken = default)
         {
-            ClientResult result = GetTreeAsJson(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method GetTreeAsJson.");
+                ClientResult result = GetTreeAsJson(cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetTreeAsJson: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetTreeAsJson.");
+            }
         }
 
         /// <summary> Get a tree as a plant. </summary>
@@ -132,8 +223,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Tree>> GetTreeAsJsonAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await GetTreeAsJsonAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method GetTreeAsJsonAsync.");
+                ClientResult result = await GetTreeAsJsonAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetTreeAsJsonAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetTreeAsJsonAsync.");
+            }
         }
 
         /// <summary>
@@ -151,10 +255,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UpdateTree(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateTree.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdateTreeRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateUpdateTreeRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateTree: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateTree.");
+            }
         }
 
         /// <summary>
@@ -172,10 +289,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> UpdateTreeAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateTreeAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdateTreeRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateUpdateTreeRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateTreeAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateTreeAsync.");
+            }
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -185,10 +315,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Tree> UpdateTree(Tree tree, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(tree, nameof(tree));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateTree.");
+                Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = UpdateTree(tree, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+                ClientResult result = UpdateTree(tree, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateTree: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateTree.");
+            }
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -198,10 +341,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Tree>> UpdateTreeAsync(Tree tree, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(tree, nameof(tree));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateTreeAsync.");
+                Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = await UpdateTreeAsync(tree, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+                ClientResult result = await UpdateTreeAsync(tree, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateTreeAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateTreeAsync.");
+            }
         }
 
         /// <summary>
@@ -219,10 +375,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UpdateTreeAsJson(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateTreeAsJson.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdateTreeAsJsonRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateUpdateTreeAsJsonRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateTreeAsJson: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateTreeAsJson.");
+            }
         }
 
         /// <summary>
@@ -240,10 +409,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> UpdateTreeAsJsonAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateTreeAsJsonAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdateTreeAsJsonRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateUpdateTreeAsJsonRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateTreeAsJsonAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateTreeAsJsonAsync.");
+            }
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -253,10 +435,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Tree> UpdateTreeAsJson(Tree tree, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(tree, nameof(tree));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateTreeAsJson.");
+                Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = UpdateTreeAsJson(tree, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+                ClientResult result = UpdateTreeAsJson(tree, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateTreeAsJson: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateTreeAsJson.");
+            }
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -266,10 +461,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Tree>> UpdateTreeAsJsonAsync(Tree tree, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(tree, nameof(tree));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateTreeAsJsonAsync.");
+                Argument.AssertNotNull(tree, nameof(tree));
 
-            ClientResult result = await UpdateTreeAsJsonAsync(tree, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+                ClientResult result = await UpdateTreeAsJsonAsync(tree, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateTreeAsJsonAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateTreeAsJsonAsync.");
+            }
         }
     }
 }
