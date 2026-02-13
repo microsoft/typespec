@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -1077,7 +1078,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private bool TryGetFormatArgumentForDualFormatModel(
             ModelProvider? bodyModel,
             InputModelType? bodyInputModel,
-            out ScopedApi<string>? format)
+            [NotNullWhen(true)] out ScopedApi<string>? format)
         {
             format = null;
 
