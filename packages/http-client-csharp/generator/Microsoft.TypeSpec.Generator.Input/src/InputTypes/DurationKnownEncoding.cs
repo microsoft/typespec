@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -58,13 +59,15 @@ namespace Microsoft.TypeSpec.Generator.Input
         public static implicit operator DurationKnownEncoding(string value) => new DurationKnownEncoding(value);
 
         /// <inheritdoc/>
-        public bool Equals(DurationKnownEncoding other) => string.Equals(_value, other._value, StringComparison.OrdinalIgnoreCase);
-
-        /// <inheritdoc/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj) => obj is DurationKnownEncoding other && Equals(other);
 
         /// <inheritdoc/>
-        public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+        public bool Equals(DurationKnownEncoding other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
+
+        /// <inheritdoc/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override int GetHashCode() => _value != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
         /// <inheritdoc/>
         public override string ToString() => _value;
