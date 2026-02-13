@@ -440,14 +440,6 @@ describe("parseApiVersions", () => {
     ok(barClient.apiVersions.includes("bv1"), "Bar client should include bv1");
     ok(barClient.apiVersions.includes("bv2"), "Bar client should include bv2");
   });
-});
-
-describe("parseApiVersions", () => {
-  let runner: TestHost;
-
-  beforeEach(async () => {
-    runner = await createEmitterTestHost();
-  });
 
   it("should include all API versions from @versioned enum", async () => {
     const program = await typeSpecCompile(
