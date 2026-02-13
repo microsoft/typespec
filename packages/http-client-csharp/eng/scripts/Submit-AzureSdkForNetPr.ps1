@@ -62,7 +62,7 @@ $BaseBranch = "main"
 $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
-if ($Internal -or $RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
+if ($Internal) {
     $PRTitle = "[DO NOT MERGE] Preview Generator Version $PackageVersion"
 }
 if ($RegenerateAzureLibraries -and $RegenerateMgmtLibraries) {
