@@ -67,21 +67,8 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetWidgetMetrics(string day, RequestOptions options = null)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method GetWidgetMetrics.");
-                using PipelineMessage message = CreateGetWidgetMetricsRequest(day, options);
-                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method GetWidgetMetrics: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method GetWidgetMetrics.");
-            }
+            using PipelineMessage message = CreateGetWidgetMetricsRequest(day, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -98,21 +85,8 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> GetWidgetMetricsAsync(string day, RequestOptions options = null)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method GetWidgetMetricsAsync.");
-                using PipelineMessage message = CreateGetWidgetMetricsRequest(day, options);
-                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method GetWidgetMetricsAsync: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method GetWidgetMetricsAsync.");
-            }
+            using PipelineMessage message = CreateGetWidgetMetricsRequest(day, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> Get Widget metrics for given day of week. </summary>
@@ -121,21 +95,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<GetWidgetMetricsResponse> GetWidgetMetrics(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method GetWidgetMetrics.");
-                ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
-                return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method GetWidgetMetrics: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method GetWidgetMetrics.");
-            }
+            ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
         }
 
         /// <summary> Get Widget metrics for given day of week. </summary>
@@ -144,21 +105,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<GetWidgetMetricsResponse>> GetWidgetMetricsAsync(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method GetWidgetMetricsAsync.");
-                ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-                return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown in method GetWidgetMetricsAsync: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method GetWidgetMetricsAsync.");
-            }
+            ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
         }
     }
 }
