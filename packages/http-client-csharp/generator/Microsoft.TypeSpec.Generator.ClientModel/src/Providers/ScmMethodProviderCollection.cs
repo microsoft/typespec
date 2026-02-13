@@ -702,8 +702,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 var format = requestMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
                                     ? ModelReaderWriterOptionsSnippets.XmlFormat
                                     : ModelReaderWriterOptionsSnippets.JsonFormat;
-                                // Call the internal ToBinaryContent helper: parameter.ToBinaryContent("X" or "J")
-                                AddArgument(protocolParam, convenienceParam.Invoke("ToBinaryContent", format));
+                                // Call the internal ToBinaryContent helper dynamically: parameter.To{RequestContentType.Name}("X" or "J")
+                                var methodName = $"To{ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.Name}";
+                                AddArgument(protocolParam, convenienceParam.Invoke(methodName, format));
                             }
                             else
                             {

@@ -333,11 +333,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildToBinaryContentMethod()
         {
-            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
             var formatParameter = new ParameterProvider("format", $"The format to use for serialization", typeof(string));
 
             // ModelReaderWriterOptions options = new ModelReaderWriterOptions(format);
             // return BinaryContent.Create(this, options);
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
             return new MethodProvider(
                 new MethodSignature($"To{requestContentType.Name}", FormattableStringHelpers.FromString($"Converts the model to {requestContentType:C} using the specified format"), MethodSignatureModifiers.Internal, requestContentType, null, [formatParameter]),
                 new MethodBodyStatement[]
