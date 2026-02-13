@@ -1785,10 +1785,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsNotNull(convenienceMethod);
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var expectedMethodBody = Helpers.GetExpectedFromFile();
 
-            // Verify it calls ToBinaryContent with XML format
-            Assert.That(methodBody, Does.Contain("ToBinaryContent(\"X\")"));
-            Assert.That(methodBody, Does.Not.Contain("ToBinaryContent(\"J\")"));
+            Assert.AreEqual(expectedMethodBody, methodBody);
         }
 
         [Test]
@@ -1819,10 +1818,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsNotNull(convenienceMethod);
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var expectedMethodBody = Helpers.GetExpectedFromFile();
 
-            // Verify it calls ToBinaryContent with JSON format
-            Assert.That(methodBody, Does.Contain("ToBinaryContent(\"J\")"));
-            Assert.That(methodBody, Does.Not.Contain("ToBinaryContent(\"X\")"));
+            Assert.AreEqual(expectedMethodBody, methodBody);
         }
 
         [Test]
@@ -1853,9 +1851,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsNotNull(convenienceMethod);
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var expectedMethodBody = Helpers.GetExpectedFromFile();
 
-            // Verify it does NOT call ToBinaryContent (uses implicit operator)
-            Assert.That(methodBody, Does.Not.Contain("ToBinaryContent"));
+            Assert.AreEqual(expectedMethodBody, methodBody);
         }
     }
 }

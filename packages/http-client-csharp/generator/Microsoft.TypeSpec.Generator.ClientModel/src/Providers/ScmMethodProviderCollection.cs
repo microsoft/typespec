@@ -603,11 +603,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool addedSpreadSource = false;
 
             ModelProvider? bodyModel = null;
-            InputModelType? bodyInputModel = null;
             InputParameter? methodBodyParameter = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
             if (methodBodyParameter?.Type is InputModelType model)
             {
-                bodyInputModel = model;
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
             }
 
