@@ -689,17 +689,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         else
                         {
                             // Check if we need to call ToBinaryContent with a specific format
-                            var requestMediaType = ServiceMethod.Operation.RequestMediaTypes?.FirstOrDefault();
-                            if (requestMediaType != null &&
-                                (requestMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
-                                 requestMediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase)) &&
+                            string? matchedMediaType = null;
+                            if (ServiceMethod.Operation.RequestMediaTypes != null)
+                            {
+                                foreach (var mediaType in ServiceMethod.Operation.RequestMediaTypes)
+                                {
+                                    if (mediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
+                                        mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        matchedMediaType = mediaType;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (matchedMediaType != null &&
                                 bodyModel != null &&
                                 bodyInputModel != null &&
                                 bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Json) &&
                                 bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
                             {
                                 // Determine the format: XML or JSON
-                                var format = requestMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
+                                var format = matchedMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
                                     ? ModelReaderWriterOptionsSnippets.XmlFormat
                                     : ModelReaderWriterOptionsSnippets.JsonFormat;
                                 // Call the internal ToBinaryContent helper dynamically: parameter.To{RequestContentType.Name}("X" or "J")
