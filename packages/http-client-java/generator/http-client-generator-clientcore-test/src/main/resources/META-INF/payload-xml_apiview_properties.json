@@ -25,6 +25,8 @@
     "payload.xml.ModelWithUnwrappedArrayValueClient": "Payload.Xml.ModelWithUnwrappedArrayValue",
     "payload.xml.SimpleModel": "Payload.Xml.SimpleModel",
     "payload.xml.SimpleModelValueClient": "Payload.Xml.SimpleModelValue",
-    "payload.xml.XmlClientBuilder": "Payload.Xml"
+    "payload.xml.XmlClientBuilder": "Payload.Xml",
+    "payload.xml.XmlErrorBody": "Payload.Xml.XmlErrorBody",
+    "payload.xml.XmlErrorValueClient": "Payload.Xml.XmlErrorValue"
   }
 }

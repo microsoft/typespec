@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Linq;
 using System.Text.Json;
+using System.Xml;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -514,6 +515,76 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
             Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
             Assert.AreEqual(typeof(string), xElementMethod.Signature.Parameters[1].Type.FrameworkType);
+        }
+
+        [Test]
+        public void ValidateXmlWriteStringValueMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var writeStringValueMethods = methods
+                .Where(m => m.Signature.Name == "WriteStringValue"
+                    && m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.IsTrue(writeStringValueMethods.Count == 2);
+
+            var xmlWriterDateTimeOverload = writeStringValueMethods.FirstOrDefault(m =>
+                m.Signature.Parameters.Count == 3 &&
+                m.Signature.Parameters[1].Type.FrameworkType == typeof(DateTimeOffset));
+            Assert.IsNotNull(xmlWriterDateTimeOverload);
+
+            var xmlWriterTimeSpanOverload = writeStringValueMethods.FirstOrDefault(m =>
+                m.Signature.Parameters.Count == 3 &&
+                m.Signature.Parameters[1].Type.FrameworkType == typeof(TimeSpan));
+            Assert.IsNotNull(xmlWriterTimeSpanOverload);
+        }
+
+        [Test]
+        public void ValidateXmlWriteObjectValueMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var writeStringValueMethods = methods
+                .Where(m => m.Signature.Name == "WriteObjectValue"
+                    && m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.IsTrue(writeStringValueMethods.Count == 1);
+        }
+
+        [Test]
+        public void ValidateXmlWriteBase64StringVAlueMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var writeStringValueMethods = methods
+                .Where(m => m.Signature.Name == "WriteBase64StringValue"
+                    && m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.IsTrue(writeStringValueMethods.Count == 1);
         }
 
         [Test]

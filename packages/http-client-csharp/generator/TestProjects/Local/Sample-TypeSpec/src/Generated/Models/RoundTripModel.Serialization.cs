@@ -38,6 +38,39 @@ namespace SampleTypeSpec
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(RoundTripModel)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<RoundTripModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        RoundTripModel IPersistableModel<RoundTripModel>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<RoundTripModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="roundTripModel"> The <see cref="RoundTripModel"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(RoundTripModel roundTripModel)
+        {
+            if (roundTripModel == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(roundTripModel, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RoundTripModel"/> from. </param>
         public static explicit operator RoundTripModel(ClientResult result)
         {
@@ -628,39 +661,6 @@ namespace SampleTypeSpec
                 modelWithRequiredNullable,
                 requiredBytes,
                 additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<RoundTripModel>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(RoundTripModel)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        RoundTripModel IPersistableModel<RoundTripModel>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<RoundTripModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="roundTripModel"> The <see cref="RoundTripModel"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(RoundTripModel roundTripModel)
-        {
-            if (roundTripModel == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(roundTripModel, ModelSerializationExtensions.WireOptions);
         }
     }
 }
