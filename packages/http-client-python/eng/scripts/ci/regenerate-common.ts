@@ -379,10 +379,7 @@ export async function getSubdirectories(
   return subdirectories;
 }
 
-export function defaultPackageName(
-  spec: string,
-  config: RegenerateConfig,
-): string {
+export function defaultPackageName(spec: string, config: RegenerateConfig): string {
   const specDir = spec.includes("azure") ? config.azureHttpSpecs : config.httpSpecs;
   return toPosix(relative(specDir, dirname(spec)))
     .replace(/\//g, "-")
