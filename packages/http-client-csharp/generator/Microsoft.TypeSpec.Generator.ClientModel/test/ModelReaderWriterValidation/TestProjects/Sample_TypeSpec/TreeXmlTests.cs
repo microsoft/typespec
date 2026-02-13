@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "J" })!;
 
             // Verify the MediaType is set correctly for JSON
-            Assert.That(binaryContent.GetType().GetProperty("MediaType")?.GetValue(binaryContent)?.ToString(), 
+            Assert.That(binaryContent.MediaType, 
                 Is.EqualTo("application/json"), 
                 "MediaType should be application/json for format 'J'");
         }
@@ -107,8 +107,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "X" })!;
 
             // Verify the MediaType is null or empty for XML format
-            var mediaType = binaryContent.GetType().GetProperty("MediaType")?.GetValue(binaryContent)?.ToString();
-            Assert.That(string.IsNullOrEmpty(mediaType), Is.True,
+            Assert.That(string.IsNullOrEmpty(binaryContent.MediaType), Is.True,
                 "MediaType should be null or empty for format 'X'");
         }
     }
