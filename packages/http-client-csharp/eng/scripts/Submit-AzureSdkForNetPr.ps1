@@ -13,8 +13,10 @@ A GitHub personal access token for authentication.
 The name of the branch to create in the azure-sdk-for-net repository.
 .PARAMETER TypeSpecSourcePackageJsonPath
 The path to the TypeSpec package.json file to use for generating emitter-package.json files.
-.PARAMETER RegenerateAllLibraries
-When specified, also builds the Azure and management plane emitters locally and regenerates all Azure SDK libraries (not just unbranded ones).
+.PARAMETER RegenerateAzureLibraries
+When specified, builds the Azure emitter locally and regenerates Azure data plane SDK libraries.
+.PARAMETER RegenerateMgmtLibraries
+When specified, builds the management plane emitter locally and regenerates mgmt SDK libraries. Implies Azure emitter build since mgmt depends on it.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -37,7 +39,10 @@ param(
   [switch]$Internal,
 
   [Parameter(Mandatory = $false)]
-  [switch]$RegenerateAllLibraries
+  [switch]$RegenerateAzureLibraries,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$RegenerateMgmtLibraries
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -52,8 +57,12 @@ $BaseBranch = "main"
 $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
-if ($RegenerateAllLibraries) {
+if ($RegenerateAzureLibraries -and $RegenerateMgmtLibraries) {
     $PRTitle = "Update GeneratorVersion to $PackageVersion (all libraries)"
+} elseif ($RegenerateAzureLibraries) {
+    $PRTitle = "Update GeneratorVersion to $PackageVersion (Azure data plane)"
+} elseif ($RegenerateMgmtLibraries) {
+    $PRTitle = "Update GeneratorVersion to $PackageVersion (Azure mgmt)"
 }
 if ($Internal) {
     $PRTitle = "[DO NOT MERGE] $PRTitle"
@@ -73,14 +82,22 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
 - Generated emitter-package.json artifacts using tsp-client
 - Regenerated SDK libraries using the unbranded emitter via dotnet msbuild /t:GenerateCode
-$(if ($RegenerateAllLibraries) {
+$(if ($RegenerateAzureLibraries) {
 @"
 
-### Additional changes (all-library regeneration)
+### Additional changes (Azure data plane regeneration)
 - Built and packaged Azure emitter locally from eng/packages/http-client-csharp
+- Updated Azure emitter package artifacts in eng/
+- Regenerated Azure data plane SDK libraries via dotnet msbuild /t:GenerateCode
+"@
+})
+$(if ($RegenerateMgmtLibraries) {
+@"
+
+### Additional changes (mgmt regeneration)
 - Built and packaged management plane emitter locally from eng/packages/http-client-csharp-mgmt
-- Updated Azure and mgmt emitter package artifacts in eng/
-- Regenerated SDK libraries using Azure and mgmt emitters via dotnet msbuild /t:GenerateCode
+- Updated mgmt emitter package artifacts in eng/
+- Regenerated mgmt SDK libraries via dotnet msbuild /t:GenerateCode
 "@
 })
 
@@ -363,8 +380,11 @@ try {
             # Build the emitter patterns to match in tsp-location.yaml
             $emitterPatterns = @("eng/http-client-csharp-emitter-package.json")
             
-            if ($RegenerateAllLibraries) {
-                Write-Host "##[section]RegenerateAllLibraries: Building Azure and management plane emitters locally..."
+            if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
+                $regenScope = @()
+                if ($RegenerateAzureLibraries) { $regenScope += "Azure data plane" }
+                if ($RegenerateMgmtLibraries) { $regenScope += "mgmt" }
+                Write-Host "##[section]Building emitters locally for: $($regenScope -join ', ')..."
                 
                 # Build NuGet packages for generator framework (needed by Azure generator)
                 Write-Host "Building NuGet generator packages..."
@@ -427,7 +447,7 @@ try {
                     Set-Content $unbrandedPackageJson $originalUnbrandedPackageJson -Encoding utf8 -NoNewline
                 }
                 
-                # Build and package Azure generator
+                # Build and package Azure generator (needed for both Azure data plane and mgmt)
                 $azureGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp"
                 $packagesDataPropsPath = Join-Path $tempDir "eng" "Packages.Data.props"
                 
@@ -472,7 +492,9 @@ try {
                         Remove-Item $azureTempDir -Recurse -Force -ErrorAction SilentlyContinue
                     }
                     
-                    $emitterPatterns += "eng/azure-typespec-http-client-csharp-emitter-package.json"
+                    if ($RegenerateAzureLibraries) {
+                        $emitterPatterns += "eng/azure-typespec-http-client-csharp-emitter-package.json"
+                    }
                     
                     # Add NuGet source for local packages
                     $nugetConfigPath = Join-Path $tempDir "NuGet.Config"
@@ -486,29 +508,31 @@ try {
                     $ErrorActionPreference = $previousErrorAction
                 }
                 
-                # Build and package management plane generator
-                $mgmtGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp-mgmt"
-                if (Test-Path $mgmtGeneratorPath) {
-                    Write-Host "##[section]Building management plane generator..."
-                    $previousErrorAction = $ErrorActionPreference
-                    $ErrorActionPreference = "Continue"
-                    try {
-                        $engFolder = Join-Path $tempDir "eng"
-                        Update-MgmtGenerator `
-                            -EngFolder $engFolder `
-                            -DebugFolder $debugFolder `
-                            -LocalVersion $PackageVersion
-                        Write-Host "Management plane generator built successfully"
-                        
-                        $emitterPatterns += "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
-                    } catch {
-                        Write-Warning "Failed to build management plane generator: $($_.Exception.Message). Continuing without mgmt library regeneration."
-                        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-                    } finally {
-                        $ErrorActionPreference = $previousErrorAction
+                # Build and package management plane generator (only when mgmt is requested)
+                if ($RegenerateMgmtLibraries) {
+                    $mgmtGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp-mgmt"
+                    if (Test-Path $mgmtGeneratorPath) {
+                        Write-Host "##[section]Building management plane generator..."
+                        $previousErrorAction = $ErrorActionPreference
+                        $ErrorActionPreference = "Continue"
+                        try {
+                            $engFolder = Join-Path $tempDir "eng"
+                            Update-MgmtGenerator `
+                                -EngFolder $engFolder `
+                                -DebugFolder $debugFolder `
+                                -LocalVersion $PackageVersion
+                            Write-Host "Management plane generator built successfully"
+                            
+                            $emitterPatterns += "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
+                        } catch {
+                            Write-Warning "Failed to build management plane generator: $($_.Exception.Message). Continuing without mgmt library regeneration."
+                            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                        } finally {
+                            $ErrorActionPreference = $previousErrorAction
+                        }
+                    } else {
+                        Write-Host "Management plane generator not found at $mgmtGeneratorPath, skipping..."
                     }
-                } else {
-                    Write-Host "Management plane generator not found at $mgmtGeneratorPath, skipping..."
                 }
             }
             
@@ -595,15 +619,19 @@ try {
     }
     
     # Add Azure and mgmt emitter artifacts if they were updated
-    if ($RegenerateAllLibraries) {
+    if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
         $azureEmitterFiles = @(
             "eng/azure-typespec-http-client-csharp-emitter-package.json",
             "eng/azure-typespec-http-client-csharp-emitter-package-lock.json",
-            "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json",
-            "eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json",
             "eng/Packages.Data.props",
             "NuGet.Config"
         )
+        if ($RegenerateMgmtLibraries) {
+            $azureEmitterFiles += @(
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json",
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
+            )
+        }
         foreach ($file in $azureEmitterFiles) {
             $filePath = Join-Path $tempDir $file
             if (Test-Path $filePath) {
@@ -624,8 +652,12 @@ try {
 
     # Build commit message based on what was updated
     $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion"
-    if ($RegenerateAllLibraries) {
+    if ($RegenerateAzureLibraries -and $RegenerateMgmtLibraries) {
         $commitMessage = "Update GeneratorVersion to $PackageVersion (all libraries)"
+    } elseif ($RegenerateAzureLibraries) {
+        $commitMessage = "Update GeneratorVersion to $PackageVersion (Azure data plane)"
+    } elseif ($RegenerateMgmtLibraries) {
+        $commitMessage = "Update GeneratorVersion to $PackageVersion (Azure mgmt)"
     }
     
     git commit -m $commitMessage

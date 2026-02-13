@@ -16,8 +16,13 @@ parameters:
     type: boolean
     default: false
 
-  - name: RegenerateAllLibraries
-    displayName: Regenerate all Azure SDK libraries (including Azure and mgmt emitters)
+  - name: RegenerateAzureLibraries
+    displayName: Regenerate Azure data plane SDK libraries (builds Azure emitter locally)
+    type: boolean
+    default: false
+
+  - name: RegenerateMgmtLibraries
+    displayName: Regenerate Azure mgmt SDK libraries (builds mgmt emitter locally)
     type: boolean
     default: false
 
@@ -185,7 +190,8 @@ extends:
                     -AuthToken '$(azuresdk-github-pat)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
-                    ${{ replace(replace('True', parameters.RegenerateAllLibraries, ''), 'True', '-RegenerateAllLibraries') }}
+                    ${{ replace(replace('True', parameters.RegenerateAzureLibraries, ''), 'True', '-RegenerateAzureLibraries') }}
+                    ${{ replace(replace('True', parameters.RegenerateMgmtLibraries, ''), 'True', '-RegenerateMgmtLibraries') }}
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
