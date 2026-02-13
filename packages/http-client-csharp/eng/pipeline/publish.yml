@@ -41,7 +41,7 @@ extends:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
-          PublishDependsOnTest: true
+          PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
           Packages:
