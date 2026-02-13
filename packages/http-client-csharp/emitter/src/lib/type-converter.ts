@@ -4,6 +4,7 @@
 import {
   DecoratorInfo,
   SdkArrayType,
+  SdkBuiltInKinds,
   SdkBuiltInType,
   SdkConstantType,
   SdkDateTimeType,
@@ -385,11 +386,179 @@ function fromSdkBuiltInType(
   };
 }
 
-function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): InputUnionType {
+function discriminatorPropertyFromUnion(
+  sdkContext: CSharpEmitterContext,
+  union: SdkUnionType,
+  variantTypes: InputType[],
+): InputModelProperty | undefined {
+  if (!union.discriminatedOptions) {
+    return undefined;
+  }
+
+  const discriminatorPropertyName = union.discriminatedOptions.discriminatorPropertyName;
+  const discriminatorProperties = variantTypes
+    .map((variant) => {
+      if (variant.kind === "model") {
+        const discProp = variant.properties.find((p) => p.name === discriminatorPropertyName);
+        if (discProp) {
+          return discProp;
+        }
+      }
+      return undefined;
+    })
+    .filter((p) => p !== undefined);
+
+  if (discriminatorProperties.length === 0) {
+    return undefined;
+  }
+
+  // Declare an enum for all the constant values
+  const discriminatorEnumType: InputEnumType = {
+    kind: "enum",
+    name: `${union.name}${discriminatorPropertyName[0].toUpperCase()}${discriminatorPropertyName.slice(1)}`,
+    valueType: fromSdkBuiltInType(sdkContext, {
+      kind: "string",
+      name: "string",
+      crossLanguageDefinitionId: "TypeSpec.string",
+      decorators: [],
+    }),
+    values: [],
+    namespace: union.namespace,
+    crossLanguageDefinitionId: "",
+    access: undefined,
+    usage: UsageFlags.None,
+    decorators: [],
+    isFixed: false,
+    isFlags: false,
+  };
+
+  const enumValues: InputEnumValueType[] = discriminatorProperties.map((prop) => {
+    if (prop.type.kind === "constant") {
+      return {
+        kind: "enumvalue",
+        name: prop.type.value === null ? "Null" : prop.type.value.toString(),
+        value: typeof prop.type.value === "boolean" ? (prop.type.value ? 1 : 0) : prop.type.value,
+        enumType: discriminatorEnumType,
+        valueType: prop.type.valueType,
+      } as InputEnumValueType;
+    }
+    throw new Error(
+      `Discriminator property ${discriminatorPropertyName} in union ${union.name} is not a constant type.`,
+    );
+    // TODO handle numeric constants
+    // TODO handle default variants
+    // TODO handle string values
+    // TODO handle open ended enums
+  });
+
+  discriminatorEnumType.values.push(...enumValues);
+
+  sdkContext.__typeCache.updateSdkTypeReferences(
+    {
+      kind: "enum",
+      name: discriminatorEnumType.name,
+      valueType: fromSdkBuiltInType(sdkContext, {
+        kind: "string",
+        name: "string",
+        crossLanguageDefinitionId: "TypeSpec.string",
+        decorators: [],
+      }) as SdkBuiltInType<SdkBuiltInKinds>,
+      values: [],
+      namespace: union.namespace,
+      crossLanguageDefinitionId: "",
+      access: "public",
+      usage: UsageFlags.None,
+      decorators: [],
+      isFixed: false,
+      isFlags: false,
+      isGeneratedName: true,
+      isUnionAsEnum: false,
+      apiVersions: [],
+    },
+    discriminatorEnumType,
+  );
+
+  return {
+    kind: "property",
+    name: discriminatorPropertyName,
+    serializedName: discriminatorPropertyName,
+    type: discriminatorEnumType,
+    optional: false,
+    readOnly: false,
+    decorators: [],
+    flatten: false,
+    discriminator: true,
+    isHttpMetadata: false,
+    isApiVersion: false,
+    crossLanguageDefinitionId: "",
+    serializationOptions: {
+      json: { name: discriminatorPropertyName },
+    },
+  };
+}
+
+function removeDiscriminatorPropertiesFromVariants(
+  variantTypes: InputType[],
+  discriminatorPropertyName: string,
+) {
+  for (const variant of variantTypes) {
+    if (variant.kind === "model") {
+      const discriminatorProperty = variant.properties.find(
+        (p) => p.name === discriminatorPropertyName,
+      );
+      variant.properties = variant.properties.filter((p) => p.name !== discriminatorPropertyName);
+      variant.discriminatorValue =
+        discriminatorProperty?.type.kind === "constant"
+          ? discriminatorProperty.type.value?.toString()
+          : undefined;
+    }
+  }
+}
+
+function fromUnionType(
+  sdkContext: CSharpEmitterContext,
+  union: SdkUnionType,
+): InputUnionType | InputModelType {
   const variantTypes: InputType[] = [];
   for (const value of union.variantTypes) {
     const variantType = fromSdkType(sdkContext, value);
     variantTypes.push(variantType);
+  }
+  if (isDiscriminatedUnion(union)) {
+    const discriminatorProperty = discriminatorPropertyFromUnion(sdkContext, union, variantTypes);
+    const properties = discriminatorProperty ? [discriminatorProperty] : [];
+    if (discriminatorProperty) {
+      removeDiscriminatorPropertiesFromVariants(variantTypes, discriminatorProperty.name);
+    }
+    const baseType: InputModelType = {
+      kind: "model",
+      name: union.name,
+      namespace: union.namespace,
+      discriminatorProperty: discriminatorProperty,
+      crossLanguageDefinitionId: union.crossLanguageDefinitionId,
+      access: union.access,
+      usage: union.usage,
+      properties: properties,
+      serializationOptions: {},
+      summary: union.summary,
+      doc: union.doc,
+      deprecation: union.deprecation,
+      decorators: union.decorators,
+      external: fromSdkExternalTypeInfo(union),
+    } as InputModelType;
+    const discriminatedSubtypes: Record<string, InputModelType> = {};
+    variantTypes.forEach((variant) => {
+      if (variant.kind === "model") {
+        variant.baseModel = baseType;
+        if (variant.discriminatorValue !== undefined) {
+          discriminatedSubtypes[variant.discriminatorValue] = variant;
+        }
+      }
+    });
+    if (Object.keys(discriminatedSubtypes).length > 0) {
+      baseType.discriminatedSubtypes = discriminatedSubtypes;
+    }
+    return baseType;
   }
 
   return {
@@ -400,6 +569,21 @@ function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): I
     decorators: union.decorators,
     external: fromSdkExternalTypeInfo(union),
   };
+}
+
+function isDiscriminatedUnion(sdkType: SdkUnionType): boolean {
+  if (
+    !sdkType.discriminatedOptions ||
+    sdkType.discriminatedOptions.envelope === "object" ||
+    (sdkType.discriminatedOptions.envelopePropertyName !== undefined &&
+      sdkType.discriminatedOptions.envelopePropertyName !== "")
+  ) {
+    return false;
+  }
+
+  return sdkType.variantTypes.every((variant) => {
+    return variant.kind === "model" && !variant.baseModel;
+  });
 }
 
 function fromSdkConstantType(

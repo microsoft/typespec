@@ -441,3 +441,95 @@ describe("parseApiVersions", () => {
     ok(barClient.apiVersions.includes("bv2"), "Bar client should include bv2");
   });
 });
+
+describe("union usage", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+  it("should duplicate models used in multiple unions", async () => {
+    const program = await typeSpecCompile(
+      `
+      model ModelShared {
+        id: string;
+        type: "type1";
+      }
+
+      model ModelUniqueA {
+        name: string;
+        type: "type2";
+      }
+
+      model ModelUniqueB {
+        value: int32;
+        type: "type2";
+      }
+
+      @discriminated(#{ discriminatorPropertyName: "type", envelope: "none" })
+      union UnionA {
+        "type1": ModelShared;
+        "type2": ModelUniqueA;
+      }
+
+      @discriminated(#{ discriminatorPropertyName: "type", envelope: "none" })
+      union UnionB {
+        "type1": ModelShared;
+        "type2": ModelUniqueB;
+      }
+
+      op testA(@body input: UnionA): UnionB;
+    `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    //TODO what happens if the model being duplicated is also being used elsewhere, e.g., as operation parameter or response type?
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const modelUniqueA = root.models.find((m) => m.name === "ModelUniqueA");
+    ok(modelUniqueA, "ModelUniqueA should exist");
+
+    const modelUniqueB = root.models.find((m) => m.name === "ModelUniqueB");
+    ok(modelUniqueB, "ModelUniqueB should exist");
+
+    const modelSharedOriginal = root.models.find((m) => m.name === "ModelShared");
+    ok(!modelSharedOriginal, "Original ModelShared should NOT exist");
+
+    const modelSharedForA = root.models.find((m) => m.name === "ModelSharedForUnionA");
+    ok(modelSharedForA, "ModelSharedForUnionA should exist");
+
+    const modelSharedForB = root.models.find((m) => m.name === "ModelSharedForUnionB");
+    ok(modelSharedForB, "ModelSharedForUnionB should exist");
+
+    strictEqual(
+      modelSharedForA.properties.length,
+      modelSharedForB.properties.length,
+      "Both duplicated ModelShared should have same number of properties",
+    );
+    strictEqual(
+      modelSharedForA.properties[0].name,
+      modelSharedForB.properties[0].name,
+      "Both duplicated ModelShared should have same property names",
+    );
+
+    const unionA = root.models.find((m) => m.name === "UnionA");
+    ok(unionA, "UnionA should exist");
+    strictEqual(unionA.kind, "model");
+    ok(unionA.discriminatedSubtypes, "UnionA should have discriminatedSubtypes");
+    const unionASubTypes = new Set(Object.values(unionA.discriminatedSubtypes).map((t) => t.name));
+    ok(unionASubTypes.has("ModelSharedForUnionA"), "UnionA should reference ModelSharedForUnionA");
+    ok(unionASubTypes.has("ModelUniqueA"), "UnionA should reference ModelUniqueA");
+    ok(!unionASubTypes.has("ModelShared"), "UnionA should NOT reference original ModelShared");
+
+    const unionB = root.models.find((m) => m.name === "UnionB");
+    ok(unionB, "UnionB should exist");
+    strictEqual(unionB.kind, "model");
+    ok(unionB.discriminatedSubtypes, "UnionB should have discriminatedSubtypes");
+    const unionBSubTypes = new Set(Object.values(unionB.discriminatedSubtypes).map((t) => t.name));
+    ok(unionBSubTypes.has("ModelSharedForUnionB"), "UnionB should reference ModelSharedForUnionB");
+    ok(unionBSubTypes.has("ModelUniqueB"), "UnionB should reference ModelUniqueB");
+    ok(!unionBSubTypes.has("ModelShared"), "UnionB should NOT reference original ModelShared");
+  });
+});
