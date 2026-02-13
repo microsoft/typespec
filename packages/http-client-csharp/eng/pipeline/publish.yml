@@ -196,8 +196,8 @@ extends:
                     -AuthToken '$(azuresdk-github-pat)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
-                    ${{ replace(replace('True', parameters.RegenerateAzureLibraries, ''), 'True', '-RegenerateAzureLibraries') }}
-                    ${{ replace(replace('True', parameters.RegenerateMgmtLibraries, ''), 'True', '-RegenerateMgmtLibraries') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
                     -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
 
               - pwsh: |
