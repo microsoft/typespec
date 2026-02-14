@@ -26,6 +26,8 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(ListWithStringNextLinkResponse))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
+    [ModelReaderWriterBuildable(typeof(PageList))]
+    [ModelReaderWriterBuildable(typeof(PageRange))]
     [ModelReaderWriterBuildable(typeof(PageThing))]
     [ModelReaderWriterBuildable(typeof(Pet))]
     [ModelReaderWriterBuildable(typeof(Plant))]
@@ -40,6 +42,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(Wrapper))]
     [ModelReaderWriterBuildable(typeof(XmlAdvancedModel))]
     [ModelReaderWriterBuildable(typeof(XmlItem))]
+    [ModelReaderWriterBuildable(typeof(XmlListWithNextLinkResponse))]
     [ModelReaderWriterBuildable(typeof(XmlModelWithNamespace))]
     [ModelReaderWriterBuildable(typeof(XmlNestedModel))]
     public partial class SampleTypeSpecContext : ModelReaderWriterContext

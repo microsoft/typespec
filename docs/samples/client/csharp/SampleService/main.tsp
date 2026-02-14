@@ -98,6 +98,28 @@ union StringExtensibleEnum {
   Four: "4",
 }
 
+@usage(Usage.xml)
+model PageRange {
+  /** The start of the byte range. */
+  @Xml.name("Start") start: int64;
+
+  /** The end of the byte range. */
+  @Xml.name("End") end: int64;
+}
+
+model PageList {
+  /** The page ranges. */
+  @Xml.unwrapped
+  @Xml.name("PageRange")
+  @pageItems
+  pageRange?: PageRange[];
+
+  /** The next marker. */
+  @continuationToken
+  @Xml.name("NextMarker")
+  nextMarker?: string;
+}
+
 @doc("A model with a few properties of literal types")
 model Thing {
   @doc("name of the Thing")
@@ -629,6 +651,18 @@ op headAsBoolean(@path id: string): void;
 @convenientAPI(true)
 op WithApiVersion(@header p1: string, @query apiVersion: string): void;
 
+@route("/xml-link")
+@doc("List things with nextlink")
+@convenientAPI(true)
+@list
+op XmlListWithNextLink(): {
+  @pageItems
+  advancedModels: XmlAdvancedModel[];
+
+  @header contentType: "application/xml";
+  @nextLink next?: url;
+};
+
 @route("/link")
 @doc("List things with nextlink")
 @convenientAPI(true)
@@ -660,6 +694,17 @@ op ListWithContinuationToken(@query @continuationToken token?: string): {
   things: Thing[];
 
   @continuationToken nextToken?: string;
+};
+
+@route("/xml-continuation")
+@doc("List range with continuation token")
+@convenientAPI(true)
+@list
+op XmlListWithContinuationToken(@query @continuationToken marker?: string): {
+  @header("Content-Type")
+  contentType: "application/xml";
+
+  @body body: PageList;
 };
 
 @route("/continuation/header")

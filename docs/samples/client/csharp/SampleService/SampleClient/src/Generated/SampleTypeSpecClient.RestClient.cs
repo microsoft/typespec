@@ -281,6 +281,29 @@ namespace SampleTypeSpec
             return message;
         }
 
+        internal PipelineMessage CreateXmlListWithNextLinkRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/xml-link", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/xml");
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateNextXmlListWithNextLinkRequest(Uri nextPage, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(nextPage);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/xml");
+            message.Apply(options);
+            return message;
+        }
+
         internal PipelineMessage CreateGetWithNextLinkRequest(RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
@@ -339,6 +362,22 @@ namespace SampleTypeSpec
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateXmlListWithContinuationTokenRequest(string marker, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/xml-continuation", false);
+            if (marker != null)
+            {
+                uri.AppendQuery("marker", marker, true);
+            }
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/xml");
             message.Apply(options);
             return message;
         }
