@@ -63,15 +63,13 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("flavor", flavor);
-        if (apiVersions != null) {
-            jsonWriter.writeMapField("apiVersions", apiVersions, (writer, element) -> {
-                if (element == null) {
-                    writer.writeNull();
-                } else {
-                    writer.writeString(element);
-                }
-            });
-        }
+        jsonWriter.writeMapField("apiVersions", apiVersions, (writer, element) -> {
+            if (element == null) {
+                writer.writeNull();
+            } else {
+                writer.writeString(element);
+            }
+        });
         if (!CoreUtils.isNullOrEmpty(crossLanguageDefinitions)) {
             jsonWriter.writeMapField("crossLanguageDefinitions", crossLanguageDefinitions, (writer, element) -> {
                 if (element == null) {
