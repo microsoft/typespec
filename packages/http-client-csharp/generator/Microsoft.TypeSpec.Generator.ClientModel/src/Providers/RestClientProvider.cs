@@ -1014,13 +1014,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // For paging operations, handle parameter name corrections with backward compatibility
                 if (serviceMethod is InputPagingServiceMethod)
                 {
-                    var backCompatTarget = client.BackCompatProvider;
+                    var backCompatProvider = client.BackCompatProvider;
 
                     // Rename "top" parameter to "maxCount" (with backward compatibility).
                     // Use SerializedName (the original wire name) since Name may have been mutated previously.
                     if (string.Equals(inputParam.SerializedName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, backCompatTarget);
+                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, backCompatProvider);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
@@ -1031,7 +1031,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             : pageSizeParameterName;
                         // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase, but always
                         // respect backcompat.
-                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, backCompatTarget);
+                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, backCompatProvider);
                     }
                 }
 
