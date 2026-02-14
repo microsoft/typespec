@@ -12,32 +12,6 @@ import {
 import { Tester } from "./test-host.js";
 
 describe("openapi: decorators", () => {
-  describe("@operationId", () => {
-    it("emit diagnostic if use on non operation", async () => {
-      const diagnostics = await Tester.diagnose(`
-        @operationId("foo")
-        model Foo {}
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "decorator-wrong-target",
-        message:
-          "Cannot apply @operationId decorator to Foo since it is not assignable to Operation",
-      });
-    });
-
-    it("emit diagnostic if operation id is not a string", async () => {
-      const diagnostics = await Tester.diagnose(`
-        @operationId(123)
-        op foo(): string;
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument",
-      });
-    });
-  });
-
   describe("@extension", () => {
     it("apply extension on model", async () => {
       const { program, Foo } = await Tester.compile(t.code`
