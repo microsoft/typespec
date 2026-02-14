@@ -163,6 +163,98 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public async Task TopParameterPreservedViaBackCompatProvider()
+        {
+            // This test verifies that when a different TypeProvider (e.g., MockableResourceProvider in mgmt)
+            // is passed as a backCompatProvider and has "top" in its LastContractView, the parameter name
+            // is preserved as "top" instead of being renamed to "maxCount".
+            var topParameter = InputFactory.QueryParameter("top", InputPrimitiveType.Int32, isRequired: false, serializedName: "top");
+
+            List<InputParameter> parameters = [topParameter];
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("top", InputPrimitiveType.Int32, isRequired: false,
+                    location: InputRequestLocation.Query, serializedName: "top"),
+            ];
+
+            var inputModel = InputFactory.Model("Item", properties:
+            [
+                InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var pagingMetadata = new InputPagingServiceMetadata(
+                ["items"],
+                new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, []),
+                null,
+                null);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "PagedItems",
+                    properties: [
+                        InputFactory.Property("items", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url)
+                    ]));
+
+            var operation = InputFactory.Operation("getItems", responses: [response], parameters: parameters);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "getItems",
+                operation,
+                pagingMetadata: pagingMetadata,
+                parameters: methodParameters);
+
+            var client = InputFactory.Client("testClient", methods: [inputServiceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+
+            // Without a backcompat provider, the parameter should be renamed to "maxCount"
+            var methodsWithoutBackCompat = clientProvider!.GetMethodCollectionByOperation(operation);
+            var convenienceMethod = methodsWithoutBackCompat[^2]; // sync convenience method
+            var maxCountParam = convenienceMethod.Signature.Parameters.FirstOrDefault(p =>
+                string.Equals(p.Name, "maxCount", StringComparison.Ordinal));
+            Assert.IsNotNull(maxCountParam, "Without backcompat provider, parameter should be 'maxCount'");
+
+            // With a backcompat provider whose LastContractView has "top", the name should be preserved
+            var backCompatProvider = new BackCompatTypeProvider("MockableTestResource", "Sample");
+            Assert.IsNotNull(backCompatProvider.LastContractView, "BackCompat provider should have a LastContractView");
+
+            var methodsWithBackCompat = clientProvider.GetMethodCollectionByOperation(operation, backCompatProvider);
+            convenienceMethod = methodsWithBackCompat[^2];
+            var topParam = convenienceMethod.Signature.Parameters.FirstOrDefault(p =>
+                string.Equals(p.Name, "top", StringComparison.Ordinal));
+
+            Assert.IsNotNull(topParam, "With backcompat provider, parameter should be 'top' (preserved from LastContractView)");
+            Assert.AreEqual("top", topParam!.Name,
+                "Parameter name should be 'top' (from backcompat provider's LastContractView), not 'maxCount'");
+        }
+
+        /// <summary>
+        /// A simple TypeProvider used to simulate a backcompat provider (e.g., MockableResourceProvider)
+        /// whose LastContractView contains previously published parameter names.
+        /// </summary>
+        private class BackCompatTypeProvider : TypeProvider
+        {
+            private readonly string _name;
+            private readonly string _namespace;
+
+            public BackCompatTypeProvider(string name, string ns)
+            {
+                _name = name;
+                _namespace = ns;
+            }
+
+            protected override string BuildRelativeFilePath() => $"{_name}.cs";
+            protected override string BuildName() => _name;
+            protected override string BuildNamespace() => _namespace;
+        }
+
         private static void CreatePagingOperation()
         {
             var inputModel = InputFactory.Model("cat", properties:

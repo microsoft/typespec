@@ -875,24 +875,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, ClientProvider client)
+        private static void UpdateParameterNameWithBackCompat(ParameterProvider parameter, string proposedName, TypeProvider backCompatProvider)
         {
-            // Check if the original parameter name exists in LastContractView for backward compatibility
-            var existingParam = client.LastContractView?.Methods
-                ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.Name, StringComparison.OrdinalIgnoreCase))
-                ?.Name;
-
-            if (existingParam != null)
+            // Check if the original wire name exists in LastContractView for backward compatibility.
+            // We use WireInfo.SerializedName (the original wire name) to look up the parameter in the
+            // previous contract, since this is stable and never mutated.
+            var serializedName = parameter.WireInfo?.SerializedName;
+            if (serializedName != null)
             {
-                // Preserve the exact name (including casing) from the previous contract for backward compatibility
-                proposedName = existingParam;
+                var existingParamName = backCompatProvider.LastContractView?.Methods
+                    ?.SelectMany(method => method.Signature.Parameters)
+                    .FirstOrDefault(p => string.Equals(p.Name, serializedName, StringComparison.OrdinalIgnoreCase))
+                    ?.Name;
+
+                if (existingParamName != null)
+                {
+                    // Preserve the exact name (including casing) from the previous contract for backward compatibility
+                    proposedName = existingParamName;
+                }
             }
 
-            // Use the updated name
-            if (!string.Equals(inputParameter.Name, proposedName, StringComparison.Ordinal))
+            // Apply the updated name to the ParameterProvider (not the InputParameter)
+            if (!string.Equals(parameter.Name, proposedName, StringComparison.Ordinal))
             {
-                inputParameter.Update(name: proposedName);
+                parameter.Update(name: proposedName);
             }
         }
 
@@ -949,7 +955,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(
             InputServiceMethod serviceMethod,
             ScmMethodKind methodType,
-            ClientProvider client)
+            ClientProvider client,
+            TypeProvider? backCompatProvider = null)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -1009,31 +1016,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // For paging operations, handle parameter name corrections with backward compatibility
-                if (serviceMethod is InputPagingServiceMethod)
-                {
-                    // Rename "top" parameter to "maxCount" (with backward compatibility)
-                    if (string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client);
-                    }
-
-                    // Ensure page size parameter uses the correct casing (with backward compatibility)
-                    if (pageSizeParameterName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
-                            ? MaxPageSizeParameterName
-                            : pageSizeParameterName;
-                        // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase, but always
-                        // respect backcompat.
-                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, client);
-                    }
-                }
-
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
                 {
                     continue;
+                }
+
+                // For paging operations, handle parameter name corrections with backward compatibility.
+                // This is done after ParameterProvider creation so we don't mutate shared InputParameter objects.
+                if (serviceMethod is InputPagingServiceMethod)
+                {
+                    var backCompatTarget = backCompatProvider ?? client;
+
+                    // Rename "top" parameter to "maxCount" (with backward compatibility).
+                    // Use SerializedName (the original wire name) which is stable and never mutated.
+                    if (string.Equals(inputParam.SerializedName, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        UpdateParameterNameWithBackCompat(parameter, MaxCountParameterName, backCompatTarget);
+                    }
+
+                    // Ensure page size parameter uses the correct casing (with backward compatibility)
+                    if (pageSizeParameterName != null && string.Equals(inputParam.SerializedName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
+                            ? MaxPageSizeParameterName
+                            : pageSizeParameterName;
+                        UpdateParameterNameWithBackCompat(parameter, updatedPageSizeParameterName, backCompatTarget);
+                    }
                 }
 
                 if (methodType is ScmMethodKind.Protocol or ScmMethodKind.CreateRequest)
