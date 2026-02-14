@@ -875,12 +875,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, ClientProvider client)
+        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider)
         {
-            // Check if the original parameter name exists in LastContractView for backward compatibility
-            var existingParam = client.LastContractView?.Methods
+            // Check if the original wire name exists in LastContractView for backward compatibility.
+            // We use SerializedName (the wire name) rather than Name because Name may have been mutated
+            // by a previous call to this method.
+            var existingParam = backCompatProvider.LastContractView?.Methods
                 ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.Name, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.SerializedName, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
 
             if (existingParam != null)
@@ -1012,21 +1014,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // For paging operations, handle parameter name corrections with backward compatibility
                 if (serviceMethod is InputPagingServiceMethod)
                 {
-                    // Rename "top" parameter to "maxCount" (with backward compatibility)
-                    if (string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                    var backCompatTarget = client.BackCompatProvider;
+
+                    // Rename "top" parameter to "maxCount" (with backward compatibility).
+                    // Use SerializedName (the original wire name) since Name may have been mutated previously.
+                    if (string.Equals(inputParam.SerializedName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client);
+                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, backCompatTarget);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
-                    if (pageSizeParameterName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (pageSizeParameterName != null && string.Equals(inputParam.SerializedName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
                             ? MaxPageSizeParameterName
                             : pageSizeParameterName;
                         // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase, but always
                         // respect backcompat.
-                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, client);
+                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, backCompatTarget);
                     }
                 }
 
