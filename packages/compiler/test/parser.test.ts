@@ -160,6 +160,50 @@ describe("compiler: parser", () => {
     ]);
   });
 
+  describe("inline named model expressions", () => {
+    parseEach([
+      `model Parent {
+         child: model Child {
+           age: int32;
+         }
+       }`,
+
+      `model Parent {
+         child: model Child {
+           name: string;
+           value: int32;
+         };
+         other: string;
+       }`,
+
+      `model Parent {
+         child: model Child { }
+       }`,
+
+      `model Parent {
+         child: model Child {
+           grandchild: model Grandchild {
+             age: int32;
+           }
+         }
+       }`,
+
+      `model Parent {
+         child: model Child {
+           grandchild: model Grandchild {
+             greatGrandchild: model GreatGrandchild {
+               value: string;
+             }
+           }
+         }
+       }`,
+    ]);
+
+    parseErrorEach([
+      [`model Parent { child: model { age: int32; } }`, [{ message: /Identifier expected/ }]],
+    ]);
+  });
+
   describe("model extends statements", () => {
     parseEach([
       "model foo extends bar { }",

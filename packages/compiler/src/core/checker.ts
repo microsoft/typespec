@@ -3909,7 +3909,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return links.declaredType as any;
     }
 
-    const type = initModel(node);
+    const decorators: DecoratorApplication[] = [];
+    const type: Model = createType({
+      kind: "Model",
+      node,
+      name: node.id ? node.id.sv : "",
+      namespace: getParentNamespaceType(node),
+      properties: createRekeyableMap<string, ModelProperty>(),
+      decorators,
+      derivedModels: [],
+      sourceModels: [],
+    });
     const properties = type.properties;
     linkType(ctx, links, type);
     linkMapper(type, ctx.mapper);
@@ -3921,6 +3931,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       type,
       () => {
         checkModelProperties(ctx, node, properties, type);
+
+        if (node.id) {
+          // Named inline models support augment decorators
+          const sym = getMergedSymbol(node.symbol);
+          const augmentDecoratorNodes = resolver.getAugmentDecoratorsForSym(sym);
+          for (const decNode of augmentDecoratorNodes) {
+            const decorator = checkDecoratorApplication(ctx, type, decNode);
+            if (decorator) {
+              decorators.unshift(decorator);
+            }
+          }
+        }
+
         finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
       },
     );

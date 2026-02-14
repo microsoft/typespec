@@ -224,6 +224,11 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case SyntaxKind.ModelStatement:
         classify(node.id, SemanticTokenKind.Struct);
         break;
+      case SyntaxKind.ModelExpression:
+        if (node.id) {
+          classify(node.id, SemanticTokenKind.Struct);
+        }
+        break;
       case SyntaxKind.ScalarStatement:
         classify(node.id, SemanticTokenKind.Type);
         break;

@@ -1350,4 +1350,204 @@ describe("compiler: models", () => {
       });
     });
   });
+
+  describe("inline named model expressions", () => {
+    it("creates a named model for inline model expression", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            age: int32;
+          };
+        }
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      strictEqual(child.type.kind, "Model");
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 1);
+      ok(childModel.properties.has("age"));
+    });
+
+    it("inline named model has correct property types", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            name: string;
+            value: int32;
+          };
+        }
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 2);
+      ok(childModel.properties.has("name"));
+      ok(childModel.properties.has("value"));
+    });
+
+    it("inline named model with empty body", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child { };
+        }
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 0);
+    });
+
+    it("augment decorator on inline named model", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            name: string;
+          };
+        }
+        @@doc(Child, "Hello child!");
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(getDoc(testHost.program, childModel), "Hello child!");
+    });
+
+    it("nested inline named models", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            @test grandchild: model Grandchild {
+              age: int32;
+            };
+          };
+        }
+      `,
+      );
+      const { child, grandchild } = (await testHost.compile("main.tsp")) as {
+        child: ModelProperty;
+        grandchild: ModelProperty;
+      };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 1);
+
+      const grandchildModel = grandchild.type as Model;
+      strictEqual(grandchildModel.name, "Grandchild");
+      strictEqual(grandchildModel.properties.size, 1);
+      ok(grandchildModel.properties.has("age"));
+    });
+
+    it("deeply nested inline named models with augment decorators", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          @test child: model Child {
+            @test grandchild: model Grandchild {
+              age: int32;
+            };
+          };
+        }
+        @@doc(Child, "The child model");
+        @@doc(Grandchild, "The grandchild model");
+      `,
+      );
+      const { child, grandchild } = (await testHost.compile("main.tsp")) as {
+        child: ModelProperty;
+        grandchild: ModelProperty;
+      };
+      const childModel = child.type as Model;
+      strictEqual(getDoc(testHost.program, childModel), "The child model");
+
+      const grandchildModel = grandchild.type as Model;
+      strictEqual(getDoc(testHost.program, grandchildModel), "The grandchild model");
+    });
+
+    it("inline named model with spread properties", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Base { id: int32; }
+        model Parent {
+          @test child: model Child {
+            ...Base;
+            name: string;
+          };
+        }
+      `,
+      );
+      const { child } = (await testHost.compile("main.tsp")) as { child: ModelProperty };
+      const childModel = child.type as Model;
+      strictEqual(childModel.name, "Child");
+      strictEqual(childModel.properties.size, 2);
+      ok(childModel.properties.has("id"));
+      ok(childModel.properties.has("name"));
+    });
+
+    it("reports duplicate when two inline named models have the same name", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          child1: model Conflict { age: int32; };
+          child2: model Conflict { name: string; };
+        }
+      `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        { code: "duplicate-symbol", message: /Conflict/ },
+        { code: "duplicate-symbol", message: /Conflict/ },
+      ]);
+    });
+
+    it("reports duplicate when inline named model conflicts with top-level model", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Child { value: int32; }
+        model Parent {
+          child: model Child { age: int32; };
+        }
+      `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        { code: "duplicate-symbol", message: /Child/ },
+        { code: "duplicate-symbol", message: /Child/ },
+      ]);
+    });
+
+    it("reports duplicate when nested inline named model reuses parent inline name", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Parent {
+          child: model Child {
+            grandchild: model Child { age: int32; };
+          };
+        }
+      `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        { code: "duplicate-symbol", message: /Child/ },
+        { code: "duplicate-symbol", message: /Child/ },
+      ]);
+    });
+  });
 });
