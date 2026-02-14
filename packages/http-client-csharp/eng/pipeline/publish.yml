@@ -16,6 +16,21 @@ parameters:
     type: boolean
     default: false
 
+  - name: RegenerateAzureLibraries
+    displayName: Regenerate Azure data plane SDK libraries (builds Azure emitter locally)
+    type: boolean
+    default: false
+
+  - name: RegenerateMgmtLibraries
+    displayName: Regenerate Azure mgmt SDK libraries (builds mgmt emitter locally)
+    type: boolean
+    default: false
+
+  - name: RunTests
+    displayName: Run unit tests
+    type: boolean
+    default: true
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -26,7 +41,7 @@ extends:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
-          PublishDependsOnTest: true
+          PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
           Packages:
@@ -45,7 +60,8 @@ extends:
             - name: Microsoft.TypeSpec.Generator.Customization
               file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
               type: nuget
-          UnitTestArgs: -UnitTests
+          ${{ if parameters.RunTests }}:
+            UnitTestArgs: -UnitTests
           StagePrefix: "CSharp"
           LanguageShortName: "csharp"
           HasNugetPackages: true
@@ -180,6 +196,9 @@ extends:
                     -AuthToken '$(azuresdk-github-pat)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
+                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"

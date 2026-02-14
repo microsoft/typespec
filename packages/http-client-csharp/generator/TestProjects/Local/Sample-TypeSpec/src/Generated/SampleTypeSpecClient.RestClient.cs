@@ -302,8 +302,7 @@ namespace SampleTypeSpec
             }
             else
             {
-                uri.Reset(_endpoint);
-                uri.AppendPath(nextPage.OriginalString, false);
+                uri.Reset(new Uri(_endpoint, nextPage));
             }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
@@ -333,8 +332,7 @@ namespace SampleTypeSpec
             }
             else
             {
-                uri.Reset(_endpoint);
-                uri.AppendPath(nextPage.OriginalString, false);
+                uri.Reset(new Uri(_endpoint, nextPage));
             }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
