@@ -30,5 +30,13 @@ namespace SpecialWords._ModelProperties
         public virtual ClientResult DictMethods(DictMethods body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> DictMethodsAsync(DictMethods body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithList(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> WithListAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult WithList(ModelWithList body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithListAsync(ModelWithList body, CancellationToken cancellationToken = default) => throw null;
     }
 }
