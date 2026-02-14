@@ -295,6 +295,7 @@ export class CodeModelBuilder {
         java: {},
       },
     });
+    this.codeModel.apiVersionMap = this.sdkContext.sdkPackage.metadata.apiVersions;
   }
 
   public async build(): Promise<CodeModel> {
