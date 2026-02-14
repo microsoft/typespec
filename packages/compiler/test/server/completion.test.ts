@@ -21,6 +21,7 @@ describe("complete statement keywords", () => {
     ["op", true],
     ["extern", true],
     ["dec", true],
+    ["fn", true],
     ["alias", true],
     ["namespace", true],
     ["import", true],
