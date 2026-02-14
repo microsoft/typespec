@@ -295,7 +295,6 @@ export class CodeModelBuilder {
         java: {},
       },
     });
-    this.codeModel.apiVersionMap = this.sdkContext.sdkPackage.metadata.apiVersions;
   }
 
   public async build(): Promise<CodeModel> {
@@ -313,6 +312,13 @@ export class CodeModelBuilder {
     sdkContextOptions.additionalDecorators = ["Azure\\.ClientGenerator\\.Core\\.@override"];
     this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, sdkContextOptions);
     this.program.reportDiagnostics(this.sdkContext.diagnostics);
+
+    // metadata
+    if (this.sdkContext.sdkPackage.metadata.apiVersions) {
+      this.codeModel.apiVersionMap = Object.fromEntries(
+        this.sdkContext.sdkPackage.metadata.apiVersions,
+      );
+    }
 
     // license
     if (this.sdkContext.sdkPackage.licenseInfo) {

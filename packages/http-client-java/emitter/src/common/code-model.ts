@@ -23,7 +23,7 @@ export interface CodeModel extends Metadata {
 
   arm?: boolean;
 
-  apiVersionMap?: Map<string, string>;
+  apiVersionMap?: Record<string, string>;
 }
 
 export class CodeModel extends Metadata implements CodeModel {
