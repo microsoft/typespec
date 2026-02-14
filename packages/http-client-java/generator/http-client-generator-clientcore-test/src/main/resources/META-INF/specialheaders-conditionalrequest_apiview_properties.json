@@ -1,7 +1,0 @@
-{
-  "flavor": "generic", 
-  "CrossLanguageDefinitionId": {
-    "specialheaders.conditionalrequest.ConditionalRequestClient": "SpecialHeaders.ConditionalRequest",
-    "specialheaders.conditionalrequest.ConditionalRequestClientBuilder": "SpecialHeaders.ConditionalRequest"
-  }
-}
