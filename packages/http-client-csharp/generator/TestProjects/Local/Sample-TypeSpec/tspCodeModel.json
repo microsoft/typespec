@@ -5442,7 +5442,8 @@
                         },
                         "valueType": {
                           "$ref": "453"
-                        }
+                        },
+                        "crossLanguageDefinitionId": "SampleTypeSpec.XmlNamespaces.ns1"
                       },
                       {
                         "$id": "455",
@@ -5455,7 +5456,8 @@
                         },
                         "valueType": {
                           "$ref": "453"
-                        }
+                        },
+                        "crossLanguageDefinitionId": "SampleTypeSpec.XmlNamespaces.ns2"
                       }
                     ],
                     "isFixed": true,
@@ -5472,7 +5474,8 @@
                   },
                   "valueType": {
                     "$ref": "453"
-                  }
+                  },
+                  "crossLanguageDefinitionId": "SampleTypeSpec.XmlNamespaces.ns1"
                 }
               }
             },
@@ -5526,7 +5529,8 @@
                   },
                   "valueType": {
                     "$ref": "453"
-                  }
+                  },
+                  "crossLanguageDefinitionId": "SampleTypeSpec.XmlNamespaces.ns2"
                 }
               }
             }
@@ -9865,7 +9869,7 @@
                       },
                       "value": "2024-08-16-preview"
                     },
-                    "optional": false,
+                    "optional": true,
                     "scope": "Method",
                     "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion.apiVersion",
                     "readOnly": false,
