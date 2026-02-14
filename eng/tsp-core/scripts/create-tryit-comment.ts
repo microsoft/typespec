@@ -7,11 +7,9 @@ main().catch((e) => {
 });
 
 async function main() {
-  const folderName = process.argv.length > 2 ? `/${process.argv[2]}` : "";
   const repo = process.env["BUILD_REPOSITORY_ID"];
   const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
   const ghToken = process.env.GH_TOKEN;
-  const vscodeDownloadUrl = process.env.VSCODE_DOWNLOAD_URL;
   if (repo === undefined) {
     throw new Error("BUILD_REPOSITORY_ID environment variable is not set");
   }
@@ -30,7 +28,24 @@ async function main() {
 
   const tryItComments = data.filter((x) => x.body.includes(TRY_ID_COMMENT_IDENTIFIER));
   console.log(`Found ${azoComments.length} Cadl Try It comment(s)`);
-  const comment = makeComment(folderName, prNumber, vscodeDownloadUrl);
+
+  if (process.env.PLAYGROUND_HOSTNAME === undefined) {
+    throw new Error("PLAYGROUND_HOSTNAME environment variable is not set");
+  }
+  if (process.env.WEBSITE_HOSTNAME === undefined) {
+    throw new Error("WEBSITE_HOSTNAME environment variable is not set");
+  }
+
+  const vscodeDownloadUrl = process.env.VSCODE_DOWNLOAD_URL;
+  const playgroundUrl = `https://${process.env.PLAYGROUND_HOSTNAME}`;
+  const websiteUrl = `https://${process.env.WEBSITE_HOSTNAME}`;
+
+  console.log("Creating/updating comment with playground and website links", {
+    playgroundUrl,
+    websiteUrl,
+    vscodeDownloadUrl,
+  });
+  const comment = makeComment(playgroundUrl, websiteUrl, vscodeDownloadUrl);
   if (tryItComments.length > 0) {
     await updateComment(repo, tryItComments[0].id, comment, ghAuth);
     return;
@@ -40,14 +55,11 @@ async function main() {
 }
 
 function makeComment(
-  folderName: string,
-  prNumber: string,
+  playgroundUrl: string,
+  websiteUrl: string,
   vscodeDownloadUrl: string | undefined,
 ): string {
-  const links = [
-    `[🛝 Playground]( https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/)`,
-    `[🌐 Website](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/)`,
-  ];
+  const links = [`[🛝 Playground](${playgroundUrl})`, `[🌐 Website](${websiteUrl})`];
 
   if (vscodeDownloadUrl) {
     links.push(`[🛝 VSCode Extension]( ${vscodeDownloadUrl})`);

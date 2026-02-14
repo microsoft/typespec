@@ -75,14 +75,9 @@ jobs:
         inputs:
           azureSubscription: "Azure SDK Engineering System"
           scriptLocation: inlineScript
+          workingDirectory: ./packages/playground-website
           inlineScript: |
-            az storage blob upload-batch ^
-              --auth-mode login ^
-              --destination $web ^
-              --account-name "cadlplayground" ^
-              --destination-path / ^
-              --source "./packages/playground-website/dist/web/" ^
-              --overwrite
+            swa deploy --env production --verbose=silly
 
     templateContext:
       # Optimize so each output doesn't create its own scan
