@@ -16,7 +16,7 @@
     "@typespec/spec-api": "0.1.0-alpha.12",
     "@typespec/http-specs": "0.1.0-alpha.32",
     "@azure-tools/azure-http-specs": "0.1.0-alpha.37",
-    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.6.1.tgz",
+    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.7.0.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {
