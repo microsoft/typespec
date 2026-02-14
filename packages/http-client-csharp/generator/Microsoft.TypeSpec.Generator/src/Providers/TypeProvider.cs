@@ -612,7 +612,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customConstructors = constructor.EnclosingType.CustomCodeView?.Constructors ?? [];
             foreach (var customConstructor in customConstructors)
             {
-                if (IsMatch(customConstructor.Signature, constructor.Signature))
+                if (MethodSignatureBase.SignatureComparer.Equals(customConstructor.Signature, constructor.Signature))
                 {
                     return false;
                 }
@@ -644,7 +644,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customMethods = method.EnclosingType.CustomCodeView?.Methods ?? [];
             foreach (var customMethod in customMethods)
             {
-                if (IsMatch(customMethod.Signature, method.Signature))
+                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature))
                 {
                     return false;
                 }
@@ -726,60 +726,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // we ignore nullability for reference types as these are generated the same regardless of nullability
                 if (!IsNameMatch(parameterType, signature.Parameters[i].Type) ||
                     (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
-        {
-            if (customMethod.Parameters.Count != method.Parameters.Count || GetFullMethodName(customMethod) != GetFullMethodName(method))
-            {
-                return false;
-            }
-
-            // For operators, we need to also check the return type and operator type (explicit vs implicit)
-            // since operators can have the same "name" (the target type) but different signatures
-            if (customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
-            {
-                // Check if both are operators and of the same type (explicit or implicit)
-                if (!method.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
-                {
-                    return false;
-                }
-
-                // Check explicit vs implicit - both flags must match
-                bool customIsExplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
-                bool methodIsExplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
-                bool customIsImplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
-                bool methodIsImplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
-                if (customIsExplicit != methodIsExplicit || customIsImplicit != methodIsImplicit)
-                {
-                    return false;
-                }
-
-                // For operators, the return type is crucial for matching
-                if (customMethod.ReturnType != null && method.ReturnType != null)
-                {
-                    if (!IsNameMatch(customMethod.ReturnType, method.ReturnType))
-                    {
-                        return false;
-                    }
-                }
-                else if (customMethod.ReturnType != method.ReturnType) // One is null, the other is not
-                {
-                    return false;
-                }
-            }
-
-            for (int i = 0; i < customMethod.Parameters.Count; i++)
-            {
-                // The namespace may not be available for generated types as they are not yet generated
-                // so Roslyn will not have the namespace information.
-                if (!IsNameMatch(customMethod.Parameters[i].Type, method.Parameters[i].Type))
                 {
                     return false;
                 }
