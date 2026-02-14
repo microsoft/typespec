@@ -1,0 +1,24 @@
+{
+  "name": "Widget.Kind",
+  "kind": "Enum",
+  "namespace": "Widget",
+  "description": "Widget enum",
+  "details": {
+    "members": {
+      "One": {
+        "value": null
+      },
+      "Two": {
+        "value": null
+      }
+    }
+  },
+  "state": {
+    "maps": {
+      "Symbol(TypeSpec.docs)": {
+        "value": "Widget enum",
+        "source": "decorator"
+      }
+    }
+  }
+}

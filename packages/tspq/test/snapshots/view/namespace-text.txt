@@ -1,0 +1,23 @@
+Type: Widget
+Kind: Namespace
+Namespace: 
+Location: <stripped>
+
+Details
+Namespaces: (none)
+Models (1):
+- Widget.Widget
+Scalars (1):
+- Widget.WidgetId
+Interfaces (1):
+- Widget.WidgetOps
+Operations: (none)
+Unions (1):
+- Widget.Choice
+Enums (1):
+- Widget.Kind
+
+Decorator State
+State maps:
+- Symbol(@typespec/compiler.services):
+  { title: 'Widget Service', type: { kind: 'Namespace', name: 'Widget' } }
