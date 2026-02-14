@@ -1756,5 +1756,104 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
         }
+
+        [Test]
+        public void ConvenienceMethod_DualFormatModel_XmlContentType_CallsToBinaryContentWithX()
+        {
+            // Create a dual-format model
+            var dualFormatModel = InputFactory.Model("DualFormatModel", usage: InputModelTypeUsage.Json | InputModelTypeUsage.Xml);
+            var bodyParam = InputFactory.BodyParameter("body", dualFormatModel, isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter("body", dualFormatModel, isRequired: true, location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "UpdateModel",
+                parameters: [bodyParam],
+                requestMediaTypes: ["application/xml"],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("UpdateModel", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [dualFormatModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Parameters.All(p => p.Name != "options") &&
+                m.Signature.Name == "UpdateModel");
+
+            Assert.IsNotNull(convenienceMethod);
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var expectedMethodBody = Helpers.GetExpectedFromFile();
+
+            Assert.AreEqual(expectedMethodBody, methodBody);
+        }
+
+        [Test]
+        public void ConvenienceMethod_DualFormatModel_JsonContentType_CallsToBinaryContentWithJ()
+        {
+            // Create a dual-format model
+            var dualFormatModel = InputFactory.Model("DualFormatModel", usage: InputModelTypeUsage.Json | InputModelTypeUsage.Xml);
+            var bodyParam = InputFactory.BodyParameter("body", dualFormatModel, isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter("body", dualFormatModel, isRequired: true, location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "UpdateModel",
+                parameters: [bodyParam],
+                requestMediaTypes: ["application/json"],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("UpdateModel", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [dualFormatModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Parameters.All(p => p.Name != "options") &&
+                m.Signature.Name == "UpdateModel");
+
+            Assert.IsNotNull(convenienceMethod);
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var expectedMethodBody = Helpers.GetExpectedFromFile();
+
+            Assert.AreEqual(expectedMethodBody, methodBody);
+        }
+
+        [Test]
+        public void ConvenienceMethod_SingleFormatModel_UsesImplicitOperator()
+        {
+            // Create a JSON-only model
+            var jsonOnlyModel = InputFactory.Model("JsonOnlyModel", usage: InputModelTypeUsage.Json);
+            var bodyParam = InputFactory.BodyParameter("body", jsonOnlyModel, isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter("body", jsonOnlyModel, isRequired: true, location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "UpdateModel",
+                parameters: [bodyParam],
+                requestMediaTypes: ["application/json"],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("UpdateModel", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [jsonOnlyModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Parameters.All(p => p.Name != "options") &&
+                m.Signature.Name == "UpdateModel");
+
+            Assert.IsNotNull(convenienceMethod);
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var expectedMethodBody = Helpers.GetExpectedFromFile();
+
+            Assert.AreEqual(expectedMethodBody, methodBody);
+        }
     }
 }

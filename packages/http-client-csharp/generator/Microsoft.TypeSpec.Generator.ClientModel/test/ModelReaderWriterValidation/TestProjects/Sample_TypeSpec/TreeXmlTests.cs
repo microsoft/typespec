@@ -75,5 +75,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Tree model2 = (Tree)strategy.Read(roundTrip, modelInstance, options);
             CompareModels(model, model2, format);
         }
+
+        [Test]
+        public void ToBinaryContent_WithJsonFormat_ProducesJsonPayload()
+        {
+            var tree = new Tree("tree-123", 500, 100);
+
+            // Use reflection to call the internal ToBinaryContent method
+            var method = typeof(Tree).GetMethod("ToBinaryContent",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            Assert.IsNotNull(method, "ToBinaryContent method should exist on Tree");
+
+            var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "J" })!;
+
+            // Verify the MediaType is set correctly for JSON
+            Assert.That(binaryContent.MediaType, 
+                Is.EqualTo("application/json"), 
+                "MediaType should be application/json for format 'J'");
+        }
+
+        [Test]
+        public void ToBinaryContent_WithXmlFormat_ProducesXmlPayload()
+        {
+            var tree = new Tree("tree-123", 500, 100);
+
+            // Use reflection to call the internal ToBinaryContent method
+            var method = typeof(Tree).GetMethod("ToBinaryContent",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            Assert.IsNotNull(method, "ToBinaryContent method should exist on Tree");
+
+            var binaryContent = (BinaryContent)method!.Invoke(tree, new object[] { "X" })!;
+
+            // Verify the MediaType is null or empty for XML format
+            Assert.That(string.IsNullOrEmpty(binaryContent.MediaType), Is.True,
+                "MediaType should be null or empty for format 'X'");
+        }
     }
 }

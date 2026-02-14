@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -28,6 +29,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
+        private const string JsonMediaType = "application/json";
+        private const string XmlMediaType = "application/xml";
         private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
         private IList<ParameterProvider>? _protocolMethodParameters;
 
@@ -224,8 +227,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             SerializationFormat.Default));
                         declarations["content"] = content;
                     }
-                    // else rely on implicit operator to convert to BinaryContent
-                    // For BinaryData we have special handling as well
+                    else
+                    {
+                        // Check if this is a dual-format model that needs explicit serialization
+                        ModelProvider? bodyModel = null;
+                        InputModelType? bodyInputModel = null;
+                        if (parameter.Type is { IsFrameworkType: false })
+                        {
+                            var inputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
+                            if (inputParam?.Type is InputModelType model)
+                            {
+                                bodyInputModel = model;
+                                bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                            }
+                        }
+
+                        if (TryGetFormatArgumentForDualFormatModel(bodyModel, bodyInputModel, out var format))
+                        {
+                            // Create using declaration for BinaryContent
+                            var methodName = $"To{requestContentType.Name}";
+                            statements.Add(UsingDeclare("content", requestContentType, parameter.Invoke(methodName, format), out var content));
+                            declarations["content"] = content;
+                        }
+                        // else rely on implicit operator to convert to BinaryContent
+                        // For BinaryData we have special handling as well
+                    }
                 }
             }
 
@@ -684,7 +710,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else
                         {
-                            AddArgument(protocolParam, convenienceParam);
+                            // Check if we created a using declaration for dual-format model
+                            if (declarations.TryGetValue("content", out var content))
+                            {
+                                AddArgument(protocolParam, content);
+                            }
+                            else
+                            {
+                                // Use implicit operator as fallback
+                                AddArgument(protocolParam, convenienceParam);
+                            }
                         }
                     }
                     else if (convenienceParam.Type.IsEnum)
@@ -1057,6 +1092,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return type.Equals(typeof(TimeSpan)) || type.Equals(typeof(BinaryData));
+        }
+
+        private bool TryGetFormatArgumentForDualFormatModel(
+            ModelProvider? bodyModel,
+            InputModelType? bodyInputModel,
+            [NotNullWhen(true)] out ScopedApi<string>? format)
+        {
+            format = null;
+
+            // Find the first JSON or XML media type
+            string? matchedMediaType = null;
+            if (ServiceMethod.Operation.RequestMediaTypes != null)
+            {
+                foreach (var mediaType in ServiceMethod.Operation.RequestMediaTypes)
+                {
+                    if (mediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
+                        mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matchedMediaType = mediaType;
+                        break;
+                    }
+                }
+            }
+
+            // Check if this is a dual-format model
+            if (matchedMediaType != null &&
+                bodyModel != null &&
+                bodyInputModel != null &&
+                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Json) &&
+                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
+            {
+                // Determine the format: XML or JSON
+                format = matchedMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
+                    ? ModelReaderWriterOptionsSnippets.XmlFormat
+                    : ModelReaderWriterOptionsSnippets.JsonFormat;
+                return true;
+            }
+
+            return false;
         }
     }
 }
