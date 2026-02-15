@@ -24,7 +24,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Scope = scope;
+            OriginalName = name;
         }
+
+        /// <summary>
+        /// Gets the original parameter name specified in the spec prior to any mutations.
+        /// </summary>
+        public string OriginalName { get; }
 
         public InputParameterScope Scope { get; internal set; }
         public IReadOnlyList<InputMethodParameter>? MethodParameterSegments { get; internal set; }
