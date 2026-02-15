@@ -878,12 +878,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider)
         {
             // Check if the original wire name exists in LastContractView for backward compatibility.
-            // We use SerializedName (the wire name) rather than Name because Name may have been mutated
-            // by a previous call to this method.
-            var originalParameterName = inputParameter.SerializedName.ToIdentifierName();
             var existingParam = backCompatProvider.LastContractView?.Methods
                 ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, originalParameterName, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
 
             if (existingParam != null)
@@ -909,7 +906,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Check if this is a max page size parameter
             var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
-            if (pageSizeParameterName != null && inputParameter.Name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+            if (pageSizeParameterName != null && inputParameter.OriginalName.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -1016,17 +1013,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (serviceMethod is InputPagingServiceMethod)
                 {
                     var backCompatProvider = client.BackCompatProvider;
-                    var originalParameterName = inputParam.SerializedName.ToIdentifierName();
 
                     // Rename "top" parameter to "maxCount" (with backward compatibility).
-                    // Use SerializedName (the original wire name) since Name may have been mutated previously.
-                    if (string.Equals(originalParameterName, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(inputParam.OriginalName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, backCompatProvider);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
-                    if (pageSizeParameterName != null && string.Equals(originalParameterName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (pageSizeParameterName != null && string.Equals(inputParam.OriginalName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
                             ? MaxPageSizeParameterName
