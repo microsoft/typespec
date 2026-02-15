@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import datetime
 import pytest
 from payload.xml import XmlClient
 from payload.xml.models import (
@@ -18,6 +19,8 @@ from payload.xml.models import (
     ModelWithText,
     ModelWithDictionary,
     ModelWithEncodedNames,
+    ModelWithEnum,
+    ModelWithDatetime,
 )
 
 
@@ -105,6 +108,22 @@ def test_model_with_encoded_names(client: XmlClient):
     model = ModelWithEncodedNames(model_data=SimpleModel(name="foo", age=123), colors=["red", "green", "blue"])
     assert client.model_with_encoded_names_value.get() == model
     client.model_with_encoded_names_value.put(model)
+
+
+def test_model_with_enum(client: XmlClient):
+    model = ModelWithEnum(status="success")
+    assert client.model_with_enum_value.get() == model
+    client.model_with_enum_value.put(model)
+
+
+def test_model_with_datetime(client: XmlClient):
+    model = ModelWithDatetime(
+        rfc3339=datetime.datetime(2022, 8, 26, 18, 38, 0, tzinfo=datetime.timezone.utc),
+        rfc7231=datetime.datetime(2022, 8, 26, 14, 38, 0, tzinfo=datetime.timezone.utc),
+    )
+    result = client.model_with_datetime_value.get()
+    assert result.rfc3339 == model.rfc3339
+    assert result.rfc7231 == model.rfc7231
 
 
 def test_xml_error_value(client: XmlClient, core_library):
