@@ -50,6 +50,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -289,7 +290,7 @@ public class FluentGen extends Javagen {
     }
 
     protected FluentClient handleFluentLite(CodeModel codeModel, Client client, FluentJavaPackage javaPackage,
-        String apiVersionInTypeSpec) {
+        Map<String, String> apiVersionMap) {
         FluentJavaSettings fluentJavaSettings = this.getFluentJavaSettings();
         JavaSettings javaSettings = JavaSettings.getInstance();
 
@@ -306,7 +307,7 @@ public class FluentGen extends Javagen {
             fluentClient = this.getFluentMapper().map(codeModel, client);
 
             // project
-            FluentProject project = new FluentProject(fluentClient, apiVersionInTypeSpec);
+            FluentProject project = new FluentProject(fluentClient, apiVersionMap);
             if (isSdkIntegration) {
                 project.integrateWithSdk();
             }
