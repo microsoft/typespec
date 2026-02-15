@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
         private IList<ParameterProvider>? _protocolMethodParameters;
 
-        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
+        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client, Client.BackCompatProvider);
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private readonly InputPagingServiceMethod? _pagingServiceMethod;
         private IReadOnlyList<ScmMethodProvider>? _methods;

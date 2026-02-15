@@ -58,6 +58,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private Dictionary<InputOperation, ScmMethodProviderCollection>? _methodCache;
         private Dictionary<InputOperation, ScmMethodProviderCollection> MethodCache => _methodCache ??= [];
+        private TypeProvider? _backCompatProvider;
+
+        /// <summary>
+        /// When set, this provider's <see cref="TypeProvider.LastContractView"/> is used for backward
+        /// compatibility checks on paging parameter names instead of this client's own LastContractView.
+        /// </summary>
+        internal TypeProvider? BackCompatProvider => _backCompatProvider;
 
         public ParameterProvider? ClientOptionsParameter { get; }
 
@@ -835,8 +842,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        public ScmMethodProviderCollection GetMethodCollectionByOperation(InputOperation operation)
+        public ScmMethodProviderCollection GetMethodCollectionByOperation(InputOperation operation, TypeProvider? backCompatProvider = null)
         {
+            // Normalize: passing `this` is the same as no override.
+            var effective = backCompatProvider != null && backCompatProvider != this ? backCompatProvider : null;
+            if (_backCompatProvider != effective)
+            {
+                _backCompatProvider = effective;
+                // Clear caches so methods are rebuilt with the new backcompat provider.
+                // Since InputParameter objects are not mutated, Reset() is safe to call
+                // repeatedly — the rebuild will produce correct results each time.
+                Reset();
+                _methodCache = null;
+            }
             _ = Methods; // Ensure methods are built
             return MethodCache[operation];
         }
