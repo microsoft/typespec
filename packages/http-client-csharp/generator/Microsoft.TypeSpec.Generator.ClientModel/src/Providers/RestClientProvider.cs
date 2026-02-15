@@ -880,9 +880,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Check if the original wire name exists in LastContractView for backward compatibility.
             // We use SerializedName (the wire name) rather than Name because Name may have been mutated
             // by a previous call to this method.
+            var originalParameterName = inputParameter.SerializedName.ToIdentifierName();
             var existingParam = backCompatProvider.LastContractView?.Methods
                 ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.SerializedName.ToIdentifierName(), StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(p => string.Equals(p.Name, originalParameterName, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
 
             if (existingParam != null)
@@ -1015,16 +1016,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (serviceMethod is InputPagingServiceMethod)
                 {
                     var backCompatProvider = client.BackCompatProvider;
+                    var originalParameterName = inputParam.SerializedName.ToIdentifierName();
 
                     // Rename "top" parameter to "maxCount" (with backward compatibility).
                     // Use SerializedName (the original wire name) since Name may have been mutated previously.
-                    if (string.Equals(inputParam.SerializedName, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(originalParameterName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, backCompatProvider);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
-                    if (pageSizeParameterName != null && string.Equals(inputParam.SerializedName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (pageSizeParameterName != null && string.Equals(originalParameterName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
                             ? MaxPageSizeParameterName
