@@ -882,7 +882,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // by a previous call to this method.
             var existingParam = backCompatProvider.LastContractView?.Methods
                 ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.SerializedName, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.SerializedName.ToIdentifierName(), StringComparison.OrdinalIgnoreCase))
                 ?.Name;
 
             if (existingParam != null)
