@@ -132,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             var inputDuration = inputType as InputDurationType;
             Assert.IsNotNull(inputDuration);
-            Assert.AreEqual(DurationKnownEncoding.Constant, inputDuration!.Encode);
+            Assert.AreEqual("duration-constant", inputDuration!.Encode.ToString());
         }
 
         [Test]
