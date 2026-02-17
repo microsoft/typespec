@@ -18,10 +18,9 @@ describe("modifier validation", () => {
     it(`allows 'internal' on ${keyword} declaration (with experimental warning)`, async () => {
       const diagnostics = await Tester.diagnose(code);
       expectDiagnostics(diagnostics, {
-        code: "experimental-internal",
+        code: "experimental-feature",
         severity: "warning",
-        message:
-          "The 'internal' modifier is experimental and may change or be removed in future releases.",
+        message: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
       });
     });
   }
@@ -35,7 +34,7 @@ describe("modifier validation", () => {
 
     // Only the experimental warning, no error
     expectDiagnostics(diagnostics, {
-      code: "experimental-internal",
+      code: "experimental-feature",
     });
   });
 
@@ -43,7 +42,7 @@ describe("modifier validation", () => {
     const diagnostics = await Tester.diagnose(`internal namespace Foo {}`);
     expectDiagnostics(diagnostics, [
       {
-        code: "experimental-internal",
+        code: "experimental-feature",
       },
       {
         code: "invalid-modifier",
@@ -56,7 +55,7 @@ describe("modifier validation", () => {
     const diagnostics = await Tester.diagnose(`internal namespace Foo;`);
     expectDiagnostics(diagnostics, [
       {
-        code: "experimental-internal",
+        code: "experimental-feature",
       },
       {
         code: "invalid-modifier",
@@ -97,7 +96,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
 
@@ -111,7 +110,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
 
@@ -125,7 +124,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
 
@@ -139,7 +138,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
 
@@ -153,7 +152,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
 
@@ -167,7 +166,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
 
@@ -184,7 +183,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
 
@@ -201,7 +200,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
 
@@ -219,7 +218,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
 
@@ -233,7 +232,7 @@ describe("access control", () => {
 
       expectDiagnostics(diagnostics, [
         { code: "invalid-ref", message: /internal/ },
-        { code: "experimental-internal" },
+        { code: "experimental-feature" },
       ]);
     });
   });
@@ -246,7 +245,7 @@ describe("access control", () => {
         `);
 
       // Only the experimental warning, no access error
-      expectDiagnostics(diagnostics, { code: "experimental-internal" });
+      expectDiagnostics(diagnostics, { code: "experimental-feature" });
     });
 
     it("allows access to internal enum within the same project", async () => {
@@ -255,7 +254,7 @@ describe("access control", () => {
           model Consumer { x: Status }
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-internal" });
+      expectDiagnostics(diagnostics, { code: "experimental-feature" });
     });
 
     it("allows access to internal model across files in the same project", async () => {
@@ -269,7 +268,7 @@ describe("access control", () => {
           `,
       });
 
-      expectDiagnostics(diagnostics, { code: "experimental-internal" });
+      expectDiagnostics(diagnostics, { code: "experimental-feature" });
     });
 
     it("allows access to internal op within the same project", async () => {
@@ -278,7 +277,7 @@ describe("access control", () => {
           op consumer is helper;
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-internal" });
+      expectDiagnostics(diagnostics, { code: "experimental-feature" });
     });
 
     it("allows access to internal scalar within the same project", async () => {
@@ -287,7 +286,7 @@ describe("access control", () => {
           model Consumer { x: MyScalar }
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-internal" });
+      expectDiagnostics(diagnostics, { code: "experimental-feature" });
     });
 
     it("allows access to internal alias within the same project", async () => {
@@ -296,7 +295,7 @@ describe("access control", () => {
           model Consumer { x: Shorthand }
         `);
 
-      expectDiagnostics(diagnostics, { code: "experimental-internal" });
+      expectDiagnostics(diagnostics, { code: "experimental-feature" });
     });
   });
 
@@ -315,8 +314,8 @@ describe("access control", () => {
           model Consumer { x: Public }
         `);
 
-      // experimental-internal for InternalHelper in the library, no access error
-      expectDiagnostics(diagnostics, { code: "experimental-internal" });
+      // experimental-feature for InternalHelper in the library, no access error
+      expectDiagnostics(diagnostics, { code: "experimental-feature" });
     });
   });
 
@@ -333,7 +332,7 @@ describe("access control", () => {
           model Consumer { x: PublicModel }
         `);
 
-      expectDiagnosticEmpty(diagnostics);
+      expectDiagnostics(diagnostics, { code: "experimental-feature" });
     });
 
     it("allows access to non-internal model in a namespace from another package", async () => {
@@ -350,7 +349,7 @@ describe("access control", () => {
           model Consumer { x: MyLib.PublicModel }
         `);
 
-      expectDiagnosticEmpty(diagnostics);
+      expectDiagnostics(diagnostics, { code: "experimental-feature" });
     });
   });
 });

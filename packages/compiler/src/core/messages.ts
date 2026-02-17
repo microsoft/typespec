@@ -542,11 +542,11 @@ const diagnostics = {
       "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
     },
   },
-  "experimental-internal": {
+  "experimental-feature": {
     severity: "warning",
     messages: {
-      default:
-        "The 'internal' modifier is experimental and may change or be removed in future releases.",
+      default: paramMessage`The '${"featureName"}' feature is experimental and may be changed or removed in a future release. Use with caution.`,
+      internal: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
     },
   },
   "function-unsupported": {

@@ -69,8 +69,9 @@ export function checkModifiers(program: Program, node: Declaration): boolean {
     for (const modifier of internalModifiers) {
       program.reportDiagnostic(
         createDiagnostic({
-          code: "experimental-internal",
-          target: modifier,
+          code: "experimental-feature",
+          messageId: "internal",
+          target: node,
         }),
       );
     }
