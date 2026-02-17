@@ -315,6 +315,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void XmlSerializationHandlesNullableDateTimeOffsetProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "timestamp",
+                    new InputDateTimeType(DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String),
+                    isRequired: false,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("timestamp")))]);
+
+            var modelProvider = new ModelProvider(inputModel);
+            var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(mrwProvider);
+            var xmlSerializationMethod = mrwProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "XmlModelWriteCore" &&
+                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(XmlWriter))));
+
+            Assert.IsNotNull(xmlSerializationMethod);
+            var methodBody = xmlSerializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("WriteStringValue") && methodBody.Contains("Timestamp.Value"),
+                $"Nullable DateTimeOffset property should be serialized with WriteStringValue and .Value accessor. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void XmlSerializationHandlesNullableTimeSpanProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "duration",
+                    new InputDurationType(DurationKnownEncoding.Iso8601, "duration", "TypeSpec.duration", InputPrimitiveType.String, null),
+                    isRequired: false,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("duration")))]);
+
+            var modelProvider = new ModelProvider(inputModel);
+            var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(mrwProvider);
+            var xmlSerializationMethod = mrwProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "XmlModelWriteCore" &&
+                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(XmlWriter))));
+
+            Assert.IsNotNull(xmlSerializationMethod);
+            var methodBody = xmlSerializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("Duration.Value") && methodBody.Contains("WriteStringValue"),
+                $"Nullable TimeSpan property should be serialized with WriteStringValue and .Value accessor. Actual:\n{methodBody}");
+        }
+
+        [Test]
         public void XmlSerializationHandlesBytesProperty()
         {
             var inputModel = InputFactory.Model(
