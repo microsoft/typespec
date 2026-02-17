@@ -11,6 +11,6 @@ overrides:
   rollup: 4.49.0 # Regression in 4.50.0 https://github.com/rollup/rollup/issues/6099
 
 # Minimum age (in minutes) for a new dependency version to be able to be used.
-minimumReleaseAge: 2880 # 2 days
+minimumReleaseAge: 1440 # 2 days
 minimumReleaseAgeExclude:
   - "@alloy-js/*"
