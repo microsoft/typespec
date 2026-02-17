@@ -95,6 +95,14 @@ namespace SampleTypeSpec
             return BinaryContent.Create(tree, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified format. </summary>
+        /// <param name="format"> The format to use for serialization. </param>
+        internal BinaryContent ToBinaryContent(string format)
+        {
+            ModelReaderWriterOptions options = new ModelReaderWriterOptions(format);
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Tree"/> from. </param>
         public static explicit operator Tree(ClientResult result)
         {
