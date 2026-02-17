@@ -27,7 +27,7 @@ export async function preContrastResult(
   } catch (e) {
     await cs.screenshot(page, "error");
     app.close();
-    throw new Error(`${errorMessage} - Timed out waiting for text: "${text}" - ${e}`);
+    throw new Error(`${errorMessage} - Timed out waiting for text: "${text}" - ${e}`, { cause: e });
   }
 }
 

@@ -305,8 +305,7 @@ function checkForPylintIssues(outputDir: string, excludePattern: string) {
   };
 
   const processFile = (filePath: string) => {
-    let fileContent = "";
-    fileContent = fs.readFileSync(filePath, "utf-8");
+    const fileContent = fs.readFileSync(filePath, "utf-8");
     const pylintDisables: string[] = [];
     const lineEnding = fileContent.includes("\r\n") && os.platform() === "win32" ? "\r\n" : "\n";
     const lines: string[] = fileContent.split(lineEnding);

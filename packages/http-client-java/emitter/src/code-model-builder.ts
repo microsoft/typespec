@@ -1879,6 +1879,8 @@ export class CodeModelBuilder {
 
         // group schema
 
+        // TODO: double check this suppression
+        // eslint-disable-next-line no-useless-assignment
         let coreNamespace = this.namespace;
         if (this.isAzureV1()) {
           coreNamespace = "com.azure.core.http";
@@ -2201,10 +2203,8 @@ export class CodeModelBuilder {
     // TODO: what to do if more than 1 response?
     // It happens when the response type is Union, on one status code.
     // let response: Response;
-    let headers: Array<HttpHeader> | undefined = undefined;
+    const headers: Array<HttpHeader> = [];
 
-    // headers
-    headers = [];
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.name);

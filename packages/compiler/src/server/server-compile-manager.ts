@@ -53,7 +53,7 @@ export class ServerCompileManager {
     compileOptions: CompilerOptions = {},
     serverCompileOptions: ServerCompileOptions,
   ): Promise<CompileTracker> {
-    let cache = undefined;
+    let cache;
     const curId = this.compileId++;
     const err = new Error();
     const lines = err.stack?.split("\n") ?? [];

@@ -57,5 +57,6 @@
   "typescript.tsdk": "./node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
   "vitest.rootConfig": "vitest.config.js",
+  "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
   "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler"
 }
