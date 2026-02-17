@@ -12,24 +12,25 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
 {
     public class XmlPaginationTests : SpectorTestBase
     {
+        private static readonly Dictionary<string, string> ExpectedPets = new()
+        {
+            { "1", "dog" },
+            { "2", "cat" },
+            { "3", "bird" },
+            { "4", "fish" },
+        };
+
         [SpectorTest]
         public Task ConvenienceMethodWithContinuation() => Test(async (host) =>
         {
             var client = new PageableClient(host, null);
             var result = client.GetXmlPaginationClient().GetWithContinuationAsync();
             int count = 0;
-            var expectedPets = new Dictionary<string, string>()
-            {
-                { "1", "dog" },
-                { "2", "cat" },
-                { "3", "bird" },
-                { "4", "fish" },
-            };
             await foreach (var pet in result)
             {
                 Assert.IsNotNull(pet);
                 Assert.AreEqual((++count).ToString(), pet.Id);
-                Assert.AreEqual(expectedPets[pet.Id], pet.Name);
+                Assert.AreEqual(ExpectedPets[pet.Id], pet.Name);
             }
             Assert.AreEqual(4, count);
         });
@@ -40,18 +41,11 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetXmlPaginationClient().GetWithContinuation();
             int count = 0;
-            var expectedPets = new Dictionary<string, string>()
-            {
-                { "1", "dog" },
-                { "2", "cat" },
-                { "3", "bird" },
-                { "4", "fish" },
-            };
             foreach (var pet in result)
             {
                 Assert.IsNotNull(pet);
                 Assert.AreEqual((++count).ToString(), pet.Id);
-                Assert.AreEqual(expectedPets[pet.Id], pet.Name);
+                Assert.AreEqual(ExpectedPets[pet.Id], pet.Name);
             }
             Assert.AreEqual(4, count);
             return Task.CompletedTask;
@@ -63,13 +57,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetXmlPaginationClient().GetWithContinuationAsync(null, new RequestOptions());
             int count = 0;
-            var expectedPets = new Dictionary<string, string>()
-            {
-                { "1", "dog" },
-                { "2", "cat" },
-                { "3", "bird" },
-                { "4", "fish" },
-            };
             await foreach (var page in result.GetRawPagesAsync())
             {
                 Assert.IsNotNull(page);
@@ -84,7 +71,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
                     Assert.IsNotNull(id);
                     Assert.IsNotNull(name);
                     Assert.AreEqual((++count).ToString(), id);
-                    Assert.AreEqual(expectedPets[id!], name);
+                    Assert.AreEqual(ExpectedPets[id!], name);
                 }
             }
             Assert.AreEqual(4, count);
@@ -96,13 +83,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetXmlPaginationClient().GetWithContinuation(null, new RequestOptions());
             int count = 0;
-            var expectedPets = new Dictionary<string, string>()
-            {
-                { "1", "dog" },
-                { "2", "cat" },
-                { "3", "bird" },
-                { "4", "fish" },
-            };
             foreach (var page in result.GetRawPages())
             {
                 Assert.IsNotNull(page);
@@ -117,7 +97,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
                     Assert.IsNotNull(id);
                     Assert.IsNotNull(name);
                     Assert.AreEqual((++count).ToString(), id);
-                    Assert.AreEqual(expectedPets[id!], name);
+                    Assert.AreEqual(ExpectedPets[id!], name);
                 }
             }
             Assert.AreEqual(4, count);
@@ -130,18 +110,11 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetXmlPaginationClient().GetWithNextLinkAsync();
             int count = 0;
-            var expectedPets = new Dictionary<string, string>()
-            {
-                { "1", "dog" },
-                { "2", "cat" },
-                { "3", "bird" },
-                { "4", "fish" },
-            };
             await foreach (var pet in result)
             {
                 Assert.IsNotNull(pet);
                 Assert.AreEqual((++count).ToString(), pet.Id);
-                Assert.AreEqual(expectedPets[pet.Id], pet.Name);
+                Assert.AreEqual(ExpectedPets[pet.Id], pet.Name);
             }
             Assert.AreEqual(4, count);
         });
@@ -152,18 +125,11 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetXmlPaginationClient().GetWithNextLink();
             int count = 0;
-            var expectedPets = new Dictionary<string, string>()
-            {
-                { "1", "dog" },
-                { "2", "cat" },
-                { "3", "bird" },
-                { "4", "fish" },
-            };
             foreach (var pet in result)
             {
                 Assert.IsNotNull(pet);
                 Assert.AreEqual((++count).ToString(), pet.Id);
-                Assert.AreEqual(expectedPets[pet.Id], pet.Name);
+                Assert.AreEqual(ExpectedPets[pet.Id], pet.Name);
             }
             Assert.AreEqual(4, count);
             return Task.CompletedTask;
@@ -175,13 +141,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetXmlPaginationClient().GetWithNextLinkAsync(new RequestOptions());
             int count = 0;
-            var expectedPets = new Dictionary<string, string>()
-            {
-                { "1", "dog" },
-                { "2", "cat" },
-                { "3", "bird" },
-                { "4", "fish" },
-            };
             await foreach (var page in result.GetRawPagesAsync())
             {
                 Assert.IsNotNull(page);
@@ -196,7 +155,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
                     Assert.IsNotNull(id);
                     Assert.IsNotNull(name);
                     Assert.AreEqual((++count).ToString(), id);
-                    Assert.AreEqual(expectedPets[id!], name);
+                    Assert.AreEqual(ExpectedPets[id!], name);
                 }
             }
             Assert.AreEqual(4, count);
@@ -208,13 +167,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetXmlPaginationClient().GetWithNextLink(new RequestOptions());
             int count = 0;
-            var expectedPets = new Dictionary<string, string>()
-            {
-                { "1", "dog" },
-                { "2", "cat" },
-                { "3", "bird" },
-                { "4", "fish" },
-            };
             foreach (var page in result.GetRawPages())
             {
                 Assert.IsNotNull(page);
@@ -229,7 +181,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
                     Assert.IsNotNull(id);
                     Assert.IsNotNull(name);
                     Assert.AreEqual((++count).ToString(), id);
-                    Assert.AreEqual(expectedPets[id!], name);
+                    Assert.AreEqual(ExpectedPets[id!], name);
                 }
             }
             Assert.AreEqual(4, count);
