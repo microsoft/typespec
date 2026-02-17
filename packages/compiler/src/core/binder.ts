@@ -469,14 +469,10 @@ export function createBinder(program: Program): Binder {
       // locals are never shared.
       mutate(statement).locals = createSymbolTable();
       mutate(existingBinding.declarations).push(statement);
-
-      // TODO: report diagnostic if merging an internal and non-internal namespace
     } else {
       // Initialize locals for non-exported symbols
       mutate(statement).locals = createSymbolTable();
-      const internal =
-        statement.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
-      declareSymbol(statement, SymbolFlags.Namespace | SymbolFlags.Declaration | internal);
+      declareSymbol(statement, SymbolFlags.Namespace | SymbolFlags.Declaration);
     }
 
     currentFile.namespaces.push(statement);

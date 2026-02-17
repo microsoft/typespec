@@ -542,6 +542,13 @@ const diagnostics = {
       "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
     },
   },
+  "experimental-internal": {
+    severity: "warning",
+    messages: {
+      default:
+        "The 'internal' modifier is experimental and may change or be removed in future releases.",
+    },
+  },
   "function-unsupported": {
     severity: "error",
     messages: {

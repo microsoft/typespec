@@ -2052,14 +2052,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ctx: CheckContext,
     node: DecoratorDeclarationStatementNode,
   ): Decorator {
-    checkModifiers(program, node);
-
     const symbol = getMergedSymbol(node.symbol);
     const links = getSymbolLinks(symbol);
     if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this operation and we've already checked it
       return links.declaredType as Decorator;
     }
+    checkModifiers(program, node);
 
     const namespace = getParentNamespaceType(node);
     compilerAssert(
@@ -2454,7 +2453,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: OperationStatementNode,
     parentInterface?: Interface,
   ): Operation {
-    checkModifiers(program, node);
     const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
     const symbol = inInterface ? getSymbolForMember(node) : node.symbol;
     const links = symbol && getSymbolLinks(symbol);
@@ -2464,6 +2462,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         // we're not instantiating this operation and we've already checked it
         return links.declaredType as Operation;
       }
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
 
     if (ctx.mapper === undefined && inInterface) {
@@ -3360,8 +3361,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkSymbolAccess(sourceLocation: LocationContext, node: Node, symbol: Sym | undefined) {
     if (!symbol) return;
 
-    if (symbol.flags & SymbolFlags.Internal) debugger;
-
     const isInternalDeclaration =
       (symbol.flags & (SymbolFlags.Internal | SymbolFlags.Declaration)) ===
       (SymbolFlags.Internal | SymbolFlags.Declaration);
@@ -3856,8 +3855,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkModelStatement(ctx: CheckContext, node: ModelStatementNode): Model {
-    checkModifiers(program, node);
-
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -3867,6 +3864,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
@@ -5516,7 +5516,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkScalar(ctx: CheckContext, node: ScalarStatementNode): Scalar {
-    checkModifiers(program, node);
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -5527,6 +5526,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
@@ -5666,8 +5668,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkAlias(ctx: CheckContext, node: AliasStatementNode): Type | IndeterminateEntity {
-    checkModifiers(program, node);
-
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -5677,6 +5677,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     if (links.declaredType && ctx.mapper === undefined) {
       return links.declaredType;
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
@@ -5713,12 +5716,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkConst(node: ConstStatementNode): Value | null {
-    checkModifiers(program, node);
-
     const links = getSymbolLinks(node.symbol);
     if (links.value !== undefined) {
       return links.value;
     }
+    checkModifiers(program, node);
 
     const type = node.type ? getTypeForNode(node.type, undefined) : undefined;
 
@@ -5764,10 +5766,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkEnum(ctx: CheckContext, node: EnumStatementNode): Type {
-    checkModifiers(program, node);
-
     const links = getSymbolLinks(node.symbol);
     if (!links.type) {
+      checkModifiers(program, node);
       const enumType: Enum = (links.type = createType({
         kind: "Enum",
         name: node.id.sv,
@@ -5820,8 +5821,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkInterface(ctx: CheckContext, node: InterfaceStatementNode): Interface {
-    checkModifiers(program, node);
-
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -5832,6 +5831,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this interface and we've already checked it
       return links.declaredType as Interface;
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
@@ -5937,8 +5939,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkUnion(ctx: CheckContext, node: UnionStatementNode) {
-    checkModifiers(program, node);
-
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -5948,6 +5948,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this union and we've already checked it
       return links.declaredType as Union;
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 

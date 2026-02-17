@@ -27,8 +27,13 @@ const DEFAULT_COMPATIBILITY: ModifierCompatibility = {
   required: ModifierFlags.None,
 };
 
+const NO_MODIFIERS: ModifierCompatibility = {
+  allowed: ModifierFlags.None,
+  required: ModifierFlags.None,
+};
+
 const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibility>> = {
-  [SyntaxKind.NamespaceStatement]: DEFAULT_COMPATIBILITY,
+  [SyntaxKind.NamespaceStatement]: NO_MODIFIERS,
   [SyntaxKind.OperationStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ModelStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ScalarStatement]: DEFAULT_COMPATIBILITY,
@@ -57,6 +62,19 @@ export function checkModifiers(program: Program, node: Declaration): boolean {
   const compatibility = SYNTAX_MODIFIERS[node.kind];
 
   let isValid = true;
+
+  // Emit experimental warning for any use of the 'internal' modifier.
+  if (node.modifierFlags & ModifierFlags.Internal) {
+    const internalModifiers = filterModifiersByFlags(node.modifiers, ModifierFlags.Internal);
+    for (const modifier of internalModifiers) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "experimental-internal",
+          target: modifier,
+        }),
+      );
+    }
+  }
 
   const invalidModifiers = node.modifierFlags & ~compatibility.allowed;
 

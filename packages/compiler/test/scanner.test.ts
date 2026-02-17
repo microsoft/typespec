@@ -396,6 +396,7 @@ describe("compiler: scanner", () => {
       Token.NeverKeyword,
       Token.UnknownKeyword,
       Token.ExternKeyword,
+      Token.InternalKeyword,
       Token.ValueOfKeyword,
       Token.TypeOfKeyword,
     ];
