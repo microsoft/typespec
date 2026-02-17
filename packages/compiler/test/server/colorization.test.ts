@@ -44,6 +44,7 @@ const Token = {
     fn: createToken("fn", "keyword.other.tsp"),
     extends: createToken("extends", "keyword.other.tsp"),
     extern: createToken("extern", "keyword.other.tsp"),
+    internal: createToken("internal", "keyword.other.tsp"),
     is: createToken("is", "keyword.other.tsp"),
     valueof: createToken("valueof", "keyword.other.tsp"),
     typeof: createToken("typeof", "keyword.other.tsp"),
