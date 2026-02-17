@@ -7,6 +7,7 @@ import {
   createScanner,
   isComment,
   isKeyword,
+  isModifier,
   isPunctuation,
   isReservedKeyword,
   isStatementKeyword,
@@ -745,11 +746,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const nextToken = token();
 
     let id: IdentifierNode | undefined;
-    if (isReservedKeyword(nextToken)) {
+    if (isReservedKeyword(nextToken) || isModifier(nextToken)) {
       id = parseIdentifier({ allowReservedIdentifier: true });
       // If the next token is not a colon this means we tried to use the reserved keyword as a type reference
       if (token() !== Token.Colon) {
-        error({ code: "reserved-identifier", messageId: "future", format: { name: id.sv } });
+        if (isReservedKeyword(nextToken)) {
+          error({ code: "reserved-identifier", messageId: "future", format: { name: id.sv } });
+        } else {
+          error({ code: "reserved-identifier" });
+        }
       }
       return {
         kind: SyntaxKind.TypeReference,
@@ -1999,8 +2004,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     allowReservedIdentifier?: boolean;
   }): IdentifierNode {
     if (isKeyword(token())) {
-      error({ code: "reserved-identifier" });
-      return createMissingIdentifier();
+      if (!(isModifier(token()) && options?.allowReservedIdentifier)) {
+        error({ code: "reserved-identifier" });
+        return createMissingIdentifier();
+      }
     } else if (isReservedKeyword(token())) {
       if (!options?.allowReservedIdentifier) {
         error({ code: "reserved-identifier", messageId: "future", format: { name: tokenValue() } });

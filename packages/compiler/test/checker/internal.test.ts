@@ -348,4 +348,16 @@ describe("compiler: internal modifier", () => {
       });
     });
   });
+
+  describe("'internal' as identifier", () => {
+    it("allows 'internal' as a model property name", async () => {
+      const diagnostics = await Tester.diagnose(`model M { internal: string; }`);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("allows 'internal' as a union variant name", async () => {
+      const diagnostics = await Tester.diagnose(`union U { internal: string }`);
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
 });
