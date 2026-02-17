@@ -73,7 +73,7 @@
   "devDependencies": {
     "@alloy-js/cli": "^0.22.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
     "@typespec/prettier-plugin-typespec": "workspace:^",
