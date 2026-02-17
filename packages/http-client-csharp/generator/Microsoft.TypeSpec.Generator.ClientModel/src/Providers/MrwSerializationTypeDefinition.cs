@@ -1979,14 +1979,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 stringJoinExpression = StringSnippets.Join(Literal(delimiter), propertyExpression);
             }
-            else if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
+            else if (elementType.IsEnum && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
             {
-                var x = new VariableExpression(typeof(object), "x");
+                var x = new VariableExpression(elementType, "x");
+                var body = elementType.ToSerial(x);
                 var selectExpression = propertyExpression.Invoke(nameof(Enumerable.Select),
-                    new FuncExpression([x.Declaration], new TernaryConditionalExpression(
-                        x.Equal(Null),
-                        Literal(""),
-                        elementType.ToSerial(x))));
+                    [new FuncExpression([x.Declaration], body)],
+                    [],
+                    false,
+                    extensionType: typeof(Enumerable));
                 stringJoinExpression = StringSnippets.Join(Literal(delimiter), selectExpression);
             }
             else
@@ -2050,27 +2051,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
                 }
             }
-            else if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
+            else if (elementType.IsEnum && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
             {
-                var splitExpression = new TernaryConditionalExpression(
-                    isNullOrEmptyCheck,
-                    New.Array(typeof(string)),
-                    stringValueVar.As<string>().Split(delimiterChar));
-
                 var s = new VariableExpression(typeof(string), "s");
                 var trimmedS = s.Invoke(nameof(string.Trim));
+                var parseExpression = elementType.ToEnum(trimmedS);
 
-                var parseExpression = Static(elementType).Invoke("Parse", trimmedS);
+                var splitAndParse = stringValueVar.As<string>().Split(delimiterChar)
+                    .Invoke(nameof(Enumerable.Select), new FuncExpression([s.Declaration], parseExpression));
 
-                var selectExpression = splitExpression.Invoke(nameof(Enumerable.Select),
-                    new FuncExpression([s.Declaration], parseExpression));
-
-                var finalExpression = propertyType.IsArray
-                    ? selectExpression.Invoke(nameof(Enumerable.ToArray))
-                    : propertyType.IsList
-                        ? New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), selectExpression)
-                        : New.Instance(propertyType.PropertyInitializationType, selectExpression);
-                createArrayStatement = variableExpression.Assign(finalExpression).Terminate();
+                if (propertyType.IsArray)
+                {
+                    var conditionalExpression = new TernaryConditionalExpression(
+                        isNullOrEmptyCheck,
+                        New.Array(elementType),
+                        splitAndParse.Invoke(nameof(Enumerable.ToArray)));
+                    createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
+                }
+                else
+                {
+                    var initType = propertyType.PropertyInitializationType;
+                    var conditionalExpression = new TernaryConditionalExpression(
+                        isNullOrEmptyCheck,
+                        New.Instance(initType),
+                        New.Instance(initType, splitAndParse.Invoke(nameof(Enumerable.ToList)).CastTo(new CSharpType(typeof(IList<>), elementType))));
+                    createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
+                }
             }
             else
             {

@@ -273,7 +273,10 @@ namespace SampleTypeSpec
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/WithApiVersion", false);
-            uri.AppendQuery("apiVersion", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("apiVersion", _apiVersion, true);
+            }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
             PipelineRequest request = message.Request;
             request.Headers.Set("p1", p1);
@@ -302,8 +305,7 @@ namespace SampleTypeSpec
             }
             else
             {
-                uri.Reset(_endpoint);
-                uri.AppendPath(nextPage.OriginalString, false);
+                uri.Reset(new Uri(_endpoint, nextPage));
             }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
@@ -333,8 +335,7 @@ namespace SampleTypeSpec
             }
             else
             {
-                uri.Reset(_endpoint);
-                uri.AppendPath(nextPage.OriginalString, false);
+                uri.Reset(new Uri(_endpoint, nextPage));
             }
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;

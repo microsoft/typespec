@@ -222,11 +222,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         uri.Reset(nextPageVar).Terminate()
                     },
-                    new MethodBodyStatements(
-                    [
-                        uri.Reset(ClientProvider.EndpointField).Terminate(),
-                        uri.AppendPath(nextPageVar.Property(nameof(Uri.OriginalString)), false).Terminate()
-                    ])));
+                    uri.Reset(New.Instance<Uri>(ClientProvider.EndpointField, nextPageVar)).Terminate()));
 
                 // handle reinjected parameters for URI
                 var reinjectedParamsMap = GetReinjectedParametersMap(nextLink, pagingServiceMethod, operation, paramMap);
