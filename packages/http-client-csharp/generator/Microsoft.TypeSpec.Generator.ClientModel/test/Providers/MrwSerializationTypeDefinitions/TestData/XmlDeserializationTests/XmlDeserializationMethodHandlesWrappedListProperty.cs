@@ -11,7 +11,7 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class TestXmlModel
+    public partial class TestXmlModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>
     {
         internal TestXmlModel()
         {

@@ -15,6 +15,16 @@ namespace Encode.Duration._Property
 
         protected virtual FloatMillisecondsLargerUnitDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<FloatMillisecondsLargerUnitDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        FloatMillisecondsLargerUnitDurationProperty IPersistableModel<FloatMillisecondsLargerUnitDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<FloatMillisecondsLargerUnitDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(FloatMillisecondsLargerUnitDurationProperty floatMillisecondsLargerUnitDurationProperty) => throw null;
+
         public static explicit operator FloatMillisecondsLargerUnitDurationProperty(ClientResult result) => throw null;
 
         void IJsonModel<FloatMillisecondsLargerUnitDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode.Duration._Property
         FloatMillisecondsLargerUnitDurationProperty IJsonModel<FloatMillisecondsLargerUnitDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual FloatMillisecondsLargerUnitDurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<FloatMillisecondsLargerUnitDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        FloatMillisecondsLargerUnitDurationProperty IPersistableModel<FloatMillisecondsLargerUnitDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<FloatMillisecondsLargerUnitDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(FloatMillisecondsLargerUnitDurationProperty floatMillisecondsLargerUnitDurationProperty) => throw null;
     }
 }

@@ -120,7 +120,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
                 "case_insensitive_dict",
                 ImportType.SDKCORE,
             )
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, typing_section=TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, typing_section=TypingSection.REGULAR)
         file_import.add_msrest_import(
             serialize_namespace=kwargs.get("serialize_namespace", self.code_model.namespace),
             msrest_import_type=MsrestImportType.Serializer,

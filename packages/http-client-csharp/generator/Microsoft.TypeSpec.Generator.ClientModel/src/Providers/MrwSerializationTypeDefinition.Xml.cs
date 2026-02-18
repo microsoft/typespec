@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using System.Xml;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
@@ -24,25 +25,452 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public partial class MrwSerializationTypeDefinition
     {
+        private const string XmlWriteMethodName = "Write";
+        private const string XmlModelWriteCoreMethodName = "XmlModelWriteCore";
+        private readonly ParameterProvider _xmlWriterParameter = new("writer", $"The XML writer.", typeof(XmlWriter));
         private readonly ParameterProvider _xElementDeserializationParam = new("element", $"The xml element to deserialize.", typeof(XElement));
+        private readonly ParameterProvider _nameHintParameter = new("nameHint", $"An optional name hint.", typeof(string));
         private readonly ScopedApi<XElement> _xmlElementParameterSnippet;
+        private ScopedApi<XmlWriter> _xmlWriterSnippet;
         private const string ContentTypeHeader = "Content-Type";
 
         private record XmlPropertyInfo(
             string PropertyName,
             CSharpType PropertyType,
-            VariableExpression PropertyExpression,
+            MemberExpression SerializationExp,
+            VariableExpression DeserializationExp,
             XmlSerialization XmlWireInfo,
             SerializationFormat SerializationFormat,
-            IEnumerable<AttributeStatement> SerializationAttributes);
+            IEnumerable<AttributeStatement> SerializationAttributes,
+            bool IsRequired,
+            bool IsReadOnly);
 
-        private record XmlNamespaceInfo(string Namespace, string VariableName, VariableExpression VariableExpression);
+        private record XmlNamespaceInfo(string Namespace, string VariableName, string Prefix, VariableExpression VariableExpression);
 
         private record XmlPropertyCategories(
             List<XmlPropertyInfo>? AttributeProperties,
             List<XmlPropertyInfo>? ElementProperties,
             XmlPropertyInfo? TextContentProperty,
             Dictionary<string, XmlNamespaceInfo>? Namespaces);
+
+        private XmlPropertyCategories? _allCategorizedXmlProperties;
+        private XmlPropertyCategories AllCategorizedXmlProperties => _allCategorizedXmlProperties ??= CategorizeXmlProperties();
+
+        private XmlPropertyCategories? _categorizedXmlProperties;
+        private XmlPropertyCategories CategorizedXmlProperties => _categorizedXmlProperties ??= CategorizeXmlProperties(ownPropertiesOnly: true);
+
+        private MethodProvider BuildXmlModelWriteCoreMethod()
+        {
+            MethodSignatureModifiers modifiers = _isStruct
+                ? MethodSignatureModifiers.Private
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            if (_shouldOverrideMethods)
+            {
+                modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
+            }
+
+            // void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+            return new MethodProvider(
+                new MethodSignature(XmlModelWriteCoreMethodName, null, modifiers, null, null, [_xmlWriterParameter, _serializationOptionsParameter]),
+                BuildXmlModelWriteCoreMethodBody(),
+                this);
+        }
+
+        private MethodBodyStatement[] BuildXmlModelWriteCoreMethodBody()
+        {
+            var categorizedProperties = _shouldOverrideMethods
+                ? CategorizedXmlProperties
+                : AllCategorizedXmlProperties;
+            var statements = new List<MethodBodyStatement>
+            {
+                CreateValidateFormat(_persistableModelTInterface, WriteAction, ModelReaderWriterOptionsSnippets.XmlFormat),
+                MethodBodyStatement.EmptyLine
+            };
+
+            if (_shouldOverrideMethods)
+            {
+                statements.Add(Base.Invoke(XmlModelWriteCoreMethodName, _xmlWriterParameter, _serializationOptionsParameter).Terminate());
+            }
+
+            // Write attributes
+            if (categorizedProperties.AttributeProperties?.Count > 0)
+            {
+                foreach (var prop in categorizedProperties.AttributeProperties)
+                {
+                    statements.Add(CreateXmlWriteAttributeStatement(prop, categorizedProperties.Namespaces));
+                }
+            }
+
+            // Write elements
+            if (categorizedProperties.ElementProperties?.Count > 0)
+            {
+                foreach (var prop in categorizedProperties.ElementProperties)
+                {
+                    statements.Add(CreateXmlWriteElementStatement(prop, categorizedProperties.Namespaces));
+                }
+            }
+
+            // Write unwrapped content
+            if (categorizedProperties.TextContentProperty != null)
+            {
+                statements.Add(CreateXmlWriteTextContentStatement(categorizedProperties.TextContentProperty));
+            }
+
+            return [.. statements];
+        }
+
+        private MethodProvider BuildXmlWriteMethod()
+        {
+            // private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+            return new MethodProvider(
+                new MethodSignature(XmlWriteMethodName, null, MethodSignatureModifiers.Private, null, null, [_xmlWriterParameter, _serializationOptionsParameter, _nameHintParameter]),
+                BuildXmlWriteMethodBody(),
+                this);
+        }
+
+        private MethodBodyStatement[] BuildXmlWriteMethodBody()
+        {
+            VariableExpression nameHintExpression = _nameHintParameter;
+            var nameHintNotNull = nameHintExpression.NotEqual(Null);
+            var ns = _inputModel.SerializationOptions.Xml?.Namespace;
+
+            MethodBodyStatement writeStartElement = ns != null
+                ? _xmlWriterSnippet.WriteStartElement(ns.Prefix, nameHintExpression, ns.Namespace)
+                : _xmlWriterSnippet.WriteStartElement(nameHintExpression);
+
+            return
+            [
+                new IfStatement(nameHintNotNull) { writeStartElement },
+                MethodBodyStatement.EmptyLine,
+                This.Invoke(XmlModelWriteCoreMethodName, _xmlWriterParameter, _serializationOptionsParameter).Terminate(),
+                MethodBodyStatement.EmptyLine,
+                new IfStatement(nameHintNotNull) { _xmlWriterSnippet.WriteEndElement() }
+            ];
+        }
+
+        private MethodBodyStatement CreateXmlWriteAttributeStatement(XmlPropertyInfo prop, Dictionary<string, XmlNamespaceInfo>? namespaces)
+        {
+            // Check for custom serialization hook
+            var serializationHook = GetXmlSerializationHookStatement(prop.PropertyName, prop.SerializationAttributes);
+            if (serializationHook != null)
+            {
+                return WrapInIsDefinedCheck(prop, serializationHook);
+            }
+
+            var xmlWireInfo = prop.XmlWireInfo;
+            if (xmlWireInfo.Namespace != null && namespaces?.TryGetValue(xmlWireInfo.Namespace.Namespace, out var nsInfo) == true)
+            {
+                var stringValue = CreateXmlSerializeValueExpression(prop.SerializationExp, prop.PropertyType, prop.SerializationFormat);
+                var writeStatement = _xmlWriterSnippet.WriteAttributeString(
+                    nsInfo.Prefix,
+                    xmlWireInfo.Name,
+                    nsInfo.Namespace,
+                    prop.SerializationExp);
+
+                return WrapInIsDefinedCheck(prop, writeStatement);
+            }
+
+            var statements = new List<MethodBodyStatement>
+            {
+                _xmlWriterSnippet.WriteStartAttribute(xmlWireInfo.Name),
+                CreateXmlWriteValueStatement(prop.SerializationExp, prop.PropertyType, prop.SerializationFormat),
+                _xmlWriterSnippet.WriteEndAttribute()
+            };
+
+            return WrapInIsDefinedCheck(prop, statements);
+        }
+
+        private MethodBodyStatement CreateXmlWriteElementStatement(XmlPropertyInfo prop, Dictionary<string, XmlNamespaceInfo>? namespaces)
+        {
+            // Check for custom serialization hook
+            var serializationHook = GetXmlSerializationHookStatement(prop.PropertyName, prop.SerializationAttributes);
+            if (serializationHook != null)
+            {
+                return WrapInIsDefinedCheck(prop, serializationHook);
+            }
+
+            if (prop.PropertyType.IsList || prop.PropertyType.IsArray)
+            {
+                return CreateXmlWriteListStatement(prop, namespaces);
+            }
+
+            if (prop.PropertyType.IsDictionary)
+            {
+                return CreateXmlWriteDictionaryStatement(prop, namespaces);
+            }
+
+            return CreateXmlWriteSingleElementStatement(prop, namespaces);
+        }
+
+        private MethodBodyStatement CreateXmlWriteSingleElementStatement(
+            XmlPropertyInfo prop,
+            Dictionary<string, XmlNamespaceInfo>? namespaces)
+        {
+            var statements = new List<MethodBodyStatement>();
+
+            if (prop.XmlWireInfo.Namespace != null && namespaces != null && namespaces.TryGetValue(prop.XmlWireInfo.Namespace.Namespace, out var nsInfo))
+            {
+                statements.Add(_xmlWriterSnippet.WriteStartElement(
+                    nsInfo.Prefix,
+                    prop.XmlWireInfo.Name,
+                    nsInfo.Namespace));
+            }
+            else
+            {
+                statements.Add(_xmlWriterSnippet.WriteStartElement(prop.XmlWireInfo.Name));
+            }
+
+            statements.AddRange(
+                CreateXmlWriteValueStatement(prop.SerializationExp, prop.PropertyType, prop.SerializationFormat),
+                _xmlWriterSnippet.WriteEndElement());
+
+            return WrapInIsDefinedCheck(prop, statements);
+        }
+
+        private MethodBodyStatement CreateXmlWriteValueStatement(ValueExpression value, CSharpType valueType, SerializationFormat serializationFormat)
+        {
+            var underlyingType = valueType.IsNullable && valueType.Arguments.Count > 0
+                ? valueType.Arguments[0]
+                : valueType;
+
+            if (underlyingType.IsList || underlyingType.IsArray)
+            {
+                return CreateXmlWriteListForEachStatement(value, underlyingType.ElementType, null, null, serializationFormat, null);
+            }
+
+            if (underlyingType.IsDictionary)
+            {
+                return CreateXmlWriteDictionaryForEachStatement(value, underlyingType.Arguments[0], underlyingType.Arguments[1], serializationFormat);
+            }
+
+            if (!underlyingType.IsFrameworkType)
+            {
+                return underlyingType.IsEnum
+                    ? _xmlWriterSnippet.WriteValue(CreateXmlSerializeValueExpression(value, valueType, serializationFormat))
+                    : _xmlWriterSnippet.WriteObjectValue(value.As(valueType), _serializationOptionsParameter);
+            }
+
+            return underlyingType.FrameworkType switch
+            {
+                Type t when (t == typeof(DateTimeOffset) || t == typeof(TimeSpan)) && serializationFormat.ToFormatSpecifier() is string formatSpecifier
+                    => _xmlWriterSnippet.WriteStringValue(value.NullableStructValue(valueType), formatSpecifier),
+                Type t when (t == typeof(byte[]) || t == typeof(BinaryData)) && serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
+                    => _xmlWriterSnippet.WriteBase64StringValue(t == typeof(BinaryData)
+                    ? value.As<BinaryData>().ToArray()
+                    : value.NullableStructValue(valueType),
+                    serializationFormat.ToFormatSpecifier()),
+                _ => _xmlWriterSnippet.WriteValue(CreateXmlSerializeValueExpression(value, valueType, serializationFormat))
+            };
+        }
+
+        private MethodBodyStatement CreateXmlWriteListStatement(
+            XmlPropertyInfo prop,
+            Dictionary<string, XmlNamespaceInfo>? namespaces)
+        {
+            var elementType = prop.PropertyType.ElementType;
+            var xmlWireInfo = prop.XmlWireInfo;
+            var statements = new List<MethodBodyStatement>();
+
+            // If not unwrapped, write the wrapper element
+            if (xmlWireInfo.Unwrapped != true)
+            {
+                if (xmlWireInfo.Namespace != null && namespaces != null && namespaces.TryGetValue(xmlWireInfo.Namespace.Namespace, out var nsInfo))
+                {
+                    statements.Add(_xmlWriterSnippet.WriteStartElement(
+                        nsInfo.Prefix,
+                        xmlWireInfo.Name,
+                        nsInfo.Namespace));
+                }
+                else
+                {
+                    statements.Add(_xmlWriterSnippet.WriteStartElement(xmlWireInfo.Name));
+                }
+            }
+
+            statements.Add(CreateXmlWriteListForEachStatement(prop.SerializationExp, elementType, xmlWireInfo.ItemsName, xmlWireInfo.ItemsNamespace, prop.SerializationFormat, namespaces));
+
+            // If not unwrapped, write the end element
+            if (xmlWireInfo.Unwrapped != true)
+            {
+                statements.Add(_xmlWriterSnippet.WriteEndElement());
+            }
+
+            return WrapInIsDefinedCheck(prop, statements);
+        }
+
+        private ForEachStatement CreateXmlWriteListForEachStatement(
+            ValueExpression collection,
+            CSharpType elementType,
+            string? itemsName,
+            XmlSerializationNamespace? itemsNamespace,
+            SerializationFormat serializationFormat,
+            Dictionary<string, XmlNamespaceInfo>? namespaces)
+        {
+            return new ForEachStatement(elementType, "item", collection, false, out var itemVariable)
+            {
+                CreateXmlWriteItemStatement(itemVariable, elementType, itemsName, itemsNamespace, serializationFormat, namespaces)
+            };
+        }
+
+        private MethodBodyStatement CreateXmlWriteItemStatement(
+            VariableExpression itemVariable,
+            CSharpType itemType,
+            string? itemsName,
+            XmlSerializationNamespace? itemsNamespace,
+            SerializationFormat serializationFormat,
+            Dictionary<string, XmlNamespaceInfo>? namespaces)
+        {
+            var statements = new List<MethodBodyStatement>();
+            var elementName = itemsName ?? itemType.Name;
+
+            // Write start element for item
+            if (itemsNamespace != null && namespaces != null && namespaces.TryGetValue(itemsNamespace.Namespace, out var nsInfo))
+            {
+                statements.Add(_xmlWriterSnippet.WriteStartElement(
+                    nsInfo.Prefix,
+                    elementName,
+                    nsInfo.Namespace));
+            }
+            else
+            {
+                statements.Add(_xmlWriterSnippet.WriteStartElement(elementName));
+            }
+
+            statements.AddRange(
+                CreateXmlWriteValueStatement(itemVariable, itemType, serializationFormat),
+                _xmlWriterSnippet.WriteEndElement());
+
+            return statements;
+        }
+
+        private MethodBodyStatement CreateXmlWriteDictionaryStatement(
+            XmlPropertyInfo prop,
+            Dictionary<string, XmlNamespaceInfo>? namespaces)
+        {
+            var keyType = prop.PropertyType.Arguments[0];
+            var valueType = prop.PropertyType.Arguments[1];
+            var xmlWireInfo = prop.XmlWireInfo;
+            var statements = new List<MethodBodyStatement>();
+
+            // If not unwrapped, write the wrapper element
+            if (xmlWireInfo.Unwrapped != true)
+            {
+                if (xmlWireInfo.Namespace != null && namespaces != null && namespaces.TryGetValue(xmlWireInfo.Namespace.Namespace, out var nsInfo))
+                {
+                    statements.Add(_xmlWriterSnippet.WriteStartElement(
+                        nsInfo.Prefix,
+                        xmlWireInfo.Name,
+                        nsInfo.Namespace));
+                }
+                else
+                {
+                    statements.Add(_xmlWriterSnippet.WriteStartElement(xmlWireInfo.Name));
+                }
+            }
+
+            statements.Add(CreateXmlWriteDictionaryForEachStatement(prop.SerializationExp, keyType, valueType, prop.SerializationFormat));
+
+            // If not unwrapped, write the end element
+            if (xmlWireInfo.Unwrapped != true)
+            {
+                statements.Add(_xmlWriterSnippet.WriteEndElement());
+            }
+
+            return WrapInIsDefinedCheck(prop, statements);
+        }
+
+        private ForEachStatement CreateXmlWriteDictionaryForEachStatement(
+            ValueExpression collection,
+            CSharpType keyType,
+            CSharpType valueType,
+            SerializationFormat serializationFormat)
+        {
+            return new ForEachStatement("pair", collection.AsDictionary(keyType, valueType), out KeyValuePairExpression kvpExpression)
+            {
+                CreateXmlWriteDictionaryEntryStatement(kvpExpression, valueType, serializationFormat)
+            };
+        }
+
+        private MethodBodyStatement CreateXmlWriteDictionaryEntryStatement(
+            KeyValuePairExpression kvpExpression,
+            CSharpType valueType,
+            SerializationFormat serializationFormat)
+        {
+            var statements = new List<MethodBodyStatement>
+            {
+                _xmlWriterSnippet.WriteStartElement(kvpExpression.Key),
+                CreateXmlWriteValueStatement(kvpExpression.Value, valueType, serializationFormat),
+                _xmlWriterSnippet.WriteEndElement()
+            };
+            return statements;
+        }
+
+        private MethodBodyStatement CreateXmlWriteTextContentStatement(XmlPropertyInfo prop)
+        {
+            var serializedValue = CreateXmlSerializeValueExpression(prop.SerializationExp, prop.PropertyType, prop.SerializationFormat);
+            return WrapInIsDefinedCheck(prop, _xmlWriterSnippet.WriteValue(serializedValue));
+        }
+
+        private ValueExpression CreateXmlSerializeValueExpression(ValueExpression value, CSharpType valueType, SerializationFormat serializationFormat)
+        {
+            var underlyingType = valueType.IsNullable && valueType.Arguments.Count > 0
+                ? valueType.Arguments[0]
+                : valueType;
+
+            if (underlyingType.IsEnum)
+            {
+                return underlyingType.ToSerial(value.NullableStructValue(valueType));
+            }
+
+            if (!underlyingType.IsFrameworkType)
+            {
+                return value;
+            }
+
+            return CreateXmlSerializePrimitiveExpression(value.NullableStructValue(valueType), underlyingType, serializationFormat);
+        }
+
+        private static ValueExpression CreateXmlSerializePrimitiveExpression(ValueExpression value, CSharpType valueType, SerializationFormat serializationFormat)
+        {
+            return valueType.FrameworkType switch
+            {
+                Type t when t == typeof(DateTimeOffset) => serializationFormat switch
+                {
+                    _ => value.Invoke(nameof(ToString), Literal(serializationFormat.ToFormatSpecifier()))
+                },
+                Type t when t == typeof(TimeSpan) => value.Invoke(nameof(ToString), Literal(serializationFormat.ToFormatSpecifier())),
+                Type t when t == typeof(byte[]) => serializationFormat switch
+                {
+                    SerializationFormat.Bytes_Base64Url => Static(typeof(Convert)).Invoke(nameof(Convert.ToBase64String), value),
+                    _ => Static(typeof(Convert)).Invoke(nameof(Convert.ToBase64String), value)
+                },
+                Type t when t == typeof(BinaryData) => serializationFormat switch
+                {
+                    SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url =>
+                        Static(typeof(Convert)).Invoke(nameof(Convert.ToBase64String), value.Invoke("ToArray")),
+                    _ => value.Invoke(nameof(ToString))
+                },
+                _ => value
+            };
+        }
+
+        private static MethodBodyStatement WrapInIsDefinedCheck(XmlPropertyInfo prop, MethodBodyStatement writeStatements)
+        {
+            if (!prop.IsReadOnly &&
+                (IsNonNullableValueType(prop.PropertyType) || (prop.IsRequired && !prop.PropertyType.IsNullable)))
+            {
+                return writeStatements;
+            }
+
+            var isDefinedCondition = prop.PropertyType is { IsCollection: true, IsReadOnlyMemory: false }
+                ? OptionalSnippets.IsCollectionDefined(prop.SerializationExp)
+                : OptionalSnippets.IsDefined(prop.SerializationExp);
+
+            return new IfStatement(isDefinedCondition)
+            {
+                writeStatements
+            };
+        }
 
         internal MethodProvider BuildXmlDeserializationMethod()
         {
@@ -139,7 +567,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? Return(Default)
                 : Return(Null);
 
-            var categorizedProperties = CategorizeXmlProperties();
+            var categorizedProperties = AllCategorizedXmlProperties;
             var statements = new List<MethodBodyStatement>
             {
                 new IfStatement(_xmlElementParameterSnippet.Equal(Null)) { valueKindEqualsNullReturn },
@@ -170,7 +598,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (categorizedProperties.TextContentProperty != null)
             {
-                statements.Add(categorizedProperties.TextContentProperty.PropertyExpression.Assign(_xmlElementParameterSnippet.Value()).Terminate());
+                statements.Add(categorizedProperties.TextContentProperty.DeserializationExp.Assign(_xmlElementParameterSnippet.Value()).Terminate());
                 statements.Add(MethodBodyStatement.EmptyLine);
             }
 
@@ -179,7 +607,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. statements];
         }
 
-        private XmlPropertyCategories CategorizeXmlProperties()
+        private XmlPropertyCategories CategorizeXmlProperties(bool ownPropertiesOnly = false)
         {
             List<XmlPropertyInfo>? attributeProperties = null;
             List<XmlPropertyInfo>? elementProperties = null;
@@ -187,6 +615,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Dictionary<string, XmlNamespaceInfo>? namespaces = null;
 
             var parameters = SerializationConstructor.Signature.Parameters;
+            HashSet<PropertyProvider>? ownProperties = null;
+            HashSet<FieldProvider>? ownFields = null;
 
             // Get the custom serialization attributes
             var serializationAttributes = GetSerializationAttributes();
@@ -197,6 +627,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (parameter.Property == null && parameter.Field == null)
                 {
                     continue;
+                }
+
+                if (ownPropertiesOnly)
+                {
+                    if (parameter.Property != null)
+                    {
+                        ownProperties ??= [.. _model.CanonicalView.Properties];
+                        if (!ownProperties.Contains(parameter.Property))
+                        {
+                            continue;
+                        }
+                    }
+                    else if (parameter.Field != null)
+                    {
+                        ownFields ??= [.. _model.CanonicalView.Fields];
+                        if (!ownFields.Contains(parameter.Field))
+                        {
+                            continue;
+                        }
+                    }
                 }
 
                 var wireInfo = parameter.Property?.WireInfo ?? parameter.Field?.WireInfo;
@@ -227,7 +677,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var serializationFormat = wireInfo?.SerializationFormat ?? SerializationFormat.Default;
-                var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes);
+                var isRequired = wireInfo?.IsRequired ?? false;
+                var isReadOnly = wireInfo?.IsReadOnly ?? false;
+                MemberExpression SerializationExp;
+                if (parameter.Property != null)
+                {
+                    SerializationExp = parameter.Property;
+                }
+                else if (parameter.Field != null)
+                {
+                    SerializationExp = parameter.Field;
+                }
+                else
+                {
+                    continue;
+                }
+
+                var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, SerializationExp, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes, isRequired, isReadOnly);
 
                 // Categorize by XML serialization type
                 if (xmlWireInfo.Attribute == true)
@@ -289,7 +755,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     prop.PropertyName,
                     prop.SerializationAttributes,
                     childElement,
-                    prop.PropertyExpression,
+                    prop.DeserializationExp,
                     out bool hasHook);
 
                 if (!hasHook)
@@ -297,7 +763,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     deserializationStatement = CreateXmlDeserializePropertyAssignment(
                         childElement,
                         prop.PropertyType,
-                        prop.PropertyExpression,
+                        prop.DeserializationExp,
                         prop.XmlWireInfo,
                         prop.SerializationFormat,
                         namespaces);
@@ -346,6 +812,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return MethodBodyStatement.Empty;
+        }
+
+        private MethodBodyStatement? GetXmlSerializationHookStatement(
+            string propertyName,
+            IEnumerable<AttributeStatement> serializationAttributes)
+        {
+            foreach (var attribute in serializationAttributes)
+            {
+                if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                        attribute,
+                        out var name,
+                        out _,
+                        out var serializationHook,
+                        out _,
+                        out _) && name == propertyName && serializationHook != null)
+                {
+                    return This.Invoke(serializationHook, _xmlWriterSnippet, _serializationOptionsParameter).Terminate();
+                }
+            }
+
+            return null;
         }
 
         private MethodBodyStatement CreateXmlDeserializePropertyAssignment(
@@ -536,7 +1023,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             return valueType.FrameworkType switch
             {
-                Type t when t == typeof(Uri) => New.Instance(valueType.FrameworkType, element.Value()),
+                Type t when t == typeof(Uri) => New.Instance<Uri>(element.Value(), FrameworkEnumValue(UriKind.RelativeOrAbsolute)),
                 Type t when t == typeof(IPAddress) => Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.Value()),
                 Type t when t == typeof(Stream) => BinaryDataSnippets.FromString(element.Value()).ToStream(),
                 Type t when t == typeof(byte[]) => element.GetBytesFromBase64(serializationFormat.ToFormatSpecifier()),
@@ -578,13 +1065,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     prop.PropertyName,
                     prop.SerializationAttributes,
                     attrVariable,
-                    prop.PropertyExpression,
+                    prop.DeserializationExp,
                     out bool hasHook);
 
                 if (!hasHook)
                 {
                     var deserializedValue = attrVariable.CastTo(prop.PropertyType);
-                    deserializationStatement = prop.PropertyExpression.Assign(deserializedValue).Terminate();
+                    deserializationStatement = prop.DeserializationExp.Assign(deserializedValue).Terminate();
                 }
 
                 ScopedApi<bool> condition = localNameVar.Equal(Literal(prop.XmlWireInfo.Name));
@@ -604,6 +1091,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return statements;
+        }
+
+        private SwitchCaseStatement CreatePersistableModelWriteCoreXmlSwitchCase()
+        {
+            var xmlElementName = _inputModel.SerializationOptions.Xml?.Name ?? _model.Name;
+
+            return new SwitchCaseStatement(
+                ModelReaderWriterOptionsSnippets.XmlFormat,
+                new UsingScopeStatement(typeof(MemoryStream), "stream", New.Instance(typeof(MemoryStream), Int(256)), out var streamVar)
+                {
+                    new UsingScopeStatement(
+                        typeof(XmlWriter),
+                        "writer",
+                        XmlWriterSnippets.Create(streamVar, ModelSerializationExtensionsSnippets.XmlWriterSettings),
+                        out var xmlWriterVar)
+                    {
+                        This.Invoke(XmlWriteMethodName, [xmlWriterVar, _serializationOptionsParameter, Literal(xmlElementName)]).Terminate()
+                    },
+                    new IfElseStatement(
+                        streamVar.As<Stream>().Position().GreaterThan(IntSnippets.MaxValue),
+                        Return(BinaryDataSnippets.FromStream(streamVar, false)),
+                        Return(New.Instance(
+                            typeof(BinaryData),
+                            streamVar.As<Stream>().GetBuffer()
+                                .Invoke(nameof(MemoryExtensions.AsMemory), [Int(0), streamVar.As<Stream>().Position().CastTo(typeof(int))]))))
+                });
         }
 
         private SwitchCaseStatement CreatePersistableModelCreateCoreXmlSwitchCase(CSharpType typeForDeserialize)
@@ -725,7 +1238,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var variableName = $"{propertyName}Ns".ToVariableName();
                 var variableExpression = new VariableExpression(typeof(XNamespace), variableName);
-                namespaces[nsOptions.Namespace] = new XmlNamespaceInfo(nsOptions.Namespace, variableName, variableExpression);
+                namespaces[nsOptions.Namespace] = new XmlNamespaceInfo(nsOptions.Namespace, variableName, nsOptions.Prefix, variableExpression);
             }
         }
 

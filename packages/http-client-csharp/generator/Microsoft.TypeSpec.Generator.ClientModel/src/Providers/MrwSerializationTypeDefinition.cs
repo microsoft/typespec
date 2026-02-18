@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Xml;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
@@ -95,6 +96,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
             _xmlElementParameterSnippet = _xElementDeserializationParam.As<XElement>();
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
+            _xmlWriterSnippet = _xmlWriterParameter.As<XmlWriter>();
         }
 
         protected override FormattableString BuildDescription() => _model.Description;
@@ -177,14 +179,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_supportsJson || _supportsXml)
             {
-                // TO-DO: Add all persistable model methods when XML support is complete.
-                methods.Add(BuildPersistableModelCreateCoreMethod());
+                // Add PersistableModel serialization methods
+                methods.AddRange(
+                    BuildPersistableModelCreateCoreMethod(),
+                    BuildPersistableModelWriteCoreMethod(),
+                    BuildPersistableModelWriteMethod(),
+                    BuildPersistableModelCreateMethod(),
+                    BuildPersistableModelGetFormatFromOptionsMethod());
+
                 if (!_inputModel.IsUnknownDiscriminatorModel)
                 {
+                    // cast operators
+                    if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
+                    {
+                        methods.Add(BuildImplicitToBinaryContent());
+                        // Add internal ToBinaryContent helper for format-specific serialization
+                        if (_supportsJson && _supportsXml)
+                        {
+                            methods.Add(BuildToBinaryContentMethod());
+                        }
+                    }
+
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
                     {
                         methods.Add(GetExplicitFromClientResultMethod(_supportsJson, _supportsXml));
                     }
+                }
+
+                if (_isStruct)
+                {
+                    methods.AddRange(
+                        BuildPersistableModelWriteMethodObjectDeclaration(),
+                        BuildPersistableModelGetFormatFromOptionsObjectDeclaration(),
+                        BuildPersistableModelCreateMethodObjectDeclaration());
                 }
             }
 
@@ -198,38 +225,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methods.Add(BuildJsonModelCreateMethod());
                 methods.Add(BuildJsonModelCreateCoreMethod());
                 methods.Add(BuildDeserializationMethod());
-                // Add PersistableModel serialization methods
-                methods.Add(BuildPersistableModelWriteMethod());
-                methods.Add(BuildPersistableModelWriteCoreMethod());
-                methods.Add(BuildPersistableModelCreateMethod());
-                methods.Add(BuildPersistableModelGetFormatFromOptionsMethod());
-
-                if (!_inputModel.IsUnknownDiscriminatorModel)
-                {
-                    //cast operators
-                    if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
-                    {
-                        methods.Add(BuildImplicitToBinaryContent());
-                    }
-                }
 
                 if (_isStruct)
                 {
                     methods.Add(BuildJsonModelWriteMethodObjectDeclaration());
                     methods.Add(BuildJsonModelCreateMethodObjectDeclaration());
-                    methods.Add(BuildPersistableModelWriteMethodObjectDeclaration());
-                    methods.Add(BuildPersistableModelGetFormatFromOptionsObjectDeclaration());
-                    methods.Add(BuildPersistableModelCreateMethodObjectDeclaration());
                 }
             }
 
             if (_supportsXml)
             {
-                var xmlDeserializationMethod = BuildXmlDeserializationMethod();
-                if (xmlDeserializationMethod != null)
-                {
-                    methods.Add(xmlDeserializationMethod);
-                }
+                methods.AddRange(
+                    BuildXmlWriteMethod(),
+                    BuildXmlModelWriteCoreMethod(),
+                    BuildXmlDeserializationMethod());
             }
 
             if (_model is ScmModelProvider { IsDynamicModel: true, HasDynamicProperties: true })
@@ -322,6 +331,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
+        private MethodProvider BuildToBinaryContentMethod()
+        {
+            var formatParameter = new ParameterProvider("format", $"The format to use for serialization", typeof(string));
+
+            // ModelReaderWriterOptions options = new ModelReaderWriterOptions(format);
+            // return BinaryContent.Create(this, options);
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            return new MethodProvider(
+                new MethodSignature($"To{requestContentType.Name}", FormattableStringHelpers.FromString($"Converts the model to {requestContentType.Name} using the specified format"), MethodSignatureModifiers.Internal, requestContentType, null, [formatParameter]),
+                new MethodBodyStatement[]
+                {
+                    Declare("options", typeof(ModelReaderWriterOptions), New.Instance(typeof(ModelReaderWriterOptions), formatParameter), out var options),
+                    Return(RequestContentApiSnippets.Create(This, options.As<ModelReaderWriterOptions>()))
+                },
+                this);
+        }
+
         /// <summary>
         /// Builds the types that the model type serialization implements.
         /// </summary>
@@ -336,6 +362,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (_jsonModelObjectInterface != null)
                 {
                     interfaces.Add(_jsonModelObjectInterface);
+                }
+            }
+            else if (_supportsXml)
+            {
+                interfaces.Add(_persistableModelTInterface);
+                if (_persistableModelObjectInterface != null)
+                {
+                    interfaces.Add(_persistableModelObjectInterface);
                 }
             }
 
@@ -529,7 +563,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var methodBody = new MethodBodyStatement[]
             {
-                CreateValidateJsonFormat( _persistableModelTInterface, ReadAction),
+                CreateValidateFormat(_persistableModelTInterface, ReadAction, ModelReaderWriterOptionsSnippets.JsonFormat),
                 // using var document = JsonDocument.ParseValue(ref reader);
                 UsingDeclare("document", typeof(JsonDocument), JsonDocumentSnippets.ParseValue(_utf8JsonReaderParameter.AsArgument()), out var docVariable),
                 // return DeserializeT(doc.RootElement, options);
@@ -672,12 +706,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildPersistableModelGetFormatFromOptionsMethod()
         {
-            ValueExpression jsonWireFormat = SystemSnippet.JsonFormatSerialization;
+            ValueExpression wireFormat = _supportsJson ? SystemSnippet.JsonFormatSerialization : SystemSnippet.XmlFormatSerialization;
             // string IPersistableModel<T>.GetFormatFromOptions(ModelReaderWriterOptions options)
             return new MethodProvider
             (
                 new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, [_serializationOptionsParameter], ExplicitInterface: _persistableModelTInterface),
-                jsonWireFormat,
+                wireFormat,
                 this
             );
         }
@@ -687,7 +721,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildPersistableModelGetFormatFromOptionsObjectDeclaration()
         {
-            ValueExpression jsonWireFormat = SystemSnippet.JsonFormatSerialization;
             var castToT = This.CastTo(_persistableModelTInterface);
 
             // string IPersistableModel<object>.GetFormatFromOptions(ModelReaderWriterOptions options) => ((IPersistableModel<T>)this).GetFormatFromOptions(options);
@@ -771,7 +804,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return
             [
-                CreateValidateJsonFormat(_persistableModelTInterface, WriteAction),
+                CreateValidateFormat(_persistableModelTInterface, WriteAction, ModelReaderWriterOptionsSnippets.JsonFormat),
                 CallBaseJsonModelWriteCore(isDynamicModelWithNonDynamicBase),
                 writePropertiesStatements,
                 CreateWriteAdditionalRawDataStatement()
@@ -864,9 +897,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildPersistableModelWriteCoreMethodBody()
         {
-            var switchCase = new SwitchCaseStatement(
-                ModelReaderWriterOptionsSnippets.JsonFormat,
-                Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default])));
+            var switchCases = new List<SwitchCaseStatement>();
+
+            if (_supportsJson)
+            {
+                switchCases.Add(new SwitchCaseStatement(
+                    ModelReaderWriterOptionsSnippets.JsonFormat,
+                    Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default]))));
+            }
+
+            if (_supportsXml)
+            {
+                switchCases.Add(CreatePersistableModelWriteCoreXmlSwitchCase());
+            }
+
             var typeOfT = _persistableModelTInterface.Arguments[0];
             var defaultCase = SwitchCaseStatement.Default(
                 ThrowValidationFailException(_mrwOptionsParameterSnippet.Format(), typeOfT, WriteAction));
@@ -874,7 +918,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return
             [
                 GetConcreteFormat(_mrwOptionsParameterSnippet, _persistableModelTInterface, out VariableExpression format),
-                new SwitchStatement(format, [switchCase, defaultCase])
+                new SwitchStatement(format, [.. switchCases, defaultCase])
             ];
         }
 
@@ -1585,9 +1629,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Produces the validation body statements for the JSON serialization format.
+        /// Produces the validation body statements for the serialization format.
         /// </summary>
-        private MethodBodyStatement CreateValidateJsonFormat(CSharpType modelInterface, string action)
+        private MethodBodyStatement CreateValidateFormat(CSharpType modelInterface, string action, ValueExpression expectedFormat)
         {
             /*
                 var format = options.Format == "W" ? GetFormatFromOptions(options) : options.Format;
@@ -1599,7 +1643,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement[] statements =
             [
                 GetConcreteFormat(_mrwOptionsParameterSnippet, modelInterface, out VariableExpression format),
-                new IfStatement(format.NotEqual(ModelReaderWriterOptionsSnippets.JsonFormat))
+                new IfStatement(format.NotEqual(expectedFormat))
                 {
                     ThrowValidationFailException(format, modelInterface.Arguments[0], action)
                 },
@@ -1935,14 +1979,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 stringJoinExpression = StringSnippets.Join(Literal(delimiter), propertyExpression);
             }
-            else if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
+            else if (elementType.IsEnum && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
             {
-                var x = new VariableExpression(typeof(object), "x");
+                var x = new VariableExpression(elementType, "x");
+                var body = elementType.ToSerial(x);
                 var selectExpression = propertyExpression.Invoke(nameof(Enumerable.Select),
-                    new FuncExpression([x.Declaration], new TernaryConditionalExpression(
-                        x.Equal(Null),
-                        Literal(""),
-                        elementType.ToSerial(x))));
+                    [new FuncExpression([x.Declaration], body)],
+                    [],
+                    false,
+                    extensionType: typeof(Enumerable));
                 stringJoinExpression = StringSnippets.Join(Literal(delimiter), selectExpression);
             }
             else
@@ -2006,27 +2051,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
                 }
             }
-            else if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
+            else if (elementType.IsEnum && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
             {
-                var splitExpression = new TernaryConditionalExpression(
-                    isNullOrEmptyCheck,
-                    New.Array(typeof(string)),
-                    stringValueVar.As<string>().Split(delimiterChar));
-
                 var s = new VariableExpression(typeof(string), "s");
                 var trimmedS = s.Invoke(nameof(string.Trim));
+                var parseExpression = elementType.ToEnum(trimmedS);
 
-                var parseExpression = Static(elementType).Invoke("Parse", trimmedS);
+                var splitAndParse = stringValueVar.As<string>().Split(delimiterChar)
+                    .Invoke(nameof(Enumerable.Select), new FuncExpression([s.Declaration], parseExpression));
 
-                var selectExpression = splitExpression.Invoke(nameof(Enumerable.Select),
-                    new FuncExpression([s.Declaration], parseExpression));
-
-                var finalExpression = propertyType.IsArray
-                    ? selectExpression.Invoke(nameof(Enumerable.ToArray))
-                    : propertyType.IsList
-                        ? New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), selectExpression)
-                        : New.Instance(propertyType.PropertyInitializationType, selectExpression);
-                createArrayStatement = variableExpression.Assign(finalExpression).Terminate();
+                if (propertyType.IsArray)
+                {
+                    var conditionalExpression = new TernaryConditionalExpression(
+                        isNullOrEmptyCheck,
+                        New.Array(elementType),
+                        splitAndParse.Invoke(nameof(Enumerable.ToArray)));
+                    createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
+                }
+                else
+                {
+                    var initType = propertyType.PropertyInitializationType;
+                    var conditionalExpression = new TernaryConditionalExpression(
+                        isNullOrEmptyCheck,
+                        New.Instance(initType),
+                        New.Instance(initType, splitAndParse.Invoke(nameof(Enumerable.ToList)).CastTo(new CSharpType(typeof(IList<>), elementType))));
+                    createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
+                }
             }
             else
             {
@@ -2204,7 +2254,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? exp = frameworkType switch
             {
                 Type t when t == typeof(Uri) =>
-                    New.Instance(frameworkType, element.GetString()),
+                    New.Instance<Uri>(element.GetString(), FrameworkEnumValue(UriKind.RelativeOrAbsolute)),
                 Type t when t == typeof(IPAddress) =>
                     Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
                 Type t when t == typeof(BinaryData) =>

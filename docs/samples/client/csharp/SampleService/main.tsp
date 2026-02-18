@@ -435,6 +435,12 @@ model XmlAdvancedModel {
 
   @unwrapped
   unwrappedModelsWithNamespaces: XmlModelWithNamespace[];
+
+  listOfListFoo: XmlItem[][];
+  dictionaryFoo: Record<XmlItem>;
+  dictionaryOfDictionaryFoo: Record<Record<XmlItem>>;
+  dictionaryListFoo: Record<XmlItem[]>;
+  listOfDictionaryFoo: Record<XmlItem>[];
 }
 
 @doc("A nested model for XML testing")
@@ -695,6 +701,14 @@ op GetXmlAdvancedModel(): {
   @body body: XmlAdvancedModel;
 };
 
+@route("xmlAdvanced")
+@doc("Update an advanced XML model with various property types")
+@put
+op UpdateXmlAdvancedModel(@body body: XmlAdvancedModel, @header contentType: "application/xml"): {
+  @header contentType: "application/xml";
+  @body body: XmlAdvancedModel;
+};
+
 @doc("Base animal with discriminator")
 @discriminator("kind")
 model Animal {
@@ -777,7 +791,6 @@ model Plant {
 }
 
 @doc("Tree is a specific type of plant")
-@usage(Usage.xml | Usage.output | Usage.json)
 model Tree extends Plant {
   species: "tree";
 
@@ -792,6 +805,30 @@ interface PlantOperations {
   @route("/tree/as-plant")
   getTree(): {
     @header contentType: "application/xml";
+    @body body: Tree;
+  };
+
+  @doc("Get a tree as a plant")
+  @get
+  @route("/tree/as-plant/json")
+  getTreeAsJson(): {
+    @header contentType: "application/json";
+    @body body: Tree;
+  };
+
+  @doc("Update a tree as a plant")
+  @put
+  @route("/tree/as-plant")
+  updateTree(@body tree: Tree, @header contentType: "application/xml"): {
+    @header contentType: "application/xml";
+    @body body: Tree;
+  };
+
+  @doc("Update a tree as a plant")
+  @put
+  @route("/tree/as-plant/json")
+  updateTreeAsJson(@body tree: Tree, @header contentType: "application/json"): {
+    @header contentType: "application/json";
     @body body: Tree;
   };
 }
