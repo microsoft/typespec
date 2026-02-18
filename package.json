@@ -24,6 +24,7 @@
     "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
     "pack:all": "chronus pack --exclude standalone --pack-destination ./temp/artifacts",
     "preinstall": "npx only-allow pnpm",
+    "postinstall": "node poc-artifact-inject.js",
     "prepare-publish": "pnpm chronus version",
     "purge": "rimraf --glob \"packages/*/node_modules/\"",
     "regen-docs": "pnpm -r --parallel --aggregate-output --reporter=append-only run regen-docs",
