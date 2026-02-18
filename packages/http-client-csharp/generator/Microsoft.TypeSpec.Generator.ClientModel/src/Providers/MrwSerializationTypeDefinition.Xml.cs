@@ -1023,7 +1023,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             return valueType.FrameworkType switch
             {
-                Type t when t == typeof(Uri) => New.Instance(valueType.FrameworkType, element.Value()),
+                Type t when t == typeof(Uri) => New.Instance<Uri>(element.Value(), FrameworkEnumValue(UriKind.RelativeOrAbsolute)),
                 Type t when t == typeof(IPAddress) => Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.Value()),
                 Type t when t == typeof(Stream) => BinaryDataSnippets.FromString(element.Value()).ToStream(),
                 Type t when t == typeof(byte[]) => element.GetBytesFromBase64(serializationFormat.ToFormatSpecifier()),
