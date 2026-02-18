@@ -325,18 +325,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     new InputDateTimeType(DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String),
                     isRequired: false,
                     serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("timestamp")))]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modeltype
+                    ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                    : []);
 
-            var modelProvider = new ModelProvider(inputModel);
-            var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
-            Assert.IsNotNull(mrwProvider);
-            var xmlSerializationMethod = mrwProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "XmlModelWriteCore" &&
-                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(XmlWriter))));
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
 
-            Assert.IsNotNull(xmlSerializationMethod);
-            var methodBody = xmlSerializationMethod!.BodyStatements!.ToDisplayString();
-
-            Assert.IsTrue(methodBody.Contains("WriteStringValue") && methodBody.Contains("Timestamp.Value"),
-                $"Nullable DateTimeOffset property should be serialized with WriteStringValue and .Value accessor. Actual:\n{methodBody}");
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -350,18 +352,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     new InputDurationType(DurationKnownEncoding.Iso8601, "duration", "TypeSpec.duration", InputPrimitiveType.String, null),
                     isRequired: false,
                     serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("duration")))]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modeltype
+                    ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                    : []);
 
-            var modelProvider = new ModelProvider(inputModel);
-            var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
-            Assert.IsNotNull(mrwProvider);
-            var xmlSerializationMethod = mrwProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "XmlModelWriteCore" &&
-                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(XmlWriter))));
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
 
-            Assert.IsNotNull(xmlSerializationMethod);
-            var methodBody = xmlSerializationMethod!.BodyStatements!.ToDisplayString();
-
-            Assert.IsTrue(methodBody.Contains("Duration.Value") && methodBody.Contains("WriteStringValue"),
-                $"Nullable TimeSpan property should be serialized with WriteStringValue and .Value accessor. Actual:\n{methodBody}");
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
