@@ -31,12 +31,14 @@ describe("import readonly and writeonly properties", () => {
 
     const idProp = widgetModel!.properties.get("id");
     expect(idProp).toBeDefined();
-    
+
     // Check that visibility decorator is present
-    const visibilityDecorator = idProp!.decorators.find((d) => d.definition?.name === "@visibility");
+    const visibilityDecorator = idProp!.decorators.find(
+      (d) => d.definition?.name === "@visibility",
+    );
     expect(visibilityDecorator).toBeDefined();
     expect(visibilityDecorator!.args.length).toBe(1);
-    
+
     // Check that the argument is the Read enum member from Lifecycle
     const arg = visibilityDecorator!.args[0];
     // console.log("arg type:", typeof arg, "keys:", Object.keys(arg || {}).slice(0, 10));
@@ -47,12 +49,16 @@ describe("import readonly and writeonly properties", () => {
 
     const weightProp = widgetModel!.properties.get("weight");
     expect(weightProp).toBeDefined();
-    const weightVisibilityDecorator = weightProp!.decorators.find((d) => d.definition?.name === "@visibility");
+    const weightVisibilityDecorator = weightProp!.decorators.find(
+      (d) => d.definition?.name === "@visibility",
+    );
     expect(weightVisibilityDecorator).toBeUndefined();
 
     const colorProp = widgetModel!.properties.get("color");
     expect(colorProp).toBeDefined();
-    const colorVisibilityDecorator = colorProp!.decorators.find((d) => d.definition?.name === "@visibility");
+    const colorVisibilityDecorator = colorProp!.decorators.find(
+      (d) => d.definition?.name === "@visibility",
+    );
     expect(colorVisibilityDecorator).toBeUndefined();
   });
 
@@ -85,13 +91,15 @@ describe("import readonly and writeonly properties", () => {
 
     const idProp = widgetModel!.properties.get("id");
     expect(idProp).toBeDefined();
-    
+
     // Check that visibility decorator is present
-    const visibilityDecorator = idProp!.decorators.find((d) => d.definition?.name === "@visibility");
+    const visibilityDecorator = idProp!.decorators.find(
+      (d) => d.definition?.name === "@visibility",
+    );
     expect(visibilityDecorator).toBeDefined();
     expect(visibilityDecorator!.args.length).toBe(1);
-    
-    // Check that the argument is present  
+
+    // Check that the argument is present
     const arg = visibilityDecorator!.args[0];
     expect(arg).toBeDefined();
     // Since the generated code compiles successfully, just check that the decorator is applied
@@ -100,12 +108,16 @@ describe("import readonly and writeonly properties", () => {
 
     const weightProp = widgetModel!.properties.get("weight");
     expect(weightProp).toBeDefined();
-    const weightVisibilityDecorator = weightProp!.decorators.find((d) => d.definition?.name === "@visibility");
+    const weightVisibilityDecorator = weightProp!.decorators.find(
+      (d) => d.definition?.name === "@visibility",
+    );
     expect(weightVisibilityDecorator).toBeUndefined();
 
     const colorProp = widgetModel!.properties.get("color");
     expect(colorProp).toBeDefined();
-    const colorVisibilityDecorator = colorProp!.decorators.find((d) => d.definition?.name === "@visibility");
+    const colorVisibilityDecorator = colorProp!.decorators.find(
+      (d) => d.definition?.name === "@visibility",
+    );
     expect(colorVisibilityDecorator).toBeUndefined();
   });
 
