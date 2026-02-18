@@ -253,11 +253,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return underlyingType.FrameworkType switch
             {
                 Type t when (t == typeof(DateTimeOffset) || t == typeof(TimeSpan)) && serializationFormat.ToFormatSpecifier() is string formatSpecifier
-                    => _xmlWriterSnippet.WriteStringValue(value, formatSpecifier),
+                    => _xmlWriterSnippet.WriteStringValue(value.NullableStructValue(valueType), formatSpecifier),
                 Type t when (t == typeof(byte[]) || t == typeof(BinaryData)) && serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                     => _xmlWriterSnippet.WriteBase64StringValue(t == typeof(BinaryData)
                     ? value.As<BinaryData>().ToArray()
-                    : value,
+                    : value.NullableStructValue(valueType),
                     serializationFormat.ToFormatSpecifier()),
                 _ => _xmlWriterSnippet.WriteValue(CreateXmlSerializeValueExpression(value, valueType, serializationFormat))
             };
@@ -427,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return value;
             }
 
-            return CreateXmlSerializePrimitiveExpression(value, underlyingType, serializationFormat);
+            return CreateXmlSerializePrimitiveExpression(value.NullableStructValue(valueType), underlyingType, serializationFormat);
         }
 
         private static ValueExpression CreateXmlSerializePrimitiveExpression(ValueExpression value, CSharpType valueType, SerializationFormat serializationFormat)
