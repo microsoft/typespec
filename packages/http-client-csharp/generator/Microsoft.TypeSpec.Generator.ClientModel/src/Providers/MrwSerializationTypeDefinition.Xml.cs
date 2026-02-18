@@ -427,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return value;
             }
 
-            return CreateXmlSerializePrimitiveExpression(value, underlyingType, serializationFormat);
+            return CreateXmlSerializePrimitiveExpression(value.NullableStructValue(valueType), underlyingType, serializationFormat);
         }
 
         private static ValueExpression CreateXmlSerializePrimitiveExpression(ValueExpression value, CSharpType valueType, SerializationFormat serializationFormat)
