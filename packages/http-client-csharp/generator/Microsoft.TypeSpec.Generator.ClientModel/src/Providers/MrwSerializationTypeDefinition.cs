@@ -2226,7 +2226,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? exp = frameworkType switch
             {
                 Type t when t == typeof(Uri) =>
-                    New.Instance(frameworkType, element.GetString()),
+                    New.Instance<Uri>(element.GetString(), FrameworkEnumValue(UriKind.RelativeOrAbsolute)),
                 Type t when t == typeof(IPAddress) =>
                     Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
                 Type t when t == typeof(BinaryData) =>
