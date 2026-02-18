@@ -22,9 +22,9 @@ test.describe("playground UI tests", () => {
 
   test("report compilation errors", async ({ page }) => {
     await page.goto(host);
-    const typespecEditorInput = page.locator(".monaco-editor textarea.inputarea").first();
-    await typespecEditorInput.click();
-    await typespecEditorInput.pressSequentially("invalid");
+    const typespecEditor = page.locator(".monaco-editor").first();
+    await typespecEditor.click();
+    await page.keyboard.type("invalid");
     await expect(page.getByText(`No files emitted.`)).toBeVisible();
   });
 
@@ -37,9 +37,9 @@ test.describe("playground UI tests", () => {
 
   test("save code with ctrl/cmd+S", async ({ page }) => {
     await page.goto(host);
-    const typespecEditorInput = page.locator(".monaco-editor textarea.inputarea").first();
-    await typespecEditorInput.click();
-    await typespecEditorInput.pressSequentially("op sharedCode(): string;");
+    const typespecEditor = page.locator(".monaco-editor").first();
+    await typespecEditor.click();
+    await typespecEditor.pressSequentially("op sharedCode(): string;");
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       page.waitForURL(
