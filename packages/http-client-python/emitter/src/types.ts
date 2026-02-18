@@ -564,8 +564,21 @@ function getXmlMetadata(
   type: SdkModelType | SdkModelPropertyType,
 ): Record<string, any> | undefined {
   if (type.serializationOptions.xml) {
+    // When @xml.unwrapped is used on a property that references a model (not an array),
+    // we should use the model's XML name and set text to false (not true).
+    // This allows the model to be serialized directly without an extra wrapper element.
+    let xmlName = type.serializationOptions.xml.name;
+    if (
+      type.kind === "property" &&
+      type.type.kind === "model" &&
+      type.serializationOptions.xml.unwrapped &&
+      type.type.serializationOptions.xml?.name
+    ) {
+      xmlName = type.type.serializationOptions.xml.name;
+    }
+
     return {
-      name: type.serializationOptions.xml.name,
+      name: xmlName,
       namespace: type.serializationOptions.xml.ns?.namespace,
       prefix: type.serializationOptions.xml.ns?.prefix,
       attribute: type.serializationOptions.xml.attribute,
@@ -576,6 +589,7 @@ function getXmlMetadata(
       text:
         type.kind === "property" &&
         type.type.kind !== "array" &&
+        type.type.kind !== "model" &&
         type.serializationOptions.xml.unwrapped,
       itemsName: type.serializationOptions.xml.itemsName,
       itemsNs: type.serializationOptions.xml.itemsNs?.namespace,
