@@ -13,7 +13,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Itera
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.DateTimeRfc1123;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

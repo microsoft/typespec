@@ -29,7 +29,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import io.clientcore.core.http.models.HttpMethod;
-
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;

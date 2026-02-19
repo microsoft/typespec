@@ -661,9 +661,8 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
      * @return The default HTTP status code to exception type mapping.
      */
     protected Map<Integer, ClassType> getDefaultHttpStatusCodeToExceptionTypeMapping() {
-        return Map.of(401, ClassType.CLIENT_AUTHENTICATION_EXCEPTION,
-            404, ClassType.RESOURCE_NOT_FOUND_EXCEPTION,
-            409, ClassType.RESOURCE_MODIFIED_EXCEPTION);
+        return Map.of(401, ClassType.CLIENT_AUTHENTICATION_EXCEPTION, 404, ClassType.RESOURCE_NOT_FOUND_EXCEPTION, 409,
+            ClassType.RESOURCE_MODIFIED_EXCEPTION);
     }
 
     /**

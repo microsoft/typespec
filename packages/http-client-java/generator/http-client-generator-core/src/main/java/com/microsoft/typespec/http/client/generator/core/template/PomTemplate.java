@@ -10,7 +10,6 @@ import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlBlock
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.util.Constants;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

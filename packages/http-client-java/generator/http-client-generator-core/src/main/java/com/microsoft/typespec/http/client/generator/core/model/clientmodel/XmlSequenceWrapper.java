@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,11 +59,11 @@ public class XmlSequenceWrapper {
     }
 
     private static Set<String> getXmlSequenceWrapperImports() {
-        return new HashSet<>(List.of("com.fasterxml.jackson.annotation.JsonCreator",
-            "com.fasterxml.jackson.annotation.JsonProperty",
-            "com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty",
-            "com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement",
-            "com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText"));
+        return new HashSet<>(
+            List.of("com.fasterxml.jackson.annotation.JsonCreator", "com.fasterxml.jackson.annotation.JsonProperty",
+                "com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty",
+                "com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement",
+                "com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText"));
     }
 
     public final String getPackage() {

@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.template.ExceptionTemplate;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 

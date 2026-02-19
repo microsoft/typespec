@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 

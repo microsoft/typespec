@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
 import com.microsoft.typespec.http.client.generator.core.template.ProxyTemplate;
-
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;

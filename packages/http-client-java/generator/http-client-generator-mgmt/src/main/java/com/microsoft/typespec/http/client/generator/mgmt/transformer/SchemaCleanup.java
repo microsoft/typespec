@@ -17,7 +17,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;

@@ -20,7 +20,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;

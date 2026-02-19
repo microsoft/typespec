@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.mapper.clientcore;
 import com.microsoft.typespec.http.client.generator.core.mapper.PomMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
-
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;

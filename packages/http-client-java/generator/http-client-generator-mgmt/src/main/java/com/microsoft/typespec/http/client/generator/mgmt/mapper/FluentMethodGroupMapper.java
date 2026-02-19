@@ -15,13 +15,12 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.WellKnownMethodName;
 import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class FluentMethodGroupMapper extends MethodGroupMapper {
 

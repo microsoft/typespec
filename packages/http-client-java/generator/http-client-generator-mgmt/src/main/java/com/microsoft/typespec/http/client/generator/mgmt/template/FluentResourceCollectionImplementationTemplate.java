@@ -13,7 +13,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Model
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentDefineMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
-
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;

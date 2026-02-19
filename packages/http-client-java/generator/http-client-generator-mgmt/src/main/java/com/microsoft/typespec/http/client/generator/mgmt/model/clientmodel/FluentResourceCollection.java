@@ -154,8 +154,14 @@ public class FluentResourceCollection {
         List<FluentCollectionMethod> fluentMethods = new ArrayList<>(methods);
 
         Set<FluentCollectionMethod> excludeMethods = new LinkedHashSet<>();
-        this.getResourceCreates().stream().flatMap(rc -> rc.getMethodReferences().stream()).forEach(excludeMethods::add);
-        this.getResourceUpdates().stream().flatMap(ru -> ru.getMethodReferences().stream()).forEach(excludeMethods::add);
+        this.getResourceCreates()
+            .stream()
+            .flatMap(rc -> rc.getMethodReferences().stream())
+            .forEach(excludeMethods::add);
+        this.getResourceUpdates()
+            .stream()
+            .flatMap(ru -> ru.getMethodReferences().stream())
+            .forEach(excludeMethods::add);
         fluentMethods.removeAll(excludeMethods);
 
         return fluentMethods;

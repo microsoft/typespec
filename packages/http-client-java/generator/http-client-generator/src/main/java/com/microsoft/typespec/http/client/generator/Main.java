@@ -22,15 +22,6 @@ import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.inspector.TrustedTagInspector;
-import org.yaml.snakeyaml.representer.Representer;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +38,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.inspector.TrustedTagInspector;
+import org.yaml.snakeyaml.representer.Representer;
 
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);

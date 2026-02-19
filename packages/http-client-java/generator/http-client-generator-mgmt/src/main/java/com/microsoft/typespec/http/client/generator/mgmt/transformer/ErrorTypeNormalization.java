@@ -19,8 +19,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import io.clientcore.core.utils.CoreUtils;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class ErrorTypeNormalization {
 

@@ -10,13 +10,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.inspector.TrustedTagInspector;
-import org.yaml.snakeyaml.representer.Representer;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -26,6 +19,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.inspector.TrustedTagInspector;
+import org.yaml.snakeyaml.representer.Representer;
 
 /**
  * Represents a plugin that can be run by AutoRest.

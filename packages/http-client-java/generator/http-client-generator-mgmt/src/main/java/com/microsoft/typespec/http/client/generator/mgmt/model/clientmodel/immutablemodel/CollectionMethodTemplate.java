@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.template.prototype.Meth
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;

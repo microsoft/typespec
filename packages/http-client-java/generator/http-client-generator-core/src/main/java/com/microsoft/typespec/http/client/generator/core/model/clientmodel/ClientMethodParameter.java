@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

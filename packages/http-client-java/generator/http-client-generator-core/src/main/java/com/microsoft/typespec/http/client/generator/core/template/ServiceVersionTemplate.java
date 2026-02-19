@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceVersion;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +27,8 @@ public class ServiceVersionTemplate implements IJavaTemplate<ServiceVersion, Jav
         ClassType.SERVICE_VERSION.addImportsTo(imports, false);
         javaFile.declareImport(imports);
 
-        javaFile.javadocComment(comment -> comment.description("Service version of " + serviceVersion.getServiceName()));
+        javaFile
+            .javadocComment(comment -> comment.description("Service version of " + serviceVersion.getServiceName()));
 
         String className = serviceVersion.getClassName();
         List<String> serviceVersions = serviceVersion.getServiceVersions();

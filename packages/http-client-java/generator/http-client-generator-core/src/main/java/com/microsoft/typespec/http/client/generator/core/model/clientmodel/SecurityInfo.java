@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OAuth2Flow;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
-
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;

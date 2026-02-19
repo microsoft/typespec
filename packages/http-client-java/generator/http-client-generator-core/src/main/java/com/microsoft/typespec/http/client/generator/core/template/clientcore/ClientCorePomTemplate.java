@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.template.PomTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.TemplateHelper;
 import com.microsoft.typespec.http.client.generator.core.util.Constants;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

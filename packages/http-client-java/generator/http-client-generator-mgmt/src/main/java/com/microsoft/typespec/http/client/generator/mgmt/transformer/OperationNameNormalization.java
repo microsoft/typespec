@@ -16,8 +16,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.WellKnownMethodName;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import io.clientcore.core.http.models.HttpMethod;
-import org.slf4j.Logger;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -30,6 +28,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 /**
  * Normalizes the names of common operations (list, get, delete).

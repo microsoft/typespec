@@ -38,11 +38,10 @@ import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocess
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import io.clientcore.core.utils.CoreUtils;
-import org.slf4j.Logger;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class Javagen extends NewPlugin {
     private final Logger logger = new PluginLogger(this, Javagen.class);

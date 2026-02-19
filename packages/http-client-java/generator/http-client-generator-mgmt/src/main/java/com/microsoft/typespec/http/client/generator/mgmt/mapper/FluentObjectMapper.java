@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.mapper.ObjectMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;

@@ -28,8 +28,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
 
 public class FluentMapper {
 

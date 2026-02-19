@@ -12,12 +12,11 @@ import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.Code
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Constants;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import org.slf4j.Logger;
-
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class NamingConflictResolver {
 

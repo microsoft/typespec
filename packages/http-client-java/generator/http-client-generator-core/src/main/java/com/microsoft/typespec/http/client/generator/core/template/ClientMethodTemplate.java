@@ -39,7 +39,6 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;

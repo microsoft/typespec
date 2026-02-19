@@ -4,6 +4,10 @@
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExamples;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -12,11 +16,6 @@ import org.yaml.snakeyaml.nodes.NodeId;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Custom constructor for a CodeModel.

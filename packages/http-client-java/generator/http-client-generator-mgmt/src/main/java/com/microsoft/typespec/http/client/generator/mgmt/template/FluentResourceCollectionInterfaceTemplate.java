@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTe
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentDefineMethod;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 

@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
-
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;

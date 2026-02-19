@@ -18,7 +18,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Model
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.LocalVariable;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;

@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

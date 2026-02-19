@@ -20,8 +20,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import io.clientcore.core.utils.CoreUtils;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
 
 /**
  * Normalizes the base resource types based on its base type and properties.
@@ -92,7 +91,7 @@ class ResourceTypeNormalization {
     private static final Set<String> PROXY_RESOURCE_FIELDS
         = Set.of(ResourceTypeName.FIELD_ID, ResourceTypeName.FIELD_NAME, ResourceTypeName.FIELD_TYPE);
     private static final Set<String> RESOURCE_FIELDS = Set.of(ResourceTypeName.FIELD_ID, ResourceTypeName.FIELD_NAME,
-            ResourceTypeName.FIELD_TYPE, ResourceTypeName.FIELD_LOCATION, ResourceTypeName.FIELD_TAGS);
+        ResourceTypeName.FIELD_TYPE, ResourceTypeName.FIELD_LOCATION, ResourceTypeName.FIELD_TAGS);
     private static final Set<String> RESOURCE_EXTRA_FIELDS
         = Set.of(ResourceTypeName.FIELD_LOCATION, ResourceTypeName.FIELD_TAGS);
 

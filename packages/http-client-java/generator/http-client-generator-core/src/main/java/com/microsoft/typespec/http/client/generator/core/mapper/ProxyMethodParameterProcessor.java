@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.List;
 import java.util.function.Consumer;
 

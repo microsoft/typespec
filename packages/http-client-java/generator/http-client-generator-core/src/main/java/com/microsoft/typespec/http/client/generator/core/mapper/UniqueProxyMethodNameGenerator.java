@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 public final class UniqueProxyMethodNameGenerator {
     private static final Set<ProxyMethodParameter> EXCEPT
         = Set.of(ProxyMethodParameter.CONTEXT_PARAMETER, ProxyMethodParameter.REQUEST_OPTIONS_PARAMETER);
-    
+
     private final String operationName;
     private final Logger logger;
     // The set of list where each list is the method signature that were seen so far.

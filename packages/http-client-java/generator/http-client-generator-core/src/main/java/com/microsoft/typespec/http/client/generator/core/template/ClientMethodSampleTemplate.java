@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.template.example.ClientInitializationExampleWriter;
 import com.microsoft.typespec.http.client.generator.core.template.example.ClientMethodExampleWriter;
 import com.microsoft.typespec.http.client.generator.core.template.example.ModelExampleWriter;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 

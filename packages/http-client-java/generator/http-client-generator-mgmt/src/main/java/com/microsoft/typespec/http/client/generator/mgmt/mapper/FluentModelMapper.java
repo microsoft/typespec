@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 

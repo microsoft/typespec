@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;

@@ -31,8 +31,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.CoreUtils;
-import org.slf4j.Logger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -45,6 +43,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 public class ResourceParser {
 
@@ -82,15 +81,14 @@ public class ResourceParser {
         if (model.getCategory() != ModelCategory.IMMUTABLE) {
             if (FluentUtils.modelHasLocationProperty(model) && !model.hasProperty("region")) {
                 // if resource instance has location property, add region() method
-                methods.add(MethodTemplate.builder()
-                    .imports(List.of(FluentType.REGION.getFullName()))
-                    .comment(commentBlock -> {
+                methods.add(
+                    MethodTemplate.builder().imports(List.of(FluentType.REGION.getFullName())).comment(commentBlock -> {
                         commentBlock.description("Gets the region of the resource.");
                         commentBlock.methodReturns("the region of the resource.");
                     })
-                    .methodSignature("Region region()")
-                    .method(methodBlock -> methodBlock.methodReturn("Region.fromName(this.regionName())"))
-                    .build());
+                        .methodSignature("Region region()")
+                        .method(methodBlock -> methodBlock.methodReturn("Region.fromName(this.regionName())"))
+                        .build());
                 methods.add(MethodTemplate.builder().comment(commentBlock -> {
                     commentBlock.description("Gets the name of the resource region.");
                     commentBlock.methodReturns("the name of the resource region.");

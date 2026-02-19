@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 

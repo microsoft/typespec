@@ -13,7 +13,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -52,7 +51,10 @@ public class TypeSpecClientMapper extends ClientMapper {
 
         clientModels.stream().filter(ModelUtil::isGeneratingModel).map(ClientModel::getPackage).forEach(packages::add);
         enumTypes.stream().filter(ModelUtil::isGeneratingModel).map(EnumType::getPackage).forEach(packages::add);
-        responseModels.stream().filter(ModelUtil::isGeneratingModel).map(ClientResponse::getPackage).forEach(packages::add);
+        responseModels.stream()
+            .filter(ModelUtil::isGeneratingModel)
+            .map(ClientResponse::getPackage)
+            .forEach(packages::add);
 
         return new ArrayList<>(packages);
     }

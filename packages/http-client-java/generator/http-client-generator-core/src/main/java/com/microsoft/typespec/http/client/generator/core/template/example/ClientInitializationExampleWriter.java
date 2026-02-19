@@ -44,7 +44,7 @@ public class ClientInitializationExampleWriter {
 
         // client initialization
         List<String> clientParameterLines = new ArrayList<>();
-        Set<ServiceClientProperty> processedServiceClientProperties = new HashSet<>();
+        Set<ServiceClientProperty> processedServiceClientProperties = new LinkedHashSet<>();
 
         // proxy method parameters which value comes from client
         method.getProxyMethod().getAllParameters().stream().filter(ProxyMethodParameter::isFromClient).forEach(p -> {
@@ -118,7 +118,7 @@ public class ClientInitializationExampleWriter {
     }
 
     public Set<String> getImports() {
-        return new HashSet<>(this.imports);
+        return new LinkedHashSet<>(this.imports);
     }
 
     public void write(JavaBlock methodBlock) {

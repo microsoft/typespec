@@ -23,7 +23,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Imple
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
