@@ -282,12 +282,6 @@ async function main() {
             type: "string",
             demandOption: true,
           })
-          .option("setName", {
-            type: "string",
-            description: "Set used to generate the manifest.",
-            array: true,
-            demandOption: true,
-          })
           .option("storageAccountName", {
             type: "string",
             description: "Name of the storage account",
