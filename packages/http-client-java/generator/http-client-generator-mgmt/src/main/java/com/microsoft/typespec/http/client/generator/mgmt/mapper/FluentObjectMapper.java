@@ -8,8 +8,9 @@ import com.microsoft.typespec.http.client.generator.core.mapper.ObjectMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -55,7 +56,7 @@ public class FluentObjectMapper extends ObjectMapper {
      * @return The types from compositeTypes that need to be added.
      */
     public Set<ObjectSchema> addInnerModels(Collection<ObjectSchema> compositeTypes) {
-        Set<ObjectSchema> compositeTypesToAdd = new HashSet<>(compositeTypes);
+        Set<ObjectSchema> compositeTypesToAdd = new LinkedHashSet<>(compositeTypes);
         compositeTypesToAdd.removeAll(innerModels);
         innerModels.addAll(compositeTypesToAdd);
         return compositeTypesToAdd;

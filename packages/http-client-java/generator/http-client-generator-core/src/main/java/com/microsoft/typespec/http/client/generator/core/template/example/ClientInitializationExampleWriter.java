@@ -15,7 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Servi
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 /** Client initialization example writer for DPG methods. */
 public class ClientInitializationExampleWriter {
-    private final Set<String> imports = new HashSet<>();
+    private final Set<String> imports = new LinkedHashSet<>();
     private final Consumer<JavaBlock> clientInitializationWriter;
     private final String clientVarName;
 

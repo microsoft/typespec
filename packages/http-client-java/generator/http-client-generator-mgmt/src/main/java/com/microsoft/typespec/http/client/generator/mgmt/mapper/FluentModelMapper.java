@@ -6,14 +6,15 @@ package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
-import java.util.HashSet;
+
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class FluentModelMapper extends ModelMapper {
 
     private static final FluentModelMapper INSTANCE = new FluentModelMapper();
 
-    private final Set<String> removedModels = new HashSet<>();
+    private final Set<String> removedModels = new LinkedHashSet<>();
 
     public static FluentModelMapper getInstance() {
         return INSTANCE;

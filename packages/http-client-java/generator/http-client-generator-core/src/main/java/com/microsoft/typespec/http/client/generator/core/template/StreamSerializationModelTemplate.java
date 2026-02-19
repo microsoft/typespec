@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME;
-import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.includePropertyInConstructor;
-
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertyWithMetadata;
@@ -29,12 +26,13 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJav
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.utils.CoreUtils;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,8 +45,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
+
+import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME;
+import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.includePropertyInConstructor;
 
 /**
  * Writes a ClientModel to a JavaFile using stream-style serialization.
@@ -1185,7 +1184,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     = (property, fromSuper) -> handleJsonPropertyDeserialization(property, whileBlock, ifBlockReference,
                         fromSuper, false);
 
-                Map<String, ClientModelProperty> modelPropertyMap = new HashMap<>();
+                Map<String, ClientModelProperty> modelPropertyMap = new LinkedHashMap<>();
                 for (ClientModelProperty parentProperty : ClientModelUtil.getParentProperties(model)) {
                     modelPropertyMap.put(parentProperty.getName(), parentProperty);
                 }
@@ -2636,7 +2635,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             getClientModelPropertiesInJsonTree(JsonFlattenedPropertiesTree tree) {
             if (tree.getProperty() != null) {
                 // Terminal node only contains a property.
-                return Collections.singletonList(tree.getProperty());
+                return List.of(tree.getProperty());
             } else {
                 List<ClientModelPropertyWithMetadata> treeProperties = new ArrayList<>();
                 for (JsonFlattenedPropertiesTree childNode : tree.getChildrenNodes().values()) {

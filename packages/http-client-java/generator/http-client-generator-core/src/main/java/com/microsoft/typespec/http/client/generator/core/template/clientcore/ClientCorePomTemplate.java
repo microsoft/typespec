@@ -11,7 +11,8 @@ import com.microsoft.typespec.http.client.generator.core.template.PomTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.TemplateHelper;
 import com.microsoft.typespec.http.client.generator.core.util.Constants;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.HashMap;
+
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class ClientCorePomTemplate extends PomTemplate {
                 .collect(Collectors.joining(Constants.NEW_LINE))));
         }
 
-        Map<String, String> projectAnnotations = new HashMap<>();
+        Map<String, String> projectAnnotations = new LinkedHashMap<>();
         projectAnnotations.put("xmlns", "http://maven.apache.org/POM/4.0.0");
         projectAnnotations.put("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         projectAnnotations.put("xsi:schemaLocation",

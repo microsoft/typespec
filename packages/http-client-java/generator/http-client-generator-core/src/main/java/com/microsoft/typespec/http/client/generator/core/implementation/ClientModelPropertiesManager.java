@@ -3,16 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.implementation;
 
-import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.getClientModel;
-
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.utils.CoreUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -23,6 +21,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.getClientModel;
 
 /**
  * Manages metadata about properties in a {@link ClientModel} and how they correlate with model class generation.
@@ -292,7 +292,7 @@ public final class ClientModelPropertiesManager {
         }
 
         this.xmlNamespaceToConstantMapping = model.getXmlName() == null
-            ? Collections.emptyMap()
+            ? Map.of()
             : ClientModelUtil.xmlNamespaceToConstantMapping(model);
     }
 

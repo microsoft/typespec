@@ -34,8 +34,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -98,7 +98,7 @@ public class ClientModelUtil {
                 .filter(og -> CoreUtils.isNullOrEmpty(og.getLanguage().getJava().getName()))    // no resource group
                 .findAny()
                 .map(og -> getConvenienceMethods(serviceClient::getClientMethods, og))
-                .orElse(Collections.emptyList());
+                .orElse(List.of());
             if (JavaSettings.getInstance().isAzureV1()) {
                 builder.convenienceMethods(convenienceMethods);
             }
@@ -133,7 +133,7 @@ public class ClientModelUtil {
                 .filter(og -> methodGroupClient.getClassBaseName().equals(og.getLanguage().getJava().getName()))
                 .findAny()
                 .map(og -> getConvenienceMethods(methodGroupClient::getClientMethods, og))
-                .orElse(Collections.emptyList());
+                .orElse(List.of());
             if (JavaSettings.getInstance().isAzureV1()) {
                 builder.convenienceMethods(convenienceMethods);
             }
@@ -366,9 +366,9 @@ public class ClientModelUtil {
         if (versions == null) {
             String version = getFirstApiVersionFromOperation(codeModel);
             if (version != null) {
-                versions = Collections.singletonList(version);
+                versions = List.of(version);
             } else {
-                versions = Collections.emptyList();
+                versions = List.of();
             }
         }
         return versions;
@@ -410,7 +410,7 @@ public class ClientModelUtil {
      */
     public static List<String> splitFlattenedSerializedName(String serializedName) {
         if (serializedName == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         String[] values = SPLIT_FLATTEN_PROPERTY_PATTERN.split(serializedName);
@@ -764,7 +764,7 @@ public class ClientModelUtil {
     public static Set<String> getExternalPackageNamesUsedInClient(List<ClientModel> models, CodeModel codeModel) {
         // models
         Set<String> externalPackageNames = models == null
-            ? new HashSet<>()
+            ? new LinkedHashSet<>()
             : models.stream()
                 .filter(m -> m.getImplementationDetails() != null
                     && m.getImplementationDetails().getUsages() != null

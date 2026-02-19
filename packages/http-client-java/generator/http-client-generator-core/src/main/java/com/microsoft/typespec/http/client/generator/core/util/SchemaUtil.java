@@ -22,7 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Itera
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.Collections;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -302,7 +302,7 @@ public class SchemaUtil {
      */
     public static Set<ImplementationDetails.Usage> mapSchemaContext(Set<SchemaContext> schemaContexts) {
         if (schemaContexts == null) {
-            return Collections.emptySet();
+            return Set.of();
         }
         return schemaContexts.stream().map(ImplementationDetails.Usage::fromSchemaContext).collect(Collectors.toSet());
     }

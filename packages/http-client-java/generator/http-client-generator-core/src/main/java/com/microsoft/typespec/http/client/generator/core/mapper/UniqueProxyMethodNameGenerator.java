@@ -7,7 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,12 +19,9 @@ import org.slf4j.Logger;
  * "application/json" and another takes "text/plain", which both are String type i.e., API with multiple content-types.
  */
 public final class UniqueProxyMethodNameGenerator {
-    private static final Set<ProxyMethodParameter> EXCEPT;
-    static {
-        EXCEPT = new HashSet<>();
-        EXCEPT.add(ProxyMethodParameter.CONTEXT_PARAMETER);
-        EXCEPT.add(ProxyMethodParameter.REQUEST_OPTIONS_PARAMETER);
-    }
+    private static final Set<ProxyMethodParameter> EXCEPT
+        = Set.of(ProxyMethodParameter.CONTEXT_PARAMETER, ProxyMethodParameter.REQUEST_OPTIONS_PARAMETER);
+    
     private final String operationName;
     private final Logger logger;
     // The set of list where each list is the method signature that were seen so far.
@@ -33,7 +30,7 @@ public final class UniqueProxyMethodNameGenerator {
     UniqueProxyMethodNameGenerator(String operationName, Logger logger) {
         this.operationName = operationName;
         this.logger = logger;
-        this.methodSignatures = new HashSet<>();
+        this.methodSignatures = new LinkedHashSet<>();
     }
 
     /**

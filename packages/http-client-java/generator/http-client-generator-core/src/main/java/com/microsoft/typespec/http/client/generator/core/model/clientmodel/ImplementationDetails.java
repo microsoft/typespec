@@ -5,8 +5,9 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
+
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -261,7 +262,7 @@ public class ImplementationDetails {
      */
     public static final class Builder {
         private boolean implementationOnly = false;
-        private Set<Usage> usages = new HashSet<>();
+        private Set<Usage> usages = new LinkedHashSet<>();
         private String comment;
 
         /**

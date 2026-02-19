@@ -14,9 +14,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Union
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.UnionModels;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import io.clientcore.core.utils.CoreUtils;
+
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +34,7 @@ public class UnionModelMapper implements IMapper<OrSchema, List<UnionModel>> {
 
     @Override
     public List<UnionModel> map(OrSchema type) {
-        return Collections.emptyList();
+        return List.of();
     }
 
     private List<UnionModel> createSubClasses(OrSchema type) {
@@ -60,7 +60,7 @@ public class UnionModelMapper implements IMapper<OrSchema, List<UnionModel>> {
                 processDescription(builder, subtype);
 
                 // import
-                Set<String> imports = new HashSet<>();
+                Set<String> imports = new LinkedHashSet<>();
                 imports.add(baseModelType.getFullName());
                 builder.imports(new ArrayList<>(imports));
 

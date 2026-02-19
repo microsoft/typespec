@@ -38,11 +38,11 @@ import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocess
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.Collections;
+import org.slf4j.Logger;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
 
 public class Javagen extends NewPlugin {
     private final Logger logger = new PluginLogger(this, Javagen.class);
@@ -166,7 +166,7 @@ public class Javagen extends NewPlugin {
                     && client.getSyncClients().stream().anyMatch(c -> c.getClientBuilder() != null)) {
                     List<ServiceClient> serviceClients = client.getServiceClients();
                     if (CoreUtils.isNullOrEmpty(serviceClients)) {
-                        serviceClients = Collections.singletonList(client.getServiceClient());
+                        serviceClients = List.of(client.getServiceClient());
                     }
                     TestContext<Void> testContext = new TestContext<>(serviceClients, client.getSyncClients());
 

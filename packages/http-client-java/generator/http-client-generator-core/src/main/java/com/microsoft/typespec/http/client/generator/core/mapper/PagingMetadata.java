@@ -22,8 +22,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import io.clientcore.core.utils.CoreUtils;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -87,7 +87,7 @@ final class PagingMetadata {
         if (nextOperation != null && nextOperation != operation) {
             nextMethods = Mappers.getClientMethodMapper().map(nextOperation);
         } else {
-            nextMethods = Collections.emptyList();
+            nextMethods = List.of();
         }
 
         final MethodPageDetails.ContinuationToken continuationToken
@@ -186,8 +186,7 @@ final class PagingMetadata {
             return result;
         } else {
             // m4
-            return Collections
-                .singletonList(ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getItemName()));
+            return List.of(ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getItemName()));
         }
     }
 
@@ -212,8 +211,7 @@ final class PagingMetadata {
             return result;
         } else {
             // m4
-            return Collections
-                .singletonList(ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getNextLinkName()));
+            return List.of(ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getNextLinkName()));
         }
     }
 

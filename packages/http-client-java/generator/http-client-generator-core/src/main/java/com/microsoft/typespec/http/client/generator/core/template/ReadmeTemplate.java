@@ -6,7 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import java.io.UnsupportedEncodingException;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -24,14 +24,10 @@ public class ReadmeTemplate {
     protected static String getImpression(Project project) {
         String impression = "";
         if (project.getSdkRepositoryPath().isPresent()) {
-            try {
-                impression = "![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/"
-                    + URLEncoder.encode("azure-sdk-for-java/" + project.getSdkRepositoryPath().get() + "/README.png",
-                        StandardCharsets.UTF_8.name())
-                    + ")";
-            } catch (UnsupportedEncodingException e) {
-                // NOOP
-            }
+            impression = "![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/"
+                + URLEncoder.encode("azure-sdk-for-java/" + project.getSdkRepositoryPath().get() + "/README.png",
+                StandardCharsets.UTF_8)
+                + ")";
         }
         return impression;
     }

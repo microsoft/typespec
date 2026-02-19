@@ -7,7 +7,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceVersion;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
-import java.util.HashSet;
+
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -23,13 +24,11 @@ public class ServiceVersionTemplate implements IJavaTemplate<ServiceVersion, Jav
     @Override
     public void write(ServiceVersion serviceVersion, JavaFile javaFile) {
         // imports
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         ClassType.SERVICE_VERSION.addImportsTo(imports, false);
         javaFile.declareImport(imports);
 
-        javaFile.javadocComment(comment -> {
-            comment.description("Service version of " + serviceVersion.getServiceName());
-        });
+        javaFile.javadocComment(comment -> comment.description("Service version of " + serviceVersion.getServiceName()));
 
         String className = serviceVersion.getClassName();
         List<String> serviceVersions = serviceVersion.getServiceVersions();

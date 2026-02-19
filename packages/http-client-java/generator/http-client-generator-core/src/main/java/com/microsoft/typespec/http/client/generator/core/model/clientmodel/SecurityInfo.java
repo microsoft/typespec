@@ -5,16 +5,17 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OAuth2Flow;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
+
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 public class SecurityInfo {
 
-    private Set<Scheme.SecuritySchemeType> securityTypes = new HashSet<>();
+    private Set<Scheme.SecuritySchemeType> securityTypes = new LinkedHashSet<>();
 
-    private Set<String> scopes = new HashSet<>();
+    private Set<String> scopes = new LinkedHashSet<>();
     private List<OAuth2Flow> flows = new ArrayList<>();
 
     private String headerName;

@@ -3,17 +3,39 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.*;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.*;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Constructor;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SecurityInfo;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,7 +77,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         if (!codeModelRestAPIMethods.isEmpty()) {
             proxy = processClientOperations(builder, codeModelRestAPIMethods, serviceClientInterfaceName);
         } else {
-            builder.clientMethods(Collections.emptyList());
+            builder.clientMethods(List.of());
         }
 
         List<ServiceClientProperty> properties = processClientProperties(codeModel,
@@ -109,7 +131,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         if (operations.isEmpty()) {
             // no operation, does not need a Proxy
-            builder.clientMethods(Collections.emptyList());
+            builder.clientMethods(List.of());
             return null;
         }
 
@@ -458,8 +480,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .annotations(new ArrayList<>())
                 .build();
 
-            serviceClientConstructors.add(new Constructor(Arrays.asList(httpPipelineParameter,
-                serializerAdapterParameter, defaultPollIntervalParameter, azureEnvironmentParameter)));
+            serviceClientConstructors.add(new Constructor(List.of(httpPipelineParameter, serializerAdapterParameter,
+                defaultPollIntervalParameter, azureEnvironmentParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
                 .httpPipelineParameter(httpPipelineParameter)
                 .serializerAdapterParameter(serializerAdapterParameter)
@@ -467,10 +489,9 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .azureEnvironmentParameter(azureEnvironmentParameter)
                 .constructors(serviceClientConstructors);
         } else {
-            serviceClientConstructors.add(new Constructor(new ArrayList<>()));
-            serviceClientConstructors.add(new Constructor(Collections.singletonList(httpPipelineParameter)));
-            serviceClientConstructors
-                .add(new Constructor(Arrays.asList(httpPipelineParameter, serializerAdapterParameter)));
+            serviceClientConstructors.add(new Constructor(List.of()));
+            serviceClientConstructors.add(new Constructor(List.of(httpPipelineParameter)));
+            serviceClientConstructors.add(new Constructor(List.of(httpPipelineParameter, serializerAdapterParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
                 .httpPipelineParameter(httpPipelineParameter)
                 .serializerAdapterParameter(serializerAdapterParameter)

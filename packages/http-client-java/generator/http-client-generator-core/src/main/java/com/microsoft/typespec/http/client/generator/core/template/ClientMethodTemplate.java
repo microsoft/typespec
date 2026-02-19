@@ -39,8 +39,8 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.Collections;
-import java.util.HashMap;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         // Parameter expressions to validate for non-null value.
         final List<String> paramReferenceExpressions = clientMethod.getRequiredNullableParameterExpressions();
         // Parameter expressions for custom validation (key is the expression, value is the validation).
-        final Map<String, String> validateParamExpressions = new HashMap<>(clientMethod.getValidateExpressions());
+        final Map<String, String> validateParamExpressions = new LinkedHashMap<>(clientMethod.getValidateExpressions());
 
         for (String paramReferenceExpression : paramReferenceExpressions) {
             final JavaIfBlock nullCheck = function.ifBlock(paramReferenceExpression + " == null", ifBlock -> {
@@ -148,7 +148,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             = MethodUtil.getParameters(clientMethod, false);
         List<com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter> overloadedMethodParameters
             = clientMethod.getOverloadedClientMethod() == null
-                ? Collections.emptyList()
+                ? List.of()
                 : MethodUtil.getParameters(clientMethod.getOverloadedClientMethod(), false);
 
         for (ProxyMethodParameter parameter : proxyMethodParameters) {

@@ -12,7 +12,9 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
-import java.util.HashSet;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Writes a ServiceClient to a JavaFile as an interface.
@@ -29,7 +31,7 @@ public class ServiceClientInterfaceTemplate implements IJavaTemplate<ServiceClie
     }
 
     public void write(ServiceClient serviceClient, JavaFile javaFile) {
-        HashSet<String> imports = new HashSet<String>();
+        Set<String> imports = new LinkedHashSet<>();
         serviceClient.addImportsTo(imports, false, false, JavaSettings.getInstance());
         javaFile.declareImport(imports);
 

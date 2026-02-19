@@ -31,11 +31,12 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.CoreUtils;
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,7 +45,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
 
 public class ResourceParser {
 
@@ -83,7 +83,7 @@ public class ResourceParser {
             if (FluentUtils.modelHasLocationProperty(model) && !model.hasProperty("region")) {
                 // if resource instance has location property, add region() method
                 methods.add(MethodTemplate.builder()
-                    .imports(Collections.singletonList(FluentType.REGION.getFullName()))
+                    .imports(List.of(FluentType.REGION.getFullName()))
                     .comment(commentBlock -> {
                         commentBlock.description("Gets the region of the resource.");
                         commentBlock.methodReturns("the region of the resource.");
@@ -184,7 +184,7 @@ public class ResourceParser {
             .collect(Collectors.toMap(m -> m.getInterfaceType().toString(), Function.identity()));
 
         List<ResourceCreate> supportsCreateList = new ArrayList<>();
-        Set<FluentResourceModel> foundModels = new HashSet<>();
+        Set<FluentResourceModel> foundModels = new LinkedHashSet<>();
 
         for (ModelCategory category : categories) {
             Map<FluentResourceModel, ResourceCreate> modelResourceCreateMap = findResourceCreateForCategory(collection,

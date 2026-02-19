@@ -28,7 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -134,7 +134,7 @@ public class TemplateUtil {
         JavaSettings settings = JavaSettings.getInstance();
 
         // collect types of TypeReference<T>
-        Set<GenericType> typeReferenceStaticClasses = new HashSet<>();
+        Set<GenericType> typeReferenceStaticClasses = new LinkedHashSet<>();
 
         for (ClientMethod clientMethod : clientMethods) {
             Templates.getClientMethodTemplate().write(clientMethod, classBlock);

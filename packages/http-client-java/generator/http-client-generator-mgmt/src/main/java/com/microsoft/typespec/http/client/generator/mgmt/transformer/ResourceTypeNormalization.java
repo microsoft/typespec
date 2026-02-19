@@ -20,17 +20,18 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import io.clientcore.core.utils.CoreUtils;
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.slf4j.Logger;
 
 /**
  * Normalizes the base resource types based on its base type and properties.
@@ -47,7 +48,7 @@ class ResourceTypeNormalization {
     // lost systemData property.
     // Hence, we need to have CustomResource processed first.
     private static final Set<String> LAST_TO_PROCESS_SCHEMA_NAMES
-        = new HashSet<>(Arrays.asList(ResourceTypeName.PROXY_RESOURCE, ResourceTypeName.PROXY_RESOURCE_AUTO_GENERATED,
+        = new LinkedHashSet<>(List.of(ResourceTypeName.PROXY_RESOURCE, ResourceTypeName.PROXY_RESOURCE_AUTO_GENERATED,
             ResourceTypeName.TRACKED_RESOURCE, ResourceTypeName.TRACKED_RESOURCE_AUTO_GENERATED,
             ResourceTypeName.RESOURCE, ResourceTypeName.RESOURCE_AUTO_GENERATED, ResourceTypeName.AZURE_RESOURCE,
             ResourceTypeName.AZURE_RESOURCE_AUTO_GENERATED));
@@ -87,15 +88,13 @@ class ResourceTypeNormalization {
         return DUMMY_SUB_RESOURCE;
     }
 
-    private static final Set<String> SUB_RESOURCE_FIELDS = new HashSet<>(Arrays.asList(ResourceTypeName.FIELD_ID));
-    private static final Set<String> PROXY_RESOURCE_FIELDS = new HashSet<>(
-        Arrays.asList(ResourceTypeName.FIELD_ID, ResourceTypeName.FIELD_NAME, ResourceTypeName.FIELD_TYPE));
-    private static final Set<String> RESOURCE_FIELDS
-        = new HashSet<>(Arrays.asList(ResourceTypeName.FIELD_ID, ResourceTypeName.FIELD_NAME,
-            ResourceTypeName.FIELD_TYPE, ResourceTypeName.FIELD_LOCATION, ResourceTypeName.FIELD_TAGS));
-
+    private static final Set<String> SUB_RESOURCE_FIELDS = Set.of(ResourceTypeName.FIELD_ID);
+    private static final Set<String> PROXY_RESOURCE_FIELDS
+        = Set.of(ResourceTypeName.FIELD_ID, ResourceTypeName.FIELD_NAME, ResourceTypeName.FIELD_TYPE);
+    private static final Set<String> RESOURCE_FIELDS = Set.of(ResourceTypeName.FIELD_ID, ResourceTypeName.FIELD_NAME,
+            ResourceTypeName.FIELD_TYPE, ResourceTypeName.FIELD_LOCATION, ResourceTypeName.FIELD_TAGS);
     private static final Set<String> RESOURCE_EXTRA_FIELDS
-        = new HashSet<>(Arrays.asList(ResourceTypeName.FIELD_LOCATION, ResourceTypeName.FIELD_TAGS));
+        = Set.of(ResourceTypeName.FIELD_LOCATION, ResourceTypeName.FIELD_TAGS);
 
     private static final ObjectSchema DUMMY_SUB_RESOURCE = dummyResourceSchema(ResourceTypeName.SUB_RESOURCE);
     private static final ObjectSchema DUMMY_PROXY_RESOURCE = dummyResourceSchema(ResourceTypeName.PROXY_RESOURCE);
@@ -386,7 +385,7 @@ class ResourceTypeNormalization {
      */
     private static List<Property> getDeclaredProperties(ObjectSchema parentType) {
         return parentType == null
-            ? Collections.emptyList()
+            ? List.of()
             : Stream
                 .concat(parentType.getProperties().stream(),
                     getDeclaredProperties(getObjectParent(parentType).orElse(null)).stream())

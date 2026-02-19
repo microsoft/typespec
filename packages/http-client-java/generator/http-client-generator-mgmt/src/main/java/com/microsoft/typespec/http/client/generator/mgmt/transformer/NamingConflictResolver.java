@@ -12,11 +12,12 @@ import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.Code
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Constants;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
-import java.util.HashSet;
+import org.slf4j.Logger;
+
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
 
 public class NamingConflictResolver {
 
@@ -25,7 +26,7 @@ public class NamingConflictResolver {
 
     public CodeModel process(CodeModel codeModel) {
         // conform to lowercase, to avoid problem on Windows system, where file name is case-insensitive
-        Set<String> methodGroupNamesLowerCase = new HashSet<>();
+        Set<String> methodGroupNamesLowerCase = new LinkedHashSet<>();
         Set<String> objectNamesLowerCase = codeModel.getSchemas()
             .getObjects()
             .stream()

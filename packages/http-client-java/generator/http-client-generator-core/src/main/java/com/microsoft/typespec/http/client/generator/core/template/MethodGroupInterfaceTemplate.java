@@ -8,8 +8,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
-import java.util.HashSet;
+
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +29,7 @@ public class MethodGroupInterfaceTemplate implements IJavaTemplate<MethodGroupCl
 
     public final void write(MethodGroupClient methodGroupClient, JavaFile javaFile) {
         JavaSettings settings = JavaSettings.getInstance();
-        HashSet<String> imports = new HashSet<String>();
+        Set<String> imports = new LinkedHashSet<>();
         methodGroupClient.addImportsTo(imports, false, settings);
         javaFile.declareImport(imports);
 

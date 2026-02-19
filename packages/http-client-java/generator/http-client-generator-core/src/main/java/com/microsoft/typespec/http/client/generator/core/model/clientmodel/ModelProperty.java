@@ -4,7 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -88,11 +88,9 @@ public class ModelProperty {
     public List<String> getSerializedNames() {
         if (property instanceof ClientModelProperty) {
             ClientModelProperty clientModelProperty = (ClientModelProperty) property;
-            if (!clientModelProperty.getNeedsFlatten()) {
-                return ClientModelUtil.splitFlattenedSerializedName(clientModelProperty.getSerializedName());
-            } else {
-                return Collections.singletonList(clientModelProperty.getSerializedName());
-            }
+            return !clientModelProperty.getNeedsFlatten()
+                ? ClientModelUtil.splitFlattenedSerializedName(clientModelProperty.getSerializedName())
+                : List.of(clientModelProperty.getSerializedName());
         } else if (property instanceof ClientModelPropertyReference) {
             return ((ClientModelPropertyReference) property).getAllProperties()
                 .stream()

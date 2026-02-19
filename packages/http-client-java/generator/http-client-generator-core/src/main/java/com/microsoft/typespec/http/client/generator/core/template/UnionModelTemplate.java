@@ -12,8 +12,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJav
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.Collections;
-import java.util.HashSet;
+
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -36,7 +36,7 @@ public class UnionModelTemplate implements IJavaTemplate<UnionModel, JavaFile> {
         final boolean isAbstractClass = CoreUtils.isNullOrEmpty(model.getParentModelName());
         final String superClassName = model.getParentModelName();
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         model.addImportsTo(imports);
 
         imports.add(Annotation.IMMUTABLE.getFullName());
@@ -44,8 +44,7 @@ public class UnionModelTemplate implements IJavaTemplate<UnionModel, JavaFile> {
 
         javaFile.declareImport(imports);
 
-        List<JavaModifier> modifiers
-            = Collections.singletonList(isAbstractClass ? JavaModifier.Abstract : JavaModifier.Final);
+        List<JavaModifier> modifiers = List.of(isAbstractClass ? JavaModifier.Abstract : JavaModifier.Final);
         String classDeclaration = isAbstractClass ? model.getName() : (model.getName() + " extends " + superClassName);
         javaFile.javadocComment(comment -> comment.description(model.getDescription()));
         if (!isAbstractClass) {

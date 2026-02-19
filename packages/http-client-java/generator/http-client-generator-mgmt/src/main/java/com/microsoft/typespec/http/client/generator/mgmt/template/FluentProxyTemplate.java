@@ -8,7 +8,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
 import com.microsoft.typespec.http.client.generator.core.template.ProxyTemplate;
-import java.util.HashMap;
+
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +25,7 @@ public class FluentProxyTemplate extends ProxyTemplate {
 
     @Override
     protected void writeProxyMethodHeaders(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new LinkedHashMap<>();
         headers.put("Content-Type", restAPIMethod.getRequestContentType());
         headers.put("Accept", String.join(",", restAPIMethod.getResponseContentTypes()));
 

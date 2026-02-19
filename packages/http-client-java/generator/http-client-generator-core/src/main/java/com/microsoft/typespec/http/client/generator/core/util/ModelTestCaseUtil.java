@@ -13,13 +13,13 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Itera
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.DateTimeRfc1123;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -232,7 +232,7 @@ public class ModelTestCaseUtil {
             if (modelNeedsFlatten) {
                 serializedNames = ClientModelUtil.splitFlattenedSerializedName(serializedName);
             } else {
-                serializedNames = Collections.singletonList(serializedName);
+                serializedNames = List.of(serializedName);
             }
             addToJsonObject(jsonObject, serializedNames, value);
         }

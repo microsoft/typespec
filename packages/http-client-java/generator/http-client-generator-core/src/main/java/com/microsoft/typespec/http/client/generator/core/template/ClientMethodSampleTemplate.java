@@ -14,7 +14,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.template.example.ClientInitializationExampleWriter;
 import com.microsoft.typespec.http.client.generator.core.template.example.ClientMethodExampleWriter;
 import com.microsoft.typespec.http.client.generator.core.template.example.ModelExampleWriter;
-import java.util.HashSet;
+
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ClientMethodSampleTemplate implements IJavaTemplate<ClientMethodExample, JavaFile> {
@@ -39,7 +40,7 @@ public class ClientMethodSampleTemplate implements IJavaTemplate<ClientMethodExa
             clientInitializationExampleWriter.getClientVarName(), proxyMethodExample);
 
         // declare imports
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         imports.addAll(clientInitializationExampleWriter.getImports());
         imports.addAll(clientMethodExampleWriter.getImports());
         method.getReturnValue().getType().addImportsTo(imports, false);

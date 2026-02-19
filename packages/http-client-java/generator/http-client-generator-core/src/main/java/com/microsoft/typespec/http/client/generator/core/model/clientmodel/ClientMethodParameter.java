@@ -4,7 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,7 +19,7 @@ public class ClientMethodParameter extends MethodParameter {
             .wireType(ClassType.CONTEXT)
             .name("context")
             .requestParameterLocation(RequestParameterLocation.NONE)
-            .annotations(Collections.emptyList())
+            .annotations(List.of())
             .constant(false)
             .defaultValue(null)
             .fromClient(false)
@@ -32,7 +32,7 @@ public class ClientMethodParameter extends MethodParameter {
             .wireType(ClassType.HTTP_REQUEST)
             .name("httpRequest")
             .requestParameterLocation(RequestParameterLocation.NONE)
-            .annotations(Collections.emptyList())
+            .annotations(List.of())
             .constant(false)
             .defaultValue(null)
             .fromClient(false)
@@ -48,7 +48,7 @@ public class ClientMethodParameter extends MethodParameter {
         .constant(false)
         .required(false)
         .fromClient(false)
-        .annotations(Collections.emptyList())
+        .annotations(List.of())
         .build();
 
     public static final ClientMethodParameter REQUEST_CONTEXT_PARAMETER = new ClientMethodParameter.Builder()
@@ -59,7 +59,7 @@ public class ClientMethodParameter extends MethodParameter {
         .constant(false)
         .required(false)
         .fromClient(false)
-        .annotations(Collections.emptyList())
+        .annotations(List.of())
         .build();
 
     /**

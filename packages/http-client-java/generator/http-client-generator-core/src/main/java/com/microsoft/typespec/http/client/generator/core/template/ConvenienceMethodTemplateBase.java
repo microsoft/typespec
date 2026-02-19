@@ -3,14 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BOOLEAN;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BYTE;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.CHAR;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.DOUBLE;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.FLOAT;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.INT;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
-
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
@@ -43,11 +35,11 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,6 +52,14 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BOOLEAN;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BYTE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.CHAR;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.DOUBLE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.FLOAT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.INT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
 
 abstract class ConvenienceMethodTemplateBase {
 
@@ -134,7 +134,7 @@ abstract class ConvenienceMethodTemplateBase {
         boolean isJsonMergePatchOperation = protocolMethod != null
             && protocolMethod.getProxyMethod() != null
             && "application/merge-patch+json".equalsIgnoreCase(protocolMethod.getProxyMethod().getRequestContentType());
-        Map<String, String> parameterExpressionsMap = new HashMap<>();
+        Map<String, String> parameterExpressionsMap = new LinkedHashMap<>();
         for (Map.Entry<MethodParameter, MethodParameter> entry : parametersMap.entrySet()) {
             MethodParameter parameter = entry.getKey();
             MethodParameter protocolParameter = entry.getValue();
@@ -561,7 +561,7 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     private static String expressionConvertToBinaryData(String name, IType type, String mediaType) {
-        SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(Collections.singleton(mediaType));
+        SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(List.of(mediaType));
         switch (mimeType) {
             case TEXT:
                 return "BinaryData.fromString(" + name + ")";

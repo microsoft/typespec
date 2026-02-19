@@ -17,11 +17,11 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
 
 public class ResourceDelete extends ResourceOperation {
 
@@ -36,7 +36,7 @@ public class ResourceDelete extends ResourceOperation {
 
     @Override
     public List<FluentMethod> getFluentMethods() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

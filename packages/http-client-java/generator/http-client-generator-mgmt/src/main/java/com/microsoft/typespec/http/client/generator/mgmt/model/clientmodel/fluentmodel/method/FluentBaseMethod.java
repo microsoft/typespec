@@ -18,7 +18,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Model
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.LocalVariable;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
-import java.util.HashSet;
+
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,7 +66,7 @@ abstract public class FluentBaseMethod extends FluentMethod {
             .get();
 
         // method invocation
-        Set<ClientMethodParameter> parametersSet = new HashSet<>(parameters);
+        Set<ClientMethodParameter> parametersSet = new LinkedHashSet<>(parameters);
         List<ClientMethodParameter> methodParameters
             = collectionMethod.getInnerClientMethod().getMethodInputParameters();
         String argumentsLine = methodParameters.stream()

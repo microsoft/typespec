@@ -25,14 +25,15 @@ import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TypeSpecFluentPlugin extends FluentGen {
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeSpecFluentPlugin.class);
@@ -157,7 +158,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
         return fluentMapper;
     }
 
-    private static final Map<String, Object> SETTINGS_MAP = new HashMap<>();
+    private static final Map<String, Object> SETTINGS_MAP = new LinkedHashMap<>();
 
     // from fluentnamer/readme.md
     static {
@@ -179,7 +180,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("sync-methods", "all");
         SETTINGS_MAP.put("stream-style-serialization", false);
 
-        SETTINGS_MAP.put("polling", new HashMap<String, Object>());
+        SETTINGS_MAP.put("polling", new LinkedHashMap<String, Object>());
     }
 
     @SuppressWarnings("unchecked")

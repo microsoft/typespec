@@ -6,7 +6,8 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.HashMap;
+
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -36,7 +37,7 @@ final class ExceptionSettingUtil {
      * @return a map of HTTP status codes to exception types.
      */
     static Map<Integer, ClassType> getHttpStatusToExceptionTypeMapping(JavaSettings settings) {
-        final Map<Integer, ClassType> exceptionMapping = new HashMap<>();
+        final Map<Integer, ClassType> exceptionMapping = new LinkedHashMap<>();
         if (settings.isUseDefaultHttpStatusCodeToExceptionTypeMapping()) {
             // add default mapping, this may get overwritten if custom mapping is provided.
             exceptionMapping.put(401, ClassType.CLIENT_AUTHENTICATION_EXCEPTION);
