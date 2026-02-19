@@ -1,7 +1,5 @@
 # Changelog - @typespec/http-client-java
 
-
-
 ## 0.7.0
 
 ### Features
@@ -22,4 +20,5 @@
 - [#9677](https://github.com/microsoft/typespec/pull/9677) Fix incorrect variable name of continuationToken
 - [#9527](https://github.com/microsoft/typespec/pull/9527) Missing example value for BinaryData type in mock test.
 - [#9639](https://github.com/microsoft/typespec/pull/9639) Fix mock data for BinaryData.
-
+- [#751](https://github.com/microsoft/typespec/pull/9751) Use `LinkedHashMap` and `LinkedHashSet` to ensure consistent
+  iterating order.
