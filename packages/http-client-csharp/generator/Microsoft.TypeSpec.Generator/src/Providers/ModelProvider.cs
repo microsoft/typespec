@@ -938,7 +938,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                     if (type is { IsFrameworkType: false, IsEnum: true })
                     {
-                        if (_inputModel.BaseModel.DiscriminatorProperty!.Type is InputEnumType inputEnumType)
+                        if (_inputModel.BaseModel.DiscriminatorProperty?.Type is InputEnumType inputEnumType)
                         {
                             var discriminatorProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
 
