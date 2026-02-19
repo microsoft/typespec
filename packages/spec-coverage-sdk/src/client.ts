@@ -59,8 +59,8 @@ export class SpecManifestOperations {
   }
 
   public async uploadIfVersionNew(name: string, manifest: ScenarioManifest): Promise<void> {
-    const existingManifest = await this.get(name);
-    if (manifest.version === existingManifest.version) {
+    const existingManifest = await this.tryGet(name);
+    if (existingManifest && manifest.version === existingManifest.version) {
       return;
     }
     const content = JSON.stringify(manifest, null, 2);
@@ -74,8 +74,15 @@ export class SpecManifestOperations {
 
   public async get(name: string): Promise<ScenarioManifest> {
     const blob = this.#container.getBlockBlobClient(this.#blobName(name));
-
     return readJsonBlob<ScenarioManifest>(blob);
+  }
+
+  public async tryGet(name: string): Promise<ScenarioManifest | undefined> {
+    const blob = this.#container.getBlockBlobClient(this.#blobName(name));
+    if (await blob.exists()) {
+      return readJsonBlob<ScenarioManifest>(blob);
+    }
+    return undefined;
   }
 
   #blobName(name: string) {
