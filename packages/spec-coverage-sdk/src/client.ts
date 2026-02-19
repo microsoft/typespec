@@ -58,10 +58,13 @@ export class SpecManifestOperations {
     });
   }
 
-  public async uploadIfVersionNew(name: string, manifest: ScenarioManifest): Promise<void> {
+  public async uploadIfVersionNew(
+    name: string,
+    manifest: ScenarioManifest,
+  ): Promise<"uploaded" | "skipped"> {
     const existingManifest = await this.tryGet(name);
     if (existingManifest && manifest.version === existingManifest.version) {
-      return;
+      return "skipped";
     }
     const content = JSON.stringify(manifest, null, 2);
     const blob = this.#container.getBlockBlobClient(this.#blobName(name));
@@ -70,6 +73,7 @@ export class SpecManifestOperations {
         blobContentType: "application/json; charset=utf-8",
       },
     });
+    return "uploaded";
   }
 
   public async get(name: string): Promise<ScenarioManifest> {
@@ -79,10 +83,14 @@ export class SpecManifestOperations {
 
   public async tryGet(name: string): Promise<ScenarioManifest | undefined> {
     const blob = this.#container.getBlockBlobClient(this.#blobName(name));
-    if (await blob.exists()) {
+    try {
       return readJsonBlob<ScenarioManifest>(blob);
+    } catch (e: any) {
+      if ("code" in e && e.code === "BlobNotFound") {
+        return undefined;
+      }
+      throw e;
     }
-    return undefined;
   }
 
   #blobName(name: string) {
@@ -194,7 +202,18 @@ function getCoverageContainer(
 
 async function readJsonBlob<T>(blobClient: BlockBlobClient): Promise<T> {
   const blob = await blobClient.download();
-  const body = await blob.blobBody;
-  const content = await body!.text();
-  return JSON.parse(content);
+  if (blob.blobBody) {
+    const body = await blob.blobBody;
+    const content = await body!.text();
+    return JSON.parse(content);
+  } else if (blob.readableStreamBody) {
+    const stream = blob.readableStreamBody;
+    let content = "";
+    for await (const chunk of stream) {
+      content += chunk;
+    }
+    return JSON.parse(content);
+  } else {
+    throw new Error("Blob has no body");
+  }
 }

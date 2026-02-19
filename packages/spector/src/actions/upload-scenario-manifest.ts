@@ -35,11 +35,20 @@ export async function uploadScenarioManifest({
   await client.createIfNotExists();
   if (override) {
     await client.manifest.upload(manifestName, manifest);
+    logger.info(
+      `${pc.green("✓")} Scenario manifest uploaded to ${storageAccountName} storage account.`,
+    );
   } else {
-    await client.manifest.uploadIfVersionNew(manifestName, manifest);
-  }
+    const result = await client.manifest.uploadIfVersionNew(manifestName, manifest);
 
-  logger.info(
-    `${pc.green("✓")} Scenario manifest uploaded to ${storageAccountName} storage account.`,
-  );
+    if (result === "uploaded") {
+      logger.info(
+        `${pc.green("✓")} Scenario manifest new version uploaded to ${storageAccountName} storage account.`,
+      );
+    } else {
+      logger.info(
+        `${pc.white("-")} Existing scenario manifest in ${storageAccountName} storage account is up to date. No upload needed.`,
+      );
+    }
+  }
 }
