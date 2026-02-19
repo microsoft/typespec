@@ -42,25 +42,44 @@ export class SpecCoverageClient {
 }
 
 export class SpecManifestOperations {
-  #blob: BlockBlobClient;
   #container: ContainerClient;
 
   constructor(container: ContainerClient) {
     this.#container = container;
-    this.#blob = this.#container.getBlockBlobClient("manifest.json");
   }
 
-  public async upload(manifest: ScenarioManifest | ScenarioManifest[]): Promise<void> {
+  public async upload(name: string, manifest: ScenarioManifest): Promise<void> {
+    const blob = this.#container.getBlockBlobClient(this.#blobName(name));
     const content = JSON.stringify(manifest, null, 2);
-    await this.#blob.upload(content, content.length, {
+    await blob.upload(content, content.length, {
       blobHTTPHeaders: {
         blobContentType: "application/json; charset=utf-8",
       },
     });
   }
 
-  public async get(): Promise<ScenarioManifest[]> {
-    return readJsonBlob<ScenarioManifest[]>(this.#blob);
+  public async uploadIfVersionNew(name: string, manifest: ScenarioManifest): Promise<void> {
+    const existingManifest = await this.get(name);
+    if (manifest.version === existingManifest.version) {
+      return;
+    }
+    const content = JSON.stringify(manifest, null, 2);
+    const blob = this.#container.getBlockBlobClient(this.#blobName(name));
+    await blob.upload(content, content.length, {
+      blobHTTPHeaders: {
+        blobContentType: "application/json; charset=utf-8",
+      },
+    });
+  }
+
+  public async get(name: string): Promise<ScenarioManifest> {
+    const blob = this.#container.getBlockBlobClient(this.#blobName(name));
+
+    return readJsonBlob<ScenarioManifest>(blob);
+  }
+
+  #blobName(name: string) {
+    return `manifests/${name}.json`;
   }
 }
 

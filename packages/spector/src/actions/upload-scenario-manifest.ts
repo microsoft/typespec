@@ -7,33 +7,37 @@ import { computeScenarioManifest } from "../coverage/scenario-manifest.js";
 import { logger } from "../logger.js";
 
 export interface UploadScenarioManifestConfig {
-  scenariosPaths: string[];
+  scenariosPath: string;
   storageAccountName: string;
   containerName: string;
+  manifestName: string;
+  override?: boolean;
 }
 
 export async function uploadScenarioManifest({
-  scenariosPaths,
+  scenariosPath,
   storageAccountName,
   containerName,
+  manifestName,
+  override = false,
 }: UploadScenarioManifestConfig) {
-  const manifests = [];
-  for (let idx = 0; idx < scenariosPaths.length; idx++) {
-    const path = resolve(process.cwd(), scenariosPaths[idx]);
-    logger.info(`Computing scenario manifest for ${path}`);
-    const [manifest, diagnostics] = await computeScenarioManifest(path);
-    if (manifest === undefined || diagnostics.length > 0) {
-      process.exit(-1);
-    }
-    manifests.push(manifest);
+  const path = resolve(process.cwd(), scenariosPath);
+  logger.info(`Computing scenario manifest for ${path}`);
+  const [manifest, diagnostics] = await computeScenarioManifest(path);
+  if (manifest === undefined || diagnostics.length > 0) {
+    process.exit(-1);
   }
-  await writeFile("manifest.json", JSON.stringify(manifests, null, 2));
+  await writeFile("manifest.json", JSON.stringify(manifest, null, 2));
   const client = new SpecCoverageClient(storageAccountName, {
     credential: new AzureCliCredential(),
     containerName,
   });
   await client.createIfNotExists();
-  await client.manifest.upload(manifests);
+  if (override) {
+    await client.manifest.upload(manifestName, manifest);
+  } else {
+    await client.manifest.uploadIfVersionNew(manifestName, manifest);
+  }
 
   logger.info(
     `${pc.green("✓")} Scenario manifest uploaded to ${storageAccountName} storage account.`,
