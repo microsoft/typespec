@@ -3947,9 +3947,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           const decorator = checkDecoratorApplication(ctx, type, decNode);
           if (decorator) {
             type.decorators.unshift(decorator);
+            applyDecoratorToType(program, decorator, type);
           }
         }
-        applyDecoratorsToType(type);
       }
     }
 
@@ -4846,9 +4846,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const decorator = checkDecoratorApplication(ctx, heritageType, decNode);
         if (decorator) {
           heritageType.decorators.unshift(decorator);
+          applyDecoratorToType(program, decorator, heritageType);
         }
       }
-      applyDecoratorsToType(heritageType);
     }
 
     return heritageType;
@@ -4918,9 +4918,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const decorator = checkDecoratorApplication(ctx, isType, decNode);
         if (decorator) {
           isType.decorators.unshift(decorator);
+          applyDecoratorToType(program, decorator, isType);
         }
       }
-      applyDecoratorsToType(isType);
     }
 
     return isType;
