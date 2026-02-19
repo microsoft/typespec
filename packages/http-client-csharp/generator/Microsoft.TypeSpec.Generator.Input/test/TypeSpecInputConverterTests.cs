@@ -132,7 +132,57 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             var inputDuration = inputType as InputDurationType;
             Assert.IsNotNull(inputDuration);
-            Assert.AreEqual("duration-constant", inputDuration!.Encode.ToString());
+            Assert.AreEqual("constant", inputDuration!.Encode.ToString());
+        }
+
+        [Test]
+        public void LoadsInputDurationTypeTranslatesDurationConstantEncoding()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputDuration = inputType as InputDurationType;
+            Assert.IsNotNull(inputDuration);
+            Assert.AreEqual(DurationKnownEncoding.Constant, inputDuration!.Encode);
+        }
+
+        [Test]
+        public void LoadsInputDurationTypeWithConstantEncoding()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputDuration = inputType as InputDurationType;
+            Assert.IsNotNull(inputDuration);
+            Assert.AreEqual(DurationKnownEncoding.Constant, inputDuration!.Encode);
         }
 
         [Test]
