@@ -4777,7 +4777,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     model: ModelStatementNode,
     heritageRef: Expression,
   ): Model | undefined {
-    if (heritageRef.kind === SyntaxKind.ModelExpression) {
+    // Unwrap decorated expression to check the target
+    const innerRef =
+      heritageRef.kind === SyntaxKind.DecoratedExpression ? heritageRef.target : heritageRef;
+    if (innerRef.kind === SyntaxKind.ModelExpression) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "extend-model",
@@ -4788,8 +4791,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
     if (
-      heritageRef.kind !== SyntaxKind.TypeReference &&
-      heritageRef.kind !== SyntaxKind.ArrayExpression
+      innerRef.kind !== SyntaxKind.TypeReference &&
+      innerRef.kind !== SyntaxKind.ArrayExpression
     ) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -4802,7 +4805,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const modelSymId = getNodeSym(model);
     pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
 
-    const target = resolver.getNodeLinks(heritageRef).resolvedSymbol;
+    const target = resolver.getNodeLinks(innerRef).resolvedSymbol;
     if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
       if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
@@ -4815,7 +4818,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
-    const heritageType = getTypeForNode(heritageRef, ctx);
+    const heritageType = getTypeForNode(innerRef, ctx);
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
     if (isErrorType(heritageType)) {
       compilerAssert(program.hasError(), "Should already have reported an error.", heritageRef);
@@ -4837,6 +4840,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
     }
 
+    // Apply decorators from the decorated expression to the resolved type
+    if (heritageRef.kind === SyntaxKind.DecoratedExpression) {
+      for (const decNode of heritageRef.decorators) {
+        const decorator = checkDecoratorApplication(ctx, heritageType, decNode);
+        if (decorator) {
+          heritageType.decorators.unshift(decorator);
+        }
+      }
+      applyDecoratorsToType(heritageType);
+    }
+
     return heritageType;
   }
 
@@ -4850,7 +4864,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const modelSymId = getNodeSym(model);
     pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
     let isType;
-    if (isExpr.kind === SyntaxKind.ModelExpression) {
+    // Unwrap decorated expression to check the target
+    const innerExpr =
+      isExpr.kind === SyntaxKind.DecoratedExpression ? isExpr.target : isExpr;
+    if (innerExpr.kind === SyntaxKind.ModelExpression) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "is-model",
@@ -4859,10 +4876,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }),
       );
       return undefined;
-    } else if (isExpr.kind === SyntaxKind.ArrayExpression) {
-      isType = checkArrayExpression(ctx, isExpr);
-    } else if (isExpr.kind === SyntaxKind.TypeReference) {
-      const target = resolver.getNodeLinks(isExpr).resolvedSymbol;
+    } else if (innerExpr.kind === SyntaxKind.ArrayExpression) {
+      isType = checkArrayExpression(ctx, innerExpr);
+    } else if (innerExpr.kind === SyntaxKind.TypeReference) {
+      const target = resolver.getNodeLinks(innerExpr).resolvedSymbol;
       if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
         if (ctx.mapper === undefined) {
           reportCheckerDiagnostic(
@@ -4875,7 +4892,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         return undefined;
       }
-      isType = getTypeForNode(isExpr, ctx);
+      isType = getTypeForNode(innerExpr, ctx);
     } else {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
       return undefined;
@@ -4893,6 +4910,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({ code: "is-model", messageId: "modelExpression", target: isExpr }),
       );
       return undefined;
+    }
+
+    // Apply decorators from the decorated expression to the resolved type
+    if (isExpr.kind === SyntaxKind.DecoratedExpression) {
+      for (const decNode of isExpr.decorators) {
+        const decorator = checkDecoratorApplication(ctx, isType, decNode);
+        if (decorator) {
+          isType.decorators.unshift(decorator);
+        }
+      }
+      applyDecoratorsToType(isType);
     }
 
     return isType;
