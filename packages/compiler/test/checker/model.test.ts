@@ -1442,9 +1442,7 @@ describe("compiler: models", () => {
         }
         `,
       );
-      const { A } = (await testHost.compile("main.tsp")) as {
-        A: Model;
-      };
+      await testHost.compile("main.tsp");
 
       ok(decoratedType);
       strictEqual(decoratedType!.kind, "Model");

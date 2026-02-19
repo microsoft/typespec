@@ -86,24 +86,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    Contact:
-      type: object
-      required:
-        - address
-      properties:
-        address:
-          type: object
-          properties:
-            street:
-              type: string
-            city:
-              type: string
-            zip:
-              type: string
-          required:
-            - street
-            - city
-            - zip
     Error:
       type: object
       required:

@@ -50,13 +50,13 @@ import {
   CallExpressionNode,
   CodeFix,
   ConstStatementNode,
+  DecoratedExpressionNode,
   Decorator,
   DecoratorApplication,
   DecoratorArgument,
   DecoratorContext,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
-  DecoratedExpressionNode,
   DecoratorValidatorCallbacks,
   Diagnostic,
   DiagnosticTarget,
@@ -4865,8 +4865,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     pendingResolutions.start(modelSymId, ResolutionKind.BaseType);
     let isType;
     // Unwrap decorated expression to check the target
-    const innerExpr =
-      isExpr.kind === SyntaxKind.DecoratedExpression ? isExpr.target : isExpr;
+    const innerExpr = isExpr.kind === SyntaxKind.DecoratedExpression ? isExpr.target : isExpr;
     if (innerExpr.kind === SyntaxKind.ModelExpression) {
       reportCheckerDiagnostic(
         createDiagnostic({

@@ -242,8 +242,14 @@ Decorators can be applied to inline model expressions and other type expressions
 
 ```typespec
 model Pet {
-  owner: @doc("Owner contact info") { name: string; phone: string };
+  owner: @doc("Owner contact info") {
+    name: string;
+    phone: string;
+  };
 }
 
-alias Address = @doc("A mailing address") { street: string; city: string };
+alias Address = @doc("A mailing address") {
+  street: string;
+  city: string;
+};
 ```

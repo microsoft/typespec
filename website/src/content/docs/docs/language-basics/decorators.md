@@ -38,21 +38,31 @@ Decorators can be applied directly to type expressions such as inline models, ty
 
 ```typespec
 model Pet {
-  owner: @doc("The pet owner's info") { name: string; phone: string };
+  owner: @doc("The pet owner's info") {
+    name: string;
+    phone: string;
+  };
 }
 ```
 
 This also works with aliases:
 
 ```typespec
-alias Address = @doc("A mailing address") { street: string; city: string };
+alias Address = @doc("A mailing address") {
+  street: string;
+  city: string;
+};
 ```
 
 Decorators on expressions work with `is` and `extends` as well:
 
 ```typespec
-model Base { id: string }
-model Extended is @tag("extended") Base { extra: string }
+model Base {
+  id: string;
+}
+model Extended is @tag("extended") Base {
+  extra: string;
+}
 ```
 
 ## Augmenting decorators

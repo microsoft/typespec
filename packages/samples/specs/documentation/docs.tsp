@@ -48,8 +48,3 @@ model NotFoundWithDocsResp {
   @statusCode _: 404;
   details: string;
 }
-
-// Example of decorating inline model expressions
-model Contact {
-  address: @doc("Mailing address") { street: string; city: string; zip: string };
-}
