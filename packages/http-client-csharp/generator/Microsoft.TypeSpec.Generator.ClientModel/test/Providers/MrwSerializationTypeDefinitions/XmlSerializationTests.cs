@@ -515,7 +515,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 mrwProvider!,
-                name => name == "XmlModelWriteCore" || name == "WriteXml"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -552,7 +552,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 mrwProvider!,
-                name => name == "XmlModelWriteCore" || name == "WriteXml"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -578,7 +578,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 serializationProvider,
-                name => name == "XmlModelWriteCore" || name == "WriteXml"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -605,7 +605,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 serializationProvider,
-                name => name == "XmlModelWriteCore" || name == "WriteXml"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -631,7 +631,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 serializationProvider,
-                name => name == "XmlModelWriteCore" || name == "WriteXml"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -699,7 +699,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 return [.. base.BuildMethods()
                     .Where(m => m.Signature.Name.StartsWith("XmlModelWriteCore") ||
                                 m.Signature.Name.StartsWith("PersistableModelWriteCore") ||
-                                m.Signature.Name == "WriteXml")];
+                                m.Signature.Name == "WriteXml" || m.Signature.Name == "Write")];
             }
 
             protected override FieldProvider[] BuildFields() => [];

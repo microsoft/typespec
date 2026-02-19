@@ -38,6 +38,8 @@ namespace Sample.Models
             }
         }
 
+        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+
         private void WriteXml(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
         {
             if ((nameHint != null))
