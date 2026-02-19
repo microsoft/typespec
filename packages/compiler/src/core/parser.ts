@@ -28,6 +28,7 @@ import {
   Comment,
   ConstStatementNode,
   DeclarationNode,
+  DecoratedExpressionNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   Diagnostic,
@@ -1684,9 +1685,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.OpenParen:
           return parseParenthesizedExpression();
         case Token.At:
-          const decorators = parseDecoratorList();
-          reportInvalidDecorators(decorators, "expression");
-          continue;
+          return parseDecoratedExpression();
         case Token.Hash:
           const directives = parseDirectiveList();
           reportInvalidDirective(directives, "expression");
@@ -1705,6 +1704,18 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseReferenceExpression("expression");
       }
     }
+  }
+
+  function parseDecoratedExpression(): DecoratedExpressionNode {
+    const pos = tokenPos();
+    const decorators = parseDecoratorList();
+    const target = parseExpression();
+    return {
+      kind: SyntaxKind.DecoratedExpression,
+      decorators,
+      target,
+      ...finishNode(pos),
+    };
   }
 
   function parseExternKeyword(): ExternKeywordNode {
@@ -2951,6 +2962,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.base) || visitNode(cb, node.id);
     case SyntaxKind.ModelExpression:
       return visitEach(cb, node.properties);
+    case SyntaxKind.DecoratedExpression:
+      return visitEach(cb, node.decorators) || visitNode(cb, node.target);
     case SyntaxKind.ModelProperty:
       return (
         visitEach(cb, node.decorators) ||

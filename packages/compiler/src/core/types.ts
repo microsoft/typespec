@@ -1066,6 +1066,7 @@ export enum SyntaxKind {
   ConstStatement,
   CallExpression,
   ScalarConstructor,
+  DecoratedExpression,
 }
 
 export const enum NodeFlags {
@@ -1357,7 +1358,8 @@ export type Expression =
   | StringTemplateExpressionNode
   | VoidKeywordNode
   | NeverKeywordNode
-  | AnyKeywordNode;
+  | AnyKeywordNode
+  | DecoratedExpressionNode;
 
 export type ReferenceExpression =
   | TypeReferenceNode
@@ -1510,6 +1512,12 @@ export interface ModelExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.ModelExpression;
   readonly properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
   readonly bodyRange: TextRange;
+}
+
+export interface DecoratedExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.DecoratedExpression;
+  readonly decorators: readonly DecoratorExpressionNode[];
+  readonly target: Expression;
 }
 
 export interface ArrayExpressionNode extends BaseNode {

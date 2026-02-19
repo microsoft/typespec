@@ -56,6 +56,7 @@ import {
   DecoratorContext,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
+  DecoratedExpressionNode,
   DecoratorValidatorCallbacks,
   Diagnostic,
   DiagnosticTarget,
@@ -1037,6 +1038,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkCallExpression(ctx, node);
       case SyntaxKind.TypeOfExpression:
         return checkTypeOfExpression(ctx, node);
+      case SyntaxKind.DecoratedExpression:
+        return checkDecoratedExpression(ctx, node);
       case SyntaxKind.AugmentDecoratorStatement:
         return checkAugmentDecorator(ctx, node);
       case SyntaxKind.UsingStatement:
@@ -3925,6 +3928,32 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       },
     );
     return type;
+  }
+
+  function checkDecoratedExpression(
+    ctx: CheckContext,
+    node: DecoratedExpressionNode,
+  ): Type | Value | IndeterminateEntity | null {
+    const targetResult = checkNode(ctx, node.target);
+    if (targetResult === null) {
+      return null;
+    }
+
+    // Apply decorators to the resolved type
+    if (typeof targetResult === "object" && "entityKind" in targetResult) {
+      if (targetResult.entityKind === "Type" && "decorators" in targetResult) {
+        const type = targetResult as Type & { decorators: DecoratorApplication[] };
+        for (const decNode of node.decorators) {
+          const decorator = checkDecoratorApplication(ctx, type, decNode);
+          if (decorator) {
+            type.decorators.unshift(decorator);
+          }
+        }
+        applyDecoratorsToType(type);
+      }
+    }
+
+    return targetResult;
   }
 
   /** Find the indexer that applies to this model. Either defined on itself or from a base model */
