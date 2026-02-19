@@ -22,7 +22,7 @@ namespace Sample.Models
                     {
                         using (global::System.Xml.XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::Sample.ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            this.Write(writer, options, "TestXmlModel");
+                            this.WriteXml(writer, options, "TestXmlModel");
                         }
                         if ((stream.Position > int.MaxValue))
                         {
@@ -38,9 +38,7 @@ namespace Sample.Models
             }
         }
 
-        global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
-
-        private void Write(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(global::System.Xml.XmlWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options, string nameHint)
         {
             if ((nameHint != null))
             {

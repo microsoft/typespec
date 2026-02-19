@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public partial class MrwSerializationTypeDefinition
     {
-        private const string XmlWriteMethodName = "Write";
+        private const string XmlWriteMethodName = "WriteXml";
         private const string XmlModelWriteCoreMethodName = "XmlModelWriteCore";
         private readonly ParameterProvider _xmlWriterParameter = new("writer", $"The XML writer.", typeof(XmlWriter));
         private readonly ParameterProvider _xElementDeserializationParam = new("element", $"The xml element to deserialize.", typeof(XElement));
@@ -121,7 +121,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildXmlWriteMethod()
         {
-            // private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+            // private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
             return new MethodProvider(
                 new MethodSignature(XmlWriteMethodName, null, MethodSignatureModifiers.Private, null, null, [_xmlWriterParameter, _serializationOptionsParameter, _nameHintParameter]),
                 BuildXmlWriteMethodBody(),

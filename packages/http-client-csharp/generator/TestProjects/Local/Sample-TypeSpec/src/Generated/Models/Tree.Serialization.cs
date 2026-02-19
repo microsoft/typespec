@@ -59,7 +59,7 @@ namespace SampleTypeSpec
                     {
                         using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            Write(writer, options, "Tree");
+                            WriteXml(writer, options, "Tree");
                         }
                         if (stream.Position > int.MaxValue)
                         {
@@ -209,7 +209,7 @@ namespace SampleTypeSpec
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         /// <param name="nameHint"> An optional name hint. </param>
-        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
             if (nameHint != null)
             {
