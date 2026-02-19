@@ -52,6 +52,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             name = name ?? throw new JsonException("Duration type must have name");
             crossLanguageDefinitionId = crossLanguageDefinitionId ?? throw new JsonException("Duration type must have crossLanguageDefinitionId");
             encode = encode ?? throw new JsonException("Duration type must have encoding");
+            // translate "duration-constant" into simply "constant". Both strings are supported
+            if (encode.Equals( "duration-constant", StringComparison.OrdinalIgnoreCase))
+            {
+                encode = "constant";
+            }
             wireType = wireType ?? throw new JsonException("Duration type must have wireType");
 
             var dateTimeType = new InputDurationType(new DurationKnownEncoding(encode), name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [], External = external };
