@@ -13,7 +13,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Model
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,7 +26,7 @@ public class CollectionMethodTypeConversionTemplate implements ImmutableMethod {
     private final MethodTemplate conversionMethodTemplate;
 
     public CollectionMethodTypeConversionTemplate(FluentCollectionMethod fluentMethod, IType innerType) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         fluentMethod.addImportsTo(imports, false);
         // Type inner = ...
         innerType.addImportsTo(imports, false);

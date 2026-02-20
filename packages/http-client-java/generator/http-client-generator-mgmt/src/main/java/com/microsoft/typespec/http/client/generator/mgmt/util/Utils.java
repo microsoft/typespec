@@ -6,13 +6,10 @@ package com.microsoft.typespec.http.client.generator.mgmt.util;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
 
 public class Utils {
 
@@ -26,35 +23,8 @@ public class Utils {
         return SchemaUtil.getJavaName(m);
     }
 
-    public static boolean nonFlattenedProperty(Property p) {
-        return p.getFlattenedNames() == null || p.getFlattenedNames().isEmpty();
-    }
-
     public static boolean nonFlattenedParameter(Parameter p) {
         return !p.isFlattened();
-    }
-
-    public static <T> void shallowCopy(T obj, T newObj, Class clazz, Logger logger) {
-        while (clazz != Object.class) {
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field f : fields) {
-                try {
-                    Field t = clazz.getDeclaredField(f.getName());
-
-                    if (t.getType() == f.getType()) {
-                        f.setAccessible(true);
-                        t.setAccessible(true);
-                        t.set(newObj, f.get(obj));
-                    }
-                } catch (NoSuchFieldException ex) {
-                    // skip it
-                } catch (IllegalAccessException ex) {
-                    logger.error("Failed to copy field '{}'", f.getName());
-                }
-            }
-
-            clazz = clazz.getSuperclass();
-        }
     }
 
     public static String getNameForUngroupedOperations(Client client, FluentJavaSettings settings) {

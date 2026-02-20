@@ -23,9 +23,8 @@ import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -144,9 +143,9 @@ public class Preprocessor extends NewPlugin {
         Function<ConstantSchema, Boolean> schemaIsConstantWithChoice
             = schema -> schema.getValueType() instanceof ChoiceSchema;
 
-        Set<ConstantSchema> constantSchemas = new HashSet<>(codeModel.getSchemas().getConstants());
+        Set<ConstantSchema> constantSchemas = new LinkedHashSet<>(codeModel.getSchemas().getConstants());
         if (!constantSchemas.isEmpty()) {
-            Map<ConstantSchema, SealedChoiceSchema> convertedChoiceSchemas = new HashMap<>();
+            Map<ConstantSchema, SealedChoiceSchema> convertedChoiceSchemas = new LinkedHashMap<>();
             ClientModelUtil.getAllOperationGroups(codeModel)
                 .stream()
                 .flatMap(og -> og.getOperations().stream())
@@ -238,7 +237,7 @@ public class Preprocessor extends NewPlugin {
         ChoiceValue choice = new ChoiceValue();
         choice.setValue(constantSchema.getValue().getValue().toString());
         choice.setLanguage(constantSchema.getValue().getLanguage());
-        sealedChoiceSchema.setChoices(Collections.singletonList(choice));
+        sealedChoiceSchema.setChoices(List.of(choice));
         return sealedChoiceSchema;
     }
 

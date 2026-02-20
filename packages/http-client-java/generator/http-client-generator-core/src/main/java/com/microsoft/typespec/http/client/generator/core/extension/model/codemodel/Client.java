@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,7 +17,7 @@ public class Client extends Metadata {
     private List<ApiVersion> apiVersions = new ArrayList<>();
     private ServiceVersion serviceVersion;
     private Client parent;
-    private List<Client> subClients = Collections.emptyList();
+    private List<Client> subClients = List.of();
     private boolean buildMethodPublic = true;
     private boolean parentAccessorPublic = false;
 

@@ -17,7 +17,7 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.serialization.ObjectSerializer;
 import io.clientcore.core.utils.CoreUtils;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,7 +37,7 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
 
     public final void write(MethodGroupClient methodGroupClient, JavaFile javaFile) {
         JavaSettings settings = JavaSettings.getInstance();
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         if (settings.isUseClientLogger()) {
             ClassType.CLIENT_LOGGER.addImportsTo(imports, false);
         }

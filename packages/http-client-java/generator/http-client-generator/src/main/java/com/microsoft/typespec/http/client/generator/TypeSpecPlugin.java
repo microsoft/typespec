@@ -33,7 +33,7 @@ import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -154,7 +154,7 @@ public class TypeSpecPlugin extends Javagen {
         LOGGER.info("Write file: {}", outputFile.toAbsolutePath());
     }
 
-    private static final Map<String, Object> SETTINGS_MAP = new HashMap<>();
+    private static final Map<String, Object> SETTINGS_MAP = new LinkedHashMap<>();
 
     static {
         SETTINGS_MAP.put("data-plane", true);
@@ -171,7 +171,7 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("enable-sync-stack", true);
         SETTINGS_MAP.put("enable-page-size", true);
 
-        SETTINGS_MAP.put("polling", new HashMap<String, Object>());
+        SETTINGS_MAP.put("polling", new LinkedHashMap<String, Object>());
 
         SETTINGS_MAP.put("client-logger", true);
         SETTINGS_MAP.put("required-fields-as-ctor-args", true);

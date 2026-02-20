@@ -9,15 +9,15 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examp
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 public class FluentLiveTests {
 
     private String className;
-    private final Set<String> imports = new HashSet<>();
-    private final Set<ExampleHelperFeature> helperFeatures = new HashSet<>();
+    private final Set<String> imports = new LinkedHashSet<>();
+    private final Set<ExampleHelperFeature> helperFeatures = new LinkedHashSet<>();
     private final List<FluentLiveTestCase> testCases = new ArrayList<>();
     private ClassType managerType;
     private String managerName;
@@ -56,8 +56,8 @@ public class FluentLiveTests {
 
     public static final class Builder {
         private String className;
-        private final Set<String> imports = new HashSet<>();
-        private final Set<ExampleHelperFeature> helperFeatures = new HashSet<>();
+        private final Set<String> imports = new LinkedHashSet<>();
+        private final Set<ExampleHelperFeature> helperFeatures = new LinkedHashSet<>();
         private final List<FluentLiveTestCase> testCases = new ArrayList<>();
         private ClassType managerType;
         private String managerName;

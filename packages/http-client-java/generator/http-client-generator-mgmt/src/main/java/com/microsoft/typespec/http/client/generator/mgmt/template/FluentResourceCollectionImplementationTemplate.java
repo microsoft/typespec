@@ -14,7 +14,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +32,7 @@ public class FluentResourceCollectionImplementationTemplate
     public void write(FluentResourceCollection collection, JavaFile javaFile) {
         ClassType managerType = FluentStatic.getFluentManager().getType();
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         // ClientLogger
         ClassType.CLIENT_LOGGER.addImportsTo(imports, false);
         /*

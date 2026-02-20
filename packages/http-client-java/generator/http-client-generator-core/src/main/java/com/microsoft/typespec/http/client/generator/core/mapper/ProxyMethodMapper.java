@@ -23,7 +23,6 @@ import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -210,7 +209,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         expectedStatusCodes.forEach(mergedExceptionTypeMapping::remove);
 
         // Convert the exception type mapping into what code generation uses elsewhere.
-        final Map<ClassType, List<Integer>> processedMapping = new HashMap<>();
+        final Map<ClassType, List<Integer>> processedMapping = new LinkedHashMap<>();
         for (Map.Entry<Integer, ClassType> kvp : mergedExceptionTypeMapping.entrySet()) {
             processedMapping.compute(kvp.getValue(), (errorType, statuses) -> {
                 if (statuses == null) {
@@ -524,7 +523,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         private SwaggerExceptionDefinitions() {
             defaultExceptionType = null;
-            exceptionTypeMapping = new HashMap<>();
+            exceptionTypeMapping = new LinkedHashMap<>();
         }
 
         ClassType getDefaultExceptionType() {

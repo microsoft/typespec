@@ -19,7 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -65,7 +65,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
     }
 
     private void writeExpandableStringEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         imports.add("java.util.Collection");
         imports.add(ClassType.EXPANDABLE_STRING_ENUM.getFullName());
         if (!settings.isStreamStyleSerialization()) {
@@ -137,7 +137,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
     }
 
     private void writeEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         if (!settings.isStreamStyleSerialization()) {
             imports.add("com.fasterxml.jackson.annotation.JsonCreator");
             imports.add("com.fasterxml.jackson.annotation.JsonValue");
@@ -210,7 +210,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
     }
 
     private void writeExpandableEnumInterface(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         imports.add("java.util.Collection");
         imports.add("java.lang.IllegalArgumentException");
         imports.add("java.util.Map");

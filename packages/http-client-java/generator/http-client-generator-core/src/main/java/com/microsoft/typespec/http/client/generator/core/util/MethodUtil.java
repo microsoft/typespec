@@ -32,7 +32,7 @@ import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -222,7 +222,7 @@ public class MethodUtil {
      * @return true if the requests have different content types, otherwise return false
      */
     public static int getContentTypeCount(List<Request> requests) {
-        Set<String> mediaTypes = new HashSet<>();
+        Set<String> mediaTypes = new LinkedHashSet<>();
         for (Request request : requests) {
             if (!CoreUtils.isNullOrEmpty(request.getProtocol().getHttp().getMediaTypes())) {
                 mediaTypes.addAll(request.getProtocol().getHttp().getMediaTypes());
