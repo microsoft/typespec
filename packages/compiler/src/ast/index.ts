@@ -38,6 +38,7 @@ export type {
   CallExpressionNode,
   ConstStatementNode,
   DeclarationNode,
+  DecoratedExpressionNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,

@@ -1350,4 +1350,121 @@ describe("compiler: models", () => {
       });
     });
   });
+
+  describe("decorated expressions", () => {
+    it("applies @doc decorator to inline model expression", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model A {
+          prop: @doc("inline doc") { name: string };
+        }
+        `,
+      );
+      const { A } = (await testHost.compile("main.tsp")) as {
+        A: Model;
+      };
+
+      const propType = A.properties.get("prop")!.type as Model;
+      strictEqual(propType.kind, "Model");
+      strictEqual(getDoc(testHost.program, propType), "inline doc");
+    });
+
+    it("applies @doc decorator to model expression in alias", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        alias MyModel = @doc("alias doc") { name: string };
+        @test model A {
+          prop: MyModel;
+        }
+        `,
+      );
+      const { A } = (await testHost.compile("main.tsp")) as {
+        A: Model;
+      };
+
+      const propType = A.properties.get("prop")!.type as Model;
+      strictEqual(propType.kind, "Model");
+      strictEqual(getDoc(testHost.program, propType), "alias doc");
+    });
+
+    it("applies decorator to type reference expression", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Base { name: string }
+        @test model A {
+          prop: @doc("ref doc") Base;
+        }
+        `,
+      );
+      const { A } = (await testHost.compile("main.tsp")) as {
+        A: Model;
+      };
+
+      const propType = A.properties.get("prop")!.type as Model;
+      strictEqual(propType.kind, "Model");
+      strictEqual(getDoc(testHost.program, propType), "ref doc");
+    });
+
+    it("applies decorator to is expression", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Base { name: string }
+        @test model A is @doc("is doc") Base { }
+        `,
+      );
+      const { A } = (await testHost.compile("main.tsp")) as {
+        A: Model;
+      };
+
+      strictEqual(A.sourceModel?.kind, "Model");
+      strictEqual(getDoc(testHost.program, A.sourceModel!), "is doc");
+    });
+
+    it("applies custom decorator to inline model expression", async () => {
+      let decoratedType: Model | undefined;
+
+      testHost.addJsFile("dec.js", {
+        $myDec(p: any, t: Model) {
+          decoratedType = t;
+        },
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./dec.js";
+        @test model A {
+          prop: @myDec { x: int32 };
+        }
+        `,
+      );
+      await testHost.compile("main.tsp");
+
+      ok(decoratedType);
+      strictEqual(decoratedType!.kind, "Model");
+      ok(decoratedType!.properties.has("x"));
+    });
+
+    it("applies decorator to union expression", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model A {
+          prop: @doc("union doc") (string | int32);
+        }
+        `,
+      );
+      const { A } = (await testHost.compile("main.tsp")) as {
+        A: Model;
+      };
+
+      const propType = A.properties.get("prop")!.type;
+      strictEqual(propType.kind, "Union");
+      strictEqual(getDoc(testHost.program, propType), "union doc");
+    });
+  });
 });
