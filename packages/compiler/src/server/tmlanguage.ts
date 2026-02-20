@@ -67,13 +67,15 @@ const qualifiedIdentifier = `\\b${identifierStart}(?:${identifierContinue}|\\.${
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const modifierKeyword = `\\b(?:extern)\\b`;
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
+const statementKeywordExceptModel = `\\b(?:namespace|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
 const universalEnd = `(?=,|;|@|#[a-z]|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
+const universalEndExceptModel = `(?=,|;|@|#[a-z]|\\)|\\}|${modifierKeyword}|${statementKeywordExceptModel})`;
 const universalEndExceptComma = `(?=;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 
 /**
  * Universal end with extra end char: `=`
  */
-const expressionEnd = `(?=,|;|@|\\)|\\}|=|${statementKeyword})`;
+const expressionEnd = `(?=,|;|@|\\)|\\}|=|${statementKeywordExceptModel})`;
 const hexNumber = "\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)";
 const binaryNumber = "\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)";
 const decimalNumber =
@@ -458,7 +460,7 @@ const modelProperty: BeginEndRule = {
     "1": { scope: "variable.name.tsp" },
     "2": { scope: "string.quoted.double.tsp" },
   },
-  end: universalEnd,
+  end: universalEndExceptModel,
   patterns: [token, typeAnnotation, operatorAssignment, expression],
 };
 
@@ -507,6 +509,18 @@ const modelExpression: BeginEndRule = {
     spreadExpression,
     punctuationSemicolon,
   ],
+};
+
+const inlineNamedModelExpression: BeginEndRule = {
+  key: "inline-named-model-expression",
+  scope: meta,
+  begin: `\\b(model)\\b\\s+(${identifier})\\s*`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
+  },
+  end: `(?<=\\})`,
+  patterns: [modelExpression],
 };
 
 const objectLiteralProperty: BeginEndRule = {
@@ -925,6 +939,7 @@ expression.patterns = [
   objectLiteral,
   tupleLiteral,
   tupleExpression,
+  inlineNamedModelExpression,
   modelExpression,
   callExpression,
   identifierExpression,

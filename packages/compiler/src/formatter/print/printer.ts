@@ -924,8 +924,9 @@ export function printModelExpression(
 ) {
   const inBlock = isModelExpressionInBlock(path);
   const node = path.node;
-  if (inBlock) {
-    return group(printModelPropertiesBlock(path, options, print));
+  const prefix = node.id ? ["model ", path.call(print, "id"), " "] : [];
+  if (node.id || inBlock) {
+    return group([...prefix, printModelPropertiesBlock(path, options, print)]);
   } else {
     const properties =
       node.properties.length === 0

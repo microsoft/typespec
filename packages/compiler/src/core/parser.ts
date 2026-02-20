@@ -1679,6 +1679,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseNumericLiteral();
         case Token.OpenBrace:
           return parseModelExpression();
+        case Token.ModelKeyword:
+          return parseInlineNamedModelExpression();
         case Token.OpenBracket:
           return parseTupleExpression();
         case Token.OpenParen:
@@ -1769,6 +1771,23 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     );
     return {
       kind: SyntaxKind.ModelExpression,
+      properties,
+      bodyRange,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseInlineNamedModelExpression(): ModelExpressionNode {
+    const pos = tokenPos();
+    parseExpected(Token.ModelKeyword);
+    const id = parseIdentifier();
+    const { items: properties, range: bodyRange } = parseList(
+      ListKind.ModelProperties,
+      parseModelPropertyOrSpread,
+    );
+    return {
+      kind: SyntaxKind.ModelExpression,
+      id,
       properties,
       bodyRange,
       ...finishNode(pos),
@@ -2950,7 +2969,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.MemberExpression:
       return visitNode(cb, node.base) || visitNode(cb, node.id);
     case SyntaxKind.ModelExpression:
-      return visitEach(cb, node.properties);
+      return visitNode(cb, node.id) || visitEach(cb, node.properties);
     case SyntaxKind.ModelProperty:
       return (
         visitEach(cb, node.decorators) ||
