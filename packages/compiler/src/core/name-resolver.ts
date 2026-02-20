@@ -75,6 +75,7 @@ import {
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
+  ModifierFlags,
   NamespaceStatementNode,
   Node,
   NodeFlags,
@@ -1212,6 +1213,8 @@ export function createResolver(program: Program): NameResolver {
       symbol: undefined!,
       locals: createSymbolTable(),
       flags: NodeFlags.Synthetic,
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
     };
 
     return nsNode;

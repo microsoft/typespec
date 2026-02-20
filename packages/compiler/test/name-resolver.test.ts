@@ -11,6 +11,7 @@ import {
   IdentifierNode,
   JsSourceFileNode,
   MemberExpressionNode,
+  ModifierFlags,
   Node,
   NodeFlags,
   ResolutionResult,
@@ -1520,5 +1521,7 @@ function createJsSourceFile(exports: any): JsSourceFileNode {
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    modifiers: [],
+    modifierFlags: ModifierFlags.None,
   };
 }

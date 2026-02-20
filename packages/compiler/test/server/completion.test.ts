@@ -20,6 +20,7 @@ describe("complete statement keywords", () => {
     ["model", true],
     ["op", true],
     ["extern", true],
+    ["internal", true],
     ["dec", true],
     ["alias", true],
     ["namespace", true],

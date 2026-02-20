@@ -139,6 +139,7 @@ export enum Token {
   /** @internal */ __StartModifierKeyword = __EndStatementKeyword,
 
   ExternKeyword = __StartModifierKeyword,
+  InternalKeyword,
 
   /** @internal */ __EndModifierKeyword,
   ///////////////////////////////////////////////////////////////
@@ -198,7 +199,6 @@ export enum Token {
   PrivateKeyword,
   PublicKeyword,
   ProtectedKeyword,
-  InternalKeyword,
   SealedKeyword,
   LocalKeyword,
   AsyncKeyword,
@@ -383,6 +383,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
   ["extern", Token.ExternKeyword],
+  ["internal", Token.InternalKeyword],
 
   // Reserved keywords
   ["statemachine", Token.StatemachineKeyword],
@@ -420,7 +421,6 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
   ["protected", Token.ProtectedKeyword],
-  ["internal", Token.InternalKeyword],
   ["sealed", Token.SealedKeyword],
   ["local", Token.LocalKeyword],
   ["async", Token.AsyncKeyword],
@@ -460,7 +460,6 @@ export const ReservedKeywords: ReadonlyMap<string, Token> = new Map([
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
   ["protected", Token.ProtectedKeyword],
-  ["internal", Token.InternalKeyword],
   ["sealed", Token.SealedKeyword],
   ["local", Token.LocalKeyword],
   ["async", Token.AsyncKeyword],
