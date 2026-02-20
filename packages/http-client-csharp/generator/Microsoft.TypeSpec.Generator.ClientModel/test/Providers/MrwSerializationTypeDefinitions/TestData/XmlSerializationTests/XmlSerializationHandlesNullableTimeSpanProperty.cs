@@ -12,10 +12,6 @@ namespace Sample.Models
 {
     public partial class TestXmlModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>
     {
-        internal TestXmlModel()
-        {
-        }
-
         protected virtual global::System.BinaryData PersistableModelWriteCore(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
@@ -67,14 +63,12 @@ namespace Sample.Models
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support writing '{format}' format.");
             }
 
-            writer.WriteStartElement("counts");
-            foreach (int item in Counts)
+            if (global::Sample.Optional.IsDefined(Duration))
             {
-                writer.WriteStartElement("int32");
-                writer.WriteValue(item);
+                writer.WriteStartElement("duration");
+                writer.WriteStringValue(Duration.Value, "P");
                 writer.WriteEndElement();
             }
-            writer.WriteEndElement();
         }
     }
 }
