@@ -11,10 +11,12 @@ import {
   serializeValueAsJson,
   StringLiteral,
   Type,
+  UnserializableValueError,
   Value,
 } from "@typespec/compiler";
 import { HttpOperation, HttpProperty } from "@typespec/http";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
+
 /**
  * Checks if two objects are deeply equal.
  *
@@ -156,7 +158,7 @@ export function getDefaultValue(
   try {
     return serializeValueAsJson(program, defaultType, modelProperty);
   } catch (e) {
-    if (e instanceof Error && e.name === "UnsupportedScalarConstructorError") {
+    if (e instanceof UnserializableValueError) {
       reportDiagnostic(program, {
         code: "default-not-supported",
         format: {
