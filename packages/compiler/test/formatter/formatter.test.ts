@@ -1797,6 +1797,31 @@ enum Foo {
 `,
       });
     });
+
+    it("does not escape modifier keywords used as enum member names", async () => {
+      await assertFormat({
+        code: `
+enum Foo { internal, extern }
+        `,
+        expected: `
+enum Foo {
+  internal,
+  extern,
+}
+`,
+      });
+    });
+
+    it("does not escape modifier keywords in member expressions", async () => {
+      await assertFormat({
+        code: `
+const   x  =    Foo.internal;
+`,
+        expected: `
+const x = Foo.internal;
+`,
+      });
+    });
   });
 
   describe("union", () => {
