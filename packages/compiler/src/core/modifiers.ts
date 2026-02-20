@@ -66,7 +66,7 @@ export function checkModifiers(program: Program, node: Declaration): boolean {
   // Emit experimental warning for any use of the 'internal' modifier.
   if (node.modifierFlags & ModifierFlags.Internal) {
     const internalModifiers = filterModifiersByFlags(node.modifiers, ModifierFlags.Internal);
-    for (const modifier of internalModifiers) {
+    for (const _ of internalModifiers) {
       program.reportDiagnostic(
         createDiagnostic({
           code: "experimental-feature",

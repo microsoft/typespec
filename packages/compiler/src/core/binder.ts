@@ -383,8 +383,6 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindModelStatement(node: ModelStatementNode) {
-    if (node.modifierFlags & ModifierFlags.Internal) debugger;
-
     const internal =
       node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
 
