@@ -1952,10 +1952,10 @@ importers:
         specifier: ~25.0.2
         version: 25.0.9
       '@types/semver':
-        specifier: ^7.7.1
+        specifier: ^7.5.8
         version: 7.7.1
       semver:
-        specifier: ^7.7.3
+        specifier: ^7.7.1
         version: 7.7.3
     devDependencies:
       rimraf:
