@@ -3221,7 +3221,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ctx: CheckContext,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     options?: Partial<SymbolResolutionOptions> | boolean,
-    locationContext?: LocationContext,
   ): Sym | undefined {
     const resolvedOptions: SymbolResolutionOptions =
       typeof options === "boolean"
@@ -3234,9 +3233,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ) {
       return referenceSymCache.get(node);
     }
-    locationContext ??= getLocationContext(program, node);
+    resolvedOptions.locationContext ??= getLocationContext(program, node);
 
-    const sym = resolveTypeReferenceSymInternal(ctx, node, resolvedOptions, locationContext);
+    const sym = resolveTypeReferenceSymInternal(
+      ctx,
+      node,
+      resolvedOptions as SymbolResolutionOptions & { locationContext: LocationContext },
+    );
     if (!resolvedOptions.resolveDeclarationOfTemplate) {
       referenceSymCache.set(node, sym);
     }
@@ -3246,8 +3249,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function resolveTypeReferenceSymInternal(
     ctx: CheckContext,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    options: SymbolResolutionOptions,
-    locationContext: LocationContext,
+    options: SymbolResolutionOptions & { locationContext: LocationContext },
   ): Sym | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
@@ -3255,7 +3257,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
     if (node.kind === SyntaxKind.TypeReference) {
-      return resolveTypeReferenceSym(ctx, node.target, options, locationContext);
+      return resolveTypeReferenceSym(ctx, node.target, options);
     } else if (node.kind === SyntaxKind.Identifier) {
       const links = resolver.getNodeLinks(node);
       if (ctx.mapper === undefined && links.resolutionResult) {
@@ -3279,19 +3281,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       const sym = links.resolvedSymbol?.symbolSource ?? links.resolvedSymbol;
 
-      checkSymbolAccess(locationContext, node, sym);
+      checkSymbolAccess(options.locationContext, node, sym);
 
       return sym;
     } else if (node.kind === SyntaxKind.MemberExpression) {
-      let base = resolveTypeReferenceSym(
-        ctx,
-        node.base,
-        {
-          ...options,
-          resolveDecorators: false, // when resolving decorator the base cannot also be one
-        },
-        locationContext,
-      );
+      let base = resolveTypeReferenceSym(ctx, node.base, {
+        ...options,
+        resolveDecorators: false, // when resolving decorator the base cannot also be one
+      });
 
       if (!base) {
         return undefined;
@@ -3350,7 +3347,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       const sym = resolveMemberInContainer(base, node, options);
 
-      checkSymbolAccess(locationContext, node, sym);
+      checkSymbolAccess(options.locationContext, node, sym);
 
       return sym;
     }
@@ -7064,6 +7061,11 @@ interface SymbolResolutionOptions {
    * @default false
    */
   resolveDeclarationOfTemplate: boolean;
+
+  /**
+   * Location context to use when resolving the symbol. This is used to enforce symbol access logic.
+   */
+  locationContext?: LocationContext;
 }
 
 const defaultSymbolResolutionOptions: SymbolResolutionOptions = {
