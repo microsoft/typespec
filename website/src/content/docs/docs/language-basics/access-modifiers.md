@@ -30,8 +30,8 @@ model MyPublicModel {
 
 The `internal` modifier can be applied to the following declaration types:
 
-| Declaration | Example                        |
-| ----------- | ------------------------------ |
+| Declaration | Example                            |
+| ----------- | ---------------------------------- |
 | `model`     | `internal model Example {}`        |
 | `scalar`    | `internal scalar Example;`         |
 | `interface` | `internal interface Example {}`    |
