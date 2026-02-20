@@ -34,7 +34,7 @@
     "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@typespec/compiler": "workspace:^",
     "concurrently": "^9.1.2",
     "prettier": "~3.8.0"

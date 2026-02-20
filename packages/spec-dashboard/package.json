@@ -37,7 +37,7 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@emotion/react": "^11.14.0",
-    "@fluentui/react-components": "~9.72.3",
+    "@fluentui/react-components": "~9.73.0",
     "@fluentui/react-icons": "^2.0.292",
     "@typespec/spec-coverage-sdk": "workspace:^",
     "react": "~19.2.3",

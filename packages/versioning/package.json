@@ -55,7 +55,7 @@
     "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@typespec/compiler": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/tspd": "workspace:^",

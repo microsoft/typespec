@@ -105,11 +105,11 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@babel/code-frame": "~7.28.6",
+    "@babel/code-frame": "~7.29.0",
     "@inquirer/prompts": "^8.0.1",
-    "ajv": "~8.17.1",
+    "ajv": "~8.18.0",
     "change-case": "~5.4.4",
-    "env-paths": "^3.0.0",
+    "env-paths": "^4.0.0",
     "globby": "~16.1.0",
     "is-unicode-supported": "^2.1.0",
     "mustache": "~4.2.0",
@@ -126,7 +126,7 @@
   "devDependencies": {
     "@types/babel__code-frame": "~7.27.0",
     "@types/mustache": "~4.2.5",
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.33",
     "@typespec/internal-build-utils": "workspace:^",

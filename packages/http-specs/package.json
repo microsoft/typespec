@@ -50,7 +50,7 @@
   "devDependencies": {
     "@types/deep-equal": "^1.0.1",
     "@types/multer": "^2.0.0",
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
     "@typespec/openapi3": "workspace:^",
