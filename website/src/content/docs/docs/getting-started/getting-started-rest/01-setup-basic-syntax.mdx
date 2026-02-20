@@ -92,16 +92,14 @@ A REST service in TypeSpec is defined using the [`@service`](../../../standard-l
 
 Let's start by defining a simple REST service for a Pet Store:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={4-7}
 import "@typespec/http";
 
 using Http;
-// highlight-start
 @service(#{
   title: "Pet Store",
 })
 @server("https://example.com", "Single server endpoint")
-// highlight-end
 ```
 
 In this example:
@@ -121,15 +119,13 @@ In this example:
 
 Let's create a namespace for our Pet Store service:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={8}
 import "@typespec/http";
 
 using Http;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
-
-// highlight-next-line
 namespace PetStore;
 ```
 
@@ -150,7 +146,7 @@ In TypeSpec, a [model](../../language-basics/models.md) is a fundamental buildin
 
 Let's define a simple model for a `Pet`:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={9-22}
 import "@typespec/http";
 
 using Http;
@@ -159,7 +155,6 @@ using Http;
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 
-// highlight-start
 model Pet {
   id: int32;
   name: string;
@@ -174,7 +169,6 @@ enum petType {
   bird: "bird",
   reptile: "reptile",
 }
-// highlight-end
 ```
 
 In this example:
@@ -189,7 +183,7 @@ In this example:
 
 We can add [validation](../../../language-basics/values/#validation) annotations to our model properties to enforce certain constraints:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={12,15-16}
 import "@typespec/http";
 
 using Http;
@@ -201,13 +195,10 @@ namespace PetStore;
 model Pet {
   id: int32;
 
-  // highlight-next-line
   @minLength(1)
   name: string;
 
-  // highlight-next-line
   @minValue(0)
-  // highlight-next-line
   @maxValue(100)
   age: int32;
 
