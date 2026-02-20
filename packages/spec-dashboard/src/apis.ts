@@ -22,8 +22,8 @@ export interface TableDefinition {
 export interface CoverageFromAzureStorageOptions {
   readonly storageAccountName: string;
   readonly containerName: string;
-  // TODO: why was this not back in the same place as the other options?
-  readonly manifestContainerName: string;
+  /** Name of the manifests(As located under manifests/<name>.json) for this dashboard */
+  readonly manifests: string[];
   readonly emitterNames: string[];
   readonly modes?: string[];
   /** Optional table definitions to split scenarios into multiple tables */
@@ -49,16 +49,6 @@ export function getCoverageClient(options: CoverageFromAzureStorageOptions) {
     client = new SpecCoverageClient(options.storageAccountName);
   }
   return client;
-}
-
-let manifestClient: SpecCoverageClient | undefined;
-export function getManifestClient(options: CoverageFromAzureStorageOptions) {
-  if (manifestClient === undefined) {
-    manifestClient = new SpecCoverageClient(options.storageAccountName, {
-      containerName: options.manifestContainerName,
-    });
-  }
-  return manifestClient;
 }
 
 /**
@@ -161,10 +151,9 @@ export async function getCoverageSummaries(
   options: CoverageFromAzureStorageOptions,
 ): Promise<CoverageSummary[]> {
   const coverageClient = getCoverageClient(options);
-  const manifestClient = getManifestClient(options);
 
   // First, split manifests to determine which emitters we need
-  const manifests = await manifestClient.manifest.get();
+  const manifests = await Promise.all(options.manifests.map((x) => coverageClient.manifest.get(x)));
   const allManifests: Array<{
     manifest: ScenarioManifest;
     tableName: string;
