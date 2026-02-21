@@ -1694,6 +1694,9 @@ export function findNumericType(type: NumericLiteral): [string, string] {
 }
 
 export function isStringEnumType(program: Program, union: Union): boolean {
+  // Exclude string | null
+  if (getNonNullableTsType(union) !== undefined) return false;
+
   const baseType = coalesceUnionTypes(program, union);
   if (!baseType.isBuiltIn || baseType.name !== "string") return false;
   return ![...union.variants.values()].some(
