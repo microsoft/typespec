@@ -1,7 +1,0 @@
-{
-  "flavor": "generic", 
-  "CrossLanguageDefinitionId": {
-    "payload.mediatype.MediaTypeClient": "Payload.MediaType.StringBody",
-    "payload.mediatype.MediaTypeClientBuilder": "Payload.MediaType"
-  }
-}

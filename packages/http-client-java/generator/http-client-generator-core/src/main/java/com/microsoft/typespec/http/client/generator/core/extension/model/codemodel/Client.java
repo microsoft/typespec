@@ -5,7 +5,9 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a client.
@@ -21,6 +23,8 @@ public class Client extends Metadata {
     private List<Client> subClients = Collections.emptyList();
     private boolean buildMethodPublic = true;
     private boolean parentAccessorPublic = false;
+    // map of TypeSpec namespace to api-version
+    private Map<String, String> apiVersionMap = new LinkedHashMap<>();
 
     /**
      * Creates a new instance of the Client class.
@@ -167,5 +171,13 @@ public class Client extends Metadata {
 
     public void setParentAccessorPublic(boolean parentAccessorPublic) {
         this.parentAccessorPublic = parentAccessorPublic;
+    }
+
+    public Map<String, String> getApiVersionMap() {
+        return apiVersionMap;
+    }
+
+    public void setApiVersionMap(Map<String, String> apiVersionMap) {
+        this.apiVersionMap = apiVersionMap;
     }
 }

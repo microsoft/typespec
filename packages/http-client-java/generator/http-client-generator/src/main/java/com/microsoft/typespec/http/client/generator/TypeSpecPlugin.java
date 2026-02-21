@@ -25,7 +25,6 @@ import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMap
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
-import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.CoreUtils;
@@ -59,13 +58,9 @@ public class TypeSpecPlugin extends Javagen {
         JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
-            TypeSpecMetadata metadata
-                = new TypeSpecMetadata(ClientModelUtil.getArtifactId(), emitterOptions.getFlavor(),
-                    emitterOptions.getApiVersion() == null
-                        ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
-                        : emitterOptions.getApiVersion(),
-                    collectCrossLanguageDefinitions(client),
-                    FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
+            TypeSpecMetadata metadata = new TypeSpecMetadata(ClientModelUtil.getArtifactId(),
+                emitterOptions.getFlavor(), codeModel.getApiVersionMap(), collectCrossLanguageDefinitions(client),
+                FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
             javaPackage.addTypeSpecMetadata(metadata, null);
         }
 
