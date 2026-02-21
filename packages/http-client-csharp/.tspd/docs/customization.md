@@ -1,5 +1,11 @@
 # Customizing the generated code
 
+## Before You Customize
+
+Before customizing generated code, consider whether your change should be made in TypeSpec (`client.tsp`) instead. TypeSpec customizations are cleaner and survive regeneration. See the [TypeSpec Client Customizations Reference](https://github.com/Azure/azure-sdk-tools/blob/main/eng/common/knowledge/customizing-client-tsp.md) for available decorators like `@@clientName`, `@@access`, etc.
+
+Use C# code customizations (partial classes) when TypeSpec cannot express the behavior you need.
+
 ## Make a model internal
 
 Define a class with the same namespace and name as generated model and use the desired accessibility.
