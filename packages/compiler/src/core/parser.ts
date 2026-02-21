@@ -417,6 +417,19 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return { pos, docs, directives, decorators };
   }
 
+  function parseInlineDocComments(): {
+    pos: number;
+    docs: DocNode[];
+  } {
+    const docs: DocNode[] = [];
+    const [pos, addedDocs] = parseDocList();
+    for (const doc of addedDocs) {
+      docs.push(doc);
+    }
+
+    return { pos, docs };
+  }
+
   function parseTypeSpecScriptItemList(): Statement[] {
     const stmts: Statement[] = [];
     let seenBlocklessNs = false;
@@ -841,7 +854,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (token === Token.OpenParen) {
       const parameters = parseOperationParameters();
       parseExpected(Token.Colon);
-      const returnType = parseExpression();
+      // try to parse inline docs
+      const { docs } = parseInlineDocComments();
+      const returnType = parseExpression(docs);
 
       signature = {
         kind: SyntaxKind.OperationSignatureDeclaration,
@@ -1228,7 +1243,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
     parseExpected(Token.Equals);
-    const value = parseExpression();
+    // try to parse inline docs
+    const { docs } = parseInlineDocComments();
+    const value = parseExpression(docs);
     parseExpected(Token.Semicolon);
     return {
       kind: SyntaxKind.AliasStatement,
@@ -1263,23 +1280,39 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return undefined;
   }
 
-  function parseExpression(): Expression {
-    return parseUnionExpressionOrHigher();
+  function parseExpression(docs: DocNode[] = []): Expression {
+    return parseUnionExpressionOrHigher(docs);
   }
 
-  function parseUnionExpressionOrHigher(): Expression {
-    const pos = tokenPos();
+  function parseUnionExpressionOrHigher(exprDocs: DocNode[]): Expression {
     parseOptional(Token.Bar);
+    // try to parse inline docs
+    const { docs: rideSideDocs, pos } = parseInlineDocComments();
+    // doc comments right side of `|` take precedence over left side
+    // e.g.
+    // op foo: /** exprDocs */ | /** rideSideDocs */ MyModel;
+    const docs = rideSideDocs.length > 0 ? rideSideDocs : exprDocs;
     const node: Expression = parseIntersectionExpressionOrHigher();
+    const expr = {
+      ...node,
+      docs,
+      pos,
+    };
 
     if (token() !== Token.Bar) {
-      return node;
+      return expr;
     }
 
-    const options = [node];
+    const options = [expr];
     while (parseOptional(Token.Bar)) {
+      // try to parse inline docs
+      const { docs, pos } = parseInlineDocComments();
       const expr = parseIntersectionExpressionOrHigher();
-      options.push(expr);
+      options.push({
+        ...expr,
+        docs,
+        pos,
+      });
     }
 
     return {
