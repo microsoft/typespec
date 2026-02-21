@@ -1,0 +1,15 @@
+Type: Widget.Kind
+Kind: Enum
+Namespace: Widget
+Description: Widget enum
+Location: <stripped>
+
+Details
+Members (2):
+- One
+- Two
+
+Decorator State
+State maps:
+- Symbol(TypeSpec.docs):
+  { value: 'Widget enum', source: 'decorator' }
