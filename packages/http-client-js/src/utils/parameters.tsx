@@ -49,7 +49,7 @@ function buildClientParameterDescriptor(
 ): ts.ParameterDescriptor | undefined {
   const { $ } = useTsp();
   const authSchemes = $.modelProperty.getCredentialAuth(modelProperty);
-
+  const key = refkey(modelProperty, suffixRefkey);
   if (authSchemes) {
     if (authSchemes.length === 1 && authSchemes[0].type === "noAuth") {
       return undefined;
@@ -60,7 +60,7 @@ function buildClientParameterDescriptor(
     );
     return {
       name: "credential",
-      refkey: refkey(modelProperty, suffixRefkey),
+      refkey: key,
       optional: modelProperty.optional,
       type: mapJoin(
         () => credentialType,
@@ -70,7 +70,7 @@ function buildClientParameterDescriptor(
     };
   }
 
-  return buildParameterDescriptor(modelProperty, suffixRefkey);
+  return buildParameterDescriptor(modelProperty, { refkey: key });
 }
 
 const oauth2FlowRefs: Record<OAuth2FlowType, Refkey> = {
