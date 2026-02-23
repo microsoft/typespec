@@ -222,14 +222,16 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
     const apiVersions =
       serviceApiVersions.length > 0 ? serviceApiVersions : operationGroup.apiVersions;
     for (const method of operationGroup.methods) {
-      operations = operations.concat(emitMethod(context, rootClient, method, name, apiVersions));
+      operations = operations.concat(
+        emitMethod(context, operationGroup, method, name, apiVersions),
+      );
     }
     operationGroups.push({
       name: name,
       className: name,
       propertyName: operationGroup.name,
       operations: operations,
-      operationGroups: emitOperationGroups(context, operationGroup, rootClient, name, apiVersions),
+      operationGroups: emitOperationGroups(context, operationGroup, operationGroup, name, apiVersions),
       clientNamespace: getClientNamespace(context, operationGroup.namespace),
     });
   }
