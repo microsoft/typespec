@@ -515,6 +515,32 @@ class TestXmlDeserialization:
         assert isinstance(result.filter, CorrelationFilter)
         assert result.filter.correlation_id == 12
 
+    def test_enumeration_results(self):
+        """Test deserializing an Azure Blob Storage EnumerationResults XML payload."""
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="acontainer108f32e8"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
+
+        class EnumerationResults(Model):
+            service_endpoint: str = rest_field(
+                name="ServiceEndpoint", xml={"name": "ServiceEndpoint", "attribute": True}
+            )
+            container_name: str = rest_field(name="ContainerName", xml={"name": "ContainerName", "attribute": True})
+            delimiter: str = rest_field(name="Delimiter", xml={"name": "Delimiter"})
+            blobs: list[str] = rest_field(name="Blobs", xml={"name": "Blobs"})
+            next_marker: str = rest_field(name="NextMarker", xml={"name": "NextMarker"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "EnumerationResults"}
+
+        result = _deserialize_xml(EnumerationResults, xml_payload)
+
+        assert result.service_endpoint == "https://service.blob.core.windows.net/"
+        assert result.container_name == "acontainer108f32e8"
+        assert result.delimiter == "/"
+        assert result.blobs == []
+        assert result.next_marker == ""
+
 
 class TestXmlSerialization:
     def test_basic(self):
