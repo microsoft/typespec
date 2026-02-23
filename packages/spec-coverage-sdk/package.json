@@ -29,6 +29,7 @@
     "semver": "^7.7.1"
   },
   "devDependencies": {
+    "@types/semver": "^7.5.8",
     "rimraf": "~6.1.2",
     "typescript": "~5.9.2"
   }
