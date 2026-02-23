@@ -160,13 +160,25 @@ export async function getCoverageSummaries(
     emitterNames?: string[];
   }> = [];
 
-  for (const manifest of manifests) {
-    if (options.tables && options.tables.length > 0) {
-      // Use table definitions to split scenarios
-      const splitResults = splitManifestByTables(manifest, options.tables);
-      allManifests.push(...splitResults);
-    } else {
-      // No table definitions, use default behavior
+  if (options.tables && options.tables.length > 0) {
+    // Split each manifest by its table definitions, then reorder to match configured table order
+    const splitResults = manifests.flatMap((m) => splitManifestByTables(m, options.tables!));
+    const resultByTableName = new Map(splitResults.map((r) => [r.tableName, r]));
+
+    for (const table of options.tables) {
+      const match = resultByTableName.get(table.name);
+      if (match) {
+        allManifests.push(match);
+        resultByTableName.delete(table.name);
+      }
+    }
+    // Append any remaining entries (unmatched scenarios with default table names)
+    for (const remaining of resultByTableName.values()) {
+      allManifests.push(remaining);
+    }
+  } else {
+    // No table definitions, use default behavior
+    for (const manifest of manifests) {
       allManifests.push({
         manifest,
         tableName: manifest.displayName || manifest.packageName || "",
