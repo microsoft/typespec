@@ -93,5 +93,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     false);
             }
         }
+
+        [Test]
+        public void TestDeserializationUsesUriKindRelativeOrAbsolute()
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("prop1", InputPrimitiveType.Url)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+
+            var deserializationMethod = mrwProvider!.Methods.Where(m => m.Signature.Name.StartsWith("Deserialize")).FirstOrDefault();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("new global::System.Uri("),
+                $"Uri property should use new Uri() constructor. Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("global::System.UriKind.RelativeOrAbsolute"),
+                $"Uri property should specify UriKind.RelativeOrAbsolute. Actual:\n{methodBody}");
+        }
     }
 }

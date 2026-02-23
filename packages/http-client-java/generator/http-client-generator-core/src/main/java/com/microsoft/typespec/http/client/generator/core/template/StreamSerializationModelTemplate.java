@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -1185,7 +1183,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     = (property, fromSuper) -> handleJsonPropertyDeserialization(property, whileBlock, ifBlockReference,
                         fromSuper, false);
 
-                Map<String, ClientModelProperty> modelPropertyMap = new HashMap<>();
+                Map<String, ClientModelProperty> modelPropertyMap = new LinkedHashMap<>();
                 for (ClientModelProperty parentProperty : ClientModelUtil.getParentProperties(model)) {
                     modelPropertyMap.put(parentProperty.getName(), parentProperty);
                 }
@@ -2636,7 +2634,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             getClientModelPropertiesInJsonTree(JsonFlattenedPropertiesTree tree) {
             if (tree.getProperty() != null) {
                 // Terminal node only contains a property.
-                return Collections.singletonList(tree.getProperty());
+                return List.of(tree.getProperty());
             } else {
                 List<ClientModelPropertyWithMetadata> treeProperties = new ArrayList<>();
                 for (JsonFlattenedPropertiesTree childNode : tree.getChildrenNodes().values()) {

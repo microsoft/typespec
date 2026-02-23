@@ -66,3 +66,15 @@ async def test_list_with_parameterized_next_link(client: aio.PageClient):
     assert result[0].name == "User1"
     assert result[1].id == 2
     assert result[1].name == "User2"
+
+
+@pytest.mark.asyncio
+async def test_list_with_relative_next_link(client: aio.PageClient):
+    result = [item async for item in client.with_relative_next_link()]
+    assert len(result) == 2
+    assert result[0].id == 1
+    assert result[0].name == "User1"
+    assert result[0].etag == "11bdc430-65e8-45ad-81d9-8ffa60d55b59"
+    assert result[1].id == 2
+    assert result[1].name == "User2"
+    assert result[1].etag == "11bdc430-65e8-45ad-81d9-8ffa60d55b59"

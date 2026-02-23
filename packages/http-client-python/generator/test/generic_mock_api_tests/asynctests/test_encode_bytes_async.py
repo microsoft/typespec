@@ -13,7 +13,6 @@ from encode.bytes.models import (
     Base64urlArrayBytesProperty,
 )
 
-
 FILE_FOLDER = Path(__file__).parent.parent
 
 
@@ -96,6 +95,12 @@ async def test_header(client: BytesClient):
             bytes("test", "utf-8"),
         ],
     )
+
+
+@pytest.fixture
+def png_data() -> bytes:
+    with open(str(FILE_FOLDER / "data/image.png"), "rb") as file_in:
+        return file_in.read()
 
 
 @pytest.mark.asyncio

@@ -612,7 +612,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customConstructors = constructor.EnclosingType.CustomCodeView?.Constructors ?? [];
             foreach (var customConstructor in customConstructors)
             {
-                if (IsMatch(customConstructor.Signature, constructor.Signature))
+                if (MethodSignatureBase.SignatureComparer.Equals(customConstructor.Signature, constructor.Signature))
                 {
                     return false;
                 }
@@ -644,7 +644,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customMethods = method.EnclosingType.CustomCodeView?.Methods ?? [];
             foreach (var customMethod in customMethods)
             {
-                if (IsMatch(customMethod.Signature, method.Signature))
+                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature))
                 {
                     return false;
                 }
@@ -723,9 +723,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             for (int i = 0; i < parameterTypes.Length; i++)
             {
                 var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
+                var signatureParamType = signature.Parameters[i].Type;
+
+                // If the parameter type is a generic type alias, resolve to the constraint type for matching.
+                if (signature is MethodSignature methodSig)
+                {
+                    signatureParamType = ResolveGenericConstraintType(signatureParamType, methodSig);
+                }
+
                 // we ignore nullability for reference types as these are generated the same regardless of nullability
-                if (!IsNameMatch(parameterType, signature.Parameters[i].Type) ||
-                    (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
+                if (!IsNameMatch(parameterType, signatureParamType) ||
+                    (parameterType.IsValueType && parameterType.IsNullable != signatureParamType.IsNullable))
                 {
                     return false;
                 }
@@ -734,58 +742,38 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
+        private static CSharpType ResolveGenericConstraintType(CSharpType paramType, MethodSignature methodSignature)
         {
-            if (customMethod.Parameters.Count != method.Parameters.Count || GetFullMethodName(customMethod) != GetFullMethodName(method))
+            if (methodSignature.GenericArguments is null || methodSignature.GenericParameterConstraints is null)
             {
-                return false;
+                return paramType;
             }
 
-            // For operators, we need to also check the return type and operator type (explicit vs implicit)
-            // since operators can have the same "name" (the target type) but different signatures
-            if (customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+            foreach (var genericArg in methodSignature.GenericArguments)
             {
-                // Check if both are operators and of the same type (explicit or implicit)
-                if (!method.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                if (genericArg.Name != paramType.Name)
                 {
-                    return false;
+                    continue;
                 }
 
-                // Check explicit vs implicit - both flags must match
-                bool customIsExplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
-                bool methodIsExplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
-                bool customIsImplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
-                bool methodIsImplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
-                if (customIsExplicit != methodIsExplicit || customIsImplicit != methodIsImplicit)
+                foreach (var whereExpr in methodSignature.GenericParameterConstraints)
                 {
-                    return false;
-                }
-
-                // For operators, the return type is crucial for matching
-                if (customMethod.ReturnType != null && method.ReturnType != null)
-                {
-                    if (!IsNameMatch(customMethod.ReturnType, method.ReturnType))
+                    if (whereExpr.Type.Name != paramType.Name)
                     {
-                        return false;
+                        continue;
+                    }
+
+                    foreach (var constraint in whereExpr.Constraints)
+                    {
+                        if (constraint is TypeReferenceExpression { Type: { } constraintType })
+                        {
+                            return constraintType;
+                        }
                     }
                 }
-                else if (customMethod.ReturnType != method.ReturnType) // One is null, the other is not
-                {
-                    return false;
-                }
             }
 
-            for (int i = 0; i < customMethod.Parameters.Count; i++)
-            {
-                // The namespace may not be available for generated types as they are not yet generated
-                // so Roslyn will not have the namespace information.
-                if (!IsNameMatch(customMethod.Parameters[i].Type, method.Parameters[i].Type))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return paramType;
         }
 
         private static bool IsNameMatch(CSharpType typeFromCustomization, CSharpType generatedType)

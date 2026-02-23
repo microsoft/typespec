@@ -13,6 +13,12 @@ A GitHub personal access token for authentication.
 The name of the branch to create in the azure-sdk-for-net repository.
 .PARAMETER TypeSpecSourcePackageJsonPath
 The path to the TypeSpec package.json file to use for generating emitter-package.json files.
+.PARAMETER RegenerateAzureLibraries
+When specified, builds the Azure emitter locally and regenerates Azure data plane SDK libraries.
+.PARAMETER RegenerateMgmtLibraries
+When specified, builds the management plane emitter locally and regenerates mgmt SDK libraries. Implies Azure emitter build since mgmt depends on it.
+.PARAMETER BuildArtifactsPath
+Path to the build artifacts directory containing the published .tgz and .nupkg files. Required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -32,11 +38,22 @@ param(
   [string]$TypeSpecSourcePackageJsonPath,
 
   [Parameter(Mandatory = $false)]
-  [switch]$Internal
+  [switch]$Internal,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$RegenerateAzureLibraries,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$RegenerateMgmtLibraries,
+
+  [Parameter(Mandatory = $false)]
+  [string]$BuildArtifactsPath
 )
 
 # Import the Generation module to use the Invoke helper function
 Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -Force
+# Import RegenPreview module for Update-AzureGenerator and Update-MgmtGenerator
+Import-Module (Join-Path $PSScriptRoot "RegenPreview.psm1") -DisableNameChecking -Force
 
 # Set up variables for the PR
 $RepoOwner = "Azure"
@@ -46,7 +63,14 @@ $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
 if ($Internal) {
-    $PRTitle = "[DO NOT MERGE] $PRTitle"
+    $PRTitle = "[DO NOT MERGE] Preview Generator Version $PackageVersion"
+}
+if ($RegenerateAzureLibraries -and $RegenerateMgmtLibraries) {
+    $PRTitle += " (Azure data plane + mgmt)"
+} elseif ($RegenerateAzureLibraries) {
+    $PRTitle += " (Azure data plane)"
+} elseif ($RegenerateMgmtLibraries) {
+    $PRTitle += " (Azure mgmt)"
 }
 $PRBody = @"
 This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json to version $PackageVersion.
@@ -63,6 +87,24 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
 - Generated emitter-package.json artifacts using tsp-client
 - Regenerated SDK libraries using the unbranded emitter via dotnet msbuild /t:GenerateCode
+$(if ($RegenerateAzureLibraries) {
+@"
+
+### Additional changes (Azure data plane regeneration)
+- Built and packaged Azure emitter locally from eng/packages/http-client-csharp
+- Updated Azure emitter package artifacts in eng/
+- Regenerated Azure data plane SDK libraries via dotnet msbuild /t:GenerateCode
+"@
+})
+$(if ($RegenerateMgmtLibraries) {
+@"
+
+### Additional changes (mgmt regeneration)
+- Built and packaged management plane emitter locally from eng/packages/http-client-csharp-mgmt
+- Updated mgmt emitter package artifacts in eng/
+- Regenerated mgmt SDK libraries via dotnet msbuild /t:GenerateCode
+"@
+})
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
@@ -102,7 +144,8 @@ try {
     }
     
     # Set the sparse checkout patterns - only the directories we need
-    git sparse-checkout set eng/packages/http-client-csharp eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src
+    # Note: 'eng' covers eng/packages/http-client-csharp, eng/packages/http-client-csharp-mgmt, and all eng/ artifacts
+    git sparse-checkout set eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to set sparse checkout patterns"
     }
@@ -339,12 +382,140 @@ try {
             Write-Warning "Failed to expand sparse checkout. Skipping SDK regeneration."
             Write-Host "##vso[task.complete result=SucceededWithIssues;]"
         } else {
-            # Discover service directories with tsp-location.yaml referencing the unbranded emitter
+            # Build the emitter patterns to match in tsp-location.yaml
+            $emitterPatterns = @("eng/http-client-csharp-emitter-package.json")
+            
+            if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
+                $regenScope = @()
+                if ($RegenerateAzureLibraries) { $regenScope += "Azure data plane" }
+                if ($RegenerateMgmtLibraries) { $regenScope += "mgmt" }
+                Write-Host "##[section]Building emitters locally for: $($regenScope -join ', ')..."
+                
+                # Locate the unbranded .tgz and .nupkg files from build artifacts
+                if (-not $BuildArtifactsPath -or -not (Test-Path $BuildArtifactsPath)) {
+                    throw "BuildArtifactsPath is required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified. Path: $BuildArtifactsPath"
+                }
+                
+                $debugFolder = Join-Path ([System.IO.Path]::GetTempPath()) "csharp-debug-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                New-Item -ItemType Directory -Path $debugFolder -Force | Out-Null
+                
+                # Find unbranded .tgz from build artifacts
+                $unbrandedTgz = Get-ChildItem -Path $BuildArtifactsPath -Filter "typespec-http-client-csharp-*.tgz" -Recurse | Select-Object -First 1
+                if (-not $unbrandedTgz) {
+                    throw "Could not find unbranded emitter .tgz in build artifacts at: $BuildArtifactsPath"
+                }
+                $unbrandedPackagePath = $unbrandedTgz.FullName
+                Write-Host "Using unbranded package from build artifacts: $unbrandedPackagePath"
+                
+                # Copy .nupkg files from build artifacts to debug folder
+                $nupkgFiles = Get-ChildItem -Path $BuildArtifactsPath -Filter "*.nupkg" -Recurse
+                foreach ($nupkg in $nupkgFiles) {
+                    Copy-Item $nupkg.FullName -Destination $debugFolder -Force
+                    Write-Host "Copied NuGet package: $($nupkg.Name)"
+                }
+                
+                # Build and package Azure generator (needed for both Azure data plane and mgmt)
+                $azureGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp"
+                $packagesDataPropsPath = Join-Path $tempDir "eng" "Packages.Data.props"
+                
+                Write-Host "##[section]Building Azure generator..."
+                $previousErrorAction = $ErrorActionPreference
+                $ErrorActionPreference = "Continue"
+                try {
+                    $azurePackagePath = Update-AzureGenerator `
+                        -AzureGeneratorPath $azureGeneratorPath `
+                        -UnbrandedPackagePath $unbrandedPackagePath `
+                        -DebugFolder $debugFolder `
+                        -PackagesDataPropsPath $packagesDataPropsPath `
+                        -LocalVersion $PackageVersion
+                    Write-Host "Azure generator built successfully"
+                    
+                    # Update Azure emitter package artifacts
+                    Write-Host "Updating Azure emitter package artifacts..."
+                    $engFolder = Join-Path $tempDir "eng"
+                    $azureTempDir = Join-Path $engFolder "temp-azure-package-update"
+                    New-Item -ItemType Directory -Path $azureTempDir -Force | Out-Null
+                    
+                    try {
+                        $azureEmitterJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package.json"
+                        $tempPackageJson = Join-Path $azureTempDir "package.json"
+                        
+                        Copy-Item $azureEmitterJson $tempPackageJson -Force
+                        
+                        Push-Location $azureTempDir
+                        try {
+                            Invoke "npm install `"`"file:$azurePackagePath`"`" --package-lock-only" $azureTempDir
+                            
+                            Copy-Item $tempPackageJson $azureEmitterJson -Force
+                            $lockFile = Join-Path $azureTempDir "package-lock.json"
+                            if (Test-Path $lockFile) {
+                                $azureLockJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package-lock.json"
+                                Copy-Item $lockFile $azureLockJson -Force
+                            }
+                        } finally {
+                            Pop-Location
+                        }
+                    } finally {
+                        Remove-Item $azureTempDir -Recurse -Force -ErrorAction SilentlyContinue
+                    }
+                    
+                    if ($RegenerateAzureLibraries) {
+                        $emitterPatterns += "eng/azure-typespec-http-client-csharp-emitter-package.json"
+                    }
+                    
+                    # Add NuGet source for local packages
+                    $nugetConfigPath = Join-Path $tempDir "NuGet.Config"
+                    if (Test-Path $nugetConfigPath) {
+                        Add-LocalNuGetSource -NuGetConfigPath $nugetConfigPath -SourcePath $debugFolder
+                    }
+                } catch {
+                    Write-Warning "Failed to build Azure generator: $($_.Exception.Message). Continuing without Azure library regeneration."
+                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                } finally {
+                    $ErrorActionPreference = $previousErrorAction
+                }
+                
+                # Build and package management plane generator (only when mgmt is requested)
+                if ($RegenerateMgmtLibraries) {
+                    $mgmtGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp-mgmt"
+                    if (Test-Path $mgmtGeneratorPath) {
+                        Write-Host "##[section]Building management plane generator..."
+                        $previousErrorAction = $ErrorActionPreference
+                        $ErrorActionPreference = "Continue"
+                        try {
+                            $engFolder = Join-Path $tempDir "eng"
+                            Update-MgmtGenerator `
+                                -EngFolder $engFolder `
+                                -DebugFolder $debugFolder `
+                                -LocalVersion $PackageVersion
+                            Write-Host "Management plane generator built successfully"
+                            
+                            $emitterPatterns += "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
+                        } catch {
+                            Write-Warning "Failed to build management plane generator: $($_.Exception.Message). Continuing without mgmt library regeneration."
+                            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                        } finally {
+                            $ErrorActionPreference = $previousErrorAction
+                        }
+                    } else {
+                        Write-Host "Management plane generator not found at $mgmtGeneratorPath, skipping..."
+                    }
+                }
+            }
+            
+            # Discover service directories with tsp-location.yaml referencing any of the matched emitter patterns
             $tspLocations = Get-ChildItem -Path (Join-Path $tempDir "sdk") -Filter "tsp-location.yaml" -Recurse
             $serviceDirectories = @()
             foreach ($tspLocation in $tspLocations) {
                 $content = Get-Content $tspLocation.FullName -Raw
-                if ($content -match "eng/http-client-csharp-emitter-package.json") {
+                $matched = $false
+                foreach ($pattern in $emitterPatterns) {
+                    if ($content -match [regex]::Escape($pattern)) {
+                        $matched = $true
+                        break
+                    }
+                }
+                if ($matched) {
                     $relativePath = $tspLocation.DirectoryName -replace ".*[\\/]sdk[\\/]", ""
                     $serviceDirectory = $relativePath -replace "[\\/].*", ""
                     if ($serviceDirectories -notcontains $serviceDirectory) {
@@ -354,7 +525,7 @@ try {
             }
 
             if ($serviceDirectories.Count -eq 0) {
-                Write-Host "No SDK libraries found using the unbranded emitter. Skipping SDK regeneration."
+                Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
             } else {
                 $serviceProj = Join-Path $tempDir "eng/service.proj"
                 foreach ($serviceDirectory in $serviceDirectories) {
@@ -414,6 +585,28 @@ try {
         git add $emitterPackageLockPath
     }
     
+    # Add Azure and mgmt emitter artifacts if they were updated
+    if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
+        $azureEmitterFiles = @(
+            "eng/azure-typespec-http-client-csharp-emitter-package.json",
+            "eng/azure-typespec-http-client-csharp-emitter-package-lock.json",
+            "eng/Packages.Data.props",
+            "NuGet.Config"
+        )
+        if ($RegenerateMgmtLibraries) {
+            $azureEmitterFiles += @(
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json",
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
+            )
+        }
+        foreach ($file in $azureEmitterFiles) {
+            $filePath = Join-Path $tempDir $file
+            if (Test-Path $filePath) {
+                git add $filePath
+            }
+        }
+    }
+    
     # Add any SDK regeneration changes
     $sdkPath = Join-Path $tempDir "sdk"
     if (Test-Path $sdkPath) {
@@ -426,6 +619,13 @@ try {
 
     # Build commit message based on what was updated
     $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion"
+    if ($RegenerateAzureLibraries -and $RegenerateMgmtLibraries) {
+        $commitMessage = "Update GeneratorVersion to $PackageVersion (all libraries)"
+    } elseif ($RegenerateAzureLibraries) {
+        $commitMessage = "Update GeneratorVersion to $PackageVersion (Azure data plane)"
+    } elseif ($RegenerateMgmtLibraries) {
+        $commitMessage = "Update GeneratorVersion to $PackageVersion (Azure mgmt)"
+    }
     
     git commit -m $commitMessage
     if ($LASTEXITCODE -ne 0) {

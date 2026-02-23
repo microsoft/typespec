@@ -315,6 +315,60 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void XmlSerializationHandlesNullableDateTimeOffsetProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "timestamp",
+                    new InputDateTimeType(DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String),
+                    isRequired: false,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("timestamp")))]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modeltype
+                    ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                    : []);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void XmlSerializationHandlesNullableTimeSpanProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "duration",
+                    new InputDurationType(DurationKnownEncoding.Iso8601, "duration", "TypeSpec.duration", InputPrimitiveType.String, null),
+                    isRequired: false,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("duration")))]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modeltype
+                    ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                    : []);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void XmlSerializationHandlesBytesProperty()
         {
             var inputModel = InputFactory.Model(
@@ -461,7 +515,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 mrwProvider!,
-                name => name == "XmlModelWriteCore" || name == "Write"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -498,7 +552,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 mrwProvider!,
-                name => name == "XmlModelWriteCore" || name == "Write"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -524,7 +578,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 serializationProvider,
-                name => name == "XmlModelWriteCore" || name == "Write"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -551,7 +605,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 serializationProvider,
-                name => name == "XmlModelWriteCore" || name == "Write"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -577,7 +631,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
                 serializationProvider,
-                name => name == "XmlModelWriteCore" || name == "Write"));
+                name => name == "XmlModelWriteCore" || name == "WriteXml" || name == "Write"));
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
@@ -645,7 +699,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 return [.. base.BuildMethods()
                     .Where(m => m.Signature.Name.StartsWith("XmlModelWriteCore") ||
                                 m.Signature.Name.StartsWith("PersistableModelWriteCore") ||
-                                m.Signature.Name == "Write")];
+                                m.Signature.Name == "WriteXml" || m.Signature.Name == "Write")];
             }
 
             protected override FieldProvider[] BuildFields() => [];
