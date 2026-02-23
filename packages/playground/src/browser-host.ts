@@ -61,15 +61,6 @@ export function createBrowserHostInternal(options: BrowserHostCreateOptions): Br
   return {
     compiler: options.compiler,
     libraries,
-    addLibraries(
-      newLibraries: Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }>,
-    ) {
-      for (const [libName, lib] of Object.entries(newLibraries)) {
-        libraries[libName] = lib;
-        registerLibraryFiles(libName, lib);
-      }
-      updatePackageJson();
-    },
     async readUrl(url: string) {
       const contents = virtualFs.get(url);
       if (contents === undefined) {
