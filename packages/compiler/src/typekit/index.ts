@@ -11,6 +11,8 @@ export {
   EnumKit,
   EnumMemberDescriptor,
   EnumMemberKit,
+  InterfaceDescriptor,
+  InterfaceKit,
   IntrinsicKit,
   LiteralKit,
   ModelDescriptor,
