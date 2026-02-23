@@ -1424,11 +1424,16 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             item_type = builder.item_type.type_annotation(
                 is_operation_file=True, serialize_namespace=self.serialize_namespace
             )
-            list_of_elem_deserialized = f"_deserialize({item_type}, deserialized{access})"
-            pylint_disable = "  # pylint: disable=protected-access"
+            list_of_elem_deserialized = [
+                "_deserialize(  # pylint: disable=protected-access",
+                f"{item_type},",
+                f"deserialized{access},",
+                ")",
+            ]
         else:
-            list_of_elem_deserialized = f"deserialized{access}"
-        retval.append(f"    list_of_elem = {list_of_elem_deserialized}{pylint_disable}")
+            list_of_elem_deserialized = [f"deserialized{access}"]
+        list_of_elem_deserialized_str = "\n    ".join(list_of_elem_deserialized)
+        retval.append(f"    list_of_elem = {list_of_elem_deserialized_str}")
         retval.append("    if cls:")
         retval.append("        list_of_elem = cls(list_of_elem) # type: ignore")
 
