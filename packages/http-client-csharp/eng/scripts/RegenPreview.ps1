@@ -5,7 +5,7 @@
     Builds local generator packages and regenerates Azure SDK for .NET or OpenAI .NET libraries for validation.
 
 .DESCRIPTION
-    This script supports two modes:
+    This script supports three modes:
     
     Azure SDK Mode (default):
     1. Builds a local npm package of @typespec/http-client-csharp with a versioned name (1.0.0-alpha.YYYYMMDD.hash)
@@ -25,6 +25,14 @@
     4. Updates OpenAI.Library.Plugin.csproj with local NuGet package version
     5. Invokes Invoke-CodeGen.ps1 to regenerate the OpenAI library
     6. Restores all modified artifacts to original state on success
+    
+    Spector Mode (when -Spector switch is specified):
+    1. Builds a local npm package of @typespec/http-client-csharp with a versioned name
+    2. Builds and packages the NuGet generator framework packages
+    3. Updates the Azure generator's package.json to use the local unbranded package
+    4. Updates Packages.Data.props with local NuGet version and adds local NuGet source
+    5. Runs the Azure generator's Generate.ps1 to regenerate spector test scenarios
+    6. Restores all modified artifacts to original state
     
     Generator Filtering (Azure SDK Mode only):
     - Use -Azure to regenerate only Azure-branded libraries (@azure-typespec/http-client-csharp)
@@ -58,6 +66,13 @@
     If no generator filter is specified, all libraries are regenerated.
     Not applicable in OpenAI mode.
 
+.PARAMETER Spector
+    Optional. Azure SDK Mode only. When specified, regenerates the Azure spector test scenarios in azure-sdk-for-net
+    instead of regenerating SDK libraries. This builds the local unbranded generator, wires it into the Azure generator,
+    and runs the Azure generator's Generate.ps1 to regenerate spector test projects.
+    Mutually exclusive with Select, Azure, Unbranded, and Mgmt parameters.
+    Not applicable in OpenAI mode.
+
 .EXAMPLE
     # Azure SDK Mode - Regenerate all libraries
     .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net"
@@ -85,6 +100,10 @@
 .EXAMPLE
     # Regenerate only management plane libraries
     .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
+
+.EXAMPLE
+    # Regenerate Azure spector test scenarios using local changes
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Spector
 #>
 
 param(
@@ -101,7 +120,10 @@ param(
     [switch]$Unbranded,
     
     [Parameter(Mandatory=$false)]
-    [switch]$Mgmt
+    [switch]$Mgmt,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$Spector
 )
 
 $ErrorActionPreference = 'Stop'
@@ -113,11 +135,17 @@ $isOpenAIMode = $SdkLibraryRepoPath -like "*openai-dotnet*"
 # Validate mutually exclusive parameters
 if ($isOpenAIMode) {
     # In OpenAI mode, no filter parameters are allowed
-    if ($Select -or $Azure -or $Unbranded -or $Mgmt) {
-        Write-Error "OpenAI mode detected. The -Select, -Azure, -Unbranded, and -Mgmt parameters are not applicable when regenerating OpenAI libraries."
+    if ($Select -or $Azure -or $Unbranded -or $Mgmt -or $Spector) {
+        Write-Error "OpenAI mode detected. The -Select, -Azure, -Unbranded, -Mgmt, and -Spector parameters are not applicable when regenerating OpenAI libraries."
         exit 1
     }
 } else {
+    # -Spector is mutually exclusive with all other filter parameters
+    if ($Spector -and ($Select -or $Azure -or $Unbranded -or $Mgmt)) {
+        Write-Error "The -Spector parameter is mutually exclusive with -Select, -Azure, -Unbranded, and -Mgmt."
+        exit 1
+    }
+
     # In Azure SDK mode, validate filter parameters
     $generatorFilters = @($Azure, $Unbranded, $Mgmt)
     $activeFilters = @($generatorFilters | Where-Object { $_ }).Count
@@ -145,7 +173,9 @@ if ($isOpenAIMode) {
     Write-Host "Repository: Azure SDK for .NET" -ForegroundColor Gray
     
     # Display active mode
-    $modeText = if ($Select) {
+    $modeText = if ($Spector) {
+        "Regenerate Azure spector test scenarios"
+    } elseif ($Select) {
         "Interactive library selection"
     } elseif ($Azure) {
         "Regenerate Azure SDK libraries only"
@@ -553,7 +583,7 @@ try {
     Write-Host ""
     
     # Step 1: Build the unbranded generator
-    if ($isOpenAIMode) {
+    if ($isOpenAIMode -or $Spector) {
         Write-Host "`n[1/3] Building unbranded generator..." -ForegroundColor Cyan
     } else {
         Write-Host "`n[2/5] Building unbranded generator..." -ForegroundColor Cyan
@@ -586,7 +616,7 @@ try {
     }
     
     # Step 2: Package the generators with local version
-    if ($isOpenAIMode) {
+    if ($isOpenAIMode -or $Spector) {
         Write-Host "`n[2/3] Packaging generators..." -ForegroundColor Cyan
     } else {
         Write-Host "`n[2/5] Packaging generators..." -ForegroundColor Cyan
@@ -673,6 +703,53 @@ try {
         Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -DebugFolder $debugFolder
         
         # Exit with appropriate code
+        if ($result.Success) {
+            Write-Host "`nScript completed successfully." -ForegroundColor Cyan
+            exit 0
+        } else {
+            Write-Host "`nScript failed." -ForegroundColor Red
+            exit 1
+        }
+    }
+    
+    # Spector Mode: Regenerate Azure spector test scenarios
+    if ($Spector) {
+        Write-Host "`n[3/3] Regenerating Azure spector test scenarios..." -ForegroundColor Cyan
+        
+        try {
+            $generationOutput = Update-AzureSpectorScenarios `
+                -AzureGeneratorPath (Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp") `
+                -UnbrandedPackagePath $unbrandedPackagePath `
+                -LocalVersion $localVersion `
+                -DebugFolder $debugFolder
+            
+            $result = @{
+                Success = $true
+                Library = "Azure Spector Test Scenarios"
+                Service = "Spector"
+                Path = "eng/packages/http-client-csharp/generator/TestProjects/Spector"
+                Generator = "@azure-typespec/http-client-csharp"
+                Error = ""
+                Output = $generationOutput
+            }
+        }
+        catch {
+            $result = @{
+                Success = $false
+                Library = "Azure Spector Test Scenarios"
+                Service = "Spector"
+                Path = "eng/packages/http-client-csharp/generator/TestProjects/Spector"
+                Generator = "@azure-typespec/http-client-csharp"
+                Error = $_.Exception.Message
+                Output = $_.Exception.ToString()
+            }
+        }
+        
+        $scriptEndTime = Get-Date
+        $elapsedTime = $scriptEndTime - $scriptStartTime
+        
+        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -DebugFolder $debugFolder
+        
         if ($result.Success) {
             Write-Host "`nScript completed successfully." -ForegroundColor Cyan
             exit 0
