@@ -1490,6 +1490,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat serializationFormat,
             out ValueExpression value)
         {
+            // byte[] is a special case - it represents a base64-encoded bytes value, not a JSON array
+            if (valueType.IsFrameworkType && valueType.FrameworkType == typeof(byte[]))
+            {
+                value = CreateDeserializeValueExpression(valueType, serializationFormat, jsonElement);
+                return MethodBodyStatement.Empty;
+            }
+
             if (valueType.IsList || valueType.IsArray)
             {
                 if (valueType.IsReadOnlyMemory)
