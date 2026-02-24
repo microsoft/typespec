@@ -12,6 +12,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
+import java.time.DayOfWeek;
 
 /**
  * The Body model.
@@ -23,6 +24,12 @@ public final class Body implements JsonSerializable<Body> {
      */
     @Generated
     private CloudEventDataFormat cloudEventDataFormat;
+
+    /*
+     * The dayOfWeek property.
+     */
+    @Generated
+    private DayOfWeek dayOfWeek;
 
     /**
      * Creates an instance of Body class.
@@ -54,6 +61,28 @@ public final class Body implements JsonSerializable<Body> {
     }
 
     /**
+     * Get the dayOfWeek property: The dayOfWeek property.
+     * 
+     * @return the dayOfWeek value.
+     */
+    @Generated
+    public DayOfWeek getDayOfWeek() {
+        return this.dayOfWeek;
+    }
+
+    /**
+     * Set the dayOfWeek property: The dayOfWeek property.
+     * 
+     * @param dayOfWeek the dayOfWeek value to set.
+     * @return the Body object itself.
+     */
+    @Generated
+    public Body setDayOfWeek(DayOfWeek dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+        return this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated
@@ -62,6 +91,7 @@ public final class Body implements JsonSerializable<Body> {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("cloudEventDataFormat",
             this.cloudEventDataFormat == null ? null : this.cloudEventDataFormat.toString());
+        jsonWriter.writeStringField("dayOfWeek", this.dayOfWeek == null ? null : this.dayOfWeek.toString());
         return jsonWriter.writeEndObject();
     }
 
@@ -83,6 +113,8 @@ public final class Body implements JsonSerializable<Body> {
 
                 if ("cloudEventDataFormat".equals(fieldName)) {
                     deserializedBody.cloudEventDataFormat = CloudEventDataFormat.fromString(reader.getString());
+                } else if ("dayOfWeek".equals(fieldName)) {
+                    deserializedBody.dayOfWeek = DayOfWeek.valueOf(reader.getString());
                 } else {
                     reader.skipChildren();
                 }

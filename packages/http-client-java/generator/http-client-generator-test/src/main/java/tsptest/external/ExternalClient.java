@@ -44,6 +44,7 @@ public final class ExternalClient {
      * {@code
      * {
      *     cloudEventDataFormat: String(BYTES/JSON) (Optional)
+     *     dayOfWeek: String(Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday) (Optional)
      * }
      * }
      * </pre>
@@ -54,6 +55,7 @@ public final class ExternalClient {
      * {@code
      * {
      *     cloudEventDataFormat: String(BYTES/JSON) (Optional)
+     *     dayOfWeek: String(Sunday/Monday/Tuesday/Wednesday/Thursday/Friday/Saturday) (Optional)
      * }
      * }
      * </pre>
