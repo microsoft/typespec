@@ -134,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             // Validate that the classifier for 302 status code exists
             Dictionary<string, PropertyProvider> propertyHash = restClient.Properties.ToDictionary(p => p.Name);
-            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier302"), 
+            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier302"),
                 "PipelineMessageClassifier302 should be present for 302 redirect");
 
             var pipelineMessageClassifier302 = propertyHash["PipelineMessageClassifier302"];
@@ -144,7 +144,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             // Validate that fields are created correctly
             Dictionary<string, FieldProvider> fieldHash = restClient.Fields.ToDictionary(f => f.Name);
-            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier302"), 
+            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier302"),
                 "_pipelineMessageClassifier302 field should be present for 302 redirect");
 
             var pipelineMessageClassifier302Field = fieldHash["_pipelineMessageClassifier302"];
@@ -729,7 +729,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var p1 = InputFactory.QueryParameter("p1", InputPrimitiveType.String, isRequired: true);
             var p2 = InputFactory.QueryParameter("p2", InputPrimitiveType.String, isRequired: true);
             var h1 = InputFactory.HeaderParameter("h1", InputPrimitiveType.String, isRequired: true);
-            var maxPageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32, isRequired: false);
+            var maxPageSize = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false);
             List<InputParameter> parameters =
             [
                 p1,
@@ -753,10 +753,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
             var pagingMetadata = new InputPagingServiceMetadata(
-                ["cats"], 
-                new InputNextLink(null, ["nextCat"], InputResponseLocation.Header, [p1]), 
+                ["cats"],
+                new InputNextLink(null, ["nextCat"], InputResponseLocation.Header, [p1]),
                 null,
-                ["maxPageSize"]);
+                ["maxpagesize"]);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
@@ -1429,7 +1429,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                                 uri: "{endpoint}/{apiVersion}"))
                     ],
                     parameters: [endpointParameter, stringApiVersionParameter]));
-            
+
             yield return new TestCaseData(
                 InputFactory.Client(
                     "TestClient",
@@ -1442,7 +1442,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                                 uri: "{endpoint}/{apiVersion}"))
                     ],
                     parameters: [endpointParameter, enumApiVersionParameter]));
-            
+
             yield return new TestCaseData(
                 InputFactory.Client(
                     "TestClient",
@@ -1455,7 +1455,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                                 uri: "{endpoint}/{ApiVersion}"))
                     ],
                     parameters: [endpointParameter, stringApiVersionParameter]));
-            
+
             yield return new TestCaseData(
                 InputFactory.Client(
                     "TestClient",
@@ -1468,7 +1468,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                                 uri: "{endpoint}/{apiVersion}"))
                     ],
                     parameters: [endpointParameter, pascalCaseApiVersionParameter]));
-            
+
             yield return new TestCaseData(
                 InputFactory.Client(
                     "TestClient",
@@ -1487,56 +1487,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         public void TestApiVersionParameterReinjectedInCreateNextRequestMethod()
         {
             // Create API version parameter marked with IsApiVersion = true
-            var apiVersionParam = InputFactory.QueryParameter("apiVersion", InputPrimitiveType.String, 
+            var apiVersionParam = InputFactory.QueryParameter("apiVersion", InputPrimitiveType.String,
                 isRequired: true, serializedName: "api-version", isApiVersion: true);
-            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32, 
+            var pageSizeParam = InputFactory.QueryParameter("maxpagesize", InputPrimitiveType.Int32,
                 isRequired: false, serializedName: "maxpagesize");
-            
+
             List<InputParameter> parameters =
             [
                 apiVersionParam,
                 pageSizeParam,
             ];
-            
+
             List<InputMethodParameter> methodParameters =
             [
-                InputFactory.MethodParameter("apiVersion", InputPrimitiveType.String, isRequired: true, 
+                InputFactory.MethodParameter("apiVersion", InputPrimitiveType.String, isRequired: true,
                     location: InputRequestLocation.Query, serializedName: "api-version"),
-                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false, 
+                InputFactory.MethodParameter("maxpagesize", InputPrimitiveType.Int32, isRequired: false,
                     location: InputRequestLocation.Query, serializedName: "maxpagesize"),
             ];
-            
+
             var inputModel = InputFactory.Model("Item", properties:
             [
                 InputFactory.Property("id", InputPrimitiveType.String, isRequired: true),
             ]);
-            
-            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], 
+
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"],
                 InputResponseLocation.Body, reinjectedParameters: []);
-            
+
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
                     "PagedItems",
                     properties: [
-                        InputFactory.Property("value", InputFactory.Array(inputModel)), 
+                        InputFactory.Property("value", InputFactory.Array(inputModel)),
                         InputFactory.Property("nextLink", InputPrimitiveType.Url)
                     ]));
-            
+
             var operation = InputFactory.Operation("listItems", responses: [response], parameters: parameters);
             var inputServiceMethod = InputFactory.PagingServiceMethod(
                 "listItems",
                 operation,
                 pagingMetadata: pagingMetadata,
                 parameters: methodParameters);
-            
+
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var clientProvider = new ClientProvider(client);
             var restClientProvider = new MockClientProvider(client, clientProvider);
 
             var writer = new TypeProviderWriter(restClientProvider);
             var file = writer.Write();
-            
+
             Assert.That(file.Content, Contains.Substring("api-version"));
             Assert.That(file.Content, Contains.Substring("maxpagesize"));
         }

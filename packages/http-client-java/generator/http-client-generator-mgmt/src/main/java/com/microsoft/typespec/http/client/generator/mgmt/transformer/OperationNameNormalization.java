@@ -16,10 +16,9 @@ import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.WellKnownMethodName;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import io.clientcore.core.http.models.HttpMethod;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -102,10 +101,10 @@ class OperationNameNormalization {
 
     private static Map<String, String> makeRenamePlan(OperationGroup operationGroup) {
         final Set<WellKnownMethodName> candidateWellKnownName
-            = new HashSet<>(Arrays.asList(WellKnownMethodName.LIST, WellKnownMethodName.LIST_BY_RESOURCE_GROUP,
+            = new LinkedHashSet<>(List.of(WellKnownMethodName.LIST, WellKnownMethodName.LIST_BY_RESOURCE_GROUP,
                 WellKnownMethodName.GET_BY_RESOURCE_GROUP, WellKnownMethodName.DELETE));
 
-        Map<String, String> renamePlan = new HashMap<>();
+        Map<String, String> renamePlan = new LinkedHashMap<>();
 
         for (Operation operation : operationGroup.getOperations()) {
             String path = operation.getRequests().iterator().next().getProtocol().getHttp().getPath().trim();

@@ -22,8 +22,8 @@ export interface TableDefinition {
 export interface CoverageFromAzureStorageOptions {
   readonly storageAccountName: string;
   readonly containerName: string;
-  // TODO: why was this not back in the same place as the other options?
-  readonly manifestContainerName: string;
+  /** Name of the manifests(As located under manifests/<name>.json) for this dashboard */
+  readonly manifests: string[];
   readonly emitterNames: string[];
   readonly modes?: string[];
   /** Optional table definitions to split scenarios into multiple tables */
@@ -49,16 +49,6 @@ export function getCoverageClient(options: CoverageFromAzureStorageOptions) {
     client = new SpecCoverageClient(options.storageAccountName);
   }
   return client;
-}
-
-let manifestClient: SpecCoverageClient | undefined;
-export function getManifestClient(options: CoverageFromAzureStorageOptions) {
-  if (manifestClient === undefined) {
-    manifestClient = new SpecCoverageClient(options.storageAccountName, {
-      containerName: options.manifestContainerName,
-    });
-  }
-  return manifestClient;
 }
 
 /**
@@ -161,23 +151,34 @@ export async function getCoverageSummaries(
   options: CoverageFromAzureStorageOptions,
 ): Promise<CoverageSummary[]> {
   const coverageClient = getCoverageClient(options);
-  const manifestClient = getManifestClient(options);
 
   // First, split manifests to determine which emitters we need
-  const manifests = await manifestClient.manifest.get();
+  const manifests = await Promise.all(options.manifests.map((x) => coverageClient.manifest.get(x)));
   const allManifests: Array<{
     manifest: ScenarioManifest;
     tableName: string;
     emitterNames?: string[];
   }> = [];
 
-  for (const manifest of manifests) {
-    if (options.tables && options.tables.length > 0) {
-      // Use table definitions to split scenarios
-      const splitResults = splitManifestByTables(manifest, options.tables);
-      allManifests.push(...splitResults);
-    } else {
-      // No table definitions, use default behavior
+  if (options.tables && options.tables.length > 0) {
+    // Split each manifest by its table definitions, then reorder to match configured table order
+    const splitResults = manifests.flatMap((m) => splitManifestByTables(m, options.tables!));
+    const resultByTableName = new Map(splitResults.map((r) => [r.tableName, r]));
+
+    for (const table of options.tables) {
+      const match = resultByTableName.get(table.name);
+      if (match) {
+        allManifests.push(match);
+        resultByTableName.delete(table.name);
+      }
+    }
+    // Append any remaining entries (unmatched scenarios with default table names)
+    for (const remaining of resultByTableName.values()) {
+      allManifests.push(remaining);
+    }
+  } else {
+    // No table definitions, use default behavior
+    for (const manifest of manifests) {
       allManifests.push({
         manifest,
         tableName: manifest.displayName || manifest.packageName || "",

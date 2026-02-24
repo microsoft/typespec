@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-js",
-  "version": "0.58.0-alpha.23",
+  "version": "0.58.0-alpha.24",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP server code generator for JavaScript",
   "homepage": "https://github.com/microsoft/typespec",
@@ -36,7 +36,7 @@
     "build": "pnpm build:helpers && pnpm build:src",
     "build:src": "tsc -p ./tsconfig.json",
     "build:helpers": "tsx ./build-helpers.ts",
-    "watch": "tsc -p . --watch",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",

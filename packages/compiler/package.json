@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -87,8 +87,8 @@
     "build:init-templates-index": "tsx ./.scripts/build-init-templates.ts",
     "build": "pnpm gen-manifest && pnpm build:init-templates-index && pnpm compile && pnpm generate-tmlanguage",
     "api-extractor": "api-extractor run --local --verbose",
-    "compile": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "compile": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
     "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
     "gen-extern-signature": "tsx ./.scripts/gen-extern-signature.ts",

@@ -24,7 +24,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +44,7 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
         this.name = name;
 
         final ResourceLocalVariables localVariables = resourceLocalVariables
-            .getDeduplicatedLocalVariables(new HashSet<>(Collections.singleton(ModelNaming.METHOD_PARAMETER_NAME_ID)));
+            .getDeduplicatedLocalVariables(new LinkedHashSet<>(List.of(ModelNaming.METHOD_PARAMETER_NAME_ID)));
         final boolean removeResponseInReturnType = !includeContextParameter;
         final IType returnType = getReturnType(collectionMethod.getFluentReturnType(), removeResponseInReturnType);
         final boolean responseInReturnTypeRemoved
@@ -74,7 +74,7 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
         }
 
         // method invocation
-        Set<ClientMethodParameter> parametersSet = new HashSet<>(parameters);
+        Set<ClientMethodParameter> parametersSet = new LinkedHashSet<>(parameters);
         List<ClientMethodParameter> methodParameters = collectionMethod.getInnerClientMethod().getMethodParameters();
         String argumentsLine = methodParameters.stream()
             .map(p -> FluentUtils.getLocalMethodArgument(p, parametersSet, localVariables, model, collectionMethod))

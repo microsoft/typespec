@@ -1,6 +1,6 @@
 {
   "name": "@typespec/rest",
-  "version": "0.78.0",
+  "version": "0.79.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec REST protocol binding",
   "homepage": "https://typespec.io",
@@ -35,8 +35,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-extern-signature && tsc -p . && pnpm lint-typespec-library",
-    "watch": "tsc -p . --watch",
+    "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json && pnpm lint-typespec-library",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",

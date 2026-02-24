@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -879,7 +877,11 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             }
 
             methodBlock.indent(() -> {
-                if (valueSerializationMethod != null) {
+                if (elementType == ClassType.BINARY_DATA) {
+                    // Special handling for BinaryData
+                    methodBlock.line("{ if (%1$s == null) { %2$s.writeNull(); } else { %1$s.writeTo(%2$s); } }",
+                        elementName, lambdaWriterName);
+                } else if (valueSerializationMethod != null) {
                     if (isJsonMergePatch && containerType instanceof MapType) {
                         methodBlock.block("", codeBlock -> codeBlock.ifBlock(elementName + "!= null", ifBlock -> {
                             if (elementType instanceof ClassType && ((ClassType) elementType).isSwaggerType()) {
@@ -908,8 +910,6 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     serializeJsonContainerProperty(methodBlock, "writeMap", elementType,
                         ((MapType) elementType).getValueType(), serializedName, propertyValueGetter, depth + 1,
                         isJsonMergePatch);
-                } else if (elementType == ClassType.BINARY_DATA) {
-                    methodBlock.line(elementName + ".writeTo(" + lambdaWriterName + ")");
                 } else {
                     throw new RuntimeException("Unknown value type " + elementType + " in " + containerType
                         + " serialization. Need to add support for it.");
@@ -1183,7 +1183,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     = (property, fromSuper) -> handleJsonPropertyDeserialization(property, whileBlock, ifBlockReference,
                         fromSuper, false);
 
-                Map<String, ClientModelProperty> modelPropertyMap = new HashMap<>();
+                Map<String, ClientModelProperty> modelPropertyMap = new LinkedHashMap<>();
                 for (ClientModelProperty parentProperty : ClientModelUtil.getParentProperties(model)) {
                     modelPropertyMap.put(parentProperty.getName(), parentProperty);
                 }
@@ -2634,7 +2634,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             getClientModelPropertiesInJsonTree(JsonFlattenedPropertiesTree tree) {
             if (tree.getProperty() != null) {
                 // Terminal node only contains a property.
-                return Collections.singletonList(tree.getProperty());
+                return List.of(tree.getProperty());
             } else {
                 List<ClientModelPropertyWithMetadata> treeProperties = new ArrayList<>();
                 for (JsonFlattenedPropertiesTree childNode : tree.getChildrenNodes().values()) {

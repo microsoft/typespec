@@ -44,6 +44,7 @@ import {
   unsafe_MutatorWithNamespace,
 } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
+import { createPerfReporter, perf } from "@typespec/compiler/utils";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,
@@ -146,7 +147,10 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
   for (const specVersion of options.openapiVersions) {
     const emitter = createOAPIEmitter(context, options, specVersion);
-    await emitter.emitOpenAPI();
+    const { perf } = await emitter.emitOpenAPI();
+    for (const [key, duration] of Object.entries(perf)) {
+      context.perf.report(key, duration);
+    }
   }
 }
 
@@ -171,6 +175,7 @@ export async function getOpenAPI3(
     emitterOutputDir: "tsp-output",
 
     options: options,
+    perf: createPerfReporter(),
   };
 
   const resolvedOptions = resolveOptions(context);
@@ -338,7 +343,11 @@ function createOAPIEmitter(
   }
 
   async function emitOpenAPI() {
+    const computeTimer = perf.startTimer();
+
     const services = await getOpenAPI();
+    const computeTime = computeTimer.end();
+
     // first, emit diagnostics
     for (const serviceRecord of services) {
       if (serviceRecord.versioned) {
@@ -351,11 +360,11 @@ function createOAPIEmitter(
     }
 
     if (program.compilerOptions.dryRun || program.hasError()) {
-      return;
+      return { perf: { compute: computeTime } };
     }
 
     const multipleService = services.length > 1;
-
+    const writeTimer = perf.startTimer();
     for (const serviceRecord of services) {
       if (serviceRecord.versioned) {
         for (const documentRecord of serviceRecord.versions) {
@@ -373,6 +382,13 @@ function createOAPIEmitter(
         });
       }
     }
+    const writeTime = writeTimer.end();
+    return {
+      perf: {
+        compute: computeTime,
+        write: writeTime,
+      },
+    };
   }
 
   function initializeEmitter(

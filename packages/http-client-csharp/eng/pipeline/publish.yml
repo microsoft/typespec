@@ -16,6 +16,21 @@ parameters:
     type: boolean
     default: false
 
+  - name: RegenerateAzureLibraries
+    displayName: Regenerate Azure data plane SDK libraries (builds Azure emitter locally)
+    type: boolean
+    default: false
+
+  - name: RegenerateMgmtLibraries
+    displayName: Regenerate Azure mgmt SDK libraries (builds mgmt emitter locally)
+    type: boolean
+    default: false
+
+  - name: RunTests
+    displayName: Run unit tests
+    type: boolean
+    default: true
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -26,7 +41,7 @@ extends:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
-          PublishDependsOnTest: true
+          PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
           EmitterPackageJsonPath: packages/http-client-csharp/package.json
           Packages:
@@ -45,7 +60,8 @@ extends:
             - name: Microsoft.TypeSpec.Generator.Customization
               file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
               type: nuget
-          UnitTestArgs: -UnitTests
+          ${{ if parameters.RunTests }}:
+            UnitTestArgs: -UnitTests
           StagePrefix: "CSharp"
           LanguageShortName: "csharp"
           HasNugetPackages: true
@@ -106,6 +122,29 @@ extends:
 
               - task: NuGetAuthenticate@1
 
+              - pwsh: |
+                  Write-Host "Creating .npmrc file $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc for registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/"
+                  $parentFolder = Split-Path -Path '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' -Parent
+
+                  if (!(Test-Path $parentFolder)) {
+                    Write-Host "Creating folder $parentFolder"
+                    New-Item -Path $parentFolder -ItemType Directory | Out-Null
+                  }
+
+                  $content = "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/`n`nalways-auth=true"
+                  $content | Out-File '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc'
+
+                  Write-Host "##[section].npmrc file created successfully. Contents:"
+                  Get-Content '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' | ForEach-Object { Write-Host "  $_" }
+                displayName: "Create .npmrc"
+                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
+
+              - task: npmAuthenticate@0
+                displayName: Authenticate npm for Azure Artifacts
+                condition: eq('${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}', 'internal')
+                inputs:
+                  workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
+
               - download: current
                 displayName: Download pipeline artifacts
 
@@ -128,6 +167,24 @@ extends:
                   useGlobalJson: true
                   workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
 
+              - pwsh: |
+                  Write-Host "##[section]Checking npm configuration before PR submission..."
+                  Write-Host "Current npm registry:"
+                  npm config get registry
+
+                  Write-Host "`nChecking for .npmrc files:"
+                  $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
+                  if (Test-Path $npmrcPath) {
+                    Write-Host "Found .npmrc at: $npmrcPath"
+                  } else {
+                    Write-Host ".npmrc file not found - will use default npm registry"
+                  }
+
+                  Write-Host "`nNpm config list (user + global):"
+                  npm config list
+                displayName: "Log npm configuration"
+                condition: eq(${{ parameters.CreateAzureSdkForNetPR }}, true)
+
               - task: PowerShell@2
                 displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
                 inputs:
@@ -138,3 +195,16 @@ extends:
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
                     -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
+                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
+
+              - pwsh: |
+                  $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
+                  if (Test-Path $npmrcPath) {
+                    Remove-Item $npmrcPath -Force
+                    Write-Host "Cleaned up .npmrc file"
+                  }
+                displayName: Cleanup .npmrc file
+                condition: always()
