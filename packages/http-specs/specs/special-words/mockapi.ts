@@ -1,4 +1,4 @@
-import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -432,6 +432,12 @@ Scenarios.SpecialWords_Enums_putEnumValue = passOnSuccess({
   response: {
     status: 200,
     body: json("class"),
+  },
+  handler: (req: MockRequest) => {
+    return {
+      status: 200,
+      body: json(req.body),
+    };
   },
   kind: "MockApiDefinition",
 });
