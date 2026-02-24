@@ -564,7 +564,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
     def make_pipeline_call(self, builder: OperationType) -> list[str]:
         retval = []
         type_ignore = self.async_mode and builder.group_name == ""  # is in a mixin
-        if builder.stream_value is True and not self.code_model.options["version-tolerant"]:
+        if builder.stream_value:
             retval.append("_decompress = kwargs.pop('decompress', True)")
         pylint_disable = " # pylint: disable=protected-access" if self.code_model.is_azure_flavor else ""
         retval.extend(
@@ -973,7 +973,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             else:
                 stream_logic = False
                 if self.code_model.options["version-tolerant"]:
-                    deserialized = "response.iter_bytes()"
+                    deserialized = "response.iter_bytes() if _decompress else response.iter_raw()"
                 else:
                     deserialized = (
                         f"response.stream_download(self._client.{self.pipeline_name}, decompress=_decompress)"
@@ -1020,7 +1020,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if len(deserialize_code) > 0:
             if builder.expose_stream_keyword and stream_logic:
                 retval.append("if _stream:")
-                retval.append("    deserialized = response.iter_bytes()")
+                retval.append("    deserialized = response.iter_bytes() if _decompress else response.iter_raw()")
                 retval.append("else:")
                 retval.extend([f"    {dc}" for dc in deserialize_code])
             else:
