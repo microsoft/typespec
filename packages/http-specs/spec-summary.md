@@ -3982,7 +3982,7 @@ Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
 - Endpoint: `put /special-words/enums/string`
 
 Verify that enum members with special word names can be sent and received properly.
-Expect to send a known value. Mock api expect to receive 'class'.
+Send 'class' and expect the same value back.
 
 ### SpecialWords_ModelProperties_dictMethods
 

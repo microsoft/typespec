@@ -430,7 +430,8 @@ Scenarios.SpecialWords_Enums_putEnumValue = passOnSuccess({
     },
   },
   response: {
-    status: 204,
+    status: 200,
+    body: json("class"),
   },
   kind: "MockApiDefinition",
 });

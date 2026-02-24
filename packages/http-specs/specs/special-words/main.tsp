@@ -405,7 +405,7 @@ interface Enums {
   @scenario
   @scenarioDoc("""
     Verify that enum members with special word names can be sent and received properly.
-    Expect to send a known value. Mock api expect to receive 'class'.
+    Send 'class' and expect the same value back.
     """)
   @put
   @route("/string")
@@ -414,5 +414,10 @@ interface Enums {
     contentType: "application/json",
 
     @body body: Enum,
-  ): void;
+  ): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
 }
