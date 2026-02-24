@@ -149,7 +149,6 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnostics(diagnostics, [{ code: "invalid-ref" }, { code: "expect-value" }]);
     });
-
   });
 
   describe("property defaults", () => {
