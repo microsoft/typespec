@@ -83,6 +83,7 @@ import {
   ResolutionResult,
   ResolutionResultFlags,
   ScalarStatementNode,
+  StringLiteralNode,
   Sym,
   SymbolFlags,
   SymbolLinks,
@@ -1275,9 +1276,25 @@ export function createResolver(program: Program): NameResolver {
 
   function createMetaTypePrototypes(): TypePrototypes {
     const nodeInterfaces: TypePrototypes = new Map();
+    const withNameMetaProperty = (prototype: TypePrototype) => {
+      prototype.set("name", (baseSym) => {
+        const literal: StringLiteralNode = {
+          kind: SyntaxKind.StringLiteral,
+          flags: NodeFlags.Synthetic,
+          pos: 0,
+          end: 0,
+          value: baseSym.name,
+          symbol: undefined as any,
+        };
+        return resolvedResult(
+          createSymbol(literal, "name", SymbolFlags.Const | SymbolFlags.Declaration),
+        );
+      });
+      return prototype;
+    };
 
     // model properties
-    const modelPropertyPrototype: TypePrototype = new Map();
+    const modelPropertyPrototype: TypePrototype = withNameMetaProperty(new Map());
     modelPropertyPrototype.set("type", (baseSym) => {
       const node = baseSym.node as ModelPropertyNode;
       return resolveExpression(node.value);
@@ -1285,7 +1302,7 @@ export function createResolver(program: Program): NameResolver {
     nodeInterfaces.set(SyntaxKind.ModelProperty, modelPropertyPrototype);
 
     // operations
-    const operationPrototype: TypePrototype = new Map();
+    const operationPrototype: TypePrototype = withNameMetaProperty(new Map());
     // For parameters it is a cloned symbol as all the params are spread
     operationPrototype.set("parameters", (baseSym) => {
       const sym = getAugmentedSymbolTable(baseSym.metatypeMembers!)?.get("parameters");
@@ -1308,6 +1325,14 @@ export function createResolver(program: Program): NameResolver {
       return resolveExpression(node.signature.returnType);
     });
     nodeInterfaces.set(SyntaxKind.OperationStatement, operationPrototype);
+
+    nodeInterfaces.set(SyntaxKind.ModelStatement, withNameMetaProperty(new Map()));
+    nodeInterfaces.set(SyntaxKind.EnumStatement, withNameMetaProperty(new Map()));
+    nodeInterfaces.set(SyntaxKind.UnionStatement, withNameMetaProperty(new Map()));
+    nodeInterfaces.set(SyntaxKind.InterfaceStatement, withNameMetaProperty(new Map()));
+    nodeInterfaces.set(SyntaxKind.ScalarStatement, withNameMetaProperty(new Map()));
+    nodeInterfaces.set(SyntaxKind.EnumMember, withNameMetaProperty(new Map()));
+    nodeInterfaces.set(SyntaxKind.UnionVariant, withNameMetaProperty(new Map()));
 
     return nodeInterfaces;
   }

@@ -780,6 +780,54 @@ describe("operations", () => {
         ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
       });
     });
+
+    describe("resolves ::name meta property", () => {
+      it("on declaration symbols", () => {
+        const refs = getResolutions(
+          [
+            `
+            model M { p: string; }
+            enum E { x }
+            union U { a: string }
+            scalar S;
+            interface I {}
+            op O(): void;
+          `,
+          ],
+          "M::name",
+          "E::name",
+          "U::name",
+          "S::name",
+          "I::name",
+          "O::name",
+        );
+
+        for (const ref of Object.values(refs)) {
+          ok(ref.resolutionResult & ResolutionResultFlags.Resolved);
+          assertSymbol(ref.finalSymbol, { name: "name", flags: SymbolFlags.Const });
+        }
+      });
+
+      it("on member symbols", () => {
+        const refs = getResolutions(
+          [
+            `
+            model M { p: string; }
+            enum E { x }
+            union U { a: string }
+          `,
+          ],
+          "M.p::name",
+          "E.x::name",
+          "U.a::name",
+        );
+
+        for (const ref of Object.values(refs)) {
+          ok(ref.resolutionResult & ResolutionResultFlags.Resolved);
+          assertSymbol(ref.finalSymbol, { name: "name", flags: SymbolFlags.Const });
+        }
+      });
+    });
   });
 });
 
