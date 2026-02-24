@@ -39,6 +39,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -74,7 +75,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
         JavaSettings settings = JavaSettings.getInstance();
         ClientModelPropertiesManager propertiesManager = new ClientModelPropertiesManager(model, settings);
-        Set<String> imports = settings.isStreamStyleSerialization() ? new StreamStyleImports() : new HashSet<>();
+        Set<String> imports = settings.isStreamStyleSerialization() ? new StreamStyleImports() : new LinkedHashSet<>();
 
         addImports(imports, model, settings);
 
@@ -107,7 +108,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
         List<JavaModifier> classModifiers = null;
         if (!hasDerivedModels && !model.getNeedsFlatten()) {
-            classModifiers = Collections.singletonList(JavaModifier.Final);
+            classModifiers = List.of(JavaModifier.Final);
         }
 
         String classNameWithBaseType = model.getName();
@@ -843,7 +844,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             // Properties required by the super class structure come first.
             ClientModel parentModel = ClientModelUtil.getClientModel(model.getParentModelName());
             if (parentModel != null) {
-                Set<String> superConstructorPropertiesSerializedNames = new HashSet<>();
+                Set<String> superConstructorPropertiesSerializedNames = new LinkedHashSet<>();
                 propertiesManager.forEachSuperConstructorProperty(
                     p -> superConstructorPropertiesSerializedNames.add(p.getSerializedName()));
 
@@ -1421,7 +1422,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         });
     }
 
-    private static final class StreamStyleImports extends HashSet<String> {
+    private static final class StreamStyleImports extends LinkedHashSet<String> {
         @Override
         public boolean add(String s) {
             if (s != null && s.contains("fasterxml")) {
@@ -1456,7 +1457,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         List<ClientModelProperty> setterProperties = !model.isPolymorphic()
-            ? Collections.emptyList()
+            ? List.of()
             : model.getProperties()
                 .stream()
                 .filter(property -> !property.isConstant() && !property.isPolymorphicDiscriminator())

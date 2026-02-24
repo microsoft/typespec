@@ -26,7 +26,7 @@ Error models can be used to represent different types of errors that your API mi
 
 We'll define models to represent validation errors, not-found errors, and internal server errors:
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={45,55-58,65-76,85-102}
 import "@typespec/http";
 
 using Http;
@@ -70,8 +70,6 @@ namespace Pets {
     @body pet: Pet;
   } | {
     @statusCode statusCode: 404;
-
-    // highlight-next-line
     @body error: NotFoundError;
   };
 
@@ -82,19 +80,16 @@ namespace Pets {
   } | {
     @statusCode statusCode: 202;
     @body acceptedPet: Pet;
-    // highlight-start
   } | {
     @statusCode statusCode: 400;
     @body error: ValidationError;
   };
-  // highlight-end
 
   @put
   op updatePet(@path petId: int32, @body pet: Pet):
     | {
         @statusCode statusCode: 200;
         @body updatedPet: Pet;
-        // highlight-start
       }
     | {
         @statusCode statusCode: 400;
@@ -107,7 +102,6 @@ namespace Pets {
     | {
         @statusCode statusCode: 500;
         @body error: InternalServerError;
-        // highlight-end
       };
 
   @delete
@@ -116,7 +110,6 @@ namespace Pets {
   };
 }
 
-// highlight-start
 @error
 model NotFoundError {
   code: "NOT_FOUND";
@@ -135,7 +128,6 @@ model InternalServerError {
   code: "INTERNAL_SERVER_ERROR";
   message: string;
 }
-// highlight-end
 ```
 
 In this example:

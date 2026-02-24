@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Represents the HTTP verb for the nextLink operation in pageable settings.
  */
@@ -21,13 +18,6 @@ public enum NextLinkVerb {
     POST("POST");
 
     private final String value;
-    private static final Map<String, NextLinkVerb> CONSTANTS = new HashMap<>();
-
-    static {
-        for (NextLinkVerb v : values()) {
-            CONSTANTS.put(v.value, v);
-        }
-    }
 
     NextLinkVerb(String value) {
         this.value = value;
@@ -55,11 +45,11 @@ public enum NextLinkVerb {
      * @throws IllegalArgumentException If the value is not a valid HTTP verb.
      */
     public static NextLinkVerb fromValue(String value) {
-        NextLinkVerb constant = CONSTANTS.get(value);
-        if (constant == null) {
-            throw new IllegalArgumentException(value);
-        } else {
-            return constant;
+        if (GET.value.equals(value)) {
+            return GET;
+        } else if (POST.value.equals(value)) {
+            return POST;
         }
+        throw new IllegalArgumentException(value);
     }
 }
