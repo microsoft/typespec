@@ -3,6 +3,7 @@
 
 import {
   getClientNamespace,
+  getClientOptions,
   getHttpOperationParameter,
   isHttpMetadata,
   SdkBodyParameter,
@@ -513,6 +514,7 @@ function fromHeaderParameter(
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: getMethodParameterSegments(sdkContext, p),
+    collectionHeaderPrefix: getClientOptions(p, "collectionHeaderPrefix") as string | undefined,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);

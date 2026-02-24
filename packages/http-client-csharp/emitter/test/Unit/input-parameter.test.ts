@@ -952,6 +952,35 @@ describe("Test Operation Parameters", () => {
       strictEqual(typedParam.isContentType, true);
       strictEqual(typedParam.type.kind, "constant");
     });
+
+    it("should populate collectionHeaderPrefix from clientOption decorator", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @route("test")
+          @post
+          op test(
+            #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+            @header("x-ms-meta")
+            @clientOption("collectionHeaderPrefix", "x-ms-meta-", "csharp")
+            metadata: Record<string>): void;
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const metadataParam = operation.parameters.find((p) => p.name === "metadata");
+
+      ok(metadataParam);
+      strictEqual(metadataParam.kind, "header");
+
+      const typedParam = metadataParam as InputHeaderParameter;
+      strictEqual(typedParam.collectionHeaderPrefix, "x-ms-meta-");
+    });
   });
 
   describe("Body parameters", () => {

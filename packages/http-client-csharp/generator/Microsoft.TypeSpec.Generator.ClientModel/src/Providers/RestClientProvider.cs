@@ -417,7 +417,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (type?.IsCollection == true)
                 {
-                    statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), GetFormatEnumValue(serializationFormat));
+                    if (inputHeaderParameter.CollectionHeaderPrefix != null && type.IsDictionary)
+                    {
+                        statement = request.AddCollectionHeaders(Literal(inputHeaderParameter.CollectionHeaderPrefix), valueExpression);
+                    }
+                    else
+                    {
+                        statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), GetFormatEnumValue(serializationFormat));
+                    }
                 }
                 else
                 {

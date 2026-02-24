@@ -1071,6 +1071,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public void TestCollectionHeaderPrefix_GeneratesAddWithPrefixCall()
+        {
+            var metadataHeaderParam = InputFactory.HeaderParameter(
+                "metadata",
+                InputFactory.Dictionary(InputPrimitiveType.String),
+                isRequired: true,
+                serializedName: "x-ms-meta",
+                collectionHeaderPrefix: "x-ms-meta-");
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestServiceMethod",
+                InputFactory.Operation(
+                    "TestOperation",
+                    parameters: [metadataHeaderParam]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("metadata", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: true, location: InputRequestLocation.Header)
+                ]);
+
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+
 
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {
