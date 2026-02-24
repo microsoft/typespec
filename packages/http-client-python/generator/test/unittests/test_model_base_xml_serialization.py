@@ -541,6 +541,50 @@ class TestXmlDeserialization:
         assert result.blobs == []
         assert result.next_marker == ""
 
+    def test_enumeration_results_nested_empty_list(self):
+        """Test deserializing XML where a container element holds a nested empty list (e.g. Blobs/BlobPrefixes)."""
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="acontainer"><Delimiter>/</Delimiter><Blobs><BlobPrefixes /></Blobs><NextMarker /></EnumerationResults>'
+
+        class BlobPrefix(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "BlobPrefix"}
+
+        class BlobsSegment(Model):
+            blob_prefixes: list[BlobPrefix] = rest_field(
+                name="BlobPrefixes", xml={"name": "BlobPrefixes", "itemsName": "BlobPrefix"}
+            )
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Blobs"}
+
+        class EnumerationResults(Model):
+            service_endpoint: str = rest_field(
+                name="ServiceEndpoint", xml={"name": "ServiceEndpoint", "attribute": True}
+            )
+            container_name: str = rest_field(name="ContainerName", xml={"name": "ContainerName", "attribute": True})
+            delimiter: str = rest_field(name="Delimiter", xml={"name": "Delimiter"})
+            blobs: BlobsSegment = rest_field(name="Blobs", xml={"name": "Blobs"})
+            next_marker: str = rest_field(name="NextMarker", xml={"name": "NextMarker"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "EnumerationResults"}
+
+        result = _deserialize_xml(EnumerationResults, xml_payload)
+
+        assert result.service_endpoint == "https://service.blob.core.windows.net/"
+        assert result.container_name == "acontainer"
+        assert result.delimiter == "/"
+        assert result.blobs.blob_prefixes == []
+        assert result.next_marker == ""
+
 
 class TestXmlSerialization:
     def test_basic(self):
