@@ -2291,7 +2291,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(Guid) =>
                     element.GetGuid(),
                 Type t when t == typeof(byte[]) =>
-                    element.GetBytesFromBase64(format.ToFormatSpecifier()),
+                    format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
+                        ? element.GetBytesFromBase64(format.ToFormatSpecifier())
+                        : element.GetBytesFromBase64("D"),
                 Type t when t == typeof(DateTimeOffset) =>
                     format == SerializationFormat.DateTime_Unix
                         ? DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())
