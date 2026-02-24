@@ -2268,6 +2268,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                         ? BinaryDataSnippets.FromBytes(element.GetBytesFromBase64(format.ToFormatSpecifier()))
                         : BinaryDataSnippets.FromString(element.GetRawText()),
+                Type t when t == typeof(byte[]) =>
+                    format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
+                        ? element.GetBytesFromBase64(format.ToFormatSpecifier())
+                        : BinaryDataSnippets.FromString(element.GetRawText()).ToArray(),
                 Type t when t == typeof(Stream) =>
                     BinaryDataSnippets.FromString(element.GetRawText()).ToStream(),
                 Type t when t == typeof(JsonElement) =>
@@ -2290,10 +2294,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     element.GetString(),
                 Type t when t == typeof(Guid) =>
                     element.GetGuid(),
-                Type t when t == typeof(byte[]) =>
-                    format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
-                        ? element.GetBytesFromBase64(format.ToFormatSpecifier())
-                        : element.GetBytesFromBase64("D"),
                 Type t when t == typeof(DateTimeOffset) =>
                     format == SerializationFormat.DateTime_Unix
                         ? DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())
