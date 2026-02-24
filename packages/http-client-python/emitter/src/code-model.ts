@@ -39,7 +39,7 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkBasicServiceMethod<TServiceOperation>,
-  operationGroupName: string,
+  operationGroup: SdkClientType<TServiceOperation>,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
@@ -50,7 +50,7 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
         context,
         rootClient,
         method,
-        operationGroupName,
+        operationGroup.name,
         serviceApiVersions,
       );
     default:
@@ -62,14 +62,20 @@ function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroServiceMethod<TServiceOperation>,
-  operationGroupName: string,
+  operationGroup: SdkClientType<TServiceOperation>,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
     throw new Error("We only support HTTP operations right now");
   switch (method.operation.kind) {
     case "http":
-      return emitLroHttpMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
+      return emitLroHttpMethod(
+        context,
+        rootClient,
+        method,
+        operationGroup.name,
+        serviceApiVersions,
+      );
     default:
       throw new Error("We only support HTTP operations right now");
   }
@@ -79,7 +85,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkPagingServiceMethod<TServiceOperation>,
-  operationGroupName: string,
+  operationGroup: SdkClientType<TServiceOperation>,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
@@ -90,7 +96,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
         context,
         rootClient,
         method,
-        operationGroupName,
+        operationGroup.name,
         serviceApiVersions,
       );
     default:
@@ -102,7 +108,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroPagingServiceMethod<TServiceOperation>,
-  operationGroupName: string,
+  operationGroup: SdkClientType<TServiceOperation>,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   if (method.operation.kind !== "http")
@@ -113,7 +119,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
         context,
         rootClient,
         method,
-        operationGroupName,
+        operationGroup.name,
         serviceApiVersions,
       );
     default:
@@ -183,25 +189,19 @@ function emitMethodParameter(
 function emitMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
+  operationGroup: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
-  operationGroupName: string,
   serviceApiVersions: string[],
 ): Record<string, any>[] {
   switch (method.kind) {
     case "basic":
-      return emitBasicMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
+      return emitBasicMethod(context, rootClient, method, operationGroup, serviceApiVersions);
     case "lro":
-      return emitLroMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
+      return emitLroMethod(context, rootClient, method, operationGroup, serviceApiVersions);
     case "paging":
-      return emitPagingMethod(context, rootClient, method, operationGroupName, serviceApiVersions);
+      return emitPagingMethod(context, rootClient, method, operationGroup, serviceApiVersions);
     default:
-      return emitLroPagingMethod(
-        context,
-        rootClient,
-        method,
-        operationGroupName,
-        serviceApiVersions,
-      );
+      return emitLroPagingMethod(context, rootClient, method, operationGroup, serviceApiVersions);
   }
 }
 
@@ -211,43 +211,37 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   client: SdkClientType<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
-  prefix: string,
   serviceApiVersions: string[],
 ): Record<string, any>[] | undefined {
   const operationGroups: Record<string, any>[] = [];
 
   for (const operationGroup of client.children ?? []) {
-    const name = `${prefix}${operationGroup.name}`;
+    operationGroup.name = `${client.name}${operationGroup.name}`;
     let operations: Record<string, any>[] = [];
     const apiVersions =
       serviceApiVersions.length > 0 ? serviceApiVersions : operationGroup.apiVersions;
     for (const method of operationGroup.methods) {
       operations = operations.concat(
-        emitMethod(context, operationGroup, method, name, apiVersions),
+        emitMethod(context, rootClient, operationGroup, method, apiVersions),
       );
     }
     operationGroups.push({
-      name: name,
-      className: name,
+      name: operationGroup.name,
+      className: operationGroup.name,
       propertyName: operationGroup.name,
       operations: operations,
-      operationGroups: emitOperationGroups(
-        context,
-        operationGroup,
-        operationGroup,
-        name,
-        apiVersions,
-      ),
+      operationGroups: emitOperationGroups(context, operationGroup, rootClient, apiVersions),
       clientNamespace: getClientNamespace(context, operationGroup.namespace),
     });
   }
 
   // root client should deal with mixin operation group
-  if (prefix === "") {
+  if (client === rootClient) {
+    const mixinGroup = { ...client, name: "" } as SdkClientType<TServiceOperation>;
     let operations: Record<string, any>[] = [];
     for (const method of client.methods) {
       operations = operations.concat(
-        emitMethod(context, rootClient, method, "", serviceApiVersions),
+        emitMethod(context, rootClient, mixinGroup, method, serviceApiVersions),
       );
     }
     if (operations.length > 0) {
@@ -309,7 +303,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   const endpointParameter = initParameters.find((x) => x.kind === "endpoint") as
     | SdkEndpointParameter
     | undefined;
-  const operationGroups = emitOperationGroups(context, client, client, "", client.apiVersions);
+  const operationGroups = emitOperationGroups(context, client, client, client.apiVersions);
   let url: string | undefined;
   if (endpointParameter?.type.kind === "union") {
     url = (endpointParameter.type.variantTypes[0] as SdkEndpointType).serverUrl;
