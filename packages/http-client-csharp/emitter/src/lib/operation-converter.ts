@@ -1000,7 +1000,7 @@ function getCollectionHeaderPrefix(
       format: {
         message: `The 'collectionHeaderPrefix' client option must be a string value, but got '${typeof value}'. The option will be ignored.`,
       },
-      target: NoTarget,
+      target: p.__raw ?? NoTarget,
     });
     return undefined;
   }

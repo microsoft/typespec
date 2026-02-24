@@ -1009,6 +1009,14 @@ describe("Test Operation Parameters", () => {
 
       const typedParam = metadataParam as InputHeaderParameter;
       strictEqual(typedParam.collectionHeaderPrefix, undefined);
+
+      const diagnostics = context.program.diagnostics;
+      const warningDiagnostic = diagnostics.find(
+        (d) =>
+          d.code === "@typespec/http-client-csharp/general-warning" &&
+          d.message?.includes("collectionHeaderPrefix"),
+      );
+      ok(warningDiagnostic, "A warning diagnostic should be reported for non-string value");
     });
 
     it("should return undefined for collectionHeaderPrefix when header parameter is not a dictionary type", async () => {

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ClientModel.Primitives;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -28,8 +29,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 m.Signature.Name == "Add" &&
                 m.Signature.Parameters.Any(p => p.Type.Equals(new global::Microsoft.TypeSpec.Generator.Primitives.CSharpType(typeof(IDictionary<,>), typeof(string), typeof(string)))));
             Assert.IsNotNull(addMethod, "Add method with prefix and dictionary parameters should be generated");
-            Assert.IsNotNull(addMethod!.BodyStatements);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), addMethod.BodyStatements!.ToDisplayString());
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == "Add"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
