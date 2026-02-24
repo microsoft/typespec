@@ -19,6 +19,7 @@
     { "path": "packages/openapi3/tsconfig.build.json" },
     { "path": "packages/spec-api/tsconfig.build.json" },
     { "path": "packages/spector/tsconfig.build.json" },
+    { "path": "packages/spec-coverage-sdk/tsconfig.build.json" },
     { "path": "packages/http-specs/tsconfig.build.json" },
     { "path": "packages/monarch/tsconfig.build.json" },
     { "path": "packages/bundler/tsconfig.build.json" },

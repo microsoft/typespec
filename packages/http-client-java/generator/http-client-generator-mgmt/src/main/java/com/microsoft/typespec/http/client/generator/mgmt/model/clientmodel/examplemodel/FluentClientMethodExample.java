@@ -11,7 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -123,7 +123,7 @@ public class FluentClientMethodExample implements FluentMethodExample {
         return clientMethod.getName();
     }
 
-    private final static Map<String, String> MANAGER_REFERENCE = new HashMap<>();
+    private final static Map<String, String> MANAGER_REFERENCE = new LinkedHashMap<>();
     static {
         MANAGER_REFERENCE.put("appplatform", "springServices()");
         MANAGER_REFERENCE.put("appservice", "webApps()");

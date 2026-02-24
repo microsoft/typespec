@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public partial class MrwSerializationTypeDefinition
     {
-        private const string XmlWriteMethodName = "Write";
+        private const string XmlWriteMethodName = "WriteXml";
         private const string XmlModelWriteCoreMethodName = "XmlModelWriteCore";
         private readonly ParameterProvider _xmlWriterParameter = new("writer", $"The XML writer.", typeof(XmlWriter));
         private readonly ParameterProvider _xElementDeserializationParam = new("element", $"The xml element to deserialize.", typeof(XElement));
@@ -121,7 +121,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildXmlWriteMethod()
         {
-            // private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+            // private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
             return new MethodProvider(
                 new MethodSignature(XmlWriteMethodName, null, MethodSignatureModifiers.Private, null, null, [_xmlWriterParameter, _serializationOptionsParameter, _nameHintParameter]),
                 BuildXmlWriteMethodBody(),
@@ -253,11 +253,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return underlyingType.FrameworkType switch
             {
                 Type t when (t == typeof(DateTimeOffset) || t == typeof(TimeSpan)) && serializationFormat.ToFormatSpecifier() is string formatSpecifier
-                    => _xmlWriterSnippet.WriteStringValue(value, formatSpecifier),
+                    => _xmlWriterSnippet.WriteStringValue(value.NullableStructValue(valueType), formatSpecifier),
                 Type t when (t == typeof(byte[]) || t == typeof(BinaryData)) && serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                     => _xmlWriterSnippet.WriteBase64StringValue(t == typeof(BinaryData)
                     ? value.As<BinaryData>().ToArray()
-                    : value,
+                    : value.NullableStructValue(valueType),
                     serializationFormat.ToFormatSpecifier()),
                 _ => _xmlWriterSnippet.WriteValue(CreateXmlSerializeValueExpression(value, valueType, serializationFormat))
             };
@@ -427,7 +427,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return value;
             }
 
-            return CreateXmlSerializePrimitiveExpression(value, underlyingType, serializationFormat);
+            return CreateXmlSerializePrimitiveExpression(value.NullableStructValue(valueType), underlyingType, serializationFormat);
         }
 
         private static ValueExpression CreateXmlSerializePrimitiveExpression(ValueExpression value, CSharpType valueType, SerializationFormat serializationFormat)
@@ -1023,7 +1023,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             return valueType.FrameworkType switch
             {
-                Type t when t == typeof(Uri) => New.Instance(valueType.FrameworkType, element.Value()),
+                Type t when t == typeof(Uri) => New.Instance<Uri>(element.Value(), FrameworkEnumValue(UriKind.RelativeOrAbsolute)),
                 Type t when t == typeof(IPAddress) => Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.Value()),
                 Type t when t == typeof(Stream) => BinaryDataSnippets.FromString(element.Value()).ToStream(),
                 Type t when t == typeof(byte[]) => element.GetBytesFromBase64(serializationFormat.ToFormatSpecifier()),

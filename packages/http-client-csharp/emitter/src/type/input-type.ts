@@ -107,7 +107,7 @@ export type InputDateTimeType = InputUtcDateTimeType | InputOffsetDateTimeType;
 
 interface InputDateTimeTypeBase extends InputTypeBase {
   name: string;
-  encode: DateTimeKnownEncoding;
+  encode: DateTimeKnownEncoding | string;
   wireType: InputPrimitiveType;
   crossLanguageDefinitionId: string;
   baseType?: InputDateTimeType;
@@ -124,7 +124,7 @@ export interface InputOffsetDateTimeType extends InputDateTimeTypeBase {
 export interface InputDurationType extends InputTypeBase {
   kind: "duration";
   name: string;
-  encode: DurationKnownEncoding;
+  encode: DurationKnownEncoding | string;
   wireType: InputPrimitiveType;
   crossLanguageDefinitionId: string;
   baseType?: InputDurationType;

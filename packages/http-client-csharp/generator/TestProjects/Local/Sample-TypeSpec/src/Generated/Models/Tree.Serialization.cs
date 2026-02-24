@@ -59,7 +59,7 @@ namespace SampleTypeSpec
                     {
                         using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            Write(writer, options, "Tree");
+                            WriteXml(writer, options, "Tree");
                         }
                         if (stream.Position > int.MaxValue)
                         {
@@ -93,6 +93,14 @@ namespace SampleTypeSpec
                 return null;
             }
             return BinaryContent.Create(tree, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <summary> Converts the model to BinaryContent using the specified format. </summary>
+        /// <param name="format"> The format to use for serialization. </param>
+        internal BinaryContent ToBinaryContent(string format)
+        {
+            ModelReaderWriterOptions options = new ModelReaderWriterOptions(format);
+            return BinaryContent.Create(this, options);
         }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Tree"/> from. </param>
@@ -201,7 +209,7 @@ namespace SampleTypeSpec
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         /// <param name="nameHint"> An optional name hint. </param>
-        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
             if (nameHint != null)
             {

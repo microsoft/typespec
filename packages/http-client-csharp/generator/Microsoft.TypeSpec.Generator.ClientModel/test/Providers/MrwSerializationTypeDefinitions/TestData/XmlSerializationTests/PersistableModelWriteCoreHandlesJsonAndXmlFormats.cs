@@ -24,7 +24,7 @@ namespace Sample
                     {
                         using (global::System.Xml.XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::Sample.ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            this.Write(writer, options, "TestModel");
+                            this.WriteXml(writer, options, "TestModel");
                         }
                         if ((stream.Position > int.MaxValue))
                         {
