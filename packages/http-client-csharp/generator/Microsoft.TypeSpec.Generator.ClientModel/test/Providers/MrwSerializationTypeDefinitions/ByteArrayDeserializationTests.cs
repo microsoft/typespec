@@ -8,6 +8,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Input.InputPrimitiveTypeKind;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
 {
@@ -79,6 +80,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             Assert.IsTrue(methodBody.Contains("GetBytesFromBase64(\"U\")"),
                 $"byte[] property with Base64Url format should use GetBytesFromBase64(\"U\"). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void TestDeserializationOfNonBase64ByteArrayPropertyUsesGetRawText()
+        {
+            // A bytes type with no encoding falls through to the JSON-object fallback
+            var bytesNoEncoding = new InputPrimitiveType(Bytes, "bytes", "TypeSpec.bytes");
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", bytesNoEncoding)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+
+            var deserializationMethod = mrwProvider!.Methods.Where(m => m.Signature.Name.StartsWith("Deserialize")).FirstOrDefault();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetRawText"),
+                $"byte[] property with no encoding should use GetRawText() fallback. Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("ToArray"),
+                $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
             Assert.IsFalse(methodBody.Contains("EnumerateArray"),
                 $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
         }
