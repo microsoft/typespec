@@ -4,11 +4,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 {
@@ -360,6 +362,43 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 ];
             }
         }
+
+        [Test]
+        public async Task CanRemoveMethodWithGenericTypeConstraintParameter()
+        {
+            var client = new ClientTypeProvider();
+            var outputLibrary = new ClientOutputLibrary(client);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => outputLibrary,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Create a generic type parameter T
+            var tType = typeof(GenericTemplate<>).GetGenericArguments()[0];
+
+            var methods = new[]
+            {
+                new MethodProvider(new MethodSignature(
+                        "Method1",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            new ParameterProvider("param1", $"", tType)
+                        ],
+                        GenericArguments: [tType],
+                        GenericParameterConstraints: [Where.Implements(tType, typeof(IDisposable))]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
+            };
+            client.MethodProviders = methods;
+
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+
+            Assert.AreEqual(0, mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
+        }
+
+        private class GenericTemplate<T> { }
 
         private class ClientTypeProvider : TypeProvider
         {

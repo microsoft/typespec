@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Microsoft.TypeSpec.Generator.Input
@@ -26,13 +27,15 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public InputParameterScope Scope { get; internal set; }
+        public IReadOnlyList<InputMethodParameter>? MethodParameterSegments { get; internal set; }
 
         /// <summary>
         /// Update the instance with given parameters.
         /// </summary>
         /// <param name="scope">The scope of the <see cref="InputParameter"/></param>
         /// <param name="name">The name of the <see cref="InputParameter"/></param>
-        public void Update(InputParameterScope? scope = null, string? name = null)
+        /// <param name="methodParameterSegments">The method parameter segments for override scenarios</param>
+        public void Update(InputParameterScope? scope = null, string? name = null, IReadOnlyList<InputMethodParameter>? methodParameterSegments = null)
         {
             if (scope.HasValue)
             {
@@ -41,6 +44,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (name != null)
             {
                 Name = name;
+            }
+            if (methodParameterSegments != null)
+            {
+                MethodParameterSegments = methodParameterSegments;
             }
         }
 

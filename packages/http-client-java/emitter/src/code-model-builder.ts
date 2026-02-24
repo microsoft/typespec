@@ -1982,16 +1982,28 @@ export class CodeModelBuilder {
     // set contentTypes to mediaTypes
     op.requests![0].protocol.http!.mediaTypes = sdkBody.contentTypes;
 
-    const unknownRequestBody =
-      op.requests![0].protocol.http!.mediaTypes &&
-      op.requests![0].protocol.http!.mediaTypes.length > 0 &&
-      !isKnownContentType(op.requests![0].protocol.http!.mediaTypes);
-
     const sdkType: SdkType = sdkBody.type;
 
+    let requestBodyIsFile: boolean = false;
+    if (
+      sdkType &&
+      sdkType.kind === "model" &&
+      sdkType.serializationOptions.binary &&
+      sdkType.serializationOptions.binary.isFile
+    ) {
+      // check for File
+      requestBodyIsFile = true;
+    } else if (sdkType && sdkType.kind === "bytes") {
+      // check for bytes + unknown content-type
+      const mediaTypes = op.requests![0].protocol.http!.mediaTypes;
+      const unknownRequestBody =
+        mediaTypes && mediaTypes.length > 0 && !isKnownContentType(mediaTypes);
+      requestBodyIsFile = Boolean(unknownRequestBody);
+    }
+
     let schema: Schema;
-    if (unknownRequestBody && sdkType.kind === "bytes") {
-      // if it's unknown request body, handle binary request body
+    if (requestBodyIsFile) {
+      // binary/file
       schema = this.processBinarySchema(sdkType);
     } else {
       schema = this.processSchema(getNonNullSdkType(sdkType), sdkBody.name);
@@ -2226,7 +2238,7 @@ export class CodeModelBuilder {
     const bodyType: SdkType | undefined = sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
-    let responseIsFile: boolean = false;
+    let responseBodyIsFile: boolean = false;
     if (
       bodyType &&
       bodyType.kind === "model" &&
@@ -2234,18 +2246,18 @@ export class CodeModelBuilder {
       bodyType.serializationOptions.binary.isFile
     ) {
       // check for File
-      responseIsFile = true;
+      responseBodyIsFile = true;
     } else if (bodyType && bodyType.kind === "bytes") {
       // check for bytes + unknown content-type
       const unknownResponseBody =
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length > 0 &&
         !isKnownContentType(sdkResponse.contentTypes);
-      responseIsFile = Boolean(unknownResponseBody);
+      responseBodyIsFile = Boolean(unknownResponseBody);
     }
 
     let response: Response;
-    if (responseIsFile) {
+    if (responseBodyIsFile) {
       // binary/file
       response = new BinaryResponse({
         protocol: {
@@ -2637,6 +2649,11 @@ export class CodeModelBuilder {
       // java name
       schema.language.java = schema.language.java ?? new Language();
       schema.language.java.name = getExternalJavaClassName(type);
+
+      // add external to usage
+      this.trackSchemaUsage(schema, {
+        usage: [SchemaContext.External],
+      });
     }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
@@ -2978,7 +2995,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(unionSchema);
   }
 
-  private processBinarySchema(type: SdkBuiltInType): BinarySchema {
+  private processBinarySchema(type: SdkType): BinarySchema {
     return this.codeModel.schemas.add(
       new BinarySchema(type.doc ?? "", {
         summary: type.summary,

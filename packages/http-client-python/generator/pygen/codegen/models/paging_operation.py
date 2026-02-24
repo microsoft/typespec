@@ -17,6 +17,7 @@ from .parameter_list import ParameterList
 from .model_type import ModelType
 from .list_type import ListType
 from .parameter import Parameter
+from ...utils import xml_serializable
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -135,6 +136,10 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def has_optional_return_type(self) -> bool:
         return False
 
+    @property
+    def enable_import_deserialize_xml(self):
+        return any(xml_serializable(str(r.default_content_type)) for r in self.exceptions)
+
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         if self.abstract:
             return FileImport(self.code_model)
@@ -145,11 +150,11 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 f"{self.code_model.core_library}.{default_paging_submodule}",
                 "AsyncItemPaged",
                 ImportType.SDKCORE,
-                TypingSection.CONDITIONAL,
+                TypingSection.REGULAR,
             )
         else:
             file_import.add_submodule_import(
-                f"{self.code_model.core_library}.paging", "ItemPaged", ImportType.SDKCORE, TypingSection.CONDITIONAL
+                f"{self.code_model.core_library}.paging", "ItemPaged", ImportType.SDKCORE, TypingSection.REGULAR
             )
         if (
             self.next_request_builder
@@ -185,7 +190,6 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
             if self.is_xml_paging:
                 file_import.add_submodule_import("xml.etree", "ElementTree", ImportType.STDLIB, alias="ET")
-                file_import.add_submodule_import(relative_path, "_convert_element", ImportType.LOCAL)
         return file_import
 
 

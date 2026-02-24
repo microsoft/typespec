@@ -3061,6 +3061,32 @@ Expected request body:
 </ModelWithAttributes>
 ```
 
+### Payload_Xml_ModelWithDatetimeValue_get
+
+- Endpoint: `get /payload/xml/modelWithDatetime`
+
+Expected response body:
+
+```xml
+<ModelWithDatetime>
+  <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+</ModelWithDatetime>
+```
+
+### Payload_Xml_ModelWithDatetimeValue_put
+
+- Endpoint: `put /payload/xml/modelWithDatetime`
+
+Expected request body:
+
+```xml
+<ModelWithDatetime>
+  <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+</ModelWithDatetime>
+```
+
 ### Payload_Xml_ModelWithDictionaryValue_get
 
 - Endpoint: `get /payload/xml/modelWithDictionary`
@@ -3155,6 +3181,30 @@ Expected request body:
     <string>blue</string>
   </PossibleColors>
 </ModelWithEncodedNamesSrc>
+```
+
+### Payload_Xml_ModelWithEnumValue_get
+
+- Endpoint: `get /payload/xml/modelWithEnum`
+
+Expected response body:
+
+```xml
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
+```
+
+### Payload_Xml_ModelWithEnumValue_put
+
+- Endpoint: `put /payload/xml/modelWithEnum`
+
+Expected request body:
+
+```xml
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
 ```
 
 ### Payload_Xml_ModelWithOptionalFieldValue_get

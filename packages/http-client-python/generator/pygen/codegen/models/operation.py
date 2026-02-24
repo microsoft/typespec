@@ -284,6 +284,10 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
     def need_deserialize(self) -> bool:
         return any(r.type and not isinstance(r.type, BinaryIteratorType) for r in self.responses)
 
+    @property
+    def enable_import_deserialize_xml(self) -> bool:
+        return any(xml_serializable(str(r.default_content_type)) for r in self.responses + self.exceptions)
+
     def imports(  # pylint: disable=too-many-branches, disable=too-many-statements
         self, async_mode: bool, **kwargs: Any
     ) -> FileImport:
@@ -292,11 +296,11 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
 
         response_types = [r.type_annotation(async_mode=async_mode, **kwargs) for r in self.responses if r.type]
         if len(set(response_types)) > 1:
-            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.REGULAR)
         if self.added_on:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
@@ -402,9 +406,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             ImportType.SDKCORE,
         )
         file_import.add_submodule_import("rest", "HttpRequest", ImportType.SDKCORE)
-        file_import.add_submodule_import("typing", "Callable", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.CONDITIONAL)
-        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Callable", ImportType.STDLIB, TypingSection.REGULAR)
+        file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.REGULAR)
+        file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.REGULAR)
         if self.code_model.options["tracing"] and self.want_tracing and not async_mode:
             file_import.add_submodule_import(
                 "azure.core.tracing.decorator",
@@ -443,7 +447,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                         ImportType.LOCAL,
                     )
                     file_import.add_import("json", ImportType.STDLIB)
-            if any(xml_serializable(str(r.default_content_type)) for r in self.responses + self.exceptions):
+            if self.enable_import_deserialize_xml:
                 file_import.add_submodule_import(relative_path, "_deserialize_xml", ImportType.LOCAL)
             elif self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)

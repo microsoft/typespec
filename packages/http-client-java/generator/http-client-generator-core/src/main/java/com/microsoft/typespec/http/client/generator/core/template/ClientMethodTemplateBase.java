@@ -24,8 +24,8 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,7 +64,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             }
 
             // Request body
-            Set<IType> typesInJavadoc = new HashSet<>();
+            Set<IType> typesInJavadoc = new LinkedHashSet<>();
 
             Optional<ProxyMethodParameter> bodyParameter = clientMethod.getProxyMethod()
                 .getAllParameters()

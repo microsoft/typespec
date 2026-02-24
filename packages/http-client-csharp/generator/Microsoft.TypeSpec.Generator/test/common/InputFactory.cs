@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Common
 {
@@ -62,6 +63,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             public static InputConstant Int64(long value)
             {
                 return new InputConstant(value, InputPrimitiveType.Int64);
+            }
+        }
+
+        public static class Serialization
+        {
+            public static InputSerializationOptions Options(
+                InputJsonSerializationOptions? json = null,
+                InputXmlSerializationOptions? xml = null)
+            {
+                return new InputSerializationOptions(json, xml);
+            }
+
+            public static InputJsonSerializationOptions Json(string name)
+            {
+                return new InputJsonSerializationOptions(name);
+            }
+
+            public static InputXmlSerializationOptions Xml(
+                string name,
+                bool? attribute = null,
+                InputXmlNamespaceOptions? @namespace = null,
+                bool? unwrapped = null,
+                string? itemsName = null,
+                InputXmlNamespaceOptions? itemsNamespace = null)
+            {
+                return new InputXmlSerializationOptions(name, attribute, @namespace, unwrapped, itemsName, itemsNamespace);
+            }
+
+            public static InputXmlNamespaceOptions XmlNamespace(string ns, string prefix)
+            {
+                return new InputXmlNamespaceOptions(ns, prefix);
             }
         }
 
@@ -245,8 +277,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? wireName = null,
             string? summary = null,
             string? serializedName = null,
-            string? doc = null)
+            string? doc = null,
+            InputSerializationOptions? serializationOptions = null)
         {
+            serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
                 name: name,
                 summary: summary,
@@ -260,7 +294,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: null,
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
-                serializationOptions: new(json: new(wireName ?? name.ToVariableName())));
+                serializationOptions: serializationOptions);
         }
 
         public static InputHeaderParameter HeaderParameter(

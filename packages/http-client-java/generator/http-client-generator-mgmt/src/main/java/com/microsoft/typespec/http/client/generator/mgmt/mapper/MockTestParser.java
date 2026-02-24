@@ -29,7 +29,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import io.clientcore.core.http.models.HttpMethod;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -185,7 +185,7 @@ public class MockTestParser extends ExampleParser {
 
                 Object firstJsonObjectInPageable = ModelTestCaseUtil.jsonFromType(0, elementType);
                 // put to first element in array
-                Map<String, Object> jsonMap = new HashMap<>();
+                Map<String, Object> jsonMap = new LinkedHashMap<>();
                 jsonMap.put(clientMethod.getMethodPageDetails().getSerializedItemName(),
                     Collections.singletonList(firstJsonObjectInPageable));
 
@@ -213,7 +213,7 @@ public class MockTestParser extends ExampleParser {
             verificationObjectName = "response";
             verificationNode = ModelExampleUtil.parseNode(clientReturnType, jsonObject);
         }
-        Map<String, Object> responseObject = new HashMap<>();
+        Map<String, Object> responseObject = new LinkedHashMap<>();
         responseObject.put("body", jsonObject);
         return new ResponseInfo(new ProxyMethodExample.Response(statusCode, responseObject), verificationNode,
             verificationObjectName);
