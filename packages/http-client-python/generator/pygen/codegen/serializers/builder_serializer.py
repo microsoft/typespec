@@ -1418,7 +1418,6 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             access = (
                 "".join([f'.get("{i}", {{}})' for i in item_name_array[:-1]]) + f'.get("{item_name_array[-1]}", [])'
             )
-        list_of_elem_deserialized = ""
         pylint_disable = ""
         if self.code_model.options["models-mode"] == "dpg":
             item_type = builder.item_type.type_annotation(
