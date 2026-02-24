@@ -3,7 +3,6 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from copy import deepcopy
 from ..models.imports import (
     ImportType,
     FileImport,
@@ -73,17 +72,8 @@ class FileImportSerializer:
         self.file_import = file_import
         self.async_mode = async_mode
 
-    def _get_imports_list(self, baseline_typing_section: TypingSection, add_conditional_typing: bool):
-        # If this is a python 3 file, our regular imports include the CONDITIONAL category
-        # If this is not a python 3 file, our typing imports include the CONDITIONAL category
-        file_import_copy = deepcopy(self.file_import)
-        if add_conditional_typing and any(self.file_import.get_imports_from_section(TypingSection.CONDITIONAL)):
-            # we switch the TypingSection key for the CONDITIONAL typing imports so we can merge
-            # the imports together
-            for i in file_import_copy.imports:
-                if i.typing_section == TypingSection.CONDITIONAL:
-                    i.typing_section = baseline_typing_section
-        return file_import_copy.get_imports_from_section(baseline_typing_section)
+    def _get_imports_list(self, typing_section: TypingSection):
+        return list(self.file_import.get_imports_from_section(typing_section))
 
     def _add_type_checking_import(self):
         if any(self.file_import.get_imports_from_section(TypingSection.TYPING)):
@@ -106,19 +96,13 @@ class FileImportSerializer:
     def __str__(self) -> str:
         self._add_type_checking_import()
         regular_imports = ""
-        regular_imports_list = self._get_imports_list(
-            baseline_typing_section=TypingSection.REGULAR,
-            add_conditional_typing=True,
-        )
+        regular_imports_list = self._get_imports_list(TypingSection.REGULAR)
 
         if regular_imports_list:
             regular_imports = "\n\n".join(_get_import_clauses(regular_imports_list, "\n"))
 
         typing_imports = ""
-        typing_imports_list = self._get_imports_list(
-            baseline_typing_section=TypingSection.TYPING,
-            add_conditional_typing=False,
-        )
+        typing_imports_list = self._get_imports_list(TypingSection.TYPING)
         if typing_imports_list:
             typing_imports += "\n\nif TYPE_CHECKING:\n    "
             typing_imports += "\n\n    ".join(_get_import_clauses(typing_imports_list, "\n    "))

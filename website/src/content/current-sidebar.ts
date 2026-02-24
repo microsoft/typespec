@@ -241,6 +241,7 @@ const sidebar: SidebarItem[] = [
       "extending-typespec/testing",
       "extending-typespec/emitters-basics",
       "extending-typespec/emitter-framework",
+      "extending-typespec/performance-reporting",
       "extending-typespec/emitter-metadata-handling",
       "extending-typespec/writing-scaffolding-template",
     ],

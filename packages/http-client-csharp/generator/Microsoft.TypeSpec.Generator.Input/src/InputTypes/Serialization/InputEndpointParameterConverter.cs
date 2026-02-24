@@ -64,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? serverUrlTemplate = null;
             bool isEndpoint = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -82,7 +83,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadBoolean("skipUrlEncoding", ref skipUrlEncoding)
                     || reader.TryReadBoolean("isEndpoint", ref isEndpoint)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
 
                 if (!isKnownProperty)
                 {
@@ -103,8 +105,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.IsApiVersion = isApiVersion;
             parameter.DefaultValue = defaultValue;
             parameter.IsEndpoint = isEndpoint;
-            parameter.Scope = InputParameter.ParseScope(type, name, scope);;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.SkipUrlEncoding = skipUrlEncoding;
+            parameter.MethodParameterSegments = methodParameterSegments;
 
             return parameter;
         }

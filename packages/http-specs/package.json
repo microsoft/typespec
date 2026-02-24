@@ -1,7 +1,7 @@
 {
   "name": "@typespec/http-specs",
   "displayName": "Http Specs",
-  "version": "0.1.0-alpha.31",
+  "version": "0.1.0-alpha.32",
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
   "type": "module",
@@ -15,7 +15,7 @@
     "validate-scenarios": "tsp-spector validate-scenarios ./specs",
     "generate-scenarios-summary": "tsp-spector generate-scenarios-summary ./specs",
     "regen-docs": "pnpm generate-scenarios-summary",
-    "upload-manifest": "tsp-spector upload-manifest ./specs --setName @typespec/http-specs --containerName manifests-typespec  --storageAccountName typespec",
+    "upload-manifest": "tsp-spector upload-manifest ./specs --containerName coverages  --storageAccountName typespec --manifestName http-specs",
     "upload-coverage": "tsp-spector upload-coverage --generatorName @typespec/http-specs --generatorVersion 0.1.0-alpha.4 --containerName coverages --generatorMode standard --storageAccountName typespec",
     "validate-mock-apis": "tsp-spector validate-mock-apis ./specs",
     "check-scenario-coverage": "tsp-spector check-coverage ./specs",

@@ -23,9 +23,14 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
+
+        // Maps C# type names to TypeProviders for efficient lookup when resolving types by name
+        internal IDictionary<string, TypeProvider> TypeProvidersByName { get; } = new Dictionary<string, TypeProvider>();
+
         private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
+        private Dictionary<InputSerializationOptions, SerializationOptions?> SerializationOptionsCache { get; } = [];
 
         private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
 
@@ -197,6 +202,7 @@ namespace Microsoft.TypeSpec.Generator
             if (modelProvider != null)
             {
                 CSharpTypeMap[modelProvider.Type] = modelProvider;
+                TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
             }
             return modelProvider;
         }
@@ -255,6 +261,7 @@ namespace Microsoft.TypeSpec.Generator
             if (enumProvider != null)
             {
                 CSharpTypeMap[enumProvider.Type] = enumProvider;
+                TypeProvidersByName[enumProvider.Type.Name] = enumProvider;
             }
 
             return enumProvider;
@@ -345,29 +352,29 @@ namespace Microsoft.TypeSpec.Generator
             InputNullableType nullableType => GetSerializationFormat(nullableType.Type),
             InputDateTimeType dateTimeType => dateTimeType.Encode switch
             {
-                DateTimeKnownEncoding.Rfc3339 => SerializationFormat.DateTime_RFC3339,
-                DateTimeKnownEncoding.Rfc7231 => SerializationFormat.DateTime_RFC7231,
-                DateTimeKnownEncoding.UnixTimestamp => SerializationFormat.DateTime_Unix,
-                _ => throw new IndexOutOfRangeException($"unknown encode {dateTimeType.Encode}"),
+                var e when e == DateTimeKnownEncoding.Rfc3339 => SerializationFormat.DateTime_RFC3339,
+                var e when e == DateTimeKnownEncoding.Rfc7231 => SerializationFormat.DateTime_RFC7231,
+                var e when e == DateTimeKnownEncoding.UnixTimestamp => SerializationFormat.DateTime_Unix,
+                _ => SerializationFormat.Default, // Custom encoding formats use default serialization
             },
             InputDurationType durationType => durationType.Encode switch
             {
                 // there is no such thing as `DurationConstant`
-                DurationKnownEncoding.Iso8601 => SerializationFormat.Duration_ISO8601,
-                DurationKnownEncoding.Seconds => durationType.WireType.Kind switch
+                var e when e == DurationKnownEncoding.Iso8601 => SerializationFormat.Duration_ISO8601,
+                var e when e == DurationKnownEncoding.Seconds => durationType.WireType.Kind switch
                 {
                     InputPrimitiveTypeKind.Int32 => SerializationFormat.Duration_Seconds,
                     InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => SerializationFormat.Duration_Seconds_Float,
                     _ => SerializationFormat.Duration_Seconds_Double
                 },
-                DurationKnownEncoding.Milliseconds => durationType.WireType.Kind switch
+                var e when e == DurationKnownEncoding.Milliseconds => durationType.WireType.Kind switch
                 {
                     InputPrimitiveTypeKind.Int32 => SerializationFormat.Duration_Milliseconds,
                     InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => SerializationFormat.Duration_Milliseconds_Float,
                     _ => SerializationFormat.Duration_Milliseconds_Double
                 },
-                DurationKnownEncoding.Constant => SerializationFormat.Duration_Constant,
-                _ => throw new IndexOutOfRangeException($"unknown encode {durationType.Encode}")
+                var e when e == DurationKnownEncoding.Constant => SerializationFormat.Duration_Constant,
+                _ => SerializationFormat.Default // Custom encoding formats use default serialization
             },
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
@@ -421,6 +428,34 @@ namespace Microsoft.TypeSpec.Generator
         public virtual NewProjectScaffolding CreateNewProjectScaffolding()
         {
             return new NewProjectScaffolding();
+        }
+
+        /// <summary>
+        /// Creates serialization options for the given input serialization options.
+        /// </summary>
+        /// <param name="inputSerializationOptions">The input serialization options.</param>
+        /// <returns>The serialization options, or <c>null</c> if not applicable.</returns>
+        public SerializationOptions? CreateSerializationOptions(InputSerializationOptions inputSerializationOptions)
+        {
+            if (SerializationOptionsCache.TryGetValue(inputSerializationOptions, out var options))
+            {
+                return options;
+            }
+
+            options = CreateSerializationOptionsCore(inputSerializationOptions);
+            SerializationOptionsCache.Add(inputSerializationOptions, options);
+
+            return options;
+        }
+
+        /// <summary>
+        /// Factory method for creating <see cref="SerializationOptions"/> for the given input serialization options.
+        /// </summary>
+        /// <param name="inputSerializationOptions">The input serialization options.</param>
+        /// <returns>The serialization options, or <c>null</c> if not applicable.</returns>
+        protected virtual SerializationOptions? CreateSerializationOptionsCore(InputSerializationOptions inputSerializationOptions)
+        {
+            return null;
         }
 
         private readonly struct EnumCacheKey

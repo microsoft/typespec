@@ -45,7 +45,6 @@ export interface OpenAPI3EmitterOptions {
    * will be created inside a directory matching each specification version.
    *
    * @default ["3.0.0"]
-   * @internal
    */
   "openapi-versions"?: OpenAPIVersion[];
 

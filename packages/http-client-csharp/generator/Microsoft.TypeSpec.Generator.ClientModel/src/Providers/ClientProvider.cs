@@ -427,11 +427,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         false,
                         p.IsApiVersion);
 
-                    if (p.IsApiVersion && !builtApiVersionFields)
+                    if (p.IsApiVersion)
                     {
-                        _apiVersionFields = BuildApiVersionFields(p, type, wireInfo);
-                        fields.AddRange(_apiVersionFields.Select(f => f.Field).OrderBy(f => f.Name));
-                        builtApiVersionFields = true;
+                        if (!builtApiVersionFields)
+                        {
+                            _apiVersionFields = BuildApiVersionFields(p, type, wireInfo);
+                            fields.AddRange(_apiVersionFields.Select(f => f.Field).OrderBy(f => f.Name));
+                            builtApiVersionFields = true;
+                        }
                     }
                     else
                     {
@@ -734,9 +737,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_endpointParameter.Type.Equals(typeof(string)))
             {
                 var serverTemplate = _inputEndpointParam!.ServerUrlTemplate;
+                // Build the URI by converting the named placeholders to indexed placeholders and collecting arguments
+                var (convertedTemplate, templateArgs) = ConvertUriTemplateToFormattableString(serverTemplate!, primaryConstructorParameters);
                 endpointAssignment = EndpointField.Assign(
                     New.Instance(typeof(Uri),
-                        new FormattableStringExpression(serverTemplate!, [_endpointParameter])));
+                        new FormattableStringExpression(convertedTemplate, templateArgs)));
             }
             else
             {
@@ -1086,6 +1091,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
         }
 
+        /// Converts a URI template with named placeholders like "{Endpoint}/anomalydetector/{ApiVersion}"
+        /// to a formattable string format with indexed placeholders like "{0}/anomalydetector/{1}"
+        /// and returns the corresponding arguments.
+        private (string Template, List<ValueExpression> Args) ConvertUriTemplateToFormattableString(
+            string uriTemplate,
+            IReadOnlyList<ParameterProvider> parameters)
+        {
+            // Build a lookup for parameters by name (case-insensitive)
+            var paramsByName = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
+            foreach (var param in parameters)
+            {
+                paramsByName[param.Name] = param;
+            }
+
+            // Also add the endpoint parameter explicitly (it may have a different name)
+            if (!paramsByName.ContainsKey(_endpointParameter.Name))
+            {
+                paramsByName[_endpointParameter.Name] = _endpointParameter;
+            }
+
+            // Also add fields from _additionalClientFields
+            foreach (var field in _additionalClientFields.Value)
+            {
+                // Field names are like "_apiVersion", parameter names are like "ApiVersion"
+                var paramName = field.Name.TrimStart('_');
+                if (!paramsByName.ContainsKey(paramName))
+                {
+                    paramsByName[paramName] = field.AsParameter;
+                }
+            }
+
+            var args = new List<ValueExpression>();
+            var result = new System.Text.StringBuilder();
+            var templateSpan = uriTemplate.AsSpan();
+
+            while (templateSpan.Length > 0)
+            {
+                var openBrace = templateSpan.IndexOf('{');
+                if (openBrace < 0)
+                {
+                    // No more placeholders, append the rest
+                    result.Append(templateSpan);
+                    break;
+                }
+
+                // Append literal part before the placeholder
+                result.Append(templateSpan.Slice(0, openBrace));
+                templateSpan = templateSpan.Slice(openBrace + 1);
+
+                var closeBrace = templateSpan.IndexOf('}');
+                if (closeBrace < 0)
+                {
+                    // Malformed template, append remaining as-is
+                    result.Append('{');
+                    result.Append(templateSpan);
+                    break;
+                }
+
+                var paramName = templateSpan.Slice(0, closeBrace).ToString();
+                templateSpan = templateSpan.Slice(closeBrace + 1);
+
+                // Find the corresponding parameter or field
+                if (paramsByName.TryGetValue(paramName, out var param))
+                {
+                    result.Append('{');
+                    result.Append(args.Count);
+                    result.Append('}');
+                    args.Add(param.Field ?? (ValueExpression)param);
+                }
+                else
+                {
+                    // Parameter not found - this is a configuration error
+                    throw new InvalidOperationException(
+                        $"URI template placeholder '{{{paramName}}}' in '{uriTemplate}' could not be resolved. " +
+                        $"Available parameters: {string.Join(", ", paramsByName.Keys)}");
+                }
+            }
+
+            return (result.ToString(), args);
+        }
+
         private IReadOnlyList<ClientProvider> GetSubClients()
         {
             var subClients = new List<ClientProvider>(_inputClient.Children.Count);
@@ -1104,15 +1190,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<InputParameter> GetAllClientParameters()
         {
-            // Get all parameters from the client and its methods
+            // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters
             var parameters = _inputClient.Parameters.Concat(
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
-                    .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.Name).ToArray();
+                    .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
 
             foreach (var subClient in _subClients.Value)
             {
-                // Add parameters from sub-clients
-                parameters = parameters.Concat(subClient.GetAllClientParameters()).DistinctBy(p => p.Name).ToArray();
+                // Only hoist ApiVersion parameters from sub-clients; other sub-client parameters should remain on the sub-client.
+                // Auth parameters are handled separately via dedicated auth fields.
+                parameters = parameters.Concat(subClient.GetAllClientParameters().Where(p => p.IsApiVersion)).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
             }
 
             return parameters;

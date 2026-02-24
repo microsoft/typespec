@@ -8,7 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.template.ExceptionTemplate;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ClientCoreExceptionTemplate extends ExceptionTemplate {
@@ -25,7 +25,7 @@ public class ClientCoreExceptionTemplate extends ExceptionTemplate {
 
     @Override
     public void write(ClientException exception, JavaFile javaFile) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         imports.add(getHttpResponseImport());
         ClassType.BINARY_DATA.addImportsTo(imports, false);
         exception.getParentType().addImportsTo(imports, false);
