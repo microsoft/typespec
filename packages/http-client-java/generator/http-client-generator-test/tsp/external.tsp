@@ -43,8 +43,7 @@ union DayOfWeek {
 
 model Body {
   cloudEventDataFormat?: CloudEventDataFormat;
-  // We cannot directly use java.time.DayOfWeek in Java code, it lack the "fromValue" method that we'd generate in our enum type.
-  // dayOfWeek?: DayOfWeek;
+  dayOfWeek?: DayOfWeek;
 }
 
 @route("/external")

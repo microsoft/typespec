@@ -144,14 +144,38 @@ public final class MapperUtils {
             && enumType.getLanguage().getJava().getNamespace() != null
             && enumType.getLanguage().getJava().getName() != null) {
 
+            IType elementType = Mappers.getSchemaMapper().map(enumType.getChoiceType());
+
             // schema is external model
             String namespace = enumType.getLanguage().getJava().getNamespace();
             String name = enumType.getLanguage().getJava().getName();
+
+            String fromMethodName = null;
+            String toMethodName = null;
+            if (namespace.startsWith("java.")) {
+                // a hack here, we know that built-in Java class will not have "fromString" method
+                expandable = false;
+                fromMethodName = "valueOf";
+                toMethodName = "toString";
+            }
+
+            if (expandable) {
+                boolean isStringEnum = elementType == ClassType.STRING;
+                JavaSettings javaSettings = JavaSettings.getInstance();
+                if (!(isStringEnum && javaSettings.isAzureV1())) {
+                    // core-v2 always use ExpandableEnum
+                    fromMethodName = "getValue";
+                    toMethodName = "fromValue";
+                }
+            }
+
             type = new EnumType.Builder().packageName(namespace)
                 .name(name)
                 .expandable(expandable)
                 .values(createEnumValues(enumType, false))
-                .elementType(Mappers.getSchemaMapper().map(enumType.getChoiceType()))
+                .elementType(elementType)
+                .fromMethodName(fromMethodName)
+                .toMethodName(toMethodName)
                 .build();
         }
 

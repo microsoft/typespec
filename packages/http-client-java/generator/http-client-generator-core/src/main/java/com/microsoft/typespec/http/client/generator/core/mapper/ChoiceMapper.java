@@ -52,7 +52,7 @@ public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
     }
 
     private IType createChoiceType(ChoiceSchema enumType) {
-        EnumType result = MapperUtils.mapExternalModel(enumType, true);
+        EnumType result = MapperUtils.mapExternalModel(enumType, true, javaSettings);
         if (result != null) {
             return result;
         }
