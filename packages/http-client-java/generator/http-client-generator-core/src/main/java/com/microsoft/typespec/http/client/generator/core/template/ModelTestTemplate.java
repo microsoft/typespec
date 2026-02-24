@@ -17,7 +17,7 @@ import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,7 +64,7 @@ public class ModelTestTemplate implements IJavaTemplate<ModelTestTemplate.ModelU
             && model.getImplementationDetails() != null
             && !model.getImplementationDetails().isInput();
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         model.addImportsTo(imports, JavaSettings.getInstance());
         ClassType.BINARY_DATA.addImportsTo(imports, false);
 

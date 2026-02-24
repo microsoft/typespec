@@ -2,10 +2,11 @@
 
 ## Overview
 
-`RegenPreview.ps1` is a PowerShell script that automates the process of building local generator packages and regenerating libraries for validation purposes. This script supports two modes:
+`RegenPreview.ps1` is a PowerShell script that automates the process of building local generator packages and regenerating libraries for validation purposes. This script supports three modes:
 
 - **Azure SDK Mode**: Regenerate Azure SDK for .NET libraries
 - **OpenAI Mode**: Regenerate the OpenAI .NET library
+- **Spector Mode**: Regenerate Azure spector test scenarios in azure-sdk-for-net
 
 This script is designed to streamline the workflow for testing changes to the TypeSpec HTTP Client C# generator before submitting a pull request.
 
@@ -26,6 +27,14 @@ When making changes to the TypeSpec HTTP Client C# generator, it may be helpful 
 2. Building local NuGet framework packages
 3. Updating the OpenAI .NET repository's codegen configuration
 4. Regenerating the OpenAI library using Invoke-CodeGen.ps1
+5. Cleaning up all modifications after validation
+
+### Spector Mode
+
+1. Building local version of the unbranded generator package
+2. Building local NuGet framework packages
+3. Wiring the Azure generator in azure-sdk-for-net to use local packages
+4. Running the Azure generator's Generate.ps1 to regenerate spector test scenarios
 5. Cleaning up all modifications after validation
 
 ## Prerequisites
@@ -153,6 +162,20 @@ Not applicable in OpenAI mode.
 
 ```powershell
 .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
+```
+
+#### `-Spector` (Optional)
+
+**Azure SDK Mode only.** When specified, regenerates the Azure spector test scenarios in azure-sdk-for-net instead of regenerating SDK libraries. This builds the local unbranded generator, wires it into the Azure generator, and runs the Azure generator's Generate.ps1 to regenerate spector test projects.
+
+Mutually exclusive with `-Select`, `-Azure`, `-Unbranded`, and `-Mgmt`.
+
+Not applicable in OpenAI mode.
+
+**Example:**
+
+```powershell
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Spector
 ```
 
 ### Interactive Selection
@@ -436,4 +459,11 @@ Detailed report saved to: C:\...\debug\regen-report.json
 
 ```powershell
 .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net"
+```
+
+### Scenario 4: Regenerate Azure Spector Test Scenarios
+
+```powershell
+# Validate that local changes don't break Azure spector test scenarios
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Spector
 ```

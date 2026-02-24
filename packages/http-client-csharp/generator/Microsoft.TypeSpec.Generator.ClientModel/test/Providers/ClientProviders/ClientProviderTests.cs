@@ -679,14 +679,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 ?.Invoke(clientProvider, null) as IReadOnlyList<InputParameter>;
 
             Assert.IsNotNull(allClientParameters, "Could not access GetAllClientParameters method");
-            
-            var indexNameParams = allClientParameters!.Where(p => 
+
+            var indexNameParams = allClientParameters!.Where(p =>
                 p.Name == "indexName" || p.Name == "name").ToList();
-            
+
             // Should only have 1 parameter after deduplication by name
             Assert.AreEqual(1, indexNameParams.Count,
                 $"Expected 1 parameter after deduplication, but found {indexNameParams.Count}: {string.Join(", ", indexNameParams.Select(p => p.Name))}");
-            
+
             // Should be the client parameter (first one wins)
             Assert.AreEqual("indexName", indexNameParams[0].Name,
                 "Expected the client parameter 'indexName' to be preserved after deduplication");
@@ -1341,7 +1341,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         [Test]
-        public void SubClientFieldsAreStoredOnRootClient()
+        public void ApiVersionFieldIsStoredOnRootClient()
         {
             var rootClient = InputFactory.Client(
                 "RootClient");
@@ -1359,7 +1359,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var rootClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(rootClient);
             Assert.IsNotNull(rootClientProvider);
             Assert.IsTrue(rootClientProvider!.Fields.Any(f => f.Name.Equals("_apiVersion")));
-            Assert.IsTrue(rootClientProvider.Fields.Any(f => f.Name.Equals("_someOtherParameter")));
+            // Other subclient parameters are not hoisted
+            Assert.IsFalse(rootClientProvider.Fields.Any(f => f.Name.Equals("_someOtherParameter")));
         }
 
         [TestCase]
