@@ -50,3 +50,19 @@ export function $modelNameScenario(context, target, name) {
   );
   context.call($route, target, `/${name.value}`);
 }
+
+/**
+ *
+ * @param {*} context
+ * @param {*} target
+ * @param {*} name
+ */
+export function $enumMemberNameScenario(context, target, name) {
+  context.call($scenario, target, name.value);
+  context.call(
+    $scenarioDoc,
+    target,
+    `Verify that the enum member name "${name.value}" works. Mock api will return "${name.value}".`,
+  );
+  context.call($route, target, `/${name.value}`);
+}

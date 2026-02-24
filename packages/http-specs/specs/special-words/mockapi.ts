@@ -419,3 +419,116 @@ Scenarios.SpecialWords_Parameters_cancellationToken = createParametersTests(
   },
   "cancellationToken",
 );
+
+function createEnumServerTests(uri: string, data: string) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json(data),
+    },
+    kind: "MockApiDefinition",
+  });
+}
+
+Scenarios.SpecialWords_Enums_and = createEnumServerTests(`/special-words/enums/string/and`, "and");
+Scenarios.SpecialWords_Enums_as = createEnumServerTests(`/special-words/enums/string/as`, "as");
+Scenarios.SpecialWords_Enums_assert = createEnumServerTests(
+  `/special-words/enums/string/assert`,
+  "assert",
+);
+Scenarios.SpecialWords_Enums_async = createEnumServerTests(
+  `/special-words/enums/string/async`,
+  "async",
+);
+Scenarios.SpecialWords_Enums_await = createEnumServerTests(
+  `/special-words/enums/string/await`,
+  "await",
+);
+Scenarios.SpecialWords_Enums_break = createEnumServerTests(
+  `/special-words/enums/string/break`,
+  "break",
+);
+Scenarios.SpecialWords_Enums_class = createEnumServerTests(
+  `/special-words/enums/string/class`,
+  "class",
+);
+Scenarios.SpecialWords_Enums_constructor = createEnumServerTests(
+  `/special-words/enums/string/constructor`,
+  "constructor",
+);
+Scenarios.SpecialWords_Enums_continue = createEnumServerTests(
+  `/special-words/enums/string/continue`,
+  "continue",
+);
+Scenarios.SpecialWords_Enums_def = createEnumServerTests(`/special-words/enums/string/def`, "def");
+Scenarios.SpecialWords_Enums_del = createEnumServerTests(`/special-words/enums/string/del`, "del");
+Scenarios.SpecialWords_Enums_elif = createEnumServerTests(
+  `/special-words/enums/string/elif`,
+  "elif",
+);
+Scenarios.SpecialWords_Enums_else = createEnumServerTests(
+  `/special-words/enums/string/else`,
+  "else",
+);
+Scenarios.SpecialWords_Enums_except = createEnumServerTests(
+  `/special-words/enums/string/except`,
+  "except",
+);
+Scenarios.SpecialWords_Enums_exec = createEnumServerTests(
+  `/special-words/enums/string/exec`,
+  "exec",
+);
+Scenarios.SpecialWords_Enums_finally = createEnumServerTests(
+  `/special-words/enums/string/finally`,
+  "finally",
+);
+Scenarios.SpecialWords_Enums_for = createEnumServerTests(`/special-words/enums/string/for`, "for");
+Scenarios.SpecialWords_Enums_from = createEnumServerTests(
+  `/special-words/enums/string/from`,
+  "from",
+);
+Scenarios.SpecialWords_Enums_global = createEnumServerTests(
+  `/special-words/enums/string/global`,
+  "global",
+);
+Scenarios.SpecialWords_Enums_if = createEnumServerTests(`/special-words/enums/string/if`, "if");
+Scenarios.SpecialWords_Enums_import = createEnumServerTests(
+  `/special-words/enums/string/import`,
+  "import",
+);
+Scenarios.SpecialWords_Enums_in = createEnumServerTests(`/special-words/enums/string/in`, "in");
+Scenarios.SpecialWords_Enums_is = createEnumServerTests(`/special-words/enums/string/is`, "is");
+Scenarios.SpecialWords_Enums_lambda = createEnumServerTests(
+  `/special-words/enums/string/lambda`,
+  "lambda",
+);
+Scenarios.SpecialWords_Enums_not = createEnumServerTests(`/special-words/enums/string/not`, "not");
+Scenarios.SpecialWords_Enums_or = createEnumServerTests(`/special-words/enums/string/or`, "or");
+Scenarios.SpecialWords_Enums_pass = createEnumServerTests(
+  `/special-words/enums/string/pass`,
+  "pass",
+);
+Scenarios.SpecialWords_Enums_raise = createEnumServerTests(
+  `/special-words/enums/string/raise`,
+  "raise",
+);
+Scenarios.SpecialWords_Enums_return = createEnumServerTests(
+  `/special-words/enums/string/return`,
+  "return",
+);
+Scenarios.SpecialWords_Enums_try = createEnumServerTests(`/special-words/enums/string/try`, "try");
+Scenarios.SpecialWords_Enums_while = createEnumServerTests(
+  `/special-words/enums/string/while`,
+  "while",
+);
+Scenarios.SpecialWords_Enums_with = createEnumServerTests(
+  `/special-words/enums/string/with`,
+  "with",
+);
+Scenarios.SpecialWords_Enums_yield = createEnumServerTests(
+  `/special-words/enums/string/yield`,
+  "yield",
+);

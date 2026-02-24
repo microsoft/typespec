@@ -289,3 +289,413 @@ namespace ModelProperties {
   @route("list")
   op withList(@body body: ModelWithList): void;
 }
+
+/**
+ * Verify enum member names that are special words using extensible enum (union).
+ */
+@doc("Extensible enum with special word members")
+union Enum {
+  string,
+
+  @doc("and.")
+  and: "and",
+
+  @doc("as.")
+  as: "as",
+
+  @doc("assert.")
+  assert: "assert",
+
+  @doc("async.")
+  async: "async",
+
+  @doc("await.")
+  await: "await",
+
+  @doc("break.")
+  break: "break",
+
+  @doc("class.")
+  class: "class",
+
+  @doc("constructor.")
+  constructor: "constructor",
+
+  @doc("continue.")
+  continue: "continue",
+
+  @doc("def.")
+  def: "def",
+
+  @doc("del.")
+  del: "del",
+
+  @doc("elif.")
+  elif: "elif",
+
+  @doc("else.")
+  `else`: "else",
+
+  @doc("except.")
+  except: "except",
+
+  @doc("exec.")
+  exec: "exec",
+
+  @doc("finally.")
+  finally: "finally",
+
+  @doc("for.")
+  for: "for",
+
+  @doc("from.")
+  from: "from",
+
+  @doc("global.")
+  global: "global",
+
+  @doc("if.")
+  `if`: "if",
+
+  @doc("import.")
+  `import`: "import",
+
+  @doc("in.")
+  in: "in",
+
+  @doc("is.")
+  `is`: "is",
+
+  @doc("lambda.")
+  lambda: "lambda",
+
+  @doc("not.")
+  not: "not",
+
+  @doc("or.")
+  or: "or",
+
+  @doc("pass.")
+  pass: "pass",
+
+  @doc("raise.")
+  raise: "raise",
+
+  @doc("return.")
+  `return`: "return",
+
+  @doc("try.")
+  try: "try",
+
+  @doc("while.")
+  while: "while",
+
+  @doc("with.")
+  with: "with",
+
+  @doc("yield.")
+  yield: "yield",
+}
+
+/**
+ * Verify enum member names that are special words.
+ */
+@route("/enums/string")
+interface Enums {
+  @enumMemberNameScenario("and")
+  @get
+  getAnd(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("as")
+  @get
+  getAs(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("assert")
+  @get
+  getAssert(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("async")
+  @get
+  getAsync(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("await")
+  @get
+  getAwait(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("break")
+  @get
+  getBreak(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("class")
+  @get
+  getClass(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("constructor")
+  @get
+  getConstructor(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("continue")
+  @get
+  getContinue(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("def")
+  @get
+  getDef(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("del")
+  @get
+  getDel(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("elif")
+  @get
+  getElif(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("else")
+  @get
+  getElse(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("except")
+  @get
+  getExcept(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("exec")
+  @get
+  getExec(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("finally")
+  @get
+  getFinally(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("for")
+  @get
+  getFor(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("from")
+  @get
+  getFrom(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("global")
+  @get
+  getGlobal(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("if")
+  @get
+  getIf(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("import")
+  @get
+  getImport(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("in")
+  @get
+  getIn(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("is")
+  @get
+  getIs(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("lambda")
+  @get
+  getLambda(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("not")
+  @get
+  getNot(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("or")
+  @get
+  getOr(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("pass")
+  @get
+  getPass(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("raise")
+  @get
+  getRaise(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("return")
+  @get
+  getReturn(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("try")
+  @get
+  getTry(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("while")
+  @get
+  getWhile(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("with")
+  @get
+  getWith(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+
+  @enumMemberNameScenario("yield")
+  @get
+  getYield(): {
+    @header
+    contentType: "application/json";
+
+    @body body: Enum;
+  };
+}
