@@ -989,6 +989,11 @@ function getCollectionHeaderPrefix(
   if (value === undefined) {
     return undefined;
   }
+  // Only apply to dictionary types (unwrap nullable)
+  const rawType = p.type.kind === "nullable" ? p.type.type : p.type;
+  if (rawType.kind !== "dict") {
+    return undefined;
+  }
   if (typeof value !== "string") {
     sdkContext.logger.reportDiagnostic({
       code: "general-warning",

@@ -1010,6 +1010,35 @@ describe("Test Operation Parameters", () => {
       const typedParam = metadataParam as InputHeaderParameter;
       strictEqual(typedParam.collectionHeaderPrefix, undefined);
     });
+
+    it("should return undefined for collectionHeaderPrefix when header parameter is not a dictionary type", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @route("test")
+          @post
+          op test(
+            #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+            @header("x-ms-name")
+            @clientOption("collectionHeaderPrefix", "x-ms-name-", "csharp")
+            name: string): void;
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const nameParam = operation.parameters.find((p) => p.name === "name");
+
+      ok(nameParam);
+      strictEqual(nameParam.kind, "header");
+
+      const typedParam = nameParam as InputHeaderParameter;
+      strictEqual(typedParam.collectionHeaderPrefix, undefined);
+    });
   });
 
   describe("Body parameters", () => {
