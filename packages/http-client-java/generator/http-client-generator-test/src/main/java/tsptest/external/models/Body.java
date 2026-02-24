@@ -91,7 +91,7 @@ public final class Body implements JsonSerializable<Body> {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("cloudEventDataFormat",
             this.cloudEventDataFormat == null ? null : this.cloudEventDataFormat.toString());
-        jsonWriter.writeStringField("dayOfWeek", this.dayOfWeek == null ? null : this.dayOfWeek.toString());
+        jsonWriter.writeStringField("dayOfWeek", this.dayOfWeek == null ? null : this.dayOfWeek.name());
         return jsonWriter.writeEndObject();
     }
 

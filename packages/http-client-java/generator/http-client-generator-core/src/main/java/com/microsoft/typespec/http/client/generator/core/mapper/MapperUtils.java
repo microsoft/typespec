@@ -153,17 +153,18 @@ public final class MapperUtils {
             String fromMethodName = null;
             String toMethodName = null;
             if (namespace.startsWith("java.")) {
-                // a hack here, we know that built-in Java class will not have "fromString" method
+                // a hack here, we know that built-in Java enum will not have "fromString" method
+                // (and also won't be expandable)
                 expandable = false;
                 fromMethodName = "valueOf";
-                toMethodName = "toString";
+                toMethodName = "name";
             }
 
             if (expandable) {
                 boolean isStringEnum = elementType == ClassType.STRING;
                 JavaSettings javaSettings = JavaSettings.getInstance();
                 if (!(isStringEnum && javaSettings.isAzureV1())) {
-                    // core-v2 always use ExpandableEnum
+                    // core-v2 always use ExpandableEnum, as well as non-string enum in v1
                     fromMethodName = "getValue";
                     toMethodName = "fromValue";
                 }
