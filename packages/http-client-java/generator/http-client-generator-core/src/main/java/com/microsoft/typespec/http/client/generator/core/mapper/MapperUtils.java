@@ -129,11 +129,11 @@ public final class MapperUtils {
     }
 
     /**
-     * Map to external model, if applicable.
+     * Map to external enum client type, if applicable.
      *
      * @param enumType code model schema for enum
      * @param expandable whether it's expandable enum
-     * @return the mapped external model, or null if not applicable.
+     * @return enum client type, or null if not applicable.
      */
     public static EnumType mapExternalModel(ChoiceSchema enumType, boolean expandable) {
         EnumType type = null;

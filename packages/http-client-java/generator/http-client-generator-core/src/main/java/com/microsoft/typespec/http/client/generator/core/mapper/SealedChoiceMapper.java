@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class SealedChoiceMapper implements IMapper<SealedChoiceSchema, IType> {
     }
 
     private IType createSealedChoiceType(SealedChoiceSchema enumType) {
-        EnumType result = MapperUtils.mapExternalModel(enumType, false, JavaSettings.getInstance());
+        EnumType result = MapperUtils.mapExternalModel(enumType, false);
         if (result != null) {
             return result;
         }
