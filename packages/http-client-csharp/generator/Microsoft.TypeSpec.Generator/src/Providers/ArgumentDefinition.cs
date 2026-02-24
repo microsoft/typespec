@@ -101,11 +101,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 new IfStatement(minimumParam.Invoke("CompareTo", valueParam).GreaterThan(Literal(0)))
                 {
-                    ThrowArgumentOutOfRangeException("Value is less than the minimum allowed.")
+                    Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is less than the minimum allowed.", false))
                 },
                 new IfStatement(maximumParam.Invoke("CompareTo", valueParam).LessThan(Literal(0)))
                 {
-                    ThrowArgumentOutOfRangeException("Value is greater than the maximum allowed.")
+                    Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is greater than the maximum allowed.", false))
                 }
             },
             this);
@@ -121,11 +121,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Return(valueParam)
             },
             this);
-        }
-
-        private MethodBodyStatement ThrowArgumentOutOfRangeException(string message)
-        {
-            return Throw(New.ArgumentOutOfRangeException(_nameParam, message, false));
         }
 
         private MethodProvider BuildAssertNotNullOrEmptyString()
