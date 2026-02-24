@@ -1,0 +1,13 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.external.ExternalAsyncClient": "TspTest.External.ExternalOp",
+    "tsptest.external.ExternalAsyncClient.postExternal": "TspTest.External.ExternalOp.postExternal",
+    "tsptest.external.ExternalAsyncClient.postExternalWithResponse": "TspTest.External.ExternalOp.postExternal",
+    "tsptest.external.ExternalClient": "TspTest.External.ExternalOp",
+    "tsptest.external.ExternalClient.postExternal": "TspTest.External.ExternalOp.postExternal",
+    "tsptest.external.ExternalClient.postExternalWithResponse": "TspTest.External.ExternalOp.postExternal",
+    "tsptest.external.ExternalClientBuilder": "TspTest.External",
+    "tsptest.external.models.Body": "TspTest.External.Body"
+  }
+}
