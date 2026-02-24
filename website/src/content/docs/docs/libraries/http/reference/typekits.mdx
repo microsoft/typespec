@@ -2,33 +2,7 @@
 title: "[API] Typekits"
 ---
 
-import { Badge, Aside } from '@astrojs/starlight/components';
-
-<Aside type="caution">
-**Experimental Feature**: HTTP typekits are currently experimental. The API surface is volatile and may have breaking changes without notice. Use with caution in production environments.
-</Aside>
-
-## Usage
-
-To use HTTP typekits in your TypeSpec emitter or tool, you need to import the experimental typekit module:
-
-```ts
-import "@typespec/http/experimental/typekit";
-import { $ } from "@typespec/compiler/typekit";
-```
-
-The first import registers the HTTP-specific typekit extensions. This import only needs to exist once in your compilation as only its side effects are important.
-
-### Example
-
-```ts
-import { getHttpOperation } from "@typespec/http";
-import { $ } from "@typespec/compiler/typekit";
-import "@typespec/http/experimental/typekit";
-
-const [httpOperation] = getHttpOperation(program, operation);
-const responses = $(program).httpOperation.flattenResponses(httpOperation);
-```
+import { Badge } from '@astrojs/starlight/components';
 
 ## model
 
