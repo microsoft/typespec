@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String namespace;
-    private String flavor = "generic";
+    private String flavor = "azure";
     private String serviceName;
     private List<String> serviceVersions;
     private Boolean generateTests = true;
