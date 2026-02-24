@@ -181,6 +181,33 @@ model Person {
 }
 ```
 
+## Controlling your library's API surface
+
+When authoring a library, not every type you define is meant for consumers to use directly. Some types are implementation details that support your library internally. You can use the `internal` modifier to prevent consumers from accessing these types.
+
+:::caution
+The `internal` modifier is an **experimental feature**. See [Access Modifiers](/docs/language-basics/access-modifiers) for full details.
+:::
+
+```typespec
+import "../dist/index.js";
+
+namespace MyLibrary;
+
+/** This model is part of the public API. */
+model Person {
+  name: string;
+  age: uint8;
+}
+
+/** This model is an implementation detail and cannot be accessed by consumers. */
+internal model PersonValidator {
+  rules: string[];
+}
+```
+
+Consumers who try to reference `PersonValidator` will receive a compiler error. This helps you evolve your library's internals without worrying about breaking consumers who might have depended on them.
+
 ## Step 3: Defining dependencies
 
 When defining dependencies in a TypeSpec library, follow these rules:

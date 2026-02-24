@@ -325,6 +325,7 @@ const diagnostics = {
       member: paramMessage`${"kind"} doesn't have member ${"id"}`,
       metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
+      internal: paramMessage`Symbol '${"id"}' is internal and can only be accessed from within its declaring package.`,
     },
   },
   "duplicate-property": {
@@ -527,16 +528,25 @@ const diagnostics = {
       default: "A rest parameter must be of an array type.",
     },
   },
-  "decorator-extern": {
-    severity: "error",
-    messages: {
-      default: "A decorator declaration must be prefixed with the 'extern' modifier.",
-    },
-  },
   "function-extern": {
     severity: "error",
     messages: {
       default: "A function declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "invalid-modifier": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Modifier '${"modifier"}' is invalid.`,
+      "missing-required": paramMessage`Declaration of type '${"nodeKind"}' is missing required modifier '${"modifier"}'.`,
+      "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
+    },
+  },
+  "experimental-feature": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`The '${"featureName"}' feature is experimental and may be changed or removed in a future release. Use with caution.`,
+      internal: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
     },
   },
   "function-unsupported": {

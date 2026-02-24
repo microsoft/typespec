@@ -16,6 +16,7 @@ import { getDirectoryPath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
 import {
   DiagnosticTarget,
+  ModifierFlags,
   ModuleLibraryMetadata,
   NodeFlags,
   NoTarget,
@@ -401,6 +402,8 @@ export async function loadJsFile(
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    modifiers: [],
+    modifierFlags: ModifierFlags.None,
   };
   return [node, diagnostics];
 }

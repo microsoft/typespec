@@ -11,6 +11,7 @@ import {
   InterfaceStatementNode,
   JsSourceFileNode,
   ModelStatementNode,
+  ModifierFlags,
   NodeFlags,
   Sym,
   SymbolFlags,
@@ -565,5 +566,7 @@ function createJsSourceFile(exports: any): JsSourceFileNode {
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    modifiers: [],
+    modifierFlags: ModifierFlags.None,
   };
 }

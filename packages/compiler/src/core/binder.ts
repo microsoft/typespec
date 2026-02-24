@@ -21,6 +21,7 @@ import {
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
+  ModifierFlags,
   MutableSymbolTable,
   NamespaceStatementNode,
   Node,
@@ -208,6 +209,8 @@ export function createBinder(program: Program): Binder {
         parent: sourceFile,
         flags: NodeFlags.None,
         symbol: undefined!,
+        modifiers: [],
+        modifierFlags: ModifierFlags.None,
       };
       const sym = createSymbol(
         jsNamespaceNode,
@@ -380,7 +383,10 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindModelStatement(node: ModelStatementNode) {
-    declareSymbol(node, SymbolFlags.Model | SymbolFlags.Declaration);
+    const internal =
+      node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
+
+    declareSymbol(node, SymbolFlags.Model | SymbolFlags.Declaration | internal);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
@@ -398,7 +404,9 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindScalarStatement(node: ScalarStatementNode) {
-    declareSymbol(node, SymbolFlags.Scalar | SymbolFlags.Declaration);
+    const internal =
+      node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
+    declareSymbol(node, SymbolFlags.Scalar | SymbolFlags.Declaration | internal);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
@@ -408,26 +416,36 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindInterfaceStatement(node: InterfaceStatementNode) {
-    declareSymbol(node, SymbolFlags.Interface | SymbolFlags.Declaration);
+    const internal =
+      node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
+    declareSymbol(node, SymbolFlags.Interface | SymbolFlags.Declaration | internal);
     mutate(node).locals = new SymbolTable();
   }
 
   function bindUnionStatement(node: UnionStatementNode) {
-    declareSymbol(node, SymbolFlags.Union | SymbolFlags.Declaration);
+    const internal =
+      node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
+    declareSymbol(node, SymbolFlags.Union | SymbolFlags.Declaration | internal);
     mutate(node).locals = new SymbolTable();
   }
 
   function bindAliasStatement(node: AliasStatementNode) {
-    declareSymbol(node, SymbolFlags.Alias | SymbolFlags.Declaration);
+    const internal =
+      node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
+    declareSymbol(node, SymbolFlags.Alias | SymbolFlags.Declaration | internal);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
   function bindConstStatement(node: ConstStatementNode) {
-    declareSymbol(node, SymbolFlags.Const | SymbolFlags.Declaration);
+    const internal =
+      node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
+    declareSymbol(node, SymbolFlags.Const | SymbolFlags.Declaration | internal);
   }
 
   function bindEnumStatement(node: EnumStatementNode) {
-    declareSymbol(node, SymbolFlags.Enum | SymbolFlags.Declaration);
+    const internal =
+      node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
+    declareSymbol(node, SymbolFlags.Enum | SymbolFlags.Declaration | internal);
   }
 
   function bindEnumMember(node: EnumMemberNode) {
@@ -473,24 +491,34 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindOperationStatement(statement: OperationStatementNode) {
+    const internal =
+      statement.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
     if (scope.kind === SyntaxKind.InterfaceStatement) {
       declareMember(
         statement,
-        SymbolFlags.Operation | SymbolFlags.Member | SymbolFlags.Declaration,
+        SymbolFlags.Operation | SymbolFlags.Member | SymbolFlags.Declaration | internal,
         statement.id.sv,
       );
     } else {
-      declareSymbol(statement, SymbolFlags.Operation | SymbolFlags.Declaration);
+      declareSymbol(statement, SymbolFlags.Operation | SymbolFlags.Declaration | internal);
     }
     mutate(statement).locals = createSymbolTable();
   }
 
   function bindDecoratorDeclarationStatement(node: DecoratorDeclarationStatementNode) {
-    declareSymbol(node, SymbolFlags.Decorator | SymbolFlags.Declaration, `@${node.id.sv}`);
+    const internal =
+      node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
+    declareSymbol(
+      node,
+      SymbolFlags.Decorator | SymbolFlags.Declaration | internal,
+      `@${node.id.sv}`,
+    );
   }
 
   function bindFunctionDeclarationStatement(node: FunctionDeclarationStatementNode) {
-    declareSymbol(node, SymbolFlags.Function | SymbolFlags.Declaration);
+    const internal =
+      node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
+    declareSymbol(node, SymbolFlags.Function | SymbolFlags.Declaration | internal);
   }
 
   function bindFunctionParameter(node: FunctionParameterNode) {
@@ -510,7 +538,11 @@ export function createBinder(program: Program): Binder {
    * @param name Optional symbol name, default to the node id.
    * @returns Created Symbol
    */
-  function declareSymbol(node: Declaration, flags: SymbolFlags, name?: string) {
+  function declareSymbol(
+    node: Declaration | TemplateParameterDeclarationNode,
+    flags: SymbolFlags,
+    name?: string,
+  ) {
     compilerAssert(flags & SymbolFlags.Declaration, `Expected declaration symbol: ${name}`, node);
     switch (scope.kind) {
       case SyntaxKind.NamespaceStatement:
@@ -533,7 +565,11 @@ export function createBinder(program: Program): Binder {
     return symbol;
   }
 
-  function declareNamespaceMember(node: Declaration, flags: SymbolFlags, name?: string) {
+  function declareNamespaceMember(
+    node: Declaration | TemplateParameterDeclarationNode,
+    flags: SymbolFlags,
+    name?: string,
+  ) {
     if (
       flags & SymbolFlags.Namespace &&
       mergeNamespaceDeclarations(node as NamespaceStatementNode, scope)
@@ -547,7 +583,11 @@ export function createBinder(program: Program): Binder {
     return symbol;
   }
 
-  function declareScriptMember(node: Declaration, flags: SymbolFlags, name?: string) {
+  function declareScriptMember(
+    node: Declaration | TemplateParameterDeclarationNode,
+    flags: SymbolFlags,
+    name?: string,
+  ) {
     const effectiveScope = scope;
     if (
       flags & SymbolFlags.Namespace &&

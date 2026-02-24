@@ -204,9 +204,11 @@ export function extractRefDocs(
       namespace,
       {
         decorator(dec) {
+          if (hasInternalModifier(dec)) return;
           collectType(dec, extractDecoratorRefDoc(program, dec), namespaceDoc.decorators);
         },
         operation(operation) {
+          if (hasInternalModifier(operation)) return;
           if (!isDeclaredType(operation)) {
             return;
           }
@@ -220,12 +222,14 @@ export function extractRefDocs(
           }
         },
         interface(iface) {
+          if (hasInternalModifier(iface)) return;
           if (!isDeclaredType(iface)) {
             return;
           }
           collectType(iface, extractInterfaceRefDocs(program, iface), namespaceDoc.interfaces);
         },
         model(model) {
+          if (hasInternalModifier(model)) return;
           if (!isDeclaredType(model)) {
             return;
           }
@@ -235,12 +239,14 @@ export function extractRefDocs(
           collectType(model, extractModelRefDocs(program, model), namespaceDoc.models);
         },
         enum(e) {
+          if (hasInternalModifier(e)) return;
           if (!isDeclaredType(e)) {
             return;
           }
           collectType(e, extractEnumRefDoc(program, e), namespaceDoc.enums);
         },
         union(union) {
+          if (hasInternalModifier(union)) return;
           if (!isDeclaredType(union)) {
             return;
           }
@@ -249,6 +255,7 @@ export function extractRefDocs(
           }
         },
         scalar(scalar) {
+          if (hasInternalModifier(scalar)) return;
           collectType(scalar, extractScalarRefDocs(program, scalar), namespaceDoc.scalars);
         },
       },
@@ -275,6 +282,14 @@ export function extractRefDocs(
     namespaces,
     getNamedTypeRefDoc: (type) => typeMapping.get(type),
   });
+}
+
+/** Check if a type's declaration has the `internal` modifier. */
+function hasInternalModifier(type: Type): boolean {
+  const node = type.node;
+  if (node === undefined) return false;
+  if (!("modifiers" in node)) return false;
+  return node.modifiers.some((m: any) => m.kind === SyntaxKind.InternalKeyword);
 }
 
 function extractTemplateParameterDocs(program: Program, type: TemplatedType) {
