@@ -417,7 +417,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (type?.IsCollection == true)
                 {
-                    if (inputHeaderParameter.CollectionHeaderPrefix != null && type.IsDictionary)
+                    if (!string.IsNullOrEmpty(inputHeaderParameter.CollectionHeaderPrefix) && type.IsDictionary)
                     {
                         statement = request.AddCollectionHeaders(Literal(inputHeaderParameter.CollectionHeaderPrefix), valueExpression);
                     }
