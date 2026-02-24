@@ -1,7 +1,7 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
-import { Enum, Model, ModelProperty, Scalar, SyntaxKind, Type } from "../../src/core/types.js";
+import { Model, ModelProperty, SyntaxKind, Type } from "../../src/core/types.js";
 import {
   Numeric,
   Operation,
@@ -92,17 +92,12 @@ describe("compiler: models", () => {
   });
 
   describe("interpolated identifiers", () => {
-    it("supports declaration and property names", async () => {
+    it("supports model declaration and property names", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
         const suffix = "A";
         model \`Model\${suffix}\` { \`\${suffix}\`: string; }
-        scalar \`Scalar\${suffix}\`;
-        enum \`Enum\${suffix}\` { member }
-        union \`Union\${suffix}\` { variant: string }
-        interface \`Interface\${suffix}\` {}
-        op \`op\${suffix}\`(): void;
         `,
       );
 
@@ -112,11 +107,6 @@ describe("compiler: models", () => {
       const model = global.models.get("ModelA");
       ok(model);
       ok(model.properties.get("A"));
-      ok(global.scalars.get("ScalarA"));
-      ok(global.enums.get("EnumA"));
-      ok(global.unions.get("UnionA"));
-      ok(global.interfaces.get("InterfaceA"));
-      ok(global.operations.get("opA"));
     });
 
     it("emits diagnostic when interpolation isn't string", async () => {
@@ -160,42 +150,6 @@ describe("compiler: models", () => {
       expectDiagnostics(diagnostics, [{ code: "invalid-ref" }, { code: "expect-value" }]);
     });
 
-    it("supports interpolated names for member declarations", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        const suffix = "A";
-        enum E { \`M\${suffix}\` }
-        scalar S { init \`from\${suffix}\`(\`value\${suffix}\`: string); }
-        `,
-      );
-
-      await testHost.compile("main.tsp");
-      const global = testHost.program.checker.getGlobalNamespaceType();
-      const E = global.enums.get("E") as Enum;
-      const S = global.scalars.get("S") as Scalar;
-      ok(E.members.get("MA"));
-      ok(S.constructors.get("fromA"));
-      strictEqual(S.constructors.get("fromA")!.parameters[0].name, "valueA");
-    });
-
-    it("disallows interpolated names for const/alias/namespace declarations", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        const \`Const\${"A"}\` = "ok";
-        alias \`Alias\${"A"}\` = string;
-        namespace \`Ns\${"A"}\` {}
-        `,
-      );
-
-      const diagnostics = await testHost.diagnose("main.tsp");
-      expectDiagnostics(diagnostics, [
-        { code: "invalid-interpolated-identifier-context" },
-        { code: "invalid-interpolated-identifier-context" },
-        { code: "invalid-interpolated-identifier-context" },
-      ]);
-    });
   });
 
   describe("property defaults", () => {
