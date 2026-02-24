@@ -168,4 +168,144 @@ describe("Test emitting decorator list", () => {
       },
     ]);
   });
+
+  it("emit clientOption decorator on a model", async () => {
+    const program = await typeSpecCompile(
+      `
+      #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+      #suppress "@azure-tools/typespec-client-generator-core/no-unnamed-types-in-client-option" "test"
+      @clientOption("enableFeatureFoo", true, "csharp")
+      model Book {
+        content: string;
+      }
+
+      op test(): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    strictEqual(models.length, 1);
+    const clientOptionDecorators = models[0].decorators?.filter(
+      (d) => d.name === "Azure.ClientGenerator.Core.@clientOption",
+    );
+    ok(clientOptionDecorators);
+    strictEqual(clientOptionDecorators.length, 1);
+    deepStrictEqual(clientOptionDecorators[0], {
+      name: "Azure.ClientGenerator.Core.@clientOption",
+      arguments: {
+        name: "enableFeatureFoo",
+        value: true,
+        scope: "csharp",
+      },
+    });
+  });
+
+  it("emit clientOption decorator on a client", async () => {
+    const program = await typeSpecCompile(
+      `
+      #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+      #suppress "@azure-tools/typespec-client-generator-core/no-unnamed-types-in-client-option" "test"
+      @clientOption("enableFeatureFoo", true, "csharp")
+      interface BookClient {
+        op test(): void;
+      }
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const clients = root.clients;
+    ok(clients[0].children);
+    const childClient = clients[0].children.find((c) => c.name === "BookClient");
+    ok(childClient);
+    const clientOptionDecorators = childClient.decorators?.filter(
+      (d) => d.name === "Azure.ClientGenerator.Core.@clientOption",
+    );
+    ok(clientOptionDecorators);
+    strictEqual(clientOptionDecorators.length, 1);
+    deepStrictEqual(clientOptionDecorators[0], {
+      name: "Azure.ClientGenerator.Core.@clientOption",
+      arguments: {
+        name: "enableFeatureFoo",
+        value: true,
+        scope: "csharp",
+      },
+    });
+  });
+
+  it("emit clientOption decorator on an operation", async () => {
+    const program = await typeSpecCompile(
+      `
+      model Book {
+        content: string;
+      }
+      #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+      #suppress "@azure-tools/typespec-client-generator-core/no-unnamed-types-in-client-option" "test"
+      @clientOption("enableFeatureFoo", true, "csharp")
+      op test(): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const methods = root.clients[0].methods;
+    strictEqual(methods.length, 1);
+    const operation = methods[0].operation;
+    const clientOptionDecorators = operation.decorators?.filter(
+      (d) => d.name === "Azure.ClientGenerator.Core.@clientOption",
+    );
+    ok(clientOptionDecorators);
+    strictEqual(clientOptionDecorators.length, 1);
+    deepStrictEqual(clientOptionDecorators[0], {
+      name: "Azure.ClientGenerator.Core.@clientOption",
+      arguments: {
+        name: "enableFeatureFoo",
+        value: true,
+        scope: "csharp",
+      },
+    });
+  });
+
+  it("emit clientOption decorator on a model property", async () => {
+    const program = await typeSpecCompile(
+      `
+      model Book {
+        #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+        #suppress "@azure-tools/typespec-client-generator-core/no-unnamed-types-in-client-option" "test"
+        @clientOption("enableFeatureFoo", true, "csharp")
+        content: string;
+      }
+
+      op test(): Book;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    strictEqual(models.length, 1);
+    const clientOptionDecorators = models[0].properties[0].decorators?.filter(
+      (d) => d.name === "Azure.ClientGenerator.Core.@clientOption",
+    );
+    ok(clientOptionDecorators);
+    strictEqual(clientOptionDecorators.length, 1);
+    deepStrictEqual(clientOptionDecorators[0], {
+      name: "Azure.ClientGenerator.Core.@clientOption",
+      arguments: {
+        name: "enableFeatureFoo",
+        value: true,
+        scope: "csharp",
+      },
+    });
+  });
 });
