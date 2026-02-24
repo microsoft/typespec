@@ -216,7 +216,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   const operationGroups: Record<string, any>[] = [];
 
   for (const operationGroup of client.children ?? []) {
-    operationGroup.name = `${client.name}${operationGroup.name}`;
+    const name = `${client.name}${operationGroup.name}`;
     let operations: Record<string, any>[] = [];
     const apiVersions =
       serviceApiVersions.length > 0 ? serviceApiVersions : operationGroup.apiVersions;
@@ -226,8 +226,8 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
       );
     }
     operationGroups.push({
-      name: operationGroup.name,
-      className: operationGroup.name,
+      name: name,
+      className: name,
       propertyName: operationGroup.name,
       operations: operations,
       operationGroups: emitOperationGroups(context, operationGroup, rootClient, apiVersions),
