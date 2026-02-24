@@ -409,15 +409,7 @@ interface Enums {
     """)
   @put
   @route("/string")
-  putEnumValue(
-    @header
-    contentType: "application/json",
-
-    @body body: Enum,
-  ): {
-    @header
-    contentType: "application/json";
-
+  putEnumValue(@body body: Enum): {
     @body body: Enum;
   };
 }

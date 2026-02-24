@@ -425,9 +425,6 @@ Scenarios.SpecialWords_Enums_putEnumValue = passOnSuccess({
   method: "put",
   request: {
     body: json("class"),
-    headers: {
-      "Content-Type": "text/plain",
-    },
   },
   response: {
     status: 200,
