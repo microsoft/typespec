@@ -231,7 +231,13 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
       className: name,
       propertyName: operationGroup.name,
       operations: operations,
-      operationGroups: emitOperationGroups(context, operationGroup, operationGroup, name, apiVersions),
+      operationGroups: emitOperationGroups(
+        context,
+        operationGroup,
+        operationGroup,
+        name,
+        apiVersions,
+      ),
       clientNamespace: getClientNamespace(context, operationGroup.namespace),
     });
   }
