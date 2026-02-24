@@ -178,6 +178,24 @@ describe("compiler: models", () => {
       ok(S.constructors.get("fromA"));
       strictEqual(S.constructors.get("fromA")!.parameters[0].name, "valueA");
     });
+
+    it("disallows interpolated names for const/alias/namespace declarations", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        const \`Const\${"A"}\` = "ok";
+        alias \`Alias\${"A"}\` = string;
+        namespace \`Ns\${"A"}\` {}
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        { code: "invalid-interpolated-identifier-context" },
+        { code: "invalid-interpolated-identifier-context" },
+        { code: "invalid-interpolated-identifier-context" },
+      ]);
+    });
   });
 
   describe("property defaults", () => {

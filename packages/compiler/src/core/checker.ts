@@ -2330,7 +2330,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (!symbolLinks.type) {
       // haven't seen this namespace before
       const namespace = getParentNamespaceType(node);
-      const name = resolveIdentifierName(CheckContext.DEFAULT, node.id);
+      const name = resolveIdentifierName(CheckContext.DEFAULT, node.id, {
+        allowInterpolation: false,
+        kind: "namespace",
+      });
       const type: Namespace = createType({
         kind: "Namespace",
         name,
@@ -5030,8 +5033,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     };
   }
 
-  function resolveIdentifierName(ctx: CheckContext, id: IdentifierNode): string {
+  function resolveIdentifierName(
+    ctx: CheckContext,
+    id: IdentifierNode,
+    options: { allowInterpolation?: boolean; kind?: string } = {},
+  ): string {
     if (id.interpolation === undefined) {
+      return id.sv;
+    }
+    if (options.allowInterpolation === false) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-interpolated-identifier-context",
+          format: { kind: options.kind ?? "this" },
+          target: id.interpolation,
+        }),
+      );
       return id.sv;
     }
 
@@ -5626,6 +5643,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkAlias(ctx: CheckContext, node: AliasStatementNode): Type | IndeterminateEntity {
     const links = getSymbolLinks(node.symbol);
+    resolveIdentifierName(ctx, node.id, { allowInterpolation: false, kind: "alias" });
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
       // This is a templated declaration and we are not instantiating it, so we need to update the flags.
@@ -5671,6 +5689,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkConst(node: ConstStatementNode): Value | null {
     const links = getSymbolLinks(node.symbol);
+    const constName = resolveIdentifierName(CheckContext.DEFAULT, node.id, {
+      allowInterpolation: false,
+      kind: "const",
+    });
     if (links.value !== undefined) {
       return links.value;
     }
@@ -5681,7 +5703,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "circular-const",
-          format: { name: resolveIdentifierName(CheckContext.DEFAULT, node.id) },
+          format: { name: constName },
           target: node,
         }),
       );

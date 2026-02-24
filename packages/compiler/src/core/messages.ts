@@ -695,6 +695,12 @@ const diagnostics = {
         "Interpolated identifier must evaluate to a string value. Interpolation in identifier names cannot produce non-string values.",
     },
   },
+  "invalid-interpolated-identifier-context": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Interpolated identifiers are not supported for ${"kind"} declarations yet.`,
+    },
+  },
 
   /**
    * Binder
