@@ -293,107 +293,40 @@ namespace ModelProperties {
 /**
  * Verify enum member names that are special words using extensible enum (union).
  */
-@doc("Extensible enum with special word members")
 union Enum {
   string,
-
-  @doc("and.")
   and: "and",
-
-  @doc("as.")
   as: "as",
-
-  @doc("assert.")
   assert: "assert",
-
-  @doc("async.")
   async: "async",
-
-  @doc("await.")
   await: "await",
-
-  @doc("break.")
   break: "break",
-
-  @doc("class.")
   class: "class",
-
-  @doc("constructor.")
   constructor: "constructor",
-
-  @doc("continue.")
   continue: "continue",
-
-  @doc("def.")
   def: "def",
-
-  @doc("del.")
   del: "del",
-
-  @doc("elif.")
   elif: "elif",
-
-  @doc("else.")
   `else`: "else",
-
-  @doc("except.")
   except: "except",
-
-  @doc("exec.")
   exec: "exec",
-
-  @doc("finally.")
   finally: "finally",
-
-  @doc("for.")
   for: "for",
-
-  @doc("from.")
   from: "from",
-
-  @doc("global.")
   global: "global",
-
-  @doc("if.")
   `if`: "if",
-
-  @doc("import.")
   `import`: "import",
-
-  @doc("in.")
   in: "in",
-
-  @doc("is.")
   `is`: "is",
-
-  @doc("lambda.")
   lambda: "lambda",
-
-  @doc("not.")
   not: "not",
-
-  @doc("or.")
   or: "or",
-
-  @doc("pass.")
   pass: "pass",
-
-  @doc("raise.")
   raise: "raise",
-
-  @doc("return.")
   `return`: "return",
-
-  @doc("try.")
   try: "try",
-
-  @doc("while.")
   while: "while",
-
-  @doc("with.")
   with: "with",
-
-  @doc("yield.")
   yield: "yield",
 }
 
