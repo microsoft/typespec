@@ -98,20 +98,21 @@ public final class MapperUtils {
         }
     }
 
-    private static List<ClientEnumValue> createEnumValues(ChoiceSchema enumType, boolean useCodeModelNameForEnumMember) {
+    private static List<ClientEnumValue> createEnumValues(ChoiceSchema enumType,
+        boolean useCodeModelNameForEnumMember) {
         List<ClientEnumValue> enumValues = new ArrayList<>();
         for (ChoiceValue enumValue : enumType.getChoices()) {
             String enumName = enumValue.getValue();
             String enumDescription = null;
             if (useCodeModelNameForEnumMember) {
                 if (enumValue.getLanguage() != null
-                        && enumValue.getLanguage().getJava() != null
-                        && enumValue.getLanguage().getJava().getName() != null) {
+                    && enumValue.getLanguage().getJava() != null
+                    && enumValue.getLanguage().getJava().getName() != null) {
                     enumName = enumValue.getLanguage().getJava().getName();
                     enumDescription = enumValue.getLanguage().getJava().getDescription();
                 } else if (enumValue.getLanguage() != null
-                        && enumValue.getLanguage().getDefault() != null
-                        && enumValue.getLanguage().getDefault().getName() != null) {
+                    && enumValue.getLanguage().getDefault() != null
+                    && enumValue.getLanguage().getDefault().getName() != null) {
                     enumName = enumValue.getLanguage().getDefault().getName();
                     enumDescription = enumValue.getLanguage().getDefault().getDescription();
                 }
@@ -119,8 +120,7 @@ public final class MapperUtils {
             final String memberName = CodeNamer.getEnumMemberName(enumName);
             long counter = enumValues.stream().filter(v -> v.getName().equals(memberName)).count();
             if (counter > 0) {
-                enumValues
-                        .add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription));
+                enumValues.add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription));
             } else {
                 enumValues.add(new ClientEnumValue(memberName, enumValue.getValue(), enumDescription));
             }
