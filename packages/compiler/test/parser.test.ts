@@ -234,6 +234,17 @@ describe("compiler: parser", () => {
     parseEach(['model Car { engine: { type: "v8" } }']);
   });
 
+  describe("decorated expressions", () => {
+    parseEach([
+      'model A { prop: @doc("inline") { name: string } }',
+      'alias B = @doc("alias") { x: int32 };',
+      "model C { prop: @myDec SomeModel }",
+      "model D is @myDec Base { }",
+      'model E { prop: @doc("union") (string | int32) }',
+      "alias F = @myDec string[];",
+    ]);
+  });
+
   describe("tuple model expressions", () => {
     parseEach([
       'namespace A { op b(param: [number, string]): [1, "hi"]; }',

@@ -7,7 +7,7 @@ llmstxt: true
 
 Decorators in TypeSpec allow developers to attach metadata to types within a TypeSpec program. They can also be used to compute types based on their inputs. Decorators form the core of TypeSpec's extensibility, providing the flexibility to describe a wide variety of APIs and associated metadata such as documentation, constraints, samples, and more.
 
-The vast majority of TypeSpec declarations may be decorated, including [namespaces](./namespaces.md), [interfaces](./interfaces.md), [operations](./operations.md) and their parameters, [scalars](./scalars.md), and [models](./models.md) and their members. In general, any declaration that creates a Type can be decorated. Notably, [aliases](./alias.md) cannot be decorated, as they do not create new Types, nor can any type expressions such as unions that use the `|` syntax or anonymous models, as they are not declarations.
+The vast majority of TypeSpec declarations may be decorated, including [namespaces](./namespaces.md), [interfaces](./interfaces.md), [operations](./operations.md) and their parameters, [scalars](./scalars.md), and [models](./models.md) and their members. In general, any declaration that creates a Type can be decorated. [Aliases](./alias.md) cannot be decorated directly, as they do not create new Types, but the expressions they reference can be. Type expressions such as anonymous models, union expressions, and type references can also be decorated inline.
 
 Decorators are defined using JavaScript functions that are exported from a standard ECMAScript module. When a JavaScript file is imported, TypeSpec will look for any exported functions prefixed with `$`, and make them available as decorators within the TypeSpec syntax. When a decorated declaration is evaluated by TypeSpec, the decorator function is invoked, passing along a reference to the current compilation, an object representing the type it is attached to, and any arguments the user provided to the decorator.
 
@@ -30,6 +30,39 @@ If no arguments are provided, the parentheses can be omitted.
 ```typespec
 @mark
 model Dog {}
+```
+
+## Decorating expressions
+
+Decorators can be applied directly to type expressions such as inline models, type references, and union expressions. The decorator is placed before the expression it decorates.
+
+```typespec
+model Pet {
+  owner: @doc("The pet owner's info") {
+    name: string;
+    phone: string;
+  };
+}
+```
+
+This also works with aliases:
+
+```typespec
+alias Address = @doc("A mailing address") {
+  street: string;
+  city: string;
+};
+```
+
+Decorators on expressions work with `is` and `extends` as well:
+
+```typespec
+model Base {
+  id: string;
+}
+model Extended is @tag("extended") Base {
+  extra: string;
+}
 ```
 
 ## Augmenting decorators

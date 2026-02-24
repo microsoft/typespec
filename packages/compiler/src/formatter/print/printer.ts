@@ -15,6 +15,7 @@ import {
   CallExpressionNode,
   Comment,
   ConstStatementNode,
+  DecoratedExpressionNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
@@ -189,6 +190,8 @@ export function printNode(
       return printBooleanLiteral(path as AstPath<BooleanLiteralNode>, options);
     case SyntaxKind.ModelExpression:
       return printModelExpression(path as AstPath<ModelExpressionNode>, options, print);
+    case SyntaxKind.DecoratedExpression:
+      return printDecoratedExpression(path as AstPath<DecoratedExpressionNode>, options, print);
     case SyntaxKind.ModelProperty:
       return printModelProperty(path as AstPath<ModelPropertyNode>, options, print);
     case SyntaxKind.DecoratorExpression:
@@ -935,6 +938,15 @@ export function printModelExpression(
           );
     return group([properties, softline]);
   }
+}
+
+export function printDecoratedExpression(
+  path: AstPath<DecoratedExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint,
+) {
+  const decorators = path.map((x) => [print(x as any), " "], "decorators");
+  return group([...decorators, path.call(print, "target")]);
 }
 
 export function printObjectLiteral(

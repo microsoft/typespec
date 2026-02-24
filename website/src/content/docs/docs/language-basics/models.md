@@ -235,3 +235,21 @@ Some model property meta types can be referenced using `::`.
 | Name | Example          | Description                              |
 | ---- | ---------------- | ---------------------------------------- |
 | type | `Pet.name::type` | Reference the type of the model property |
+
+## Decorating inline models
+
+Decorators can be applied to inline model expressions and other type expressions used in property types, aliases, and `is`/`extends` clauses. Place the decorator before the expression:
+
+```typespec
+model Pet {
+  owner: @doc("Owner contact info") {
+    name: string;
+    phone: string;
+  };
+}
+
+alias Address = @doc("A mailing address") {
+  street: string;
+  city: string;
+};
+```
