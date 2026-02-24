@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _pipelineMessage20xClassifiers = BuildPipelineMessage20xClassifiers();
         }
 
-        internal ClientProvider ClientProvider { get; }
+        public ClientProvider ClientProvider { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
@@ -215,10 +215,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (isNextLinkRequest && nextLink != null)
             {
-                statements.AddRange([
-                    declareUri,
-                    uri.Reset(ScmKnownParameters.NextPage.AsVariable()).Terminate()
-                ]);
+                var nextPageVar = ScmKnownParameters.NextPage.AsVariable();
+                statements.Add(declareUri);
+                statements.Add(new IfElseStatement(
+                    new IfStatement(nextPageVar.Property(nameof(Uri.IsAbsoluteUri)))
+                    {
+                        uri.Reset(nextPageVar).Terminate()
+                    },
+                    uri.Reset(New.Instance<Uri>(ClientProvider.EndpointField, nextPageVar)).Terminate()));
 
                 // handle reinjected parameters for URI
                 var reinjectedParamsMap = GetReinjectedParametersMap(nextLink, pagingServiceMethod, operation, paramMap);
@@ -871,27 +875,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static string GetCorrectedPageSizeName(string originalName, ClientProvider client)
+        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, ClientProvider client)
         {
-            // Check if parameter exists in LastContractView for backward compatibility
+            // Check if the original parameter name exists in LastContractView for backward compatibility
             var existingParam = client.LastContractView?.Methods
                 ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(parameter => string.Equals(parameter.Name, originalName, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.Name, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
 
             if (existingParam != null)
             {
-                return existingParam;
+                // Preserve the exact name (including casing) from the previous contract for backward compatibility
+                proposedName = existingParam;
             }
 
-            // Normalize badly-cased "maxpagesize" variants to Camel Case
-            if (string.Equals(originalName, MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+            // Use the updated name
+            if (!string.Equals(inputParameter.Name, proposedName, StringComparison.Ordinal))
             {
-                return MaxPageSizeParameterName;
+                inputParameter.Update(name: proposedName);
             }
-
-            // Keep original name for all other cases
-            return originalName;
         }
 
         private static bool ShouldUpdateReinjectedParameter(InputParameter inputParameter, InputPagingServiceMethod? pagingServiceMethod)
@@ -962,12 +964,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var pageSizeParameterName = GetPageSizeParameterName(serviceMethod as InputPagingServiceMethod);
 
-            string? correctedPageSizeName = null;
-            if (pageSizeParameterName != null)
-            {
-                correctedPageSizeName = GetCorrectedPageSizeName(pageSizeParameterName, client);
-            }
-
             ModelProvider? spreadSource = null;
             if (methodType == ScmMethodKind.Convenience)
             {
@@ -1013,19 +1009,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // For paging operations, rename "top" parameter to "maxCount"
-                if (serviceMethod is InputPagingServiceMethod &&
-                    string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                // For paging operations, handle parameter name corrections with backward compatibility
+                if (serviceMethod is InputPagingServiceMethod)
                 {
-                    inputParam.Update(name: MaxCountParameterName);
-                }
-
-                // For paging operations, ensure page size parameter uses the correct casing
-                if (correctedPageSizeName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
-                {
-                    if (!string.Equals(inputParam.Name, correctedPageSizeName, StringComparison.Ordinal))
+                    // Rename "top" parameter to "maxCount" (with backward compatibility)
+                    if (string.Equals(inputParam.Name, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        inputParam.Update(name: correctedPageSizeName);
+                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client);
+                    }
+
+                    // Ensure page size parameter uses the correct casing (with backward compatibility)
+                    if (pageSizeParameterName != null && string.Equals(inputParam.Name, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
+                            ? MaxPageSizeParameterName
+                            : pageSizeParameterName;
+                        // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase, but always
+                        // respect backcompat.
+                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, client);
                     }
                 }
 

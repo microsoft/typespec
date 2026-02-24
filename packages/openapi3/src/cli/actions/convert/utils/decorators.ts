@@ -11,6 +11,7 @@ import {
 } from "../../../../types.js";
 import { stringLiteral } from "../generators/common.js";
 import { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
+import type { Context } from "./context.js";
 
 const validLocations = ["header", "query", "path"];
 const extensionDecoratorName = "extension";
@@ -76,7 +77,10 @@ function isExtensionKey(key: string): key is ExtensionKey {
   return key.startsWith("x-");
 }
 
-export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIParameter3_2) {
+export function getParameterDecorators(
+  parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
+  context?: Context,
+) {
   const decorators: TypeSpecDecorator[] = [];
 
   decorators.push(...getExtensions(parameter));
@@ -88,7 +92,7 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIPar
   }
 
   if ("schema" in parameter && parameter.schema) {
-    decorators.push(...getDecoratorsForSchema(parameter.schema));
+    decorators.push(...getDecoratorsForSchema(parameter.schema, context));
   }
 
   // Add @pageSize decorator if x-ms-list-page-size extension is true
@@ -223,14 +227,52 @@ function getHeaderArgs(explode: boolean): TSValue | undefined {
 
 export function getDecoratorsForSchema(
   schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+  context?: Context,
 ): TypeSpecDecorator[] {
   const decorators: TypeSpecDecorator[] = [];
 
+  // In JSON Schema 2020-12 (used in OpenAPI 3.1+), sibling keywords alongside $ref are allowed
+  // We should process them even when $ref is present
+  // If only $ref is present without sibling keywords, return early
   if ("$ref" in schema) {
-    return decorators;
+    // Check if there are any sibling keywords besides $ref
+    const hasSiblingKeywords = Object.keys(schema).some((key) => key !== "$ref");
+    if (!hasSiblingKeywords) {
+      return decorators;
+    }
+    // If we have sibling keywords, we need to resolve the $ref to determine the type
+    // so we can apply the correct constraint decorators
   }
 
-  decorators.push(...getExtensions(schema));
+  // At this point, either schema doesn't have $ref, or it has $ref with sibling keywords
+  // Cast to allow access to schema properties
+  const schemaWithoutRef = schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
+
+  decorators.push(...getExtensions(schemaWithoutRef));
+
+  // Handle readOnly and writeOnly properties
+  // These are mutually exclusive - if both are present, emit a warning and ignore both
+  const readOnly = schemaWithoutRef.readOnly;
+  const writeOnly = schemaWithoutRef.writeOnly;
+
+  if (readOnly && writeOnly) {
+    // Both readOnly and writeOnly are present - this is invalid
+    context?.logger.warn(
+      `Property has both readOnly and writeOnly set to true, which is invalid. Both will be ignored.`,
+    );
+  } else if (readOnly) {
+    // readOnly: true maps to @visibility(Lifecycle.Read)
+    decorators.push({
+      name: "visibility",
+      args: [createTSValue("Lifecycle.Read")],
+    });
+  } else if (writeOnly) {
+    // writeOnly: true maps to @visibility(Lifecycle.Create)
+    decorators.push({
+      name: "visibility",
+      args: [createTSValue("Lifecycle.Create")],
+    });
+  }
 
   // Handle x-ms-list-page-items extension with @pageItems decorator
   // This must be after getExtensions to ensure both decorators are present
@@ -249,29 +291,40 @@ export function getDecoratorsForSchema(
   }
 
   // Handle x-ms-list-*-link extensions
-  decorators.push(...getPagingLinkDecorators(schema));
+  decorators.push(...getPagingLinkDecorators(schemaWithoutRef));
 
-  // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
-  // Extract the non-null type to determine which decorators to apply
-  const effectiveType = Array.isArray(schema.type)
-    ? schema.type.find((t) => t !== "null")
-    : schema.type;
+  // Determine the effective type - if schema has $ref with sibling keywords, resolve the ref
+  let effectiveType: string | undefined;
+  if ("$ref" in schema && context) {
+    const refSchema = context.getSchemaByRef(schema.$ref);
+    if (refSchema) {
+      effectiveType = Array.isArray(refSchema.type)
+        ? refSchema.type.find((t) => t !== "null")
+        : refSchema.type;
+    }
+  } else {
+    // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
+    // Extract the non-null type to determine which decorators to apply
+    effectiveType = Array.isArray(schemaWithoutRef.type)
+      ? schemaWithoutRef.type.find((t) => t !== "null")
+      : schemaWithoutRef.type;
+  }
 
   // Handle x-ms-duration extension with @encode decorator
   // Must be after effectiveType extraction to handle type arrays correctly
-  const xmsDuration = (schema as any)["x-ms-duration"];
+  const xmsDuration = (schemaWithoutRef as any)["x-ms-duration"];
   if (xmsDuration === "seconds" || xmsDuration === "milliseconds") {
-    decorators.push(...getDurationSchemaDecorators(schema, effectiveType));
+    decorators.push(...getDurationSchemaDecorators(schemaWithoutRef, effectiveType));
   }
 
   // Handle unixtime format with @encode decorator
   // Check both direct format and format from anyOf/oneOf members
-  let formatToUse = schema.format;
+  let formatToUse = schemaWithoutRef.format;
   let typeForFormat = effectiveType;
 
   // If format is not directly on the schema, check anyOf/oneOf members for unixtime format
   if (!formatToUse) {
-    const unionMembers = schema.anyOf || schema.oneOf;
+    const unionMembers = schemaWithoutRef.anyOf || schemaWithoutRef.oneOf;
     if (unionMembers) {
       for (const member of unionMembers) {
         if ("$ref" in member) continue;
@@ -298,40 +351,43 @@ export function getDecoratorsForSchema(
 
   switch (effectiveType) {
     case "array":
-      decorators.push(...getArraySchemaDecorators(schema));
+      decorators.push(...getArraySchemaDecorators(schemaWithoutRef));
       break;
     case "integer":
     case "number":
-      decorators.push(...getNumberSchemaDecorators(schema));
+      decorators.push(...getNumberSchemaDecorators(schemaWithoutRef));
       break;
     case "string":
-      decorators.push(...getStringSchemaDecorators(schema));
+      decorators.push(...getStringSchemaDecorators(schemaWithoutRef));
       break;
     default:
       break;
   }
 
-  if (schema.title) {
-    decorators.push({ name: "summary", args: [schema.title] });
+  if (schemaWithoutRef.title) {
+    decorators.push({ name: "summary", args: [schemaWithoutRef.title] });
   }
 
-  if (schema.discriminator) {
-    if (schema.oneOf || schema.anyOf) {
+  if (schemaWithoutRef.discriminator) {
+    if (schemaWithoutRef.oneOf || schemaWithoutRef.anyOf) {
       decorators.push({
         name: "discriminated",
         args: [
           createTSValue(
-            `#{ envelope: "none", discriminatorPropertyName: ${JSON.stringify(schema.discriminator.propertyName)} }`,
+            `#{ envelope: "none", discriminatorPropertyName: ${JSON.stringify(schemaWithoutRef.discriminator.propertyName)} }`,
           ),
         ],
       });
     } else {
-      decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
+      decorators.push({
+        name: "discriminator",
+        args: [schemaWithoutRef.discriminator.propertyName],
+      });
     }
   }
 
-  if (schema.oneOf) {
-    decorators.push(...getOneOfSchemaDecorators(schema));
+  if (schemaWithoutRef.oneOf) {
+    decorators.push(...getOneOfSchemaDecorators(schemaWithoutRef));
   }
 
   return decorators;
@@ -342,11 +398,23 @@ export function getDirectivesForSchema(
 ): TypeSpecDirective[] {
   const directives: TypeSpecDirective[] = [];
 
+  // In JSON Schema 2020-12 (used in OpenAPI 3.1+), sibling keywords alongside $ref are allowed
+  // We should process them even when $ref is present
+  // If only $ref is present without sibling keywords, return early
   if ("$ref" in schema) {
-    return directives;
+    // Check if there are any sibling keywords besides $ref
+    const hasSiblingKeywords = Object.keys(schema).some((key) => key !== "$ref");
+    if (!hasSiblingKeywords) {
+      return directives;
+    }
+    // If we have sibling keywords, we need to process them
+    // Cast to the non-ref type since TypeScript doesn't understand that we have sibling keywords
   }
 
-  if (schema.deprecated) {
+  // At this point, either schema doesn't have $ref, or it has $ref with sibling keywords
+  const schemaWithoutRef = schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
+
+  if (schemaWithoutRef.deprecated) {
     directives.push({ name: "deprecated", message: "deprecated" });
   }
 

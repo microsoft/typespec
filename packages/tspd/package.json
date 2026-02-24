@@ -1,6 +1,6 @@
 {
   "name": "@typespec/tspd",
-  "version": "0.73.3",
+  "version": "0.74.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating TypeSpec docs",
   "homepage": "https://typespec.io",

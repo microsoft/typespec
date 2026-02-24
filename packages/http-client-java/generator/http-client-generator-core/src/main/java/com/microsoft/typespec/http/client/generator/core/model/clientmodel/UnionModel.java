@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -91,10 +90,10 @@ public class UnionModel {
     public static class Builder {
         private String packageName;
         private String name;
-        private List<String> imports = Collections.emptyList();
+        private List<String> imports = List.of();
         private String description;
         private String parentModelName;
-        private List<ClientModelProperty> properties = Collections.emptyList();
+        private List<ClientModelProperty> properties = List.of();
         private ImplementationDetails implementationDetails;
 
         /**

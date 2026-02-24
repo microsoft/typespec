@@ -13,7 +13,7 @@ import io.clientcore.core.serialization.json.JsonWriter;
 import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,7 +34,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean includeApiViewProperties = true;
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
-    private Map<String, PollingSettings> polling = new HashMap<>();
+    private Map<String, PollingSettings> polling = new LinkedHashMap<>();
     private String modelsSubpackage;
     private String apiVersion;
     private Boolean useRestProxy;

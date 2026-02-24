@@ -15,6 +15,16 @@ namespace Encode.Datetime
 
         protected virtual UnixTimestampDatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<UnixTimestampDatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        UnixTimestampDatetimeProperty IPersistableModel<UnixTimestampDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<UnixTimestampDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(UnixTimestampDatetimeProperty unixTimestampDatetimeProperty) => throw null;
+
         public static explicit operator UnixTimestampDatetimeProperty(ClientResult result) => throw null;
 
         void IJsonModel<UnixTimestampDatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -24,15 +34,5 @@ namespace Encode.Datetime
         UnixTimestampDatetimeProperty IJsonModel<UnixTimestampDatetimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual UnixTimestampDatetimeProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<UnixTimestampDatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        UnixTimestampDatetimeProperty IPersistableModel<UnixTimestampDatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<UnixTimestampDatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(UnixTimestampDatetimeProperty unixTimestampDatetimeProperty) => throw null;
     }
 }

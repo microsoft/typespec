@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void SetUp()
         {
             MockHelpers.LoadMockGenerator(createSerializationsCore: (inputType, typeProvider)
-                => inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
+                => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)] : []);
         }
 
         [Test]
@@ -70,8 +70,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 "TestXmlModel",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))]);
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [inputModel]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modeltype
+                    ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                    : []);
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
@@ -93,8 +97,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 "OuterModel",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
                 properties: [InputFactory.Property("inner", innerModel, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("inner")))]);
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [innerModel, outerModel]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+               inputModels: () => [innerModel, outerModel],
+               createSerializationsCore: (inputType, typeProvider)
+                   => inputType is InputModelType modeltype
+                   ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                   : []);
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "OuterModel");
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
@@ -116,8 +124,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     InputFactory.Array(InputPrimitiveType.String),
                     isRequired: true,
                     serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("colors", unwrapped: true)))]);
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [inputModel]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+               inputModels: () => [inputModel],
+               createSerializationsCore: (inputType, typeProvider)
+                   => inputType is InputModelType modeltype
+                   ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                   : []);
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
@@ -139,8 +151,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     InputFactory.Array(InputPrimitiveType.Int32),
                     isRequired: true,
                     serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("counts", unwrapped: false, itemsName: "int32")))]);
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [inputModel]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+               inputModels: () => [inputModel],
+               createSerializationsCore: (inputType, typeProvider)
+                   => inputType is InputModelType modeltype
+                   ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                   : []);
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
@@ -221,6 +237,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             Assert.IsTrue(methodBody.Contains("child.GetBytesFromBase64(\"D\")"),
                 $"Bytes property should use child.GetBytesFromBase64(\"D\") with Base64 format. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void XmlDeserializationHandlesUriProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("endpoint")))]);
+
+            var modelProvider = new ModelProvider(inputModel);
+            var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(mrwProvider);
+            var xmlDeserializationMethod = mrwProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "DeserializeTestXmlModel" &&
+                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(XElement))));
+
+            Assert.IsNotNull(xmlDeserializationMethod);
+            var methodBody = xmlDeserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("new global::System.Uri("),
+                $"Uri property should use new Uri() constructor for deserialization. Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("global::System.UriKind.RelativeOrAbsolute"),
+                $"Uri property should specify UriKind.RelativeOrAbsolute. Actual:\n{methodBody}");
         }
 
         [Test]
@@ -516,6 +558,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private class MockMrwProvider : MrwSerializationTypeDefinition
+        {
+            public MockMrwProvider(InputModelType inputModel, ModelProvider modelProvider)
+                : base(inputModel, modelProvider)
+            {
+            }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                return [.. base.BuildMethods()
+                    .Where(m => m.Signature.Name.StartsWith("Deserialize") || m.Signature.Name.StartsWith("PersistableModelCreateCore"))];
+            }
+
+            protected override FieldProvider[] BuildFields() => [];
         }
     }
 }
