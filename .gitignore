@@ -87,7 +87,6 @@ celerybeat-schedule
 /.env
 .env.local
 .venv
-.venv_test
 env/
 venv/
 ENV/
