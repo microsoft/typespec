@@ -1314,6 +1314,11 @@ export interface ImportStatementNode extends BaseNode {
 export interface IdentifierNode extends BaseNode {
   readonly kind: SyntaxKind.Identifier;
   readonly sv: string;
+  /**
+   * Present when this identifier was declared using backticked interpolation syntax
+   * (e.g. `My${name}`).
+   */
+  readonly interpolation?: StringTemplateExpressionNode;
 }
 
 export interface DecoratorExpressionNode extends BaseNode {

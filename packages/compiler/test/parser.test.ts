@@ -160,6 +160,33 @@ describe("compiler: parser", () => {
     ]);
   });
 
+  describe("interpolated identifiers", () => {
+    parseEach([
+      'const v = "A"; model `Model${v}` { `${v}`: string; }',
+      'const v = "A"; scalar `Scalar${v}`;',
+      'const v = "A"; enum `Enum${v}` { value }',
+      'const v = "A"; union `Union${v}` { value: string }',
+      'const v = "A"; interface `Interface${v}` {}',
+      'const v = "A"; op `op${v}`(): void;',
+      [
+        'const v = "A"; model `Model${v}` { `${v}`: string; }',
+        (script: TypeSpecScriptNode) => {
+          const model = script.statements.find((x) => x.kind === SyntaxKind.ModelStatement);
+          ok(model && model.kind === SyntaxKind.ModelStatement);
+          ok(model.id.interpolation);
+          strictEqual(model.id.interpolation.head.value, "Model");
+          strictEqual(model.id.interpolation.spans.length, 1);
+          strictEqual(model.id.interpolation.spans[0].literal.value, "");
+          const prop = model.properties[0];
+          ok(prop && prop.kind === SyntaxKind.ModelProperty);
+          ok(prop.id.interpolation);
+          strictEqual(prop.id.interpolation.head.value, "");
+          strictEqual(prop.id.interpolation.spans.length, 1);
+        },
+      ],
+    ]);
+  });
+
   describe("model extends statements", () => {
     parseEach([
       "model foo extends bar { }",

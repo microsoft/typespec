@@ -1,7 +1,7 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
-import { Model, ModelProperty, SyntaxKind, Type } from "../../src/core/types.js";
+import { Enum, Model, ModelProperty, Scalar, SyntaxKind, Type } from "../../src/core/types.js";
 import {
   Numeric,
   Operation,
@@ -89,6 +89,95 @@ describe("compiler: models", () => {
         message: "Unknown identifier notValidType",
       },
     ]);
+  });
+
+  describe("interpolated identifiers", () => {
+    it("supports declaration and property names", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        const suffix = "A";
+        model \`Model\${suffix}\` { \`\${suffix}\`: string; }
+        scalar \`Scalar\${suffix}\`;
+        enum \`Enum\${suffix}\` { member }
+        union \`Union\${suffix}\` { variant: string }
+        interface \`Interface\${suffix}\` {}
+        op \`op\${suffix}\`(): void;
+        `,
+      );
+
+      await testHost.compile("main.tsp");
+      const global = testHost.program.checker.getGlobalNamespaceType();
+
+      const model = global.models.get("ModelA");
+      ok(model);
+      ok(model.properties.get("A"));
+      ok(global.scalars.get("ScalarA"));
+      ok(global.enums.get("EnumA"));
+      ok(global.unions.get("UnionA"));
+      ok(global.interfaces.get("InterfaceA"));
+      ok(global.operations.get("opA"));
+    });
+
+    it("emits diagnostic when interpolation isn't string", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        const v = 123;
+        model \`Model\${v}\` {}
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [{ code: "invalid-interpolated-identifier" }]);
+    });
+
+    it("emits duplicate-property with interpolated property names", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        const v = "x";
+        model A {
+          \`\${v}\`: string;
+          x: int32;
+        }
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [{ code: "duplicate-property" }]);
+    });
+
+    it("emits invalid-ref from interpolated identifier expressions", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model \`Model\${doesNotExist}\` {}
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref" }, { code: "expect-value" }]);
+    });
+
+    it("supports interpolated names for member declarations", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        const suffix = "A";
+        enum E { \`M\${suffix}\` }
+        scalar S { init \`from\${suffix}\`(\`value\${suffix}\`: string); }
+        `,
+      );
+
+      await testHost.compile("main.tsp");
+      const global = testHost.program.checker.getGlobalNamespaceType();
+      const E = global.enums.get("E") as Enum;
+      const S = global.scalars.get("S") as Scalar;
+      ok(E.members.get("MA"));
+      ok(S.constructors.get("fromA"));
+      strictEqual(S.constructors.get("fromA")!.parameters[0].name, "valueA");
+    });
   });
 
   describe("property defaults", () => {
