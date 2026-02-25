@@ -309,7 +309,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? collectionFormat = null,
             string? serializedName = null,
             InputConstant? defaultValue = null,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            string? collectionHeaderPrefix = null)
         {
             return new InputHeaderParameter(
                 name: name,
@@ -325,7 +326,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 collectionFormat: collectionFormat,
                 scope: scope,
                 arraySerializationDelimiter: null,
-                serializedName: serializedName ?? name);
+                serializedName: serializedName ?? name,
+                collectionHeaderPrefix: collectionHeaderPrefix);
         }
 
         public static InputQueryParameter QueryParameter(

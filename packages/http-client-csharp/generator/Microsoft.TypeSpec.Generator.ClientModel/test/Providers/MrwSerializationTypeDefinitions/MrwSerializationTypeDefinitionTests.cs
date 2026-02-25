@@ -1377,5 +1377,92 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             Assert.IsNull(toBinaryContentMethod, "ToBinaryContent method should not be generated for XML-only models");
         }
+
+        [Test]
+        public void TestDeserializationOfByteArrayPropertyUsesGetBytesFromBase64()
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", InputPrimitiveType.Base64)]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
+                    ? new CSharpType(typeof(byte[]))
+                    : null!,
+                createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetBytesFromBase64(\"D\")"),
+                $"byte[] property with Base64 format should use GetBytesFromBase64(\"D\"). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void TestDeserializationOfBase64UrlByteArrayPropertyUsesGetBytesFromBase64()
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", InputPrimitiveType.Base64Url)]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
+                    ? new CSharpType(typeof(byte[]))
+                    : null!,
+                createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetBytesFromBase64(\"U\")"),
+                $"byte[] property with Base64Url format should use GetBytesFromBase64(\"U\"). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void TestDeserializationOfNonBase64ByteArrayPropertyUsesGetRawText()
+        {
+            var bytesNoEncoding = new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes");
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", bytesNoEncoding)]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
+                    ? new CSharpType(typeof(byte[]))
+                    : null!,
+                createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetRawText"),
+                $"byte[] property with no encoding should use GetRawText() fallback. Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("ToArray"),
+                $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
+        }
     }
 }
