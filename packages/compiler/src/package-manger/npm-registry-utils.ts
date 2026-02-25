@@ -1,5 +1,8 @@
 // Helpers to access the npm registry api https://github.com/npm/registry/blob/main/docs/REGISTRY-API.md#package-endpoints
+import { execSync } from "child_process";
 import { createHash } from "crypto";
+import * as http from "http";
+import * as https from "https";
 import { Readable } from "stream";
 import { extract as tarX } from "tar/extract";
 import { Hash } from "../install/spec.js";
@@ -85,15 +88,100 @@ export interface NpmHuman {
   readonly url?: string | undefined;
 }
 
-const registry = `https://registry.npmjs.org`;
+const defaultRegistry = `https://registry.npmjs.org`;
+
+interface NpmFetchConfig {
+  readonly registry: string;
+  readonly strictSsl: boolean;
+}
+
+let cachedNpmConfig: NpmFetchConfig | undefined;
+
+/**
+ * Reads npm configuration for registry URL and strict-ssl setting.
+ * Falls back to defaults if npm is not available or config cannot be read.
+ */
+function readNpmConfig(): NpmFetchConfig {
+  if (cachedNpmConfig !== undefined) {
+    return cachedNpmConfig;
+  }
+
+  try {
+    const configJson = execSync("npm config list --json", {
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    const config = JSON.parse(configJson);
+    cachedNpmConfig = {
+      registry: ((config.registry as string) ?? defaultRegistry).replace(/\/$/, ""),
+      strictSsl: config["strict-ssl"] !== false,
+    };
+  } catch {
+    cachedNpmConfig = {
+      registry: defaultRegistry,
+      strictSsl: true,
+    };
+  }
+
+  return cachedNpmConfig;
+}
+
+/**
+ * Makes an HTTP/HTTPS request and returns the response body as a Buffer.
+ * Handles redirects and respects the rejectUnauthorized option.
+ */
+async function makeRequest(
+  url: string,
+  rejectUnauthorized: boolean,
+  maxRedirects = 5,
+): Promise<Buffer> {
+  return new Promise<Buffer>((resolve, reject) => {
+    const urlObj = new URL(url);
+    const requestFn = urlObj.protocol === "https:" ? https.request : http.request;
+    const req = requestFn(url, { rejectUnauthorized }, (res) => {
+      // Handle redirects
+      if (
+        (res.statusCode === 301 ||
+          res.statusCode === 302 ||
+          res.statusCode === 307 ||
+          res.statusCode === 308) &&
+        res.headers.location
+      ) {
+        if (maxRedirects <= 0) {
+          reject(new Error(`Too many redirects for ${url}`));
+          return;
+        }
+        // Consume the response body to free resources
+        res.resume();
+        makeRequest(res.headers.location, rejectUnauthorized, maxRedirects - 1)
+          .then(resolve)
+          .catch(reject);
+        return;
+      }
+
+      const chunks: Buffer[] = [];
+      res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () => resolve(Buffer.concat(chunks)));
+      res.on("error", reject);
+    });
+    req.on("error", reject);
+    req.end();
+  });
+}
 
 export async function fetchPackageManifest(
   packageName: string,
   version: string,
 ): Promise<NpmManifest> {
+  const { registry, strictSsl } = readNpmConfig();
   const url = `${registry}/${packageName}/${version}`;
-  const res = await fetch(url);
-  return await res.json();
+  if (strictSsl) {
+    const res = await fetch(url);
+    return await res.json();
+  } else {
+    const body = await makeRequest(url, false);
+    return JSON.parse(body.toString("utf8"));
+  }
 }
 
 export function fetchLatestPackageManifest(packageName: string): Promise<NpmManifest> {
@@ -126,8 +214,15 @@ async function downloadAndExtractTarball(
   dest: string,
   hashAlgorithm: string = "sha512",
 ): Promise<ExtractedTarballResult> {
-  const res = await fetch(url);
-  const tarballStream = Readable.fromWeb(res.body as any);
+  const { strictSsl } = readNpmConfig();
+  let tarballStream: Readable;
+  if (strictSsl) {
+    const res = await fetch(url);
+    tarballStream = Readable.fromWeb(res.body as any);
+  } else {
+    const buffer = await makeRequest(url, false);
+    tarballStream = Readable.from(buffer);
+  }
   const hash = tarballStream.pipe(createHash(hashAlgorithm));
   const extractor = tarX({
     strip: 1,
