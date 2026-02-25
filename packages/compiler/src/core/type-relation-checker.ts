@@ -281,7 +281,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     }
 
     if (isReflectionType(target)) {
-      return source.kind === ReflectionNameToKind[target.name]
+      return source.kind === ReflectionNameToKind[target.name] || isNeverType(source)
         ? [Related.true, []]
         : [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
