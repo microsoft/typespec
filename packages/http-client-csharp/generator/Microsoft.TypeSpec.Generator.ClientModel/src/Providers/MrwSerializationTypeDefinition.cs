@@ -1382,9 +1382,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         out var deserializationHook,
                         out _) && name == propertyName && deserializationHook != null)
                 {
-                    var hookArgs = CustomHookHasOptionsParameter(deserializationHook)
-                        ? new ValueExpression[] { jsonProperty, ByRef(variableExpression), _serializationOptionsParameter }
-                        : new ValueExpression[] { jsonProperty, ByRef(variableExpression) };
+                    var knownArgs = new (string TypeName, ValueExpression Argument)[]
+                    {
+                        (nameof(JsonProperty), jsonProperty),
+                        (nameof(ModelReaderWriterOptions), _serializationOptionsParameter)
+                    };
+                    var hookArgs = GetDeserializationHookArguments(deserializationHook, variableExpression, knownArgs);
                     return
                     [
                         MethodBodyStatement.Empty,
@@ -2527,7 +2530,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
         }
 
-        private bool CustomHookHasOptionsParameter(string hookName)
+        private MethodProvider? FindCustomHookMethod(string hookName)
         {
             var model = _model;
             while (model != null)
@@ -2538,13 +2541,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var method = customCodeView.Methods.FirstOrDefault(m => m.Signature.Name == hookName);
                     if (method != null)
                     {
-                        return method.Signature.Parameters.Any(p =>
-                            p.Type.Name == nameof(ModelReaderWriterOptions));
+                        return method;
                     }
                 }
                 model = model.BaseModelProvider;
             }
-            return false;
+            return null;
+        }
+
+        /// <summary>
+        /// Builds the argument list for a deserialization hook invocation by matching the hook's parameters
+        /// to the known available arguments. Parameters are matched as follows:
+        /// <list type="bullet">
+        ///   <item><c>ref</c> parameters are matched to the designated ref variable argument.</item>
+        ///   <item>Other parameters are matched by type name.</item>
+        ///   <item>Unmatched parameters receive the <c>default</c> value for their type.</item>
+        /// </list>
+        /// </summary>
+        private IReadOnlyList<ValueExpression> GetDeserializationHookArguments(
+            string hookName,
+            ValueExpression refVariable,
+            IReadOnlyList<(string TypeName, ValueExpression Argument)> knownArguments)
+        {
+            var hookMethod = FindCustomHookMethod(hookName);
+            if (hookMethod == null)
+            {
+                // Fall back: no method found, pass known arguments in order followed by ref variable
+                return [.. knownArguments.Select(a => a.Argument), ByRef(refVariable)];
+            }
+
+            var args = new List<ValueExpression>();
+            foreach (var param in hookMethod.Signature.Parameters)
+            {
+                if (param.IsRef)
+                {
+                    args.Add(ByRef(refVariable));
+                }
+                else
+                {
+                    var matched = knownArguments.FirstOrDefault(a => a.TypeName == param.Type.Name);
+                    args.Add(matched.Argument ?? DefaultOf(param.Type));
+                }
+            }
+            return args;
         }
 
         private List<AttributeStatement> GetSerializationAttributes()

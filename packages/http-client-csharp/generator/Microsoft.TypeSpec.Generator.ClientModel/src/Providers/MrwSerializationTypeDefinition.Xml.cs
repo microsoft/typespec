@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -755,6 +756,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     prop.PropertyName,
                     prop.SerializationAttributes,
                     childElement,
+                    nameof(XElement),
                     prop.DeserializationExp,
                     out bool hasHook);
 
@@ -792,6 +794,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string propertyName,
             IEnumerable<AttributeStatement> serializationAttributes,
             ValueExpression xmlValue,
+            string xmlValueTypeName,
             VariableExpression variableExpression,
             out bool hasHook)
         {
@@ -807,9 +810,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         out _) && name == propertyName && deserializationHook != null)
                 {
                     hasHook = true;
-                    var hookArgs = CustomHookHasOptionsParameter(deserializationHook)
-                        ? new ValueExpression[] { xmlValue, ByRef(variableExpression), _serializationOptionsParameter }
-                        : new ValueExpression[] { xmlValue, ByRef(variableExpression) };
+                    var knownArgs = new (string TypeName, ValueExpression Argument)[]
+                    {
+                        (xmlValueTypeName, xmlValue),
+                        (nameof(ModelReaderWriterOptions), _serializationOptionsParameter)
+                    };
+                    var hookArgs = GetDeserializationHookArguments(deserializationHook, variableExpression, knownArgs);
                     return Static().Invoke(deserializationHook, hookArgs).Terminate();
                 }
             }
@@ -1068,6 +1074,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     prop.PropertyName,
                     prop.SerializationAttributes,
                     attrVariable,
+                    nameof(XAttribute),
                     prop.DeserializationExp,
                     out bool hasHook);
 

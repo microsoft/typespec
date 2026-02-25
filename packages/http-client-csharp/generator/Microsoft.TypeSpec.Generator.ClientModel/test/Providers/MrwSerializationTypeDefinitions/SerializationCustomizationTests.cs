@@ -102,7 +102,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
             Assert.IsNotNull(serializationProvider);
 
-            var writer = new TypeProviderWriter(serializationProvider);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider!,
+                name => name == "DeserializeMockInputModel"));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
