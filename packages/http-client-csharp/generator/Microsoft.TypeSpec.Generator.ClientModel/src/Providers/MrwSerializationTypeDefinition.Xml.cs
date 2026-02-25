@@ -756,7 +756,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     prop.PropertyName,
                     prop.SerializationAttributes,
                     childElement,
-                    nameof(XElement),
                     prop.DeserializationExp,
                     out bool hasHook);
 
@@ -794,7 +793,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string propertyName,
             IEnumerable<AttributeStatement> serializationAttributes,
             ValueExpression xmlValue,
-            string xmlValueTypeName,
             VariableExpression variableExpression,
             out bool hasHook)
         {
@@ -810,6 +808,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         out _) && name == propertyName && deserializationHook != null)
                 {
                     hasHook = true;
+                    var xmlValueTypeName = xmlValue is ScopedApi scopedApi ? scopedApi.Type.Name : nameof(XElement);
                     var knownArgs = new (string TypeName, ValueExpression Argument)[]
                     {
                         (xmlValueTypeName, xmlValue),
@@ -1074,7 +1073,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     prop.PropertyName,
                     prop.SerializationAttributes,
                     attrVariable,
-                    nameof(XAttribute),
                     prop.DeserializationExp,
                     out bool hasHook);
 
