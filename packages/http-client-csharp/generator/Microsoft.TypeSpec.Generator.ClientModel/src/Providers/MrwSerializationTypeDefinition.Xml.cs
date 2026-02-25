@@ -788,7 +788,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static MethodBodyStatement GetXmlDeserializationHookStatement(
+        private MethodBodyStatement GetXmlDeserializationHookStatement(
             string propertyName,
             IEnumerable<AttributeStatement> serializationAttributes,
             ValueExpression xmlValue,
@@ -807,7 +807,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         out _) && name == propertyName && deserializationHook != null)
                 {
                     hasHook = true;
-                    return Static().Invoke(deserializationHook, xmlValue, ByRef(variableExpression)).Terminate();
+                    var hookArgs = CustomHookHasOptionsParameter(deserializationHook)
+                        ? new ValueExpression[] { xmlValue, ByRef(variableExpression), _serializationOptionsParameter }
+                        : new ValueExpression[] { xmlValue, ByRef(variableExpression) };
+                    return Static().Invoke(deserializationHook, hookArgs).Terminate();
                 }
             }
 

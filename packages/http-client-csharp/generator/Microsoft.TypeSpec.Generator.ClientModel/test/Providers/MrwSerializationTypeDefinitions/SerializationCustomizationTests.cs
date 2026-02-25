@@ -84,6 +84,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // Validates that when a custom deserialization hook has a ModelReaderWriterOptions parameter,
+        // the generated code passes the options to the hook.
+        [Test]
+        public async Task CanCustomizeDeserializationMethodWithOptions()
+        {
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
+                        InputFactory.Property("Prop1", InputPrimitiveType.String),
+                        InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
+                    ],
+                usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [Test]
         public async Task CanCustomizeSerializationMethodForRenamedProperty()
         {

@@ -1382,10 +1382,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         out var deserializationHook,
                         out _) && name == propertyName && deserializationHook != null)
                 {
+                    var hookArgs = CustomHookHasOptionsParameter(deserializationHook)
+                        ? new ValueExpression[] { jsonProperty, ByRef(variableExpression), _serializationOptionsParameter }
+                        : new ValueExpression[] { jsonProperty, ByRef(variableExpression) };
                     return
                     [
                         MethodBodyStatement.Empty,
-                        Static().Invoke(deserializationHook, jsonProperty, ByRef(variableExpression)).Terminate(),
+                        Static().Invoke(deserializationHook, hookArgs).Terminate(),
                         Continue
                     ];
                 }
@@ -2522,6 +2525,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // search in the base model if the property is not found in the current model
             return property ?? _model.BaseModelProvider?.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+        }
+
+        private bool CustomHookHasOptionsParameter(string hookName)
+        {
+            var model = _model;
+            while (model != null)
+            {
+                var customCodeView = model.CustomCodeView;
+                if (customCodeView != null)
+                {
+                    var method = customCodeView.Methods.FirstOrDefault(m => m.Signature.Name == hookName);
+                    if (method != null)
+                    {
+                        return method.Signature.Parameters.Any(p =>
+                            p.Type.Name == nameof(ModelReaderWriterOptions));
+                    }
+                }
+                model = model.BaseModelProvider;
+            }
+            return false;
         }
 
         private List<AttributeStatement> GetSerializationAttributes()
