@@ -2656,6 +2656,11 @@ export class CodeModelBuilder {
       // java name
       schema.language.java = schema.language.java ?? new Language();
       schema.language.java.name = getExternalJavaClassName(type);
+
+      // add external to usage
+      this.trackSchemaUsage(schema, {
+        usage: [SchemaContext.External],
+      });
     }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
