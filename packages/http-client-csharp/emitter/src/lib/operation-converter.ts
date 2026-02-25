@@ -3,6 +3,7 @@
 
 import {
   getClientNamespace,
+  getClientOptions,
   getHttpOperationParameter,
   isHttpMetadata,
   SdkBodyParameter,
@@ -513,6 +514,7 @@ function fromHeaderParameter(
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: getMethodParameterSegments(sdkContext, p),
+    collectionHeaderPrefix: getCollectionHeaderPrefix(sdkContext, p),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -977,4 +979,30 @@ function getResponseType(
   }
 
   return fromSdkType(sdkContext, type);
+}
+
+function getCollectionHeaderPrefix(
+  sdkContext: CSharpEmitterContext,
+  p: SdkHeaderParameter,
+): string | undefined {
+  const value = getClientOptions(p, "collectionHeaderPrefix");
+  if (value === undefined) {
+    return undefined;
+  }
+  // Only apply to dictionary types (unwrap nullable)
+  const rawType = p.type.kind === "nullable" ? p.type.type : p.type;
+  if (rawType.kind !== "dict") {
+    return undefined;
+  }
+  if (typeof value !== "string") {
+    sdkContext.logger.reportDiagnostic({
+      code: "general-warning",
+      format: {
+        message: `The 'collectionHeaderPrefix' client option must be a string value, but got '${typeof value}'. The option will be ignored.`,
+      },
+      target: p.__raw ?? NoTarget,
+    });
+    return undefined;
+  }
+  return value;
 }
