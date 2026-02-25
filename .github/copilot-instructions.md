@@ -122,7 +122,7 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 
 ## Pull Request instructions
 
-- When the work is done, run `pnpm chronus add` to add a changelog entry. Make sure to select the correct type of change (fix, feat, docs, etc.) and provide a clear description based on the initial issue description. Also prefix the description with the component name (e.g. if the component is the importer `importer - `).
+- When the work is done, run `pnpm chronus add` to add a changelog entry. Select the correct type of change (fix, feat, docs, etc.) and provide a clear description based on the initial issue description. Only add an area tag when the package has multiple areas and the change targets a secondary area; use bracket format like `[converter]` or `[formatter]` (for example, a secondary openapi3 converter change should start with `[converter]`). Avoid generic area prefixes like `core -` and do not add any area tag for single-area packages.
 - Always start by defining additional unit tests/updating existing unit tests to fulfill the requirements first. Then make changes to the code accordingly. If you are following the TDD (Test Driven Development) approach, make sure to run the tests and see them fail before implementing the code changes.
 
 ## Available Task Instructions
