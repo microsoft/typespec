@@ -1423,7 +1423,9 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             item_type = builder.item_type.type_annotation(
                 is_operation_file=True, serialize_namespace=self.serialize_namespace
             )
-            pylint_disable = "  # pylint: disable=protected-access" if builder.item_type.internal else ""
+            pylint_disable = (
+                "  # pylint: disable=protected-access" if getattr(builder.item_type, "internal", False) else ""
+            )
             list_of_elem_deserialized = [
                 "_deserialize(",
                 f"{item_type},{pylint_disable}",
