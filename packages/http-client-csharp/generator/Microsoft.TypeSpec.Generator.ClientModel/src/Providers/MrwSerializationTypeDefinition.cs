@@ -2535,14 +2535,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var model = _model;
             while (model != null)
             {
-                var customCodeView = model.CustomCodeView;
-                if (customCodeView != null)
+                var method = model.CanonicalView.Methods.FirstOrDefault(m => m.Signature.Name == hookName);
+                if (method != null)
                 {
-                    var method = customCodeView.Methods.FirstOrDefault(m => m.Signature.Name == hookName);
-                    if (method != null)
-                    {
-                        return method;
-                    }
+                    return method;
                 }
                 model = model.BaseModelProvider;
             }
@@ -2566,8 +2562,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var hookMethod = FindCustomHookMethod(hookName);
             if (hookMethod == null)
             {
-                // Fall back: no method found, pass known arguments in order followed by ref variable
-                return [.. knownArguments.Select(a => a.Argument), ByRef(refVariable)];
+                // Fall back: no method found, use previous behavior (first known arg, ref variable, no options)
+                return [knownArguments[0].Argument, ByRef(refVariable)];
             }
 
             var args = new List<ValueExpression>();
