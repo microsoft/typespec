@@ -56,7 +56,7 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 | `pnpm lint:fix`             | Fix autofixable issues                                                                                                                                    |
 | `pnpm regen-samples`        | Regen the samples(when the samples test fail)                                                                                                             |
 | `pnpm regen-docs`           | Regen the reference docs                                                                                                                                  |
-| `pnpm tsp-integration`     | Run integration tests against external repos using local package changes                                                                                  |
+| `pnpm tsp-integration`      | Run integration tests against external repos using local package changes                                                                                  |
 
 ### Verbose test logging
 
@@ -219,13 +219,13 @@ pnpm integration-test <suite-name>
 
 ### CLI options
 
-| Option | Short | Description |
-| --- | --- | --- |
-| `--clean` | | Force a fresh clone instead of reusing an existing checkout. By default the tool resets and pulls the existing repo. |
-| `--stage <name>` | | Run only specific stages. Can be specified multiple times. Valid stages: `checkout`, `patch`, `install`, `validate`, `validate:clean`. |
-| `--interactive` | `-i` | Enable interactive watch mode. After the initial run you can press **a** to rerun all tests, **f** to rerun only failed tests, or **q** to quit. |
-| `--tgz-dir <path>` | | Use pre-built `.tgz` package artifacts from the given directory instead of resolving packages from the local workspace. Useful in CI with artifacts from `pnpm pack:all`. |
-| `--repo <path>` | | Use an existing local repository checkout instead of cloning into the default temp directory (`.typespec-integration/temp/<suite>`). |
+| Option             | Short | Description                                                                                                                                                               |
+| ------------------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--clean`          |       | Force a fresh clone instead of reusing an existing checkout. By default the tool resets and pulls the existing repo.                                                      |
+| `--stage <name>`   |       | Run only specific stages. Can be specified multiple times. Valid stages: `checkout`, `patch`, `install`, `validate`, `validate:clean`.                                    |
+| `--interactive`    | `-i`  | Enable interactive watch mode. After the initial run you can press **a** to rerun all tests, **f** to rerun only failed tests, or **q** to quit.                          |
+| `--tgz-dir <path>` |       | Use pre-built `.tgz` package artifacts from the given directory instead of resolving packages from the local workspace. Useful in CI with artifacts from `pnpm pack:all`. |
+| `--repo <path>`    |       | Use an existing local repository checkout instead of cloning into the default temp directory (`.typespec-integration/temp/<suite>`).                                      |
 
 ### Examples
 
