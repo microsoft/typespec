@@ -251,7 +251,7 @@ The script performs the following steps in sequence when the repository path poi
   - `Microsoft.TypeSpec.Generator.ClientModel`
 - Uses Debug configuration with `--no-build` (reuses binaries from Step 1)
 - Outputs `.nupkg` files to the `debug` folder
-- In Azure SDK mode: Updates `Packages.Data.props` and `NuGet.Config`
+- In Azure SDK mode: Updates `Directory.Generation.Packages.props` and `NuGet.Config`
 - In OpenAI mode: Proceeds to Step 3 (OpenAI regeneration)
 
 ---
@@ -328,7 +328,7 @@ In Azure SDK mode, the script continues with additional steps after Step 2.5:
 - Updates eng folder emitter package artifacts:
   - `azure-typespec-http-client-csharp-mgmt-emitter-package.json`
   - `azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json`
-- Updates `Packages.Data.props` in azure-sdk-for-net with `AzureGeneratorVersion` property
+- Updates `Directory.Generation.Packages.props` in azure-sdk-for-net with `AzureGeneratorVersion` property
   - This version is used by management plane libraries that reference the `Azure.Generator` NuGet package
 - This step is skipped if the management plane generator directory doesn't exist
 
@@ -374,7 +374,7 @@ If all libraries regenerate successfully, the script restores modified files:
 - `eng/packages/http-client-csharp/package-lock.json`
 - `eng/packages/http-client-csharp-mgmt/package.json`
 - `eng/packages/http-client-csharp-mgmt/package-lock.json`
-- `eng/Packages.Data.props`
+- `eng/centralpackagemanagement/Directory.Generation.Packages.props`
 - `NuGet.Config`
 
 **Note:** If any libraries fail, artifacts are NOT restored, allowing you to debug the issue with the modified configuration intact.

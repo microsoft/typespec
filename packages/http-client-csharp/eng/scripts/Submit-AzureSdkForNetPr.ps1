@@ -2,7 +2,7 @@
 
 <#
 .DESCRIPTION
-Creates a pull request in the Azure SDK for .NET repository to update the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json.
+Creates a pull request in the Azure SDK for .NET repository to update the UnbrandedGeneratorVersion property in eng/centralpackagemanagement/Directory.Generation.Packages.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json.
 .PARAMETER PackageVersion
 The version of the Microsoft.TypeSpec.Generator.ClientModel package to update to.
 .PARAMETER TypeSpecPRUrl
@@ -73,7 +73,7 @@ if ($RegenerateAzureLibraries -and $RegenerateMgmtLibraries) {
     $PRTitle += " (Azure mgmt)"
 }
 $PRBody = @"
-This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json to version $PackageVersion.
+This PR updates the UnbrandedGeneratorVersion property in eng/centralpackagemanagement/Directory.Generation.Packages.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json to version $PackageVersion.
 
 ## Details
 
@@ -81,7 +81,7 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 
 ## Changes
 
-- Updated eng/Packages.Data.props UnbrandedGeneratorVersion property
+- Updated eng/centralpackagemanagement/Directory.Generation.Packages.props UnbrandedGeneratorVersion property
 - Updated eng/packages/http-client-csharp/package.json dependency version
 - Ran npm install to update package-lock.json
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
@@ -170,12 +170,12 @@ try {
         throw "Failed to create branch"
     }
 
-    # Update the dependency in eng/Packages.Data.props
-    Write-Host "Updating dependency version in eng/Packages.Data.props..."
-    $propsFilePath = Join-Path $tempDir "eng/Packages.Data.props"
+    # Update the dependency in eng/centralpackagemanagement/Directory.Generation.Packages.props
+    Write-Host "Updating dependency version in eng/centralpackagemanagement/Directory.Generation.Packages.props..."
+    $propsFilePath = Join-Path $tempDir "eng/centralpackagemanagement/Directory.Generation.Packages.props"
     
     if (-not (Test-Path $propsFilePath)) {
-        throw "eng/Packages.Data.props not found in the repository"
+        throw "eng/centralpackagemanagement/Directory.Generation.Packages.props not found in the repository"
     }
 
     $propsFileContent = Get-Content $propsFilePath -Raw
@@ -188,7 +188,7 @@ try {
     
     $propsFileUpdated = $false
     if ($updatedContent -eq $propsFileContent) {
-        Write-Warning "No changes were made to eng/Packages.Data.props. The UnbrandedGeneratorVersion property might not exist or have a different format."
+        Write-Warning "No changes were made to eng/centralpackagemanagement/Directory.Generation.Packages.props. The UnbrandedGeneratorVersion property might not exist or have a different format."
         Write-Host "Current content around UnbrandedGeneratorVersion:"
         $propsFileContent | Select-String -Pattern "UnbrandedGeneratorVersion" -Context 2, 2
     } else {
@@ -416,7 +416,7 @@ try {
                 
                 # Build and package Azure generator (needed for both Azure data plane and mgmt)
                 $azureGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp"
-                $packagesDataPropsPath = Join-Path $tempDir "eng" "Packages.Data.props"
+                $packagesDataPropsPath = Join-Path $tempDir "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
                 
                 Write-Host "##[section]Building Azure generator..."
                 $previousErrorAction = $ErrorActionPreference
@@ -590,7 +590,7 @@ try {
         $azureEmitterFiles = @(
             "eng/azure-typespec-http-client-csharp-emitter-package.json",
             "eng/azure-typespec-http-client-csharp-emitter-package-lock.json",
-            "eng/Packages.Data.props",
+            "eng/centralpackagemanagement/Directory.Generation.Packages.props",
             "NuGet.Config"
         )
         if ($RegenerateMgmtLibraries) {
