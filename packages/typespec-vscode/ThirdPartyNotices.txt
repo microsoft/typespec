@@ -22,7 +22,7 @@ granted herein, whether by implication, estoppel or otherwise.
 12. isexe version 4.0.0 (https://github.com/isaacs/isexe)
 13. js-tokens version 4.0.0 (lydell/js-tokens)
 14. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
-15. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
+15. minimatch version 5.1.7 (https://github.com/isaacs/minimatch)
 16. mustache version 4.2.0 (https://github.com/janl/mustache.js)
 17. path-key version 3.1.1 (sindresorhus/path-key)
 18. picocolors version 1.1.1 (alexeyraspopov/picocolors)
