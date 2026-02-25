@@ -101,7 +101,7 @@ let cachedNpmConfig: NpmFetchConfig | undefined;
  * Reads npm configuration for registry URL and strict-ssl setting.
  * Falls back to defaults if npm is not available or config cannot be read.
  */
-function readNpmConfig(): NpmFetchConfig {
+export function readNpmConfig(): NpmFetchConfig {
   if (cachedNpmConfig !== undefined) {
     return cachedNpmConfig;
   }

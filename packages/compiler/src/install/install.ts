@@ -10,6 +10,7 @@ import {
   downloadAndExtractPackage,
   fetchPackageManifest,
   NpmManifest,
+  readNpmConfig,
 } from "../package-manger/npm-registry-utils.js";
 import { mkTempDir } from "../utils/fs-utils.js";
 import {
@@ -220,11 +221,14 @@ async function runPackageManager(
   directory: string,
   stdio: "inherit" | "pipe",
 ) {
+  const { registry, strictSsl } = readNpmConfig();
   const child = fork(binPath, packageManager.commands.install, {
     stdio,
     cwd: directory,
     env: {
       ...process.env,
+      npm_config_registry: registry,
+      npm_config_strict_ssl: String(strictSsl),
       TYPESPEC_CLI_PASSTHROUGH: "1",
     },
   });
