@@ -211,18 +211,20 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
   client: SdkClientType<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
+  prefix: string,
   serviceApiVersions: string[],
 ): Record<string, any>[] | undefined {
   const operationGroups: Record<string, any>[] = [];
 
   for (const operationGroup of client.children ?? []) {
-    const name = `${client.name}${operationGroup.name}`;
+    const name = `${prefix}${operationGroup.name}`;
+    const operationGroupWithPrefixedName = { ...operationGroup, name } as SdkClientType<TServiceOperation>;
     let operations: Record<string, any>[] = [];
     const apiVersions =
       serviceApiVersions.length > 0 ? serviceApiVersions : operationGroup.apiVersions;
     for (const method of operationGroup.methods) {
       operations = operations.concat(
-        emitMethod(context, rootClient, operationGroup, method, apiVersions),
+        emitMethod(context, rootClient, operationGroupWithPrefixedName, method, apiVersions),
       );
     }
     operationGroups.push({
@@ -230,13 +232,13 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
       className: name,
       propertyName: operationGroup.name,
       operations: operations,
-      operationGroups: emitOperationGroups(context, operationGroup, rootClient, apiVersions),
+      operationGroups: emitOperationGroups(context, operationGroup, rootClient, name, apiVersions),
       clientNamespace: getClientNamespace(context, operationGroup.namespace),
     });
   }
 
   // root client should deal with mixin operation group
-  if (client === rootClient) {
+  if (prefix === "") {
     const mixinGroup = { ...client, name: "" } as SdkClientType<TServiceOperation>;
     let operations: Record<string, any>[] = [];
     for (const method of client.methods) {
@@ -303,7 +305,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   const endpointParameter = initParameters.find((x) => x.kind === "endpoint") as
     | SdkEndpointParameter
     | undefined;
-  const operationGroups = emitOperationGroups(context, client, client, client.apiVersions);
+  const operationGroups = emitOperationGroups(context, client, client, "", client.apiVersions);
   let url: string | undefined;
   if (endpointParameter?.type.kind === "union") {
     url = (endpointParameter.type.variantTypes[0] as SdkEndpointType).serverUrl;
