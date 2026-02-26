@@ -1234,10 +1234,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            rootName = operationBodyParam.SerializedName;
+            // TODO: https://github.com/Azure/typespec-azure/issues/3978 - fix root name calculation once the issue is resolved.
+            rootName = operationBodyParam.Type.Name;
 
             // Get the element type's XML name
-            var elementType = parameter.Type.Arguments[0];
             if (operationBodyParam.Type is InputArrayType arrayType &&
                 arrayType.ValueType is InputModelType elementModelType &&
                 elementModelType.SerializationOptions.Xml?.Name is string xmlName)
@@ -1246,7 +1246,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                childName = elementType.Name;
+                return false;
             }
 
             return true;
@@ -1287,23 +1287,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    childName = elementType.Name;
+                    return false;
                 }
 
-                // The root name comes from the array type's name or the service method response
-                rootName = ServiceMethod.Response.Type is InputArrayType responseArrayType
-                    ? GetXmlRootNameFromArrayType(responseArrayType)
-                    : arrayType.Name;
+                // TODO: https://github.com/Azure/typespec-azure/issues/3978 - fix root name calculation once the issue is resolved.
+                rootName = arrayType.Name;
             }
 
             return rootName != null && childName != null;
-        }
-
-        private static string GetXmlRootNameFromArrayType(InputArrayType arrayType)
-        {
-            // The array type name is typically "Array" which is not useful for XML
-            // Check if the body parameter on the operation has a serialized name
-            return arrayType.Name != "Array" ? arrayType.Name : arrayType.ValueType.Name + "s";
         }
     }
 }

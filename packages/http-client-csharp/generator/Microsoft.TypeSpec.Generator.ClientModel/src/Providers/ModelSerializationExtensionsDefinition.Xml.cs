@@ -197,12 +197,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var persistableModelType = new CSharpType(typeof(IPersistableModel<>), _t);
             var dataVar = new VariableExpression(typeof(BinaryData), "data");
 
-            // Build the inner reader statements for when nameHint is not null
-            var readerVarForHint = new VariableExpression(typeof(XmlReader), "reader");
-            var readerTypedForHint = readerVarForHint.As<XmlReader>();
-            var writeNodeLoop = new WhileStatement(readerTypedForHint.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
+            // Share a single CodeWriterDeclaration so the using-scope variable and the
+            // statements that reference it resolve to the same name.
+            var readerDeclaration = new CodeWriterDeclaration("reader");
+            var readerVar = new VariableExpression(typeof(XmlReader), readerDeclaration);
+            var readerTyped = readerVar.As<XmlReader>();
+            var writeNodeLoop = new WhileStatement(readerTyped.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
             {
-                writer.WriteNode(readerVarForHint, True)
+                writer.WriteNode(readerVar, True)
             };
 
             var nameHintBranch = new IfElseStatement(
@@ -210,16 +212,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new MethodBodyStatement[]
                 {
                     writer.WriteStartElement(nameHint),
-                    readerTypedForHint.ReadStartElement(),
+                    readerTyped.ReadStartElement(),
                     writeNodeLoop,
                     writer.WriteEndElement(),
                 },
                 new MethodBodyStatement[]
                 {
-                    readerTypedForHint.ReadStartElement(),
-                    new WhileStatement(readerTypedForHint.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
+                    readerTyped.ReadStartElement(),
+                    new WhileStatement(readerTyped.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
                     {
-                        writer.WriteNode(readerVarForHint, True)
+                        writer.WriteNode(readerVar, True)
                     }
                 });
 
@@ -240,11 +242,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         new UsingScopeStatement(
                             typeof(XmlReader),
-                            "reader",
-                            XmlReaderSnippets.Create(streamVar, new MemberExpression(null, XmlReaderSettingsFieldName)),
-                            out _)
+                            readerDeclaration,
+                            XmlReaderSnippets.Create(streamVar, new MemberExpression(null, XmlReaderSettingsFieldName)))
                         {
-                            readerTypedForHint.MoveToContent(),
+                            readerTyped.MoveToContent(),
                             nameHintBranch
                         }
                     },

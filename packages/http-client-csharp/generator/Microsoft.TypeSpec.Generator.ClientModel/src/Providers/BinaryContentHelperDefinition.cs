@@ -299,9 +299,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var writerVar = new VariableExpression(typeof(XmlWriter), "writer");
             var xmlWriter = writerVar.As<XmlWriter>();
 
-            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
-            var createBinaryContent = Static(requestContentType).Invoke(nameof(BinaryContent.Create), []);
-
             var body = new MethodBodyStatement[]
             {
                 new UsingScopeStatement(typeof(MemoryStream), "stream", New.Instance(typeof(MemoryStream), Int(256)), out _)
@@ -319,8 +316,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
                     new IfElseStatement(
                         streamVar.Property(nameof(MemoryStream.Position)).GreaterThan(new MemberExpression(typeof(int), nameof(int.MaxValue))),
-                        Return(Static(requestContentType).Invoke(nameof(BinaryContent.Create), BinaryDataSnippets.FromStream(streamVar, false))),
-                        Return(Static(requestContentType).Invoke(nameof(BinaryContent.Create), New.Instance(typeof(BinaryData),
+                        Return(RequestContentApiSnippets.Create(BinaryDataSnippets.FromStream(streamVar, false))),
+                        Return(RequestContentApiSnippets.Create(New.Instance(typeof(BinaryData),
                             streamVar.Invoke(nameof(MemoryStream.GetBuffer)).Invoke(nameof(System.MemoryExtensions.AsMemory),
                                 [Int(0), streamVar.Property(nameof(MemoryStream.Position)).CastTo(typeof(int))])))))
                 }
