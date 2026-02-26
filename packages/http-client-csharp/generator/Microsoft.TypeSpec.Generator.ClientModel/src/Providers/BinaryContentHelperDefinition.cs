@@ -295,33 +295,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Description: null,
                 ReturnDescription: null);
 
-            var streamVar = new VariableExpression(typeof(MemoryStream), "stream");
-            var writerVar = new VariableExpression(typeof(XmlWriter), "writer");
+            var outerUsing = new UsingScopeStatement(typeof(MemoryStream), "stream", New.Instance(typeof(MemoryStream), Int(256)), out var streamVar);
+            var innerUsing = new UsingScopeStatement(typeof(XmlWriter), "writer",
+                XmlWriterSnippets.Create(streamVar, ModelSerializationExtensionsSnippets.XmlWriterSettings), out var writerVar);
             var xmlWriter = writerVar.As<XmlWriter>();
 
-            var body = new MethodBodyStatement[]
-            {
-                new UsingScopeStatement(typeof(MemoryStream), "stream", New.Instance(typeof(MemoryStream), Int(256)), out _)
+            innerUsing.AddRange([
+                xmlWriter.WriteStartElement(rootNameHintParameter),
+                new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
-                    new UsingScopeStatement(typeof(XmlWriter), "writer",
-                        XmlWriterSnippets.Create(streamVar, ModelSerializationExtensionsSnippets.XmlWriterSettings), out _)
-                    {
-                        xmlWriter.WriteStartElement(rootNameHintParameter),
-                        new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
-                        {
-                            xmlWriter.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire, childNameHintParameter)
-                        },
-                        xmlWriter.WriteEndElement(),
-                    },
-                    MethodBodyStatement.EmptyLine,
-                    new IfElseStatement(
-                        streamVar.Property(nameof(MemoryStream.Position)).GreaterThan(new MemberExpression(typeof(int), nameof(int.MaxValue))),
-                        Return(RequestContentApiSnippets.Create(BinaryDataSnippets.FromStream(streamVar, false))),
-                        Return(RequestContentApiSnippets.Create(New.Instance(typeof(BinaryData),
-                            streamVar.Invoke(nameof(MemoryStream.GetBuffer)).Invoke(nameof(System.MemoryExtensions.AsMemory),
-                                [Int(0), streamVar.Property(nameof(MemoryStream.Position)).CastTo(typeof(int))])))))
-                }
-            };
+                    xmlWriter.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire, childNameHintParameter)
+                },
+                xmlWriter.WriteEndElement(),
+            ]);
+            outerUsing.Add(innerUsing);
+            outerUsing.Add(MethodBodyStatement.EmptyLine);
+            outerUsing.Add(new IfElseStatement(
+                streamVar.Property(nameof(MemoryStream.Position)).GreaterThan(new MemberExpression(typeof(int), nameof(int.MaxValue))),
+                Return(RequestContentApiSnippets.Create(BinaryDataSnippets.FromStream(streamVar, false))),
+                Return(RequestContentApiSnippets.Create(New.Instance(typeof(BinaryData),
+                    streamVar.Invoke(nameof(MemoryStream.GetBuffer)).Invoke(nameof(System.MemoryExtensions.AsMemory),
+                        [Int(0), streamVar.Property(nameof(MemoryStream.Position)).CastTo(typeof(int))]))))));
+
+            var body = new MethodBodyStatement[] { outerUsing };
 
             return new MethodProvider(signature, body, this);
         }
