@@ -16,8 +16,6 @@ jobs:
   check-and-create-issues:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -28,9 +26,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          PACKAGE_JSON="packages/http-client-python/package.json"
+          PACKAGE_JSON_URL="https://raw.githubusercontent.com/microsoft/typespec/main/packages/http-client-python/package.json"
           SKILL_URL="https://github.com/microsoft/typespec/blob/main/.github/skills/python-sdk-spector-mock-api-tests/SKILL.md"
           ISSUE_REPO="${{ github.repository }}"
+
+          # Fetch package.json from main branch once
+          PACKAGE_JSON_CONTENT=$(curl -fsSL "$PACKAGE_JSON_URL")
+          if [ -z "$PACKAGE_JSON_CONTENT" ]; then
+            echo "ERROR: Could not fetch package.json from main branch"
+            exit 1
+          fi
 
           check_package() {
             local pkg_name="$1"
@@ -41,14 +46,14 @@ jobs:
             echo "Checking package: $pkg_name"
             echo "=============================="
 
-            # Step 1: Extract version A from package.json devDependencies
+            # Step 1: Extract version A from package.json devDependencies (main branch)
             local version_a
-            version_a=$(jq -r ".devDependencies[\"$pkg_name\"]" "$PACKAGE_JSON")
+            version_a=$(echo "$PACKAGE_JSON_CONTENT" | jq -r ".devDependencies[\"$pkg_name\"]")
             if [ -z "$version_a" ] || [ "$version_a" = "null" ]; then
               echo "WARNING: Could not find $pkg_name in devDependencies, skipping"
               return
             fi
-            echo "Version A (from package.json): $version_a"
+            echo "Version A (from main branch package.json): $version_a"
 
             # Step 2: Get publish dates and find the most recently published version (including dev/prerelease)
             local time_data
