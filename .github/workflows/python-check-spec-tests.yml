@@ -28,7 +28,7 @@ jobs:
 
           PACKAGE_JSON_URL="https://raw.githubusercontent.com/microsoft/typespec/main/packages/http-client-python/package.json"
           SKILL_URL="https://github.com/microsoft/typespec/blob/main/.github/skills/python-sdk-spector-mock-api-tests/SKILL.md"
-          ISSUE_REPO="${{ github.repository }}"
+          ISSUE_REPO="microsoft/typespec"
 
           # Fetch package.json from main branch once
           PACKAGE_JSON_CONTENT=$(curl -fsSL "$PACKAGE_JSON_URL")
