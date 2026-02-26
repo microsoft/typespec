@@ -1,5 +1,5 @@
 ---
-changeKind: feat
+changeKind: feature
 packages:
   - "@typespec/playground"
 ---
