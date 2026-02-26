@@ -1,0 +1,166 @@
+name: "[Python] Check Spec Test Cases"
+
+on:
+  schedule:
+    - cron: "0 0 * * 1" # Weekly on Monday
+  workflow_dispatch: {}
+
+permissions:
+  issues: write
+
+jobs:
+  check-and-create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check for new spec changes and create issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          PACKAGE_JSON="packages/http-client-python/package.json"
+          SKILL_URL="https://github.com/microsoft/typespec/blob/main/.github/skills/python-sdk-spector-mock-api-tests/SKILL.md"
+          ISSUE_REPO="${{ github.repository }}"
+
+          check_package() {
+            local pkg_name="$1"
+            local repo="$2"
+            local specs_path="$3"
+
+            echo "=============================="
+            echo "Checking package: $pkg_name"
+            echo "=============================="
+
+            # Step 1: Extract version A from package.json devDependencies
+            local version_a
+            version_a=$(jq -r ".devDependencies[\"$pkg_name\"]" "$PACKAGE_JSON")
+            if [ -z "$version_a" ] || [ "$version_a" = "null" ]; then
+              echo "WARNING: Could not find $pkg_name in devDependencies, skipping"
+              return
+            fi
+            echo "Version A (from package.json): $version_a"
+
+            # Step 2: Extract version B (latest) from npm
+            local version_b
+            version_b=$(npm view "$pkg_name" version 2>/dev/null || true)
+            if [ -z "$version_b" ]; then
+              echo "WARNING: Could not get latest version of $pkg_name from npm, skipping"
+              return
+            fi
+            echo "Version B (latest on npm): $version_b"
+
+            # Step 3: Get publish dates from npm registry
+            local time_data
+            time_data=$(npm view "$pkg_name" time --json 2>/dev/null || true)
+            if [ -z "$time_data" ]; then
+              echo "WARNING: Could not get time data for $pkg_name from npm, skipping"
+              return
+            fi
+
+            local date_a
+            date_a=$(echo "$time_data" | jq -r ".[\"$version_a\"]")
+            local date_b
+            date_b=$(echo "$time_data" | jq -r ".[\"$version_b\"]")
+
+            if [ "$date_a" = "null" ] || [ -z "$date_a" ]; then
+              echo "WARNING: Could not find publish date for version $version_a, skipping"
+              return
+            fi
+            if [ "$date_b" = "null" ] || [ -z "$date_b" ]; then
+              echo "WARNING: Could not find publish date for version $version_b, skipping"
+              return
+            fi
+
+            echo "Date A ($version_a): $date_a"
+            echo "Date B ($version_b): $date_b"
+
+            # Compare dates - if A's date is later than B's date, continue; otherwise stop
+            if [[ "$date_a" > "$date_b" ]]; then
+              echo "Version A is newer than B, proceeding to check for PRs..."
+            else
+              echo "Version A is NOT newer than B, skipping $pkg_name"
+              return
+            fi
+
+            # Step 4: Extract date range and find PRs merged between the two dates
+            local since
+            since=$(echo "$date_b" | cut -dT -f1)
+            local until_date
+            until_date=$(echo "$date_a" | cut -dT -f1)
+
+            echo "Searching for merged PRs between $since and $until_date in $repo affecting $specs_path"
+
+            local prs
+            prs=$(gh pr list --repo "$repo" --state merged --search "merged:${since}..${until_date}" --json number,url --limit 200)
+
+            local pr_count
+            pr_count=$(echo "$prs" | jq length)
+            echo "Found $pr_count merged PRs in date range"
+
+            if [ "$pr_count" -eq 0 ]; then
+              echo "No merged PRs found in date range, skipping"
+              return
+            fi
+
+            # Step 5: For each PR, check if it affects the specs path and create issues
+            local repo_owner
+            repo_owner=$(echo "$repo" | cut -d/ -f1)
+            local repo_name
+            repo_name=$(echo "$repo" | cut -d/ -f2)
+
+            for i in $(seq 0 $((pr_count - 1))); do
+              local pr_number
+              pr_number=$(echo "$prs" | jq -r ".[$i].number")
+              local pr_url
+              pr_url=$(echo "$prs" | jq -r ".[$i].url")
+
+              # Get list of files changed in this PR
+              local files
+              files=$(gh api "repos/${repo_owner}/${repo_name}/pulls/${pr_number}/files" --paginate --jq '.[].filename' 2>/dev/null || true)
+
+              if [ -z "$files" ]; then
+                continue
+              fi
+
+              # Check if any file is under the specs path
+              if echo "$files" | grep -q "^${specs_path}/"; then
+                echo "PR #$pr_number affects specs: $pr_url"
+
+                local title="[python] add test case for ${pr_url}"
+                local body="follow skill ${SKILL_URL} to write test case for ${pr_url}"
+
+                # Check if an open issue with same title already exists
+                local existing
+                existing=$(gh issue list --repo "$ISSUE_REPO" --state open --search "in:title [python] add test case" --json number,title --limit 100)
+
+                local has_match
+                has_match=$(echo "$existing" | jq --arg t "$title" '[.[] | select(.title == $t)] | length')
+
+                if [ "$has_match" -gt 0 ]; then
+                  echo "Issue already exists for PR $pr_url, skipping"
+                  continue
+                fi
+
+                # Create the issue
+                gh issue create --repo "$ISSUE_REPO" \
+                  --title "$title" \
+                  --body "$body" \
+                  --label "emitter:client:python" \
+                  --assignee "copilot"
+
+                echo "Created issue for PR $pr_url"
+              fi
+            done
+          }
+
+          # Check both packages
+          check_package "@typespec/http-specs" "microsoft/typespec" "packages/http-specs/specs"
+          check_package "@azure-tools/azure-http-specs" "Azure/typespec-azure" "packages/azure-http-specs/specs"
+
+          echo "Done!"
