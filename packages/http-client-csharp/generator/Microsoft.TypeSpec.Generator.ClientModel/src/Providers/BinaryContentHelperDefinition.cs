@@ -308,14 +308,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 },
                 xmlWriter.WriteEndElement(),
             ]);
-            outerUsing.Add(innerUsing);
-            outerUsing.Add(MethodBodyStatement.EmptyLine);
-            outerUsing.Add(new IfElseStatement(
-                streamVar.Property(nameof(MemoryStream.Position)).GreaterThan(new MemberExpression(typeof(int), nameof(int.MaxValue))),
-                Return(RequestContentApiSnippets.Create(BinaryDataSnippets.FromStream(streamVar, false))),
-                Return(RequestContentApiSnippets.Create(New.Instance(typeof(BinaryData),
-                    streamVar.Invoke(nameof(MemoryStream.GetBuffer)).Invoke(nameof(System.MemoryExtensions.AsMemory),
-                        [Int(0), streamVar.Property(nameof(MemoryStream.Position)).CastTo(typeof(int))]))))));
+            outerUsing.AddRange([
+                innerUsing,
+                MethodBodyStatement.EmptyLine,
+                new IfElseStatement(
+                    streamVar.Property(nameof(MemoryStream.Position)).GreaterThan(new MemberExpression(typeof(int), nameof(int.MaxValue))),
+                    Return(RequestContentApiSnippets.Create(BinaryDataSnippets.FromStream(streamVar, false))),
+                    Return(RequestContentApiSnippets.Create(New.Instance(typeof(BinaryData),
+                        streamVar.Invoke(nameof(MemoryStream.GetBuffer)).Invoke(nameof(System.MemoryExtensions.AsMemory),
+                            [Int(0), streamVar.Property(nameof(MemoryStream.Position)).CastTo(typeof(int))])))))
+            ]);
 
             var body = new MethodBodyStatement[] { outerUsing };
 
