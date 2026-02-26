@@ -529,7 +529,11 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
     def __eq__(self, other: typing.Any) -> bool:
         if isinstance(other, _MyMutableMapping):
             return self._data == other._data
-        return False
+        try:
+            other_model = self.__class__(other)
+        except Exception:
+            return False
+        return self._data == other_model._data
 
     def __repr__(self) -> str:
         return str(self._data)
