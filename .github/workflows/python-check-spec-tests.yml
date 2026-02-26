@@ -50,22 +50,22 @@ jobs:
             fi
             echo "Version A (from package.json): $version_a"
 
-            # Step 2: Extract version B (latest) from npm
-            local version_b
-            version_b=$(npm view "$pkg_name" version 2>/dev/null || true)
-            if [ -z "$version_b" ]; then
-              echo "WARNING: Could not get latest version of $pkg_name from npm, skipping"
-              return
-            fi
-            echo "Version B (latest on npm): $version_b"
-
-            # Step 3: Get publish dates from npm registry
+            # Step 2: Get publish dates and find the most recently published version (including dev/prerelease)
             local time_data
             time_data=$(npm view "$pkg_name" time --json 2>/dev/null || true)
             if [ -z "$time_data" ]; then
               echo "WARNING: Could not get time data for $pkg_name from npm, skipping"
               return
             fi
+
+            # Find the most recently published version (excluding "created" and "modified" metadata keys)
+            local version_b
+            version_b=$(echo "$time_data" | jq -r 'to_entries | map(select(.key != "created" and .key != "modified")) | sort_by(.value) | last | .key')
+            if [ -z "$version_b" ] || [ "$version_b" = "null" ]; then
+              echo "WARNING: Could not determine latest version from npm time data, skipping"
+              return
+            fi
+            echo "Version B (most recently published): $version_b"
 
             local date_a
             date_a=$(echo "$time_data" | jq -r ".[\"$version_a\"]")
