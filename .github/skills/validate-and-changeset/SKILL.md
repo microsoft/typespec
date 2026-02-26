@@ -20,7 +20,10 @@ Determine which emitter packages have changes:
 
 ```bash
 cd ~/Desktop/github/typespec
-git diff main --name-only | grep "^packages/" | cut -d'/' -f2 | sort -u
+
+# Compare against upstream/main (microsoft/typespec) if available, otherwise main
+BASE_BRANCH=$(git rev-parse --verify upstream/main 2>/dev/null && echo "upstream/main" || echo "main")
+git diff "$BASE_BRANCH" --name-only | grep "^packages/" | cut -d'/' -f2 | sort -u
 ```
 
 ### Step 2: Validate each changed emitter package
@@ -66,14 +69,17 @@ Examine the changes to determine an appropriate changeset message:
 ```bash
 cd ~/Desktop/github/typespec
 
+# Determine base branch
+BASE_BRANCH=$(git rev-parse --verify upstream/main 2>/dev/null && echo "upstream/main" || echo "main")
+
 # Get commit messages on this branch
-git log main..HEAD --oneline
+git log "$BASE_BRANCH"..HEAD --oneline
 
 # Get changed files
-git diff main --name-only
+git diff "$BASE_BRANCH" --name-only
 
 # Get the actual code changes (for understanding intent)
-git diff main --stat
+git diff "$BASE_BRANCH" --stat
 ```
 
 ### Step 5: Determine changeset parameters
@@ -161,8 +167,36 @@ EOF
 # Get current branch name
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Push to remote (use -u to set upstream if not already set)
+# Determine the correct remote to push to
+# - "origin" is typically the user's fork
+# - "upstream" is typically microsoft/typespec (do NOT push here)
+# Push to origin (user's fork), not upstream (microsoft/typespec)
 git push -u origin "$BRANCH"
+```
+
+### Remote Configuration
+
+The TypeSpec repo typically uses this remote setup:
+
+| Remote | URL | Purpose |
+|--------|-----|---------|
+| `origin` | `https://github.com/<username>/typespec.git` | Your fork (push here) |
+| `upstream` | `https://github.com/microsoft/typespec.git` | Microsoft's repo (PRs target here) |
+
+**Important:** Always push to `origin` (your fork), never directly to `upstream` (microsoft/typespec).
+
+To verify your remotes:
+```bash
+git remote -v
+```
+
+If `origin` points to microsoft/typespec instead of your fork, you may need to reconfigure:
+```bash
+# Rename origin to upstream
+git remote rename origin upstream
+
+# Add your fork as origin
+git remote add origin https://github.com/<your-username>/typespec.git
 ```
 
 ## Changeset Message Guidelines
