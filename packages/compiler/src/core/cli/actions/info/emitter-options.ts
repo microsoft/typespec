@@ -352,7 +352,7 @@ function renderMarkdownLine(line: string): string {
   // Tokenize: split into plain text and markdown tokens
   // Process in order: links, code, bold, italic
   const segments: { text: string; formatted: boolean }[] = [];
-  let remaining = line;
+  const remaining = line;
 
   // Regex that matches any markdown token we handle
   const mdRegex = /`([^`]+)`|\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)]+)\)/g;

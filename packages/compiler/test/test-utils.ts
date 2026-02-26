@@ -27,7 +27,7 @@ export function defineTest<T extends unknown[], R>(
 }
 
 /**
- * Tagged template literal that dedents a multiline string.
+ * Tagged template literal that removes common indentation from a multiline string.
  * Removes the leading newline and the common indentation from all lines,
  * allowing test expectations to be written at a readable indent level.
  *
