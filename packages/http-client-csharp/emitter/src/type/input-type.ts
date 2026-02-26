@@ -227,6 +227,7 @@ export interface InputHeaderParameter extends InputPropertyTypeBase {
   kind: "header";
   collectionFormat?: CollectionFormat;
   arraySerializationDelimiter?: string;
+  collectionHeaderPrefix?: string;
   isContentType: boolean;
   scope: InputParameterScope;
   serializedName: string;
