@@ -137,17 +137,21 @@ Then use AskUserQuestion to confirm:
 
 - Show the changeset that will be added
 - Show the files that will be committed
-- Ask: "Do these changes look good to push?"
+- Show which remote will be used: "Will push to `origin`"
+- Ask: "Do these changes look good to push to origin?"
 
 Options:
 
-- "Yes, push to remote" - proceed with commit and push
+- "Yes, push to origin" - proceed with commit and push to origin
+- "Push to different remote" - ask which remote to use instead
 - "Edit changeset" - let user modify the changeset message/kind
 - "Cancel" - abort without pushing
 
+If user selects "Push to different remote", ask which remote name to use and push to that instead of origin.
+
 ### Step 8: Commit and push (if approved)
 
-If user approves:
+If user approves, commit the changes:
 
 ```bash
 cd ~/Desktop/github/typespec
@@ -163,39 +167,26 @@ git commit -m "$(
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 )"
+```
 
+Then push to the user's fork. **Default to `origin`**, but if the user specified a different remote, use that instead:
+
+```bash
 # Get current branch name
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Find the user's fork remote (any remote that's NOT microsoft/typespec)
-FORK_REMOTE=$(git remote -v | grep -v "microsoft/typespec" | grep "(push)" | head -1 | awk '{print $1}')
-
-# Fall back to origin if detection fails
-if [ -z "$FORK_REMOTE" ]; then
-  FORK_REMOTE="origin"
-fi
-
-# Push to user's fork
-git push -u "$FORK_REMOTE" "$BRANCH"
+# Push to origin by default (or user-specified remote)
+git push -u origin "$BRANCH"
 ```
 
-### Remote Configuration
+### Asking about remote
 
-The TypeSpec repo typically uses this remote setup:
+When prompting the user in Step 7, include the remote that will be used:
 
-| Remote | URL | Purpose |
-|--------|-----|---------|
-| User's fork | `https://github.com/<username>/typespec.git` | Push here (often named `origin`) |
-| `upstream` | `https://github.com/microsoft/typespec.git` | Microsoft's repo (PRs target here) |
+- Show: "Will push to `origin` (your fork)"
+- If the user says to use a different remote (e.g., "push to `myfork`"), use that instead
 
-The skill automatically detects your fork by finding a remote that doesn't point to `microsoft/typespec`.
-
-To verify your remotes:
-```bash
-git remote -v
-```
-
-**Important:** Never push directly to the microsoft/typespec remote.
+**Important:** Never push directly to the `microsoft/typespec` remote (usually named `upstream`).
 
 ## Changeset Message Guidelines
 
