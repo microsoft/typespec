@@ -17,7 +17,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class BinaryContentHelperDefinition : TypeProvider
+    public class BinaryContentHelperDefinition : TypeProvider
     {
         private const string _fromEnumerableName = "FromEnumerable";
         private const string _fromDictionaryName = "FromDictionary";
