@@ -231,8 +231,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 });
 
-            innerUsing.Add(readerTyped.MoveToContent());
-            innerUsing.Add(nameHintBranch);
+            innerUsing.AddRange([readerTyped.MoveToContent(), nameHintBranch]);
             outerUsing.Add(innerUsing);
 
             var persistableModelCase = new SwitchCaseStatement(
