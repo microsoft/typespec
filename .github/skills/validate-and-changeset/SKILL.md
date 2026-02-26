@@ -158,8 +158,11 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 )"
 
-# Push to remote
-git push
+# Get current branch name
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Push to remote (use -u to set upstream if not already set)
+git push -u origin "$BRANCH"
 ```
 
 ## Changeset Message Guidelines
