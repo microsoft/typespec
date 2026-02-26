@@ -1418,15 +1418,24 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             access = (
                 "".join([f'.get("{i}", {{}})' for i in item_name_array[:-1]]) + f'.get("{item_name_array[-1]}", [])'
             )
-        list_of_elem_deserialized = ""
+        pylint_disable = ""
         if self.code_model.options["models-mode"] == "dpg":
             item_type = builder.item_type.type_annotation(
                 is_operation_file=True, serialize_namespace=self.serialize_namespace
             )
-            list_of_elem_deserialized = f"_deserialize({item_type}, deserialized{access})"
+            pylint_disable = (
+                "  # pylint: disable=protected-access" if getattr(builder.item_type, "internal", False) else ""
+            )
+            list_of_elem_deserialized = [
+                "_deserialize(",
+                f"{item_type},{pylint_disable}",
+                f"deserialized{access},",
+                ")",
+            ]
         else:
-            list_of_elem_deserialized = f"deserialized{access}"
-        retval.append(f"    list_of_elem = {list_of_elem_deserialized}")
+            list_of_elem_deserialized = [f"deserialized{access}"]
+        list_of_elem_deserialized_str = "\n    ".join(list_of_elem_deserialized)
+        retval.append(f"    list_of_elem = {list_of_elem_deserialized_str}")
         retval.append("    if cls:")
         retval.append("        list_of_elem = cls(list_of_elem) # type: ignore")
 
