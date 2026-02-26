@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -35,8 +37,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override MethodProvider[] BuildMethods()
         {
-            return
-            [
+            var methods = new List<MethodProvider>
+            {
                 BuildFromEnumerableTMethod(),
                 BuildFromEnumerableBinaryDataMethod(),
                 BuildFromReadOnlySpanMethod(),
@@ -44,7 +46,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildFromDictionaryBinaryDataMethod(),
                 BuildFromObjectMethod(),
                 BuildFromBinaryDataMethod()
-            ];
+            };
+
+            if (ScmCodeModelGenerator.Instance.InputLibrary.HasXmlModelSerialization)
+            {
+                methods.Add(BuildFromEnumerableXmlMethod());
+            }
+
+            return [.. methods];
         }
 
         private MethodProvider BuildFromEnumerableTMethod()
@@ -265,6 +274,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writer.WriteBinaryData(valueParameter),
                 Return(content)
             ]);
+
+            return new MethodProvider(signature, body, this);
+        }
+
+        private MethodProvider BuildFromEnumerableXmlMethod()
+        {
+            var enumerableTType = typeof(IEnumerable<>);
+            CSharpType tType = enumerableTType.GetGenericArguments()[0];
+            var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, enumerableTType);
+            var rootNameHintParameter = new ParameterProvider("rootNameHint", FormattableStringHelpers.Empty, typeof(string));
+            var childNameHintParameter = new ParameterProvider("childNameHint", FormattableStringHelpers.Empty, typeof(string));
+            var signature = new MethodSignature(
+                Name: _fromEnumerableName,
+                Modifiers: _methodModifiers,
+                Parameters: [enumerableParameter, rootNameHintParameter, childNameHintParameter],
+                ReturnType: _requestBodyType,
+                GenericArguments: [tType],
+                GenericParameterConstraints: [Where.NotNull(tType)],
+                Description: null,
+                ReturnDescription: null);
+
+            var streamVar = new VariableExpression(typeof(MemoryStream), "stream");
+            var writerVar = new VariableExpression(typeof(XmlWriter), "writer");
+            var xmlWriter = writerVar.As<XmlWriter>();
+
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            var createBinaryContent = Static(requestContentType).Invoke(nameof(BinaryContent.Create), []);
+
+            var body = new MethodBodyStatement[]
+            {
+                new UsingScopeStatement(typeof(MemoryStream), "stream", New.Instance(typeof(MemoryStream), Int(256)), out _)
+                {
+                    new UsingScopeStatement(typeof(XmlWriter), "writer",
+                        XmlWriterSnippets.Create(streamVar, ModelSerializationExtensionsSnippets.XmlWriterSettings), out _)
+                    {
+                        xmlWriter.WriteStartElement(rootNameHintParameter),
+                        new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
+                        {
+                            xmlWriter.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire, childNameHintParameter)
+                        },
+                        xmlWriter.WriteEndElement(),
+                    },
+                    MethodBodyStatement.EmptyLine,
+                    new IfElseStatement(
+                        streamVar.Property(nameof(MemoryStream.Position)).GreaterThan(new MemberExpression(typeof(int), nameof(int.MaxValue))),
+                        Return(Static(requestContentType).Invoke(nameof(BinaryContent.Create), BinaryDataSnippets.FromStream(streamVar, false))),
+                        Return(Static(requestContentType).Invoke(nameof(BinaryContent.Create), New.Instance(typeof(BinaryData),
+                            streamVar.Invoke(nameof(MemoryStream.GetBuffer)).Invoke(nameof(System.MemoryExtensions.AsMemory),
+                                [Int(0), streamVar.Property(nameof(MemoryStream.Position)).CastTo(typeof(int))])))))
+                }
+            };
 
             return new MethodProvider(signature, body, this);
         }

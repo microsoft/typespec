@@ -173,11 +173,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 FormattableStringHelpers.Empty,
                 new CSharpType(typeof(ModelReaderWriterOptions), isNullable: true),
                 DefaultOf(new CSharpType(typeof(ModelReaderWriterOptions), isNullable: true)));
+            var nameHintParameter = new ParameterProvider(
+                "nameHint",
+                FormattableStringHelpers.Empty,
+                new CSharpType(typeof(string), isNullable: true),
+                DefaultOf(new CSharpType(typeof(string), isNullable: true)));
 
             var signature = new MethodSignature(
                 Name: WriteObjectValueMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: [_xmlWriterParameter, valueParameter, optionsParameter],
+                Parameters: [_xmlWriterParameter, valueParameter, optionsParameter, nameHintParameter],
                 ReturnType: null,
                 GenericArguments: [_t],
                 Description: null,
@@ -186,10 +191,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var writer = _xmlWriterParameter.As<XmlWriter>();
             ValueExpression value = valueParameter;
             ValueExpression options = optionsParameter;
+            ValueExpression nameHint = nameHintParameter;
 
             // Build the switch statement
             var persistableModelType = new CSharpType(typeof(IPersistableModel<>), _t);
             var dataVar = new VariableExpression(typeof(BinaryData), "data");
+
+            // Build the inner reader statements for when nameHint is not null
+            var readerVarForHint = new VariableExpression(typeof(XmlReader), "reader");
+            var readerTypedForHint = readerVarForHint.As<XmlReader>();
+            var writeNodeLoop = new WhileStatement(readerTypedForHint.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
+            {
+                writer.WriteNode(readerVarForHint, True)
+            };
+
+            var nameHintBranch = new IfElseStatement(
+                nameHint.NotEqual(Null),
+                new MethodBodyStatement[]
+                {
+                    writer.WriteStartElement(nameHint),
+                    readerTypedForHint.ReadStartElement(),
+                    writeNodeLoop,
+                    writer.WriteEndElement(),
+                },
+                new MethodBodyStatement[]
+                {
+                    readerTypedForHint.ReadStartElement(),
+                    new WhileStatement(readerTypedForHint.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
+                    {
+                        writer.WriteNode(readerVarForHint, True)
+                    }
+                });
 
             var persistableModelCase = new SwitchCaseStatement(
                 Declare("persistableModel", persistableModelType, out var persistableModelVar),
@@ -210,17 +242,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             typeof(XmlReader),
                             "reader",
                             XmlReaderSnippets.Create(streamVar, new MemberExpression(null, XmlReaderSettingsFieldName)),
-                            out var readerVar)
+                            out _)
                         {
-                            readerVar.As<XmlReader>().MoveToContent(),
-                            readerVar.As<XmlReader>().ReadStartElement(),
-                            new WhileStatement(readerVar.As<XmlReader>().NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
-                            {
-                                writer.WriteNode(readerVar, True)
-                            }
+                            readerTypedForHint.MoveToContent(),
+                            nameHintBranch
                         }
                     },
-                    Break
+                    Return()
                 });
 
             var defaultCase = SwitchCaseStatement.Default(
