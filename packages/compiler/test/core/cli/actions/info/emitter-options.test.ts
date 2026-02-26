@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractEmitterOptionsInfo,
   formatEmitterOptions,
+  formatLibraryInfo,
 } from "../../../../../src/core/cli/actions/info/emitter-options.js";
 import { d } from "../../../../test-utils.js";
 
@@ -11,8 +12,12 @@ function stripAnsi(str: string): string {
   return str.replace(/\x1b\[[0-9;]*m/g, "");
 }
 
-function formatPlain(emitterName: string, schema: any): string {
-  return stripAnsi(formatEmitterOptions(emitterName, schema).join("\n"));
+function formatOptionsPlain(schema: any): string {
+  return stripAnsi(formatEmitterOptions(schema).join("\n"));
+}
+
+function formatInfoPlain(manifest: any): string {
+  return stripAnsi(formatLibraryInfo(manifest).join("\n"));
 }
 
 describe("extractEmitterOptionsInfo", () => {
@@ -136,18 +141,63 @@ describe("extractEmitterOptionsInfo", () => {
   });
 });
 
+describe("formatLibraryInfo", () => {
+  it("shows name and version", () => {
+    expect(formatInfoPlain({ name: "@typespec/openapi3", version: "1.2.3" })).toBe(d`
+      Library
+
+        Name: @typespec/openapi3
+        Version: 1.2.3
+    `);
+  });
+
+  it("shows name, version, description, and homepage", () => {
+    expect(
+      formatInfoPlain({
+        name: "@typespec/openapi3",
+        version: "1.2.3",
+        description: "OpenAPI 3 emitter for TypeSpec",
+        homepage: "https://typespec.io",
+      }),
+    ).toBe(d`
+      Library
+
+        Name: @typespec/openapi3
+        Version: 1.2.3
+        Description: OpenAPI 3 emitter for TypeSpec
+        Homepage: https://typespec.io
+    `);
+  });
+
+  it("shows unknown when manifest is undefined", () => {
+    expect(formatInfoPlain(undefined)).toBe(d`
+      Library
+
+        Name: unknown
+    `);
+  });
+
+  it("shows name without version when version is missing", () => {
+    expect(formatInfoPlain({ name: "@typespec/openapi3" })).toBe(d`
+      Library
+
+        Name: @typespec/openapi3
+    `);
+  });
+});
+
 describe("formatEmitterOptions", () => {
   it("shows message when emitter has no options", () => {
-    expect(formatPlain("@typespec/test", undefined)).toBe(d`
-      @typespec/test
+    expect(formatOptionsPlain(undefined)).toBe(d`
+      Emitter Options
 
         This emitter does not define any options.
     `);
   });
 
   it("shows message when schema has no properties", () => {
-    expect(formatPlain("@typespec/test", { type: "object" })).toBe(d`
-      @typespec/test
+    expect(formatOptionsPlain({ type: "object" })).toBe(d`
+      Emitter Options
 
         This emitter does not define any options.
     `);
@@ -164,8 +214,8 @@ describe("formatEmitterOptions", () => {
         },
       },
     };
-    expect(formatPlain("@typespec/openapi3", schema)).toBe(d`
-      @typespec/openapi3
+    expect(formatOptionsPlain(schema)).toBe(d`
+      Emitter Options
 
         file-type: "yaml" | "json"
           Output format.
@@ -184,8 +234,8 @@ describe("formatEmitterOptions", () => {
         },
       },
     };
-    expect(formatPlain("@typespec/test", schema)).toBe(d`
-      @typespec/test
+    expect(formatOptionsPlain(schema)).toBe(d`
+      Emitter Options
 
         noEmit: boolean (default: false)
           Do not emit files.
@@ -214,8 +264,8 @@ describe("formatEmitterOptions", () => {
         },
       },
     };
-    expect(formatPlain("@typespec/openapi3", schema)).toBe(d`
-      @typespec/openapi3
+    expect(formatOptionsPlain(schema)).toBe(d`
+      Emitter Options
 
         file-type: "yaml" | "json"
           Output file format.
@@ -255,8 +305,8 @@ describe("formatEmitterOptions", () => {
         },
       },
     };
-    expect(formatPlain("@typespec/test", schema)).toBe(d`
-      @typespec/test
+    expect(formatOptionsPlain(schema)).toBe(d`
+      Emitter Options
 
         strategy:
           - "auto" | "manual" (default: "auto")
@@ -282,8 +332,8 @@ describe("formatEmitterOptions", () => {
         },
       },
     };
-    expect(formatPlain("@typespec/test", schema)).toBe(d`
-      @typespec/test
+    expect(formatOptionsPlain(schema)).toBe(d`
+      Emitter Options
 
         output: string
           Use json format. See docs https://example.com for details.

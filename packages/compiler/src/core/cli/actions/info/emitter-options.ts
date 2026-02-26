@@ -2,17 +2,24 @@
 import { readFile, realpath, stat } from "fs/promises";
 import pc from "picocolors";
 import { resolveModule } from "../../../../module-resolver/index.js";
+import type { PackageJson } from "../../../../types/package-json.js";
 import { loadJsFile } from "../../../source-loader.js";
 import { CompilerHost, Diagnostic, NoTarget, TypeSpecLibrary } from "../../../types.js";
 
+interface ResolvedLibrary {
+  library: TypeSpecLibrary<any> | undefined;
+  manifest: PackageJson | undefined;
+  diagnostics: readonly Diagnostic[];
+}
+
 /**
- * Resolve an emitter package and return its library definition.
+ * Resolve an emitter package and return its library definition and package manifest.
  */
 async function resolveEmitterLibrary(
   host: CompilerHost,
   emitterName: string,
   baseDir: string,
-): Promise<{ library: TypeSpecLibrary<any> | undefined; diagnostics: readonly Diagnostic[] }> {
+): Promise<ResolvedLibrary> {
   try {
     const module = await resolveModule(
       {
@@ -27,17 +34,19 @@ async function resolveEmitterLibrary(
       { baseDir, conditions: ["import"] },
     );
 
+    const manifest = module.type === "module" ? module.manifest : undefined;
     const entrypoint = module.type === "file" ? module.path : module.mainFile;
     const [file, jsDiagnostics] = await loadJsFile(host, entrypoint, NoTarget);
     if (!file) {
-      return { library: undefined, diagnostics: jsDiagnostics };
+      return { library: undefined, manifest, diagnostics: jsDiagnostics };
     }
 
     const libDefinition: TypeSpecLibrary<any> | undefined = file.esmExports.$lib;
-    return { library: libDefinition, diagnostics: jsDiagnostics };
+    return { library: libDefinition, manifest, diagnostics: jsDiagnostics };
   } catch (e: any) {
     return {
       library: undefined,
+      manifest: undefined,
       diagnostics: [
         {
           code: "emitter-not-found",
@@ -196,15 +205,44 @@ function resolveType(prop: any): string {
 }
 
 /**
+ * Format library metadata (name, version, description, homepage) as colorized key-value lines
+ * under a section title.
+ */
+export function formatLibraryInfo(manifest: PackageJson | undefined): string[] {
+  const lines: string[] = [];
+
+  lines.push(pc.bold("Library"));
+  lines.push("");
+
+  const name = manifest?.name ?? "unknown";
+  lines.push(`  ${pc.gray("Name:")} ${pc.cyan(name)}`);
+
+  if (manifest?.version) {
+    lines.push(`  ${pc.gray("Version:")} ${pc.yellow(manifest.version)}`);
+  }
+
+  if (manifest?.description) {
+    lines.push(`  ${pc.gray("Description:")} ${manifest.description}`);
+  }
+
+  if (manifest?.homepage) {
+    lines.push(`  ${pc.gray("Homepage:")} ${pc.underline(pc.blue(manifest.homepage))}`);
+  }
+
+  return lines;
+}
+
+/**
  * Format emitter options as a colorized string for terminal display.
  * Returns lines of formatted output.
  */
-export function formatEmitterOptions(emitterName: string, schema: any): string[] {
+export function formatEmitterOptions(schema: any): string[] {
   const lines: string[] = [];
-  const options = extractEmitterOptionsInfo(schema);
 
-  lines.push(pc.bold(pc.cyan(emitterName)));
+  lines.push(pc.bold("Emitter Options"));
   lines.push("");
+
+  const options = extractEmitterOptionsInfo(schema);
 
   if (options.length === 0) {
     lines.push(pc.gray("  This emitter does not define any options."));
@@ -363,27 +401,35 @@ function renderMarkdownLine(line: string): string {
 }
 
 /**
- * Resolve an emitter and print its options.
+ * Resolve a library and print its info and emitter options.
  */
 export async function printEmitterOptionsAction(
   host: CompilerHost,
   emitterName: string,
 ): Promise<readonly Diagnostic[]> {
   const cwd = process.cwd();
-  const { library, diagnostics } = await resolveEmitterLibrary(host, emitterName, cwd);
+  const { library, manifest, diagnostics } = await resolveEmitterLibrary(host, emitterName, cwd);
 
   if (diagnostics.length > 0) {
     return diagnostics;
   }
 
+  // Library info header
+  const infoLines = formatLibraryInfo(manifest);
+  for (const line of infoLines) {
+    console.log(line);
+  }
+  console.log("");
+
+  // Emitter options
   if (!library) {
     console.log(pc.yellow(`Could not load library definition for "${emitterName}".`));
     return [];
   }
 
   const schema = library.emitter?.options;
-  const lines = formatEmitterOptions(emitterName, schema);
-  for (const line of lines) {
+  const optionLines = formatEmitterOptions(schema);
+  for (const line of optionLines) {
     console.log(line);
   }
 
