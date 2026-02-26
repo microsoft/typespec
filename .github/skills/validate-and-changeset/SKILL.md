@@ -167,11 +167,16 @@ EOF
 # Get current branch name
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Determine the correct remote to push to
-# - "origin" is typically the user's fork
-# - "upstream" is typically microsoft/typespec (do NOT push here)
-# Push to origin (user's fork), not upstream (microsoft/typespec)
-git push -u origin "$BRANCH"
+# Find the user's fork remote (any remote that's NOT microsoft/typespec)
+FORK_REMOTE=$(git remote -v | grep -v "microsoft/typespec" | grep "(push)" | head -1 | awk '{print $1}')
+
+# Fall back to origin if detection fails
+if [ -z "$FORK_REMOTE" ]; then
+  FORK_REMOTE="origin"
+fi
+
+# Push to user's fork
+git push -u "$FORK_REMOTE" "$BRANCH"
 ```
 
 ### Remote Configuration
@@ -180,24 +185,17 @@ The TypeSpec repo typically uses this remote setup:
 
 | Remote | URL | Purpose |
 |--------|-----|---------|
-| `origin` | `https://github.com/<username>/typespec.git` | Your fork (push here) |
+| User's fork | `https://github.com/<username>/typespec.git` | Push here (often named `origin`) |
 | `upstream` | `https://github.com/microsoft/typespec.git` | Microsoft's repo (PRs target here) |
 
-**Important:** Always push to `origin` (your fork), never directly to `upstream` (microsoft/typespec).
+The skill automatically detects your fork by finding a remote that doesn't point to `microsoft/typespec`.
 
 To verify your remotes:
 ```bash
 git remote -v
 ```
 
-If `origin` points to microsoft/typespec instead of your fork, you may need to reconfigure:
-```bash
-# Rename origin to upstream
-git remote rename origin upstream
-
-# Add your fork as origin
-git remote add origin https://github.com/<your-username>/typespec.git
-```
+**Important:** Never push directly to the microsoft/typespec remote.
 
 ## Changeset Message Guidelines
 
