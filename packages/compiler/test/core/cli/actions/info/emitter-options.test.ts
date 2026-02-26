@@ -3,6 +3,17 @@ import {
   extractEmitterOptionsInfo,
   formatEmitterOptions,
 } from "../../../../../src/core/cli/actions/info/emitter-options.js";
+import { d } from "../../../../test-utils.js";
+
+/** Strip ANSI escape codes to get plain text for assertions */
+function stripAnsi(str: string): string {
+  // eslint-disable-next-line no-control-regex
+  return str.replace(/\x1b\[[0-9;]*m/g, "");
+}
+
+function formatPlain(emitterName: string, schema: any): string {
+  return stripAnsi(formatEmitterOptions(emitterName, schema).join("\n"));
+}
 
 describe("extractEmitterOptionsInfo", () => {
   it("returns empty array for undefined schema", () => {
@@ -63,10 +74,7 @@ describe("extractEmitterOptionsInfo", () => {
       properties: {
         "openapi-versions": {
           type: "array",
-          items: {
-            type: "string",
-            enum: ["3.0.0", "3.1.0"],
-          },
+          items: { type: "string", enum: ["3.0.0", "3.1.0"] },
           default: ["3.0.0"],
           description: "OpenAPI versions to emit.",
         },
@@ -83,14 +91,20 @@ describe("extractEmitterOptionsInfo", () => {
     ]);
   });
 
-  it("extracts option with oneOf", () => {
+  it("extracts oneOf as variants with nested object properties", () => {
     const schema = {
       type: "object",
       properties: {
         "operation-id": {
           oneOf: [
             { type: "string", enum: ["auto", "manual"] },
-            { type: "object", properties: { kind: { type: "string" } } },
+            {
+              type: "object",
+              properties: {
+                kind: { type: "string" },
+                separator: { type: "string" },
+              },
+            },
           ],
         },
       },
@@ -98,7 +112,12 @@ describe("extractEmitterOptionsInfo", () => {
     const result = extractEmitterOptionsInfo(schema);
     expect(result).toHaveLength(1);
     expect(result[0].name).toBe("operation-id");
-    expect(result[0].type).toBe("string | object { kind }");
+    expect(result[0].variants).toHaveLength(2);
+    expect(result[0].variants![0].allowedValues).toEqual(["auto", "manual"]);
+    expect(result[0].variants![1].type).toBe("object");
+    expect(result[0].variants![1].nestedOptions).toHaveLength(2);
+    expect(result[0].variants![1].nestedOptions![0].name).toBe("kind");
+    expect(result[0].variants![1].nestedOptions![1].name).toBe("separator");
   });
 
   it("extracts option with description as array", () => {
@@ -115,100 +134,160 @@ describe("extractEmitterOptionsInfo", () => {
     const result = extractEmitterOptionsInfo(schema);
     expect(result[0].description).toBe("Line 1\nLine 2");
   });
-
-  it("extracts multiple options", () => {
-    const schema = {
-      type: "object",
-      properties: {
-        "file-type": { type: "string", enum: ["yaml", "json"] },
-        "new-line": { type: "string", enum: ["crlf", "lf"], default: "lf" },
-        noEmit: { type: "boolean", description: "Do not emit files." },
-      },
-    };
-    const result = extractEmitterOptionsInfo(schema);
-    expect(result).toHaveLength(3);
-    expect(result[0].name).toBe("file-type");
-    expect(result[1].name).toBe("new-line");
-    expect(result[2].name).toBe("noEmit");
-  });
 });
 
 describe("formatEmitterOptions", () => {
-  it("shows no options message for empty schema", () => {
-    const lines = formatEmitterOptions("@typespec/test", undefined);
-    const text = lines.join("\n");
-    expect(text).toContain("@typespec/test");
-    expect(text).toContain("does not define any options");
+  it("shows message when emitter has no options", () => {
+    expect(formatPlain("@typespec/test", undefined)).toBe(d`
+      @typespec/test
+
+        This emitter does not define any options.
+    `);
   });
 
-  it("shows no options message for schema with no properties", () => {
-    const lines = formatEmitterOptions("@typespec/test", { type: "object" });
-    const text = lines.join("\n");
-    expect(text).toContain("does not define any options");
+  it("shows message when schema has no properties", () => {
+    expect(formatPlain("@typespec/test", { type: "object" })).toBe(d`
+      @typespec/test
+
+        This emitter does not define any options.
+    `);
   });
 
-  it("formats options with types, enums, defaults, and descriptions", () => {
+  it("formats enum option with description", () => {
     const schema = {
       type: "object",
       properties: {
         "file-type": {
           type: "string",
           enum: ["yaml", "json"],
-          nullable: true,
+          description: "Output format.",
+        },
+      },
+    };
+    expect(formatPlain("@typespec/openapi3", schema)).toBe(d`
+      @typespec/openapi3
+
+        file-type: "yaml" | "json"
+          Output format.
+
+    `);
+  });
+
+  it("formats boolean option with default", () => {
+    const schema = {
+      type: "object",
+      properties: {
+        noEmit: {
+          type: "boolean",
+          default: false,
+          description: "Do not emit files.",
+        },
+      },
+    };
+    expect(formatPlain("@typespec/test", schema)).toBe(d`
+      @typespec/test
+
+        noEmit: boolean (default: false)
+          Do not emit files.
+
+    `);
+  });
+
+  it("formats multiple options together", () => {
+    const schema = {
+      type: "object",
+      properties: {
+        "file-type": {
+          type: "string",
+          enum: ["yaml", "json"],
           description: "Output file format.",
         },
         "new-line": {
           type: "string",
           enum: ["crlf", "lf"],
           default: "lf",
-          nullable: true,
         },
         noEmit: {
           type: "boolean",
-          nullable: true,
           default: false,
           description: "Do not emit files.",
         },
       },
     };
-    const lines = formatEmitterOptions("@typespec/openapi3", schema);
-    const text = lines.join("\n");
+    expect(formatPlain("@typespec/openapi3", schema)).toBe(d`
+      @typespec/openapi3
 
-    // Contains emitter name
-    expect(text).toContain("@typespec/openapi3");
+        file-type: "yaml" | "json"
+          Output file format.
 
-    // Contains option names
-    expect(text).toContain("file-type");
-    expect(text).toContain("new-line");
-    expect(text).toContain("noEmit");
+        new-line: "crlf" | "lf" (default: "lf")
 
-    // Contains type info
-    expect(text).toContain("string");
-    expect(text).toContain("boolean");
+        noEmit: boolean (default: false)
+          Do not emit files.
 
-    // Contains enum values
-    expect(text).toContain("yaml");
-    expect(text).toContain("json");
-
-    // Contains defaults
-    expect(text).toContain("lf");
-    expect(text).toContain("false");
-
-    // Contains descriptions
-    expect(text).toContain("Output file format.");
-    expect(text).toContain("Do not emit files.");
+    `);
   });
 
-  it("formats option inline with name, type on same line", () => {
+  it("formats union variants with - prefix and nested properties", () => {
     const schema = {
       type: "object",
       properties: {
-        test: { type: "string", description: "A test option." },
+        strategy: {
+          oneOf: [
+            {
+              type: "string",
+              enum: ["auto", "manual"],
+              default: "auto",
+              description: "Simple strategy.",
+            },
+            {
+              type: "object",
+              properties: {
+                kind: {
+                  type: "string",
+                  enum: ["auto", "manual"],
+                  description: "The strategy kind.",
+                },
+                separator: { type: "string", description: "Separator character." },
+              },
+            },
+          ],
+        },
       },
     };
-    const lines = formatEmitterOptions("@typespec/test", schema);
-    // Name and type should be on the same line
-    const headerLine = lines.find((l) => l.includes("test") && l.includes("string"));
-    expect(headerLine).toBeDefined();
+    expect(formatPlain("@typespec/test", schema)).toBe(d`
+      @typespec/test
+
+        strategy:
+          - "auto" | "manual" (default: "auto")
+            Simple strategy.
+          - object
+            kind: "auto" | "manual"
+              The strategy kind.
+
+            separator: string
+              Separator character.
+
+
+    `);
+  });
+
+  it("renders markdown inline code and links in descriptions", () => {
+    const schema = {
+      type: "object",
+      properties: {
+        output: {
+          type: "string",
+          description: "Use `json` format. See [docs](https://example.com) for details.",
+        },
+      },
+    };
+    expect(formatPlain("@typespec/test", schema)).toBe(d`
+      @typespec/test
+
+        output: string
+          Use json format. See docs https://example.com for details.
+
+    `);
   });
 });
