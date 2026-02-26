@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.27.3
+
+### Bump dependencies
+
+- Bump `@typespec/http` dependency to `^1.9.1`
+
+
 ## 0.27.2
 
 ### Bump dependencies
