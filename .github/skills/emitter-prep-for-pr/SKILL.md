@@ -1,30 +1,43 @@
 ---
-name: validate-and-changeset
+name: emitter-prep-for-pr
 description: >
-  Validate emitter changes (build, format, lint), add a changeset, and push.
-  Use when the user wants to finalize their changes, says things like "validate
-  and push", "add changeset", "prepare for PR", "finalize changes", or is ready
-  to commit and push their work.
+  Prepare language emitter changes for PR: validate (build, format, lint), add
+  a changeset, and push. This skill is specifically for the language emitter
+  packages (http-client-python, http-client-csharp, http-client-java) - NOT for
+  core TypeSpec packages like compiler, http, openapi3, etc. Use when the user
+  wants to finalize emitter changes, says things like "prep for pr", "prepare
+  for PR", "validate and push", "add changeset", or "finalize changes".
 ---
 
-# Validate and Changeset Skill
+# Emitter Prep for PR
 
-Validates emitter changes by running build/format/lint, creates a changeset with
-an appropriate message, and pushes to the remote branch after user confirmation.
+Prepares language emitter changes for pull request by running build/format/lint,
+creating a changeset with an appropriate message, and pushing to the remote branch.
+
+**This skill is for language emitter packages only:**
+- `http-client-python`
+- `http-client-csharp`
+- `http-client-java`
+
+Do NOT use this skill for core TypeSpec packages (compiler, http, openapi3, etc.).
 
 ## Workflow
 
-### Step 1: Identify changed packages
+### Step 1: Identify changed language emitter packages
 
-Determine which emitter packages have changes:
+Determine which language emitter packages have changes:
 
 ```bash
 cd ~/Desktop/github/typespec
 
 # Compare against upstream/main (microsoft/typespec) if available, otherwise main
 BASE_BRANCH=$(git rev-parse --verify upstream/main 2>/dev/null && echo "upstream/main" || echo "main")
-git diff "$BASE_BRANCH" --name-only | grep "^packages/" | cut -d'/' -f2 | sort -u
+
+# Filter for language emitter packages only
+git diff "$BASE_BRANCH" --name-only | grep "^packages/http-client-" | cut -d'/' -f2 | sort -u
 ```
+
+This filters for `http-client-python`, `http-client-csharp`, `http-client-java`, etc.
 
 ### Step 2: Validate each changed emitter package
 
@@ -223,15 +236,13 @@ Write changeset messages that are:
 - "Remove deprecated `v1` client generation mode"
 - "Change default serialization format from XML to JSON"
 
-## Package Name Mapping
+## Language Emitter Package Names
 
 | Folder               | Package Name                   |
 | -------------------- | ------------------------------ |
 | `http-client-python` | `@typespec/http-client-python` |
 | `http-client-csharp` | `@typespec/http-client-csharp` |
 | `http-client-java`   | `@typespec/http-client-java`   |
-| `compiler`           | `@typespec/compiler`           |
-| `http`               | `@typespec/http`               |
 
 ## Notes
 
