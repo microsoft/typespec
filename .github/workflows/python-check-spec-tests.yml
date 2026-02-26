@@ -3,10 +3,14 @@ name: "[Python] Check Spec Test Cases"
 on:
   schedule:
     - cron: "0 0 * * 1" # Weekly on Monday
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 permissions:
   issues: write
+
+concurrency:
+  group: python-check-spec-tests
+  cancel-in-progress: true
 
 jobs:
   check-and-create-issues:
@@ -80,19 +84,19 @@ jobs:
             echo "Date A ($version_a): $date_a"
             echo "Date B ($version_b): $date_b"
 
-            # Compare dates - if A's date is later than B's date, continue; otherwise stop
-            if [[ "$date_a" > "$date_b" ]]; then
-              echo "Version A is newer than B, proceeding to check for PRs..."
+            # Compare dates - if B (latest) is newer than A (pinned), there are new specs to check
+            if [[ "$date_b" > "$date_a" ]]; then
+              echo "Latest version is newer than pinned, proceeding to check for PRs..."
             else
-              echo "Version A is NOT newer than B, skipping $pkg_name"
+              echo "Pinned version is up-to-date, skipping $pkg_name"
               return
             fi
 
             # Step 4: Extract date range and find PRs merged between the two dates
             local since
-            since=$(echo "$date_b" | cut -dT -f1)
+            since=$(echo "$date_a" | cut -dT -f1)
             local until_date
-            until_date=$(echo "$date_a" | cut -dT -f1)
+            until_date=$(echo "$date_b" | cut -dT -f1)
 
             echo "Searching for merged PRs between $since and $until_date in $repo affecting $specs_path"
 
@@ -120,6 +124,9 @@ jobs:
               local pr_url
               pr_url=$(echo "$prs" | jq -r ".[$i].url")
 
+              # Rate-limit: small delay between API calls to avoid exhausting quota
+              sleep 0.5
+
               # Get list of files changed in this PR
               local files
               files=$(gh api "repos/${repo_owner}/${repo_name}/pulls/${pr_number}/files" --paginate --jq '.[].filename' 2>/dev/null || true)
@@ -137,7 +144,7 @@ jobs:
 
                 # Check if an open issue with same title already exists
                 local existing
-                existing=$(gh issue list --repo "$ISSUE_REPO" --state open --search "in:title [python] add test case" --json number,title --limit 100)
+                existing=$(gh issue list --repo "$ISSUE_REPO" --state open --search "in:title \"[python] add test case\"" --json number,title --limit 200)
 
                 local has_match
                 has_match=$(echo "$existing" | jq --arg t "$title" '[.[] | select(.title == $t)] | length')
@@ -152,7 +159,11 @@ jobs:
                   --title "$title" \
                   --body "$body" \
                   --label "emitter:client:python" \
-                  --assignee "copilot"
+                  --assignee "copilot" || \
+                gh issue create --repo "$ISSUE_REPO" \
+                  --title "$title" \
+                  --body "$body" \
+                  --label "emitter:client:python"
 
                 echo "Created issue for PR $pr_url"
               fi
