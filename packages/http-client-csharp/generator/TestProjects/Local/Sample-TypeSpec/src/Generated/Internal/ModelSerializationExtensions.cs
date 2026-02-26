@@ -388,7 +388,7 @@ namespace SampleTypeSpec
             writer.WriteValue(TypeFormatters.ToString(value, format));
         }
 
-        public static void WriteObjectValue<T>(this XmlWriter writer, T value, ModelReaderWriterOptions options = null)
+        public static void WriteObjectValue<T>(this XmlWriter writer, T value, ModelReaderWriterOptions options = null, string nameHint = null)
         {
             switch (value)
             {
@@ -398,15 +398,28 @@ namespace SampleTypeSpec
                     {
                         using (XmlReader reader = XmlReader.Create(stream, XmlReaderSettings))
                         {
-                            reader.MoveToContent();
-                            reader.ReadStartElement();
-                            while (reader.NodeType != XmlNodeType.EndElement)
+                            reader0.MoveToContent();
+                            if (nameHint != null)
                             {
-                                writer.WriteNode(reader, true);
+                                writer.WriteStartElement(nameHint);
+                                reader0.ReadStartElement();
+                                while (reader0.NodeType != XmlNodeType.EndElement)
+                                {
+                                    writer.WriteNode(reader0, true);
+                                }
+                                writer.WriteEndElement();
+                            }
+                            else
+                            {
+                                reader0.ReadStartElement();
+                                while (reader0.NodeType != XmlNodeType.EndElement)
+                                {
+                                    writer.WriteNode(reader0, true);
+                                }
                             }
                         }
                     }
-                    break;
+                    return;
                 default:
                     throw new NotSupportedException($"Not supported type {typeof(T)}");
             }

@@ -415,40 +415,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
             declarations = new Dictionary<string, ValueExpression> { { "value", defaultValue } };
 
-            // Using stream and XDocument to parse XML
-            var streamVar = new VariableExpression(typeof(Stream), "stream");
-            var documentVar = new VariableExpression(typeof(XDocument), "document");
             var rootElementVarName = rootName.Substring(0, 1).ToLower() + rootName.Substring(1) + "Element";
-            var rootElementVar = new VariableExpression(typeof(XElement), rootElementVarName);
 
             // Build the inner loop
             var arrayVar = new VariableExpression(listType, "array");
 
-            var ifBody = new MethodBodyStatement[]
-            {
-                Declare(arrayVar, New.Instance(listType)),
-                ForEachStatement.Create(
-                    "item",
-                    rootElementVar.As<XElement>().Elements(Literal(childName)),
-                    out ScopedApi<XElement> item)
-                    .Add(arrayVar.As(listType).Add(
-                        MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
-                            elementType,
-                            item,
-                            null,
-                            ModelSerializationExtensionsSnippets.Wire))),
-                defaultValue.Assign(arrayVar).Terminate()
-            };
-
-            // if (document.Element("rootName") is XElement rootElement) { ... }
-            var rootElementAccess = documentVar.As<XDocument>().Invoke(nameof(XDocument.Element), Literal(rootName));
-            var isExpression = new DeclarationExpression(typeof(XElement), rootElementVarName);
-
             statements.Add(
-                new UsingScopeStatement(typeof(Stream), "stream", data.ToStream(), out _)
+                new UsingScopeStatement(typeof(Stream), "stream", data.ToStream(), out var streamVar)
                 {
-                    Declare(documentVar, Static(typeof(XDocument)).Invoke(nameof(XDocument.Load), [streamVar, XmlLinqSnippets.PreserveWhitespace])),
-                    new IfStatement(rootElementAccess.Is(isExpression)) { ifBody }
+                    Declare("document", typeof(XDocument), Static(typeof(XDocument)).Invoke(nameof(XDocument.Load), [streamVar, XmlLinqSnippets.PreserveWhitespace]), out var documentVar),
+                    new IfStatement(documentVar.Invoke(nameof(XDocument.Element), Literal(rootName)).Is(new DeclarationExpression(typeof(XElement), rootElementVarName, out var rootElementVar)))
+                    {
+                        Declare(arrayVar, New.Instance(listType)),
+                        ForEachStatement.Create(
+                            "item",
+                            rootElementVar.As<XElement>().Elements(Literal(childName)),
+                            out ScopedApi<XElement> item)
+                            .Add(arrayVar.As(listType).Add(
+                                MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                                    elementType,
+                                    item,
+                                    null,
+                                    ModelSerializationExtensionsSnippets.Wire))),
+                        defaultValue.Assign(arrayVar).Terminate()
+                    }
                 });
 
             return statements;
