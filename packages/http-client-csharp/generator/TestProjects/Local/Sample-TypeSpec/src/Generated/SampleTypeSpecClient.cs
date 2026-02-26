@@ -9,8 +9,11 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
+using System.Xml.Linq;
 using System.Threading.Tasks;
 using SampleTypeSpec.Models.Custom;
 
@@ -1880,6 +1883,152 @@ namespace SampleTypeSpec
 
             ClientResult result = await UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] Foo
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Foo(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateFooRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Foo
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> FooAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateFooRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Foo. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Foo(IEnumerable<SignedIdentifier> body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(body, "SignedIdentifiers", "SignedIdentifier");
+            return Foo(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Foo. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> FooAsync(IEnumerable<SignedIdentifier> body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(body, "SignedIdentifiers", "SignedIdentifier");
+            return await FooAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] GetFoo
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetFoo(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetFooRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] GetFoo
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetFooAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetFooRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> GetFoo. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<IReadOnlyList<SignedIdentifier>> GetFoo(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetFoo(cancellationToken.ToRequestOptions());
+            IReadOnlyList<SignedIdentifier> value = default;
+            BinaryData data = result.GetRawResponse().Content;
+            using Stream stream = data.ToStream();
+            XDocument document = XDocument.Load(stream, LoadOptions.PreserveWhitespace);
+            if (document.Element("SignedIdentifiers") is XElement signedIdentifiersElement)
+            {
+                List<SignedIdentifier> array = new List<SignedIdentifier>();
+                foreach (XElement item in signedIdentifiersElement.Elements("SignedIdentifier"))
+                {
+                    array.Add(SignedIdentifier.DeserializeSignedIdentifier(item, ModelSerializationExtensions.WireOptions));
+                }
+                value = array;
+            }
+            return ClientResult.FromValue(value, result.GetRawResponse());
+        }
+
+        /// <summary> GetFoo. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<IReadOnlyList<SignedIdentifier>>> GetFooAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetFooAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            IReadOnlyList<SignedIdentifier> value = default;
+            BinaryData data = result.GetRawResponse().Content;
+            using Stream stream = data.ToStream();
+            XDocument document = XDocument.Load(stream, LoadOptions.PreserveWhitespace);
+            if (document.Element("SignedIdentifiers") is XElement signedIdentifiersElement)
+            {
+                List<SignedIdentifier> array = new List<SignedIdentifier>();
+                foreach (XElement item in signedIdentifiersElement.Elements("SignedIdentifier"))
+                {
+                    array.Add(SignedIdentifier.DeserializeSignedIdentifier(item, ModelSerializationExtensions.WireOptions));
+                }
+                value = array;
+            }
+            return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>

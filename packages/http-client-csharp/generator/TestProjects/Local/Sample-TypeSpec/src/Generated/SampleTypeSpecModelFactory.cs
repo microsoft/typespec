@@ -377,6 +377,14 @@ namespace SampleTypeSpec
             return new XmlModelWithNamespace(foo, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The signed identifier. </summary>
+        /// <param name="id"> The unique ID for the signed identifier. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.SignedIdentifier"/> instance for mocking. </returns>
+        public static SignedIdentifier SignedIdentifier(string id = default)
+        {
+            return new SignedIdentifier(id, additionalBinaryDataProperties: null);
+        }
+
         /// <summary>
         /// Base animal with discriminator
         /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Pet"/> and <see cref="SampleTypeSpec.Dog"/>.

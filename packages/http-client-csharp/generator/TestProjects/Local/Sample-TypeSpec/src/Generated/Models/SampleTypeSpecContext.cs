@@ -32,6 +32,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResponse))]
     [ModelReaderWriterBuildable(typeof(RoundTripModel))]
+    [ModelReaderWriterBuildable(typeof(SignedIdentifier))]
     [ModelReaderWriterBuildable(typeof(Thing))]
     [ModelReaderWriterBuildable(typeof(Tree))]
     [ModelReaderWriterBuildable(typeof(UnknownAnimal))]
