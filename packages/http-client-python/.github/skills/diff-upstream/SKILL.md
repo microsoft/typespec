@@ -21,16 +21,16 @@ Optimized for local development with cached baseline and editor integration.
 
 All paths are relative to the http-client-python package root.
 
-| Item | Path |
-|------|------|
-| Package root | `~/Desktop/github/typespec/packages/http-client-python` |
-| Local generated (unbranded) | `generator/test/unbranded/generated` |
-| Local generated (azure) | `generator/test/azure/generated` |
-| Baseline cache (unbranded) | `generator/test/unbranded/.baseline` (gitignored) |
-| Baseline cache (azure) | `generator/test/azure/.baseline` (gitignored) |
-| Diff summary output | `generator/test/.diff-summary.md` (gitignored) |
-| Regenerate marker | `.last-regenerate` |
-| Upstream repo | `https://github.com/Azure/autorest.python` |
+| Item                        | Path                                                    |
+| --------------------------- | ------------------------------------------------------- |
+| Package root                | `~/Desktop/github/typespec/packages/http-client-python` |
+| Local generated (unbranded) | `generator/test/unbranded/generated`                    |
+| Local generated (azure)     | `generator/test/azure/generated`                        |
+| Baseline cache (unbranded)  | `generator/test/unbranded/.baseline` (gitignored)       |
+| Baseline cache (azure)      | `generator/test/azure/.baseline` (gitignored)           |
+| Diff summary output         | `generator/test/.diff-summary.md` (gitignored)          |
+| Regenerate marker           | `.last-regenerate`                                      |
+| Upstream repo               | `https://github.com/Azure/autorest.python`              |
 
 ## Workflow
 
@@ -108,27 +108,27 @@ Generated: $(date)
 
 | Metric | Count |
 |--------|-------|
-| Local | $(ls "$LOCAL_UNBRANDED" 2>/dev/null | wc -l | tr -d ' ') |
-| Upstream | $(ls "$BASELINE_UNBRANDED" 2>/dev/null | wc -l | tr -d ' ') |
+| Local | $(ls "$LOCAL_UNBRANDED" 2> /dev/null | wc -l | tr -d ' ') |
+| Upstream | $(ls "$BASELINE_UNBRANDED" 2> /dev/null | wc -l | tr -d ' ') |
 
 ### Missing locally (in upstream only):
-$(comm -13 <(ls "$LOCAL_UNBRANDED" 2>/dev/null | sort) <(ls "$BASELINE_UNBRANDED" 2>/dev/null | sort) | sed 's/^/- /' || echo "- (none)")
+$(comm -13 <(ls "$LOCAL_UNBRANDED" 2> /dev/null | sort) <(ls "$BASELINE_UNBRANDED" 2> /dev/null | sort) | sed 's/^/- /' || echo "- (none)")
 
 ### New locally (not in upstream):
-$(comm -23 <(ls "$LOCAL_UNBRANDED" 2>/dev/null | sort) <(ls "$BASELINE_UNBRANDED" 2>/dev/null | sort) | sed 's/^/- /' || echo "- (none)")
+$(comm -23 <(ls "$LOCAL_UNBRANDED" 2> /dev/null | sort) <(ls "$BASELINE_UNBRANDED" 2> /dev/null | sort) | sed 's/^/- /' || echo "- (none)")
 
 ## Azure Packages
 
 | Metric | Count |
 |--------|-------|
-| Local | $(ls "$LOCAL_AZURE" 2>/dev/null | wc -l | tr -d ' ') |
-| Upstream | $(ls "$BASELINE_AZURE" 2>/dev/null | wc -l | tr -d ' ') |
+| Local | $(ls "$LOCAL_AZURE" 2> /dev/null | wc -l | tr -d ' ') |
+| Upstream | $(ls "$BASELINE_AZURE" 2> /dev/null | wc -l | tr -d ' ') |
 
 ### Missing locally (in upstream only):
-$(comm -13 <(ls "$LOCAL_AZURE" 2>/dev/null | sort) <(ls "$BASELINE_AZURE" 2>/dev/null | sort) | sed 's/^/- /' || echo "- (none)")
+$(comm -13 <(ls "$LOCAL_AZURE" 2> /dev/null | sort) <(ls "$BASELINE_AZURE" 2> /dev/null | sort) | sed 's/^/- /' || echo "- (none)")
 
 ### New locally (not in upstream):
-$(comm -23 <(ls "$LOCAL_AZURE" 2>/dev/null | sort) <(ls "$BASELINE_AZURE" 2>/dev/null | sort) | sed 's/^/- /' || echo "- (none)")
+$(comm -23 <(ls "$LOCAL_AZURE" 2> /dev/null | sort) <(ls "$BASELINE_AZURE" 2> /dev/null | sort) | sed 's/^/- /' || echo "- (none)")
 
 ---
 
@@ -176,6 +176,7 @@ fi
 ### Step 5: Report to user
 
 Tell the user:
+
 - Summary file is open at `generator/test/.diff-summary.md`
 - Baseline is cached alongside generated code in `generator/test/*/.baseline/`
 - How to view detailed diffs (commands are in the summary file)
@@ -186,6 +187,7 @@ Tell the user:
 After showing the summary, if the user wants to see specific file changes:
 
 ### Find changed files in a package:
+
 ```bash
 cd ~/Desktop/github/typespec/packages/http-client-python
 diff -rq \
@@ -194,6 +196,7 @@ diff -rq \
 ```
 
 ### Show inline diff for a file:
+
 ```bash
 diff -u \
   generator/test/unbranded/.baseline/typetest-array/typetest/array/_client.py \
@@ -201,6 +204,7 @@ diff -u \
 ```
 
 ### VS Code side-by-side (if user has VS Code):
+
 ```bash
 code --diff \
   generator/test/unbranded/.baseline/typetest-array/typetest/array/_client.py \
@@ -210,6 +214,7 @@ code --diff \
 ## Integration with test-unbranded-emitter
 
 After running `diff-upstream`, you can immediately run tests:
+
 - The `.last-regenerate` marker is updated
 - `test-unbranded-emitter` will skip regeneration since it's fresh
 
@@ -228,6 +233,7 @@ rm generator/test/.diff-summary.md
 ## Gitignore
 
 These patterns should be in `.gitignore`:
+
 ```
 generator/test/unbranded/.baseline/
 generator/test/azure/.baseline/
@@ -255,13 +261,13 @@ git diff main..HEAD -- emitter/src/
 
 Based on the emitter changes, determine what generated code SHOULD change:
 
-| Emitter change type | Expected generated code impact |
-|---------------------|-------------------------------|
-| Namespace logic refactor (behavior-preserving) | No generated code changes |
-| New decorator support | Changes in files using that decorator |
-| Serialization changes | Changes in `_serialization.py`, model files |
-| Client initialization changes | Changes in `_client.py`, `_configuration.py` |
-| Operation changes | Changes in `_operations/*.py` |
+| Emitter change type                            | Expected generated code impact               |
+| ---------------------------------------------- | -------------------------------------------- |
+| Namespace logic refactor (behavior-preserving) | No generated code changes                    |
+| New decorator support                          | Changes in files using that decorator        |
+| Serialization changes                          | Changes in `_serialization.py`, model files  |
+| Client initialization changes                  | Changes in `_client.py`, `_configuration.py` |
+| Operation changes                              | Changes in `_operations/*.py`                |
 
 ### Step 3: Compare expected vs actual diffs
 
@@ -275,12 +281,12 @@ Based on the emitter changes, determine what generated code SHOULD change:
 
 These diffs exist between typespec and autorest.python repos regardless of emitter changes. They should be ignored when evaluating your changes:
 
-| File type | Typical diff | Cause |
-|-----------|--------------|-------|
-| `_patch.py` | `List[str]` → `list[str]` | Type hint modernization (Python 3.9+ style) |
-| `CHANGELOG.md` | Formatting differences | Template differences |
-| `README.md` | Service display names | Template/config differences |
-| `pyproject.toml` / `setup.py` | Different packaging | Tooling preferences |
+| File type                     | Typical diff              | Cause                                       |
+| ----------------------------- | ------------------------- | ------------------------------------------- |
+| `_patch.py`                   | `List[str]` → `list[str]` | Type hint modernization (Python 3.9+ style) |
+| `CHANGELOG.md`                | Formatting differences    | Template differences                        |
+| `README.md`                   | Service display names     | Template/config differences                 |
+| `pyproject.toml` / `setup.py` | Different packaging       | Tooling preferences                         |
 
 **If only these files differ:** "The only diffs are pre-existing repo differences (type hints, config files), not caused by your emitter changes. Your changes are behavior-preserving."
 
@@ -301,7 +307,7 @@ If you see differences in these files, the emitter changes ARE affecting generat
 To check if there are actual code changes (excluding expected differences):
 
 ```bash
-diff -rq generator/test/unbranded/generated generator/test/unbranded/.baseline 2>/dev/null | grep "\.py differ" | grep -v "_patch.py"
+diff -rq generator/test/unbranded/generated generator/test/unbranded/.baseline 2> /dev/null | grep "\.py differ" | grep -v "_patch.py"
 ```
 
 If this returns nothing, only expected diffs exist.
@@ -311,12 +317,14 @@ If this returns nothing, only expected diffs exist.
 ### Diff direction
 
 The diff shows changes from upstream (baseline) to local (your changes):
+
 - `-` lines: removed from upstream (or changed)
 - `+` lines: added in your local version
 
 ### Why packages might be missing locally
 
 Some upstream packages may not generate locally due to:
+
 - TypeSpec version incompatibilities in the monorepo
 - Specs that require specific dependencies not installed
 - Test configurations that differ between repos

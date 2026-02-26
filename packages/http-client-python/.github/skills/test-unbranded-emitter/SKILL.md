@@ -19,13 +19,13 @@ Automatically regenerates if the generated code is stale.
 All paths are relative to the http-client-python package root:
 `~/Desktop/github/typespec/packages/http-client-python`
 
-| Item | Path |
-|------|------|
-| Package root | `~/Desktop/github/typespec/packages/http-client-python` |
-| Emitter source | `emitter/src` |
-| Generated (unbranded) | `generator/test/unbranded/generated` |
-| Generated (azure) | `generator/test/azure/generated` |
-| Regenerate marker | `.last-regenerate` |
+| Item                  | Path                                                    |
+| --------------------- | ------------------------------------------------------- |
+| Package root          | `~/Desktop/github/typespec/packages/http-client-python` |
+| Emitter source        | `emitter/src`                                           |
+| Generated (unbranded) | `generator/test/unbranded/generated`                    |
+| Generated (azure)     | `generator/test/azure/generated`                        |
+| Regenerate marker     | `.last-regenerate`                                      |
 
 ## Workflow
 
@@ -44,21 +44,23 @@ to the user and stop — do not proceed to testing.
 Regeneration is needed if ANY of these conditions are true:
 
 1. **Generated folder doesn't exist or is empty**:
+
    ```bash
    cd ~/Desktop/github/typespec/packages/http-client-python
-
-   if [ ! -d "generator/test/unbranded/generated" ] || \
-      [ -z "$(ls -A generator/test/unbranded/generated 2>/dev/null)" ]; then
+   
+   if [ ! -d "generator/test/unbranded/generated" ] \
+     || [ -z "$(ls -A generator/test/unbranded/generated 2> /dev/null)" ]; then
      echo "Unbranded generated folder is empty - regeneration needed"
    fi
-
-   if [ ! -d "generator/test/azure/generated" ] || \
-      [ -z "$(ls -A generator/test/azure/generated 2>/dev/null)" ]; then
+   
+   if [ ! -d "generator/test/azure/generated" ] \
+     || [ -z "$(ls -A generator/test/azure/generated 2> /dev/null)" ]; then
      echo "Azure generated folder is empty - regeneration needed"
    fi
    ```
 
 2. **No regenerate marker file exists**:
+
    ```bash
    if [ ! -f ".last-regenerate" ]; then
      echo "No regenerate marker - regeneration needed"
@@ -67,7 +69,7 @@ Regeneration is needed if ANY of these conditions are true:
 
 3. **Emitter source files are newer than the marker**:
    ```bash
-   if [ -n "$(find emitter/src -newer .last-regenerate -type f 2>/dev/null | head -1)" ]; then
+   if [ -n "$(find emitter/src -newer .last-regenerate -type f 2> /dev/null | head -1)" ]; then
      echo "Emitter source changed since last regenerate - regeneration needed"
    fi
    ```
@@ -91,6 +93,7 @@ touch .last-regenerate
 If regeneration fails, report the error and stop.
 
 If regeneration is NOT needed, inform the user:
+
 > "Generated code is up to date (source unchanged since last regeneration). Skipping regenerate."
 
 ### Step 4: Run the generator test suite
@@ -101,6 +104,7 @@ npm run ci
 ```
 
 This runs:
+
 1. `test:emitter` - vitest unit tests for the emitter
 2. `ci:generator` - pytest tests against generated code
 
@@ -120,15 +124,19 @@ Both skills share the regeneration marker system:
 - `test-unbranded-emitter` checks this marker and skips regeneration if fresh
 
 **Efficient workflow**:
+
 ```
 diff-upstream → test-unbranded-emitter
 ```
+
 The second command will skip regeneration since `diff-upstream` just did it.
 
 **Standalone workflow**:
+
 ```
 test-unbranded-emitter
 ```
+
 Will regenerate only if source changed since last run.
 
 ## Notes
@@ -140,11 +148,11 @@ when the user is iterating on test fixes (not emitter changes).
 
 ### Test types
 
-| Command | What it runs | Duration |
-|---------|--------------|----------|
-| `npm run test:emitter` | vitest unit tests only | ~5 seconds |
-| `npm run test:generator` | pytest only (no vitest) | ~2 minutes |
-| `npm run ci` | vitest + pytest (full CI) | ~2-3 minutes |
+| Command                  | What it runs              | Duration     |
+| ------------------------ | ------------------------- | ------------ |
+| `npm run test:emitter`   | vitest unit tests only    | ~5 seconds   |
+| `npm run test:generator` | pytest only (no vitest)   | ~2 minutes   |
+| `npm run ci`             | vitest + pytest (full CI) | ~2-3 minutes |
 
 This skill runs `npm run ci` (full CI). If the user wants just unit tests or
 just pytest, they can ask specifically.
