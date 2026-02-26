@@ -1,7 +1,6 @@
 ---
 changeKind: feat
 packages:
-  - "@typespec/compiler"
   - "@typespec/playground"
 ---
 
