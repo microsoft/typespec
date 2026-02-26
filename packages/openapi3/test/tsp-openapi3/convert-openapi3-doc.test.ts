@@ -327,6 +327,55 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
     });
   });
 
+  it("should preserve array constraints (minItems/maxItems) on nullable array using anyOf", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            required: ["bar"],
+            properties: {
+              bar: {
+                anyOf: [
+                  {
+                    type: "array",
+                    items: { type: "string" },
+                  },
+                  { type: "null" as any },
+                ],
+                minItems: 2,
+                maxItems: 10,
+              },
+            },
+          },
+        },
+      },
+    } as any);
+
+    strictEqual(
+      tsp.includes("@minItems(2)"),
+      true,
+      "Expected '@minItems(2)' decorator but got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("@maxItems(10)"),
+      true,
+      "Expected '@maxItems(10)' decorator but got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("bar: string[] | null"),
+      true,
+      "Expected 'bar: string[] | null' but got: " + tsp,
+    );
+  });
+
   if (version !== "3.0.0") {
     describe("OpenAPI 3.1 anyOf with null conversion", () => {
       it("should convert anyOf with ref + null to proper union with null", async () => {

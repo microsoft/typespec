@@ -1,7 +1,0 @@
-{
-  "flavor": "generic", 
-  "CrossLanguageDefinitionId": {
-    "parameters.query.QueryClient": "Parameters.Query.Constant",
-    "parameters.query.QueryClientBuilder": "Parameters.Query"
-  }
-}

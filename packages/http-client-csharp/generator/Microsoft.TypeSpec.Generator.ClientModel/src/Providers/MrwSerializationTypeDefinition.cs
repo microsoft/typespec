@@ -1382,10 +1382,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         out var deserializationHook,
                         out _) && name == propertyName && deserializationHook != null)
                 {
+                    var knownArgs = new (string TypeName, ValueExpression Argument)[]
+                    {
+                        (nameof(JsonProperty), jsonProperty),
+                        (nameof(ModelReaderWriterOptions), _serializationOptionsParameter)
+                    };
+                    var hookArgs = GetDeserializationHookArguments(deserializationHook, variableExpression, knownArgs);
                     return
                     [
                         MethodBodyStatement.Empty,
-                        Static().Invoke(deserializationHook, jsonProperty, ByRef(variableExpression)).Terminate(),
+                        Static().Invoke(deserializationHook, hookArgs).Terminate(),
                         Continue
                     ];
                 }
@@ -1490,6 +1496,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat serializationFormat,
             out ValueExpression value)
         {
+            // byte[] is a special case - it represents a base64-encoded bytes value, not a JSON array
+            if (valueType.IsFrameworkType && valueType.FrameworkType == typeof(byte[]))
+            {
+                value = CreateDeserializeValueExpression(valueType, serializationFormat, jsonElement);
+                return MethodBodyStatement.Empty;
+            }
+
             if (valueType.IsList || valueType.IsArray)
             {
                 if (valueType.IsReadOnlyMemory)
@@ -2261,6 +2274,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                         ? BinaryDataSnippets.FromBytes(element.GetBytesFromBase64(format.ToFormatSpecifier()))
                         : BinaryDataSnippets.FromString(element.GetRawText()),
+                Type t when t == typeof(byte[]) =>
+                    format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
+                        ? element.GetBytesFromBase64(format.ToFormatSpecifier())
+                        : BinaryDataSnippets.FromString(element.GetRawText()).ToArray(),
                 Type t when t == typeof(Stream) =>
                     BinaryDataSnippets.FromString(element.GetRawText()).ToStream(),
                 Type t when t == typeof(JsonElement) =>
@@ -2283,8 +2300,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     element.GetString(),
                 Type t when t == typeof(Guid) =>
                     element.GetGuid(),
-                Type t when t == typeof(byte[]) =>
-                    element.GetBytesFromBase64(format.ToFormatSpecifier()),
                 Type t when t == typeof(DateTimeOffset) =>
                     format == SerializationFormat.DateTime_Unix
                         ? DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())
@@ -2513,6 +2528,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // search in the base model if the property is not found in the current model
             return property ?? _model.BaseModelProvider?.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+        }
+
+        private MethodProvider? FindCustomHookMethod(string hookName)
+        {
+            var model = _model;
+            while (model != null)
+            {
+                var method = model.CanonicalView.Methods.FirstOrDefault(m => m.Signature.Name == hookName);
+                if (method != null)
+                {
+                    return method;
+                }
+                model = model.BaseModelProvider;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Builds the argument list for a deserialization hook invocation by matching the hook's parameters
+        /// to the known available arguments. Parameters are matched as follows:
+        /// <list type="bullet">
+        ///   <item><c>ref</c> parameters are matched to the designated ref variable argument.</item>
+        ///   <item>Other parameters are matched by type name.</item>
+        ///   <item>Unmatched parameters receive the <c>default</c> value for their type.</item>
+        /// </list>
+        /// </summary>
+        private IReadOnlyList<ValueExpression> GetDeserializationHookArguments(
+            string hookName,
+            ValueExpression refVariable,
+            IReadOnlyList<(string TypeName, ValueExpression Argument)> knownArguments)
+        {
+            var hookMethod = FindCustomHookMethod(hookName);
+            if (hookMethod == null)
+            {
+                // Fall back: no method found, use previous behavior (first known arg, ref variable, no options)
+                return [knownArguments[0].Argument, ByRef(refVariable)];
+            }
+
+            var args = new List<ValueExpression>();
+            foreach (var param in hookMethod.Signature.Parameters)
+            {
+                if (param.IsRef)
+                {
+                    args.Add(ByRef(refVariable));
+                }
+                else
+                {
+                    var matched = knownArguments.FirstOrDefault(a => a.TypeName == param.Type.Name);
+                    args.Add(matched.Argument ?? DefaultOf(param.Type));
+                }
+            }
+            return args;
         }
 
         private List<AttributeStatement> GetSerializationAttributes()

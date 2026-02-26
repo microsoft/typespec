@@ -4,6 +4,8 @@ import type { Program } from "../core/program.js";
 import { getProperty } from "../core/semantic-walker.js";
 import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
 import {
+  DiagnosticTarget,
+  NoTarget,
   type ObjectValue,
   type Scalar,
   type ScalarValue,
@@ -13,9 +15,19 @@ import {
 import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
 
 /**
+ * Error thrown when a value cannot be serialized.
+ */
+export class UnserializableValueError extends Error {
+  constructor(public readonly reason: string = "Cannot serialize value as JSON.") {
+    super(reason);
+    this.name = "UnserializableValueError";
+  }
+}
+
+/**
  * Error thrown when a scalar value cannot be serialized because it uses an unsupported constructor.
  */
-export class UnsupportedScalarConstructorError extends Error {
+export class UnsupportedScalarConstructorError extends UnserializableValueError {
   constructor(
     public readonly scalarName: string,
     public readonly constructorName: string,
@@ -54,6 +66,7 @@ export function serializeValueAsJson(
   type: Type,
   encodeAs?: EncodeData,
   handlers?: ValueJsonSerializers,
+  diagnosticTarget?: DiagnosticTarget | typeof NoTarget,
 ): unknown {
   if (type.kind === "ModelProperty") {
     return serializeValueAsJson(
@@ -62,6 +75,7 @@ export function serializeValueAsJson(
       type.type,
       encodeAs ?? getEncode(program, type),
       handlers,
+      diagnosticTarget,
     );
   }
   switch (value.valueKind) {
@@ -82,12 +96,17 @@ export function serializeValueAsJson(
           type.kind === "Model" && isArrayModelType(type)
             ? type.indexer.value
             : program.checker.anyType,
+          /* encodeAs: */ undefined,
+          handlers,
+          diagnosticTarget,
         ),
       );
     case "ObjectValue":
-      return serializeObjectValueAsJson(program, value, type);
+      return serializeObjectValueAsJson(program, value, type, handlers, diagnosticTarget);
     case "ScalarValue":
       return serializeScalarValueAsJson(program, value, type, encodeAs, handlers);
+    case "Function":
+      throw new UnserializableValueError("Cannot serialize a function value as JSON.");
   }
 }
 
@@ -135,6 +154,8 @@ function serializeObjectValueAsJson(
   program: Program,
   value: ObjectValue,
   type: Type,
+  handlers?: ValueJsonSerializers,
+  diagnosticTarget?: DiagnosticTarget | typeof NoTarget,
 ): Record<string, unknown> {
   type = resolveUnions(program, value, type) ?? type;
   const obj: Record<string, unknown> = {};
@@ -145,7 +166,14 @@ function serializeObjectValueAsJson(
         definition.kind === "ModelProperty"
           ? resolveEncodedName(program, definition, "application/json")
           : propValue.name;
-      obj[name] = serializeValueAsJson(program, propValue.value, definition);
+      obj[name] = serializeValueAsJson(
+        program,
+        propValue.value,
+        definition,
+        /* encodeAs: */ undefined,
+        handlers,
+        propValue.node,
+      );
     }
   }
   return obj;
