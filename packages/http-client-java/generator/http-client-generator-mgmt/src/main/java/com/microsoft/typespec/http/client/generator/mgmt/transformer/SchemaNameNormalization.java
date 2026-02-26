@@ -23,8 +23,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public class SchemaNameNormalization {
     private static final Logger LOGGER
         = new PluginLogger(FluentNamer.getPluginInstance(), SchemaNameNormalization.class);
 
-    private final Map<String, String> nameOverridePlan = new HashMap<>();
+    private final Map<String, String> nameOverridePlan = new LinkedHashMap<>();
 
     public SchemaNameNormalization(Map<String, String> nameOverridePlan) {
         nameOverridePlan.forEach((k, v) -> {
@@ -60,7 +60,7 @@ public class SchemaNameNormalization {
 
     public CodeModel process(CodeModel codeModel) {
         codeModel = namingOverride(codeModel);
-        Set<String> names = new HashSet<>();
+        Set<String> names = new LinkedHashSet<>();
         codeModel = normalizeUnnamedAdditionalProperties(codeModel, names);
         codeModel = normalizeUnnamedBaseType(codeModel, names);
         codeModel = normalizeUnnamedObjectTypeInArray(codeModel, names);    // after normalizeUnnamedBaseType

@@ -2050,6 +2050,68 @@ Content-Type: image/jpg
 --abcde12345--
 ```
 
+### Payload_MultiPart_FormData_File_uploadFileArray
+
+- Endpoint: `post /multipart/form-data/file/file-array`
+
+Test multiple File instances in multipart form data.
+Expected request:
+
+```
+POST /multipart/form-data/file/file-array HTTP/1.1
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="files"; filename="image1.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345
+Content-Disposition: form-data; name="files"; filename="image2.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_File_uploadFileRequiredFilename
+
+- Endpoint: `post /multipart/form-data/file/required-filename`
+
+Test File type in multipart form data with required filename.
+Expected request:
+
+```
+POST /multipart/form-data/file/required-filename HTTP/1.1
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="file"; filename="image.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345--
+```
+
+### Payload_MultiPart_FormData_File_uploadFileSpecificContentType
+
+- Endpoint: `post /multipart/form-data/file/specific-content-type`
+
+Test File type in multipart form data with specific content type.
+Expected request:
+
+```
+POST /multipart/form-data/file/specific-content-type HTTP/1.1
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="file"; filename="image.png"
+Content-Type: image/png
+
+{…file content of image.png…}
+--abcde12345--
+```
+
 ### Payload_MultiPart_FormData_fileArrayAndBasic
 
 - Endpoint: `post /multipart/form-data/complex-parts`
@@ -2999,6 +3061,32 @@ Expected request body:
 </ModelWithAttributes>
 ```
 
+### Payload_Xml_ModelWithDatetimeValue_get
+
+- Endpoint: `get /payload/xml/modelWithDatetime`
+
+Expected response body:
+
+```xml
+<ModelWithDatetime>
+  <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+</ModelWithDatetime>
+```
+
+### Payload_Xml_ModelWithDatetimeValue_put
+
+- Endpoint: `put /payload/xml/modelWithDatetime`
+
+Expected request body:
+
+```xml
+<ModelWithDatetime>
+  <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+</ModelWithDatetime>
+```
+
 ### Payload_Xml_ModelWithDictionaryValue_get
 
 - Endpoint: `get /payload/xml/modelWithDictionary`
@@ -3093,6 +3181,30 @@ Expected request body:
     <string>blue</string>
   </PossibleColors>
 </ModelWithEncodedNamesSrc>
+```
+
+### Payload_Xml_ModelWithEnumValue_get
+
+- Endpoint: `get /payload/xml/modelWithEnum`
+
+Expected response body:
+
+```xml
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
+```
+
+### Payload_Xml_ModelWithEnumValue_put
+
+- Endpoint: `put /payload/xml/modelWithEnum`
+
+Expected request body:
+
+```xml
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
 ```
 
 ### Payload_Xml_ModelWithOptionalFieldValue_get
@@ -5209,6 +5321,90 @@ Expect to send a known value. Mock api expect to receive 'Monday'
 - Endpoint: `put /type/enum/fixed/string/unknown-value`
 
 Expect to handle an unknown value. Mock api expect to receive 'Weekend'
+
+### Type_File_Body_downloadFileDefaultContentType
+
+- Endpoint: `get /type/file/body/response/default-content-type`
+
+Test File type as response body with unspecified content type.
+The File type accepts any content type. For testing, server will return image/png.
+Expected response:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_downloadFileJsonContentType
+
+- Endpoint: `get /type/file/body/response/json-content-type`
+
+Test File type as response body with JSON content type.
+Expected response:
+
+- Content-Type header: application/json
+- Body: JSON content with file data
+
+### Type_File_Body_downloadFileMultipleContentTypes
+
+- Endpoint: `get /type/file/body/response/multiple-content-types`
+
+Test File type as response body with multiple allowed content types.
+Service will return image/png.
+Expected response:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_downloadFileSpecificContentType
+
+- Endpoint: `get /type/file/body/response/specific-content-type`
+
+Test File type as response body with specific content type.
+Expected response:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileDefaultContentType
+
+- Endpoint: `post /type/file/body/request/default-content-type`
+
+Test File type as request body with unspecified content type.
+The File type accepts any content type. For testing, sender will use image/png.
+Expected request:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileJsonContentType
+
+- Endpoint: `post /type/file/body/request/json-content-type`
+
+Test File type as request body with JSON content type.
+Expected request:
+
+- Content-Type header: application/json
+- Body: JSON content with file data
+
+### Type_File_Body_uploadFileMultipleContentTypes
+
+- Endpoint: `post /type/file/body/request/multiple-content-types`
+
+Test File type as request body with multiple allowed content types (image/png or image/jpeg).
+Client should send image/png.
+Expected request:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
+
+### Type_File_Body_uploadFileSpecificContentType
+
+- Endpoint: `post /type/file/body/request/specific-content-type`
+
+Test File type as request body with specific content type.
+Expected request:
+
+- Content-Type header: image/png
+- Body: binary content matching packages/http-specs/assets/image.png
 
 ### Type_Model_Empty_getEmpty
 

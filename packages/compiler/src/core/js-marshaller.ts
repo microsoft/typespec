@@ -1,17 +1,21 @@
+import { $ } from "../typekit/index.js";
 import { compilerAssert } from "./diagnostics.js";
 import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
+import { Program } from "./program.js";
 import type {
   ArrayValue,
   MarshalledValue,
   NumericValue,
   ObjectValue,
+  ObjectValuePropertyDescriptor,
   Scalar,
+  TemplateValue,
   Type,
   Value,
 } from "./types.js";
 
-export function marshallTypeForJS<T extends Value>(
+export function marshalTypeForJs<T extends Value | TemplateValue>(
   value: T,
   valueConstraint: Type | undefined,
 ): MarshalledValue<T> {
@@ -25,12 +29,18 @@ export function marshallTypeForJS<T extends Value>(
       return objectValueToJs(value) as any;
     case "ArrayValue":
       return arrayValueToJs(value) as any;
-    case "EnumValue":
-      return value as any;
     case "NullValue":
+    case "TemplateValue":
       return null as any;
     case "ScalarValue":
+    case "EnumValue":
+    case "Function":
       return value as any;
+    default:
+      compilerAssert(
+        false,
+        `Cannot marshal value of kind '${(value satisfies never as Value).valueKind}' to JS.`,
+      );
   }
 }
 
@@ -68,20 +78,115 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
     const asNumber = type.value.asNumber();
     compilerAssert(
       asNumber !== null,
-      `Numeric value '${type.value.toString()}' is not a able to convert to a number without loosing precision.`,
+      `Numeric value '${type.value.toString()}' is not a able to convert to a number without losing precision.`,
     );
     return asNumber;
   }
   return type.value;
 }
 
-function objectValueToJs(type: ObjectValue) {
+function objectValueToJs(type: ObjectValue): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const [key, value] of type.properties) {
-    result[key] = marshallTypeForJS(value.value, undefined);
+    result[key] = marshalTypeForJs(value.value, undefined);
   }
   return result;
 }
 function arrayValueToJs(type: ArrayValue) {
-  return type.values.map((x) => marshallTypeForJS(x, undefined));
+  return type.values.map((x) => marshalTypeForJs(x, undefined));
+}
+
+export function unmarshalJsToValue(
+  program: Program,
+  value: unknown,
+  onInvalid: (value: unknown) => void,
+): Value | null {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "entityKind" in value &&
+    value.entityKind === "Value"
+  ) {
+    return value as Value;
+  }
+
+  if (value === null || value === undefined) {
+    return {
+      entityKind: "Value",
+      valueKind: "NullValue",
+      value: null,
+      type: program.checker.nullType,
+    };
+  } else if (typeof value === "boolean") {
+    const boolean = program.checker.getStdType("boolean");
+    return {
+      entityKind: "Value",
+      valueKind: "BooleanValue",
+      value,
+      type: boolean,
+      scalar: boolean,
+    };
+  } else if (typeof value === "string") {
+    const string = program.checker.getStdType("string");
+    return {
+      entityKind: "Value",
+      valueKind: "StringValue",
+      value,
+      type: string,
+      scalar: string,
+    };
+  } else if (typeof value === "number") {
+    const numeric = Numeric(String(value));
+    const numericType = program.checker.getStdType("numeric");
+    return {
+      entityKind: "Value",
+      valueKind: "NumericValue",
+      value: numeric,
+      type: $(program).literal.create(value),
+      scalar: numericType,
+    };
+  } else if (Array.isArray(value)) {
+    const values: Value[] = [];
+    const uniqueTypes = new Set<Type>();
+
+    for (const item of value) {
+      const itemValue = unmarshalJsToValue(program, item, onInvalid);
+
+      if (itemValue) {
+        values.push(itemValue);
+        uniqueTypes.add(itemValue.type);
+      }
+    }
+
+    return {
+      entityKind: "Value",
+      valueKind: "ArrayValue",
+      type: $(program).array.create($(program).union.create([...uniqueTypes])),
+      values,
+    };
+  } else if (typeof value === "object" && !("entityKind" in value)) {
+    const properties: Map<string, ObjectValuePropertyDescriptor> = new Map();
+    for (const [key, val] of Object.entries(value)) {
+      const propertyValue = unmarshalJsToValue(program, val, onInvalid);
+      if (propertyValue) {
+        properties.set(key, { name: key, value: propertyValue });
+      }
+    }
+    return {
+      entityKind: "Value",
+      valueKind: "ObjectValue",
+      properties,
+      type: $(program).model.create({
+        properties: Object.fromEntries(
+          [...properties.entries()].map(
+            ([k, v]) =>
+              [k, $(program).modelProperty.create({ name: k, type: v.value.type })] as const,
+          ),
+        ),
+      }),
+    };
+  } else {
+    onInvalid(value);
+    return null;
+  }
 }

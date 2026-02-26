@@ -308,7 +308,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var propertiesWithWireInfo = CanonicalView.Properties;
             if (propertiesWithWireInfo.Any(p =>
-                    p.WireInfo?.SerializedName != null &&
+                    p.WireInfo != null &&
                     ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
                     provider is ScmModelProvider { IsDynamicModel: true }))
             {
@@ -316,7 +316,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return propertiesWithWireInfo
-                .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
+                .Where(p => p.Type.IsCollection && p.WireInfo != null)
                 .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                               p.Type.GetNestedElementType(),
                               out var provider) &&

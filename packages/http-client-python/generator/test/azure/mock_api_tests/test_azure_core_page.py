@@ -58,3 +58,14 @@ def test_list_with_parameterized_next_link(client: PageClient):
     assert result[0].name == "User1"
     assert result[1].id == 2
     assert result[1].name == "User2"
+
+
+def test_list_with_relative_next_link(client: PageClient):
+    result = list(client.with_relative_next_link())
+    assert len(result) == 2
+    assert result[0].id == 1
+    assert result[0].name == "User1"
+    assert result[0].etag == "11bdc430-65e8-45ad-81d9-8ffa60d55b59"
+    assert result[1].id == 2
+    assert result[1].name == "User2"
+    assert result[1].etag == "11bdc430-65e8-45ad-81d9-8ffa60d55b59"

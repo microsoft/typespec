@@ -4,12 +4,12 @@
     <AssemblyTitle>SDK Code Generation SampleTypeSpec</AssemblyTitle>
     <Version>1.0.0-beta.1</Version>
     <PackageTags>SampleTypeSpec</PackageTags>
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ClientModel" Version="1.6.1" />
+    <PackageReference Include="System.ClientModel" Version="1.9.0" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,12 @@
 # Changelog - @typespec/asset-emitter
 
+## 0.79.0
+
+### Bug Fixes
+
+- [#9580](https://github.com/microsoft/typespec/pull/9580) Keep lexical context for when working with template instance without name
+
+
 ## 0.78.0
 
 ### Bump dependencies

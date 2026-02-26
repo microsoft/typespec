@@ -1,5 +1,16 @@
 # Change Log - @typespec/http
 
+## 1.9.1
+
+### Bug Fixes
+
+- [API] Fix `Content-Type` header will not be dropped in the response headers of `HttpOperationResponseContent` for `HEAD` requests.
+
+
+## 1.9.0
+
+Version Bump only.
+
 ## 1.8.0
 
 ### Bump dependencies

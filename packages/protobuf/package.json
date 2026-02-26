@@ -1,6 +1,6 @@
 {
   "name": "@typespec/protobuf",
-  "version": "0.78.0",
+  "version": "0.79.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library and emitter for Protobuf (gRPC)",
   "homepage": "https://github.com/microsoft/typespec",
@@ -31,8 +31,8 @@
   "tspMain": "lib/proto.tsp",
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-extern-signature && tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",

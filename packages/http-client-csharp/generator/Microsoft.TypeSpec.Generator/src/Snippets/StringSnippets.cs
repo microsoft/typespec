@@ -38,5 +38,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         public static ScopedApi<char> Index(this ScopedApi<string> stringExpression, ValueExpression index)
             => new IndexableExpression(stringExpression)[index].As<char>();
+
+        public static ScopedApi<bool> StartsWith(this ScopedApi<string> stringExpression, ValueExpression value, StringComparison comparisonType)
+            => stringExpression.Invoke(nameof(string.StartsWith), [value, FrameworkEnumValue(comparisonType)]).As<bool>();
     }
 }
