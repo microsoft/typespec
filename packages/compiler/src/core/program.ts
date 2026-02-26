@@ -6,7 +6,6 @@ import { MANIFEST } from "../manifest.js";
 import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
 import {
   ModuleResolutionResult,
-  ResolveModuleHost,
   ResolvedModule,
 } from "../module-resolver/types.js";
 import { PackageJson } from "../types/package-json.js";
@@ -29,6 +28,7 @@ import {
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
+import { createResolveModuleHost } from "./module-host.js";
 import { NameResolver, createResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import { CompilerOptions } from "./options.js";
@@ -700,7 +700,7 @@ async function createProgram(
   ): Promise<[ModuleResolutionResult | undefined, readonly Diagnostic[]]> {
     try {
       return [
-        await resolveModule(getResolveModuleHost(), specifier, { baseDir, conditions: ["import"] }),
+        await resolveModule(createResolveModuleHost(host), specifier, { baseDir, conditions: ["import"] }),
         [],
       ];
     } catch (e: any) {
@@ -710,17 +710,6 @@ async function createProgram(
         throw e;
       }
     }
-  }
-
-  function getResolveModuleHost(): ResolveModuleHost {
-    return {
-      realpath: host.realpath,
-      stat: host.stat,
-      readFile: async (path) => {
-        const file = await host.readFile(path);
-        return file.text;
-      },
-    };
   }
 
   // It's important that we use the compiler version that resolves locally

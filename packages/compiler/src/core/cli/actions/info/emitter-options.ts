@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import { readFile, realpath, stat } from "fs/promises";
 import pc from "picocolors";
-import { resolveModule } from "../../../../module-resolver/index.js";
+import { ResolveModuleError, resolveModule } from "../../../../module-resolver/index.js";
 import type { PackageJson } from "../../../../types/package-json.js";
+import { createResolveModuleHost } from "../../../module-host.js";
 import { loadJsFile } from "../../../source-loader.js";
 import { CompilerHost, Diagnostic, NoTarget, TypeSpecLibrary } from "../../../types.js";
 
@@ -21,18 +21,10 @@ async function resolveEmitterLibrary(
   baseDir: string,
 ): Promise<ResolvedLibrary> {
   try {
-    const module = await resolveModule(
-      {
-        realpath: (path) => realpath(path),
-        stat: (path) => stat(path),
-        readFile: async (path) => {
-          const buffer = await readFile(path);
-          return buffer.toString("utf-8");
-        },
-      },
-      emitterName,
-      { baseDir, conditions: ["import"] },
-    );
+    const module = await resolveModule(createResolveModuleHost(host), emitterName, {
+      baseDir,
+      conditions: ["import"],
+    });
 
     const manifest = module.type === "module" ? module.manifest : undefined;
     const entrypoint = module.type === "file" ? module.path : module.mainFile;
@@ -44,18 +36,21 @@ async function resolveEmitterLibrary(
     const libDefinition: TypeSpecLibrary<any> | undefined = file.esmExports.$lib;
     return { library: libDefinition, manifest, diagnostics: jsDiagnostics };
   } catch (e: any) {
-    return {
-      library: undefined,
-      manifest: undefined,
-      diagnostics: [
-        {
-          code: "emitter-not-found",
-          severity: "error",
-          message: `Could not resolve emitter "${emitterName}". Make sure it is installed.\n  ${e.message}`,
-          target: NoTarget,
-        },
-      ],
-    };
+    if (e instanceof ResolveModuleError) {
+      return {
+        library: undefined,
+        manifest: undefined,
+        diagnostics: [
+          {
+            code: "emitter-not-found",
+            severity: "error",
+            message: `Could not resolve emitter "${emitterName}". Make sure it is installed.\n  ${e.message}`,
+            target: NoTarget,
+          },
+        ],
+      };
+    }
+    throw e;
   }
 }
 
