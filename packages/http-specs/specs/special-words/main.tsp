@@ -342,7 +342,5 @@ interface Enums {
     """)
   @put
   @route("/string")
-  putEnumValue(@body body: Enum): {
-    @body body: Enum;
-  };
+  putEnumValue(@body body: Enum): Enum;
 }
