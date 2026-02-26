@@ -200,6 +200,7 @@ export {
   type ExampleOptions,
   type OpExample,
 } from "./lib/decorators.js";
+export { UnserializableValueError, UnsupportedScalarConstructorError } from "./lib/examples.js";
 export { MANIFEST, type TypeSpecManifest } from "./manifest.js";
 export {
   resolveModule,
@@ -355,8 +356,10 @@ export type {
   Expression,
   FileLibraryMetadata,
   FilePos,
+  FunctionContext,
   FunctionParameter,
   FunctionParameterBase,
+  FunctionValue,
   IdentifierContext,
   IdentifierKind,
   IndeterminateEntity,
