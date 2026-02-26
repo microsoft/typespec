@@ -4,10 +4,7 @@ import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
 import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
-import {
-  ModuleResolutionResult,
-  ResolvedModule,
-} from "../module-resolver/types.js";
+import { ModuleResolutionResult, ResolvedModule } from "../module-resolver/types.js";
 import { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
@@ -700,7 +697,10 @@ async function createProgram(
   ): Promise<[ModuleResolutionResult | undefined, readonly Diagnostic[]]> {
     try {
       return [
-        await resolveModule(createResolveModuleHost(host), specifier, { baseDir, conditions: ["import"] }),
+        await resolveModule(createResolveModuleHost(host), specifier, {
+          baseDir,
+          conditions: ["import"],
+        }),
         [],
       ];
     } catch (e: any) {

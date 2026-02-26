@@ -43,10 +43,7 @@ export function defineTest<T extends unknown[], R>(
  * ```
  */
 export function d(strings: TemplateStringsArray, ...values: unknown[]): string {
-  const result = strings.reduce(
-    (acc, str, i) => acc + str + (values[i] ?? ""),
-    "",
-  );
+  const result = strings.reduce((acc, str, i) => acc + str + (values[i] ?? ""), "");
 
   return dedent(result);
 }
@@ -70,4 +67,3 @@ export function dedent(str: string): string {
     .map((line) => (line.startsWith(indent) ? line.slice(indent.length) : line))
     .join("\n");
 }
-
