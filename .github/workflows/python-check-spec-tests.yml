@@ -1,8 +1,8 @@
 name: "[Python] Check Spec Test Cases"
 
 on:
-  schedule:
-    - cron: "0 0 * * *" # Daily at midnight UTC
+  # schedule:
+  #   - cron: "0 0 * * *" # Daily at midnight UTC
   workflow_dispatch:
 
 permissions:
