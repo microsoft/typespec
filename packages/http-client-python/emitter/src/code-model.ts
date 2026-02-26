@@ -218,7 +218,10 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
 
   for (const operationGroup of client.children ?? []) {
     const name = `${prefix}${operationGroup.name}`;
-    const operationGroupWithPrefixedName = { ...operationGroup, name } as SdkClientType<TServiceOperation>;
+    const operationGroupWithPrefixedName = {
+      ...operationGroup,
+      name,
+    } as SdkClientType<TServiceOperation>;
     let operations: Record<string, any>[] = [];
     const apiVersions =
       serviceApiVersions.length > 0 ? serviceApiVersions : operationGroup.apiVersions;
