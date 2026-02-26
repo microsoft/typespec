@@ -12,11 +12,13 @@ import {
   EnumMember,
   FunctionParameter,
   Interface,
+  MixedParameterConstraint,
   Model,
   ModelProperty,
   Operation,
   StringTemplate,
   Sym,
+  SymbolFlags,
   SyntaxKind,
   Type,
   UnionVariant,
@@ -57,6 +59,15 @@ function getEntitySignature(
     return "(error)";
   }
   if ("valueKind" in entity) {
+    if (sym.flags & SymbolFlags.Function && entity.valueKind === "Function") {
+      const parameters = [...entity.parameters].map(
+        (x) => `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getEntityName(x.type)}`,
+      );
+      return fence(
+        `fn ${entity.name ?? "<anonymous>"}(${parameters.join(", ")}) => ${getEntityName(entity.returnType)}`,
+      );
+    }
+
     return fence(`const ${sym.name}: ${getTypeName(entity.type)}`);
   }
 
@@ -105,10 +116,34 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
       return `(tuple)\n[${fence(type.values.map((v) => getTypeSignature(v, options)).join(", "))}]`;
+    case "FunctionType":
+      return `fn (${type.parameters.map((p) => getTypeSignature(p, options)).join(", ")}): ${getMixedConstraintSignature(
+        type.returnType,
+        options,
+      )}`;
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
   }
+}
+
+function getMixedConstraintSignature(
+  constraint: MixedParameterConstraint,
+  options: GetSymbolSignatureOptions,
+) {
+  let result = "";
+
+  if (constraint.type) {
+    result += getTypeSignature(constraint.type, options);
+  }
+
+  if (constraint.valueType) {
+    if (result.length > 0) {
+      result += " | ";
+    }
+    result += "valueof " + getTypeSignature(constraint.valueType, options);
+  }
+  return result;
 }
 
 function getDecoratorSignature(type: Decorator) {

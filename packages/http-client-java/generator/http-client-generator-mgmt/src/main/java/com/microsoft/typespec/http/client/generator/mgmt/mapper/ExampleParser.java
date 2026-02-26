@@ -46,7 +46,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -80,7 +80,7 @@ public class ExampleParser {
                 }
             });
 
-        Map<String, FluentExample> examples = new HashMap<>();
+        Map<String, FluentExample> examples = new LinkedHashMap<>();
         methodExamples.forEach(e -> {
             FluentExample example = getExample(examples, e.getMethodGroup(), e.getClientMethod(), e.getName());
             example.getClientMethodExamples().add(e);
@@ -113,7 +113,7 @@ public class ExampleParser {
             }
         });
 
-        Map<String, FluentExample> examples = new HashMap<>();
+        Map<String, FluentExample> examples = new LinkedHashMap<>();
         methodExamples.forEach(e -> {
             FluentExample example
                 = getExample(examples, e.getResourceCollection(), e.getCollectionMethod(), e.getName());

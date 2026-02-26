@@ -5,7 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExamples;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -381,7 +381,7 @@ public class CodeModelCustomConstructor extends Constructor {
         protected Object constructJavaBean2ndStep(MappingNode node, Object object) {
             if (node.getType().equals(XmsExamples.class)) {
                 // deserialize to Map<String, Object>, while Object would be LinkedHashMap
-                Map<String, Object> examples = new HashMap<>();
+                Map<String, Object> examples = new LinkedHashMap<>();
                 for (NodeTuple tuple : node.getValue()) {
                     examples.put(((ScalarNode) tuple.getKeyNode()).getValue(), constructObject(tuple.getValueNode()));
                 }

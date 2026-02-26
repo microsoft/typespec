@@ -21,7 +21,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Model
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,7 +86,7 @@ public class FluentActionMethod extends FluentMethod {
             .get();
 
         // method invocation
-        Set<ClientMethodParameter> parametersSet = new HashSet<>(parameters);
+        Set<ClientMethodParameter> parametersSet = new LinkedHashSet<>(parameters);
         List<ClientMethodParameter> methodParameters = method.getMethodInputParameters();
         String argumentsLine = methodParameters.stream()
             .map(p -> FluentUtils.getLocalMethodArgument(p, parametersSet, resourceLocalVariables, model,

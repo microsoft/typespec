@@ -52,6 +52,7 @@ import {
   ExternKeywordNode,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
+  FunctionTypeExpressionNode,
   IdentifierContext,
   IdentifierKind,
   IdentifierNode,
@@ -76,6 +77,7 @@ import {
   ObjectLiteralSpreadPropertyNode,
   OperationSignature,
   OperationStatementNode,
+  ParenthesizedExpression,
   ParseOptions,
   PositionDetail,
   ScalarConstructorNode,
@@ -952,7 +954,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     let constraint: Expression | ValueOfExpressionNode | undefined;
     if (parseOptional(Token.ExtendsKeyword)) {
-      constraint = parseMixedParameterConstraint();
+      constraint = parseMixedConstraint();
     }
     let def: Expression | undefined;
     if (parseOptional(Token.Equals)) {
@@ -971,7 +973,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (token() === Token.ValueOfKeyword) {
       return parseValueOfExpression();
     } else if (parseOptional(Token.OpenParen)) {
-      const expr = parseMixedParameterConstraint();
+      const expr = parseMixedConstraint();
       parseExpected(Token.CloseParen);
       return expr;
     }
@@ -979,7 +981,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return parseIntersectionExpressionOrHigher();
   }
 
-  function parseMixedParameterConstraint(): Expression | ValueOfExpressionNode {
+  function parseMixedConstraint(): Expression | ValueOfExpressionNode {
     const pos = tokenPos();
     parseOptional(Token.Bar);
     const node: Expression = parseValueOfExpressionOrIntersectionOrHigher();
@@ -1227,7 +1229,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
+
     parseExpected(Token.Equals);
+
     const value = parseExpression();
     parseExpected(Token.Semicolon);
     return {
@@ -1280,6 +1284,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     while (parseOptional(Token.Bar)) {
       const expr = parseIntersectionExpressionOrHigher();
       options.push(expr);
+    }
+
+    for (const fnVariant of options.filter((n) => n.kind === SyntaxKind.FunctionTypeExpression)) {
+      if (!(fnVariant as ParenthesizedExpression).parenthesized) {
+        error({
+          code: "fn-in-union-expression",
+          target: fnVariant,
+        });
+      }
     }
 
     return {
@@ -1385,6 +1398,23 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseReferenceExpression("typeofTarget");
       }
     }
+  }
+
+  function parseFunctionTypeExpression(): FunctionTypeExpressionNode {
+    const pos = tokenPos();
+    parseExpected(Token.FnKeyword);
+    const { items: parameters } = parseFunctionParameters();
+
+    const optionalReturnType = parseOptional(Token.EqualsGreaterThan);
+
+    const returnType = optionalReturnType ? parseMixedConstraint() : undefined;
+
+    return {
+      kind: SyntaxKind.FunctionTypeExpression,
+      parameters,
+      returnType,
+      ...finishNode(pos),
+    };
   }
 
   function parseReferenceExpression(
@@ -1666,6 +1696,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       switch (token()) {
         case Token.TypeOfKeyword:
           return parseTypeOfExpression();
+        case Token.FnKeyword:
+          return parseFunctionTypeExpression();
         case Token.Identifier:
           return parseCallOrReferenceExpression();
         case Token.StringLiteral:
@@ -1743,12 +1775,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseParenthesizedExpression(): Expression {
+  function parseParenthesizedExpression(): ParenthesizedExpression {
     const pos = tokenPos();
     parseExpected(Token.OpenParen);
     const expr = parseExpression();
     parseExpected(Token.CloseParen);
-    return { ...expr, ...finishNode(pos) };
+    return { parenthesized: true, ...expr, ...finishNode(pos) };
   }
 
   function parseTupleExpression(): TupleExpressionNode {
@@ -2059,7 +2091,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const { items: parameters } = parseFunctionParameters();
     let returnType;
     if (parseOptional(Token.Colon)) {
-      returnType = parseExpression();
+      returnType = parseMixedConstraint();
     }
     parseExpected(Token.Semicolon);
     return {
@@ -2108,7 +2140,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const optional = parseOptional(Token.Question);
     let type;
     if (parseOptional(Token.Colon)) {
-      type = parseMixedParameterConstraint();
+      type = parseMixedConstraint();
     }
     return {
       kind: SyntaxKind.FunctionParameter,
@@ -3019,6 +3051,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.parameters) ||
         visitNode(cb, node.returnType)
       );
+    case SyntaxKind.FunctionTypeExpression:
+      return visitEach(cb, node.parameters) || visitNode(cb, node.returnType);
     case SyntaxKind.FunctionParameter:
       return visitNode(cb, node.id) || visitNode(cb, node.type);
     case SyntaxKind.TypeReference:
@@ -3307,6 +3341,9 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
     case SyntaxKind.AugmentDecoratorStatement:
     case SyntaxKind.DecoratorExpression:
       kind = IdentifierKind.Decorator;
+      break;
+    case SyntaxKind.CallExpression:
+      kind = IdentifierKind.Function;
       break;
     case SyntaxKind.UsingStatement:
       kind = IdentifierKind.Using;
