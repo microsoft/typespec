@@ -97,6 +97,22 @@ jobs:
               return
             fi
 
+            # Step 3: Adjust since date using git commit time instead of npm publish time.
+            # npm publish dates lag behind actual commit times due to CI/CD pipeline delays,
+            # which can cause recently-merged commits to be missed when the GitHub Commits API
+            # filters by author date. We find the last commit on the specs path before version A
+            # was published, and use that commit's author date as the since boundary.
+            local last_commit_date
+            last_commit_date=$(gh api "repos/${repo}/commits" \
+              -f path="${specs_path}" \
+              -f until="${date_a}" \
+              -f per_page=1 \
+              --jq '.[0].commit.author.date' 2>/dev/null || true)
+            if [ -n "$last_commit_date" ] && [ "$last_commit_date" != "null" ]; then
+              echo "Adjusted since date from npm publish ($date_a) to last spec commit ($last_commit_date)"
+              date_a="$last_commit_date"
+            fi
+
             # Step 4: Use GitHub commits API (supports path filtering, unlike gh search prs)
             echo "Searching for commits between $date_a and $date_b in $repo affecting $specs_path"
 
