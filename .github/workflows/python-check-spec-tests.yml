@@ -119,54 +119,56 @@ jobs:
             repo_name=$(echo "$repo" | cut -d/ -f2)
 
             for i in $(seq 0 $((pr_count - 1))); do
+            # Step 5: Find PRs that affect the specs path directly via search, then create issues
+            echo "Searching for merged PRs in ${repo} that affect ${specs_path} between ${start_date} and ${end_date}"
+
+            local search_query
+            search_query="repo:${repo} is:pr is:merged merged:${start_date}..${end_date} path:${specs_path}/"
+
+            local prs_with_specs
+            prs_with_specs=$(gh search prs "$search_query" --json number,url --limit 1000 2>/dev/null || true)
+
+            local specs_pr_count
+            specs_pr_count=$(echo "$prs_with_specs" | jq 'length')
+
+            echo "Found $specs_pr_count merged PRs affecting specs path in date range"
+
+            if [ "$specs_pr_count" -eq 0 ]; then
+              echo "No merged PRs affecting specs path in date range, skipping"
+              return
+            fi
+
+            for i in $(seq 0 $((specs_pr_count - 1))); do
               local pr_number
-              pr_number=$(echo "$prs" | jq -r ".[$i].number")
+              pr_number=$(echo "$prs_with_specs" | jq -r ".[$i].number")
               local pr_url
-              pr_url=$(echo "$prs" | jq -r ".[$i].url")
+              pr_url=$(echo "$prs_with_specs" | jq -r ".[$i].url")
 
-              # Rate-limit: small delay between API calls to avoid exhausting quota
-              sleep 0.5
+              echo "PR #$pr_number affects specs: $pr_url"
 
-              # Get list of files changed in this PR
-              local files
-              files=$(gh api "repos/${repo_owner}/${repo_name}/pulls/${pr_number}/files" --paginate --jq '.[].filename' 2>/dev/null || true)
+              local title="[python] add test case for ${pr_url}"
+              local body="follow skill ${SKILL_URL} to write test case for ${pr_url}"
 
-              if [ -z "$files" ]; then
+              # Check if an open issue with same title already exists
+              local existing
+              existing=$(gh issue list --repo "$ISSUE_REPO" --state open --search "in:title [python] add test case" --json number,title --limit 100)
+
+              local has_match
+              has_match=$(echo "$existing" | jq --arg t "$title" '[.[] | select(.title == $t)] | length')
+
+              if [ "$has_match" -gt 0 ]; then
+                echo "Issue already exists for PR $pr_url, skipping"
                 continue
               fi
 
-              # Check if any file is under the specs path
-              if echo "$files" | grep -q "^${specs_path}/"; then
-                echo "PR #$pr_number affects specs: $pr_url"
+              # Create the issue
+              gh issue create --repo "$ISSUE_REPO" \
+                --title "$title" \
+                --body "$body" \
+                --label "emitter:client:python" \
+                --assignee "copilot"
 
-                local title="[python] add test case for ${pr_url}"
-                local body="follow skill ${SKILL_URL} to write test case for ${pr_url}"
-
-                # Check if an open issue with same title already exists
-                local existing
-                existing=$(gh issue list --repo "$ISSUE_REPO" --state open --search "in:title \"[python] add test case\"" --json number,title --limit 200)
-
-                local has_match
-                has_match=$(echo "$existing" | jq --arg t "$title" '[.[] | select(.title == $t)] | length')
-
-                if [ "$has_match" -gt 0 ]; then
-                  echo "Issue already exists for PR $pr_url, skipping"
-                  continue
-                fi
-
-                # Create the issue
-                gh issue create --repo "$ISSUE_REPO" \
-                  --title "$title" \
-                  --body "$body" \
-                  --label "emitter:client:python" \
-                  --assignee "copilot" || \
-                gh issue create --repo "$ISSUE_REPO" \
-                  --title "$title" \
-                  --body "$body" \
-                  --label "emitter:client:python"
-
-                echo "Created issue for PR $pr_url"
-              fi
+              echo "Created issue for PR $pr_url"
             done
           }
 
