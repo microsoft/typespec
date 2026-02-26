@@ -282,32 +282,26 @@ def test_optional_property():
     model = OptionalModel(dict_response)
     assert model.optional_str == model["optional_str"] == "hello!"
     assert model.optional_time == model["optional_time"] == None
-    assert (
-        model.optional_dict
-        == model["optionalDict"]
-        == {
-            "Eugene": {
-                "name": "Eugene",
-                "species": "Dog",
-            },
-            "Lady": None,
-        }
-    )
+    assert model.optional_dict == model["optionalDict"]
+    assert {k: v.as_dict() if v else v for k, v in model.optional_dict.items()} == {
+        "Eugene": {
+            "name": "Eugene",
+            "species": "Dog",
+        },
+        "Lady": None,
+    }
     assert model.optional_dict
     assert model.optional_dict["Eugene"].name == model.optional_dict["Eugene"]["name"] == "Eugene"
     assert model.optional_dict["Lady"] is None
 
-    assert (
-        model.optional_myself
-        == model["optional_myself"]
-        == {
-            "optional_str": None,
-            "optional_time": "11:34:56",
-            "optionalDict": None,
-            "optional_model": {"name": "Lady", "species": "Newt"},
-            "optional_myself": None,
-        }
-    )
+    assert model.optional_myself == model["optional_myself"]
+    assert model.optional_myself.as_dict() == {
+        "optional_str": None,
+        "optional_time": "11:34:56",
+        "optionalDict": None,
+        "optional_model": {"name": "Lady", "species": "Newt"},
+        "optional_myself": None,
+    }
     assert model.optional_myself
     assert model.optional_myself.optional_str is None
     assert model.optional_myself.optional_time == datetime.time(11, 34, 56)
@@ -557,10 +551,10 @@ def test_model_recursion():
 
     model = SimpleRecursiveModel(dict_response)
     assert model["name"] == model.name == "Snoopy"
-    assert model["me"] == {"name": "Egg", "me": {"name": "Chicken"}}
+    assert model["me"].as_dict() == {"name": "Egg", "me": {"name": "Chicken"}}
     assert isinstance(model.me, SimpleRecursiveModel)
     assert model.me["name"] == model.me.name == "Egg"
-    assert model.me["me"] == {"name": "Chicken"}
+    assert model.me["me"].as_dict() == {"name": "Chicken"}
     assert model.me.me.name == "Chicken"
 
 
@@ -635,7 +629,7 @@ def test_dictionary_deserialization_model():
     }
 
     model = DictionaryModel(dict_response)
-    assert model["prop"] == {
+    assert {k: v.as_dict() for k, v in model["prop"].items()} == {
         "Eugene": {
             "name": "Eugene",
             "species": "Dog",
@@ -696,7 +690,7 @@ def test_list_deserialization_model():
         ]
     }
     model = ListModel(dict_response)
-    assert model["prop"] == [
+    assert [x.as_dict() for x in model["prop"]] == [
         {"name": "Eugene", "species": "Dog"},
         {"name": "Lady", "species": "Newt"},
     ]
@@ -789,7 +783,6 @@ def test_list_of_tuple_deserialization_model():
     assert (
         model["prop"]
         == model.prop
-        == [(eugene, giacamo), (lady, elizabeth)]
         == [(Pet(eugene), Owner(giacamo)), (Pet(lady), Owner(elizabeth))]
     )
     assert len(model.prop[0]) == len(model["prop"][0]) == 2
@@ -873,7 +866,7 @@ def test_model_recursion_complex():
 
     model = RecursiveModel(dict_response)
     assert model.name == model["name"] == "it's me!"
-    assert model["listOfMe"] == [
+    assert [x.as_dict() for x in model["listOfMe"]] == [
         {
             "name": "it's me!",
             "listOfMe": None,
@@ -899,7 +892,7 @@ def test_model_recursion_complex():
     assert isinstance(model.list_of_me, list)
     assert isinstance(model.list_of_me[0], RecursiveModel)
 
-    assert model["dictOfMe"] == {
+    assert {k: v.as_dict() for k, v in model["dictOfMe"].items()} == {
         "me": {
             "name": "it's me!",
             "listOfMe": None,
@@ -923,7 +916,7 @@ def test_model_recursion_complex():
     assert isinstance(model.dict_of_me, dict)
     assert isinstance(model.dict_of_me["me"], RecursiveModel)
 
-    assert model["dictOfListOfMe"] == {
+    assert {k: [x.as_dict() for x in v] for k, v in model["dictOfListOfMe"].items()} == {
         "many mes": [
             {
                 "name": "it's me!",
@@ -951,7 +944,7 @@ def test_model_recursion_complex():
     assert isinstance(model.dict_of_list_of_me["many mes"], list)
     assert isinstance(model.dict_of_list_of_me["many mes"][0], RecursiveModel)
 
-    assert model["listOfDictOfMe"] == [
+    assert [{k: v.as_dict() for k, v in d.items()} for d in model["listOfDictOfMe"]] == [
         {
             "me": {
                 "name": "it's me!",
@@ -1111,7 +1104,7 @@ def test_inheritance_basic():
         pass
 
     c = Child(parent_prop=[1, 2, 3], prop="hello")
-    assert c == {"parentProp": [1, 2, 3], "prop": "hello"}
+    assert c.as_dict() == {"parentProp": [1, 2, 3], "prop": "hello"}
     assert c.parent_prop == ["1", "2", "3"]
     assert c.prop == "hello"
 
@@ -1212,8 +1205,9 @@ def test_model_dict_comparisons():
 
     def _tests(outer):
         assert outer.inner.prop == outer["inner"].prop == outer.inner["prop"] == outer["inner"]["prop"] == "hello"
-        assert outer.inner == outer["inner"] == {"prop": "hello"}
-        assert outer == {"inner": {"prop": "hello"}}
+        assert outer.inner == outer["inner"]
+        assert outer.inner.as_dict() == {"prop": "hello"}
+        assert outer.as_dict() == {"inner": {"prop": "hello"}}
 
     _tests(Outer(inner=Inner(prop="hello")))
     _tests(Outer({"inner": {"prop": "hello"}}))
@@ -1260,8 +1254,9 @@ def test_model_dict_comparisons_list():
             == outer["inner"][0]["prop"]
             == "hello"
         )
-        assert outer.inner == outer["inner"] == [{"prop": "hello"}]
-        assert outer == {"inner": [{"prop": "hello"}]}
+        assert outer.inner == outer["inner"]
+        assert [x.as_dict() for x in outer.inner] == [{"prop": "hello"}]
+        assert outer.as_dict() == {"inner": [{"prop": "hello"}]}
 
     _tests(Outer(inner=[Inner(prop="hello")]))
     _tests(Outer({"inner": [{"prop": "hello"}]}))
@@ -1308,11 +1303,13 @@ def test_model_dict_comparisons_dict():
             == outer["inner"]["key"]["prop"]
             == "hello"
         )
-        assert outer.inner == outer["inner"] == {"key": {"prop": "hello"}}
+        assert outer.inner == outer["inner"]
+        assert {k: v.as_dict() for k, v in outer.inner.items()} == {"key": {"prop": "hello"}}
         with pytest.raises(AttributeError):
             outer.inner.key
-        assert outer.inner["key"] == outer["inner"]["key"] == {"prop": "hello"}
-        assert outer == {"inner": {"key": {"prop": "hello"}}}
+        assert outer.inner["key"] == outer["inner"]["key"]
+        assert outer.inner["key"].as_dict() == {"prop": "hello"}
+        assert outer.as_dict() == {"inner": {"key": {"prop": "hello"}}}
 
     _tests(Outer(inner={"key": Inner(prop="hello")}))
     _tests(Outer({"inner": {"key": {"prop": "hello"}}}))
@@ -1322,7 +1319,7 @@ def test_inheritance_4_levels():
     a = ParentA(prop=3.4)
     assert a.prop == 3.4
     assert a["prop"] == 3.4
-    assert a == {"prop": 3.4}
+    assert a.as_dict() == {"prop": 3.4}
     assert isinstance(a, Model)
 
     b = ParentB(prop=3.4, bcd_prop=[ParentB(prop=4.3)])
@@ -1330,11 +1327,11 @@ def test_inheritance_4_levels():
     assert b["prop"] == 3.4
     assert b.bcd_prop == [ParentB(prop=4.3)]
     assert b["bcdProp"] != [{"prop": 4.3, "bcdProp": None}]
-    assert b["bcdProp"] == [{"prop": 4.3}]
+    assert [x.as_dict() for x in b["bcdProp"]] == [{"prop": 4.3}]
     assert b.bcd_prop
     assert b.bcd_prop[0].prop == "4.3"
     assert b.bcd_prop[0].bcd_prop is None
-    assert b == {"prop": 3.4, "bcdProp": [{"prop": 4.3}]}
+    assert b.as_dict() == {"prop": 3.4, "bcdProp": [{"prop": 4.3}]}
     assert isinstance(b, ParentB)
     assert isinstance(b, ParentA)
 
@@ -1343,9 +1340,11 @@ def test_inheritance_4_levels():
     assert c.bcd_prop == [b]
     assert c.bcd_prop
     assert isinstance(c.bcd_prop[0], ParentB)
-    assert c["bcdProp"] == [b] == [{"prop": 3.4, "bcdProp": [{"prop": 4.3}]}]
+    assert c["bcdProp"] == [b]
+    assert [x.as_dict() for x in c["bcdProp"]] == [{"prop": 3.4, "bcdProp": [{"prop": 4.3}]}]
     assert c.cd_prop == a
-    assert c["cdProp"] == a == {"prop": 3.4}
+    assert c["cdProp"] == a
+    assert a.as_dict() == {"prop": 3.4}
     assert isinstance(c.cd_prop, ParentA)
 
     d = ChildD(
@@ -1359,15 +1358,15 @@ def test_inheritance_4_levels():
             ChildD(prop=3.4, bcd_prop=[b], cd_prop=a, d_prop=(a, b, c, None)),
         ),
     )
-    assert d == {
+    assert d.as_dict() == {
         "prop": 3.4,
-        "bcdProp": [b],
-        "cdProp": a,
+        "bcdProp": [b.as_dict()],
+        "cdProp": a.as_dict(),
         "dProp": (
-            a,
-            b,
-            c,
-            {"prop": 3.4, "bcdProp": [b], "cdProp": a, "dProp": (a, b, c, None)},
+            a.as_dict(),
+            b.as_dict(),
+            c.as_dict(),
+            {"prop": 3.4, "bcdProp": [b.as_dict()], "cdProp": a.as_dict(), "dProp": (a.as_dict(), b.as_dict(), c.as_dict(), None)},
         ),
     }
     assert d.prop == d["prop"] == 3.4
@@ -1439,7 +1438,7 @@ def test_multiple_inheritance_basic():
             super().__init__(*args, **kwargs)
 
     c = Child(parent_one_prop="Hello", parent_two_prop=3)
-    assert c == {"parentOneProp": "Hello", "parentTwoProp": 3}
+    assert c.as_dict() == {"parentOneProp": "Hello", "parentTwoProp": 3}
     assert c.parent_one_prop == "Hello"
     assert c.parent_two_prop == "3"
     assert isinstance(c, Child)
@@ -1602,7 +1601,7 @@ def test_multiple_inheritance_complex():
         likes_milk=False,  # likes_milk will change to True on the attribute
         siblings=[Feline(meows=True, hisses=False)],
     )
-    assert cat == {
+    assert cat.as_dict() == {
         "name": "Stephanie",
         "owner": {
             "firstName": "cecil",
@@ -1639,7 +1638,7 @@ def test_multiple_inheritance_complex():
         how_cute_am_i=1.0,
         eats_mice_yet=True,
     )
-    assert kitten != {
+    assert kitten.as_dict() != {
         "name": "Stephanie",
         "owner": {
             "firstName": "cecil",
@@ -1652,7 +1651,7 @@ def test_multiple_inheritance_complex():
         "howCuteAmI": 1.0,
         "eatsMiceYet": True,
     }
-    assert kitten == {
+    assert kitten.as_dict() == {
         "name": "Stephanie",
         "owner": {
             "firstName": "cecil",
@@ -1731,7 +1730,8 @@ def test_nested_creation():
     a = A({"b": {"c": {"d": "hello"}}})
     assert isinstance(a["b"], Model)
     assert isinstance(a["b"]["c"], Model)
-    assert a["b"]["c"] == a["b"].c == a.b.c == {"d": "hello"}
+    assert a["b"]["c"] == a["b"].c == a.b.c
+    assert a.b.c.as_dict() == {"d": "hello"}
 
     assert (
         a["b"]["c"]["d"]
@@ -1922,7 +1922,7 @@ def test_readonly():
         "innerModel": {"normalProperty": "normal"},
     }
     assert json.loads(json.dumps(model, cls=SdkJSONEncoder)) == value
-    assert model == value
+    assert model.as_dict() == value
     assert model["readonlyProperty"] == model.readonly_property == "readonly"
     assert model["innerModel"]["readonlyProperty"] == model.inner_model.readonly_property == "readonly"
 
@@ -2094,7 +2094,7 @@ def test_default_value():
     assert my_model.prop_optional_str is my_model["propOptionalStr"] is None
     assert my_model.prop_default_int == my_model["propDefaultInt"] == 1
     assert my_model.prop_optional_int is my_model["propOptionalInt"] is None
-    assert my_model == {
+    assert my_model.as_dict() == {
         "propDefaultStr": "hello",
         "propOptionalStr": None,
         "propDefaultInt": 1,
@@ -2106,7 +2106,7 @@ def test_default_value():
     assert my_model.prop_optional_str is my_model["propOptionalStr"] is None
     assert my_model.prop_default_int == my_model["propDefaultInt"] == 1
     assert my_model.prop_optional_int is my_model["propOptionalInt"] is None
-    assert my_model == {
+    assert my_model.as_dict() == {
         "propDefaultStr": "goodbye",
         "propOptionalStr": None,
         "propDefaultInt": 1,
@@ -2118,7 +2118,7 @@ def test_default_value():
     assert my_model.prop_optional_str is my_model["propOptionalStr"] is None
     assert my_model.prop_default_int == my_model["propDefaultInt"] == 1
     assert my_model.prop_optional_int == my_model["propOptionalInt"] == 4
-    assert my_model == {
+    assert my_model.as_dict() == {
         "propDefaultStr": "hello",
         "propOptionalStr": None,
         "propDefaultInt": 1,
@@ -2130,7 +2130,7 @@ def test_default_value():
     assert my_model.prop_optional_str is my_model["propOptionalStr"] is None
     assert my_model.prop_default_int == my_model["propDefaultInt"] == 5
     assert my_model.prop_optional_int is my_model["propOptionalInt"] is None
-    assert my_model == {
+    assert my_model.as_dict() == {
         "propDefaultStr": "hello",
         "propOptionalStr": None,
         "propDefaultInt": 5,
@@ -2172,17 +2172,17 @@ def test_pass_models_in_dict():
             super().__init__(*args, **kwargs)
 
     def _tests(model: Outer):
+        # All Outer instances should be equal to each other
         assert (
-            {"innerProperty": {"strProperty": "hello"}}
-            == {"innerProperty": Inner(str_property="hello")}
-            == {"innerProperty": Inner({"strProperty": "hello"})}
-            == Outer(inner_property=Inner(str_property="hello"))
+            Outer(inner_property=Inner(str_property="hello"))
             == Outer(inner_property=Inner({"strProperty": "hello"}))
             == Outer({"innerProperty": {"strProperty": "hello"}})
             == Outer({"innerProperty": Inner(str_property="hello")})
             == Outer({"innerProperty": Inner({"strProperty": "hello"})})
             == model
         )
+        # Model-to-dict comparison should use as_dict()
+        assert model.as_dict() == {"innerProperty": {"strProperty": "hello"}}
 
     _tests(Outer(inner_property=Inner(str_property="hello")))
     _tests(Outer(inner_property=Inner({"strProperty": "hello"})))
@@ -2661,7 +2661,7 @@ def test_values():
     outer_dict = {"innerProp": {"strProp": "hello"}}
     outer = Outer(outer_dict)
 
-    assert list(outer.values()) == list(outer_dict.values())
+    assert list(outer.as_dict().values()) == list(outer_dict.values())
     assert len(outer.values()) == len(outer_dict.values()) == 1
     assert list(outer.values())[0]["strProp"] == list(outer_dict.values())[0]["strProp"] == "hello"
 
@@ -2681,7 +2681,7 @@ def test_items():
     outer_dict = {"innerProp": {"strProp": "hello"}}
     outer = Outer(outer_dict)
 
-    assert list(outer.items()) == list(outer_dict.items())
+    assert list(outer.as_dict().items()) == list(outer_dict.items())
 
     outer_dict["innerProp"]["strProp"] = "goodbye"
     outer.inner_prop.str_prop = "goodbye"
@@ -2691,7 +2691,7 @@ def test_items():
     outer_dict["newProp"] = "bonjour"
     outer["newProp"] = "bonjour"
 
-    assert list(outer.items()) == list(outer_dict.items())
+    assert list(outer.as_dict().items()) == list(outer_dict.items())
 
 
 def test_get():
@@ -2844,10 +2844,11 @@ def test_clear():
     def _tests(my_dict: dict[str, Any], my_model: MainModel):
         my_dict = copy.deepcopy(my_dict)  # so we don't get rid of the dict each time we run tests
 
-        assert my_dict["aProp"] == my_model.a_prop == my_model["aProp"] == {"aStrProp": "a"}
+        assert my_model.a_prop == my_model["aProp"]
+        assert my_model.a_prop.as_dict() == my_dict["aProp"] == {"aStrProp": "a"}
         my_dict.clear()
         my_model.clear()
-        assert my_dict == my_model == {}
+        assert my_dict == my_model.as_dict() == {}
 
         assert my_model.a_prop is None
         assert my_model.b_prop is None
@@ -2855,7 +2856,7 @@ def test_clear():
 
         my_dict.clear()
         my_model.clear()
-        assert my_dict == my_model == {}
+        assert my_dict == my_model.as_dict() == {}
 
     _tests(my_dict, MainModel(my_dict))
     _tests(
@@ -2892,15 +2893,18 @@ def test_update():
     def _tests(my_dict: dict[str, Any], my_model: MainModel):
         my_dict = copy.deepcopy(my_dict)  # so we don't get rid of the dict each time we run tests
 
-        assert my_dict["aProp"] == my_model.a_prop == my_model["aProp"] == {"aStrProp": "a"}
+        assert my_model.a_prop == my_model["aProp"]
+        assert my_model.a_prop.as_dict() == my_dict["aProp"] == {"aStrProp": "a"}
         my_dict.update({"aProp": {"aStrProp": "newA"}})
         my_model.a_prop.update({"aStrProp": "newA"})
-        assert my_dict["aProp"] == my_model.a_prop == my_model["aProp"] == {"aStrProp": "newA"}
+        assert my_model.a_prop == my_model["aProp"]
+        assert my_model.a_prop.as_dict() == my_dict["aProp"] == {"aStrProp": "newA"}
 
         my_dict["bProp"].update({"newBProp": "hello"})
         my_model.b_prop.update({"newBProp": "hello"})
 
-        assert my_dict["bProp"] == my_model.b_prop == my_model["bProp"] == {"bStrProp": "b", "newBProp": "hello"}
+        assert my_model.b_prop == my_model["bProp"]
+        assert my_model.b_prop.as_dict() == my_dict["bProp"] == {"bStrProp": "b", "newBProp": "hello"}
 
         my_dict.update({"dProp": "hello"})
         my_model.update({"dProp": "hello"})
@@ -2930,7 +2934,8 @@ def test_setdefault():
     og_model = Outer(og_dict)
     og_model.inner_prop.setdefault("strProp", "actualDefault")
 
-    assert og_dict["innerProp"] == og_model["innerProp"] == og_model.inner_prop == {"strProp": "actualDefault"}
+    assert og_model["innerProp"] == og_model.inner_prop
+    assert og_model.inner_prop.as_dict() == og_dict["innerProp"] == {"strProp": "actualDefault"}
 
     assert (
         og_dict["innerProp"].setdefault("strProp")
@@ -2992,19 +2997,19 @@ def test_complex_basic():
             super().__init__(*args, **kwargs)
 
     basic = Basic(id=2, name="abc", color="Magenta")
-    assert basic == {"id": 2, "name": "abc", "color": "Magenta"}
+    assert basic.as_dict() == {"id": 2, "name": "abc", "color": "Magenta"}
 
     basic.id = 3
     basic.name = "new_name"
     basic.color = "blacK"
 
-    assert basic == {"id": 3, "name": "new_name", "color": "blacK"}
+    assert basic.as_dict() == {"id": 3, "name": "new_name", "color": "blacK"}
 
     basic["id"] = 4
     basic["name"] = "newest_name"
     basic["color"] = "YELLOW"
 
-    assert basic == {"id": 4, "name": "newest_name", "color": "YELLOW"}
+    assert basic.as_dict() == {"id": 4, "name": "newest_name", "color": "YELLOW"}
 
 
 def test_complex_boolean_wrapper():
@@ -3027,14 +3032,14 @@ def test_complex_boolean_wrapper():
             super().__init__(*args, **kwargs)
 
     bool_model = BooleanWrapper(field_true=True, field_false=False)
-    assert bool_model == {"field_true": True, "field_false": False}
+    assert bool_model.as_dict() == {"field_true": True, "field_false": False}
     bool_model.field_true = False
     bool_model.field_false = True
-    assert bool_model == {"field_true": False, "field_false": True}
+    assert bool_model.as_dict() == {"field_true": False, "field_false": True}
 
     bool_model["field_true"] = True
     bool_model["field_false"] = False
-    assert bool_model == {"field_true": True, "field_false": False}
+    assert bool_model.as_dict() == {"field_true": True, "field_false": False}
 
 
 def test_complex_byte_wrapper():
@@ -3074,7 +3079,7 @@ def test_complex_byte_wrapper():
     decoded_urlsafe = "dGVzdA"
 
     def _tests(mod: ByteWrapper):
-        assert mod == {
+        assert mod.as_dict() == {
             "default": decoded,
             "base64": decoded,
             "base64url": decoded_urlsafe,
@@ -3140,7 +3145,7 @@ def test_complex_byte_array_wrapper():
     decoded_urlsafe = "dGVzdA"
 
     def _tests(model: ByteArrayWrapper):
-        assert model == {
+        assert model.as_dict() == {
             "default": decoded,
             "base64": decoded,
             "base64url": decoded_urlsafe,
@@ -3325,7 +3330,7 @@ default_program = {
     ],
 )
 def test_complex_dictionary_wrapper(model: DictionaryWrapper):
-    assert model == {"defaultProgram": default_program}
+    assert model.as_dict() == {"defaultProgram": default_program}
     assert model.default_program == model["defaultProgram"] == default_program
 
 
@@ -3334,7 +3339,7 @@ def test_complex_dictionary_wrapper(model: DictionaryWrapper):
     [DictionaryWrapper({"defaultProgram": {}}), DictionaryWrapper(default_program={})],
 )
 def test_complex_dictionary_wrapper_empty(model: DictionaryWrapper):
-    assert model == {"defaultProgram": {}}
+    assert model.as_dict() == {"defaultProgram": {}}
     assert model.default_program == model["defaultProgram"] == {}
 
 
@@ -3346,7 +3351,7 @@ def test_complex_dictionary_wrapper_empty(model: DictionaryWrapper):
     ],
 )
 def test_complex_dictionary_wrapper_none(model: DictionaryWrapper):
-    assert model == {"defaultProgram": None}
+    assert model.as_dict() == {"defaultProgram": None}
     assert model.default_program is None
 
 
@@ -3378,7 +3383,7 @@ array_value = [
 
 @pytest.mark.parametrize("model", [ArrayWrapper(array=array_value), ArrayWrapper({"array": array_value})])
 def test_complex_array_wrapper(model: ArrayWrapper):
-    assert model == {"array": array_value}
+    assert model.as_dict() == {"array": array_value}
     assert model.array == model["array"] == array_value
 
     model.array = None
@@ -3393,7 +3398,7 @@ def test_complex_array_wrapper(model: ArrayWrapper):
 
 @pytest.mark.parametrize("model", [ArrayWrapper(array=[]), ArrayWrapper({"array": []})])
 def test_complex_array_wrapper_empty(model: ArrayWrapper):
-    assert model == {"array": []}
+    assert model.as_dict() == {"array": []}
     assert model.array == model["array"] == []
 
     model.array = ["bonjour"]
@@ -3402,7 +3407,7 @@ def test_complex_array_wrapper_empty(model: ArrayWrapper):
 
 @pytest.mark.parametrize("model", [ArrayWrapper(array=None), ArrayWrapper({"array": None})])
 def test_complex_array_wrapper_none(model: ArrayWrapper):
-    assert model == {"array": None}
+    assert model.as_dict() == {"array": None}
     assert model.array is model["array"] is None
 
     model.array = ["bonjour"]
@@ -3502,19 +3507,20 @@ def test_complex_inheritance(model):
     assert model.id == model["id"] == 2
     assert model.name == model["name"] == "Siamese"
     assert model.hates
-    assert model.hates[1] == model["hates"][1] == {"id": -1, "name": "Tomato", "food": "french fries"}
+    assert model.hates[1] == model["hates"][1]
+    assert model.hates[1].as_dict() == {"id": -1, "name": "Tomato", "food": "french fries"}
     model["breed"] = "persian"
     model["color"] = "green"
     with pytest.raises(AttributeError):
         model.breed
-    assert model == {
+    assert model.as_dict() == {
         "id": 2,
         "name": "Siamese",
         "color": "green",
         "breed": "persian",
         "hates": [
-            DogComplex(id=1, name="Potato", food="tomato"),
-            DogComplex(id=-1, name="Tomato", food="french fries"),
+            {"id": 1, "name": "Potato", "food": "tomato"},
+            {"id": -1, "name": "Tomato", "food": "french fries"},
         ],
     }
 
@@ -3708,11 +3714,14 @@ def test_union():
     assert not _is_model(named.named_union)
     named.named_union = UnionModel1(name="model1", prop1=1)
     assert _is_model(named.named_union)
-    assert named.named_union == named["namedUnion"] == {"name": "model1", "prop1": 1}
+    assert named.named_union == named["namedUnion"]
+    assert named.named_union.as_dict() == {"name": "model1", "prop1": 1}
     named = ModelWithNamedUnionProperty(named_union=UnionModel2(name="model2", prop2=2))
-    assert named.named_union == named["namedUnion"] == {"name": "model2", "prop2": 2}
+    assert named.named_union == named["namedUnion"]
+    assert named.named_union.as_dict() == {"name": "model2", "prop2": 2}
     named = ModelWithNamedUnionProperty({"namedUnion": {"name": "model2", "prop2": 2}})
-    assert named.named_union == named["namedUnion"] == {"name": "model2", "prop2": 2}
+    assert named.named_union == named["namedUnion"]
+    assert named.named_union.as_dict() == {"name": "model2", "prop2": 2}
 
 
 def test_as_dict():
@@ -3913,7 +3922,7 @@ def test_discriminator():
     }
 
     model = Salmon(input)
-    assert model == input
+    assert model.as_dict() == input
     assert model.partner.age == 2
     assert model.partner == SawShark(age=2)
     assert model.friends[0].hate["key2"] == GoblinShark(age=2)
@@ -4218,10 +4227,10 @@ def test_multi_layer_discriminator():
     dog = {"kind": "dog", "name": "Rex", "trained": True, "breed": "German Shepherd"}
 
     model_pet = AnotherPet(pet)
-    assert model_pet == pet
+    assert model_pet.as_dict() == pet
 
     model_dog = AnotherDog(dog)
-    assert model_dog == dog
+    assert model_dog.as_dict() == dog
 
     assert _deserialize(Animal, pet) == model_pet
     assert _deserialize(Animal, dog) == model_dog
