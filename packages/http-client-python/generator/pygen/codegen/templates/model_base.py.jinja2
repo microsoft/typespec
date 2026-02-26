@@ -527,11 +527,9 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
         return self._data.setdefault(key, default)
 
     def __eq__(self, other: typing.Any) -> bool:
-        try:
-            other_model = self.__class__(other)
-        except Exception:
-            return False
-        return self._data == other_model._data
+        if isinstance(other, _MyMutableMapping):
+            return self._data == other._data
+        return False
 
     def __repr__(self) -> str:
         return str(self._data)
