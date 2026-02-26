@@ -92,69 +92,47 @@ jobs:
               return
             fi
 
-            # Step 4: Extract date range and find PRs merged between the two dates
+            # Step 4: Use gh search to find PRs that affect specs path directly (avoids N+1 API calls)
             local since
             since=$(echo "$date_a" | cut -dT -f1)
             local until_date
             until_date=$(echo "$date_b" | cut -dT -f1)
-
             echo "Searching for merged PRs between $since and $until_date in $repo affecting $specs_path"
 
             local prs
-            prs=$(gh pr list --repo "$repo" --state merged --search "merged:${since}..${until_date}" --json number,url --limit 200)
+            prs=$(gh search prs "repo:${repo} is:pr is:merged merged:${since}..${until_date} path:${specs_path}/" --json number,url --limit 200 2>/dev/null || true)
 
-            local pr_count
-            pr_count=$(echo "$prs" | jq length)
-            echo "Found $pr_count merged PRs in date range"
-
-            if [ "$pr_count" -eq 0 ]; then
-              echo "No merged PRs found in date range, skipping"
-              return
+            if [ -z "$prs" ] || [ "$prs" = "null" ]; then
+              prs="[]"
             fi
 
-            # Step 5: For each PR, check if it affects the specs path and create issues
-            local repo_owner
-            repo_owner=$(echo "$repo" | cut -d/ -f1)
-            local repo_name
-            repo_name=$(echo "$repo" | cut -d/ -f2)
+            local pr_count
+            pr_count=$(echo "$prs" | jq 'length')
+            echo "Found $pr_count merged PRs affecting specs in date range"
 
-            for i in $(seq 0 $((pr_count - 1))); do
-            # Step 5: Find PRs that affect the specs path directly via search, then create issues
-            echo "Searching for merged PRs in ${repo} that affect ${specs_path} between ${start_date} and ${end_date}"
-
-            local search_query
-            search_query="repo:${repo} is:pr is:merged merged:${start_date}..${end_date} path:${specs_path}/"
-
-            local prs_with_specs
-            prs_with_specs=$(gh search prs "$search_query" --json number,url --limit 1000 2>/dev/null || true)
-
-            local specs_pr_count
-            specs_pr_count=$(echo "$prs_with_specs" | jq 'length')
-
-            echo "Found $specs_pr_count merged PRs affecting specs path in date range"
-
-            if [ "$specs_pr_count" -eq 0 ]; then
+            if [ "$pr_count" -eq 0 ]; then
               echo "No merged PRs affecting specs path in date range, skipping"
               return
             fi
 
-            for i in $(seq 0 $((specs_pr_count - 1))); do
+            # Step 5: Fetch existing issues once (across all states) to avoid duplicate creation
+            local existing_issues
+            existing_issues=$(gh issue list --repo "$ISSUE_REPO" --state all --search "in:title [python] add test case" --json title --limit 200 2>/dev/null || echo "[]")
+
+            for i in $(seq 0 $((pr_count - 1))); do
               local pr_number
-              pr_number=$(echo "$prs_with_specs" | jq -r ".[$i].number")
+              pr_number=$(echo "$prs" | jq -r ".[$i].number")
               local pr_url
-              pr_url=$(echo "$prs_with_specs" | jq -r ".[$i].url")
+              pr_url=$(echo "$prs" | jq -r ".[$i].url")
 
               echo "PR #$pr_number affects specs: $pr_url"
 
               local title="[python] add test case for ${pr_url}"
               local body="follow skill ${SKILL_URL} to write test case for ${pr_url}"
 
-              # Check if an open issue with same title already exists
-              local existing
-              existing=$(gh issue list --repo "$ISSUE_REPO" --state open --search "in:title [python] add test case" --json number,title --limit 100)
-
+              # Check if an issue with the same title already exists (open or closed)
               local has_match
-              has_match=$(echo "$existing" | jq --arg t "$title" '[.[] | select(.title == $t)] | length')
+              has_match=$(echo "$existing_issues" | jq --arg t "$title" '[.[] | select(.title == $t)] | length')
 
               if [ "$has_match" -gt 0 ]; then
                 echo "Issue already exists for PR $pr_url, skipping"
