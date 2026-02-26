@@ -82,6 +82,50 @@ model ModelWithEncodedNames {
   @encodedName("application/xml", "PossibleColors") colors: string[];
 }
 
+@doc("Status values for the model with enum.")
+union Status {
+  string,
+
+  @doc("Pending status.")
+  pending: "pending",
+
+  @doc("Success status.")
+  success: "success",
+
+  @doc("Error status.")
+  error: "error",
+}
+
+@doc("Contains a single property with an enum value.")
+model ModelWithEnum {
+  status: Status;
+}
+
+@doc("Contains datetime properties with different encodings.")
+model ModelWithDatetime {
+  @encode(DateTimeKnownEncoding.rfc3339)
+  @doc("DateTime value with rfc3339 encoding.")
+  rfc3339: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.rfc7231)
+  @doc("DateTime value with rfc7231 encoding.")
+  rfc7231: utcDateTime;
+}
+
+@doc("An error response body in XML format.")
+@error
+model XmlError {
+  @statusCode _: 400;
+  @header("content-type") contentType: "application/xml";
+  @body body: XmlErrorBody;
+}
+
+@doc("The body of an XML error response.")
+model XmlErrorBody {
+  message: string;
+  code: int32;
+}
+
 @doc("Template for XML operations")
 interface XmlOperations<TModel, TDoc extends valueof string> {
   @scenario
@@ -300,3 +344,48 @@ interface ModelWithEncodedNamesValue
         </ModelWithEncodedNamesSrc>
         """
     > {}
+
+@doc("Operations for the ModelWithEnum type.")
+@route("/modelWithEnum")
+interface ModelWithEnumValue
+  extends XmlOperations<
+      ModelWithEnum,
+      """
+        <ModelWithEnum>
+          <status>success</status>
+        </ModelWithEnum>
+        """
+    > {}
+
+@doc("Operations for the ModelWithDatetime type.")
+@route("/modelWithDatetime")
+interface ModelWithDatetimeValue
+  extends XmlOperations<
+      ModelWithDatetime,
+      """
+        <ModelWithDatetime>
+          <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+          <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+        </ModelWithDatetime>
+        """
+    > {}
+
+@doc("Operations that return an error response in XML format.")
+@route("/error")
+interface XmlErrorValue {
+  @scenario
+  @scenarioDoc("""
+    Expected error response body:
+    ```xml
+    <XmlErrorBody>
+      <message>Something went wrong</message>
+      <code>400</code>
+    </XmlErrorBody>
+    ```
+    """)
+  @get
+  get(): {
+    @header("content-type") contentType: "application/xml";
+    @body body: SimpleModel;
+  } | XmlError;
+}

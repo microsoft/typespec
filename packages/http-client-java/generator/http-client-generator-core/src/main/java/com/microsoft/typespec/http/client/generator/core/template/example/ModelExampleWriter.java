@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +46,7 @@ public class ModelExampleWriter {
 
     private static final Logger LOGGER = new PluginLogger(Javagen.getPluginInstance(), ModelExampleWriter.class);
 
-    private final Set<String> imports = new HashSet<>();
+    private final Set<String> imports = new LinkedHashSet<>();
 
     private final Consumer<JavaBlock> assertionWriter;
     private final ExampleNodeModelInitializationVisitor modelInitializationVisitor
@@ -85,7 +85,7 @@ public class ModelExampleWriter {
     public static void writeMapOfMethod(JavaClass classBlock) {
         classBlock.lineComment("Use \"Map.of\" if available");
         classBlock.annotation("SuppressWarnings(\"unchecked\")");
-        classBlock.method(JavaVisibility.Private, Collections.singletonList(JavaModifier.Static),
+        classBlock.method(JavaVisibility.Private, List.of(JavaModifier.Static),
             "<T> Map<String, T> mapOf(Object... inputs)", methodBlock -> {
                 methodBlock.line("Map<String, T> map = new HashMap<>();");
                 methodBlock.line("for (int i = 0; i < inputs.length; i += 2) {");
@@ -101,7 +101,7 @@ public class ModelExampleWriter {
 
     public static class ExampleNodeAssertionVisitor {
 
-        private final Set<String> imports = new HashSet<>();
+        private final Set<String> imports = new LinkedHashSet<>();
 
         private final List<String> assertions = new ArrayList<>();
 
@@ -164,8 +164,8 @@ public class ModelExampleWriter {
 
     public static class ExampleNodeModelInitializationVisitor {
 
-        protected final Set<String> imports = new HashSet<>();
-        protected final Set<ExampleHelperFeature> helperFeatures = new HashSet<>();
+        protected final Set<String> imports = new LinkedHashSet<>();
+        protected final Set<ExampleHelperFeature> helperFeatures = new LinkedHashSet<>();
 
         /**
          * Extension to write code for deserialize JSON String to Object.
@@ -295,7 +295,7 @@ public class ModelExampleWriter {
                         = Stream.concat(requiredParentProperties.stream(), requiredProperties.stream())
                             .map(ModelProperty::ofClientModelProperty)
                             .collect(Collectors.toList());
-                    Map<ModelProperty, Integer> ctorPosition = new HashMap<>();
+                    Map<ModelProperty, Integer> ctorPosition = new LinkedHashMap<>();
                     for (int i = 0; i < properties.size(); ++i) {
                         ctorPosition.put(properties.get(i), i);
                     }

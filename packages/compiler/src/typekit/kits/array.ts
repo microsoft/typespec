@@ -35,7 +35,7 @@ defineKit<TypekitExtension>({
       return (
         type.entityKind === "Type" &&
         type.kind === "Model" &&
-        isArrayModelType(this.program, type) &&
+        isArrayModelType(type) &&
         type.properties.size === 0
       );
     },

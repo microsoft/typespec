@@ -3,11 +3,17 @@
 #nullable disable
 
 using System;
+using System.Buffers.Text;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace SampleTypeSpec
 {
@@ -17,6 +23,18 @@ namespace SampleTypeSpec
         internal static readonly JsonDocumentOptions JsonDocumentOptions = new JsonDocumentOptions
         {
             MaxDepth = 256
+        };
+        internal static readonly XmlWriterSettings XmlWriterSettings = new XmlWriterSettings
+        {
+            Encoding = new UTF8Encoding(false)
+        };
+        private static readonly XmlReaderSettings XmlReaderSettings = new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            MaxCharactersInDocument = 30000000,
+            IgnoreProcessingInstructions = true,
+            IgnoreComments = true
         };
 
         public static object GetObject(this JsonElement element)
@@ -250,6 +268,145 @@ namespace SampleTypeSpec
         public static void WriteObjectValue(this Utf8JsonWriter writer, object value, ModelReaderWriterOptions options = null)
         {
             writer.WriteObjectValue<object>(value, options);
+        }
+
+        public static BinaryData GetUtf8Bytes(this JsonElement element)
+        {
+#if NET9_0_OR_GREATER
+            return new global::System.BinaryData(global::System.Runtime.InteropServices.JsonMarshal.GetRawUtf8Value(element).ToArray());
+#else
+            return BinaryData.FromString(element.GetRawText());
+#endif
+        }
+
+        public static ReadOnlySpan<byte> SliceToStartOfPropertyName(this ReadOnlySpan<byte> jsonPath)
+        {
+            ReadOnlySpan<byte> local = jsonPath;
+            if (local.Length < 3)
+            {
+                return ReadOnlySpan<byte>.Empty;
+            }
+            if (local[0] != '$')
+            {
+                return ReadOnlySpan<byte>.Empty;
+            }
+            return local.Length >= 4 && local[1] == '[' && (local[2] == '\'' || local[2] == '"') ? local.Slice(3) : ReadOnlySpan<byte>.Empty;
+        }
+
+        public static string GetFirstPropertyName(this ReadOnlySpan<byte> jsonPath, out int bytesConsumed)
+        {
+            ReadOnlySpan<byte> local = jsonPath;
+            for (bytesConsumed = 0; bytesConsumed < local.Length; bytesConsumed++)
+            {
+                byte current = local[bytesConsumed];
+                if (current == '.')
+                {
+                    break;
+                }
+                else
+                {
+                    if (current == '\'' || current == '"')
+                    {
+                        if (bytesConsumed + 1 < local.Length && local[bytesConsumed + 1] == ']')
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            string key;
+#if NET6_0_OR_GREATER
+            key = global::System.Text.Encoding.UTF8.GetString(local.Slice(0, bytesConsumed));
+#else
+            key = Encoding.UTF8.GetString(local.Slice(0, bytesConsumed).ToArray());
+#endif
+            bytesConsumed += jsonPath.Length - local.Length;
+            return key;
+        }
+
+        public static bool TryGetIndex(this ReadOnlySpan<byte> indexSlice, out int index, out int bytesConsumed)
+        {
+            index = -1;
+            bytesConsumed = 0;
+
+            if (indexSlice.IsEmpty || indexSlice[0] != '[')
+            {
+                return false;
+            }
+
+            indexSlice = indexSlice.Slice(1);
+            if (indexSlice.IsEmpty || indexSlice[0] == '-')
+            {
+                return false;
+            }
+
+            int indexEnd = indexSlice.Slice(1).IndexOf((byte)']');
+            if (indexEnd < 0)
+            {
+                return false;
+            }
+
+            return Utf8Parser.TryParse(indexSlice.Slice(0, indexEnd + 1), out index, out bytesConsumed);
+        }
+
+        public static ReadOnlySpan<byte> GetRemainder(this ReadOnlySpan<byte> jsonPath, int index)
+        {
+            return index >= jsonPath.Length ? ReadOnlySpan<byte>.Empty : jsonPath[index] == '.' ? jsonPath.Slice(index) : jsonPath.Slice(index + 2);
+        }
+
+        public static DateTimeOffset GetDateTimeOffset(this XElement element, string format) => format switch
+        {
+            "U" => DateTimeOffset.FromUnixTimeSeconds((long)element),
+            _ => TypeFormatters.ParseDateTimeOffset(element.Value, format)
+        };
+
+        public static TimeSpan GetTimeSpan(this XElement element, string format) => TypeFormatters.ParseTimeSpan(element.Value, format);
+
+        public static byte[] GetBytesFromBase64(this XElement element, string format) => format switch
+        {
+            "U" => TypeFormatters.FromBase64UrlString(element.Value),
+            "D" => Convert.FromBase64String(element.Value),
+            _ => throw new ArgumentException("Format is not supported: ", nameof(format))
+        };
+
+        public static void WriteStringValue(this XmlWriter writer, DateTimeOffset value, string format)
+        {
+            writer.WriteValue(TypeFormatters.ToString(value, format));
+        }
+
+        public static void WriteStringValue(this XmlWriter writer, TimeSpan value, string format)
+        {
+            writer.WriteValue(TypeFormatters.ToString(value, format));
+        }
+
+        public static void WriteBase64StringValue(this XmlWriter writer, byte[] value, string format)
+        {
+            writer.WriteValue(TypeFormatters.ToString(value, format));
+        }
+
+        public static void WriteObjectValue<T>(this XmlWriter writer, T value, ModelReaderWriterOptions options = null)
+        {
+            switch (value)
+            {
+                case IPersistableModel<T> persistableModel:
+                    BinaryData data = ModelReaderWriter.Write(persistableModel, options ?? WireOptions, SampleTypeSpecContext.Default);
+                    using (Stream stream = data.ToStream())
+                    {
+                        using (XmlReader reader = XmlReader.Create(stream, XmlReaderSettings))
+                        {
+                            reader.MoveToContent();
+                            reader.ReadStartElement();
+                            while (reader.NodeType != XmlNodeType.EndElement)
+                            {
+                                writer.WriteNode(reader, true);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    throw new NotSupportedException($"Not supported type {typeof(T)}");
+            }
         }
     }
 }

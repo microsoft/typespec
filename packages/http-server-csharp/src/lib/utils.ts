@@ -1586,7 +1586,7 @@ export class CSharpOperationHelpers {
             nullableType: false,
             hasUniqueItems: hasUniqueItems,
           };
-        } else if (isArrayModelType(program, tsType)) {
+        } else if (isArrayModelType(tsType)) {
           const typeReference = code`${this.emitter.emitTypeReference(tsType.indexer.value)}`;
           modelResult = isByteType(tsType.indexer.value)
             ? {

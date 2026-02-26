@@ -385,12 +385,15 @@ function emitEnumMember(
   type: SdkEnumValueType,
   enumType: Record<string, any>,
 ): Record<string, any> {
+  if (typesMap.has(type)) {
+    return typesMap.get(type)!;
+  }
   // python don't generate enum created by TCGC, so we shall not generate type for enum member of the enum, either.
   if (type.enumType.isGeneratedName) {
     return getConstantFromEnumValueType(type);
   }
 
-  return {
+  const result = {
     name: enumName(type.name),
     value: type.value,
     description: type.summary ? type.summary : type.doc,
@@ -398,6 +401,8 @@ function emitEnumMember(
     type: type.kind,
     valueType: enumType["valueType"],
   };
+  typesMap.set(type, result);
+  return result;
 }
 
 function emitDurationOrDateType(type: SdkDurationType | SdkDateTimeType): Record<string, any> {
@@ -458,18 +463,39 @@ const sdkScalarKindToPythonKind: Record<string, string> = {
 function emitBuiltInType(
   type: SdkBuiltInType | SdkDurationType | SdkDateTimeType,
 ): Record<string, any> {
-  if (type.kind === "duration" && type.encode === "seconds") {
-    return getSimpleTypeResult({
-      type: sdkScalarKindToPythonKind[type.wireType.kind],
-      encode: type.encode,
-    });
+  if (type.encode) {
+    if (type.kind === "duration") {
+      if (type.encode === "ISO8601") {
+        return getSimpleTypeResult({
+          type: type.kind,
+          encode: type.encode,
+        });
+      }
+    }
+    if (type.kind === "utcDateTime" || type.kind === "offsetDateTime") {
+      if (type.encode === "unixTimestamp") {
+        return getSimpleTypeResult({
+          type: "unixtime",
+          encode: type.encode,
+        });
+      }
+      if (type.encode === "rfc3339" || type.encode === "rfc7231") {
+        return getSimpleTypeResult({
+          type: type.kind,
+          encode: type.encode,
+        });
+      }
+    }
+
+    // fallback to wire type for unknown or unsupported encode
+    if ("wireType" in type && type.wireType !== undefined) {
+      return getSimpleTypeResult({
+        type: sdkScalarKindToPythonKind[type.wireType.kind] || type.wireType.kind,
+        encode: type.encode,
+      });
+    }
   }
-  if (type.encode === "unixTimestamp") {
-    return getSimpleTypeResult({
-      type: "unixtime",
-      encode: type.encode,
-    });
-  }
+
   return getSimpleTypeResult({
     type: sdkScalarKindToPythonKind[type.kind] || type.kind, // TODO: switch to kind
     encode: type.encode,

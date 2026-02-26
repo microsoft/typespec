@@ -691,3 +691,23 @@ function getValueByPath(value: Value, path: (string | number)[]): Value | undefi
   }
   return current;
 }
+
+export function serializeExample(program: Program, value: Value, type: Type): unknown | undefined {
+  return serializeValueAsJson(program, value, type, undefined, {
+    serializeScalarValue: (value, type, encodeAs, originalFn) => {
+      const scalar = value.scalar;
+      if (scalar.name === "utcDateTime" && value.value.name === "now") {
+        return new Date().toUTCString();
+      } else if (scalar.name === "offsetDateTime" && value.value.name === "now") {
+        return new Date().toUTCString();
+      } else if (scalar.name === "plainDate" && value.value.name === "now") {
+        const now = new Date();
+        return now.toISOString().split("T")[0];
+      } else if (scalar.name === "plainTime" && value.value.name === "now") {
+        const now = new Date();
+        return now.toISOString().split("T")[1].replace("Z", "");
+      }
+      return originalFn(value, type, encodeAs);
+    },
+  });
+}

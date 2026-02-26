@@ -24,8 +24,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test": "echo 'no test'",
     "test:ci": "echo 'no test'",
     "lint": "eslint . --max-warnings=0",
@@ -38,7 +38,7 @@
   ],
   "dependencies": {
     "@azure/identity": "~4.13.0",
-    "@azure/storage-blob": "~12.29.1",
+    "@azure/storage-blob": "~12.30.0",
     "@pnpm/workspace.find-packages": "^1000.0.24",
     "@typespec/bundler": "workspace:^",
     "json5": "^2.2.3",

@@ -21,13 +21,12 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJ
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
-import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -127,16 +126,12 @@ public class TypeSpecFluentPlugin extends FluentGen {
     }
 
     public FluentJavaPackage processTemplates(CodeModel codeModel, Client client) {
-        final String apiVersion = emitterOptions.getApiVersion() == null
-            ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
-            : emitterOptions.getApiVersion();
-
         FluentJavaPackage javaPackage = handleTemplate(client);
-        handleFluentLite(codeModel, client, javaPackage, apiVersion);
+        handleFluentLite(codeModel, client, javaPackage, codeModel.getApiVersionMap());
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
-                apiVersion, collectCrossLanguageDefinitions(client),
+                codeModel.getApiVersionMap(), collectCrossLanguageDefinitions(client),
                 FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
             javaPackage.addTypeSpecMetadata(metadata, getFluentJavaSettings().getMetadataSuffix().orElse(null));
         }
@@ -157,7 +152,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
         return fluentMapper;
     }
 
-    private static final Map<String, Object> SETTINGS_MAP = new HashMap<>();
+    private static final Map<String, Object> SETTINGS_MAP = new LinkedHashMap<>();
 
     // from fluentnamer/readme.md
     static {
@@ -179,7 +174,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("sync-methods", "all");
         SETTINGS_MAP.put("stream-style-serialization", false);
 
-        SETTINGS_MAP.put("polling", new HashMap<String, Object>());
+        SETTINGS_MAP.put("polling", new LinkedHashMap<String, Object>());
     }
 
     @SuppressWarnings("unchecked")

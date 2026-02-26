@@ -32,9 +32,8 @@ import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -127,7 +126,7 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
         List<Request> requests = operation.getRequests();
         // Used to deduplicate method with same signature.
         // E.g. one request takes "application/json" and another takes "text/plain", which both are String type
-        Set<List<String>> methodSignatures = new HashSet<>();
+        Set<List<String>> methodSignatures = new LinkedHashSet<>();
 
         for (Request request : requests) {
             if (parsed.containsKey(request)) {
@@ -457,7 +456,7 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
         expectedStatusCodes.forEach(mergedExceptionTypeMapping::remove);
 
         // Convert the exception type mapping into what code generation uses elsewhere.
-        Map<ClassType, List<Integer>> processedMapping = new HashMap<>();
+        Map<ClassType, List<Integer>> processedMapping = new LinkedHashMap<>();
         for (Map.Entry<Integer, ClassType> kvp : mergedExceptionTypeMapping.entrySet()) {
             processedMapping.compute(kvp.getValue(), (errorType, statuses) -> {
                 if (statuses == null) {
@@ -480,7 +479,7 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
 
         SwaggerExceptionDefinitions exceptionDefinitions = new SwaggerExceptionDefinitions();
         ClassType swaggerDefaultExceptionType = null;
-        Map<Integer, ClassType> swaggerExceptionTypeMap = new HashMap<>();
+        Map<Integer, ClassType> swaggerExceptionTypeMap = new LinkedHashMap<>();
 
         if (settings.isDataPlaneClient() && settings.isAzureV1()) {
             // LLC does not use model, hence exception from swagger
@@ -630,7 +629,7 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
     private Map<Integer, ClassType> getHttpStatusToExceptionTypeMappingFromSettings(JavaSettings settings) {
         // Use a status code to error type mapping initial so that the custom mapping can override the default mapping,
         // if the default mapping is being used.
-        Map<Integer, ClassType> exceptionMapping = new HashMap<>();
+        Map<Integer, ClassType> exceptionMapping = new LinkedHashMap<>();
 
         if (settings.isUseDefaultHttpStatusCodeToExceptionTypeMapping()) {
             exceptionMapping.putAll(getDefaultHttpStatusCodeToExceptionTypeMapping());
@@ -662,12 +661,8 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
      * @return The default HTTP status code to exception type mapping.
      */
     protected Map<Integer, ClassType> getDefaultHttpStatusCodeToExceptionTypeMapping() {
-        Map<Integer, ClassType> defaultMapping = new HashMap<>();
-        defaultMapping.put(401, ClassType.CLIENT_AUTHENTICATION_EXCEPTION);
-        defaultMapping.put(404, ClassType.RESOURCE_NOT_FOUND_EXCEPTION);
-        defaultMapping.put(409, ClassType.RESOURCE_MODIFIED_EXCEPTION);
-
-        return defaultMapping;
+        return Map.of(401, ClassType.CLIENT_AUTHENTICATION_EXCEPTION, 404, ClassType.RESOURCE_NOT_FOUND_EXCEPTION, 409,
+            ClassType.RESOURCE_MODIFIED_EXCEPTION);
     }
 
     /**

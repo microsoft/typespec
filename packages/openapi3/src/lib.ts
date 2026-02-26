@@ -45,7 +45,6 @@ export interface OpenAPI3EmitterOptions {
    * will be created inside a directory matching each specification version.
    *
    * @default ["3.0.0"]
-   * @internal
    */
   "openapi-versions"?: OpenAPIVersion[];
 
@@ -404,6 +403,12 @@ export const $lib = createTypeSpecLibrary({
       messages: {
         default:
           "Streams with itemSchema are only fully supported in OpenAPI 3.2.0 or above. The response will be emitted without itemSchema. Consider using OpenAPI 3.2.0 for full stream support.",
+      },
+    },
+    "default-not-supported": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Default value is not supported in OpenAPI 3.0 ${"message"}`,
       },
     },
   },

@@ -167,6 +167,7 @@ export function createResolver(program: Program): NameResolver {
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const nodeLinks = new Map<number, NodeLinks>();
   const symbolLinks = new Map<number, SymbolLinks>();
+  const visitedNode = new Set<Node>();
 
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceSym = createSymbol(
@@ -321,7 +322,6 @@ export function createResolver(program: Program): NameResolver {
     }
 
     let result = resolveTypeReferenceWorker(node, options);
-
     const resolvedSym = result.resolvedSymbol;
     Object.assign(links, result);
 
@@ -610,6 +610,14 @@ export function createResolver(program: Program): NameResolver {
         resolutionResult: slinks.aliasResolutionResult,
         isTemplateInstantiation: result.isTemplateInstantiation,
       };
+    } else if (node.value.kind === SyntaxKind.CallExpression) {
+      // The alias resolves to a function call expression. We want to resolve the constrained return type of the call.
+      const resolutionResult = resolveReturnType(node.value.target);
+
+      slinks.aliasedSymbol = resolutionResult.finalSymbol;
+      slinks.aliasResolutionResult = resolutionResult.resolutionResult;
+      slinks.aliasResolutionIsTemplate = resolutionResult.isTemplateInstantiation;
+      return resolutionResult;
     } else if (node.value.symbol) {
       // a type literal
       slinks.aliasedSymbol = node.value.symbol;
@@ -620,6 +628,38 @@ export function createResolver(program: Program): NameResolver {
       slinks.aliasResolutionResult = ResolutionResultFlags.Unknown;
       return failedResult(ResolutionResultFlags.Unknown);
     }
+  }
+
+  function resolveReturnType(node: MemberExpressionNode | IdentifierNode): ResolutionResult {
+    const baseResult = resolveTypeReference(node, { resolveDecorators: false });
+
+    if (baseResult.resolutionResult & ResolutionResultFlags.ResolutionFailed) {
+      return baseResult;
+    }
+
+    const baseSym = baseResult.finalSymbol;
+
+    compilerAssert(baseSym, "Base symbol must be defined if resolution did not fail");
+
+    // If the base symbol is a function, get its return type
+    if (baseSym.flags & SymbolFlags.Function) {
+      const funcNode = baseSym.declarations.find(
+        (decl) => decl.kind === SyntaxKind.FunctionDeclarationStatement,
+      );
+
+      if (funcNode) {
+        const returnTypeNode = funcNode.returnType;
+
+        if (returnTypeNode) {
+          return resolveExpression(returnTypeNode);
+        }
+      }
+      // Default (no function declaration or no return type), return nothing.
+      return failedResult(ResolutionResultFlags.None);
+    }
+
+    // Any other kind of callable is something we cannot analyze right now.
+    return failedResult(ResolutionResultFlags.Unknown);
   }
 
   function resolveTemplateParameter(node: TemplateParameterDeclarationNode): ResolutionResult {
@@ -788,6 +828,7 @@ export function createResolver(program: Program): NameResolver {
       sym = node.symbol;
     }
     compilerAssert(sym, "Should have a symbol");
+
     links.resolvedSymbol = sym;
     links.resolutionResult = ResolutionResultFlags.Resolved;
   }
@@ -1217,6 +1258,15 @@ export function createResolver(program: Program): NameResolver {
   }
 
   function bindAndResolveNode(node: Node) {
+    if (visitedNode.has(node)) {
+      return;
+    }
+    visitedNode.add(node);
+
+    if ("id" in node && node.kind !== SyntaxKind.MemberExpression && node.id) {
+      bindDeclarationIdentifier(node as any);
+    }
+
     switch (node.kind) {
       case SyntaxKind.TypeReference:
         resolveTypeReference(node);
@@ -1248,11 +1298,6 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.CallExpression:
         resolveTypeReference(node.target);
         break;
-        break;
-    }
-
-    if ("id" in node && node.kind !== SyntaxKind.MemberExpression && node.id) {
-      bindDeclarationIdentifier(node as any);
     }
 
     visitChildren(node, bindAndResolveNode);

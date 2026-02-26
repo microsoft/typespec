@@ -4,7 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +14,7 @@ import java.util.Set;
 public class Scheme {
     private Scheme.SecuritySchemeType type;
     // OAuth2
-    private Set<String> scopes = new HashSet<>();
+    private Set<String> scopes = new LinkedHashSet<>();
     private List<OAuth2Flow> flows = new ArrayList<>();
     // Key
     private String name;

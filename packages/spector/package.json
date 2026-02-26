@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spector",
-  "version": "0.1.0-alpha.22",
+  "version": "0.1.0-alpha.23",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "exports": {
     ".": {
@@ -46,7 +46,7 @@
     "body-parser": "^2.2.0",
     "deep-equal": "^2.2.0",
     "express": "^5.2.1",
-    "globby": "~16.0.0",
+    "globby": "~16.1.0",
     "micromatch": "^4.0.8",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "",
   "main": "dist/index.js",
   "type": "module",
@@ -14,7 +14,7 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
-    "prettier": "~3.7.4"
+    "prettier": "~3.8.0"
   },
   "devDependencies": {
     "@typespec/compiler": "workspace:^",

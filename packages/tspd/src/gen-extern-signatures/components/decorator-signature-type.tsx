@@ -74,14 +74,14 @@ function extractRestParamConstraint(
   let valueType: Type | undefined;
   let type: Type | undefined;
   if (constraint.valueType) {
-    if (constraint.valueType.kind === "Model" && isArrayModelType(program, constraint.valueType)) {
+    if (constraint.valueType.kind === "Model" && isArrayModelType(constraint.valueType)) {
       valueType = constraint.valueType.indexer.value;
     } else {
       return undefined;
     }
   }
   if (constraint.type) {
-    if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
+    if (constraint.type.kind === "Model" && isArrayModelType(constraint.type)) {
       type = constraint.type.indexer.value;
     } else {
       return undefined;
@@ -178,7 +178,6 @@ function getCompilerType(name: string) {
 }
 
 function ValueTsType({ type }: { type: Type }) {
-  const { program } = useTspd();
   switch (type.kind) {
     case "Boolean":
       return `${type.value}`;
@@ -194,7 +193,7 @@ function ValueTsType({ type }: { type: Type }) {
         { joiner: " | " },
       );
     case "Model":
-      if (isArrayModelType(program, type)) {
+      if (isArrayModelType(type)) {
         return (
           <>
             readonly (<ValueTsType type={type.indexer.value} />

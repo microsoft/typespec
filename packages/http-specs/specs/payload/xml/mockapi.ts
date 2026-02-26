@@ -1,4 +1,4 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
+import { MockRequest, passOnCode, passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -123,6 +123,19 @@ export const modelWithEncodedNames = `
 </ModelWithEncodedNamesSrc>
 `;
 
+export const modelWithEnum = `
+<ModelWithEnum>
+  <status>success</status>
+</ModelWithEnum>
+`;
+
+export const modelWithDatetime = `
+<ModelWithDatetime>
+  <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+</ModelWithDatetime>
+`;
+
 function createServerTests(uri: string, data?: any) {
   return {
     get: passOnSuccess({
@@ -233,3 +246,32 @@ const Payload_Xml_ModelWithEncodedNames = createServerTests(
 );
 Scenarios.Payload_Xml_ModelWithEncodedNamesValue_get = Payload_Xml_ModelWithEncodedNames.get;
 Scenarios.Payload_Xml_ModelWithEncodedNamesValue_put = Payload_Xml_ModelWithEncodedNames.put;
+
+const Payload_Xml_ModelWithEnum = createServerTests("/payload/xml/modelWithEnum", modelWithEnum);
+Scenarios.Payload_Xml_ModelWithEnumValue_get = Payload_Xml_ModelWithEnum.get;
+Scenarios.Payload_Xml_ModelWithEnumValue_put = Payload_Xml_ModelWithEnum.put;
+
+const Payload_Xml_ModelWithDatetime = createServerTests(
+  "/payload/xml/modelWithDatetime",
+  modelWithDatetime,
+);
+Scenarios.Payload_Xml_ModelWithDatetimeValue_get = Payload_Xml_ModelWithDatetime.get;
+Scenarios.Payload_Xml_ModelWithDatetimeValue_put = Payload_Xml_ModelWithDatetime.put;
+
+export const xmlError = `
+<XmlErrorBody>
+  <message>Something went wrong</message>
+  <code>400</code>
+</XmlErrorBody>
+`;
+
+Scenarios.Payload_Xml_XmlErrorValue_get = passOnCode(400, {
+  uri: "/payload/xml/error",
+  method: "get",
+  request: {},
+  response: {
+    status: 400,
+    body: xml(xmlError),
+  },
+  kind: "MockApiDefinition",
+});

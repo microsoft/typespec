@@ -3,6 +3,7 @@
 
 # Those files/folders can be modified by anyone
 .chronus/changes/
+.github/skills/
 cspell.yaml
 
 ######################
@@ -14,9 +15,9 @@ cspell.yaml
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @christothes @jsquire
-/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @christothes @jsquire
-/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @christothes @jsquire
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @christothes @jsquire @ShivangiReja @joseharriaga
+/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @christothes @jsquire @ShivangiReja @joseharriaga
+/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @christothes @jsquire @ShivangiReja @joseharriaga
 
 ######################
 # Java
@@ -28,8 +29,8 @@ cspell.yaml
 ######################
 # Python
 ######################
-/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp
-/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp  
+/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp @ChenxiJiang333 
 
 ######################
 # JavaScript

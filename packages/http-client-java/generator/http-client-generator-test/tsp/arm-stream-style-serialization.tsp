@@ -112,8 +112,8 @@ model TopLevelArmResourceProperties {
 }
 
 @error
-model ErrorResponse {
-  error: Error;
+model ErrorResponseMax {
+  error: ErrorMax;
 }
 
 @error
@@ -121,11 +121,11 @@ model ErrorResponseMin {
   error: ErrorMin;
 }
 
-model Error {
+model ErrorMax {
   code: string;
   message: string;
   target: string;
-  details?: Error[];
+  details?: ErrorMax[];
   additionalInfo?: AdditionalInfo[];
   additionalProperty: string;
 }
@@ -222,7 +222,7 @@ union Priority {
 @route("/model")
 interface Fishes {
   @get
-  getModel(): Fish | ErrorResponse;
+  getModel(): Fish | ErrorResponseMax;
 
   @put
   putModel(@body fish: Fish): Fish | ErrorResponseMin;
@@ -287,6 +287,8 @@ model ResultData {
   prop2: string;
 }
 
+// test the serializaton of "unknown"
+@usage(Usage.input | Usage.output)
 model Builtin {
   boolean: boolean;
   string: string;
@@ -304,8 +306,12 @@ model Builtin {
   bytesDict: Record<bytes>;
   url: url;
   nullableFloatDict: Record<float64 | null>;
-  encoded: Encoded;
+  encoding: Encoded;
   uuid: Azure.Core.uuid;
+  `unknown`: unknown;
+  unknownDict: Record<unknown>;
+  unknownArray: unknown[];
+  unknownDictArray: Record<unknown>[];
 }
 
 @encode(DurationKnownEncoding.seconds, float32)

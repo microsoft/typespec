@@ -59,7 +59,7 @@ export function createApiModelFileForExport(
     configObject: {
       mainEntryPointFilePath: entrypoint,
       compiler: {
-        tsconfigFilePath: joinPaths(libraryPath, "tsconfig.json"),
+        tsconfigFilePath: joinPaths(libraryPath, "tsconfig.build.json"),
       },
       docModel: {
         enabled: true,

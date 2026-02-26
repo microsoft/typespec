@@ -3,7 +3,11 @@ import { BuildOptions, BuildResult, context, Plugin } from "esbuild";
 import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, join, resolve } from "path";
+import { promisify } from "util";
+import { gzip } from "zlib";
 import { relativeTo } from "./utils.js";
+
+const gzipAsync = promisify(gzip);
 
 export interface BundleManifest {
   name: string;
@@ -45,6 +49,8 @@ export interface TypeSpecBundleFile {
   export?: string;
   filename: string;
   content: string;
+  /** Gzipped content, only present if gzip option is enabled */
+  gzipContent?: Buffer;
 }
 
 interface PackageJson {
@@ -57,12 +63,30 @@ interface PackageJson {
   exports?: Record<string, string>;
 }
 
-export async function createTypeSpecBundle(libraryPath: string): Promise<TypeSpecBundle> {
+export interface CreateTypeSpecBundleOptions {
+  /**
+   * Whether to minify the output bundle.
+   * @default true
+   */
+  minify?: boolean;
+
+  /**
+   * Whether to also generate gzipped versions of the output files.
+   * When enabled, each file will include a gzipContent buffer.
+   * @default false
+   */
+  gzip?: boolean;
+}
+
+export async function createTypeSpecBundle(
+  libraryPath: string,
+  options?: CreateTypeSpecBundleOptions,
+): Promise<TypeSpecBundle> {
   const definition = await resolveTypeSpecBundleDefinition(libraryPath);
-  const context = await createEsBuildContext(definition);
+  const context = await createEsBuildContext(definition, [], options);
   try {
     const result = await context.rebuild();
-    return resolveTypeSpecBundle(definition, result);
+    return resolveTypeSpecBundle(definition, result, options);
   } finally {
     await context.dispose();
   }
@@ -71,30 +95,46 @@ export async function createTypeSpecBundle(libraryPath: string): Promise<TypeSpe
 export async function watchTypeSpecBundle(
   libraryPath: string,
   onBundle: (bundle: TypeSpecBundle) => void,
+  options?: CreateTypeSpecBundleOptions,
 ) {
   const definition = await resolveTypeSpecBundleDefinition(libraryPath);
-  const context = await createEsBuildContext(definition, [
-    {
-      name: "example",
-      setup(build) {
-        build.onEnd((result) => {
-          const bundle = resolveTypeSpecBundle(definition, result);
-          onBundle(bundle);
-        });
+  const context = await createEsBuildContext(
+    definition,
+    [
+      {
+        name: "example",
+        setup(build) {
+          build.onEnd(async (result) => {
+            const bundle = await resolveTypeSpecBundle(definition, result, options);
+            onBundle(bundle);
+          });
+        },
       },
-    },
-  ]);
+    ],
+    options,
+  );
   await context.watch();
 }
 
-export async function bundleTypeSpecLibrary(libraryPath: string, outputDir: string) {
-  const bundle = await createTypeSpecBundle(libraryPath);
+export async function bundleTypeSpecLibrary(
+  libraryPath: string,
+  outputDir: string,
+  options?: CreateTypeSpecBundleOptions,
+) {
+  const bundle = await createTypeSpecBundle(libraryPath, options);
   await mkdir(outputDir, { recursive: true });
   for (const file of bundle.files) {
     await writeFile(joinPaths(outputDir, file.filename), file.content);
+    if (file.gzipContent) {
+      await writeFile(joinPaths(outputDir, file.filename + ".gz"), file.gzipContent);
+    }
   }
   const manifest = createManifest(bundle.definition);
   await writeFile(joinPaths(outputDir, "manifest.json"), JSON.stringify(manifest, null, 2));
+  if (options?.gzip) {
+    const manifestGzip = await gzipAsync(Buffer.from(JSON.stringify(manifest), "utf-8"));
+    await writeFile(joinPaths(outputDir, "manifest.json.gz"), manifestGzip);
+  }
 }
 
 async function resolveTypeSpecBundleDefinition(
@@ -119,7 +159,12 @@ async function resolveTypeSpecBundleDefinition(
   };
 }
 
-async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugins: Plugin[] = []) {
+async function createEsBuildContext(
+  definition: TypeSpecBundleDefinition,
+  plugins: Plugin[] = [],
+  options?: CreateTypeSpecBundleOptions,
+) {
+  const minify = options?.minify ?? true;
   const libraryPath = definition.path;
   const program = await compile(NodeHost, libraryPath, {
     noEmit: true,
@@ -193,25 +238,40 @@ async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugin
     platform: "browser",
     format: "esm",
     target: "es2024",
+    minify,
     plugins: [virtualPlugin, nodeModulesPolyfillPlugin({}), ...plugins],
   });
 }
 
-function resolveTypeSpecBundle(
+async function resolveTypeSpecBundle(
   definition: TypeSpecBundleDefinition,
   result: BuildResult<BuildOptions>,
-): TypeSpecBundle {
+  options?: CreateTypeSpecBundleOptions,
+): Promise<TypeSpecBundle> {
+  const shouldGzip = options?.gzip ?? false;
+
+  const files: TypeSpecBundleFile[] = await Promise.all(
+    result.outputFiles!.map(async (file) => {
+      const entry = definition.exports[basename(file.path)];
+      const content = file.text;
+      const bundleFile: TypeSpecBundleFile = {
+        filename: file.path.replaceAll("\\", "/").split("/out/")[1],
+        content,
+        export: entry ? getExportEntryPoint(entry) : undefined,
+      };
+
+      if (shouldGzip) {
+        bundleFile.gzipContent = await gzipAsync(Buffer.from(content, "utf-8"));
+      }
+
+      return bundleFile;
+    }),
+  );
+
   return {
     definition,
     manifest: createManifest(definition),
-    files: result.outputFiles!.map((file) => {
-      const entry = definition.exports[basename(file.path)];
-      return {
-        filename: file.path.replaceAll("\\", "/").split("/out/")[1],
-        content: file.text,
-        export: entry ? getExportEntryPoint(entry) : undefined,
-      };
-    }),
+    files,
   };
 }
 

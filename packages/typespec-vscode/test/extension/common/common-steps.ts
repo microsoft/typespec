@@ -1,8 +1,9 @@
 import { readdirSync } from "fs";
-import { rm } from "fs/promises";
 import fs, { rmSync, writeFileSync } from "node:fs";
+import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { Locator, Page } from "playwright";
+import { expect } from "vitest";
 import { RunOptions, runOrExit } from "../../../../internal-build-utils/dist/src/index.js";
 import { CaseScreenshot, npxCmd, repoRoot, retry, tempDir } from "./utils";
 
@@ -26,24 +27,18 @@ export async function preContrastResult(
   } catch (e) {
     await cs.screenshot(page, "error");
     app.close();
-    throw new Error(errorMessage);
+    throw new Error(`${errorMessage} - Timed out waiting for text: "${text}" - ${e}`);
   }
 }
 
 /**
  * Results comparison
- * @param res List of expected files
+ * @param exected List of expected files
  * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
  */
-export async function contrastResult(res: string[], dir: string, cs: CaseScreenshot) {
-  let resLength = 0;
-  if (fs.existsSync(dir)) {
-    resLength = fs.readdirSync(dir).length;
-    await rm(cs.caseDir, { recursive: true });
-  }
-  if (resLength !== res.length) {
-    throw new Error("Failed to matches all files");
-  }
+export async function expectFilesInDir(exected: string[], dir: string) {
+  const results = await readdir(dir);
+  expect(results).toEqual(exected);
 }
 
 /**

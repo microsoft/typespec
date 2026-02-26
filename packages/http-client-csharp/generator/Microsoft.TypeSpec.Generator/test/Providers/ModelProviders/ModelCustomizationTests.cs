@@ -1475,6 +1475,69 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("CustomBaseProp", modelProvider.BaseTypeProvider.Properties[0].Name);
         }
 
+        [Test]
+        public async Task CanAddPropertyReferencingGeneratedType()
+        {
+            // Create Bar model that will be referenced by the custom property
+            var barModel = InputFactory.Model("Bar", properties: [
+                InputFactory.Property("b", InputPrimitiveType.String)
+            ], usage: InputModelTypeUsage.Input);
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
+                InputFactory.Property("Prop1", InputPrimitiveType.String)
+            ], usage: InputModelTypeUsage.Input);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, barModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // Validate that the custom property Bars exists in the canonical view
+            var barsProperty = modelTypeProvider.CanonicalView.Properties.FirstOrDefault(p => p.Name == "Bars");
+            Assert.IsNotNull(barsProperty, "Bars property should exist in canonical view");
+
+            // Validate that the Bars property has IList<Bar> type with proper namespace
+            Assert.IsTrue(barsProperty!.Type.IsList);
+            var elementType = barsProperty.Type.ElementType;
+            Assert.AreEqual("Bar", elementType.Name);
+            Assert.AreEqual("Sample.Models", elementType.Namespace, "Bar type should have proper namespace");
+            Assert.IsFalse(string.IsNullOrEmpty(elementType.Namespace), "Element type namespace should not be empty");
+        }
+
+        [Test]
+        public async Task CanAddPropertyReferencingRenamedGeneratedType()
+        {
+            // Create Bar model that will be renamed to RenamedBar via CodeGenType
+            var barModel = InputFactory.Model("Bar", properties: [
+                InputFactory.Property("b", InputPrimitiveType.String)
+            ], usage: InputModelTypeUsage.Input);
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
+                InputFactory.Property("Prop1", InputPrimitiveType.String)
+            ], usage: InputModelTypeUsage.Input);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, barModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // Validate that the custom property RenamedBars exists in the canonical view
+            var renamedBarsProperty = modelTypeProvider.CanonicalView.Properties.FirstOrDefault(p => p.Name == "RenamedBars");
+            Assert.IsNotNull(renamedBarsProperty, "RenamedBars property should exist in canonical view");
+
+            // Validate that the RenamedBars property has IList<RenamedBar> type with proper namespace
+            // Even though Bar is the TypeSpec name, the C# code uses RenamedBar
+            Assert.IsTrue(renamedBarsProperty!.Type.IsList);
+            var elementType = renamedBarsProperty.Type.ElementType;
+            Assert.AreEqual("RenamedBar", elementType.Name);
+            Assert.AreEqual("Sample.Models", elementType.Namespace, "RenamedBar type should have proper namespace");
+            Assert.IsFalse(string.IsNullOrEmpty(elementType.Namespace), "Element type namespace should not be empty");
+        }
+
         private class NameSpaceVisitor : LibraryVisitor
         {
             protected override TypeProvider? VisitType(TypeProvider type)
@@ -1505,6 +1568,79 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             {
                 return base.VisitType(type);
             }
+        }
+
+        [Test]
+        public async Task CanCustomizeBaseModelToExternalType()
+        {
+            // This test verifies that a model can be customized to inherit from an external base type
+            // that is not generated during the current generation run (e.g., from another assembly)
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel") as ModelProvider;
+
+            // Should have customized base type from external assembly
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNotNull(modelProvider!.BaseType);
+            Assert.IsNotNull(modelProvider.BaseTypeProvider);
+            Assert.AreEqual("ExternalBaseModel", modelProvider.BaseType!.Name);
+            Assert.AreEqual("Sample.Models", modelProvider.BaseType!.Namespace);
+
+            // The BaseModelProvider should be null since the base is not a generated model
+            Assert.IsNull(modelProvider.BaseModelProvider);
+
+            // BaseTypeProvider should be NamedTypeSymbolProvider because ExternalBaseModel
+            // is defined in the same file and will be found in the customization compilation
+            Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider,
+                "ExternalBaseModel is in the customization compilation and should use NamedTypeSymbolProvider");
+
+            // It should have the properties from the symbol
+            // ExternalBaseModel has 2 properties: ExternalProperty and ExternalDictionary
+            Assert.AreEqual(2, modelProvider.BaseTypeProvider!.Properties.Count,
+                "ExternalBaseModel should have ExternalProperty and ExternalDictionary");
+            var externalPropertyNames = modelProvider.BaseTypeProvider.Properties.Select(p => p.Name).ToList();
+            Assert.Contains("ExternalProperty", externalPropertyNames);
+            Assert.Contains("ExternalDictionary", externalPropertyNames);
+        }
+
+        [Test]
+        public async Task CanCustomizeBaseModelToSystemType()
+        {
+            // This test verifies that a model can be customized to inherit from a system type
+            // (e.g., System.Exception) which simulates inheriting from types like
+            // Azure.ResourceManager.TrackedResourceData that are from referenced assemblies.
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel") as ModelProvider;
+
+            // Should have customized base type from system library
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNotNull(modelProvider!.BaseType);
+            Assert.IsNotNull(modelProvider.BaseTypeProvider);
+            Assert.AreEqual("Exception", modelProvider.BaseType!.Name);
+            Assert.AreEqual("System", modelProvider.BaseType!.Namespace);
+
+            // The BaseModelProvider should be null since the base is not a generated model
+            Assert.IsNull(modelProvider.BaseModelProvider);
+
+            // System types from referenced assemblies are NOT found by FindForTypeInCustomization
+            // (which only searches the customization assembly, not references), so they use SystemObjectTypeProvider
+            Assert.IsInstanceOf<SystemObjectTypeProvider>(modelProvider.BaseTypeProvider,
+                "System.Exception is from a referenced assembly and should use SystemObjectTypeProvider");
         }
 
         private class TestNameVisitor : NameVisitor

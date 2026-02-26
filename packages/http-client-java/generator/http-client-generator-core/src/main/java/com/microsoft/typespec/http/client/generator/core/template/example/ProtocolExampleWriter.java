@@ -28,7 +28,7 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import com.microsoft.typespec.http.client.generator.core.util.WireTypeClientTypeConverter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +61,7 @@ public class ProtocolExampleWriter {
             = new ClientInitializationExampleWriter(syncClient, method, proxyMethodExample, serviceClient);
 
         // import
-        this.imports = new HashSet<>();
+        this.imports = new LinkedHashSet<>();
 
         imports.addAll(this.clientInitializationExampleWriter.getImports());
 

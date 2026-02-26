@@ -138,7 +138,7 @@ class LROOperationBase(OperationBase[LROResponseType]):
                 "_deserialize",
                 ImportType.LOCAL,
             )
-        file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.REGULAR)
         file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
         return file_import
 

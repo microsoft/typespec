@@ -7,8 +7,13 @@
 - [Supported Scenarios](#supported-scenarios)
   - [Model Factory Methods](#model-factory-methods)
   - [Model Properties](#model-properties)
+  - [AdditionalProperties Type Preservation](#additionalproperties-type-preservation)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
+  - [Model Constructors](#model-constructors)
+  - [Parameter Naming](#parameter-naming)
+    - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
+    - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
 
 ## Overview
 
@@ -137,6 +142,87 @@ public IReadOnlyList<string> Items { get; }
 - For read-write lists and dictionaries, if the previous type was different, the previous type is retained
 - A diagnostic message is logged: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
 
+### AdditionalProperties Type Preservation
+
+The generator maintains backward compatibility for the `AdditionalProperties` property type on models that extend or use `Record<unknown>`.
+
+#### Scenario: AdditionalProperties Type Changed from Object to BinaryData
+
+**Description:** When a model with additional properties was previously generated with `IDictionary<string, object>`, but the current generator would produce `IDictionary<string, BinaryData>`, the generator preserves the previous `object` type to maintain backward compatibility.
+
+This commonly occurs when:
+
+- Migrating from an older generator version that used `object` for unknown additional property values
+- Regenerating a library that was originally created with `IDictionary<string, object>` for `Record<unknown>` types
+
+**Example:**
+
+Previous version generated with object type:
+
+```csharp
+public partial class MyModel
+{
+    private readonly IDictionary<string, object> _additionalBinaryDataProperties;
+
+    public MyModel(string name, IDictionary<string, object> additionalProperties)
+    {
+        Name = name;
+        _additionalBinaryDataProperties = additionalProperties;
+    }
+
+    public string Name { get; set; }
+    public IDictionary<string, object> AdditionalProperties { get; }
+}
+```
+
+Current TypeSpec would generate with BinaryData:
+
+```csharp
+public partial class MyModel
+{
+    private readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+
+    public MyModel(string name, IDictionary<string, BinaryData> additionalProperties)
+    {
+        Name = name;
+        _additionalBinaryDataProperties = additionalProperties;
+    }
+
+    public string Name { get; set; }
+    public IDictionary<string, BinaryData> AdditionalProperties { get; }
+}
+```
+
+**Generated Compatibility Result:**
+
+When the last contract had `IDictionary<string, object>`, the generator preserves the object type:
+
+```csharp
+public partial class MyModel
+{
+    private readonly IDictionary<string, object> _additionalBinaryDataProperties;
+
+    public MyModel(string name, IDictionary<string, object> additionalProperties)
+    {
+        Name = name;
+        _additionalBinaryDataProperties = additionalProperties;
+    }
+
+    public string Name { get; set; }
+    public IDictionary<string, object> AdditionalProperties { get; }
+}
+```
+
+**Key Points:**
+
+- Applies to models with `AdditionalProperties` defined via `Record<unknown>` or similar patterns
+- The backing field type is changed from `IDictionary<string, BinaryData>` to `IDictionary<string, object>`
+- The property type matches the backing field type to avoid compilation errors
+- Serialization and deserialization automatically handle both `object` and `BinaryData` types
+- For object types, deserialization uses `JsonElement.GetObject()` instead of wrapping in `BinaryData`
+- For object types, serialization uses `Utf8JsonWriter.WriteObjectValue<object>()` to handle arbitrary values
+- Binary compatibility is fully maintained - existing client code continues to work without recompilation
+
 ### API Version Enum
 
 Service version enums maintain backward compatibility by preserving version values from previous releases.
@@ -212,3 +298,295 @@ public class BaseModel
     public string CommonProperty { get; set; }
 }
 ```
+
+### Model Constructors
+
+The generator maintains backward compatibility for model constructors on abstract base types to prevent breaking changes when constructor accessibility changes.
+
+#### Scenario: Public Constructor on Abstract Base Type
+
+**Description:** When an abstract base type had a public constructor in the previous version, but the current TypeSpec generation would create a `private protected` constructor, the generator automatically changes the modifier to `public` to maintain backward compatibility.
+
+This commonly occurs when:
+
+- Migrating from autorest-generated code to TypeSpec-generated code
+- Abstract base types with discriminators had public parameterless constructors in previous versions
+
+**Example:**
+
+Previous version had a public parameterless constructor:
+
+```csharp
+public abstract partial class SearchIndexerDataIdentity
+{
+    /// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+    public SearchIndexerDataIdentity()
+    {
+    }
+}
+```
+
+Current TypeSpec would generate a private protected constructor:
+
+```csharp
+public abstract partial class SearchIndexerDataIdentity
+{
+    /// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+    /// <param name="odataType"> A URI fragment specifying the type of identity. </param>
+    private protected SearchIndexerDataIdentity(string odataType)
+    {
+        OdataType = odataType;
+    }
+}
+```
+
+**Generated Compatibility Result:**
+
+When a matching public constructor exists in the last contract, the modifier is changed from `private protected` to `public`:
+
+```csharp
+public abstract partial class SearchIndexerDataIdentity
+{
+    /// <summary> Initializes a new instance of SearchIndexerDataIdentity. </summary>
+    /// <param name="odataType"> A URI fragment specifying the type of identity. </param>
+    public SearchIndexerDataIdentity(string odataType)
+    {
+        OdataType = odataType;
+    }
+}
+```
+
+**Key Points:**
+
+- Only applies to abstract base types
+- The constructor must have matching parameters (same count, types, and names)
+- The modifier is changed from `private protected` to `public`
+- No additional constructors are generated; only the accessibility is adjusted
+
+### Parameter Naming
+
+The generator maintains backward compatibility for parameter names to ensure that existing code continues to compile when parameter names are corrected, standardized, or converted to follow naming conventions.
+
+#### Scenario: Page Size Parameter Casing Correction
+
+**Description:** When a paging parameter name has incorrect casing in the TypeSpec (e.g., `maxpagesize` instead of `maxPageSize`), the generator handles it in two ways:
+
+1. **If the parameter exists in LastContractView**: The generator uses the exact casing from the previous version to maintain backward compatibility
+2. **If the parameter does NOT exist in LastContractView**: The generator normalizes common badly-cased variants to proper camelCase (e.g., `maxpagesize` → `maxPageSize`)
+
+This commonly occurs when:
+
+- TypeSpec defines a paging parameter with non-standard casing (e.g., all lowercase)
+- The generator needs to maintain API consistency while respecting the wire format
+- New paging operations need standardized parameter naming
+
+**Example:**
+
+**Case 1: Parameter exists in LastContractView - badly-cased is preserved (backward compatibility)**
+
+Previous version had badly-cased parameter name:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? maxpagesize = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (maxpagesize != null)
+        {
+            uri.AppendQuery("maxpagesize", maxpagesize.Value, true);  // Serialized name from spec
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+Current TypeSpec still defines parameter with bad casing:
+
+```typespec
+@query maxpagesize?: int32;  // Lowercase in spec
+```
+
+**Generated Compatibility Result:**
+
+The generator detects the parameter in LastContractView and preserves its exact badly-cased name to maintain backward compatibility:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? maxpagesize = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (maxpagesize != null)
+        {
+            uri.AppendQuery("maxpagesize", maxpagesize.Value, true);  // Still badly-cased for backward compatibility
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+**Case 2: Parameter does NOT exist in LastContractView - badly-cased is normalized**
+
+New paging operation with badly-cased parameter (no previous version):
+
+```typespec
+@query maxpagesize?: int32;  // Lowercase in spec
+```
+
+**Generated Result:**
+
+The generator normalizes the parameter name to proper camelCase since there's no previous version to maintain compatibility with:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? maxPageSize = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (maxPageSize != null)
+        {
+            uri.AppendQuery("maxpagesize", maxPageSize.Value, true);  // Serialized name still uses spec's casing
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+**Key Points:**
+
+- **Case 1 (Backward compatibility)**: If the parameter exists in LastContractView, its exact casing is preserved - even if badly-cased
+- **Case 2 (Normalization)**: If the parameter does NOT exist in LastContractView, badly-cased variants are normalized to proper camelCase
+- The HTTP query parameter always uses the original serialized name from the spec (e.g., `maxpagesize`)
+- Existing client code continues to compile without changes
+
+#### Scenario: Top Parameter Conversion to MaxCount
+
+**Description:** For paging operations, the generator converts the `top` parameter to `maxCount` to follow standard naming conventions. However, backward compatibility is maintained in two ways:
+
+1. **If the `top` parameter exists in LastContractView**: The generator preserves the `top` parameter name (with its exact casing) to maintain backward compatibility
+2. **If the `top` parameter does NOT exist in LastContractView**: The generator converts `top` to the standardized `maxCount` parameter name
+
+This commonly occurs when:
+
+- Migrating from an older API version or generator that used `top` for pagination limits
+- TypeSpec defines paging operations with a `top` parameter
+- The generator needs to standardize on `maxCount` while maintaining backward compatibility
+
+**Example:**
+
+**Case 1: Top parameter exists in LastContractView - preserved for backward compatibility**
+
+Previous version had `top` parameter:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? top = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (top != null)
+        {
+            uri.AppendQuery("top", top.Value, true);  // Serialized name from spec
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+Current TypeSpec still defines `top` parameter:
+
+```typespec
+op getItems(@query top?: int32): Page<Item>;
+```
+
+**Generated Compatibility Result:**
+
+The generator detects the `top` parameter in LastContractView and preserves it exactly to maintain backward compatibility:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? top = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (top != null)
+        {
+            uri.AppendQuery("top", top.Value, true);  // Still uses "top" for backward compatibility
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+**Case 2: Top parameter does NOT exist in LastContractView - converted to maxCount**
+
+New paging operation with `top` parameter (no previous version):
+
+```typespec
+op getItems(@query top?: int32): Page<Item>;
+```
+
+**Generated Result:**
+
+The generator converts the parameter name to standardized `maxCount` since there's no previous version to maintain compatibility with:
+
+```csharp
+public virtual AsyncPageable<Item> GetItemsAsync(int? maxCount = null, CancellationToken cancellationToken = default)
+{
+    HttpMessage CreateRequest()
+    {
+        var message = pipeline.CreateMessage();
+        var request = message.Request;
+        request.Method = RequestMethod.Get;
+        var uri = new RequestUriBuilder();
+        uri.Reset(endpoint);
+        uri.AppendPath("/items", false);
+        if (maxCount != null)
+        {
+            uri.AppendQuery("top", maxCount.Value, true);  // Serialized name still uses "top" from spec
+        }
+        // ...
+    }
+    // ...
+}
+```
+
+**Key Points:**
+
+- **Case 1 (Backward compatibility)**: If `top` parameter exists in LastContractView, its exact name and casing are preserved
+- **Case 2 (Standardization)**: If `top` parameter does NOT exist in LastContractView, it is converted to `maxCount` for consistency
+- The HTTP query parameter always uses the original serialized name from the spec (e.g., `top`)
+- This conversion is specific to paging operations only
+- Existing client code with `top` continues to compile without changes
+- New code benefits from the standardized `maxCount` naming convention

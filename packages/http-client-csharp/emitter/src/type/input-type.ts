@@ -107,7 +107,7 @@ export type InputDateTimeType = InputUtcDateTimeType | InputOffsetDateTimeType;
 
 interface InputDateTimeTypeBase extends InputTypeBase {
   name: string;
-  encode: DateTimeKnownEncoding;
+  encode: DateTimeKnownEncoding | string;
   wireType: InputPrimitiveType;
   crossLanguageDefinitionId: string;
   baseType?: InputDateTimeType;
@@ -124,7 +124,7 @@ export interface InputOffsetDateTimeType extends InputDateTimeTypeBase {
 export interface InputDurationType extends InputTypeBase {
   kind: "duration";
   name: string;
-  encode: DurationKnownEncoding;
+  encode: DurationKnownEncoding | string;
   wireType: InputPrimitiveType;
   crossLanguageDefinitionId: string;
   baseType?: InputDurationType;
@@ -181,6 +181,7 @@ export interface InputModelProperty extends InputPropertyTypeBase {
   serializationOptions: SerializationOptions;
   flatten: boolean;
   isHttpMetadata: boolean;
+  encode?: string;
 }
 
 export type InputProperty = InputModelProperty | InputParameter;
@@ -207,6 +208,7 @@ export interface InputQueryParameter extends InputPropertyTypeBase {
   explode: boolean;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputPathParameter extends InputPropertyTypeBase {
@@ -218,15 +220,18 @@ export interface InputPathParameter extends InputPropertyTypeBase {
   serverUrlTemplate?: string;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputHeaderParameter extends InputPropertyTypeBase {
   kind: "header";
   collectionFormat?: CollectionFormat;
   arraySerializationDelimiter?: string;
+  collectionHeaderPrefix?: string;
   isContentType: boolean;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputBodyParameter extends InputPropertyTypeBase {
@@ -235,6 +240,7 @@ export interface InputBodyParameter extends InputPropertyTypeBase {
   defaultContentType: string;
   scope: InputParameterScope;
   serializedName: string;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputEndpointParameter extends InputPropertyTypeBase {
@@ -244,6 +250,7 @@ export interface InputEndpointParameter extends InputPropertyTypeBase {
   scope: InputParameterScope;
   serializedName: string;
   isEndpoint: boolean;
+  methodParameterSegments?: InputMethodParameter[];
 }
 
 export interface InputEnumType extends InputTypeBase {

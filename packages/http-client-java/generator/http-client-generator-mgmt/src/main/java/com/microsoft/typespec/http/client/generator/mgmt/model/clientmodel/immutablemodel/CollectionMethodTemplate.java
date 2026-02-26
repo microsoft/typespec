@@ -12,7 +12,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 // Implementation method template for simple return type
@@ -22,7 +22,7 @@ public class CollectionMethodTemplate implements ImmutableMethod {
     private final MethodTemplate implementationMethodTemplate;
 
     public CollectionMethodTemplate(FluentCollectionMethod fluentMethod, IType innerType) {
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         fluentMethod.addImportsTo(imports, false);
         // Type inner = ...
         innerType.addImportsTo(imports, false);

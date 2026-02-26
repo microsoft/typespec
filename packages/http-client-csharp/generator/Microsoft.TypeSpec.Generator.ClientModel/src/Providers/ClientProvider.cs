@@ -26,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private record AuthFields(FieldProvider AuthField);
         private record ApiKeyFields(FieldProvider AuthField, FieldProvider AuthorizationHeaderField, FieldProvider? AuthorizationApiKeyPrefixField) : AuthFields(AuthField);
         private record OAuth2Fields(FieldProvider AuthField, FieldProvider AuthorizationScopesField) : AuthFields(AuthField);
+        private record ApiVersionFields(FieldProvider Field, PropertyProvider? CorrespondingOptionsProperty, string? ServiceNamespace);
 
         private const string AuthorizationHeaderConstName = "AuthorizationHeader";
         private const string AuthorizationApiKeyPrefixConstName = "AuthorizationApiKeyPrefix";
@@ -48,12 +49,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly ApiKeyFields? _apiKeyAuthFields;
         private readonly OAuth2Fields? _oauth2Fields;
 
-        private FieldProvider? _apiVersionField;
+        private IReadOnlyList<ApiVersionFields>? _apiVersionFields;
         private readonly Lazy<IReadOnlyList<ParameterProvider>> _subClientInternalConstructorParams;
         private readonly Lazy<IReadOnlyList<ClientProvider>> _subClients;
         private RestClientProvider? _restClient;
         private readonly IReadOnlyList<InputParameter> _allClientParameters;
-        private Lazy<IReadOnlyList<FieldProvider>> _additionalClientFields;
+        private readonly Lazy<IReadOnlyList<FieldProvider>> _additionalClientFields;
 
         private Dictionary<InputOperation, ScmMethodProviderCollection>? _methodCache;
         private Dictionary<InputOperation, ScmMethodProviderCollection> MethodCache => _methodCache ??= [];
@@ -94,6 +95,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
+            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
 
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
@@ -330,6 +332,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return null;
         }
 
+        internal bool IsMultiServiceClient { get; }
+
+        internal FieldProvider? GetApiVersionFieldForService(string? serviceNamespace)
+        {
+            if (_apiVersionFields == null || _apiVersionFields.Count == 0)
+            {
+                return null;
+            }
+
+            if (_apiVersionFields.Count == 1 || string.IsNullOrEmpty(serviceNamespace))
+            {
+                return _apiVersionFields[0].Field;
+            }
+
+            return _apiVersionFields.FirstOrDefault(
+                f => string.Equals(f.ServiceNamespace, serviceNamespace, StringComparison.OrdinalIgnoreCase))?.Field;
+        }
+
         /// <summary>
         /// Gets the corresponding <see cref="RestClientProvider"/> for this client.
         /// </summary>
@@ -382,7 +402,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<FieldProvider> BuildAdditionalClientFields()
         {
             var fields = new List<FieldProvider>();
-            // Add optional client parameters as fields
+            bool builtApiVersionFields = false;
+
             foreach (var p in _allClientParameters)
             {
                 if (p is not InputEndpointParameter || p is InputEndpointParameter endpointParameter && !endpointParameter.IsEndpoint)
@@ -391,30 +412,88 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ? ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
                         : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(p.Type);
 
-                    if (type != null)
+                    if (type is null)
                     {
-                        FieldProvider field = new(
+                        continue;
+                    }
+
+                    var wireInfo = new PropertyWireInformation(
+                        ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(p.Type),
+                        p.IsRequired,
+                        false,
+                        p.Type is InputNullableType,
+                        false,
+                        p.SerializedName,
+                        false,
+                        p.IsApiVersion);
+
+                    if (p.IsApiVersion)
+                    {
+                        if (!builtApiVersionFields)
+                        {
+                            _apiVersionFields = BuildApiVersionFields(p, type, wireInfo);
+                            fields.AddRange(_apiVersionFields.Select(f => f.Field).OrderBy(f => f.Name));
+                            builtApiVersionFields = true;
+                        }
+                    }
+                    else
+                    {
+                        var field = new FieldProvider(
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             type.WithNullable(!p.IsRequired),
                             "_" + p.Name.ToVariableName(),
                             this,
-                            wireInfo: new PropertyWireInformation(
-                                ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(p.Type),
-                                p.IsRequired,
-                                false,
-                                p.Type is InputNullableType,
-                                false,
-                                p.SerializedName,
-                                false));
-                        if (p.IsApiVersion)
-                        {
-                            _apiVersionField = field;
-                        }
+                            wireInfo: wireInfo);
                         fields.Add(field);
                     }
                 }
             }
+
             return fields;
+        }
+
+        private List<ApiVersionFields> BuildApiVersionFields(
+            InputParameter inputParameter,
+            CSharpType type,
+            PropertyWireInformation wireInfo)
+        {
+            var fieldType = type.WithNullable(!inputParameter.IsRequired);
+            string fieldName = "_" + inputParameter.Name.ToVariableName();
+
+            if (ClientOptions?.VersionProperties is { } versionProperties)
+            {
+                var propertyCount = versionProperties.Count;
+                var fields = new List<ApiVersionFields>(propertyCount);
+
+                foreach (var (enumProvider, property) in versionProperties)
+                {
+                    var name = propertyCount > 1
+                        ? "_" + property.Name.ToVariableName()
+                        : fieldName;
+
+                    var field = new FieldProvider(
+                        FieldModifiers.Private | FieldModifiers.ReadOnly,
+                        fieldType,
+                        name,
+                        this,
+                        wireInfo: wireInfo);
+
+                    fields.Add(new ApiVersionFields(field, property, enumProvider.InputNamespace));
+                }
+
+                return fields;
+            }
+            else
+            {
+                var field = new FieldProvider(
+                    FieldModifiers.Private | FieldModifiers.ReadOnly,
+                    fieldType,
+                    fieldName,
+                    this,
+                    wireInfo: wireInfo);
+
+                return [new ApiVersionFields(field, null, null)];
+            }
         }
 
         protected override PropertyProvider[] BuildProperties()
@@ -658,9 +737,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_endpointParameter.Type.Equals(typeof(string)))
             {
                 var serverTemplate = _inputEndpointParam!.ServerUrlTemplate;
+                // Build the URI by converting the named placeholders to indexed placeholders and collecting arguments
+                var (convertedTemplate, templateArgs) = ConvertUriTemplateToFormattableString(serverTemplate!, primaryConstructorParameters);
                 endpointAssignment = EndpointField.Assign(
                     New.Instance(typeof(Uri),
-                        new FormattableStringExpression(serverTemplate!, [_endpointParameter])));
+                        new FormattableStringExpression(convertedTemplate, templateArgs)));
             }
             else
             {
@@ -709,16 +790,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryPolicies)).Terminate());
 
-            var clientOptionsPropertyDict = clientOptionsProvider.Properties.ToDictionary(p => p.Name.ToIdentifierName());
             foreach (var f in Fields)
             {
-                if (f == _apiVersionField && clientOptionsProvider.VersionProperty != null)
+                var fieldInfo = _apiVersionFields?.FirstOrDefault(fieldInfo => fieldInfo.Field == f);
+                if (fieldInfo?.CorrespondingOptionsProperty != null)
                 {
-                    body.Add(f.Assign(clientOptionsParameter.Property(clientOptionsProvider.VersionProperty.Name)).Terminate());
-                }
-                else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out var optionsProperty))
-                {
-                    clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out optionsProperty);
+                    body.Add(f.Assign(clientOptionsParameter.Property(fieldInfo.CorrespondingOptionsProperty.Name)).Terminate());
                 }
             }
 
@@ -809,6 +886,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     else if (parentClientFields.TryGetValue(param.Name, out var parentField))
                     {
                         subClientConstructorArgs.Add(parentField);
+                    }
+                    else if (param.Field?.WireInfo?.IsApiVersion == true)
+                    {
+                        var correspondingApiVersionField = _apiVersionFields?
+                            .FirstOrDefault(fieldData => fieldData.ServiceNamespace?.Equals(subClient._inputClient.Namespace) == true);
+                        if (correspondingApiVersionField != null)
+                        {
+                            subClientConstructorArgs.Add(correspondingApiVersionField.Field);
+                        }
                     }
                 }
 
@@ -1005,6 +1091,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
         }
 
+        /// Converts a URI template with named placeholders like "{Endpoint}/anomalydetector/{ApiVersion}"
+        /// to a formattable string format with indexed placeholders like "{0}/anomalydetector/{1}"
+        /// and returns the corresponding arguments.
+        private (string Template, List<ValueExpression> Args) ConvertUriTemplateToFormattableString(
+            string uriTemplate,
+            IReadOnlyList<ParameterProvider> parameters)
+        {
+            // Build a lookup for parameters by name (case-insensitive)
+            var paramsByName = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
+            foreach (var param in parameters)
+            {
+                paramsByName[param.Name] = param;
+            }
+
+            // Also add the endpoint parameter explicitly (it may have a different name)
+            if (!paramsByName.ContainsKey(_endpointParameter.Name))
+            {
+                paramsByName[_endpointParameter.Name] = _endpointParameter;
+            }
+
+            // Also add fields from _additionalClientFields
+            foreach (var field in _additionalClientFields.Value)
+            {
+                // Field names are like "_apiVersion", parameter names are like "ApiVersion"
+                var paramName = field.Name.TrimStart('_');
+                if (!paramsByName.ContainsKey(paramName))
+                {
+                    paramsByName[paramName] = field.AsParameter;
+                }
+            }
+
+            var args = new List<ValueExpression>();
+            var result = new System.Text.StringBuilder();
+            var templateSpan = uriTemplate.AsSpan();
+
+            while (templateSpan.Length > 0)
+            {
+                var openBrace = templateSpan.IndexOf('{');
+                if (openBrace < 0)
+                {
+                    // No more placeholders, append the rest
+                    result.Append(templateSpan);
+                    break;
+                }
+
+                // Append literal part before the placeholder
+                result.Append(templateSpan.Slice(0, openBrace));
+                templateSpan = templateSpan.Slice(openBrace + 1);
+
+                var closeBrace = templateSpan.IndexOf('}');
+                if (closeBrace < 0)
+                {
+                    // Malformed template, append remaining as-is
+                    result.Append('{');
+                    result.Append(templateSpan);
+                    break;
+                }
+
+                var paramName = templateSpan.Slice(0, closeBrace).ToString();
+                templateSpan = templateSpan.Slice(closeBrace + 1);
+
+                // Find the corresponding parameter or field
+                if (paramsByName.TryGetValue(paramName, out var param))
+                {
+                    result.Append('{');
+                    result.Append(args.Count);
+                    result.Append('}');
+                    args.Add(param.Field ?? (ValueExpression)param);
+                }
+                else
+                {
+                    // Parameter not found - this is a configuration error
+                    throw new InvalidOperationException(
+                        $"URI template placeholder '{{{paramName}}}' in '{uriTemplate}' could not be resolved. " +
+                        $"Available parameters: {string.Join(", ", paramsByName.Keys)}");
+                }
+            }
+
+            return (result.ToString(), args);
+        }
+
         private IReadOnlyList<ClientProvider> GetSubClients()
         {
             var subClients = new List<ClientProvider>(_inputClient.Children.Count);
@@ -1023,15 +1190,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<InputParameter> GetAllClientParameters()
         {
-            // Get all parameters from the client and its methods
+            // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters
             var parameters = _inputClient.Parameters.Concat(
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
-                    .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.Name).ToArray();
+                    .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
 
             foreach (var subClient in _subClients.Value)
             {
-                // Add parameters from sub-clients
-                parameters = parameters.Concat(subClient.GetAllClientParameters()).DistinctBy(p => p.Name).ToArray();
+                // Only hoist ApiVersion parameters from sub-clients; other sub-client parameters should remain on the sub-client.
+                // Auth parameters are handled separately via dedicated auth fields.
+                parameters = parameters.Concat(subClient.GetAllClientParameters().Where(p => p.IsApiVersion)).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
             }
 
             return parameters;

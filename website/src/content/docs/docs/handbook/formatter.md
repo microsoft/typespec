@@ -44,10 +44,10 @@ For VS Code to respect the TypeSpec standard style set the following options sty
 
 ```json title=.vscode/settings.json
 {
-  ["typespec"]: {
+  "[typespec]": {
     "editor.detectIndentation": false,
     "editor.insertSpaces": true,
-    "editor.tabSize": 2,
+    "editor.tabSize": 2
   }
 }
 ```

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 and OpenAPI 3.1 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec",
   "homepage": "https://typespec.io",
@@ -42,8 +42,8 @@
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "pnpm gen-version && pnpm gen-extern-signature && pnpm quickbuild && pnpm lint-typespec-library",
-    "quickbuild": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "quickbuild": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
@@ -63,8 +63,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@scalar/json-magic": "^0.8.2",
-    "@scalar/openapi-parser": "^0.23.3",
+    "@scalar/json-magic": "^0.9.1",
+    "@scalar/openapi-parser": "^0.24.1",
     "@scalar/openapi-types": "^0.5.0",
     "@typespec/asset-emitter": "workspace:^",
     "yaml": "~2.8.2"
