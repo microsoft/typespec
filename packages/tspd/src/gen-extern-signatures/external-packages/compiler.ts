@@ -6,7 +6,9 @@ export const typespecCompiler = createPackage({
   descriptor: {
     ".": {
       named: [
+        "Program",
         "DecoratorContext",
+        "FunctionContext",
         "Type",
         "Namespace",
         "Model",

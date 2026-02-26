@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -788,7 +789,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static MethodBodyStatement GetXmlDeserializationHookStatement(
+        private MethodBodyStatement GetXmlDeserializationHookStatement(
             string propertyName,
             IEnumerable<AttributeStatement> serializationAttributes,
             ValueExpression xmlValue,
@@ -807,7 +808,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         out _) && name == propertyName && deserializationHook != null)
                 {
                     hasHook = true;
-                    return Static().Invoke(deserializationHook, xmlValue, ByRef(variableExpression)).Terminate();
+                    var xmlValueTypeName = xmlValue is ScopedApi scopedApi ? scopedApi.Type.Name : nameof(XElement);
+                    var knownArgs = new (string TypeName, ValueExpression Argument)[]
+                    {
+                        (xmlValueTypeName, xmlValue),
+                        (nameof(ModelReaderWriterOptions), _serializationOptionsParameter)
+                    };
+                    var hookArgs = GetDeserializationHookArguments(deserializationHook, variableExpression, knownArgs);
+                    return Static().Invoke(deserializationHook, hookArgs).Terminate();
                 }
             }
 
