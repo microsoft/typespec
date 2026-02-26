@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -56,8 +57,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 && m.Signature.Parameters.Count == 3
                 && m.Signature.Parameters[1].Name == "rootNameHint");
             Assert.IsNotNull(fromEnumerableXmlMethod);
-            Assert.IsNotNull(fromEnumerableXmlMethod.BodyStatements);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), fromEnumerableXmlMethod.BodyStatements!.ToDisplayString());
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(binaryContentHelper, name => name == "FromEnumerable"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }
