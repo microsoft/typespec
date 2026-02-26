@@ -92,38 +92,35 @@ jobs:
               return
             fi
 
-            # Step 4: Use gh search to find PRs that affect specs path directly (avoids N+1 API calls)
-            local since
-            since=$(echo "$date_a" | cut -dT -f1)
-            local until_date
-            until_date=$(echo "$date_b" | cut -dT -f1)
-            echo "Searching for merged PRs between $since and $until_date in $repo affecting $specs_path"
+            # Step 4: Use GitHub commits API (supports path filtering, unlike gh search prs)
+            echo "Searching for commits between $date_a and $date_b in $repo affecting $specs_path"
 
-            local prs
-            prs=$(gh search prs "repo:${repo} is:pr is:merged merged:${since}..${until_date} path:${specs_path}/" --json number,url --limit 200 2>/dev/null || true)
+            local pr_numbers
+            pr_numbers=$(gh api "repos/${repo}/commits" \
+              --paginate \
+              -f path="${specs_path}" \
+              -f since="${date_a}" \
+              -f until="${date_b}" \
+              --jq '.[].commit.message' 2>/dev/null \
+              | grep -oP '\(#\K[0-9]+(?=\))' \
+              | sort -un || true)
 
-            if [ -z "$prs" ] || [ "$prs" = "null" ]; then
-              prs="[]"
+            if [ -z "$pr_numbers" ]; then
+              echo "No PRs found affecting specs path in date range, skipping"
+              return
             fi
 
             local pr_count
-            pr_count=$(echo "$prs" | jq 'length')
-            echo "Found $pr_count merged PRs affecting specs in date range"
-
-            if [ "$pr_count" -eq 0 ]; then
-              echo "No merged PRs affecting specs path in date range, skipping"
-              return
-            fi
+            pr_count=$(echo "$pr_numbers" | wc -l | tr -d ' ')
+            echo "Found $pr_count PRs affecting specs in date range"
 
             # Step 5: Fetch existing issues once (across all states) to avoid duplicate creation
             local existing_issues
             existing_issues=$(gh issue list --repo "$ISSUE_REPO" --state all --search "in:title [python] add test case" --json title --limit 200 2>/dev/null || echo "[]")
 
-            for i in $(seq 0 $((pr_count - 1))); do
-              local pr_number
-              pr_number=$(echo "$prs" | jq -r ".[$i].number")
-              local pr_url
-              pr_url=$(echo "$prs" | jq -r ".[$i].url")
+            while IFS= read -r pr_number; do
+              [ -z "$pr_number" ] && continue
+              local pr_url="https://github.com/${repo}/pull/${pr_number}"
 
               echo "PR #$pr_number affects specs: $pr_url"
 
@@ -147,7 +144,7 @@ jobs:
                 --assignee "copilot"
 
               echo "Created issue for PR $pr_url"
-            done
+            done <<< "$pr_numbers"
           }
 
           # Check both packages
