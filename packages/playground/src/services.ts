@@ -1,5 +1,6 @@
 import {
   TypeSpecLanguageConfiguration,
+  type Diagnostic,
   type DiagnosticTarget,
   type NoTarget,
   type ServerHost,
@@ -11,6 +12,24 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
 import { MonacoToLsp } from "./lsp/monaco-to-lsp.js";
 import type { BrowserHost } from "./types.js";
+
+// Module-level store for diagnostics used by the code action provider.
+// Updated on each playground compilation via updateDiagnosticsForCodeFixes().
+let _currentDiagnostics: readonly Diagnostic[] = [];
+let _currentCompiler: typeof import("@typespec/compiler") | undefined;
+
+/**
+ * Update the current diagnostics so the Monaco code action provider can
+ * surface codefixes for the playground's own compilation results.
+ * Call this after every compilation.
+ */
+export function updateDiagnosticsForCodeFixes(
+  compiler: typeof import("@typespec/compiler"),
+  diagnostics: readonly Diagnostic[],
+) {
+  _currentDiagnostics = diagnostics;
+  _currentCompiler = compiler;
+}
 
 function getIndentAction(
   value: "none" | "indent" | "indentOutdent" | "outdent",
@@ -306,17 +325,71 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     },
   });
 
-  // This doesn't actually work because the lsp is not aware of the diagnostics here as we make our own compilation in the playground.
-  // monaco.languages.registerCodeActionProvider("typespec", {
-  //   async provideCodeActions(model, range, context, token) {
-  //     const result = await serverLib.getCodeActions({
-  //       range: MonacoToLsp.range(range),
-  //       context: MonacoToLsp.codeActionContext(context),
-  //       textDocument: textDocumentForModel(model),
-  //     });
-  //     return { actions: result.map(LspToMonaco.codeAction), dispose: () => {} };
-  //   },
-  // });
+  // Register a code action provider that uses the playground's own compilation
+  // diagnostics (which include codefixes) rather than the LSP server diagnostics.
+  monaco.languages.registerCodeActionProvider("typespec", {
+    async provideCodeActions(model, range) {
+      const compiler = _currentCompiler;
+      if (!compiler) return { actions: [], dispose: () => {} };
+
+      const actions: monaco.languages.CodeAction[] = [];
+      for (const diag of _currentDiagnostics) {
+        if (!diag.codefixes?.length) continue;
+        const loc = compiler.getSourceLocation(diag.target, { locateId: true });
+        if (!loc || loc.file.path !== "/test/main.tsp") continue;
+        const monacoRange = getMonacoRange(compiler, diag.target);
+        if (!monacoRangesOverlap(monacoRange, range)) continue;
+
+        for (const fix of diag.codefixes) {
+          const edits = await compiler.resolveCodeFix(fix);
+          const workspaceEdits: monaco.languages.IWorkspaceTextEdit[] = edits
+            .filter((edit) => edit.file.path === "/test/main.tsp")
+            .map((edit) => {
+              const start = edit.file.getLineAndCharacterOfPosition(edit.pos);
+              if (edit.kind === "insert-text") {
+                return {
+                  resource: model.uri,
+                  textEdit: {
+                    range: {
+                      startLineNumber: start.line + 1,
+                      startColumn: start.character + 1,
+                      endLineNumber: start.line + 1,
+                      endColumn: start.character + 1,
+                    },
+                    text: edit.text,
+                  },
+                  versionId: undefined,
+                };
+              } else {
+                const end = edit.file.getLineAndCharacterOfPosition(edit.end);
+                return {
+                  resource: model.uri,
+                  textEdit: {
+                    range: {
+                      startLineNumber: start.line + 1,
+                      startColumn: start.character + 1,
+                      endLineNumber: end.line + 1,
+                      endColumn: end.character + 1,
+                    },
+                    text: edit.text,
+                  },
+                  versionId: undefined,
+                };
+              }
+            });
+
+          if (workspaceEdits.length > 0) {
+            actions.push({
+              title: fix.label,
+              kind: "quickfix",
+              edit: { edits: workspaceEdits },
+            });
+          }
+        }
+      }
+      return { actions, dispose: () => {} };
+    },
+  });
 
   monaco.editor.defineTheme("typespec", {
     base: "vs",
@@ -394,4 +467,17 @@ export function getMonacoRange(
     endLineNumber: end.line + 1,
     endColumn: end.character + 1,
   };
+}
+
+function monacoRangesOverlap(a: monaco.IRange, b: monaco.IRange): boolean {
+  if (a.endLineNumber < b.startLineNumber || b.endLineNumber < a.startLineNumber) {
+    return false;
+  }
+  if (a.endLineNumber === b.startLineNumber && a.endColumn < b.startColumn) {
+    return false;
+  }
+  if (b.endLineNumber === a.startLineNumber && b.endColumn < a.startColumn) {
+    return false;
+  }
+  return true;
 }
