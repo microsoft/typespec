@@ -398,23 +398,23 @@ namespace SampleTypeSpec
                     {
                         using (XmlReader reader = XmlReader.Create(stream, XmlReaderSettings))
                         {
-                            reader0.MoveToContent();
+                            reader.MoveToContent();
                             if (nameHint != null)
                             {
                                 writer.WriteStartElement(nameHint);
-                                reader0.ReadStartElement();
-                                while (reader0.NodeType != XmlNodeType.EndElement)
+                                reader.ReadStartElement();
+                                while (reader.NodeType != XmlNodeType.EndElement)
                                 {
-                                    writer.WriteNode(reader0, true);
+                                    writer.WriteNode(reader, true);
                                 }
                                 writer.WriteEndElement();
                             }
                             else
                             {
-                                reader0.ReadStartElement();
-                                while (reader0.NodeType != XmlNodeType.EndElement)
+                                reader.ReadStartElement();
+                                while (reader.NodeType != XmlNodeType.EndElement)
                                 {
-                                    writer.WriteNode(reader0, true);
+                                    writer.WriteNode(reader, true);
                                 }
                             }
                         }

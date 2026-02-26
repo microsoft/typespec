@@ -1863,9 +1863,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var elementModel = InputFactory.Model(
                 "SignedIdentifier",
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
-                properties: [InputFactory.Property("Id", InputPrimitiveType.String)]);
+                properties: [InputFactory.Property("Id", InputPrimitiveType.String)],
+                serializationOptions: InputFactory.Serialization.Options(
+                    xml: InputFactory.Serialization.Xml("SignedIdentifier")));
 
-            var arrayType = new InputArrayType("SignedIdentifiers", "TypeSpec.Array", elementModel);
+            var arrayType = InputFactory.Array(elementModel);
 
             var bodyParam = InputFactory.BodyParameter(
                 "body",
@@ -1913,9 +1915,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var elementModel = InputFactory.Model(
                 "SignedIdentifier",
                 usage: InputModelTypeUsage.Output | InputModelTypeUsage.Xml,
-                properties: [InputFactory.Property("Id", InputPrimitiveType.String)]);
+                properties: [InputFactory.Property("Id", InputPrimitiveType.String)],
+                serializationOptions: InputFactory.Serialization.Options(
+                    xml: InputFactory.Serialization.Xml("SignedIdentifier")));
 
-            var arrayType = new InputArrayType("SignedIdentifiers", "TypeSpec.Array", elementModel);
+            var arrayType = InputFactory.Array(elementModel);
 
             var operation = InputFactory.Operation(
                 "GetFoo",

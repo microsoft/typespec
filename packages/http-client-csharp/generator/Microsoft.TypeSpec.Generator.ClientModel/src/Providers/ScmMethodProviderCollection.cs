@@ -415,8 +415,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
             declarations = new Dictionary<string, ValueExpression> { { "value", defaultValue } };
 
-            var rootElementVarName = rootName.Substring(0, 1).ToLower() + rootName.Substring(1) + "Element";
-
             // Build the inner loop
             var arrayVar = new VariableExpression(listType, "array");
 
@@ -424,12 +422,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new UsingScopeStatement(typeof(Stream), "stream", data.ToStream(), out var streamVar)
                 {
                     Declare("document", typeof(XDocument), Static(typeof(XDocument)).Invoke(nameof(XDocument.Load), [streamVar, XmlLinqSnippets.PreserveWhitespace]), out var documentVar),
-                    new IfStatement(documentVar.Invoke(nameof(XDocument.Element), Literal(rootName)).Is(new DeclarationExpression(typeof(XElement), rootElementVarName, out var rootElementVar)))
+                    new IfStatement(documentVar.Invoke(nameof(XDocument.Element), Literal(rootName)).Is(Declare<XElement>("element", out var rootElementVar)))
                     {
                         Declare(arrayVar, New.Instance(listType)),
                         ForEachStatement.Create(
                             "item",
-                            rootElementVar.As<XElement>().Elements(Literal(childName)),
+                            rootElementVar.Elements(Literal(childName)),
                             out ScopedApi<XElement> item)
                             .Add(arrayVar.As(listType).Add(
                                 MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(

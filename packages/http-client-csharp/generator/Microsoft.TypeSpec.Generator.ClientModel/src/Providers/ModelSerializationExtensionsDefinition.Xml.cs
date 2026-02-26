@@ -197,10 +197,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var persistableModelType = new CSharpType(typeof(IPersistableModel<>), _t);
             var dataVar = new VariableExpression(typeof(BinaryData), "data");
 
-            // Share a single CodeWriterDeclaration so the using-scope variable and the
-            // statements that reference it resolve to the same name.
-            var readerDeclaration = new CodeWriterDeclaration("reader");
-            var readerVar = new VariableExpression(typeof(XmlReader), readerDeclaration);
+            // Create outer using scope to capture streamVar
+            var outerUsing = new UsingScopeStatement(typeof(Stream), "stream", dataVar.As<BinaryData>().ToStream(), out var streamVar);
+
+            // Create inner using scope to capture readerVar
+            var innerUsing = new UsingScopeStatement(
+                typeof(XmlReader),
+                "reader",
+                XmlReaderSnippets.Create(streamVar, new MemberExpression(null, XmlReaderSettingsFieldName)),
+                out var readerVar);
+
             var readerTyped = readerVar.As<XmlReader>();
             var writeNodeLoop = new WhileStatement(readerTyped.NodeType().NotEqual(new MemberExpression(typeof(XmlNodeType), nameof(XmlNodeType.EndElement))))
             {
@@ -225,6 +231,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 });
 
+            innerUsing.Add(readerTyped.MoveToContent());
+            innerUsing.Add(nameHintBranch);
+            outerUsing.Add(innerUsing);
+
             var persistableModelCase = new SwitchCaseStatement(
                 Declare("persistableModel", persistableModelType, out var persistableModelVar),
                 new MethodBodyStatement[]
@@ -238,17 +248,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire),
                                 ModelReaderWriterContextSnippets.Default
                             ])),
-                    new UsingScopeStatement(typeof(Stream), "stream", dataVar.As<BinaryData>().ToStream(), out var streamVar)
-                    {
-                        new UsingScopeStatement(
-                            typeof(XmlReader),
-                            readerDeclaration,
-                            XmlReaderSnippets.Create(streamVar, new MemberExpression(null, XmlReaderSettingsFieldName)))
-                        {
-                            readerTyped.MoveToContent(),
-                            nameHintBranch
-                        }
-                    },
+                    outerUsing,
                     Return()
                 });
 
