@@ -66,14 +66,21 @@ npm run lint 2> /dev/null || echo "No lint script for PACKAGE_NAME"
 
 If any step fails, report the error and stop. Do not proceed to changeset.
 
-### Step 3: Run format at repo root
+### Step 3: Run format and spell check at repo root
 
-After validating individual packages, run format at the repo root:
+After validating individual packages, run format and spell check at the repo root:
 
 ```bash
 cd ~/Desktop/github/typespec
+
+# Format all files
 pnpm format
+
+# Spell check
+pnpm cspell
 ```
+
+If spell check fails, either fix the typos or add words to the cspell dictionary.
 
 ### Step 4: Analyze changes for changeset message
 
