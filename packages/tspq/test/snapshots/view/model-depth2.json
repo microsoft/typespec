@@ -1,0 +1,102 @@
+{
+  "name": "Widget.Widget",
+  "kind": "Model",
+  "namespace": "Widget",
+  "description": "Widget model",
+  "details": {
+    "baseModel": null,
+    "derivedModels": [],
+    "properties": {
+      "id": {
+        "type": {
+          "name": "string",
+          "kind": "Scalar",
+          "namespace": "TypeSpec",
+          "description": "A sequence of textual characters.",
+          "details": {
+            "baseScalar": null,
+            "derivedScalars": [
+              {
+                "name": "url",
+                "kind": "Scalar",
+                "namespace": "TypeSpec",
+                "description": "Represent a URL string as described by https://url.spec.whatwg.org/",
+                "state": {
+                  "maps": {
+                    "Symbol(TypeSpec.docs)": {
+                      "value": "Represent a URL string as described by https://url.spec.whatwg.org/",
+                      "source": "comment"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Widget.WidgetId",
+                "kind": "Scalar",
+                "namespace": "Widget"
+              }
+            ]
+          },
+          "state": {
+            "maps": {
+              "Symbol(TypeSpec.docs)": {
+                "value": "A sequence of textual characters.",
+                "source": "comment"
+              }
+            }
+          }
+        },
+        "optional": false
+      },
+      "name": {
+        "type": {
+          "name": "string",
+          "kind": "Scalar",
+          "namespace": "TypeSpec",
+          "description": "A sequence of textual characters.",
+          "details": {
+            "baseScalar": null,
+            "derivedScalars": [
+              {
+                "name": "url",
+                "kind": "Scalar",
+                "namespace": "TypeSpec",
+                "description": "Represent a URL string as described by https://url.spec.whatwg.org/",
+                "state": {
+                  "maps": {
+                    "Symbol(TypeSpec.docs)": {
+                      "value": "Represent a URL string as described by https://url.spec.whatwg.org/",
+                      "source": "comment"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Widget.WidgetId",
+                "kind": "Scalar",
+                "namespace": "Widget"
+              }
+            ]
+          },
+          "state": {
+            "maps": {
+              "Symbol(TypeSpec.docs)": {
+                "value": "A sequence of textual characters.",
+                "source": "comment"
+              }
+            }
+          }
+        },
+        "optional": true
+      }
+    }
+  },
+  "state": {
+    "maps": {
+      "Symbol(TypeSpec.docs)": {
+        "value": "Widget model",
+        "source": "decorator"
+      }
+    }
+  }
+}

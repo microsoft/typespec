@@ -2391,6 +2391,34 @@ importers:
         specifier: ^4.0.15
         version: 4.0.17(@types/node@25.0.9)(@vitest/ui@4.0.17)(happy-dom@20.3.4)(jsdom@25.0.1)(tsx@4.21.0)(yaml@2.8.2)
 
+  packages/tspq:
+    dependencies:
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      picocolors:
+        specifier: ~1.1.1
+        version: 1.1.1
+      yargs:
+        specifier: ~18.0.0
+        version: 18.0.0
+    devDependencies:
+      '@types/node':
+        specifier: ~25.0.2
+        version: 25.0.9
+      '@types/yargs':
+        specifier: ~17.0.33
+        version: 17.0.35
+      rimraf:
+        specifier: ~6.1.2
+        version: 6.1.2
+      typescript:
+        specifier: ~5.9.2
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.15
+        version: 4.0.17(@types/node@25.0.9)(@vitest/ui@4.0.17)(happy-dom@20.3.4)(jsdom@25.0.1)(tsx@4.21.0)(yaml@2.8.2)
+
   packages/typespec-vs:
     devDependencies:
       '@typespec/internal-build-utils':
