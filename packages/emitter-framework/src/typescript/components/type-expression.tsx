@@ -1,11 +1,11 @@
+import { useDeclarationProvider } from "#core/context/declaration-provider.js";
 import { For } from "@alloy-js/core";
-import { Reference, ValueExpression } from "@alloy-js/typescript";
+import { ValueExpression } from "@alloy-js/typescript";
 import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { Experimental_OverridableComponent } from "../../core/components/overrides/component-overrides.jsx";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
-import { efRefkey } from "../utils/refkey.js";
 import { ArrayExpression } from "./array-expression.js";
 import { FunctionType } from "./function-type.js";
 import { InterfaceExpression } from "./interface-declaration.js";
@@ -30,11 +30,9 @@ export function TypeExpression(props: TypeExpressionProps) {
   return (
     <Experimental_OverridableComponent reference type={type}>
       {() => {
-        if (!props.noReference && isDeclaration($, type)) {
-          // todo: probably need abstraction around deciding what's a declaration in the output
-          // (it may not correspond to things which are declarations in TypeSpec?)
-          return <Reference refkey={efRefkey(type)} />;
-          //throw new Error("Reference not implemented");
+        const dp = useDeclarationProvider();
+        if (!props.noReference && dp.shouldReference(type)) {
+          return dp.getRefkey(type);
         }
 
         // TODO: Make sure this is an exhaustive switch, including EnumMember and such
@@ -158,28 +156,4 @@ function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType):
   }
 
   return tsType;
-}
-
-function isDeclaration($: Typekit, type: Type): boolean {
-  switch (type.kind) {
-    case "Namespace":
-    case "Interface":
-    case "Enum":
-    case "Operation":
-    case "EnumMember":
-      return true;
-    case "UnionVariant":
-      return false;
-
-    case "Model":
-      if ($.array.is(type) || $.record.is(type)) {
-        return false;
-      }
-
-      return Boolean(type.name);
-    case "Union":
-      return Boolean(type.name);
-    default:
-      return false;
-  }
 }

@@ -1,7 +1,7 @@
 import { code, mapJoin, refkey, useNamePolicy, type Children, type Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Discriminator, Model, Union } from "@typespec/compiler";
-import { useTsp } from "@typespec/emitter-framework";
+import { useDeclarationProvider, useTsp } from "@typespec/emitter-framework";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonTransformDiscriminatorProps {
@@ -82,8 +82,8 @@ export function JsonTransformDiscriminatorDeclaration(
     `json_${props.type.name}_to_${props.target}_discriminator`,
     "function",
   );
-
-  const typeRef = refkey(props.type);
+  const dp = useDeclarationProvider();
+  const typeRef = dp.getRefkey(props.type);
   const returnType = props.target === "transport" ? "any" : typeRef;
   const inputType = props.target === "transport" ? typeRef : "any";
   const inputRef = refkey();

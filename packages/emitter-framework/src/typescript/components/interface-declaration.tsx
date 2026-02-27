@@ -1,3 +1,5 @@
+import { useDeclarationProvider } from "#core/context/declaration-provider.js";
+import { joinRefkeys } from "#typescript/utils/refkey.js";
 import { type Children, For, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
@@ -12,7 +14,6 @@ import type { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
-import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
@@ -40,8 +41,8 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   }
 
   name = namePolicy.getName(name, "interface");
-
-  const refkeys = declarationRefkeys(props.refkey, props.type);
+  const dp = useDeclarationProvider();
+  const refkeys = joinRefkeys(props.refkey, dp.getRefkey(props.type));
 
   const extendsType = props.extends ?? getExtendsType($, props.type);
   const doc = props.doc ?? $.type.getDoc(props.type);
@@ -83,7 +84,7 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
   if (!$.model.is(type)) {
     return undefined;
   }
-
+  const dp = useDeclarationProvider();
   const extending: Children[] = [];
 
   if (type.baseModel) {
@@ -94,7 +95,7 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
       // Instead of extending we need to create an envelope property
       // do nothing here.
     } else {
-      extending.push(efRefkey(type.baseModel));
+      extending.push(dp.getRefkey(type.baseModel));
     }
   }
 

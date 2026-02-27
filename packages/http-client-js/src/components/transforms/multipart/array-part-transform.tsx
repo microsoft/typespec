@@ -1,5 +1,4 @@
-import { code } from "@alloy-js/core";
-import { Children } from "@alloy-js/core/jsx-runtime";
+import { Children, code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { HttpOperationPart } from "@typespec/http";
 import { HttpPartTransform } from "./part-transform.jsx";
