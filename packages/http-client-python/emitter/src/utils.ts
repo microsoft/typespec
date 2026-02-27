@@ -262,6 +262,7 @@ export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
 
+// Library namespaces that should not be used as client namespaces
 const LIB_NAMESPACE = [
   "azure.core",
   "azure.resourcemanager",
@@ -272,29 +273,25 @@ const LIB_NAMESPACE = [
 ];
 
 export function getRootNamespace(context: PythonSdkContext): string {
-  let rootNamespace = "";
   if (context.sdkPackage.clients.length > 0) {
-    rootNamespace = context.sdkPackage.clients[0].namespace;
-  } else if (context.sdkPackage.models.length > 0) {
-    const result = context.sdkPackage.models
-      .map((model) => model.namespace)
-      .filter((namespace) => !LIB_NAMESPACE.includes(namespace));
-    if (result.length > 0) {
-      result.sort();
-      rootNamespace = result[0];
-    }
+    return context.sdkPackage.clients[0].namespace.toLowerCase();
   } else if (context.sdkPackage.namespaces.length > 0) {
-    rootNamespace = context.sdkPackage.namespaces[0].fullName;
+    return context.sdkPackage.namespaces[0].fullName.toLowerCase();
   }
+  return "";
+}
 
-  return rootNamespace.toLowerCase();
+function isLibraryNamespace(namespace: string): boolean {
+  const ns = namespace.toLowerCase();
+  return LIB_NAMESPACE.some((lib) => ns.startsWith(lib));
 }
 
 export function getClientNamespace(context: PythonSdkContext, clientNamespace: string) {
-  if (
-    clientNamespace === "" ||
-    LIB_NAMESPACE.some((item) => clientNamespace.toLowerCase().startsWith(item))
-  ) {
+  // Namespace precedence: @clientNamespace > --namespace > original namespace
+  // These are resolved by TCGC and passed in as clientNamespace.
+  // However, models from library namespaces (azure.core, azure.resourcemanager, etc.)
+  // should use the SDK's root namespace instead.
+  if (clientNamespace === "" || isLibraryNamespace(clientNamespace)) {
     return getRootNamespace(context);
   }
   return clientNamespace.toLowerCase();
