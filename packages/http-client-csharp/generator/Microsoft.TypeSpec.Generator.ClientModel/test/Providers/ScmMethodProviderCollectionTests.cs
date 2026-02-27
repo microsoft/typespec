@@ -1855,5 +1855,146 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.AreEqual(expectedMethodBody, methodBody);
         }
+
+        [Test]
+        public void ConvenienceMethod_XmlListBody_UsesXmlFromEnumerable()
+        {
+            // Create a model with XML serialization options
+            var elementModel = InputFactory.Model(
+                "SignedIdentifier",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Id", InputPrimitiveType.String)],
+                serializationOptions: InputFactory.Serialization.Options(
+                    xml: InputFactory.Serialization.Xml("SignedIdentifier")));
+
+            var arrayType = InputFactory.Array(elementModel);
+
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                arrayType,
+                isRequired: true,
+                serializedName: "SignedIdentifiers",
+                contentTypes: ["application/xml"],
+                defaultContentType: "application/xml");
+            var methodBodyParam = InputFactory.MethodParameter(
+                "body",
+                arrayType,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "Foo",
+                httpMethod: "POST",
+                parameters: [bodyParam],
+                requestMediaTypes: ["application/xml"],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Foo", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [elementModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Parameters.All(p => p.Name != "options") &&
+                m.Signature.Name == "Foo");
+
+            Assert.IsNotNull(convenienceMethod);
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var expectedMethodBody = Helpers.GetExpectedFromFile();
+
+            Assert.AreEqual(expectedMethodBody, methodBody);
+        }
+
+        [Test]
+        public void ConvenienceMethod_XmlListResponse_UsesXDocumentDeserialization()
+        {
+            // Create a model with XML serialization options
+            var elementModel = InputFactory.Model(
+                "SignedIdentifier",
+                usage: InputModelTypeUsage.Output | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Id", InputPrimitiveType.String)],
+                serializationOptions: InputFactory.Serialization.Options(
+                    xml: InputFactory.Serialization.Xml("SignedIdentifier")));
+
+            var arrayType = InputFactory.Array(elementModel);
+
+            var operation = InputFactory.Operation(
+                "GetFoo",
+                httpMethod: "GET",
+                responses: [InputFactory.OperationResponse([200], bodytype: arrayType, contentTypes: ["application/xml"])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetFoo",
+                operation,
+                response: InputFactory.ServiceMethodResponse(arrayType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [elementModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Parameters.All(p => p.Name != "options") &&
+                m.Signature.Name == "GetFoo");
+
+            Assert.IsNotNull(convenienceMethod);
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var expectedMethodBody = Helpers.GetExpectedFromFile();
+
+            Assert.AreEqual(expectedMethodBody, methodBody);
+        }
+
+        [Test]
+        public void ConvenienceMethod_JsonListBody_DoesNotUseXmlFromEnumerable()
+        {
+            // Ensure that JSON list body parameters continue to use the standard JSON FromEnumerable
+            var elementModel = InputFactory.Model(
+                "Item",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+
+            var arrayType = InputFactory.Array(elementModel);
+
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                arrayType,
+                isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter(
+                "body",
+                arrayType,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "Foo",
+                httpMethod: "POST",
+                parameters: [bodyParam],
+                requestMediaTypes: ["application/json"],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Foo", operation, parameters: [methodBodyParam]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [elementModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Parameters.All(p => p.Name != "options") &&
+                m.Signature.Name == "Foo");
+
+            Assert.IsNotNull(convenienceMethod);
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+
+            // Ensure the method body uses the standard JSON FromEnumerable (no rootNameHint/childNameHint)
+            Assert.IsTrue(methodBody.Contains("BinaryContentHelper.FromEnumerable(body)"));
+            Assert.IsFalse(methodBody.Contains("rootNameHint"));
+            Assert.IsFalse(methodBody.Contains("childNameHint"));
+        }
     }
 }
