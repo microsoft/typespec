@@ -293,7 +293,7 @@ namespace ModelProperties {
 /**
  * Verify enum member names that are special words using extensible enum (union).
  */
-union Enum {
+union ExtensibleString {
   string,
   and: "and",
   as: "as",
@@ -342,5 +342,5 @@ interface Enums {
     """)
   @put
   @route("/string")
-  putEnumValue(@body body: Enum): Enum;
+  putEnumValue(@body body: ExtensibleString): ExtensibleString;
 }
