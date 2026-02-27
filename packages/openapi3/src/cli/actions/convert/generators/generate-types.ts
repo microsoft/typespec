@@ -10,6 +10,7 @@ import {
   getDecoratorsForSchema,
   normalizeObjectValueToTSValueExpression,
 } from "../utils/decorators.js";
+import { generateDocs } from "../utils/docs.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { generateDecorators } from "./generate-decorators.js";
 
@@ -493,6 +494,9 @@ export class SchemaToExpressionGenerator {
     if (schema.properties) {
       for (const name of Object.keys(schema.properties)) {
         const originalPropSchema = schema.properties[name];
+        const description = schema.properties[name].description
+          ? generateDocs(schema.properties[name].description)
+          : "";
         const isEnumType = !!context && isReferencedEnumType(originalPropSchema, context);
         const isUnionType = !!context && isReferencedUnionType(originalPropSchema, context);
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
@@ -505,7 +509,7 @@ export class SchemaToExpressionGenerator {
           .join("");
         const isOptional = !requiredProps.includes(name) ? "?" : "";
         props.push(
-          `${decorators}${printIdentifier(name)}${isOptional}: ${this.getPartType(propType, name, isHttpPart, encoding, isEnumType, isUnionType)}`,
+          `${description}${decorators}${printIdentifier(name)}${isOptional}: ${this.getPartType(propType, name, isHttpPart, encoding, isEnumType, isUnionType)}`,
         );
       }
     }
