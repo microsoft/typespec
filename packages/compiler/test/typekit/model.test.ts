@@ -1,5 +1,5 @@
-import { assert, expect, it } from "vitest";
-import { Operation } from "../../src/index.js";
+import { assert, describe, expect, it } from "vitest";
+import { Model, Operation } from "../../src/index.js";
 import { expectDiagnostics } from "../../src/testing/expect.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper } from "../../src/testing/test-utils.js";
@@ -111,5 +111,94 @@ it("can get diagnostics from getDiscriminatedUnion", async () => {
   const [, diagnostics] = $(runner.program).model.getDiscriminatedUnion.withDiagnostics(Pet);
   expectDiagnostics(diagnostics, {
     code: "missing-discriminator-property",
+  });
+});
+
+describe("inline named models", () => {
+  it("recognizes an inline named model as a Model", async () => {
+    const {
+      Child,
+      context: { program },
+    } = await getTypes(
+      `
+      model Parent {
+        child: model Child {
+          name: string;
+        };
+      }
+      `,
+      ["Child"],
+    );
+
+    expect($(program).model.is(Child)).toBe(true);
+    expect((Child as Model).name).toBe("Child");
+  });
+
+  it("inline named model properties are accessible", async () => {
+    const { Child } = await getTypes(
+      `
+      model Parent {
+        child: model Child {
+          name: string;
+          age: int32;
+        };
+      }
+      `,
+      ["Child"],
+    );
+
+    const childModel = Child as Model;
+    expect(childModel.properties.size).toBe(2);
+    expect(childModel.properties.has("name")).toBe(true);
+    expect(childModel.properties.has("age")).toBe(true);
+  });
+
+  it("can get the effective model from spread inline named model", async () => {
+    const {
+      Child,
+      doSomething,
+      context: { program },
+    } = await getTypes(
+      `
+      model Parent {
+        child: model Child {
+          id: string;
+        };
+      }
+
+      op doSomething(...Child): void;
+      `,
+      ["Child", "doSomething"],
+    );
+
+    const opParams = (doSomething as Operation).parameters;
+    const model = $(program).model.getEffectiveModel(opParams);
+
+    expect(opParams).not.toBe(Child);
+    expect(model).toBe(Child);
+  });
+
+  it("nested inline named models are both recognized", async () => {
+    const {
+      Child,
+      Grandchild,
+      context: { program },
+    } = await getTypes(
+      `
+      model Parent {
+        child: model Child {
+          grandchild: model Grandchild {
+            value: int32;
+          };
+        };
+      }
+      `,
+      ["Child", "Grandchild"],
+    );
+
+    expect($(program).model.is(Child)).toBe(true);
+    expect($(program).model.is(Grandchild)).toBe(true);
+    expect((Child as Model).name).toBe("Child");
+    expect((Grandchild as Model).name).toBe("Grandchild");
   });
 });
