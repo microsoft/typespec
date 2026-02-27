@@ -12,7 +12,7 @@ import { join } from "path";
 import { parseArgs } from "util";
 import { repoRoot } from "../../common/scripts/utils/common.js";
 import { listChangedFilesSince } from "../../common/scripts/utils/git.js";
-import { getAllPackages, type PackageInfo } from "./packages.js";
+import { CRITICAL_PACKAGES, getAllPackages, type PackageInfo } from "./packages.js";
 
 async function getModifiedPackages(since: string): Promise<PackageInfo[]> {
   const files = await listChangedFilesSince(since, { repositoryPath: repoRoot });
@@ -58,6 +58,17 @@ function installPackages(packages: PackageInfo[]): void {
   }
 }
 
+function buildPnpmFilterArgs(packages: PackageInfo[]): string {
+  // Place critical packages first in the filter list to ensure correct build order.
+  // When using many --filter flags, pnpm may not properly resolve the dependency
+  // graph across all filters. By listing critical packages first, we ensure they
+  // (and their transitive dependencies via "...") are scheduled before dependents.
+  const criticalSet = new Set(CRITICAL_PACKAGES);
+  const critical = packages.filter((p) => criticalSet.has(p.path));
+  const rest = packages.filter((p) => !criticalSet.has(p.path));
+  return [...critical, ...rest].map((p) => `--filter "./${p.path}..."`).join(" ");
+}
+
 function buildPackages(packages: PackageInfo[]): void {
   const pnpmPackages = packages.filter((p) => !p.isStandalone);
   const standalonePackages = packages.filter((p) => p.isStandalone);
@@ -65,7 +76,7 @@ function buildPackages(packages: PackageInfo[]): void {
   // Build pnpm packages using pnpm filter
   if (pnpmPackages.length > 0) {
     console.log("\n=== Building pnpm packages ===");
-    const filters = pnpmPackages.map((p) => `--filter "./${p.path}..."`).join(" ");
+    const filters = buildPnpmFilterArgs(pnpmPackages);
     runCommand(`pnpm ${filters} run build`, repoRoot);
   }
 
