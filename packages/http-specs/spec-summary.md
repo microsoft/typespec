@@ -3977,9 +3977,9 @@ Expected header parameters:
 
 Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
 
-### SpecialWords_Enums_putEnumValue
+### SpecialWords_ExtensibleStrings_putExtensibleStringValue
 
-- Endpoint: `put /special-words/enums/string`
+- Endpoint: `put /special-words/extensible-strings/string`
 
 Verify that enum members with special word names can be sent and received properly.
 Send 'class' and expect the same value back.

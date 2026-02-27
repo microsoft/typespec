@@ -333,8 +333,8 @@ union ExtensibleString {
 /**
  * Verify enum member names that are special words.
  */
-@route("/enums")
-interface Enums {
+@route("/extensible-strings")
+interface ExtensibleStrings {
   @scenario
   @scenarioDoc("""
     Verify that enum members with special word names can be sent and received properly.
@@ -342,5 +342,5 @@ interface Enums {
     """)
   @put
   @route("/string")
-  putEnumValue(@body body: ExtensibleString): ExtensibleString;
+  putExtensibleStringValue(@body body: ExtensibleString): ExtensibleString;
 }

@@ -420,8 +420,8 @@ Scenarios.SpecialWords_Parameters_cancellationToken = createParametersTests(
   "cancellationToken",
 );
 
-Scenarios.SpecialWords_Enums_putEnumValue = passOnSuccess({
-  uri: `/special-words/enums/string`,
+Scenarios.SpecialWords_ExtensibleStrings_putExtensibleStringValue = passOnSuccess({
+  uri: `/special-words/extensible-strings/string`,
   method: "put",
   request: {
     body: json("class"),
