@@ -229,7 +229,11 @@ function serializeScalarValueAsJson(
 
   const result = resolveKnownScalar(program, value.scalar);
   if (result === undefined) {
-    return serializeValueAsJson(program, value.value.args[0], value.value.args[0].type);
+    const firstArg = value.value.args[0];
+    if (firstArg === undefined) {
+      return undefined;
+    }
+    return serializeValueAsJson(program, firstArg, firstArg.type);
   }
 
   encodeAs = encodeAs ?? result.encodeAs;

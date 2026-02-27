@@ -275,6 +275,19 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
     expect(res.schemas.Pet.properties.name.default).toEqual("Shorty");
   });
 
+  it("scalar with no-argument initializer used as a default value does not crash", async () => {
+    const res = await oapiForModel(
+      "M",
+      `
+        scalar S { init i(); }
+
+        model M { p: S = S.i(); }
+      `,
+    );
+
+    expect(res.schemas.M.properties.p.default).toBeUndefined();
+  });
+
   it("encode know scalar as a default value", async () => {
     const res = await oapiForModel(
       "Test",
