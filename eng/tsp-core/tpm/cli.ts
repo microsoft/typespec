@@ -12,7 +12,7 @@ import { join } from "path";
 import { parseArgs } from "util";
 import { repoRoot } from "../../common/scripts/utils/common.js";
 import { listChangedFilesSince } from "../../common/scripts/utils/git.js";
-import { getAllPackages, type PackageInfo } from "./packages.js";
+import { CRITICAL_PACKAGES, getAllPackages, type PackageInfo } from "./packages.js";
 
 async function getModifiedPackages(since: string): Promise<PackageInfo[]> {
   const files = await listChangedFilesSince(since, { repositoryPath: repoRoot });
@@ -58,6 +58,23 @@ function installPackages(packages: PackageInfo[]): void {
   }
 }
 
+function buildPnpmFilterArgs(packages: PackageInfo[]): string {
+  // Place critical packages first in the filter list to ensure correct build order.
+  // When using many --filter flags, pnpm may not properly resolve the dependency
+  // graph across all filters. By listing critical packages first, we ensure they
+  // (and their transitive dependencies via "...") are scheduled before dependents.
+  const criticalFilters = CRITICAL_PACKAGES.map((name) => `--filter "${name}..."`);
+  // Build a set of directory names that correspond to critical packages so we
+  // don't duplicate them in the filter list (e.g. "@typespec/tspd" → "tspd").
+  const criticalDirNames = new Set(
+    CRITICAL_PACKAGES.map((name) => name.replace(/^@typespec\//, "")),
+  );
+  const restFilters = packages
+    .filter((p) => !criticalDirNames.has(p.name))
+    .map((p) => `--filter "./${p.path}..."`);
+  return [...criticalFilters, ...restFilters].join(" ");
+}
+
 function buildPackages(packages: PackageInfo[]): void {
   const pnpmPackages = packages.filter((p) => !p.isStandalone);
   const standalonePackages = packages.filter((p) => p.isStandalone);
@@ -65,7 +82,7 @@ function buildPackages(packages: PackageInfo[]): void {
   // Build pnpm packages using pnpm filter
   if (pnpmPackages.length > 0) {
     console.log("\n=== Building pnpm packages ===");
-    const filters = pnpmPackages.map((p) => `--filter "./${p.path}..."`).join(" ");
+    const filters = buildPnpmFilterArgs(pnpmPackages);
     runCommand(`pnpm ${filters} run build`, repoRoot);
   }
 
