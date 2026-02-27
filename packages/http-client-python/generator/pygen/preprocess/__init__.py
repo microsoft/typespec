@@ -21,7 +21,6 @@ from ..utils import (
     get_body_type_for_description,
     JSON_REGEXP,
     KNOWN_TYPES,
-    update_enum_value,
 )
 
 
