@@ -64,9 +64,13 @@ function buildPnpmFilterArgs(packages: PackageInfo[]): string {
   // graph across all filters. By listing critical packages first, we ensure they
   // (and their transitive dependencies via "...") are scheduled before dependents.
   const criticalFilters = CRITICAL_PACKAGES.map((name) => `--filter "${name}..."`);
-  const criticalSet = new Set(CRITICAL_PACKAGES);
+  // Build a set of directory names that correspond to critical packages so we
+  // don't duplicate them in the filter list (e.g. "@typespec/tspd" → "tspd").
+  const criticalDirNames = new Set(
+    CRITICAL_PACKAGES.map((name) => name.replace(/^@typespec\//, "")),
+  );
   const restFilters = packages
-    .filter((p) => !criticalSet.has(p.name))
+    .filter((p) => !criticalDirNames.has(p.name))
     .map((p) => `--filter "./${p.path}..."`);
   return [...criticalFilters, ...restFilters].join(" ");
 }
