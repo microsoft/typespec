@@ -515,6 +515,186 @@ class TestXmlDeserialization:
         assert isinstance(result.filter, CorrelationFilter)
         assert result.filter.correlation_id == 12
 
+    def test_enumeration_results(self):
+        """Test deserializing an Azure Blob Storage EnumerationResults XML payload."""
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="acontainer108f32e8"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
+
+        class EnumerationResults(Model):
+            service_endpoint: str = rest_field(
+                name="ServiceEndpoint", xml={"name": "ServiceEndpoint", "attribute": True}
+            )
+            container_name: str = rest_field(name="ContainerName", xml={"name": "ContainerName", "attribute": True})
+            delimiter: str = rest_field(name="Delimiter", xml={"name": "Delimiter"})
+            blobs: list[str] = rest_field(name="Blobs", xml={"name": "Blobs"})
+            next_marker: str = rest_field(name="NextMarker", xml={"name": "NextMarker"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "EnumerationResults"}
+
+        result = _deserialize_xml(EnumerationResults, xml_payload)
+
+        assert result.service_endpoint == "https://service.blob.core.windows.net/"
+        assert result.container_name == "acontainer108f32e8"
+        assert result.delimiter == "/"
+        assert result.blobs == []
+        assert result.next_marker == ""
+
+    def test_enumeration_results_nested_empty_list(self):
+        """Test deserializing XML where a container element holds a nested empty list (e.g. Blobs/BlobPrefixes)."""
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="acontainer"><Delimiter>/</Delimiter><Blobs><BlobPrefixes /></Blobs><NextMarker /></EnumerationResults>'
+
+        class BlobPrefix(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "BlobPrefix"}
+
+        class BlobsSegment(Model):
+            blob_prefixes: list[BlobPrefix] = rest_field(
+                name="BlobPrefixes", xml={"name": "BlobPrefixes", "itemsName": "BlobPrefix"}
+            )
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Blobs"}
+
+        class EnumerationResults(Model):
+            service_endpoint: str = rest_field(
+                name="ServiceEndpoint", xml={"name": "ServiceEndpoint", "attribute": True}
+            )
+            container_name: str = rest_field(name="ContainerName", xml={"name": "ContainerName", "attribute": True})
+            delimiter: str = rest_field(name="Delimiter", xml={"name": "Delimiter"})
+            blobs: BlobsSegment = rest_field(name="Blobs", xml={"name": "Blobs"})
+            next_marker: str = rest_field(name="NextMarker", xml={"name": "NextMarker"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "EnumerationResults"}
+
+        result = _deserialize_xml(EnumerationResults, xml_payload)
+
+        assert result.service_endpoint == "https://service.blob.core.windows.net/"
+        assert result.container_name == "acontainer"
+        assert result.delimiter == "/"
+        assert result.blobs.blob_prefixes == []
+        assert result.next_marker == ""
+
+    def test_enumeration_results_azure_sdk_pattern(self):
+        """Test the real Azure SDK model pattern where BlobsSegment has two unwrapped list fields."""
+        # Both blob_prefixes and blob_items are unwrapped lists (items appear directly in <Blobs>).
+        # With <Blobs />, no matching children are found so both are None.
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="acontainer"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
+
+        class BlobPrefix(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "BlobPrefix"}
+
+        class BlobItem(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Blob"}
+
+        class BlobsSegment(Model):
+            blob_prefixes: list[BlobPrefix] = rest_field(
+                name="blob_prefixes", xml={"name": "BlobPrefix", "unwrapped": True}
+            )
+            blob_items: list[BlobItem] = rest_field(name="blob_items", xml={"name": "Blob", "unwrapped": True})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Blobs"}
+
+        class EnumerationResults(Model):
+            service_endpoint: str = rest_field(
+                name="ServiceEndpoint", xml={"name": "ServiceEndpoint", "attribute": True}
+            )
+            container_name: str = rest_field(name="ContainerName", xml={"name": "ContainerName", "attribute": True})
+            delimiter: str = rest_field(name="Delimiter", xml={"name": "Delimiter"})
+            blobs: BlobsSegment = rest_field(name="Blobs", xml={"name": "Blobs"})
+            next_marker: str = rest_field(name="NextMarker", xml={"name": "NextMarker"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "EnumerationResults"}
+
+        result = _deserialize_xml(EnumerationResults, xml_payload)
+
+        assert result.service_endpoint == "https://service.blob.core.windows.net/"
+        assert result.container_name == "acontainer"
+        assert result.delimiter == "/"
+        assert isinstance(result.blobs, BlobsSegment)
+        # With <Blobs />, no <BlobPrefix> or <Blob> children exist → unwrapped empty lists stay None
+        assert result.blobs.blob_prefixes is None
+        assert result.blobs.blob_items is None
+        assert result.next_marker == ""
+
+    def test_enumeration_results_blobs_unwrapped(self):
+        """Test what happens when the blobs field itself is declared with unwrapped=True."""
+        # When a non-list model field uses unwrapped=True, the matching XML elements are collected
+        # as a list and stored as-is (the field receives a list of ET.Element objects).
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="acontainer"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
+
+        class BlobPrefix(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "BlobPrefix"}
+
+        class BlobsSegment(Model):
+            blob_prefixes: list[BlobPrefix] = rest_field(
+                name="BlobPrefixes", xml={"name": "BlobPrefixes", "itemsName": "BlobPrefix"}
+            )
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Blobs"}
+
+        class EnumerationResults(Model):
+            service_endpoint: str = rest_field(
+                name="ServiceEndpoint", xml={"name": "ServiceEndpoint", "attribute": True}
+            )
+            container_name: str = rest_field(name="ContainerName", xml={"name": "ContainerName", "attribute": True})
+            delimiter: str = rest_field(name="Delimiter", xml={"name": "Delimiter"})
+            # unwrapped=True on a model-typed field: the deserialization collects matching XML
+            # elements as a list (rather than deserializing them into the model).
+            blobs: BlobsSegment = rest_field(name="Blobs", xml={"name": "Blobs", "unwrapped": True})
+            next_marker: str = rest_field(name="NextMarker", xml={"name": "NextMarker"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "EnumerationResults"}
+
+        result = _deserialize_xml(EnumerationResults, xml_payload)
+
+        assert result.service_endpoint == "https://service.blob.core.windows.net/"
+        assert result.container_name == "acontainer"
+        assert result.delimiter == "/"
+        # unwrapped=True on a model field collects matching elements; <Blobs /> is found so it
+        # returns a list containing the raw ET.Element instead of a deserialized BlobsSegment.
+        assert isinstance(result.blobs, list)
+        assert len(result.blobs) == 1
+        assert isinstance(result.blobs[0], ET.Element)
+        assert result.next_marker == ""
+
 
 class TestXmlSerialization:
     def test_basic(self):
