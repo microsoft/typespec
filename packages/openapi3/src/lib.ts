@@ -6,7 +6,7 @@ export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON.
-   * @default yaml, it not specified infer from the `output-file` extension
+   * @default yaml, if not specified infer from the `output-file` extension
    */
 
   "file-type"?: FileType;

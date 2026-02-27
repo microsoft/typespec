@@ -461,4 +461,4 @@ The various language emitters will live in the in the repo under the following d
 There is a goal to be able to ship these emitter packages independent from the rest of the packages in this repo as such they by default be excluded from the root pnpm workspace. Any npm package work
 will be isolated to those directories with a goal of eventually moving to a consistent model so that we can both work in isolation as well as work as a E2E.
 
-For language specific contributing information look for the contributing.md file in that specific lanague emitter folder.
+For language specific contributing information look for the contributing.md file in that specific language emitter folder.

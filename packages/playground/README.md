@@ -8,7 +8,7 @@ It can be used as a standalone custom playground with your own libraries or comp
 
 ### Standalone
 
-The stanalone playground provides some vite helpers to make it easy to get started.
+The standalone playground provides some vite helpers to make it easy to get started.
 
 In `vite.config.ts`:
 
