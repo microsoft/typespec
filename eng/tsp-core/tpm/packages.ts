@@ -25,10 +25,7 @@ const EXCLUDED_PACKAGES = [
  * Many packages run `tspd gen-extern-signature` during their build and need tspd
  * (and its dependency prettier-plugin-typespec) to already be available.
  */
-export const CRITICAL_PACKAGES = [
-  "@typespec/prettier-plugin-typespec",
-  "@typespec/tspd",
-];
+export const CRITICAL_PACKAGES = ["@typespec/prettier-plugin-typespec", "@typespec/tspd"];
 
 export interface PackageInfo {
   name: string;
