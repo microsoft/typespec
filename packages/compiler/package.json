@@ -118,6 +118,7 @@
     "semver": "^7.7.1",
     "tar": "^7.5.2",
     "temporal-polyfill": "^0.3.0",
+    "undici": "^7.18.2",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.12",
     "yaml": "~2.8.2",

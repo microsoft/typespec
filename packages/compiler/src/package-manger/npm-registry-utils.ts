@@ -2,12 +2,9 @@
 import { execSync } from "child_process";
 import { createHash } from "crypto";
 import { readFileSync } from "fs";
-import * as http from "http";
-import * as https from "https";
-import * as net from "net";
 import { Readable } from "stream";
-import * as tls from "tls";
 import { extract as tarX } from "tar/extract";
+import { Agent, type Dispatcher, ProxyAgent, fetch } from "undici";
 import { Hash } from "../install/spec.js";
 
 /** Manifest of a single package version. */
@@ -176,186 +173,40 @@ export function readNpmConfig(): NpmFetchConfig {
 }
 
 /**
- * Determines the effective proxy URL for a given request URL, accounting for the noProxy list.
- * Returns `undefined` if no proxy should be used.
+ * Returns true if the given hostname is covered by the no-proxy list.
  */
-function getEffectiveProxy(urlObj: URL, config: NpmFetchConfig): URL | undefined {
-  const isHttps = urlObj.protocol === "https:";
-  const proxyStr = isHttps ? config.httpsProxy : config.proxy;
-  if (!proxyStr) return undefined;
-
-  // Check noproxy list
-  if (config.noProxy) {
-    const host = urlObj.hostname.toLowerCase();
-    for (const entry of config.noProxy.split(",").map((s) => s.trim().toLowerCase())) {
-      if (entry === "*" || host === entry || host.endsWith(`.${entry}`)) {
-        return undefined;
-      }
-    }
+function isHostInNoProxy(hostname: string, noProxy?: string): boolean {
+  if (!noProxy) return false;
+  const host = hostname.toLowerCase();
+  for (const entry of noProxy.split(",").map((s) => s.trim().toLowerCase())) {
+    if (entry === "*" || host === entry || host.endsWith(`.${entry}`)) return true;
   }
-
-  try {
-    return new URL(proxyStr);
-  } catch {
-    return undefined;
-  }
+  return false;
 }
 
 /**
- * Creates an HTTP CONNECT tunnel through an HTTP proxy to a target host:port.
- * Returns the underlying socket that is ready for TLS wrapping.
- */
-function createConnectTunnel(
-  proxyUrl: URL,
-  targetHost: string,
-  targetPort: number,
-): Promise<net.Socket> {
-  return new Promise((resolve, reject) => {
-    const proxyPort = Number(proxyUrl.port) || (proxyUrl.protocol === "https:" ? 443 : 80);
-    const req = http.request({
-      host: proxyUrl.hostname,
-      port: proxyPort,
-      method: "CONNECT",
-      path: `${targetHost}:${targetPort}`,
-      headers: { Host: `${targetHost}:${targetPort}` },
-    });
-
-    // Add proxy authentication if credentials are present in the proxy URL
-    if (proxyUrl.username || proxyUrl.password) {
-      const auth = Buffer.from(
-        `${decodeURIComponent(proxyUrl.username)}:${decodeURIComponent(proxyUrl.password)}`,
-      ).toString("base64");
-      req.setHeader("Proxy-Authorization", `Basic ${auth}`);
-    }
-
-    req.on("connect", (res, socket) => {
-      if (res.statusCode !== 200) {
-        socket.destroy();
-        reject(new Error(`Proxy CONNECT failed with status ${res.statusCode}`));
-        return;
-      }
-      resolve(socket);
-    });
-    req.on("error", reject);
-    req.end();
-  });
-}
-
-/**
- * Makes an HTTP/HTTPS request and returns the response body as a Buffer.
- * Respects all HTTP-related npm configuration settings: registry, strict-ssl,
- * proxy, https-proxy, noproxy, ca, cafile, cert, and key.
+ * Builds an undici dispatcher (Agent or ProxyAgent) that applies all npm HTTP config
+ * settings: TLS verification, custom CA/cert/key, and proxy routing with noproxy bypass.
+ * Pass the returned dispatcher as `{ dispatcher }` in fetch calls.
  * @internal
  */
-export async function makeRequest(
-  url: string,
-  config: NpmFetchConfig,
-  maxRedirects = 5,
-): Promise<Buffer> {
-  const urlObj = new URL(url);
-  const isHttps = urlObj.protocol === "https:";
-  const proxyUrl = getEffectiveProxy(urlObj, config);
-
-  const tlsOptions: https.RequestOptions = {
+export function buildFetchDispatcher(url: string, config: NpmFetchConfig): Dispatcher {
+  const connect = {
     rejectUnauthorized: config.strictSsl,
     ...(config.ca !== undefined && { ca: config.ca }),
     ...(config.cert !== undefined && { cert: config.cert }),
     ...(config.key !== undefined && { key: config.key }),
   };
 
-  return new Promise<Buffer>((resolve, reject) => {
-    const handleResponse = (res: http.IncomingMessage): void => {
-      if (
-        (res.statusCode === 301 ||
-          res.statusCode === 302 ||
-          res.statusCode === 307 ||
-          res.statusCode === 308) &&
-        res.headers.location
-      ) {
-        if (maxRedirects <= 0) {
-          reject(new Error(`Too many redirects for ${url}`));
-          return;
-        }
-        res.resume();
-        makeRequest(res.headers.location, config, maxRedirects - 1)
-          .then(resolve)
-          .catch(reject);
-        return;
-      }
+  const urlObj = new URL(url);
+  const isHttps = urlObj.protocol === "https:";
+  const proxyStr = isHttps ? (config.httpsProxy ?? config.proxy) : config.proxy;
 
-      const chunks: Buffer[] = [];
-      res.on("data", (chunk) => chunks.push(chunk));
-      res.on("end", () => resolve(Buffer.concat(chunks)));
-      res.on("error", reject);
-    };
+  if (proxyStr && !isHostInNoProxy(urlObj.hostname, config.noProxy)) {
+    return new ProxyAgent({ uri: proxyStr, connect });
+  }
 
-    if (proxyUrl && isHttps) {
-      // HTTPS through HTTP proxy: establish a CONNECT tunnel, wrap in TLS, then send request
-      createConnectTunnel(proxyUrl, urlObj.hostname, Number(urlObj.port) || 443)
-        .then((socket) => {
-          return new Promise<tls.TLSSocket>((resolve, reject) => {
-            const tlsConnectOptions: tls.ConnectionOptions = {
-              socket,
-              host: urlObj.hostname,
-              servername: urlObj.hostname,
-              rejectUnauthorized: config.strictSsl,
-              ...(config.ca !== undefined && { ca: config.ca }),
-              ...(config.cert !== undefined && { cert: config.cert }),
-              ...(config.key !== undefined && { key: config.key }),
-            };
-            const tlsSocket = tls.connect(tlsConnectOptions);
-            tlsSocket.once("secureConnect", () => resolve(tlsSocket));
-            tlsSocket.once("error", reject);
-          });
-        })
-        .then((tlsSocket) => {
-          // Use http.request (not https) — TLS is already handled by the socket
-          const req = http.request(
-            {
-              createConnection: () => tlsSocket,
-              hostname: urlObj.hostname,
-              path: `${urlObj.pathname}${urlObj.search}`,
-              headers: { Host: urlObj.host },
-            },
-            handleResponse,
-          );
-          req.on("error", reject);
-          req.end();
-        })
-        .catch(reject);
-      return;
-    }
-
-    let req: http.ClientRequest;
-    if (proxyUrl && !isHttps) {
-      // HTTP through HTTP proxy: connect to proxy and use the full target URL as the path
-      const proxyHeaders: Record<string, string> = { Host: urlObj.host };
-      if (proxyUrl.username || proxyUrl.password) {
-        const auth = Buffer.from(
-          `${decodeURIComponent(proxyUrl.username)}:${decodeURIComponent(proxyUrl.password)}`,
-        ).toString("base64");
-        proxyHeaders["Proxy-Authorization"] = `Basic ${auth}`;
-      }
-      req = http.request(
-        {
-          host: proxyUrl.hostname,
-          port: Number(proxyUrl.port) || 80,
-          path: url,
-          headers: proxyHeaders,
-        },
-        handleResponse,
-      );
-    } else if (isHttps) {
-      // Direct HTTPS connection
-      req = https.request(url, tlsOptions, handleResponse);
-    } else {
-      // Direct HTTP connection
-      req = http.request(url, {}, handleResponse);
-    }
-
-    req.on("error", reject);
-    req.end();
-  });
+  return new Agent({ connect });
 }
 
 export async function fetchPackageManifest(
@@ -364,8 +215,8 @@ export async function fetchPackageManifest(
 ): Promise<NpmManifest> {
   const config = readNpmConfig();
   const url = `${config.registry}/${packageName}/${version}`;
-  const body = await makeRequest(url, config);
-  return JSON.parse(body.toString("utf8"));
+  const response = await fetch(url, { dispatcher: buildFetchDispatcher(url, config) });
+  return response.json() as Promise<NpmManifest>;
 }
 
 export function fetchLatestPackageManifest(packageName: string): Promise<NpmManifest> {
@@ -399,7 +250,8 @@ async function downloadAndExtractTarball(
   hashAlgorithm: string = "sha512",
 ): Promise<ExtractedTarballResult> {
   const config = readNpmConfig();
-  const buffer = await makeRequest(url, config);
+  const response = await fetch(url, { dispatcher: buildFetchDispatcher(url, config) });
+  const buffer = Buffer.from(await response.arrayBuffer());
   const tarballStream = Readable.from(buffer);
   const hash = tarballStream.pipe(createHash(hashAlgorithm));
   const extractor = tarX({

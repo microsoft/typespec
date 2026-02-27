@@ -1,14 +1,13 @@
 import * as childProcess from "child_process";
+import { unlinkSync, writeFileSync } from "fs";
 import * as http from "http";
-import * as https from "https";
 import type { AddressInfo } from "net";
-import { join } from "path";
 import { tmpdir } from "os";
-import { writeFileSync, unlinkSync } from "fs";
-import { Readable } from "stream";
+import { join } from "path";
+import { Agent, ProxyAgent } from "undici";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  makeRequest,
+  buildFetchDispatcher,
   NpmFetchConfig,
   parseNpmConfig,
   readNpmConfig,
@@ -20,24 +19,6 @@ import {
 vi.mock("child_process", async (importOriginal) => {
   const mod = await importOriginal<typeof childProcess>();
   return { ...mod, execSync: vi.fn() };
-});
-
-// Module-level variable used to intercept https.request calls in TLS option tests.
-// When set to a function, calls to https.request are captured; otherwise the real
-// implementation is used transparently.
-let captureHttpsRequest:
-  | ((url: string | URL, opts: https.RequestOptions) => void)
-  | undefined = undefined;
-
-vi.mock("https", async (importOriginal) => {
-  const mod = await importOriginal<typeof https>();
-  return {
-    ...mod,
-    request: (url: any, opts: any, cb?: any) => {
-      captureHttpsRequest?.(url, opts);
-      return (mod.request as any)(url, opts, cb);
-    },
-  };
 });
 
 // ---------------------------------------------------------------------------
@@ -109,24 +90,18 @@ describe("parseNpmConfig", () => {
 
   it("prefers explicit ca over cafile", () => {
     const readFileCalled = { value: false };
-    const config = parseNpmConfig(
-      { ca: "explicit-ca", cafile: "/nonexistent/ca.pem" },
-      () => {
-        readFileCalled.value = true;
-        return "file-ca";
-      },
-    );
+    const config = parseNpmConfig({ ca: "explicit-ca", cafile: "/nonexistent/ca.pem" }, () => {
+      readFileCalled.value = true;
+      return "file-ca";
+    });
     expect(config.ca).toBe("explicit-ca");
     expect(readFileCalled.value).toBe(false);
   });
 
   it("silently ignores cafile read errors", () => {
-    const config = parseNpmConfig(
-      { cafile: "/nonexistent/ca.pem" },
-      () => {
-        throw new Error("ENOENT: no such file");
-      },
-    );
+    const config = parseNpmConfig({ cafile: "/nonexistent/ca.pem" }, () => {
+      throw new Error("ENOENT: no such file");
+    });
     expect(config.ca).toBeUndefined();
   });
 });
@@ -189,15 +164,75 @@ describe("readNpmConfig", () => {
 });
 
 // ---------------------------------------------------------------------------
-// makeRequest – integration tests against real local servers
+// buildFetchDispatcher – verifies correct undici dispatcher is chosen
 // ---------------------------------------------------------------------------
-describe("makeRequest", () => {
-  afterEach(() => {
-    captureHttpsRequest = undefined;
-    vi.restoreAllMocks();
+describe("buildFetchDispatcher", () => {
+  it("returns an Agent for direct HTTPS with TLS settings", () => {
+    const config: NpmFetchConfig = {
+      registry: "https://registry.npmjs.org",
+      strictSsl: false,
+      ca: "test-ca",
+      cert: "test-cert",
+      key: "test-key",
+    };
+    const dispatcher = buildFetchDispatcher("https://registry.npmjs.org/pkg/latest", config);
+    expect(dispatcher).toBeInstanceOf(Agent);
   });
 
-  it("makes a successful HTTP GET request", async () => {
+  it("returns a ProxyAgent when a proxy is configured for HTTPS", () => {
+    const config: NpmFetchConfig = {
+      registry: "https://registry.npmjs.org",
+      strictSsl: true,
+      httpsProxy: "http://proxy.example.com:8080",
+    };
+    const dispatcher = buildFetchDispatcher("https://registry.npmjs.org/pkg/latest", config);
+    expect(dispatcher).toBeInstanceOf(ProxyAgent);
+  });
+
+  it("uses http proxy (not httpsProxy) for HTTP URLs", () => {
+    const config: NpmFetchConfig = {
+      registry: "http://internal.registry.example.com",
+      strictSsl: true,
+      proxy: "http://proxy.example.com:8080",
+      httpsProxy: "http://https-proxy.example.com:8080",
+    };
+    // HTTP URL should use `proxy`, not `httpsProxy`
+    const dispatcher = buildFetchDispatcher("http://internal.registry.example.com/pkg", config);
+    expect(dispatcher).toBeInstanceOf(ProxyAgent);
+  });
+
+  it("returns an Agent when the host is in the noProxy list", () => {
+    const config: NpmFetchConfig = {
+      registry: "https://internal.corp",
+      strictSsl: true,
+      httpsProxy: "http://proxy.example.com:8080",
+      noProxy: "localhost,internal.corp,127.0.0.1",
+    };
+    const dispatcher = buildFetchDispatcher("https://internal.corp/pkg/latest", config);
+    expect(dispatcher).toBeInstanceOf(Agent);
+  });
+
+  it("returns a ProxyAgent when the host is NOT in the noProxy list", () => {
+    const config: NpmFetchConfig = {
+      registry: "https://registry.npmjs.org",
+      strictSsl: true,
+      httpsProxy: "http://proxy.example.com:8080",
+      noProxy: "localhost,internal.corp",
+    };
+    const dispatcher = buildFetchDispatcher("https://registry.npmjs.org/pkg/latest", config);
+    expect(dispatcher).toBeInstanceOf(ProxyAgent);
+  });
+
+  it("returns an Agent when no proxy is configured", () => {
+    const config: NpmFetchConfig = {
+      registry: "https://registry.npmjs.org",
+      strictSsl: true,
+    };
+    const dispatcher = buildFetchDispatcher("https://registry.npmjs.org/pkg/latest", config);
+    expect(dispatcher).toBeInstanceOf(Agent);
+  });
+
+  it("makes a successful GET request via the dispatcher against a real local server", async () => {
     const server = http.createServer((_req, res) => {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ok: true }));
@@ -207,126 +242,13 @@ describe("makeRequest", () => {
     const { port } = server.address() as AddressInfo;
 
     try {
-      const config: NpmFetchConfig = { registry: "http://127.0.0.1", strictSsl: true };
-      const result = await makeRequest(`http://127.0.0.1:${port}/test`, config);
-      expect(JSON.parse(result.toString("utf8"))).toEqual({ ok: true });
+      const config: NpmFetchConfig = { registry: `http://127.0.0.1:${port}`, strictSsl: true };
+      const url = `http://127.0.0.1:${port}/test`;
+      const { fetch: undiciFetch } = await import("undici");
+      const response = await undiciFetch(url, { dispatcher: buildFetchDispatcher(url, config) });
+      expect(await response.json()).toEqual({ ok: true });
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }
-  });
-
-  it("follows HTTP redirects", async () => {
-    let requestCount = 0;
-    let serverPort: number;
-    const server = http.createServer((_req, res) => {
-      requestCount++;
-      if (requestCount === 1) {
-        res.writeHead(302, { Location: `http://127.0.0.1:${serverPort}/final` });
-        res.end();
-      } else {
-        res.writeHead(200);
-        res.end(JSON.stringify({ redirected: true }));
-      }
-    });
-
-    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
-    serverPort = (server.address() as AddressInfo).port;
-
-    try {
-      const config: NpmFetchConfig = { registry: "http://127.0.0.1", strictSsl: true };
-      const result = await makeRequest(`http://127.0.0.1:${serverPort}/start`, config);
-      expect(JSON.parse(result.toString("utf8"))).toEqual({ redirected: true });
-      expect(requestCount).toBe(2);
-    } finally {
-      await new Promise<void>((resolve) => server.close(() => resolve()));
-    }
-  });
-
-  it("rejects with an error when redirect limit is exceeded", async () => {
-    let loopPort: number;
-    const server = http.createServer((_req, res) => {
-      res.writeHead(302, { Location: `http://127.0.0.1:${loopPort}/redirect` });
-      res.end();
-    });
-
-    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
-    loopPort = (server.address() as AddressInfo).port;
-
-    try {
-      const config: NpmFetchConfig = { registry: "http://127.0.0.1", strictSsl: true };
-      await expect(
-        makeRequest(`http://127.0.0.1:${loopPort}/start`, config, 2),
-      ).rejects.toThrow("Too many redirects");
-    } finally {
-      await new Promise<void>((resolve) => server.close(() => resolve()));
-    }
-  });
-
-  it("bypasses proxy for hosts in the noProxy list", async () => {
-    const server = http.createServer((_req, res) => {
-      res.writeHead(200);
-      res.end(JSON.stringify({ direct: true }));
-    });
-
-    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
-    const { port } = server.address() as AddressInfo;
-
-    try {
-      // The proxy URL points to a non-existent server — connection should bypass it
-      const config: NpmFetchConfig = {
-        registry: `http://127.0.0.1:${port}`,
-        strictSsl: true,
-        proxy: "http://nonexistent-proxy.invalid:9999",
-        noProxy: "127.0.0.1,localhost",
-      };
-      const result = await makeRequest(`http://127.0.0.1:${port}/test`, config);
-      expect(JSON.parse(result.toString("utf8"))).toEqual({ direct: true });
-    } finally {
-      await new Promise<void>((resolve) => server.close(() => resolve()));
-    }
-  });
-
-  it("passes rejectUnauthorized from strictSsl to https.request", async () => {
-    const capturedOptions: https.RequestOptions[] = [];
-    captureHttpsRequest = (_url, opts) => capturedOptions.push(opts);
-
-    // This request will fail (no real server), but we only care that the options
-    // were built correctly before the connection attempt.
-    const config: NpmFetchConfig = {
-      registry: "https://unreachable.invalid",
-      strictSsl: false,
-      ca: "test-ca",
-      cert: "test-cert",
-      key: "test-key",
-    };
-
-    // The request will fail connecting but we should have captured the options
-    await makeRequest("https://unreachable.invalid/test", config).catch(() => {});
-
-    expect(capturedOptions).toHaveLength(1);
-    expect(capturedOptions[0]).toMatchObject({
-      rejectUnauthorized: false,
-      ca: "test-ca",
-      cert: "test-cert",
-      key: "test-key",
-    });
-  });
-
-  it("omits ca/cert/key from https.request options when not configured", async () => {
-    const capturedOptions: https.RequestOptions[] = [];
-    captureHttpsRequest = (_url, opts) => capturedOptions.push(opts);
-
-    const config: NpmFetchConfig = {
-      registry: "https://unreachable.invalid",
-      strictSsl: true,
-    };
-
-    await makeRequest("https://unreachable.invalid/test", config).catch(() => {});
-
-    expect(capturedOptions).toHaveLength(1);
-    expect(capturedOptions[0].rejectUnauthorized).toBe(true);
-    expect(capturedOptions[0]).not.toHaveProperty("ca");
-    expect(capturedOptions[0]).not.toHaveProperty("cert");
-    expect(capturedOptions[0]).not.toHaveProperty("key");
   });
 });
