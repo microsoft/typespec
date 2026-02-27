@@ -14,7 +14,7 @@ export interface PositionedMarker {
  * @returns  an array of Marker objects with name, pos, and end
  */
 export function extractMarkers(code: string): PositionedMarker[] {
-  const markerRegex = /\/\*([a-zA-Z0-9_]+)\*\//g;
+  const markerRegex = /\/\*([a-zA-Z0-9_:]+)\*\//g;
   const markers: PositionedMarker[] = [];
   let match: RegExpExecArray | null;
   while ((match = markerRegex.exec(code)) !== null) {
