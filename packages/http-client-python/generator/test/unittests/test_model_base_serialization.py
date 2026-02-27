@@ -4743,3 +4743,164 @@ def test_dictionary_set_datetime():
     assert dict_ref1 is dict_ref2
     assert isinstance(dict_ref1["start"], datetime)
     assert isinstance(dict_ref2["start"], datetime)
+
+
+def test_eq_same_model_instances():
+    """Two model instances with the same data should be equal."""
+    model1 = BasicResource(
+        platform_update_domain_count=5,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    model2 = BasicResource(
+        platform_update_domain_count=5,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    assert model1 == model2
+
+
+def test_eq_different_model_data():
+    """Two model instances with different data should not be equal."""
+    model1 = BasicResource(
+        platform_update_domain_count=5,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    model2 = BasicResource(
+        platform_update_domain_count=10,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    assert model1 != model2
+
+
+def test_eq_model_constructed_from_dict():
+    """A model created via kwargs and a model created from a dict should be equal."""
+    dict_response = {
+        "platformUpdateDomainCount": 5,
+        "platformFaultDomainCount": 3,
+        "virtualMachines": [],
+    }
+    model_from_kwargs = BasicResource(
+        platform_update_domain_count=5,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    model_from_dict = BasicResource(dict_response)
+    assert model_from_kwargs == model_from_dict
+
+
+def test_eq_model_equal_to_plain_dict():
+    """A model should be equal to a plain dict with matching data (backward compat)."""
+    dict_response = {
+        "platformUpdateDomainCount": 5,
+        "platformFaultDomainCount": 3,
+        "virtualMachines": [],
+    }
+    model = BasicResource(
+        platform_update_domain_count=5,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    assert model == dict_response
+
+
+def test_eq_model_not_equal_to_non_model_types():
+    """A model should not be equal to strings, ints, None, or lists."""
+    model = BasicResource(
+        platform_update_domain_count=5,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    assert model != "some string"
+    assert model != 42
+    assert model != None  # noqa: E711
+    assert model != []
+    assert model != True  # noqa: E712
+
+
+def test_eq_different_model_types_same_data():
+    """Two different model types with the same underlying _data should be equal
+    since isinstance checks against _MyMutableMapping, not the specific subclass."""
+    model1 = Pet(name="test", species="dog")
+
+    class AnotherModel(Model):
+        name: str = rest_field()
+        species: str = rest_field()
+
+        @overload
+        def __init__(self, *, name: str, species: str): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    model2 = AnotherModel(name="test", species="dog")
+    assert model1 == model2
+
+
+def test_ne_is_inverse_of_eq():
+    """__ne__ should return the inverse of __eq__."""
+    model1 = BasicResource(
+        platform_update_domain_count=5,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    model2 = BasicResource(
+        platform_update_domain_count=5,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    model3 = BasicResource(
+        platform_update_domain_count=10,
+        platform_fault_domain_count=3,
+        virtual_machines=[],
+    )
+    assert not (model1 != model2)
+    assert model1 != model3
+
+
+def test_eq_nested_models():
+    """Two models with identical nested model children should be equal."""
+    model1 = OptionalModel(
+        optional_str="hello",
+        optional_time=datetime.time(11, 34, 56),
+        optional_dict={
+            "buddy": Pet(name="Buddy", species="Dog"),
+        },
+        optional_myself=OptionalModel(optional_str="inner"),
+    )
+    model2 = OptionalModel(
+        optional_str="hello",
+        optional_time=datetime.time(11, 34, 56),
+        optional_dict={
+            "buddy": Pet(name="Buddy", species="Dog"),
+        },
+        optional_myself=OptionalModel(optional_str="inner"),
+    )
+    assert model1 == model2
+
+    # Change the nested model's data — they should no longer be equal
+    model2_different_inner = OptionalModel(
+        optional_str="hello",
+        optional_time=datetime.time(11, 34, 56),
+        optional_dict={
+            "buddy": Pet(name="Buddy", species="Dog"),
+        },
+        optional_myself=OptionalModel(optional_str="different"),
+    )
+    assert model1 != model2_different_inner
+
+    # Change the nested Pet — they should no longer be equal
+    model2_different_pet = OptionalModel(
+        optional_str="hello",
+        optional_time=datetime.time(11, 34, 56),
+        optional_dict={
+            "buddy": Pet(name="Max", species="Cat"),
+        },
+        optional_myself=OptionalModel(optional_str="inner"),
+    )
+    assert model1 != model2_different_pet

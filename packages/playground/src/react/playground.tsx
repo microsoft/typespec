@@ -16,7 +16,7 @@ import {
 import { CompletionItemTag } from "vscode-languageserver";
 import { resolveVirtualPath } from "../browser-host.js";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
-import { getMonacoRange } from "../services.js";
+import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../services.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
 import { debugGlobals, printDebugInfo } from "./debug.js";
@@ -224,12 +224,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
       }));
 
+      // Update code action provider with current diagnostics (for codefix support).
+      updateDiagnosticsForCodeFixes(typespecCompiler, state.program.diagnostics);
+
       // Set the program on the window.
       debugGlobals().program = state.program;
       debugGlobals().$$ = $(state.program);
 
       editor.setModelMarkers(typespecModel, "owner", markers ?? []);
     } else {
+      updateDiagnosticsForCodeFixes(typespecCompiler, []);
       editor.setModelMarkers(typespecModel, "owner", []);
     }
   }, [host, selectedEmitter, compilerOptions, typespecModel]);
