@@ -99,6 +99,10 @@ export interface GetHttpPropertyOptions {
   implicitParameter?: (
     param: ModelProperty,
   ) => PathParameterOptions | QueryParameterOptions | undefined;
+  /**
+   * When true, treat `Content-Type` headers as regular headers.
+   */
+  treatContentTypeAsHeader?: boolean;
 }
 /**
  * Find the type of a property in a model
@@ -196,11 +200,13 @@ function getHttpProperty(
   }
 
   if (annotations.header) {
-    if (annotations.header.name.toLowerCase() === "content-type") {
+    if (
+      annotations.header.name.toLowerCase() === "content-type" &&
+      !options.treatContentTypeAsHeader
+    ) {
       return createResult({ kind: "contentType" });
-    } else {
-      return createResult({ kind: "header", options: annotations.header });
     }
+    return createResult({ kind: "header", options: annotations.header });
   } else if (annotations.cookie) {
     return createResult({ kind: "cookie", options: annotations.cookie });
   } else if (annotations.query) {
