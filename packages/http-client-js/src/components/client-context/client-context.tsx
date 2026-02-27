@@ -1,4 +1,4 @@
-import { type Children } from "@alloy-js/core";
+import { type Children, List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import * as cl from "@typespec/http-client";
 import { ClientContextDeclaration } from "./client-context-declaration.jsx";
@@ -15,9 +15,11 @@ export function ClientContext(props: ClientContextProps) {
   const fileName = namePolicy.getName(props.client.name + "Context", "variable");
   return (
     <ts.SourceFile path={`${fileName}.ts`}>
-      <ClientContextDeclaration client={props.client} />
-      <ClientContextOptionsDeclaration client={props.client} />
-      <ClientContextFactoryDeclaration client={props.client} />
+      <List hardline>
+        <ClientContextDeclaration client={props.client} />
+        <ClientContextOptionsDeclaration client={props.client} />
+        <ClientContextFactoryDeclaration client={props.client} />
+      </List>
     </ts.SourceFile>
   );
 }

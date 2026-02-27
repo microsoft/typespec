@@ -172,6 +172,7 @@ function describeScenarios(
       for (const scenario of scenarioFile.scenarios) {
         const isOnly = scenario.title.includes("only:");
         const isSkip = scenario.title.includes("skip:");
+        const isNoFormat = scenario.title.includes("no-format");
         const describeFn = isSkip ? describe.skip : isOnly ? describe.only : describe;
 
         let outputFiles: Record<string, string>;
@@ -199,14 +200,20 @@ function describeScenarios(
 
               if (SCENARIOS_UPDATE) {
                 try {
-                  testBlock.content = await languageConfiguration.format(result);
+                  testBlock.content = isNoFormat
+                    ? result
+                    : await languageConfiguration.format(result);
                 } catch {
                   // If formatting fails, we still want to update the content
                   testBlock.content = result;
                 }
               } else {
-                const expected = await languageConfiguration.format(testBlock.content);
-                const actual = await languageConfiguration.format(result);
+                const expected = isNoFormat
+                  ? testBlock.content
+                  : await languageConfiguration.format(testBlock.content);
+                const actual = isNoFormat
+                  ? result
+                  : await languageConfiguration.format(result);
                 expect(actual).toBe(expected);
               }
             });
