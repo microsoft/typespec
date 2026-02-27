@@ -15,6 +15,7 @@ Prepares language emitter changes for pull request by running build/format/lint,
 creating a changeset with an appropriate message, and pushing to the remote branch.
 
 **This skill is for language emitter packages only:**
+
 - `http-client-python`
 - `http-client-csharp`
 - `http-client-java`
@@ -31,7 +32,7 @@ Determine which language emitter packages have changes:
 cd ~/Desktop/github/typespec
 
 # Compare against upstream/main (microsoft/typespec) if available, otherwise main
-BASE_BRANCH=$(git rev-parse --verify upstream/main 2>/dev/null && echo "upstream/main" || echo "main")
+BASE_BRANCH=$(git rev-parse --verify upstream/main 2> /dev/null && echo "upstream/main" || echo "main")
 
 # Filter for language emitter packages only
 git diff "$BASE_BRANCH" --name-only | grep "^packages/http-client-" | cut -d'/' -f2 | sort -u
@@ -90,7 +91,7 @@ Examine the changes to determine an appropriate changeset message:
 cd ~/Desktop/github/typespec
 
 # Determine base branch
-BASE_BRANCH=$(git rev-parse --verify upstream/main 2>/dev/null && echo "upstream/main" || echo "main")
+BASE_BRANCH=$(git rev-parse --verify upstream/main 2> /dev/null && echo "upstream/main" || echo "main")
 
 # Get commit messages on this branch
 git log "$BASE_BRANCH"..HEAD --oneline
@@ -204,7 +205,7 @@ git push -u origin "$BRANCH"
 When prompting the user in Step 7, include the remote that will be used:
 
 - Show: "Will push to `origin` (your fork)"
-- If the user says to use a different remote (e.g., "push to `myfork`"), use that instead
+- If the user says to use a different remote (e.g., "push to `my_fork`"), use that instead
 
 **Important:** Never push directly to the `microsoft/typespec` remote (usually named `upstream`).
 
