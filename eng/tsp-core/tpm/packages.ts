@@ -26,8 +26,8 @@ const EXCLUDED_PACKAGES = [
  * (and its dependency prettier-plugin-typespec) to already be available.
  */
 export const CRITICAL_PACKAGES = [
-  "packages/prettier-plugin-typespec",
-  "packages/tspd",
+  "@typespec/prettier-plugin-typespec",
+  "@typespec/tspd",
 ];
 
 export interface PackageInfo {

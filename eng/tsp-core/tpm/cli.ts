@@ -63,10 +63,12 @@ function buildPnpmFilterArgs(packages: PackageInfo[]): string {
   // When using many --filter flags, pnpm may not properly resolve the dependency
   // graph across all filters. By listing critical packages first, we ensure they
   // (and their transitive dependencies via "...") are scheduled before dependents.
+  const criticalFilters = CRITICAL_PACKAGES.map((name) => `--filter "${name}..."`);
   const criticalSet = new Set(CRITICAL_PACKAGES);
-  const critical = packages.filter((p) => criticalSet.has(p.path));
-  const rest = packages.filter((p) => !criticalSet.has(p.path));
-  return [...critical, ...rest].map((p) => `--filter "./${p.path}..."`).join(" ");
+  const restFilters = packages
+    .filter((p) => !criticalSet.has(p.name))
+    .map((p) => `--filter "./${p.path}..."`);
+  return [...criticalFilters, ...restFilters].join(" ");
 }
 
 function buildPackages(packages: PackageInfo[]): void {
