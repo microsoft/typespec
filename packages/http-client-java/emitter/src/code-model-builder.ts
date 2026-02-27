@@ -313,6 +313,13 @@ export class CodeModelBuilder {
     this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, sdkContextOptions);
     this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
+    // metadata
+    if (this.sdkContext.sdkPackage.metadata.apiVersions) {
+      this.codeModel.apiVersionMap = Object.fromEntries(
+        this.sdkContext.sdkPackage.metadata.apiVersions,
+      );
+    }
+
     // license
     if (this.sdkContext.sdkPackage.licenseInfo) {
       this.codeModel.info.license = new License(this.sdkContext.sdkPackage.licenseInfo.name, {

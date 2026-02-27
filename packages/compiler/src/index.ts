@@ -200,6 +200,7 @@ export {
   type ExampleOptions,
   type OpExample,
 } from "./lib/decorators.js";
+export { UnserializableValueError, UnsupportedScalarConstructorError } from "./lib/examples.js";
 export { MANIFEST, type TypeSpecManifest } from "./manifest.js";
 export {
   resolveModule,
@@ -242,7 +243,7 @@ export const $decorators = {
   },
 };
 
-export { applyCodeFix, applyCodeFixes } from "./core/code-fixes.js";
+export { applyCodeFix, applyCodeFixes, resolveCodeFix } from "./core/code-fixes.js";
 export { createAddDecoratorCodeFix } from "./core/compiler-code-fixes/create-add-decorator/create-add-decorator.codefix.js";
 export {
   createSuppressCodeFix,
@@ -355,8 +356,10 @@ export type {
   Expression,
   FileLibraryMetadata,
   FilePos,
+  FunctionContext,
   FunctionParameter,
   FunctionParameterBase,
+  FunctionValue,
   IdentifierContext,
   IdentifierKind,
   IndeterminateEntity,
