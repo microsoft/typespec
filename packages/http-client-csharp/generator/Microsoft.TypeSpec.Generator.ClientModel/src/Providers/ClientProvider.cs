@@ -973,7 +973,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? originalMethods.Concat(CustomCodeView.Methods)
                 : originalMethods;
 
-            return allMethods.ToDictionary(m => m.Signature, m => m, MethodSignature.MethodSignatureComparer);
+            var result = new Dictionary<MethodSignature, MethodProvider>(MethodSignature.MethodSignatureComparer);
+            foreach (var method in allMethods)
+            {
+                result.TryAdd(method.Signature, method);
+            }
+            return result;
         }
 
         private static bool ShouldProcessMethodForBackCompat(

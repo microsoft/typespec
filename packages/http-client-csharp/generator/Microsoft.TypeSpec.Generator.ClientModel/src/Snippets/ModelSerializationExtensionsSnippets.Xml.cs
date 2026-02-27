@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -18,12 +19,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static MethodBodyStatement WriteBase64StringValue(ScopedApi<XmlWriter> writer, ValueExpression value, string? format)
             => writer.Invoke(WriteBase64StringValueMethodName, [value, Literal(format)]).Terminate();
 
-        public static MethodBodyStatement WriteObjectValue(ScopedApi<XmlWriter> writer, ScopedApi value, ValueExpression? options = null)
+        public static MethodBodyStatement WriteObjectValue(ScopedApi<XmlWriter> writer, ScopedApi value, ValueExpression? options = null, ValueExpression? nameHint = null)
         {
-            var parameters = options is null
-                ? [value]
-                : new ValueExpression[] { value, options };
-            return writer.Invoke(WriteObjectValueMethodName, parameters, [value.Type], false).Terminate();
+            var parameters = new List<ValueExpression> { value };
+            if (options is not null)
+            {
+                parameters.Add(options);
+            }
+            if (nameHint is not null)
+            {
+                if (options is null)
+                {
+                    parameters.Add(Null);
+                }
+                parameters.Add(nameHint);
+            }
+            return writer.Invoke(WriteObjectValueMethodName, [.. parameters], [value.Type], false).Terminate();
         }
 
         public static InvokeMethodExpression GetDateTimeOffset(ScopedApi<XElement> element, string? format)

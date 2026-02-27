@@ -502,7 +502,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<InputModelType>? derivedModels = null,
             InputModelProperty? discriminatorProperty = null,
             bool isDynamicModel = false,
-            InputExternalTypeMetadata? external = null)
+            InputExternalTypeMetadata? external = null,
+            InputSerializationOptions? serializationOptions = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -526,7 +527,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                     : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
-                new(),
+                serializationOptions ?? new(),
                 isDynamicModel);
             if (baseModel is not null)
             {

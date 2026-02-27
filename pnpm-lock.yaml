@@ -2269,6 +2269,46 @@ importers:
         specifier: ~5.9.2
         version: 5.9.3
 
+  packages/tsp-integration:
+    dependencies:
+      '@pnpm/workspace.find-packages':
+        specifier: ^1000.0.24
+        version: 1000.0.55(@pnpm/logger@1001.0.1)(@pnpm/worker@1000.6.2(@pnpm/logger@1001.0.1)(@types/node@25.0.9))(typanion@3.14.0)
+      execa:
+        specifier: ^9.6.1
+        version: 9.6.1
+      globby:
+        specifier: ~16.1.0
+        version: 16.1.0
+      log-symbols:
+        specifier: ^7.0.1
+        version: 7.0.1
+      ora:
+        specifier: ^9.0.0
+        version: 9.0.0
+      pathe:
+        specifier: ^2.0.3
+        version: 2.0.3
+      picocolors:
+        specifier: ~1.1.1
+        version: 1.1.1
+      simple-git:
+        specifier: ^3.28.0
+        version: 3.30.0
+      tar:
+        specifier: ^7.5.2
+        version: 7.5.4
+      yaml:
+        specifier: ~2.8.2
+        version: 2.8.2
+    devDependencies:
+      typescript:
+        specifier: ~5.9.2
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.15
+        version: 4.0.17(@types/node@25.0.9)(@vitest/ui@4.0.17)(happy-dom@20.3.4)(jsdom@25.0.1)(tsx@4.21.0)(yaml@2.8.2)
+
   packages/tspd:
     dependencies:
       '@alloy-js/core':
@@ -4768,6 +4808,12 @@ packages:
     engines: {node: '>= 20'}
     peerDependencies:
       koa: ^2.0.0 || ^3.0.0
+
+  '@kwsites/file-exists@1.1.1':
+    resolution: {integrity: sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==}
+
+  '@kwsites/promise-deferred@1.1.1':
+    resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
@@ -12006,6 +12052,9 @@ packages:
   simple-get@4.0.1:
     resolution: {integrity: sha512-brv7p5WgH0jmQJr1ZDDfKDOSeWWg+OVypG99A/5vYGPqJ6pxiaHLy8nxtFjBA7oMa01ebA9gfh1uMCFqOuXxvA==}
 
+  simple-git@3.30.0:
+    resolution: {integrity: sha512-q6lxyDsCmEal/MEGhP1aVyQ3oxnagGlBDOVSIB4XUVLl1iZh0Pah6ebC9V4xBap/RfgP2WlI8EKs0WS0rMEJHg==}
+
   sirv@3.0.2:
     resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
     engines: {node: '>=18'}
@@ -16508,6 +16557,14 @@ snapshots:
       path-to-regexp: 8.3.0
     transitivePeerDependencies:
       - supports-color
+
+  '@kwsites/file-exists@1.1.1':
+    dependencies:
+      debug: 4.4.3(supports-color@8.1.1)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@kwsites/promise-deferred@1.1.1': {}
 
   '@mdx-js/mdx@3.1.1':
     dependencies:
@@ -26192,6 +26249,14 @@ snapshots:
       once: 1.4.0
       simple-concat: 1.0.1
     optional: true
+
+  simple-git@3.30.0:
+    dependencies:
+      '@kwsites/file-exists': 1.1.1
+      '@kwsites/promise-deferred': 1.1.1
+      debug: 4.4.3(supports-color@8.1.1)
+    transitivePeerDependencies:
+      - supports-color
 
   sirv@3.0.2:
     dependencies:

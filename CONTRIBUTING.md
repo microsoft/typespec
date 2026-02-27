@@ -56,6 +56,7 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 | `pnpm lint:fix`             | Fix autofixable issues                                                                                                                                    |
 | `pnpm regen-samples`        | Regen the samples(when the samples test fail)                                                                                                             |
 | `pnpm regen-docs`           | Regen the reference docs                                                                                                                                  |
+| `pnpm tsp-integration`      | Run integration tests against external repos using local package changes                                                                                  |
 
 ### Verbose test logging
 
@@ -201,6 +202,62 @@ the command line following the steps above, or build its Release
 configuration in Visual Studio, then you can install it by
 double-clicking on packages/typespec-vs/Microsoft.TypeSpec.VisualStudio.vsix
 that gets produced.
+
+## Integration testing
+
+The `tsp-integration` tool allows you to test your local TypeSpec package changes against external repositories (e.g., `azure-rest-api-specs`). It clones the target repo, patches its `package.json` to use your local packages, installs dependencies, and compiles all TypeSpec projects found in the repo.
+
+### Configuration
+
+Integration test suites are defined in `.typespec-integration/config.yaml` at the repo root. Each suite specifies a target repository, branch, glob pattern for finding TypeSpec projects.
+
+### Running from workspace root
+
+```bash
+pnpm integration-test <suite-name>
+```
+
+### CLI options
+
+| Option             | Short | Description                                                                                                                                                               |
+| ------------------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--clean`          |       | Force a fresh clone instead of reusing an existing checkout. By default the tool resets and pulls the existing repo.                                                      |
+| `--stage <name>`   |       | Run only specific stages. Can be specified multiple times. Valid stages: `checkout`, `patch`, `install`, `validate`, `validate:clean`.                                    |
+| `--interactive`    | `-i`  | Enable interactive watch mode. After the initial run you can press **a** to rerun all tests, **f** to rerun only failed tests, or **q** to quit.                          |
+| `--tgz-dir <path>` |       | Use pre-built `.tgz` package artifacts from the given directory instead of resolving packages from the local workspace. Useful in CI with artifacts from `pnpm pack:all`. |
+| `--repo <path>`    |       | Use an existing local repository checkout instead of cloning into the default temp directory (`.typespec-integration/temp/<suite>`).                                      |
+
+### Examples
+
+```bash
+# Run all stages for the azure-specs suite
+pnpm tsp-integration azure-specs
+
+# Force a fresh clone
+pnpm tsp-integration azure-specs --clean
+
+# Interactive mode — rerun failed specs on the fly
+pnpm tsp-integration azure-specs --interactive
+
+# Test against a local clone of azure-rest-api-specs
+pnpm tsp-integration azure-specs --repo ~/dev/azure-rest-api-specs
+
+# Only run the validate stage (skip checkout, patch, install)
+pnpm tsp-integration azure-specs --stage validate
+
+# Use pre-built .tgz artifacts (CI scenario)
+pnpm tsp-integration azure-specs --tgz-dir ./temp/artifacts
+```
+
+### Stages
+
+The tool runs the following stages in order:
+
+1. **checkout** — Clones (or resets) the target repository.
+2. **patch** — Resolves local TypeSpec package versions and patches `package.json` / `overrides` in the target repo.
+3. **install** — Runs `npm install --no-package-lock` in the target repo, then restores the original `package.json`.
+4. **validate** — Finds all TypeSpec projects matching the configured pattern and compiles each entrypoint, running compilations in parallel.
+5. **validate:clean** — Verifies the target repo has no uncommitted changes after validation.
 
 ## TypeSpec website
 
@@ -378,10 +435,11 @@ Process labels
 
 Misc labels
 
-| Name               | Color   | Description           |
-| ------------------ | ------- | --------------------- |
-| `good first issue` | #7057ff | Good for newcomers    |
-| `mq`               | #0969da | Good candidate for MQ |
+| Name               | Color   | Description                                        |
+| ------------------ | ------- | -------------------------------------------------- |
+| `good first issue` | #7057ff | Good for newcomers                                 |
+| `mq`               | #0969da | Good candidate for MQ                              |
+| `int:azure-specs`  | #0e8a16 | Run integration tests against azure-rest-api-specs |
 
 <!-- LABEL GENERATED REF END -->
 
