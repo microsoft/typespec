@@ -16,6 +16,7 @@ it("should display Symbol-keyed properties", () => {
 });
 
 it("should display Symbol-keyed properties without description", () => {
+  // eslint-disable-next-line symbol-description
   const sym = Symbol();
   const data = {
     [sym]: "symbolValue",
