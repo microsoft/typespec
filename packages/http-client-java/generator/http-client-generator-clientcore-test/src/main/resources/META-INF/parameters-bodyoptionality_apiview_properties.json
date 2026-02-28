@@ -1,9 +1,0 @@
-{
-  "flavor": "generic", 
-  "CrossLanguageDefinitionId": {
-    "parameters.bodyoptionality.BodyModel": "Parameters.BodyOptionality.BodyModel",
-    "parameters.bodyoptionality.BodyOptionalityClient": "Parameters.BodyOptionality",
-    "parameters.bodyoptionality.BodyOptionalityClientBuilder": "Parameters.BodyOptionality",
-    "parameters.bodyoptionality.OptionalExplicitClient": "Parameters.BodyOptionality.OptionalExplicit"
-  }
-}

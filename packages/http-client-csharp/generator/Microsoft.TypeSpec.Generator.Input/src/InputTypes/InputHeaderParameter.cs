@@ -19,16 +19,19 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputConstant? defaultValue,
             InputParameterScope scope,
             string? arraySerializationDelimiter,
-            bool isContentType)
+            bool isContentType,
+            string? collectionHeaderPrefix = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue, scope)
         {
             CollectionFormat = collectionFormat;
             ArraySerializationDelimiter = arraySerializationDelimiter;
             IsContentType = isContentType;
+            CollectionHeaderPrefix = collectionHeaderPrefix;
         }
 
         public string? CollectionFormat { get; internal set; }
         public string? ArraySerializationDelimiter { get; internal set; }
         public bool IsContentType { get; internal set; }
+        public string? CollectionHeaderPrefix { get; internal set; }
     }
 }

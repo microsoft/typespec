@@ -997,7 +997,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? originalMethods.Concat(CustomCodeView.Methods)
                 : originalMethods;
 
-            return allMethods.ToDictionary(m => m.Signature, m => m, MethodSignature.MethodSignatureComparer);
+            var result = new Dictionary<MethodSignature, MethodProvider>(MethodSignature.MethodSignatureComparer);
+            foreach (var method in allMethods)
+            {
+                result.TryAdd(method.Signature, method);
+            }
+            return result;
         }
 
         private static bool ShouldProcessMethodForBackCompat(
@@ -1221,8 +1226,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var subClient in _subClients.Value)
             {
-                // Add parameters from sub-clients
-                parameters = parameters.Concat(subClient.GetAllClientParameters()).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
+                // Only hoist ApiVersion parameters from sub-clients; other sub-client parameters should remain on the sub-client.
+                // Auth parameters are handled separately via dedicated auth fields.
+                parameters = parameters.Concat(subClient.GetAllClientParameters().Where(p => p.IsApiVersion)).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
             }
 
             return parameters;

@@ -613,6 +613,11 @@ export type OpenAPI3Schema = Extensions & {
    */
   readOnly?: boolean;
 
+  /**
+   * Property is writeonly.
+   */
+  writeOnly?: boolean;
+
   /** Adds support for polymorphism. The discriminator is an object name that is used to differentiate between other schemas which may satisfy the payload description  */
   discriminator?: OpenAPI3Discriminator;
 
@@ -1070,6 +1075,11 @@ export type JsonSchema<AdditionalVocabularies extends {} = {}> = AdditionalVocab
    * Property is readonly.
    */
   readOnly?: boolean;
+
+  /**
+   * Property is writeonly.
+   */
+  writeOnly?: boolean;
 
   /** Adds support for polymorphism. The discriminator is an object name that is used to differentiate between other schemas which may satisfy the payload description  */
   discriminator?: OpenAPI3Discriminator;

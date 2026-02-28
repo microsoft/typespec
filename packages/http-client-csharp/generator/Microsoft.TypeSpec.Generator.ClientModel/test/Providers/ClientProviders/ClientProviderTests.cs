@@ -679,14 +679,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 ?.Invoke(clientProvider, null) as IReadOnlyList<InputParameter>;
 
             Assert.IsNotNull(allClientParameters, "Could not access GetAllClientParameters method");
-            
-            var indexNameParams = allClientParameters!.Where(p => 
+
+            var indexNameParams = allClientParameters!.Where(p =>
                 p.Name == "indexName" || p.Name == "name").ToList();
-            
+
             // Should only have 1 parameter after deduplication by name
             Assert.AreEqual(1, indexNameParams.Count,
                 $"Expected 1 parameter after deduplication, but found {indexNameParams.Count}: {string.Join(", ", indexNameParams.Select(p => p.Name))}");
-            
+
             // Should be the client parameter (first one wins)
             Assert.AreEqual("indexName", indexNameParams[0].Name,
                 "Expected the client parameter 'indexName' to be preserved after deduplication");
@@ -1341,7 +1341,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         [Test]
-        public void SubClientFieldsAreStoredOnRootClient()
+        public void ApiVersionFieldIsStoredOnRootClient()
         {
             var rootClient = InputFactory.Client(
                 "RootClient");
@@ -1359,7 +1359,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var rootClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(rootClient);
             Assert.IsNotNull(rootClientProvider);
             Assert.IsTrue(rootClientProvider!.Fields.Any(f => f.Name.Equals("_apiVersion")));
-            Assert.IsTrue(rootClientProvider.Fields.Any(f => f.Name.Equals("_someOtherParameter")));
+            // Other subclient parameters are not hoisted
+            Assert.IsFalse(rootClientProvider.Fields.Any(f => f.Name.Equals("_someOtherParameter")));
         }
 
         [TestCase]
@@ -2859,6 +2860,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual("param3", parameters[2].Name);
                 Assert.AreEqual("cancellationToken", parameters[3].Name);
             }
+        }
+
+        [Test]
+        public async Task BackCompatibility_DuplicateMethodSignatureDoesNotThrow()
+        {
+            var bodyParam1 = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: true);
+            var bodyParam2 = InputFactory.BodyParameter("param1", InputPrimitiveType.Int32, isRequired: true);
+
+            var operation1 = InputFactory.Operation(
+                "TestMethod",
+                parameters: [bodyParam1]);
+            var operation2 = InputFactory.Operation(
+                "TestMethod",
+                parameters: [bodyParam2]);
+
+            List<InputMethodParameter> methodParameters1 =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+            ];
+            List<InputMethodParameter> methodParameters2 =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Body, isRequired: true),
+            ];
+
+            var method1 = InputFactory.BasicServiceMethod("TestMethod", operation1, parameters: methodParameters1);
+            var method2 = InputFactory.BasicServiceMethod("TestMethod", operation2, parameters: methodParameters2);
+            var client = InputFactory.Client(TestClientName, methods: [method1, method2]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
+            // This should not throw even when there are duplicate method signatures
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.DoesNotThrow(() => processMethod?.Invoke(clientProvider, null));
         }
 
         [Test]

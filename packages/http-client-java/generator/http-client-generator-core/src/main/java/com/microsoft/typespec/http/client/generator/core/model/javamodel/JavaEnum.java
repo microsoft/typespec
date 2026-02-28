@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -93,7 +92,7 @@ public class JavaEnum {
     }
 
     public final void publicStaticMethod(String methodSignature, Consumer<JavaBlock> method) {
-        method(JavaVisibility.Public, Collections.singletonList(JavaModifier.Static), methodSignature, method);
+        method(JavaVisibility.Public, List.of(JavaModifier.Static), methodSignature, method);
     }
 
     public final void javadocComment(String description) {

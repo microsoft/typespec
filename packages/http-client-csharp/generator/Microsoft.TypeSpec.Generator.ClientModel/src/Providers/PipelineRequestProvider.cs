@@ -32,6 +32,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override MethodBodyStatement SetHeaders(IReadOnlyList<ValueExpression> arguments)
             => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), arguments).Terminate();
 
+        public override MethodBodyStatement AddCollectionHeaders(ValueExpression prefix, ValueExpression headers)
+            => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Add), [prefix, headers]).Terminate();
+
         public override HttpRequestApi ToExpression() => this;
     }
 }

@@ -14,6 +14,7 @@ import {
   UnionVariant,
 } from "@typespec/compiler";
 import { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
+import { FunctionType } from "../../../../compiler/src/core/types.js";
 
 /** @internal */
 export function getTypeSignature(type: Type): string {
@@ -59,6 +60,8 @@ export function getTypeSignature(type: Type): string {
       return `(union variant) ${getUnionVariantSignature(type)}`;
     case "Tuple":
       return `(tuple) [${type.values.map(getTypeSignature).join(", ")}]`;
+    case "FunctionType":
+      return `(fn) ${getFunctionSignature(type)}`;
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
@@ -82,6 +85,11 @@ function getDecoratorSignature(type: Decorator) {
     signature += `(${parameters.join(", ")})`;
   }
   return signature;
+}
+
+function getFunctionSignature(type: FunctionType) {
+  const parameters = [...type.parameters].map((x) => getFunctionParameterSignature(x));
+  return `(${parameters.join(", ")}): ${getEntityName(type.returnType)}`;
 }
 
 function getInterfaceSignature(type: Interface) {

@@ -193,6 +193,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
                     {
                         methods.Add(BuildImplicitToBinaryContent());
+                        // Add internal ToBinaryContent helper for format-specific serialization
+                        if (_supportsJson && _supportsXml)
+                        {
+                            methods.Add(BuildToBinaryContentMethod());
+                        }
                     }
 
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
@@ -322,6 +327,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     !_isStruct ? new IfStatement(model.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
                     ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
+                },
+                this);
+        }
+
+        private MethodProvider BuildToBinaryContentMethod()
+        {
+            var formatParameter = new ParameterProvider("format", $"The format to use for serialization", typeof(string));
+
+            // ModelReaderWriterOptions options = new ModelReaderWriterOptions(format);
+            // return BinaryContent.Create(this, options);
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            return new MethodProvider(
+                new MethodSignature($"To{requestContentType.Name}", FormattableStringHelpers.FromString($"Converts the model to {requestContentType.Name} using the specified format"), MethodSignatureModifiers.Internal, requestContentType, null, [formatParameter]),
+                new MethodBodyStatement[]
+                {
+                    Declare("options", typeof(ModelReaderWriterOptions), New.Instance(typeof(ModelReaderWriterOptions), formatParameter), out var options),
+                    Return(RequestContentApiSnippets.Create(This, options.As<ModelReaderWriterOptions>()))
                 },
                 this);
         }
@@ -1360,10 +1382,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         out var deserializationHook,
                         out _) && name == propertyName && deserializationHook != null)
                 {
+                    var knownArgs = new (string TypeName, ValueExpression Argument)[]
+                    {
+                        (nameof(JsonProperty), jsonProperty),
+                        (nameof(ModelReaderWriterOptions), _serializationOptionsParameter)
+                    };
+                    var hookArgs = GetDeserializationHookArguments(deserializationHook, variableExpression, knownArgs);
                     return
                     [
                         MethodBodyStatement.Empty,
-                        Static().Invoke(deserializationHook, jsonProperty, ByRef(variableExpression)).Terminate(),
+                        Static().Invoke(deserializationHook, hookArgs).Terminate(),
                         Continue
                     ];
                 }
@@ -1468,6 +1496,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat serializationFormat,
             out ValueExpression value)
         {
+            // byte[] is a special case - it represents a base64-encoded bytes value, not a JSON array
+            if (valueType.IsFrameworkType && valueType.FrameworkType == typeof(byte[]))
+            {
+                value = CreateDeserializeValueExpression(valueType, serializationFormat, jsonElement);
+                return MethodBodyStatement.Empty;
+            }
+
             if (valueType.IsList || valueType.IsArray)
             {
                 if (valueType.IsReadOnlyMemory)
@@ -1957,14 +1992,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 stringJoinExpression = StringSnippets.Join(Literal(delimiter), propertyExpression);
             }
-            else if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
+            else if (elementType.IsEnum && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
             {
-                var x = new VariableExpression(typeof(object), "x");
+                var x = new VariableExpression(elementType, "x");
+                var body = elementType.ToSerial(x);
                 var selectExpression = propertyExpression.Invoke(nameof(Enumerable.Select),
-                    new FuncExpression([x.Declaration], new TernaryConditionalExpression(
-                        x.Equal(Null),
-                        Literal(""),
-                        elementType.ToSerial(x))));
+                    [new FuncExpression([x.Declaration], body)],
+                    [],
+                    false,
+                    extensionType: typeof(Enumerable));
                 stringJoinExpression = StringSnippets.Join(Literal(delimiter), selectExpression);
             }
             else
@@ -2028,27 +2064,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
                 }
             }
-            else if (elementType.IsEnum && !elementType.IsStruct && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
+            else if (elementType.IsEnum && elementType.UnderlyingEnumType?.Equals(typeof(string)) == true)
             {
-                var splitExpression = new TernaryConditionalExpression(
-                    isNullOrEmptyCheck,
-                    New.Array(typeof(string)),
-                    stringValueVar.As<string>().Split(delimiterChar));
-
                 var s = new VariableExpression(typeof(string), "s");
                 var trimmedS = s.Invoke(nameof(string.Trim));
+                var parseExpression = elementType.ToEnum(trimmedS);
 
-                var parseExpression = Static(elementType).Invoke("Parse", trimmedS);
+                var splitAndParse = stringValueVar.As<string>().Split(delimiterChar)
+                    .Invoke(nameof(Enumerable.Select), new FuncExpression([s.Declaration], parseExpression));
 
-                var selectExpression = splitExpression.Invoke(nameof(Enumerable.Select),
-                    new FuncExpression([s.Declaration], parseExpression));
-
-                var finalExpression = propertyType.IsArray
-                    ? selectExpression.Invoke(nameof(Enumerable.ToArray))
-                    : propertyType.IsList
-                        ? New.Instance(typeof(List<>).MakeGenericType(elementType.FrameworkType), selectExpression)
-                        : New.Instance(propertyType.PropertyInitializationType, selectExpression);
-                createArrayStatement = variableExpression.Assign(finalExpression).Terminate();
+                if (propertyType.IsArray)
+                {
+                    var conditionalExpression = new TernaryConditionalExpression(
+                        isNullOrEmptyCheck,
+                        New.Array(elementType),
+                        splitAndParse.Invoke(nameof(Enumerable.ToArray)));
+                    createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
+                }
+                else
+                {
+                    var initType = propertyType.PropertyInitializationType;
+                    var conditionalExpression = new TernaryConditionalExpression(
+                        isNullOrEmptyCheck,
+                        New.Instance(initType),
+                        New.Instance(initType, splitAndParse.Invoke(nameof(Enumerable.ToList)).CastTo(new CSharpType(typeof(IList<>), elementType))));
+                    createArrayStatement = variableExpression.Assign(conditionalExpression).Terminate();
+                }
             }
             else
             {
@@ -2226,13 +2267,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? exp = frameworkType switch
             {
                 Type t when t == typeof(Uri) =>
-                    New.Instance(frameworkType, element.GetString()),
+                    New.Instance<Uri>(element.GetString(), FrameworkEnumValue(UriKind.RelativeOrAbsolute)),
                 Type t when t == typeof(IPAddress) =>
                     Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
                 Type t when t == typeof(BinaryData) =>
                     format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
                         ? BinaryDataSnippets.FromBytes(element.GetBytesFromBase64(format.ToFormatSpecifier()))
                         : BinaryDataSnippets.FromString(element.GetRawText()),
+                Type t when t == typeof(byte[]) =>
+                    format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
+                        ? element.GetBytesFromBase64(format.ToFormatSpecifier())
+                        : BinaryDataSnippets.FromString(element.GetRawText()).ToArray(),
                 Type t when t == typeof(Stream) =>
                     BinaryDataSnippets.FromString(element.GetRawText()).ToStream(),
                 Type t when t == typeof(JsonElement) =>
@@ -2255,8 +2300,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     element.GetString(),
                 Type t when t == typeof(Guid) =>
                     element.GetGuid(),
-                Type t when t == typeof(byte[]) =>
-                    element.GetBytesFromBase64(format.ToFormatSpecifier()),
                 Type t when t == typeof(DateTimeOffset) =>
                     format == SerializationFormat.DateTime_Unix
                         ? DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())
@@ -2485,6 +2528,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // search in the base model if the property is not found in the current model
             return property ?? _model.BaseModelProvider?.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+        }
+
+        private MethodProvider? FindCustomHookMethod(string hookName)
+        {
+            var model = _model;
+            while (model != null)
+            {
+                var method = model.CanonicalView.Methods.FirstOrDefault(m => m.Signature.Name == hookName);
+                if (method != null)
+                {
+                    return method;
+                }
+                model = model.BaseModelProvider;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Builds the argument list for a deserialization hook invocation by matching the hook's parameters
+        /// to the known available arguments. Parameters are matched as follows:
+        /// <list type="bullet">
+        ///   <item><c>ref</c> parameters are matched to the designated ref variable argument.</item>
+        ///   <item>Other parameters are matched by type name.</item>
+        ///   <item>Unmatched parameters receive the <c>default</c> value for their type.</item>
+        /// </list>
+        /// </summary>
+        private IReadOnlyList<ValueExpression> GetDeserializationHookArguments(
+            string hookName,
+            ValueExpression refVariable,
+            IReadOnlyList<(string TypeName, ValueExpression Argument)> knownArguments)
+        {
+            var hookMethod = FindCustomHookMethod(hookName);
+            if (hookMethod == null)
+            {
+                // Fall back: no method found, use previous behavior (first known arg, ref variable, no options)
+                return [knownArguments[0].Argument, ByRef(refVariable)];
+            }
+
+            var args = new List<ValueExpression>();
+            foreach (var param in hookMethod.Signature.Parameters)
+            {
+                if (param.IsRef)
+                {
+                    args.Add(ByRef(refVariable));
+                }
+                else
+                {
+                    var matched = knownArguments.FirstOrDefault(a => a.TypeName == param.Type.Name);
+                    args.Add(matched.Argument ?? DefaultOf(param.Type));
+                }
+            }
+            return args;
         }
 
         private List<AttributeStatement> GetSerializationAttributes()
