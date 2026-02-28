@@ -19,18 +19,18 @@ granted herein, whether by implication, estoppel or otherwise.
 9. fast-uri version 3.1.0 (https://github.com/fastify/fast-uri)
 10. is-unicode-supported version 2.1.0 (sindresorhus/is-unicode-supported)
 11. isexe version 2.0.0 (https://github.com/isaacs/isexe)
-12. isexe version 3.1.1 (https://github.com/isaacs/isexe)
+12. isexe version 4.0.0 (https://github.com/isaacs/isexe)
 13. js-tokens version 4.0.0 (lydell/js-tokens)
 14. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
-15. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
+15. minimatch version 5.1.9 (https://github.com/isaacs/minimatch)
 16. mustache version 4.2.0 (https://github.com/janl/mustache.js)
 17. path-key version 3.1.1 (sindresorhus/path-key)
 18. picocolors version 1.1.1 (alexeyraspopov/picocolors)
-19. semver version 7.7.3 (https://github.com/npm/node-semver)
+19. semver version 7.7.4 (https://github.com/npm/node-semver)
 20. shebang-command version 2.0.0 (kevva/shebang-command)
 21. shebang-regex version 3.0.0 (sindresorhus/shebang-regex)
 22. which version 2.0.2 (https://github.com/isaacs/node-which)
-23. which version 6.0.0 (https://github.com/npm/node-which)
+23. which version 6.0.1 (https://github.com/npm/node-which)
 24. yaml version 2.8.2 (github:eemeli/yaml)
 
 
@@ -339,21 +339,61 @@ END OF isexe NOTICES AND INFORMATION
 
 %% isexe NOTICES AND INFORMATION BEGIN HERE
 =====================================================
-The ISC License
+# Blue Oak Model License
 
-Copyright (c) 2016-2022 Isaac Z. Schlueter and Contributors
+Version 1.0.0
 
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
+## Purpose
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+This license gives everyone as much permission to work with
+this software as possible, while protecting contributors
+from liability.
+
+## Acceptance
+
+In order to receive this license, you must agree to its
+rules.  The rules of this license are both obligations
+under that agreement and conditions to your license.
+You must not do anything with this software that triggers
+a rule that you cannot or will not follow.
+
+## Copyright
+
+Each contributor licenses you to do everything with this
+software that would otherwise infringe that contributor's
+copyright in it.
+
+## Notices
+
+You must ensure that everyone who gets a copy of
+any part of this software from you, with or without
+changes, also gets the text of this license or a link to
+<https://blueoakcouncil.org/license/1.0.0>.
+
+## Excuse
+
+If anyone notifies you in writing that you have not
+complied with [Notices](#notices), you can keep your
+license by taking all practical steps to comply within 30
+days after the notice.  If you do not do so, your license
+ends immediately.
+
+## Patent
+
+Each contributor licenses you to do everything with this
+software that would otherwise infringe any patent claims
+they can license or become able to license.
+
+## Reliability
+
+No contributor can revoke this license.
+
+## No Liability
+
+***As far as the law allows, this software comes as is,
+without any warranty or condition, and no contributor
+will be liable to anyone for any damages related to this
+software or this license, under any kind of legal claim.***
 
 =====================================================");
 END OF isexe NOTICES AND INFORMATION

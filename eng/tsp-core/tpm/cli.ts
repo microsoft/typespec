@@ -71,7 +71,7 @@ function buildPnpmFilterArgs(packages: PackageInfo[]): string {
   );
   const restFilters = packages
     .filter((p) => !criticalDirNames.has(p.name))
-    .map((p) => `--filter "./${p.path}..."`);
+    .map((p) => `--filter "./${p.name}..."`);
   return [...criticalFilters, ...restFilters].join(" ");
 }
 
