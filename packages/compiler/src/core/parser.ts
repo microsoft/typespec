@@ -439,32 +439,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           reportInvalidDecorators(decorators, "import statement");
           item = parseImportStatement();
           break;
-        // case Token.ModelKeyword:
-        //   item = parseModelStatement(pos, decorators);
-        //   break;
-        // case Token.ScalarKeyword:
-        //   item = parseScalarStatement(pos, decorators);
-        //   break;
-        // case Token.InterfaceKeyword:
-        //   item = parseInterfaceStatement(pos, decorators);
-        //   break;
-        // case Token.UnionKeyword:
-        //   item = parseUnionStatement(pos, decorators);
-        //   break;
-        // case Token.OpKeyword:
-        //   item = parseOperationStatement(pos, decorators);
-        //   break;
-        // case Token.EnumKeyword:
-        //   item = parseEnumStatement(pos, decorators);
-        //   break;
-        // case Token.AliasKeyword:
-        //   reportInvalidDecorators(decorators, "alias statement");
-        //   item = parseAliasStatement(pos);
-        //   break;
-        // case Token.ConstKeyword:
-        //   reportInvalidDecorators(decorators, "const statement");
-        //   item = parseConstStatement(pos);
-        //   break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement(pos);

@@ -528,12 +528,6 @@ const diagnostics = {
       default: "A rest parameter must be of an array type.",
     },
   },
-  "function-extern": {
-    severity: "error",
-    messages: {
-      default: "A function declaration must be prefixed with the 'extern' modifier.",
-    },
-  },
   "invalid-modifier": {
     severity: "error",
     messages: {
