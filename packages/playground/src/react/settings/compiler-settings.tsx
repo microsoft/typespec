@@ -64,7 +64,11 @@ export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
         <Subtitle2 className={style["section-title"]}>Emitter</Subtitle2>
         <div className={style["field"]}>
           <Label>Select emitter</Label>
-          <Select value={selectedEmitter} onChange={handleEmitterChange} aria-label="Select emitter">
+          <Select
+            value={selectedEmitter}
+            onChange={handleEmitterChange}
+            aria-label="Select emitter"
+          >
             <option value="" disabled>
               Select emitter...
             </option>
