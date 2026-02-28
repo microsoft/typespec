@@ -1,10 +1,8 @@
 import { Link, Toolbar, ToolbarButton, Tooltip } from "@fluentui/react-components";
 import { Broom16Filled, Bug16Regular, Save16Regular } from "@fluentui/react-icons";
-import type { CompilerOptions } from "@typespec/compiler";
 import { useMemo, type FunctionComponent, type ReactNode } from "react";
 import { EmitterDropdown } from "../react/emitter-dropdown.js";
 import { SamplesDrawerTrigger } from "../react/samples-drawer/index.js";
-import { CompilerSettingsDialogButton } from "../react/settings/compiler-settings-dialog-button.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import style from "./editor-command-bar.module.css";
 
@@ -17,8 +15,6 @@ export interface EditorCommandBarProps {
   host: BrowserHost;
   selectedEmitter: string;
   onSelectedEmitterChange: (emitter: string) => void;
-  compilerOptions: CompilerOptions;
-  onCompilerOptionsChange: (options: CompilerOptions) => void;
 
   samples?: Record<string, PlaygroundSample>;
   selectedSampleName: string;
@@ -32,8 +28,6 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   host,
   selectedEmitter,
   onSelectedEmitterChange,
-  compilerOptions,
-  onCompilerOptionsChange,
   samples,
   selectedSampleName,
   onSelectedSampleNameChange,
@@ -90,11 +84,6 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
         <div className={style["divider"]}></div>
         {commandBarButtons}
         {bugButton}
-        <CompilerSettingsDialogButton
-          compilerOptions={compilerOptions}
-          onCompilerOptionsChange={onCompilerOptionsChange}
-          selectedEmitter={selectedEmitter}
-        />
       </Toolbar>
     </div>
   );
