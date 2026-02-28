@@ -2983,6 +2983,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.path);
     case SyntaxKind.OperationStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -2994,12 +2995,14 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.baseOperation);
     case SyntaxKind.NamespaceStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         (isArray(node.statements) ? visitEach(cb, node.statements) : visitNode(cb, node.statements))
       );
     case SyntaxKind.InterfaceStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -3026,6 +3029,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
 
     case SyntaxKind.ModelStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -3035,6 +3039,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.ScalarStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -3045,6 +3050,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.id) || visitEach(cb, node.parameters);
     case SyntaxKind.UnionStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -3054,7 +3060,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.EnumStatement:
       return (
-        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitEach(cb, node.members)
+        visitEach(cb, node.modifiers) ||
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.members)
       );
     case SyntaxKind.EnumMember:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
@@ -3062,12 +3071,18 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.target);
     case SyntaxKind.AliasStatement:
       return (
+        visitEach(cb, node.modifiers) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
         visitNode(cb, node.value)
       );
     case SyntaxKind.ConstStatement:
-      return visitNode(cb, node.id) || visitNode(cb, node.value) || visitNode(cb, node.type);
+      return (
+        visitEach(cb, node.modifiers) ||
+        visitNode(cb, node.id) ||
+        visitNode(cb, node.value) ||
+        visitNode(cb, node.type)
+      );
     case SyntaxKind.DecoratorDeclarationStatement:
       return (
         visitEach(cb, node.modifiers) ||
