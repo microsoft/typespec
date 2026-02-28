@@ -913,7 +913,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Check if this is a max page size parameter
             var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
-            if (pageSizeParameterName != null && inputParameter.OriginalName.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+            if (pageSizeParameterName != null && string.Equals(inputParameter.OriginalName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
