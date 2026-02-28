@@ -124,7 +124,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       } catch (error: any) {
         const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
         // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-        if (isValid) throw new Error(error);
+        if (isValid) throw new Error(error, { cause: error });
       }
       if (!options["save-inputs"]) {
         // delete

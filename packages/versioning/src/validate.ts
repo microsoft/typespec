@@ -377,7 +377,7 @@ function getVersionedTypeMap(
       }
     }
   }
-  let lastType: Type | undefined = undefined;
+  let lastType: Type | undefined;
   switch (source.kind) {
     case "ModelProperty":
       lastType = source.type;

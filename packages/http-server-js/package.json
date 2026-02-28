@@ -65,7 +65,7 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.9",
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@types/swagger-ui-express": "^4.1.8",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",

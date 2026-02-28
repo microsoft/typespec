@@ -37,7 +37,7 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@emotion/react": "^11.14.0",
-    "@fluentui/react-components": "~9.72.3",
+    "@fluentui/react-components": "~9.73.0",
     "@fluentui/react-icons": "^2.0.292",
     "@typespec/spec-coverage-sdk": "workspace:^",
     "react": "~19.2.3",
@@ -49,7 +49,7 @@
     "@types/react-dom": "~19.2.2",
     "@vitejs/plugin-react": "~5.1.2",
     "rimraf": "~6.1.2",
-    "rollup-plugin-visualizer": "~6.0.3",
+    "rollup-plugin-visualizer": "6.0.4",
     "typescript": "~5.9.2",
     "vite": "^7.2.7",
     "vite-plugin-checker": "^0.12.0",

@@ -51,7 +51,7 @@
     "@typespec/compiler": "workspace:^"
   },
   "dependencies": {
-    "@fluentui/react-components": "~9.72.3",
+    "@fluentui/react-components": "~9.73.0",
     "@fluentui/react-icons": "^2.0.292",
     "@fluentui/react-list": "^9.1.2",
     "react": "~19.2.3",
@@ -63,7 +63,7 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@types/react": "~19.2.7",
     "@types/react-dom": "~19.2.2",
     "@typespec/compiler": "workspace:^",

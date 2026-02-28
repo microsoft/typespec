@@ -112,6 +112,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("deep clones defaults when not found", async () => {
+      // eslint-disable-next-line no-useless-assignment
       let config = await loadTestConfig("empty", false, false);
       config = await loadTestConfig("empty", false, false);
       deepStrictEqual(config, {
@@ -121,6 +122,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("deep clones defaults when found", async () => {
+      // eslint-disable-next-line no-useless-assignment
       let config = await loadTestConfig("simple", false, false);
 
       config = await loadTestConfig("simple");

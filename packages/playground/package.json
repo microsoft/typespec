@@ -72,7 +72,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.72.3",
+    "@fluentui/react-components": "~9.73.0",
     "@fluentui/react-icons": "^2.0.292",
     "@typespec/bundler": "workspace:^",
     "@typespec/compiler": "workspace:^",
@@ -100,7 +100,7 @@
     "@storybook/cli": "^10.1.8",
     "@storybook/react-vite": "^10.1.8",
     "@types/debounce": "~1.2.4",
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@types/react": "~19.2.7",
     "@types/react-dom": "~19.2.2",
     "@types/swagger-ui-dist": "~3.30.5",

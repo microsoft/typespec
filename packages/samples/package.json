@@ -60,7 +60,7 @@
     "@typespec/versioning": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@typespec/internal-build-utils": "workspace:^",
     "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^4.0.15",

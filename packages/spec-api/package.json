@@ -36,7 +36,7 @@
     "@types/deep-equal": "^1.0.1",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.0.0",
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@types/xml2js": "^0.4.11",
     "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^4.0.15",

@@ -50,7 +50,7 @@
     "yargs": "~18.0.0"
   },
   "devDependencies": {
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.2.3",
     "@types/yargs": "~17.0.33",
     "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^4.0.15",

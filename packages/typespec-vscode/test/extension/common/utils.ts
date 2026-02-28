@@ -35,9 +35,8 @@ export const test = baseTest.extend<{
     await use(async (options) => {
       const executablePath = inject("executablePath");
       const workspacePath = options.workspacePath;
-      let envOverrides = {};
       const codePath = path.join(executablePath, "../bin");
-      envOverrides = {
+      const envOverrides = {
         PATH: `${codePath}${path.delimiter}${process.env.PATH}`,
       };
 

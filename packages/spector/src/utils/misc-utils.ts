@@ -11,7 +11,7 @@ export async function ensureScenariosPathExists(scenariosPath: string) {
       throw new Error(`Scenarios path ${scenariosPath} is not a directory.`);
     }
   } catch (e) {
-    throw new Error(`Scenarios path ${scenariosPath} doesn't exists.`);
+    throw new Error(`Scenarios path ${scenariosPath} doesn't exist.`, { cause: e });
   }
 }
 

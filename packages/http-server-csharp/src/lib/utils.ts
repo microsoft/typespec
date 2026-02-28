@@ -1734,7 +1734,7 @@ export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, b
   let current: CSharpType | undefined = undefined;
   let nullable: boolean = false;
   for (const type of types) {
-    let candidate: CSharpType | undefined = undefined;
+    let candidate: CSharpType | undefined;
     switch (type.kind) {
       case "Boolean":
         candidate = new CSharpType({ name: "bool", namespace: "System", isValueType: true });
@@ -1797,6 +1797,8 @@ export async function getFreePort(minPort: number, maxPort: number, tries: numbe
   if (free) {
     return port;
   }
+  // This seems like a bug? tries-- does nothing?
+  // eslint-disable-next-line no-useless-assignment
   return await getFreePort(min, max, tries--);
 
   async function checkPort(port: number, timeout: number = 100): Promise<boolean> {

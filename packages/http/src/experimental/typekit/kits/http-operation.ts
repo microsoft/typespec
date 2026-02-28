@@ -85,7 +85,7 @@ defineKit<TypekitExtension>({
       }
 
       const voidType = { kind: "Intrinsic", name: "void" } as VoidType;
-      let httpReturnType: Type = voidType;
+      let httpReturnType: Type;
 
       if (!responses.length) {
         return voidType;
