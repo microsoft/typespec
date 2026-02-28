@@ -22,6 +22,8 @@ export type TypeSpecScope =
   | "keyword.directive.name.tsp"
   | "keyword.other.tsp"
   | "keyword.tag.tspdoc"
+  // Storage
+  | "storage.modifier.tsp"
   // Entities
   | "entity.name.type.tsp"
   | "entity.name.function.tsp"
@@ -551,7 +553,7 @@ const modelStatement: BeginEndRule = {
   scope: meta,
   begin: "(?:(internal)\\s+)?\\b(model)\\b",
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
@@ -619,7 +621,7 @@ const scalarStatement: BeginEndRule = {
   scope: meta,
   begin: `(?:(internal)\\s+)?\\b(scalar)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
     "3": { scope: "entity.name.type.tsp" },
   },
@@ -663,7 +665,7 @@ const enumStatement: BeginEndRule = {
   scope: meta,
   begin: `(?:(internal)\\s+)?\\b(enum)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
     "3": { scope: "entity.name.type.tsp" },
   },
@@ -702,7 +704,7 @@ const unionStatement: BeginEndRule = {
   scope: meta,
   begin: `(?:(internal)\\s+)?\\b(union)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
     "3": { scope: "entity.name.type.tsp" },
   },
@@ -726,7 +728,7 @@ const aliasStatement: BeginEndRule = {
   scope: meta,
   begin: `(?:(internal)\\s+)?\\b(alias)\\b\\s+(${identifier})\\s*`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
     "3": { scope: "entity.name.type.tsp" },
   },
@@ -739,7 +741,7 @@ const constStatement: BeginEndRule = {
   scope: meta,
   begin: `(?:(internal)\\s+)?\\b(const)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
     "3": { scope: "variable.name.tsp" },
   },
@@ -806,7 +808,7 @@ const operationStatement: BeginEndRule = {
   scope: meta,
   begin: `(?:(internal)\\s+)?\\b(op)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
     "3": { scope: "entity.name.function.tsp" },
   },
@@ -856,7 +858,7 @@ const interfaceStatement: BeginEndRule = {
   scope: meta,
   begin: "(?:(internal)\\s+)?\\b(interface)\\b",
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
@@ -896,7 +898,7 @@ const decoratorDeclarationStatement: BeginEndRule = {
   scope: meta,
   begin: `(?:(internal)\\s+)?(?:(extern)\\s+)?\\b(dec)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
     "3": { scope: "keyword.other.tsp" },
     "4": { scope: "entity.name.function.tsp" },
@@ -910,7 +912,7 @@ const functionDeclarationStatement: BeginEndRule = {
   scope: meta,
   begin: `(?:(internal)\\s+)?(?:(extern)\\s+)?\\b(fn)\\b\\s+(${identifier})`,
   beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
+    "1": { scope: "storage.modifier.tsp" },
     "2": { scope: "keyword.other.tsp" },
     "3": { scope: "keyword.other.tsp" },
     "4": { scope: "entity.name.function.tsp" },

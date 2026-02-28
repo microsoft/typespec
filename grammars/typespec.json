@@ -31,7 +31,7 @@
       "begin": "(?:(internal)\\s+)?\\b(alias)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\s*",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
@@ -114,7 +114,7 @@
       "begin": "(?:(internal)\\s+)?\\b(const)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
@@ -162,7 +162,7 @@
       "begin": "(?:(internal)\\s+)?(?:(extern)\\s+)?\\b(dec)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
@@ -335,7 +335,7 @@
       "begin": "(?:(internal)\\s+)?\\b(enum)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
@@ -403,7 +403,7 @@
       "begin": "(?:(internal)\\s+)?(?:(extern)\\s+)?\\b(fn)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
@@ -523,7 +523,7 @@
       "begin": "(?:(internal)\\s+)?\\b(interface)\\b",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
@@ -637,7 +637,7 @@
       "begin": "(?:(internal)\\s+)?\\b(model)\\b",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
@@ -838,7 +838,7 @@
       "begin": "(?:(internal)\\s+)?\\b(op)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
@@ -969,7 +969,7 @@
       "begin": "(?:(internal)\\s+)?\\b(scalar)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
@@ -1383,7 +1383,7 @@
       "begin": "(?:(internal)\\s+)?\\b(union)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
       "beginCaptures": {
         "1": {
-          "name": "keyword.other.tsp"
+          "name": "storage.modifier.tsp"
         },
         "2": {
           "name": "keyword.other.tsp"
