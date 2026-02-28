@@ -103,6 +103,7 @@ export const ConfigPanel: FunctionComponent<ConfigPanelProps> = ({
             <CompilerSettings
               host={host}
               selectedEmitter={selectedEmitter}
+              onSelectedEmitterChange={onSelectedEmitterChange}
               options={compilerOptions}
               onOptionsChanged={onCompilerOptionsChange}
             />

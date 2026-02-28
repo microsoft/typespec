@@ -5,6 +5,7 @@ import {
   Radio,
   RadioGroup,
   Switch,
+  Text,
   useId,
   type CheckboxOnChangeData,
   type InputOnChangeData,
@@ -42,7 +43,7 @@ export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
 
   const emitterOptionsSchema = library.definition?.emitter?.options?.properties;
   if (emitterOptionsSchema === undefined) {
-    return <>"No options"</>;
+    return <Text size={200}>No options available</Text>;
   }
   const entries = Object.entries(emitterOptionsSchema);
 
@@ -179,13 +180,20 @@ const JsonSchemaPropertyInput: FunctionComponent<JsonSchemaPropertyInputProps> =
   switch (prop.type) {
     case "boolean":
       return (
-        <Switch
-          className={style["switch"]}
-          label={prettyName}
-          labelPosition="above"
-          checked={value}
-          onChange={handleChange}
-        />
+        <div className={style["item"]}>
+          <Switch
+            className={style["switch"]}
+            label={prettyName}
+            labelPosition="above"
+            checked={value}
+            onChange={handleChange}
+          />
+          {prop.description && (
+            <Text size={200} className={style["description"]}>
+              {prop.description}
+            </Text>
+          )}
+        </div>
       );
     case "string":
     default:
@@ -194,6 +202,11 @@ const JsonSchemaPropertyInput: FunctionComponent<JsonSchemaPropertyInputProps> =
           <Label htmlFor={inputId} title={name}>
             {prettyName}
           </Label>
+          {prop.description && (
+            <Text size={200} className={style["description"]}>
+              {prop.description}
+            </Text>
+          )}
           {prop.enum ? (
             <RadioGroup layout="horizontal" id={inputId} value={value} onChange={handleChange}>
               {prop.enum.map((x) => (
