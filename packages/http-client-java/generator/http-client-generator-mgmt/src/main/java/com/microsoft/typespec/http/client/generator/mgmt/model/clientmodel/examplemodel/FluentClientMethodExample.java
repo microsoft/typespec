@@ -8,13 +8,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Model of example for service client method (usually for Fluent Premium).
@@ -26,6 +24,7 @@ public class FluentClientMethodExample implements FluentMethodExample {
     private final MethodGroupClient methodGroup;
     private final ClientMethod clientMethod;
     private final List<ParameterExample> parameters = new ArrayList<>();
+    private final ClassType managerType;
 
     public FluentClientMethodExample(String name, String originalFileName, MethodGroupClient methodGroup,
         ClientMethod clientMethod) {
@@ -33,6 +32,13 @@ public class FluentClientMethodExample implements FluentMethodExample {
         this.originalFileName = originalFileName;
         this.methodGroup = methodGroup;
         this.clientMethod = clientMethod;
+
+        String clientName = FluentStatic.getClient().getServiceClient().getClientBaseName();
+        String serviceName = FluentUtils.getServiceName(clientName);
+        JavaSettings settings = JavaSettings.getInstance();
+        this.managerType = new ClassType.Builder().packageName(settings.getPackage())
+            .name(CodeNamer.toPascalCase(serviceName) + "Manager")
+            .build();
     }
 
     public MethodGroupClient getMethodGroup() {
@@ -55,17 +61,17 @@ public class FluentClientMethodExample implements FluentMethodExample {
 
     @Override
     public ClassType getEntryType() {
-        return FluentType.AZURE_RESOURCE_MANAGER;
+        return managerType;
     }
 
     @Override
     public String getEntryName() {
-        return "azure";
+        return "manager";
     }
 
     @Override
     public String getEntryDescription() {
-        return "The entry point for accessing resource management APIs in Azure.";
+        return String.format("Entry point to %1$s.", managerType.getName());
     }
 
     @Override
@@ -75,47 +81,9 @@ public class FluentClientMethodExample implements FluentMethodExample {
 
     @Override
     public String getMethodReference() {
-        JavaSettings settings = JavaSettings.getInstance();
-
-        String namespace = settings.getPackage();
-        String[] identifiers = namespace.split(Pattern.quote("."));
-        String lastIdentifier = identifiers[identifiers.length - 1];
-
-        if (!MANAGER_REFERENCE.containsKey(lastIdentifier)) {
-            throw new IllegalStateException("Package '" + namespace + "' is not supported by Fluent Premium");
-        }
-
-        String managerReference = MANAGER_REFERENCE.get(lastIdentifier) + "." + ModelNaming.METHOD_MANAGER + "()";
         String serviceClientReference = ModelNaming.METHOD_SERVICE_CLIENT + "()";
-        if ("authorization".equals(lastIdentifier)) {
-            serviceClientReference = "roleServiceClient()";
-        } else if ("resources".equals(lastIdentifier)) {
-            String tag = settings.getAutorestSettings().getTag();
-            if (tag.contains("feature")) {
-                serviceClientReference = "featureClient()";
-            } else if (tag.contains("policy")) {
-                serviceClientReference = "policyClient()";
-            } else if (tag.contains("subscriptions")) {
-                serviceClientReference = "subscriptionClient()";
-            } else if (tag.contains("locks")) {
-                serviceClientReference = "managementLockClient()";
-            } else if (tag.contains("changes")) {
-                serviceClientReference = "resourceChangeClient()";
-            } else if (tag.contains("databoundaries")) {
-                serviceClientReference = "dataBoundaryClient()";
-            } else if (!tag.contains("resources")) {
-                // OpenAPI source of deployments moved to a separate folder
-                serviceClientReference = "deploymentClient()";
-            }
-        } else if ("containerregistry".equals(lastIdentifier)) {
-            String title = settings.getAutorestSettings().getTitle();
-            if ("ContainerRegistryTasks".equals(title)) {
-                serviceClientReference = "taskClient()";
-            }
-        }
-
         String methodGroupReference = "get" + CodeNamer.toPascalCase(methodGroup.getVariableName()) + "()";
-        return managerReference + "." + serviceClientReference + "." + methodGroupReference;
+        return serviceClientReference + "." + methodGroupReference;
     }
 
     @Override
@@ -123,30 +91,4 @@ public class FluentClientMethodExample implements FluentMethodExample {
         return clientMethod.getName();
     }
 
-    private final static Map<String, String> MANAGER_REFERENCE = new LinkedHashMap<>();
-    static {
-        MANAGER_REFERENCE.put("appplatform", "springServices()");
-        MANAGER_REFERENCE.put("appservice", "webApps()");
-        MANAGER_REFERENCE.put("authorization", "accessManagement().roleAssignments()");
-        MANAGER_REFERENCE.put("cdn", "cdnProfiles()");
-        MANAGER_REFERENCE.put("compute", "virtualMachines()");
-        MANAGER_REFERENCE.put("containerinstance", "containerGroups()");
-        MANAGER_REFERENCE.put("containerregistry", "containerRegistries()");
-        MANAGER_REFERENCE.put("containerservice", "kubernetesClusters()");
-        MANAGER_REFERENCE.put("cosmos", "cosmosDBAccounts()");
-        MANAGER_REFERENCE.put("dns", "dnsZones()");
-        MANAGER_REFERENCE.put("eventhubs", "eventHubs()");
-        MANAGER_REFERENCE.put("keyvault", "vaults()");
-        MANAGER_REFERENCE.put("monitor", "diagnosticSettings()");
-        MANAGER_REFERENCE.put("msi", "identities()");
-        MANAGER_REFERENCE.put("network", "networks()");
-        MANAGER_REFERENCE.put("privatedns", "privateDnsZones()");
-        MANAGER_REFERENCE.put("redis", "redisCaches()");
-        MANAGER_REFERENCE.put("resources", "genericResources()");
-        MANAGER_REFERENCE.put("search", "searchServices()");
-        MANAGER_REFERENCE.put("servicebus", "serviceBusNamespaces()");
-        MANAGER_REFERENCE.put("sql", "sqlServers()");
-        MANAGER_REFERENCE.put("storage", "storageAccounts()");
-        MANAGER_REFERENCE.put("trafficmanager", "trafficManagerProfiles()");
-    }
 }
