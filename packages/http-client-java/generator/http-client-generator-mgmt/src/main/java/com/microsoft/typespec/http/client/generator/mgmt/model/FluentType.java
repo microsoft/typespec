@@ -34,9 +34,6 @@ public class FluentType {
     public static final ClassType SYSTEM_DATA
         = new ClassType.Builder().packageName("com.azure.core.management").name("SystemData").build();
 
-    public static final ClassType AZURE_RESOURCE_MANAGER
-        = new ClassType.Builder().packageName("com.azure.resourcemanager").name("AzureResourceManager").build();
-
     public static final ClassType ADDITIONAL_INFO
         = new ClassType.Builder().packageName("com.azure.core.management.exception").name("AdditionalInfo").build();
 
