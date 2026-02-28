@@ -1,5 +1,19 @@
 # Change Log - @typespec/http-client-python
 
+## 0.27.2
+
+### Bump dependencies
+
+- [#9713](https://github.com/microsoft/typespec/pull/9713) Upgrade dependencies to match root package.json versions (@types/node, rimraf, tsx, typescript, typescript-eslint, vitest)
+
+### Bug Fixes
+
+- [#9812](https://github.com/microsoft/typespec/pull/9812) Fix `__eq__` method in `_MyMutableMapping` to use `isinstance` check instead of attempting to construct a new instance from the other object.
+- [#9776](https://github.com/microsoft/typespec/pull/9776) Allow client options on child clients to override parent clients
+- [#9769](https://github.com/microsoft/typespec/pull/9769) Add pylint disable for list of elem deserialization
+- [#9779](https://github.com/microsoft/typespec/pull/9779) allow decompression in version tolerant
+
+
 ## 0.27.1
 
 ### Bug Fixes

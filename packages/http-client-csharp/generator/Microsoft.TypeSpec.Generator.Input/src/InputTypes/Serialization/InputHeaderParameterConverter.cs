@@ -46,7 +46,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 defaultValue: null,
                 scope: default,
                 arraySerializationDelimiter: null,
-                isContentType: false);
+                isContentType: false,
+                collectionHeaderPrefix: null);
             resolver.AddReference(id, parameter);
 
             string? name = null;
@@ -58,6 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? scope = null;
             string? arraySerializationDelimiter = null;
             bool isContentType = false;
+            string? collectionHeaderPrefix = null;
             InputType? type = null;
             bool isReadOnly = false;
             bool isOptional = false;
@@ -83,6 +85,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
                     || reader.TryReadBoolean("isContentType", ref isContentType)
+                    || reader.TryReadString("collectionHeaderPrefix", ref collectionHeaderPrefix)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
 
@@ -107,6 +110,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.ArraySerializationDelimiter = arraySerializationDelimiter;
             parameter.IsContentType = isContentType;
+            parameter.CollectionHeaderPrefix = collectionHeaderPrefix;
             parameter.MethodParameterSegments = methodParameterSegments;
 
             return parameter;

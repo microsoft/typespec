@@ -249,6 +249,15 @@ const diagnostics = {
   /**
    * Checker
    */
+  "experimental-feature": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
+      functionDeclarations:
+        "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+      internal: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
+    },
+  },
   "using-invalid-ref": {
     severity: "error",
     messages: {
@@ -396,12 +405,14 @@ const diagnostics = {
       modelExpression: `Is a model expression type, but is being used as a value here. Use #{} to create an object value.`,
       tuple: `Is a tuple type, but is being used as a value here. Use #[] to create an array value.`,
       templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
+      functionReturn: paramMessage`Function returned a type, but a value was expected.`,
     },
   },
   "non-callable": {
     severity: "error",
     messages: {
       default: paramMessage`Type ${"type"} is not is not callable.`,
+      templateParameter: paramMessage`Template parameter '${"name"} extends ${"constraint"}' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).`,
     },
   },
   "named-init-required": {
@@ -439,6 +450,14 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Property '${"propName"}' is required in type '${"targetType"}' but here is optional.`,
+    },
+  },
+  "parameter-required": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Parameter '${"paramName"}' is required, but optional in the target function.`,
+      missing: paramMessage`Parameter '${"paramName"}' is required, but missing in the target function.`,
+      "rest-to-required": paramMessage`Parameter '${"paramName"}' is required and not satisfied by a rest parameter, as rest parameters are effectively optional.`,
     },
   },
   "value-in-type": {
@@ -536,17 +555,18 @@ const diagnostics = {
       "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
     },
   },
-  "experimental-feature": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`The '${"featureName"}' feature is experimental and may be changed or removed in a future release. Use with caution.`,
-      internal: `Internal symbols are experimental and may be changed in a future release. Use with caution. Suppress this message ('#suppress "experimental-feature"') to silence this warning.`,
-    },
-  },
-  "function-unsupported": {
+  "function-return": {
     severity: "error",
     messages: {
-      default: "Function are currently not supported.",
+      default: "Function implementation returned an invalid result.",
+      "invalid-value": paramMessage`Function implementation returned invalid JS value '${"value"}'.`,
+      unassignable: paramMessage`Implementation of '${"name"}' returned ${"entityKind"} '${"return"}', which is not assignable to the declared return type '${"type"}'.`,
+    },
+  },
+  "fn-in-union-expression": {
+    severity: "error",
+    messages: {
+      default: "Function types in anonymous union expressions must be parenthesized.",
     },
   },
   "missing-implementation": {

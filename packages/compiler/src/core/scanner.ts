@@ -126,7 +126,6 @@ export enum Token {
   ElseKeyword,
   IfKeyword,
   DecKeyword,
-  FnKeyword,
   ConstKeyword,
   InitKeyword,
   // Add new statement keyword above
@@ -148,6 +147,7 @@ export enum Token {
   // Other keywords
 
   ExtendsKeyword = __EndModifierKeyword,
+  FnKeyword,
   TrueKeyword,
   FalseKeyword,
   ReturnKeyword,

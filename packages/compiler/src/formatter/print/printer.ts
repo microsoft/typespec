@@ -25,6 +25,7 @@ import {
   EnumStatementNode,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
+  FunctionTypeExpressionNode,
   IdentifierNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
@@ -239,6 +240,12 @@ export function printNode(
     case SyntaxKind.FunctionDeclarationStatement:
       return printFunctionDeclarationStatement(
         path as AstPath<FunctionDeclarationStatementNode>,
+        options,
+        print,
+      );
+    case SyntaxKind.FunctionTypeExpression:
+      return printFunctionTypeExpression(
+        path as AstPath<FunctionTypeExpressionNode>,
         options,
         print,
       );
@@ -1519,6 +1526,27 @@ function printFunctionDeclarationStatement(
   ];
   const returnType = node.returnType ? [": ", path.call(print, "returnType")] : "";
   return [printModifiers(path, options, print), "fn ", id, "(", parameters, ")", returnType, ";"];
+}
+
+function printFunctionTypeExpression(
+  path: AstPath<FunctionTypeExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint,
+): Doc {
+  const node = path.node;
+  const parameters = [
+    group([
+      indent(
+        join(
+          ", ",
+          path.map((arg) => [softline, print(arg)], "parameters"),
+        ),
+      ),
+      softline,
+    ]),
+  ];
+  const returnType = node.returnType ? [" => ", path.call(print, "returnType")] : "";
+  return ["fn", "(", parameters, ")", returnType];
 }
 
 function printFunctionParameterDeclaration(

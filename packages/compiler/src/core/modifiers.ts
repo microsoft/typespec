@@ -41,9 +41,12 @@ const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibili
   [SyntaxKind.UnionStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.EnumStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.AliasStatement]: DEFAULT_COMPATIBILITY,
-  [SyntaxKind.FunctionDeclarationStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ConstStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.DecoratorDeclarationStatement]: {
+    allowed: ModifierFlags.All,
+    required: ModifierFlags.Extern,
+  },
+  [SyntaxKind.FunctionDeclarationStatement]: {
     allowed: ModifierFlags.All,
     required: ModifierFlags.Extern,
   },
