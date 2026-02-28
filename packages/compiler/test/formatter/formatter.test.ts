@@ -2856,4 +2856,134 @@ const a: in32 = 123;
       });
     });
   });
+
+  describe("internal modifier", () => {
+    it("format internal model", async () => {
+      await assertFormat({
+        code: `
+internal    model   Foo { }
+`,
+        expected: `
+internal model Foo {}
+`,
+      });
+    });
+
+    it("format internal model with decorators", async () => {
+      await assertFormat({
+        code: `
+@doc("A model")
+internal    model   Foo { x: string; }
+`,
+        expected: `
+@doc("A model")
+internal model Foo {
+  x: string;
+}
+`,
+      });
+    });
+
+    it("format internal op", async () => {
+      await assertFormat({
+        code: `
+internal    op   foo(): void;
+`,
+        expected: `
+internal op foo(): void;
+`,
+      });
+    });
+
+    it("format internal scalar", async () => {
+      await assertFormat({
+        code: `
+internal    scalar   foo;
+`,
+        expected: `
+internal scalar foo;
+`,
+      });
+    });
+
+    it("format internal interface", async () => {
+      await assertFormat({
+        code: `
+internal    interface   Foo { }
+`,
+        expected: `
+internal interface Foo {}
+`,
+      });
+    });
+
+    it("format internal union", async () => {
+      await assertFormat({
+        code: `
+internal    union   Foo { }
+`,
+        expected: `
+internal union Foo {}
+`,
+      });
+    });
+
+    it("format internal enum", async () => {
+      await assertFormat({
+        code: `
+internal    enum   Foo { a, b }
+`,
+        expected: `
+internal enum Foo {
+  a,
+  b,
+}
+`,
+      });
+    });
+
+    it("format internal alias", async () => {
+      await assertFormat({
+        code: `
+internal    alias   Foo  =  string;
+`,
+        expected: `
+internal alias Foo = string;
+`,
+      });
+    });
+
+    it("format internal const", async () => {
+      await assertFormat({
+        code: `
+internal    const   x  =   123;
+`,
+        expected: `
+internal const x = 123;
+`,
+      });
+    });
+
+    it("format internal extern dec", async () => {
+      await assertFormat({
+        code: `
+internal   extern    dec   foo(target: Type,    arg1: StringLiteral);
+`,
+        expected: `
+internal extern dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format internal extern fn", async () => {
+      await assertFormat({
+        code: `
+internal   extern    fn   foo(arg1: StringLiteral): void;
+`,
+        expected: `
+internal extern fn foo(arg1: StringLiteral): void;
+`,
+      });
+    });
+  });
 });
