@@ -10,6 +10,7 @@ import {
   downloadAndExtractPackage,
   fetchPackageManifest,
   NpmManifest,
+  readNpmConfig,
 } from "../package-manger/npm-registry-utils.js";
 import { mkTempDir } from "../utils/fs-utils.js";
 import {
@@ -220,11 +221,35 @@ async function runPackageManager(
   directory: string,
   stdio: "inherit" | "pipe",
 ) {
+  const config = readNpmConfig();
+  const npmEnvOverrides: Record<string, string> = {
+    npm_config_registry: config.registry,
+    npm_config_strict_ssl: String(config.strictSsl),
+  };
+  if (config.proxy !== undefined) {
+    npmEnvOverrides["npm_config_proxy"] = config.proxy;
+  }
+  if (config.httpsProxy !== undefined) {
+    npmEnvOverrides["npm_config_https_proxy"] = config.httpsProxy;
+  }
+  if (config.noProxy !== undefined) {
+    npmEnvOverrides["npm_config_noproxy"] = config.noProxy;
+  }
+  if (config.ca !== undefined) {
+    npmEnvOverrides["npm_config_ca"] = Array.isArray(config.ca) ? config.ca.join("\n") : config.ca;
+  }
+  if (config.cert !== undefined) {
+    npmEnvOverrides["npm_config_cert"] = config.cert;
+  }
+  if (config.key !== undefined) {
+    npmEnvOverrides["npm_config_key"] = config.key;
+  }
   const child = fork(binPath, packageManager.commands.install, {
     stdio,
     cwd: directory,
     env: {
       ...process.env,
+      ...npmEnvOverrides,
       TYPESPEC_CLI_PASSTHROUGH: "1",
     },
   });
