@@ -211,7 +211,9 @@ async function createEsBuildContext(
       build.onResolve({ filter: /.*/ }, (args) => {
         if (
           definition.packageJson.peerDependencies &&
-          Object.keys(definition.packageJson.peerDependencies).some((x) => args.path.startsWith(x))
+          Object.keys(definition.packageJson.peerDependencies).some(
+            (x) => args.path === x || args.path.startsWith(x + "/"),
+          )
         ) {
           return { path: args.path, external: true };
         }
@@ -240,6 +242,15 @@ async function createEsBuildContext(
     target: "es2024",
     minify,
     plugins: [virtualPlugin, nodeModulesPolyfillPlugin({}), ...plugins],
+    define: {
+      "process.env": "{}",
+      "process.argv": "[]",
+      "process.platform": '"browser"',
+      "process.versions": "{}",
+      "process.stdout": "undefined",
+      "process.stderr": "undefined",
+      "process.cwd": "undefined",
+    },
   });
 }
 
