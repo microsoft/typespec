@@ -17,10 +17,7 @@ const FileViewerComponent = ({
   const [filename, setFilename] = useState<string>("");
   const [content, setContent] = useState<string>("");
 
-  const hasDirectories = useMemo(
-    () => outputFiles.some((f) => f.includes("/")),
-    [outputFiles],
-  );
+  const hasDirectories = useMemo(() => outputFiles.some((f) => f.includes("/")), [outputFiles]);
 
   const loadOutputFile = useCallback(
     async (path: string) => {
