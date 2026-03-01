@@ -21,6 +21,7 @@ export interface TagMetadata {
   readonly [key: string]: unknown;
   readonly description?: string;
   readonly externalDocs?: ExternalDocs;
+  readonly parent?: string;
 }
 
 export interface Contact {
@@ -133,6 +134,7 @@ export type InfoDecorator = (
  * ```typespec
  * @service()
  * @tagMetadata("Tag Name", #{description: "Tag description", externalDocs: #{url: "https://example.com", description: "More info.", `x-custom`: "string"}, `x-custom`: "string"})
+ * @tagMetadata("Child Tag", #{description: "Child tag description", parent: "Tag Name"})
  * namespace PetStore {}
  * ```
  */
