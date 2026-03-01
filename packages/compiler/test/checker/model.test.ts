@@ -91,6 +91,66 @@ describe("compiler: models", () => {
     ]);
   });
 
+  describe("interpolated identifiers", () => {
+    it("supports model declaration and property names", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        const suffix = "A";
+        model \`Model\${suffix}\` { \`\${suffix}\`: string; }
+        `,
+      );
+
+      await testHost.compile("main.tsp");
+      const global = testHost.program.checker.getGlobalNamespaceType();
+
+      const model = global.models.get("ModelA");
+      ok(model);
+      ok(model.properties.get("A"));
+    });
+
+    it("emits diagnostic when interpolation isn't string", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        const v = 123;
+        model \`Model\${v}\` {}
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [{ code: "invalid-interpolated-identifier" }]);
+    });
+
+    it("emits duplicate-property with interpolated property names", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        const v = "x";
+        model A {
+          \`\${v}\`: string;
+          x: int32;
+        }
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [{ code: "duplicate-property" }]);
+    });
+
+    it("emits invalid-ref from interpolated identifier expressions", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model \`Model\${doesNotExist}\` {}
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref" }, { code: "expect-value" }]);
+    });
+  });
+
   describe("property defaults", () => {
     describe("set defaultValue", () => {
       const testCases: [string, string, { kind: string; value: any }][] = [

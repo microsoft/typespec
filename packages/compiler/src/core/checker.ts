@@ -2081,7 +2081,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       namespace,
       `Decorator ${node.id.sv} should have resolved a namespace or found the global namespace.`,
     );
-    const name = node.id.sv;
+    const name = resolveIdentifierName(ctx, node.id);
 
     if (!(node.modifierFlags & ModifierFlags.Extern)) {
       reportCheckerDiagnostic(createDiagnostic({ code: "decorator-extern", target: node }));
@@ -2240,7 +2240,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const base = {
       kind: "FunctionParameter",
       node,
-      name: node.id.sv,
+      name: resolveIdentifierName(ctx, node.id),
       optional: node.optional,
       rest: node.rest,
       implementation: node.symbol.value!,
@@ -2439,7 +2439,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (!symbolLinks.type) {
       // haven't seen this namespace before
       const namespace = getParentNamespaceType(node);
-      const name = node.id.sv;
+      const name = resolveIdentifierName(CheckContext.DEFAULT, node.id, {
+        allowInterpolation: false,
+        kind: "namespace",
+      });
       const type: Namespace = createType({
         kind: "Namespace",
         name,
@@ -2591,7 +2594,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const namespace = getParentNamespaceType(node);
-    const name = node.id.sv;
+    const name = resolveIdentifierName(ctx, node.id);
 
     const { resolvedSymbol: parameterModelSym } = resolver.resolveMetaMemberByName(
       symbol!,
@@ -3918,7 +3921,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
       kind: "Model",
-      name: node.id.sv,
+      name: resolveIdentifierName(ctx, node.id),
       node: node,
       properties: createRekeyableMap<string, ModelProperty>(),
       namespace: getParentNamespaceType(node),
@@ -5521,7 +5524,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links && links.declaredType && ctx.mapper === undefined) {
       return links.declaredType as ModelProperty;
     }
-    const name = prop.id.sv;
+    const name = resolveIdentifierName(ctx, prop.id);
 
     const type: ModelProperty = createType({
       kind: "ModelProperty",
@@ -5579,6 +5582,47 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         { value: createLiteralType(doc), jsValue: doc },
       ],
     };
+  }
+
+  function resolveIdentifierName(
+    ctx: CheckContext,
+    id: IdentifierNode,
+    options: { allowInterpolation?: boolean; kind?: string } = {},
+  ): string {
+    if (id.interpolation === undefined) {
+      return id.sv;
+    }
+    if (options.allowInterpolation === false) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-interpolated-identifier-context",
+          format: { kind: options.kind ?? "this" },
+          target: id.interpolation,
+        }),
+      );
+      return id.sv;
+    }
+
+    let value = id.interpolation.head.value;
+    for (const span of id.interpolation.spans) {
+      const evaluated = getValueForNode(span.expression, ctx.mapper);
+      if (evaluated === null) {
+        return id.sv;
+      }
+
+      if (evaluated.valueKind !== "StringValue") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-interpolated-identifier",
+            target: span.expression,
+          }),
+        );
+        return id.sv;
+      }
+
+      value += evaluated.value + span.literal.value;
+    }
+    return value;
   }
 
   function checkDefaultValue(ctx: CheckContext, defaultNode: Node, type: Type): Value | null {
@@ -6024,7 +6068,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const type: Scalar = createType({
       kind: "Scalar",
-      name: node.id.sv,
+      name: resolveIdentifierName(ctx, node.id),
       node: node,
       constructors: new Map(),
       namespace: getParentNamespaceType(node),
@@ -6131,7 +6175,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: ScalarConstructorNode,
     parentScalar: Scalar,
   ): ScalarConstructor {
-    const name = node.id.sv;
+    const name = resolveIdentifierName(ctx, node.id);
     const links = getSymbolLinksForMember(node);
     if (links && links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this scalar constructor and we've already checked it
@@ -6157,6 +6201,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkAlias(ctx: CheckContext, node: AliasStatementNode): Type | IndeterminateEntity {
     const links = getSymbolLinks(node.symbol);
+    resolveIdentifierName(ctx, node.id, { allowInterpolation: false, kind: "alias" });
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
       // This is a templated declaration and we are not instantiating it, so we need to update the flags.
@@ -6174,7 +6219,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "circular-alias-type",
-            format: { typeName: node.id.sv },
+            format: { typeName: resolveIdentifierName(ctx, node.id) },
             target: node,
           }),
         );
@@ -6202,6 +6247,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkConst(node: ConstStatementNode): Value | null {
     const links = getSymbolLinks(node.symbol);
+    const constName = resolveIdentifierName(CheckContext.DEFAULT, node.id, {
+      allowInterpolation: false,
+      kind: "const",
+    });
     if (links.value !== undefined) {
       return links.value;
     }
@@ -6212,7 +6261,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "circular-const",
-          format: { name: node.id.sv },
+          format: { name: constName },
           target: node,
         }),
       );
@@ -6255,7 +6304,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (!links.type) {
       const enumType: Enum = (links.type = createType({
         kind: "Enum",
-        name: node.id.sv,
+        name: resolveIdentifierName(ctx, node.id),
         node,
         members: createRekeyableMap<string, EnumMember>(),
         decorators: [],
@@ -6325,7 +6374,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       namespace: getParentNamespaceType(node),
       sourceInterfaces: [],
       operations: createRekeyableMap(),
-      name: node.id.sv,
+      name: resolveIdentifierName(ctx, node.id),
     });
 
     linkType(ctx, links, interfaceType);
@@ -6438,7 +6487,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
       node,
       namespace: getParentNamespaceType(node),
-      name: node.id.sv,
+      name: resolveIdentifierName(ctx, node.id),
       variants,
       get options() {
         return Array.from(this.variants.values()).map((v) => v.type);
@@ -6494,7 +6543,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return links.declaredType as UnionVariant;
     }
 
-    const name = variantNode.id ? variantNode.id.sv : Symbol("name");
+    const name = variantNode.id ? resolveIdentifierName(ctx, variantNode.id) : Symbol("name");
     const type = getTypeForNode(variantNode.value, ctx);
     const variantType: UnionVariant = createType({
       kind: "UnionVariant",
@@ -6538,7 +6587,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkEnumMember(ctx: CheckContext, node: EnumMemberNode, parentEnum?: Enum): EnumMember {
-    const name = node.id.sv;
+    const name = resolveIdentifierName(ctx, node.id);
     const links = getSymbolLinksForMember(node);
     if (links?.type) {
       return links.type as EnumMember;

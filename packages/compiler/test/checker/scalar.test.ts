@@ -50,6 +50,19 @@ describe("compiler: scalars", () => {
     strictEqual(A.name, "A");
   });
 
+  it("supports interpolated scalar, constructor, and parameter names", async () => {
+    const { SA } = await runner.compile(`
+      const suffix = "A";
+      @test scalar \`S\${suffix}\` {
+        init \`from\${suffix}\`(\`value\${suffix}\`: string);
+      }
+    `);
+
+    strictEqual(SA.kind, "Scalar");
+    ok(SA.constructors.get("fromA"));
+    strictEqual(SA.constructors.get("fromA")!.parameters[0].name, "valueA");
+  });
+
   // Test for https://github.com/microsoft/typespec/issues/1764
   it("template parameter are scoped to the scalar", async () => {
     const { A, B } = await runner.compile(`

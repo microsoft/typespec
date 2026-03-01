@@ -25,6 +25,18 @@ describe("compiler: operations", () => {
     strictEqual((foo.returnType as IntrinsicType).name, "void");
   });
 
+  it("supports interpolated operation declaration names", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      const suffix = "A";
+      @test op \`op\${suffix}\`(): void;
+      `,
+    );
+    const { opA } = (await testHost.compile("./main.tsp")) as { opA: Operation };
+    strictEqual(opA.name, "opA");
+  });
+
   it("keeps reference to source operation", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
