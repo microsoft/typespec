@@ -3,7 +3,6 @@ import {
   ResolvedModule,
   resolveModule,
   ResolveModuleError,
-  ResolveModuleHost,
 } from "../module-resolver/index.js";
 import { PackageJson } from "../types/package-json.js";
 import { doIO } from "../utils/io.js";
@@ -11,6 +10,7 @@ import { deepEquals, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
+import { createResolveModuleHost } from "./module-host.js";
 import { isImportStatement, parse } from "./parser.js";
 import { getDirectoryPath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
@@ -272,7 +272,7 @@ export async function createSourceLoader(
     target: DiagnosticTarget | typeof NoTarget,
   ): Promise<ModuleResolutionResult | undefined> {
     try {
-      return await resolveModule(getResolveModuleHost(), specifier, {
+      return await resolveModule(createResolveModuleHost(host), specifier, {
         baseDir,
         directoryIndexFiles: ["main.tsp", "index.mjs", "index.js"],
         resolveMain(pkg) {
@@ -322,17 +322,6 @@ export async function createSourceLoader(
       jsSourceFiles.set(path, file);
     }
     return file;
-  }
-
-  function getResolveModuleHost(): ResolveModuleHost {
-    return {
-      realpath: host.realpath,
-      stat: host.stat,
-      readFile: async (path) => {
-        const file = await host.readFile(path);
-        return file.text;
-      },
-    };
   }
 }
 
