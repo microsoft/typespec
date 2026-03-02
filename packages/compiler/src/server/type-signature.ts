@@ -111,17 +111,11 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
     case "EnumMember":
       return `(enum member)\n${fence(getEnumMemberSignature(type))}`;
     case "TemplateParameter":
-      return `(template parameter)\n${fence(type.node.id.sv)}`;
+      return `(template parameter)\n${fence(
+        getTemplateConstraintSignature(type.node.id.sv, type.constraint),
+      )}`;
     case "TemplateParameterAccess":
-      return [
-        "(template access)",
-        fence(type.path),
-        type.constraint?.type
-          ? `Constraint: \`${getTypeName(type.constraint.type, { printable: true })}\``
-          : undefined,
-      ]
-        .filter((x) => x !== undefined)
-        .join("\n\n");
+      return `(template access)\n${fence(getTemplateConstraintSignature(type.path, type.constraint))}`;
     case "UnionVariant":
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
@@ -154,6 +148,25 @@ function getMixedConstraintSignature(
     result += "valueof " + getTypeSignature(constraint.valueType, options);
   }
   return result;
+}
+
+function getTemplateConstraintSignature(
+  nameOrPath: string,
+  constraint?: MixedParameterConstraint,
+): string {
+  if (!constraint) {
+    return nameOrPath;
+  }
+
+  const parts: string[] = [];
+  if (constraint.type) {
+    parts.push(getTypeName(constraint.type, { printable: true }));
+  }
+  if (constraint.valueType) {
+    parts.push(`valueof ${getTypeName(constraint.valueType, { printable: true })}`);
+  }
+
+  return parts.length > 0 ? `${nameOrPath} extends ${parts.join(" | ")}` : nameOrPath;
 }
 
 function getDecoratorSignature(type: Decorator) {

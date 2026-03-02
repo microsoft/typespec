@@ -707,6 +707,19 @@ interface TestNs.Bird {
   });
 
   describe("template access", () => {
+    it("shows template parameter hover using extends signature", async () => {
+      const hover = await getHoverAtCursor(`
+        model X<T extends string> {
+          value: T┆;
+        }
+      `);
+
+      const value = getHoverValue(hover);
+      ok(value);
+      ok(value.includes("(template parameter)"));
+      ok(value.includes("T extends string"));
+    });
+
     it("shows template access hover with concrete constraint information", async () => {
       const hover = await getHoverAtCursor(
         `
@@ -722,8 +735,7 @@ interface TestNs.Bird {
       const value = getHoverValue(hover);
       ok(value);
       ok(value.includes("(template access)"));
-      ok(value.includes("M.a::type"));
-      ok(value.includes("Constraint: `string`"));
+      ok(value.includes("M.a::type extends string"));
     });
 
     it("shows template access hover for reflection-constrained metaproperties", async () => {
@@ -738,8 +750,7 @@ interface TestNs.Bird {
       const value = getHoverValue(hover);
       ok(value);
       ok(value.includes("(template access)"));
-      ok(value.includes("P::type"));
-      ok(value.includes("Constraint: `unknown`"));
+      ok(value.includes("P::type extends unknown"));
     });
 
     it("keeps template access hover in template declarations with downstream instantiations", async () => {
@@ -763,7 +774,7 @@ interface TestNs.Bird {
       const memberValue = getHoverValue(memberHover);
       ok(memberValue);
       ok(memberValue.includes("(template access)"));
-      ok(memberValue.includes("M.y"));
+      ok(memberValue.includes("M.y extends X<string>.y"));
 
       const metapropertyHover = await getHoverAtCursor(`
         model X<s extends Reflection.Scalar> {
@@ -785,7 +796,7 @@ interface TestNs.Bird {
       const metapropertyValue = getHoverValue(metapropertyHover);
       ok(metapropertyValue);
       ok(metapropertyValue.includes("(template access)"));
-      ok(metapropertyValue.includes("M.y::type"));
+      ok(metapropertyValue.includes("M.y::type extends string"));
 
       const returnTypeHover = await getHoverAtCursor(`
         model X<s extends Reflection.Scalar> {
@@ -807,7 +818,7 @@ interface TestNs.Bird {
       const returnTypeValue = getHoverValue(returnTypeHover);
       ok(returnTypeValue);
       ok(returnTypeValue.includes("(template access)"));
-      ok(returnTypeValue.includes("O::returnType"));
+      ok(returnTypeValue.includes("O::returnType extends unknown"));
     });
   });
 
