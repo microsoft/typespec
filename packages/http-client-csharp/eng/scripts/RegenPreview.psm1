@@ -189,7 +189,7 @@ function Update-MgmtGenerator {
 
     .PARAMETER EngFolder
         The eng folder path in azure-sdk-for-net. All other paths (mgmt generator, 
-        package paths, Packages.Data.props) are derived from this.
+        package paths, Directory.Generation.Packages.props) are derived from this.
 
     .PARAMETER DebugFolder
         The debug folder path where the packaged generators (.tgz files) are located.
@@ -305,7 +305,7 @@ function Update-AzureGenerator {
         2. Runs npm clean, install, and build
         3. Packages the Azure generator
         4. Builds and packages the Azure.Generator NuGet package
-        5. Updates Packages.Data.props with AzureGeneratorVersion
+        5. Updates Directory.Generation.Packages.props with AzureGeneratorVersion
         
         This function is designed to be called from RegenPreview.ps1.
 
@@ -319,7 +319,7 @@ function Update-AzureGenerator {
         The debug folder path where packaged artifacts will be stored.
 
     .PARAMETER PackagesDataPropsPath
-        Path to the Packages.Data.props file.
+        Path to the Directory.Generation.Packages.props file.
 
     .PARAMETER LocalVersion
         The version string to use for the local package (e.g., "1.0.0-alpha.20250127.abc123").
@@ -371,8 +371,8 @@ function Update-AzureGenerator {
     
     Write-Host "  Azure.Generator NuGet package created" -ForegroundColor Green
 
-    # Update Packages.Data.props with Azure generator version
-    Write-Host "Updating Packages.Data.props..." -ForegroundColor Gray
+    # Update Directory.Generation.Packages.props with Azure generator version
+    Write-Host "Updating Directory.Generation.Packages.props..." -ForegroundColor Gray
     $propsContent = Get-Content $PackagesDataPropsPath -Raw
     $pattern = '(<AzureGeneratorVersion>)([^<]+)(</AzureGeneratorVersion>)'
     
@@ -781,7 +781,7 @@ function Update-AzureSpectorScenarios {
 
     .DESCRIPTION
         This function handles the Azure spector regeneration workflow:
-        1. Updates Packages.Data.props with local NuGet version and adds local NuGet source
+        1. Updates Directory.Generation.Packages.props with local NuGet version and adds local NuGet source
         2. Temporarily updates the Azure generator's package.json to use the local unbranded package
         3. Runs npm install to wire up the local dependency
         4. Invokes the Azure generator's Generate.ps1 to regenerate spector scenarios
@@ -833,8 +833,8 @@ function Update-AzureSpectorScenarios {
 
     $originalPackageJson = Get-Content $packageJsonPath -Raw
 
-    # Save original Packages.Data.props content for restore
-    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
+    # Save original Directory.Generation.Packages.props content for restore
+    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
     $originalPackagesDataProps = $null
     if (Test-Path $packagesDataPropsPath) {
         $originalPackagesDataProps = Get-Content $packagesDataPropsPath -Raw
@@ -848,9 +848,9 @@ function Update-AzureSpectorScenarios {
     }
 
     try {
-        # Step 1: Update Packages.Data.props with local NuGet version
+        # Step 1: Update Directory.Generation.Packages.props with local NuGet version
         if ($originalPackagesDataProps) {
-            Write-Host "Updating Packages.Data.props with local NuGet version..." -ForegroundColor Gray
+            Write-Host "Updating Directory.Generation.Packages.props with local NuGet version..." -ForegroundColor Gray
             
             $pattern = '(<UnbrandedGeneratorVersion>)([^<]+)(</UnbrandedGeneratorVersion>)'
             
@@ -933,7 +933,7 @@ function Update-AzureSpectorScenarios {
         # Restore package.json
         Set-Content $packageJsonPath $originalPackageJson -Encoding utf8 -NoNewline
         
-        # Restore Packages.Data.props
+        # Restore Directory.Generation.Packages.props
         if ($originalPackagesDataProps -and (Test-Path $packagesDataPropsPath)) {
             Set-Content $packagesDataPropsPath $originalPackagesDataProps -Encoding utf8 -NoNewline
         }

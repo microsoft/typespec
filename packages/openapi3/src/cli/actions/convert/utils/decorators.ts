@@ -310,6 +310,22 @@ export function getDecoratorsForSchema(
       : schemaWithoutRef.type;
   }
 
+  // If effectiveType is still undefined, infer it from anyOf/oneOf members.
+  // This handles schemas like `{ anyOf: [{ type: "array", ... }, { type: "null" }], minItems: 2 }`
+  // where constraints live on the outer schema but the type is only in the union members.
+  if (!effectiveType) {
+    const unionMembers = schemaWithoutRef.anyOf || schemaWithoutRef.oneOf;
+    if (unionMembers) {
+      const nonNullMembers = unionMembers.filter((m) => !("$ref" in m) && m.type !== "null");
+      if (nonNullMembers.length === 1 && !("$ref" in nonNullMembers[0])) {
+        const memberType = nonNullMembers[0].type;
+        effectiveType = Array.isArray(memberType)
+          ? memberType.find((t) => t !== "null")
+          : memberType;
+      }
+    }
+  }
+
   // Handle x-ms-duration extension with @encode decorator
   // Must be after effectiveType extraction to handle type arrays correctly
   const xmsDuration = (schemaWithoutRef as any)["x-ms-duration"];
