@@ -19,6 +19,11 @@ describe("specify verb with each decorator", () => {
     const routes = await getRoutesFor(`@head op test(): void;`);
     expect(routes[0].verb).toBe("head");
   });
+
+  it("@head with body emits head-verb-body warning", async () => {
+    const diagnostics = await diagnoseOperations(`@head op test(): string;`);
+    expectDiagnostics(diagnostics, [{ code: "@typespec/http/head-verb-body", severity: "warning" }]);
+  });
 });
 
 describe("emit error when using 2 verb decorator together on the same node", () => {

@@ -85,7 +85,9 @@ export function resolveHttpPayload(
     resolvePayloadProperties(program, type, visibility, disposition, options),
   );
 
-  const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, disposition, options));
+  const body = diagnostics.pipe(
+    resolveBody(program, type, metadata, visibility, disposition, options),
+  );
 
   if (body) {
     if (
