@@ -66,3 +66,47 @@ jobs:
 
       - name: E2E Test
         run: pnpm test:e2e
+
+  azure-rest-api-specs:
+    name: Azure REST API Specs
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'int:azure-specs') || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build and pack TypeSpec Azure packages
+        run: |
+          pnpm --filter "!@typespec/playground-website" --filter "!@typespec/website"  -r build
+
+          pnpm chronus pack --pack-destination ./tgz-packages --exclude standalone
+
+          echo "Created tgz packages:"
+          ls -la ./tgz-packages/
+
+          cd packages/tsp-integration
+          npm link
+
+      - name: Checkout
+        run: tsp-integration azure-specs --stage checkout
+
+      - name: Patch package.json
+        run: tsp-integration azure-specs --stage patch --stage install --tgz-dir ./tgz-packages
+
+      - name: Run TypeSpec validation in azure-rest-api-specs
+        run: tsp-integration azure-specs --stage validate
+
+      - name: Check for git changes
+        if: success() || failure() # Still run this step even if validation fails to ensure as much information as possible
+        run: tsp-integration azure-specs --stage validate:clean
