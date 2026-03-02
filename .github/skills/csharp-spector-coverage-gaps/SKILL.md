@@ -68,6 +68,7 @@ The file `{PKG}/eng/scripts/Spector-Helper.psm1` defines which specs are include
 **Failing specs** are defined in `{PKG}/eng/scripts/Spector-Helper.psm1` in the `$failingSpecs` array. Always check that file for the current list — do not hardcode specs here.
 
 **Azure allow-list** (only these Azure specs are tested):
+
 - `http/client/structure/client-operation-group`
 - `http/client/structure/default`
 - `http/client/structure/multi-client`
@@ -103,6 +104,7 @@ foreach ($spec in $specs) {
 Alternatively, **manually compare** the list of specs against existing test files:
 
 **Existing test coverage** (test directories under `Spector.Tests/Http/`):
+
 ```
 Authentication/ApiKey, Authentication/Http/Custom, Authentication/OAuth2, Authentication/Union
 Client/Naming, Client/Structure/{ClientOperationGroup,Default,MultiClient,RenamedOperation,TwoOperationGroup}
@@ -123,11 +125,12 @@ _Type/{Dictionary,Model/Empty,Model/Inheritance/*,Model/Usage,Model/Visibility,P
 ### Accurate gap detection
 
 The naive approach of matching spec paths to test directory names can produce false positives because:
+
 - C# reserved words get underscore-prefixed in test dirs (e.g., `type/` → `_Type/`, `array` → `_Array`, `enum` → `_Enum`)
 - kebab-case gets converted to PascalCase (e.g., `content-negotiation` → `ContentNegotiation`)
 - Some test files cover a parent spec but not sub-specs (e.g., `UnionTests.cs` covers `type/union` but NOT `type/union/discriminated`)
 
-**To find real gaps**, verify each candidate by checking whether a test *directory* exists for the spec's exact path, including sub-paths. A test file at a parent level does NOT cover child specs.
+**To find real gaps**, verify each candidate by checking whether a test _directory_ exists for the spec's exact path, including sub-paths. A test file at a parent level does NOT cover child specs.
 
 **Known failing specs** are tracked in `$failingSpecs` in `{PKG}/eng/scripts/Spector-Helper.psm1`. Always read that file for the current list.
 
@@ -138,6 +141,7 @@ The naive approach of matching spec paths to test directory names can produce fa
 All Spector libraries **committed to the repository are stubbed**. `Generate.ps1` defaults to `$Stubbed = $true`, which passes `--option @typespec/http-client-csharp.generator-name=StubLibraryGenerator` to the emitter. Stubbed clients use expression-bodied constructors (`=>`) instead of block bodies (`{ }`), and the `[SpectorTest]` attribute automatically skips tests for stubbed clients.
 
 To generate **unstubbed** code (for local testing), pass `-Stubbed $false`:
+
 ```powershell
 pwsh eng/scripts/Generate.ps1 -filter "<spec-path>" -Stubbed $false
 ```
@@ -153,11 +157,13 @@ Spec files live in `{PKG}/node_modules/@typespec/http-specs/specs/` (or `@azure-
 If node_modules is not installed, read from the source at `<repo-root>/packages/http-specs/specs/`.
 
 Each spec contains:
+
 - **`main.tsp`** — the TypeSpec definition with `@scenario` and `@scenarioDoc` decorators
 - **`client.tsp`** (optional) — client-level customizations; takes priority over `main.tsp` during generation
 - **`tspconfig.yaml`** (optional in the Spector test project) — C#-specific generation options
 
 Read the `@scenarioDoc` decorators to understand:
+
 - The HTTP method, path, and expected parameters
 - The expected request body shape
 - The expected response status code and body
@@ -179,6 +185,7 @@ pwsh eng/scripts/Generate.ps1 -filter "<spec-path>"
 ```
 
 Examples:
+
 ```powershell
 # Single spec (unstubbed for testing)
 pwsh eng/scripts/Generate.ps1 -filter "http/encode/duration" -Stubbed $false
@@ -211,6 +218,7 @@ Browse the generated code to understand:
 5. **Constructor signature**: `new XClient(Uri endpoint, XClientOptions options)` or `new XClient(Uri endpoint, KeyCredential credential, XClientOptions options)`
 
 Pay attention to:
+
 - Method names (they map to TypeSpec operation names)
 - Parameter types (models, primitives, BinaryData)
 - Return types (`ClientResult`, `ClientResult<T>`, `AsyncPageable<T>`)
@@ -222,6 +230,7 @@ Pay attention to:
 ### Directory and namespace conventions
 
 The test directory structure mirrors the spec path with these transformations:
+
 - `http/` → `Http/`
 - kebab-case → PascalCase (e.g., `content-negotiation` → `ContentNegotiation`)
 - `type/` → `_Type/` (leading underscore because `Type` is a C# keyword)
@@ -264,6 +273,7 @@ namespace TestProjects.Spector.Tests.Http.<Category>.<SubCategory>
 ### Common test patterns
 
 **Simple void operation (204 response):**
+
 ```csharp
 [SpectorTest]
 public Task SimpleOp() => Test(async (host) =>
@@ -274,6 +284,7 @@ public Task SimpleOp() => Test(async (host) =>
 ```
 
 **GET with typed response:**
+
 ```csharp
 [SpectorTest]
 public Task GetValue() => Test(async (host) =>
@@ -284,6 +295,7 @@ public Task GetValue() => Test(async (host) =>
 ```
 
 **GET with model response:**
+
 ```csharp
 [SpectorTest]
 public Task GetModel() => Test(async (host) =>
@@ -295,6 +307,7 @@ public Task GetModel() => Test(async (host) =>
 ```
 
 **PUT/POST with body:**
+
 ```csharp
 [SpectorTest]
 public Task SendModel() => Test(async (host) =>
@@ -306,6 +319,7 @@ public Task SendModel() => Test(async (host) =>
 ```
 
 **Round-trip (GET then PUT):**
+
 ```csharp
 [SpectorTest]
 public Task RoundTrip() => Test(async (host) =>
@@ -318,6 +332,7 @@ public Task RoundTrip() => Test(async (host) =>
 ```
 
 **Error assertion:**
+
 ```csharp
 [SpectorTest]
 public Task InvalidKey() => Test((host) =>
@@ -330,6 +345,7 @@ public Task InvalidKey() => Test((host) =>
 ```
 
 **Sub-client access:**
+
 ```csharp
 [SpectorTest]
 public Task SubClientOp() => Test(async (host) =>
@@ -342,6 +358,7 @@ public Task SubClientOp() => Test(async (host) =>
 ```
 
 **Pagination:**
+
 ```csharp
 [SpectorTest]
 public Task ListItems() => Test(async (host) =>
@@ -386,6 +403,7 @@ Check existing references to match the pattern. The project name typically match
 ### Recommended: Use Test-Spector.ps1
 
 The `Test-Spector.ps1` script is the recommended way to test Spector specs. It automatically:
+
 1. Regenerates the spec as **unstubbed** (so tests are not auto-skipped)
 2. Runs the tests for that spec
 3. Restores the directory to its original stubbed state
@@ -397,6 +415,7 @@ pwsh eng/scripts/Test-Spector.ps1 -filter "<spec-path>"
 ```
 
 Example:
+
 ```powershell
 pwsh eng/scripts/Test-Spector.ps1 -filter "http/encode/duration"
 ```
