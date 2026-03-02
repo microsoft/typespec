@@ -29,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public SystemObjectModelProvider(CSharpType systemType, InputModelType inputModel) : base(inputModel)
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
+            CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
         }
 
         /// <summary>
@@ -36,8 +37,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public CSharpType SystemType => _systemType;
 
+        /// <summary>
+        /// Gets the cross-language definition ID from the input model.
+        /// </summary>
+        public string CrossLanguageDefinitionId { get; }
+
         /// <inheritdoc/>
-        protected override string BuildName() => _systemType.Name;
+        // _systemType may be null when called from base constructor before field assignment.
+        protected override string BuildName() => _systemType?.Name ?? string.Empty;
 
         /// <inheritdoc/>
         protected override string BuildRelativeFilePath()
