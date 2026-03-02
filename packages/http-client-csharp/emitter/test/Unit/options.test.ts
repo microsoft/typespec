@@ -162,4 +162,37 @@ describe("Configuration tests", async () => {
     expect(config["generate-protocol-methods"]).toBeUndefined();
     expect(config["generate-convenience-methods"]).toBeUndefined();
   });
+
+  it("should populate api-versions from sdkContext metadata", async () => {
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const config = createConfiguration(context.options, "namespace", sdkContext);
+
+    // The test TypeSpec has a versioned service, so api-versions should be populated
+    const apiVersions = config["api-versions"];
+    expect(apiVersions).toBeDefined();
+    expect(typeof apiVersions).toBe("object");
+    // The default test TypeSpec defines Azure.Csharp.Testing with version "2023-01-01-preview"
+    expect(apiVersions!["Azure.Csharp.Testing"]).toBe("2023-01-01-preview");
+  });
+
+  it("should not populate api-versions when metadata has no apiVersions", async () => {
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    // Clear the apiVersions to simulate a scenario with no versions
+    sdkContext.sdkPackage.metadata.apiVersions = undefined;
+    const config = createConfiguration(context.options, "namespace", sdkContext);
+
+    expect(config["api-versions"]).toBeUndefined();
+  });
+
+  it("should not populate api-versions when metadata has empty apiVersions map", async () => {
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    // Set an empty map
+    sdkContext.sdkPackage.metadata.apiVersions = new Map();
+    const config = createConfiguration(context.options, "namespace", sdkContext);
+
+    expect(config["api-versions"]).toBeUndefined();
+  });
 });

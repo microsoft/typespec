@@ -5,6 +5,7 @@ export interface Configuration {
   "package-name": string | null;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "disable-xml-docs"?: boolean;
+  "api-versions"?: Record<string, string>;
   license?: {
     name: string;
     company?: string;

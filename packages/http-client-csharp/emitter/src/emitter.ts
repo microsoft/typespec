@@ -157,6 +157,7 @@ export function createConfiguration(
   const derivedOptions = Object.fromEntries(
     Object.entries(options).filter(([key]) => !skipKeys.includes(key)),
   );
+  const apiVersions = sdkContext.sdkPackage.metadata?.apiVersions;
   return {
     // spread custom options first so that the predefined options below can override them
     ...derivedOptions,
@@ -164,6 +165,8 @@ export function createConfiguration(
     "unreferenced-types-handling": options["unreferenced-types-handling"],
     "disable-xml-docs":
       options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+    "api-versions":
+      apiVersions && apiVersions.size > 0 ? Object.fromEntries(apiVersions) : undefined,
     license: sdkContext.sdkPackage.licenseInfo,
   };
 }
