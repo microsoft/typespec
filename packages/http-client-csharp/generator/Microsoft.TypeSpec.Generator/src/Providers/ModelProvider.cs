@@ -555,6 +555,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var baseProperty = baseProperties.GetValueOrDefault(property.Name);
                     if (baseProperty is not null)
                     {
+                        // If the base chain includes a SystemObjectModelProvider, the framework type
+                        // already defines this property — skip generating it in the derived model.
+                        if (HasSystemObjectModelBase())
+                        {
+                            continue;
+                        }
+
                         if (DomainEqual(baseProperty, property))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Override;
@@ -590,6 +597,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 yield return model._inputModel;
                 model = model.BaseModelProvider;
             }
+        }
+
+        /// <summary>
+        /// Checks if any ancestor in the base model chain is a <see cref="SystemObjectModelProvider"/>.
+        /// </summary>
+        private bool HasSystemObjectModelBase()
+        {
+            var model = BaseModelProvider;
+            while (model != null)
+            {
+                if (model is SystemObjectModelProvider)
+                {
+                    return true;
+                }
+                model = model.BaseModelProvider;
+            }
+            return false;
         }
 
         private static bool DomainEqual(InputProperty baseProperty, InputProperty derivedProperty)
@@ -1211,7 +1235,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Builds the raw data field for the model to be used for serialization.
         /// </summary>
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
-        private FieldProvider? BuildRawDataField()
+        protected virtual FieldProvider? BuildRawDataField()
         {
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
             var baseModelProvider = BaseModelProvider;

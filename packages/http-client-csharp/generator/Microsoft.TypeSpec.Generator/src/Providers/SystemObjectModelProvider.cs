@@ -53,5 +53,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <inheritdoc/>
         // _systemType may be null when called from base constructor before field assignment.
         protected override string BuildNamespace() => _systemType?.Namespace ?? string.Empty;
+
+        /// <summary>
+        /// Framework types manage their own properties; no generated properties needed.
+        /// </summary>
+        protected internal override PropertyProvider[] BuildProperties() => [];
+
+        /// <summary>
+        /// Framework types manage their own fields; no generated fields needed.
+        /// </summary>
+        protected internal override FieldProvider[] BuildFields() => [];
+
+        /// <summary>
+        /// Framework types have their own serialization; no generated serialization providers needed.
+        /// </summary>
+        protected override TypeProvider[] BuildSerializationProviders() => [];
+
+        /// <summary>
+        /// Framework types have their own constructors; no generated constructors needed.
+        /// </summary>
+        protected internal override ConstructorProvider[] BuildConstructors() => [];
+
+        /// <summary>
+        /// Framework types manage their own raw data field.
+        /// Returns null so derived models create their own.
+        /// </summary>
+        protected override FieldProvider? BuildRawDataField() => null;
     }
 }
