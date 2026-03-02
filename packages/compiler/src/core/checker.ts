@@ -17,11 +17,13 @@ import {
   reportDeprecated,
 } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
+import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import { marshalTypeForJs, unmarshalJsToValue } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
+import { checkModifiers } from "./modifiers.js";
 import { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import {
@@ -91,6 +93,7 @@ import {
   JsNamespaceDeclarationNode,
   LiteralNode,
   LiteralType,
+  LocationContext,
   MemberContainerNode,
   MemberContainerType,
   MemberExpressionNode,
@@ -104,7 +107,6 @@ import {
   ModelProperty,
   ModelPropertyNode,
   ModelStatementNode,
-  ModifierFlags,
   Namespace,
   NamespaceStatementNode,
   NeverType,
@@ -614,6 +616,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       declarations: [],
       node: undefined as any, // TODO: is this correct?
     });
+
+    const internalDecorators = [
+      typespecNamespaceBinding!.exports?.get("@indexer"),
+      typespecNamespaceBinding!.exports?.get("@docFromComment"),
+      typespecNamespaceBinding!.exports?.get("Prototypes")?.exports?.get("@getter"),
+    ];
+
+    for (const decorator of internalDecorators) {
+      if (decorator) {
+        mutate(decorator).flags |= SymbolFlags.Internal;
+      }
+    }
 
     // Until we have an `unit` type for `null`
     mutate(resolver.symbols.null).type = nullType;
@@ -2087,6 +2101,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // we're not instantiating this operation and we've already checked it
       return links.declaredType as Decorator;
     }
+    checkModifiers(program, node);
 
     const namespace = getParentNamespaceType(node);
     compilerAssert(
@@ -2094,10 +2109,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       `Decorator ${node.id.sv} should have resolved a namespace or found the global namespace.`,
     );
     const name = node.id.sv;
-
-    if (!(node.modifierFlags & ModifierFlags.Extern)) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "decorator-extern", target: node }));
-    }
 
     const implementation = symbol.value;
     if (implementation === undefined) {
@@ -2131,6 +2142,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return links.value as FunctionValue;
     }
 
+    checkModifiers(program, node);
+
     reportCheckerDiagnostic(
       createDiagnostic({
         code: "experimental-feature",
@@ -2146,10 +2159,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
 
     const name = node.id.sv;
-
-    if (!(node.modifierFlags & ModifierFlags.Extern)) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "function-extern", target: node }));
-    }
 
     const implementation = mergedSymbol.value;
     if (implementation === undefined) {
@@ -2434,6 +2443,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (node.kind === SyntaxKind.NamespaceStatement) {
+      checkModifiers(program, node);
       if (isArray(node.statements)) {
         node.statements.forEach((x) => checkNode(ctx, x));
       } else if (node.statements) {
@@ -2582,6 +2592,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         // we're not instantiating this operation and we've already checked it
         return links.declaredType as Operation;
       }
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
 
     if (ctx.mapper === undefined && inInterface) {
@@ -3472,7 +3485,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ) {
       return referenceSymCache.get(node);
     }
-    const sym = resolveTypeReferenceSymInternal(ctx, node, resolvedOptions);
+    resolvedOptions.locationContext ??= getLocationContext(program, node);
+
+    const sym = resolveTypeReferenceSymInternal(
+      ctx,
+      node,
+      resolvedOptions as SymbolResolutionOptions & { locationContext: LocationContext },
+    );
     if (ctx.mapper === undefined && !resolvedOptions.resolveDeclarationOfTemplate) {
       referenceSymCache.set(node, sym);
     }
@@ -3482,7 +3501,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function resolveTypeReferenceSymInternal(
     ctx: CheckContext,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    options: SymbolResolutionOptions,
+    options: SymbolResolutionOptions & { locationContext: LocationContext },
   ): Sym | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
@@ -3512,8 +3531,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
       }
 
-      const sym = links.resolvedSymbol;
-      return sym?.symbolSource ?? sym;
+      const sym = links.resolvedSymbol?.symbolSource ?? links.resolvedSymbol;
+
+      checkSymbolAccess(options.locationContext, node, sym);
+
+      return sym;
     } else if (node.kind === SyntaxKind.MemberExpression) {
       let base = resolveTypeReferenceSym(ctx, node.base, {
         ...options,
@@ -3580,13 +3602,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         base = baseSym;
       }
-
       const templateAccessSym = tryResolveTemplateAccessSymbol(ctx, node, base);
       if (templateAccessSym) {
         return templateAccessSym;
       }
 
-      return resolveMemberInContainer(ctx, base, node, options);
+      const sym = resolveMemberInContainer(ctx, base, node, options);
+
+      checkSymbolAccess(options.locationContext, node, sym);
+
+      return sym;
     }
 
     compilerAssert(false, `Unknown type reference kind "${SyntaxKind[(node as any).kind]}"`, node);
@@ -4048,7 +4073,49 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     symbolCacheIds.set(sym, id);
     return id;
   }
+  function checkSymbolAccess(sourceLocation: LocationContext, node: Node, symbol: Sym | undefined) {
+    if (!symbol) return;
 
+    const isInternalDeclaration =
+      (symbol.flags & (SymbolFlags.Internal | SymbolFlags.Declaration)) ===
+      (SymbolFlags.Internal | SymbolFlags.Declaration);
+
+    if (isInternalDeclaration) {
+      // The source location can access internal declaration symbols if:
+      // 1. The source location is synthetic.
+      // 2. The source location is in the compiler standard library.
+      // 3. SOME declaration of the target symbol meets the following:
+      //   1. The source location is in the user project, and the symbol is also declared in the user project.
+      //   2. The source location is in a library, and the symbol is also in the same library.
+
+      if (sourceLocation.type === "synthetic" || sourceLocation.type === "compiler") {
+        return;
+      }
+
+      const isDeclaredInCompatibleLocation = symbol.declarations.some((decl) => {
+        const declLocation = getLocationContext(program, decl);
+
+        if (declLocation.type !== sourceLocation.type) return false;
+
+        // Both are project
+        if (declLocation.type === "project") return true;
+
+        // Both are library, use reference equality to check if they are the same library.
+        return declLocation === sourceLocation;
+      });
+
+      if (isDeclaredInCompatibleLocation) return;
+
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-ref",
+          messageId: "internal",
+          format: { id: symbol.name },
+          target: node,
+        }),
+      );
+    }
+  }
   function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
     const duplicateNames = symbols.map((s) =>
       getFullyQualifiedSymbolName(s, { useGlobalPrefixAtTopLevel: true }),
@@ -4602,6 +4669,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
@@ -6712,6 +6782,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
+    }
     checkTemplateDeclaration(ctx, node);
 
     const decorators: DecoratorApplication[] = [];
@@ -6860,6 +6933,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links.declaredType && ctx.mapper === undefined) {
       return links.declaredType;
     }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
+    }
     checkTemplateDeclaration(ctx, node);
 
     const aliasSymId = getNodeSym(node);
@@ -6899,6 +6975,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links.value !== undefined) {
       return links.value;
     }
+    checkModifiers(program, node);
 
     const type = node.type ? getTypeForNode(node.type, undefined) : undefined;
 
@@ -6947,6 +7024,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkEnum(ctx: CheckContext, node: EnumStatementNode): Type {
     const links = getSymbolLinks(node.symbol);
     if (!links.type) {
+      checkModifiers(program, node);
       const enumType: Enum = (links.type = createType({
         kind: "Enum",
         name: node.id.sv,
@@ -7009,6 +7087,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this interface and we've already checked it
       return links.declaredType as Interface;
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
@@ -7123,6 +7204,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (links.declaredType && ctx.mapper === undefined) {
       // we're not instantiating this union and we've already checked it
       return links.declaredType as Union;
+    }
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
 
@@ -8291,6 +8375,11 @@ interface SymbolResolutionOptions {
    * @default false
    */
   resolveDeclarationOfTemplate: boolean;
+
+  /**
+   * Location context to use when resolving the symbol. This is used to enforce symbol access logic.
+   */
+  locationContext?: LocationContext;
 }
 
 const defaultSymbolResolutionOptions: SymbolResolutionOptions = {
