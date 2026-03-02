@@ -160,6 +160,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         case "ScalarConstructor":
         case "StringTemplateSpan":
         case "TemplateParameter":
+        case "TemplateParameterAccess":
         case "Tuple":
         case "FunctionType":
           return undefined;
