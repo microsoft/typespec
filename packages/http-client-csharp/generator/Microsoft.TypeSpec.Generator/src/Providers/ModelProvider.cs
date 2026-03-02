@@ -315,10 +315,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return customBaseModel;
                 }
 
-                // If the custom base type has a namespace (external type), we don't return it here
-                // as it's handled by BuildBaseTypeProvider() which returns a TypeProvider
+                // If the custom base type has a namespace (external type), try name+namespace based
+                // lookup as a fallback. This handles the case where CSharpType equality fails due to
+                // framework vs non-framework type mismatch (e.g., a CSharpType from Roslyn with
+                // _type=typeof(T) vs a CSharpType from a model provider with _type=null).
                 if (!string.IsNullOrEmpty(baseType?.Namespace))
                 {
+                    foreach (var (mapKey, mapValue) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
+                    {
+                        if (mapValue is ModelProvider mp &&
+                            mapKey.Name == baseType.Name &&
+                            mapKey.Namespace == baseType.Namespace)
+                        {
+                            // Cache with the custom code's CSharpType for future lookups
+                            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = mp;
+                            return mp;
+                        }
+                    }
                     return null;
                 }
             }
