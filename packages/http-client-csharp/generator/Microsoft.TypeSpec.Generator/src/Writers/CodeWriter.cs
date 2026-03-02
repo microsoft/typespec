@@ -217,6 +217,13 @@ namespace Microsoft.TypeSpec.Generator
                         suppression.RestoreStatement.Write(this);
                     }
                 }
+                else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial))
+                {
+                    using (WriteMethodDeclarationNoScope(method.Signature))
+                    {
+                        WriteRawLine(";");
+                    }
+                }
             }
         }
 
@@ -800,7 +807,8 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("private ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+                .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static))
+                .AppendRawIf("partial ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
 
             if (methodBase is MethodSignature method)
             {

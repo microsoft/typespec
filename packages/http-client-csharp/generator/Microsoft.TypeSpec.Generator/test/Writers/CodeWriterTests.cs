@@ -608,5 +608,67 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
             Assert.AreEqual(expected, result);
         }
+
+        [Test]
+        public void CodeWriter_WriteMethodDeclaration_WithPartialModifier()
+        {
+            var methodSignature = new MethodSignature(
+                "DefineAdditionalProperties",
+                $"Defines additional properties.",
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Partial,
+                null,
+                null,
+                []);
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethodDeclarationNoScope(methodSignature);
+
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual("private partial void DefineAdditionalProperties()", result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteMethod_PartialMethodWithBody()
+        {
+            var methodSignature = new MethodSignature(
+                "DefineAdditionalProperties",
+                $"Defines additional properties.",
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Partial,
+                null,
+                null,
+                []);
+            var method = new MethodProvider(
+                methodSignature,
+                MethodBodyStatement.Empty,
+                new TestTypeProvider());
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethod(method);
+
+            var expected = Helpers.GetExpectedFromFile();
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteMethod_PartialMethodWithoutBody()
+        {
+            var methodSignature = new MethodSignature(
+                "DefineAdditionalProperties",
+                $"Defines additional properties.",
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Partial,
+                null,
+                null,
+                []);
+            var method = new MethodProvider(
+                methodSignature,
+                new TestTypeProvider());
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethod(method);
+
+            var expected = Helpers.GetExpectedFromFile();
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual(expected, result);
+        }
     }
 }
