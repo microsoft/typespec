@@ -33,19 +33,25 @@ const createIterator = (showNonenumerable?: boolean, sortObjectKeys?: boolean) =
         i++;
       }
     } else {
-      const keys = Object.getOwnPropertyNames(data);
-      if (sortObjectKeys === true && !dataIsArray) {
+      // Get all property keys (both string and Symbol)
+      const stringKeys = Object.getOwnPropertyNames(data);
+      const symbolKeys = Object.getOwnPropertySymbols(data);
+      const allKeys: (string | symbol)[] = [...stringKeys, ...symbolKeys];
+
+      if (sortObjectKeys && !dataIsArray) {
         // Array keys should not be sorted in alphabetical order
-        keys.sort();
-      } else if (typeof sortObjectKeys === "function") {
-        keys.sort(sortObjectKeys);
+        allKeys.sort((a, b) => {
+          const aStr = typeof a === "string" ? a : a.toString();
+          const bStr = typeof b === "string" ? b : b.toString();
+          return aStr.localeCompare(bStr);
+        });
       }
 
-      for (const propertyName of keys) {
-        if (propertyIsEnumerable.call(data, propertyName)) {
-          const propertyValue = getPropertyValue(data, propertyName);
+      for (const key of allKeys) {
+        if (propertyIsEnumerable.call(data, key)) {
+          const propertyValue = getPropertyValue(data, key);
           yield {
-            name: propertyName || `""`,
+            name: typeof key === "string" ? key || `""` : key.toString(),
             data: propertyValue,
           };
         } else if (showNonenumerable) {
@@ -54,14 +60,14 @@ const createIterator = (showNonenumerable?: boolean, sortObjectKeys?: boolean) =
           // http://stackoverflow.com/questions/31921189/caller-and-arguments-are-restricted-function-properties-and-cannot-be-access
           let propertyValue;
           try {
-            propertyValue = getPropertyValue(data, propertyName);
+            propertyValue = getPropertyValue(data, key);
           } catch (e) {
             // console.warn(e)
           }
 
           if (propertyValue !== undefined) {
             yield {
-              name: propertyName,
+              name: typeof key === "string" ? key || `""` : key.toString(),
               data: propertyValue,
               isNonenumerable: true,
             };
@@ -109,7 +115,6 @@ export const ObjectInspector: FC<ObjectInspectorProps> = ({
   const [expandedPaths, setExpandedPaths] = useState(new Set<string>());
   const dataIterator = createIterator(showNonenumerable, sortObjectKeys);
   const renderer = nodeRenderer ?? DefaultNodeRenderer;
-
   const tree = computeNode({
     path: DEFAULT_ROOT_PATH,
     name: "root",
