@@ -6,10 +6,12 @@
 import pytest
 from specs.azure.clientgenerator.core.flattenproperty import FlattenPropertyClient
 from specs.azure.clientgenerator.core.flattenproperty.models import (
-    FlattenModel,
-    ChildModel,
-    NestedFlattenModel,
     ChildFlattenModel,
+    ChildModel,
+    FlattenModel,
+    FlattenUnknownModel,
+    NestedFlattenModel,
+    Solution,
 )
 
 
@@ -39,6 +41,20 @@ def test_put_nested_flatten_model(client: FlattenPropertyClient):
         name="test",
         properties=ChildFlattenModel(summary="test", properties=ChildModel(age=1, description="foo")),
     )
+
+
+def test_put_flatten_unknown_model(client: FlattenPropertyClient):
+    result = client.put_flatten_unknown_model(FlattenUnknownModel(name="foo"))
+    assert result.name == "test"
+    assert result.properties == {"key1": "value1", "key2": "value2"}
+
+
+def test_put_flatten_read_only_model(client: FlattenPropertyClient):
+    result = client.put_flatten_read_only_model(Solution({"name": "foo"}))
+    assert result.name == "foo"
+    assert result["solutionId"] == "solution1"
+    assert result["title"] == "Solution Title"
+    assert result["content"] == "Solution Content"
 
 
 # ============test for compatibility ============
