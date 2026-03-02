@@ -12,7 +12,9 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Model of example for service client method (usually for Fluent Premium).
@@ -81,6 +83,15 @@ public class FluentClientMethodExample implements FluentMethodExample {
 
     @Override
     public String getMethodReference() {
+        JavaSettings settings = JavaSettings.getInstance();
+        String namespace = settings.getPackage();
+        String lastIdentifier = namespace.substring(namespace.lastIndexOf('.') + 1);
+
+        // Guard against accidental premium code generation for non-premium libraries
+        if (!MANAGER_REFERENCE.containsKey(lastIdentifier)) {
+            throw new IllegalStateException("Package '" + namespace + "' is not supported by Fluent Premium");
+        }
+
         String serviceClientReference = ModelNaming.METHOD_SERVICE_CLIENT + "()";
         String methodGroupReference = "get" + CodeNamer.toPascalCase(methodGroup.getVariableName()) + "()";
         return serviceClientReference + "." + methodGroupReference;
@@ -91,4 +102,30 @@ public class FluentClientMethodExample implements FluentMethodExample {
         return clientMethod.getName();
     }
 
+    private static final Map<String, String> MANAGER_REFERENCE = new HashMap<>();
+    static {
+        MANAGER_REFERENCE.put("appplatform", "springServices()");
+        MANAGER_REFERENCE.put("appservice", "webApps()");
+        MANAGER_REFERENCE.put("authorization", "accessManagement().roleAssignments()");
+        MANAGER_REFERENCE.put("cdn", "cdnProfiles()");
+        MANAGER_REFERENCE.put("compute", "virtualMachines()");
+        MANAGER_REFERENCE.put("containerinstance", "containerGroups()");
+        MANAGER_REFERENCE.put("containerregistry", "containerRegistries()");
+        MANAGER_REFERENCE.put("containerservice", "kubernetesClusters()");
+        MANAGER_REFERENCE.put("cosmos", "cosmosDBAccounts()");
+        MANAGER_REFERENCE.put("dns", "dnsZones()");
+        MANAGER_REFERENCE.put("eventhubs", "eventHubs()");
+        MANAGER_REFERENCE.put("keyvault", "vaults()");
+        MANAGER_REFERENCE.put("monitor", "diagnosticSettings()");
+        MANAGER_REFERENCE.put("msi", "identities()");
+        MANAGER_REFERENCE.put("network", "networks()");
+        MANAGER_REFERENCE.put("privatedns", "privateDnsZones()");
+        MANAGER_REFERENCE.put("redis", "redisCaches()");
+        MANAGER_REFERENCE.put("resources", "genericResources()");
+        MANAGER_REFERENCE.put("search", "searchServices()");
+        MANAGER_REFERENCE.put("servicebus", "serviceBusNamespaces()");
+        MANAGER_REFERENCE.put("sql", "sqlServers()");
+        MANAGER_REFERENCE.put("storage", "storageAccounts()");
+        MANAGER_REFERENCE.put("trafficmanager", "trafficManagerProfiles()");
+    }
 }
