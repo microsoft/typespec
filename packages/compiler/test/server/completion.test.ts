@@ -504,10 +504,19 @@ describe("identifiers", () => {
           value: "(model property)\n```typespec\nB.a: A\n```",
         },
       },
+      {
+        label: "name",
+        insertText: "name",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nB.a: A\n```",
+        },
+      },
     ]);
   });
 
-  it("completes meta property '::parameters' and '::returnType' on operation", async () => {
+  it("completes meta property '::parameters', '::returnType' and '::name' on operation", async () => {
     const completions = await complete(
       `
       op base(one: string): void;    
@@ -528,6 +537,15 @@ describe("identifiers", () => {
       {
         label: "returnType",
         insertText: "returnType",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop base(one: string): void\n```",
+        },
+      },
+      {
+        label: "name",
+        insertText: "name",
         kind: CompletionItemKind.Method,
         documentation: {
           kind: MarkupKind.Markdown,
@@ -563,6 +581,27 @@ describe("identifiers", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value: "```typespec\nop b(one: string): void\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes meta property '::name' on model", async () => {
+    const completions = await complete(
+      `
+      model A {}
+      @@doc(A::┆, "docs");
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "name",
+        insertText: "name",
+        kind: CompletionItemKind.Class,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nmodel A\n```",
         },
       },
     ]);

@@ -97,6 +97,26 @@ describe("string templates", () => {
   });
 });
 
+describe("::name metaproperty", () => {
+  const cases: Array<[string, string, string]> = [
+    ["model", "M::name", `model M {}`],
+    ["model property", "M.p::name", `model M { p: string; }`],
+    ["enum", "E::name", `enum E { x }`],
+    ["enum member", "E.x::name", `enum E { x }`],
+    ["union", "U::name", `union U { a: string }`],
+    ["union variant", "U.a::name", `union U { a: string }`],
+    ["scalar", "S::name", `scalar S;`],
+    ["interface", "I::name", `interface I {}`],
+    ["operation", "o::name", `op o(): void;`],
+  ];
+
+  it.each(cases)("returns a string value for %s", async (_, expr, declaration) => {
+    const value = await compileValue(expr, declaration);
+    strictEqual(value.valueKind, "StringValue");
+    strictEqual(value.value, expr.split("::")[0].split(".").at(-1)!);
+  });
+});
+
 describe("validate literal are assignable", () => {
   const cases: Array<[string, Array<["✔" | "✘", string, string?]>]> = [
     [

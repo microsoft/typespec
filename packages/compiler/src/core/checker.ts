@@ -3186,18 +3186,31 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
         if (base) {
           if (identifier.parent.selector === "::") {
-            if (base?.node === undefined && base?.declarations && base.declarations.length > 0) {
+            const baseNode = base?.node ?? base?.declarations?.[0];
+            if (baseNode?.kind === SyntaxKind.OperationStatement) {
               // Process meta properties separately, such as `::parameters`, `::returnType`
-              const nodeModels = base?.declarations[0];
-              if (nodeModels.kind === SyntaxKind.OperationStatement) {
-                const operation = nodeModels as OperationStatementNode;
-                addCompletion("parameters", operation.symbol);
-                addCompletion("returnType", operation.symbol);
-              }
-            } else if (base?.node?.kind === SyntaxKind.ModelProperty) {
+              const operation = baseNode as OperationStatementNode;
+              addCompletion("parameters", operation.symbol);
+              addCompletion("returnType", operation.symbol);
+              addCompletion("name", operation.symbol);
+            } else if (baseNode?.kind === SyntaxKind.ModelProperty) {
               // Process meta properties separately, such as `::type`
-              const metaProperty = base.node as ModelPropertyNode;
+              const metaProperty = baseNode as ModelPropertyNode;
               addCompletion("type", metaProperty.symbol);
+              addCompletion("name", metaProperty.symbol);
+            } else if (
+              baseNode?.kind === SyntaxKind.ModelStatement ||
+              baseNode?.kind === SyntaxKind.EnumStatement ||
+              baseNode?.kind === SyntaxKind.UnionStatement ||
+              baseNode?.kind === SyntaxKind.InterfaceStatement ||
+              baseNode?.kind === SyntaxKind.ScalarStatement ||
+              baseNode?.kind === SyntaxKind.EnumMember ||
+              baseNode?.kind === SyntaxKind.UnionVariant
+            ) {
+              const symbol = (baseNode as { symbol?: Sym }).symbol;
+              if (symbol) {
+                addCompletion("name", symbol);
+              }
             }
           } else {
             addCompletions(base.exports ?? base.members);
