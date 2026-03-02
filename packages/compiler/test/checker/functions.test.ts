@@ -91,8 +91,8 @@ describe("declaration", () => {
   it("errors if function is missing extern modifier", async () => {
     const diagnostics = await tester.diagnose(`fn testFn();`);
     expectFunctionDiagnostics(diagnostics, {
-      code: "function-extern",
-      message: "A function declaration must be prefixed with the 'extern' modifier.",
+      code: "invalid-modifier",
+      message: "Declaration of type 'function' is missing required modifier 'extern'.",
     });
   });
 

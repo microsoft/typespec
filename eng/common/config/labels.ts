@@ -218,6 +218,10 @@ export default defineConfig({
           color: "0969da",
           description: "Good candidate for MQ",
         },
+        "int:azure-specs": {
+          color: "0e8a16",
+          description: "Run integration tests against azure-rest-api-specs",
+        },
       },
     },
   },

@@ -72,7 +72,7 @@
   },
   "devDependencies": {
     "@types/cross-spawn": "~6.0.6",
-    "@types/node": "~25.0.2",
+    "@types/node": "~25.3.0",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -85,15 +85,15 @@
     "@typespec/spector": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
-    "@vitest/coverage-v8": "^4.0.15",
-    "@vitest/ui": "^4.0.15",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
     "fs-extra": "^11.2.0",
     "globby": "~16.1.0",
     "inquirer": "^13.1.0",
     "ora": "^9.0.0",
     "p-limit": "^7.1.1",
     "pathe": "^2.0.3",
-    "typescript": "~5.9.2",
-    "vitest": "^4.0.15"
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.18"
   }
 }

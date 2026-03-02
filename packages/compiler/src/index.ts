@@ -243,7 +243,7 @@ export const $decorators = {
   },
 };
 
-export { applyCodeFix, applyCodeFixes } from "./core/code-fixes.js";
+export { applyCodeFix, applyCodeFixes, resolveCodeFix } from "./core/code-fixes.js";
 export { createAddDecoratorCodeFix } from "./core/compiler-code-fixes/create-add-decorator/create-add-decorator.codefix.js";
 export {
   createSuppressCodeFix,

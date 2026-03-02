@@ -6,9 +6,11 @@ using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
@@ -195,8 +197,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsList)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
-                        declarations["content"] = content;
+                        if (TryGetXmlCollectionNames(parameter, out var rootName, out var childName))
+                        {
+                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter, Literal(rootName), Literal(childName)), out var content));
+                            declarations["content"] = content;
+                        }
+                        else
+                        {
+                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
+                            declarations["content"] = content;
+                        }
                     }
                     else if (parameter.Type.IsDictionary)
                     {
@@ -316,6 +326,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (responseBodyType.IsList)
             {
                 var elementType = responseBodyType.Arguments[0];
+
+                // Check if the response uses XML content type
+                if (TryGetXmlCollectionNamesForResponse(elementType, out var rootName, out var childName))
+                {
+                    return BuildXmlCollectionConversionForResult(
+                        result,
+                        responseBodyType,
+                        elementType,
+                        rootName,
+                        childName,
+                        out declarations);
+                }
+
                 return BuildCollectionConversionForResult(
                     result,
                     responseBodyType,
@@ -371,6 +394,50 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     GetFrameworkTypeConversionFromReader(elementType, readerVar, value, null)
                 });
             }
+
+            return statements;
+        }
+
+        private List<MethodBodyStatement> BuildXmlCollectionConversionForResult(
+            ClientResponseApi result,
+            CSharpType responseBodyType,
+            CSharpType elementType,
+            string rootName,
+            string childName,
+            out Dictionary<string, ValueExpression> declarations)
+        {
+            var listType = new CSharpType(typeof(List<>), elementType);
+            var defaultValue = new VariableExpression(responseBodyType, "value");
+            var statements = new List<MethodBodyStatement>
+            {
+                Declare(defaultValue, Default),
+                Declare("data", result.GetRawResponse().Content(), out var data)
+            };
+            declarations = new Dictionary<string, ValueExpression> { { "value", defaultValue } };
+
+            // Build the inner loop
+            var arrayVar = new VariableExpression(listType, "array");
+
+            statements.Add(
+                new UsingScopeStatement(typeof(Stream), "stream", data.ToStream(), out var streamVar)
+                {
+                    Declare("document", typeof(XDocument), Static(typeof(XDocument)).Invoke(nameof(XDocument.Load), [streamVar, XmlLinqSnippets.PreserveWhitespace]), out var documentVar),
+                    new IfStatement(documentVar.Invoke(nameof(XDocument.Element), Literal(rootName)).Is(Declare<XElement>("element", out var rootElementVar)))
+                    {
+                        Declare(arrayVar, New.Instance(listType)),
+                        ForEachStatement.Create(
+                            "item",
+                            rootElementVar.Elements(Literal(childName)),
+                            out ScopedApi<XElement> item)
+                            .Add(arrayVar.As(listType).Add(
+                                MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                                    elementType,
+                                    item,
+                                    null,
+                                    ModelSerializationExtensionsSnippets.Wire))),
+                        defaultValue.Assign(arrayVar).Terminate()
+                    }
+                });
 
             return statements;
         }
@@ -1131,6 +1198,101 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Tries to get the XML root and child element names for a list body parameter
+        /// when the operation uses XML content type.
+        /// </summary>
+        private bool TryGetXmlCollectionNames(
+            ParameterProvider parameter,
+            [NotNullWhen(true)] out string? rootName,
+            [NotNullWhen(true)] out string? childName)
+        {
+            rootName = null;
+            childName = null;
+
+            // Check if the request uses XML content type
+            if (ServiceMethod.Operation.RequestMediaTypes == null ||
+                !ServiceMethod.Operation.RequestMediaTypes.Any(m => m.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            // The element type must be a non-framework (model) type
+            if (!parameter.Type.IsList || parameter.Type.Arguments[0].IsFrameworkType)
+            {
+                return false;
+            }
+
+            // Get the body parameter from the operation to get the serialized name (root element name)
+            var operationBodyParam = ServiceMethod.Operation.Parameters.OfType<InputBodyParameter>().FirstOrDefault();
+            if (operationBodyParam == null)
+            {
+                return false;
+            }
+
+            // TODO: https://github.com/Azure/typespec-azure/issues/3978 - fix root name calculation once the issue is resolved.
+            rootName = operationBodyParam.Type.Name;
+
+            // Get the element type's XML name
+            if (operationBodyParam.Type is InputArrayType arrayType &&
+                arrayType.ValueType is InputModelType elementModelType &&
+                elementModelType.SerializationOptions.Xml?.Name is string xmlName)
+            {
+                childName = xmlName;
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to get the XML root and child element names for a list response body
+        /// when the operation response uses XML content type.
+        /// </summary>
+        private bool TryGetXmlCollectionNamesForResponse(
+            CSharpType elementType,
+            [NotNullWhen(true)] out string? rootName,
+            [NotNullWhen(true)] out string? childName)
+        {
+            rootName = null;
+            childName = null;
+
+            // Check if the response uses XML content type
+            var response = ServiceMethod.Operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
+            if (response == null || !response.ContentTypes.Any(c => c.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            // The element type must be a non-framework (model) type
+            if (elementType.IsFrameworkType)
+            {
+                return false;
+            }
+
+            // Get the response body type to extract XML names
+            if (response.BodyType is InputArrayType arrayType)
+            {
+                if (arrayType.ValueType is InputModelType elementModelType &&
+                    elementModelType.SerializationOptions.Xml?.Name is string xmlChildName)
+                {
+                    childName = xmlChildName;
+                }
+                else
+                {
+                    return false;
+                }
+
+                // TODO: https://github.com/Azure/typespec-azure/issues/3978 - fix root name calculation once the issue is resolved.
+                rootName = arrayType.Name;
+            }
+
+            return rootName != null && childName != null;
         }
     }
 }
