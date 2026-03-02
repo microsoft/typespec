@@ -15,6 +15,7 @@ import {
   CallExpressionNode,
   Comment,
   ConstStatementNode,
+  DeclarationNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
@@ -256,6 +257,8 @@ export function printNode(
       );
     case SyntaxKind.ExternKeyword:
       return "extern";
+    case SyntaxKind.InternalKeyword:
+      return "internal";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:
@@ -340,7 +343,15 @@ export function printAliasStatement(
 ) {
   const id = path.call(print, "id");
   const template = printTemplateParameters(path, options, print, "templateParameters");
-  return ["alias ", id, template, " = ", path.call(print, "value"), ";"];
+  return [
+    printModifiers(path, options, print),
+    "alias ",
+    id,
+    template,
+    " = ",
+    path.call(print, "value"),
+    ";",
+  ];
 }
 
 export function printConstStatement(
@@ -351,7 +362,15 @@ export function printConstStatement(
   const node = path.node;
   const id = path.call(print, "id");
   const type = node.type ? [": ", path.call(print, "type")] : "";
-  return ["const ", id, type, " = ", path.call(print, "value"), ";"];
+  return [
+    printModifiers(path, options, print),
+    "const ",
+    id,
+    type,
+    " = ",
+    path.call(print, "value"),
+    ";",
+  ];
 }
 
 export function printCallExpression(
@@ -668,7 +687,14 @@ export function printEnumStatement(
 ) {
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const id = path.call(print, "id");
-  return [decorators, "enum ", id, " ", printEnumBlock(path, options, print)];
+  return [
+    decorators,
+    printModifiers(path, options, print),
+    "enum ",
+    id,
+    " ",
+    printEnumBlock(path, options, print),
+  ];
 }
 
 function printEnumBlock(
@@ -715,7 +741,15 @@ export function printUnionStatement(
   const id = path.call(print, "id");
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
-  return [decorators, "union ", id, generic, " ", printUnionVariantsBlock(path, options, print)];
+  return [
+    decorators,
+    printModifiers(path, options, print),
+    "union ",
+    id,
+    generic,
+    " ",
+    printUnionVariantsBlock(path, options, print),
+  ];
 }
 
 export function printUnionVariantsBlock(
@@ -757,6 +791,7 @@ export function printInterfaceStatement(
 
   return [
     decorators,
+    printModifiers(path, options, print),
     "interface ",
     id,
     generic,
@@ -1018,6 +1053,7 @@ export function printModelStatement(
   const body = shouldPrintBody ? [" ", printModelPropertiesBlock(path, options, print)] : ";";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
+    printModifiers(path, options, print),
     "model ",
     id,
     generic,
@@ -1206,6 +1242,7 @@ function printScalarStatement(
   const members = shouldPrintBody ? [" ", printScalarBody(path, options, print)] : ";";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
+    printModifiers(path, options, print),
     "scalar ",
     id,
     template,
@@ -1303,6 +1340,7 @@ export function printOperationStatement(
 
   return [
     decorators,
+    printModifiers(path, options, print),
     inInterface ? "" : "op ",
     path.call(print, "id"),
     templateParams,
@@ -1531,12 +1569,12 @@ function printFunctionParameterDeclaration(
 }
 
 export function printModifiers(
-  path: AstPath<DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode>,
+  path: AstPath<DeclarationNode & Node>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ): Doc {
   const node = path.node;
-  if (node.modifiers.length === 0) {
+  if (node.modifiers === undefined || node.modifiers.length === 0) {
     return "";
   }
 
