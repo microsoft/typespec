@@ -160,6 +160,46 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
     });
   });
 
+  it("emits instantiated template metaproperty access", async () => {
+    const res = await oapiForModel(
+      "Z",
+      `model X { y: string; }
+       model A<M extends X> { z: M.y::type; }
+       model Z is A<X>;`,
+    );
+
+    expect(res.schemas.Z).toMatchObject({
+      type: "object",
+      properties: {
+        z: { type: "string" },
+      },
+      required: ["z"],
+    });
+  });
+
+  it("emits instantiated Operation::returnType through template access", async () => {
+    const res = await openApiFor(
+      `model X<s extends Reflection.Scalar> {
+         y: s;
+       }
+       op foo<s extends Reflection.Scalar>(): X<s>;
+       interface Operations<O extends Reflection.Operation> {
+         get(): O::returnType;
+       }
+       interface Z extends Operations<foo<string>> {}`,
+    );
+
+    expect(
+      res.paths["/"]?.get?.responses?.["200"]?.content?.["application/json"]?.schema,
+    ).toMatchObject({
+      type: "object",
+      required: ["y"],
+      properties: {
+        y: { type: "string" },
+      },
+    });
+  });
+
   it("defines templated models when template param is in a namespace", async () => {
     const res = await oapiForModel(
       "Foo<Test.M>",

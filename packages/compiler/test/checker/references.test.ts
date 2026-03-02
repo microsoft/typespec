@@ -782,6 +782,37 @@ describe("compiler: references", () => {
         `,
         ref: "Person.address::type.city",
       }));
+
+    describe("ModelProperty::type through template parameter constrained to Reflection.ModelProperty", () =>
+      itCanReference({
+        code: `
+          model Person {
+            address: Address
+          }
+          model Address {
+            @test("target") city: string
+          }
+          model Wrapper<P extends Reflection.ModelProperty> {
+            value: P::type;
+          }
+          alias Wrapped = Wrapper<Person.address>;
+        `,
+        ref: "Wrapped.value::type.city",
+      }));
+
+    describe("ModelProperty::type through template member access constrained to a concrete model", () =>
+      itCanReference({
+        code: `
+          model X {
+            @test("target") a: string;
+          }
+          model Y<M extends X> {
+            p: M.a::type;
+          }
+          alias YOfX = Y<X>;
+        `,
+        ref: "YOfX.p::type",
+      }));
     describe("Operation::returnType", () =>
       itCanReference({
         code: `
@@ -790,12 +821,51 @@ describe("compiler: references", () => {
         ref: "testOp::returnType.status",
       }));
 
+    describe("Operation::returnType through template parameter constrained to Reflection.Operation", () =>
+      itCanReference({
+        code: `
+          op testOp(): { @test("target") status: 200 };
+          model ReturnWrapper<T extends Reflection.Operation> {
+            value: T::returnType;
+          }
+          alias WrappedReturn = ReturnWrapper<testOp>;
+        `,
+        ref: "WrappedReturn.value::type.status",
+      }));
+
+    describe("Operation::returnType through template parameter constrained to Reflection.Operation with templated operation", () =>
+      itCanReference({
+        code: `
+            model X<s extends Reflection.Scalar> {
+              @test("target") y: s;
+            }
+            op foo<s extends Reflection.Scalar>(): X<s>;
+            model ReturnWrapper<O extends Reflection.Operation> {
+              value: O::returnType;
+            }
+            alias WrappedReturn = ReturnWrapper<foo<string>>;
+          `,
+        ref: "WrappedReturn.value::type.y",
+      }));
+
     describe("Operation::parameters", () =>
       itCanReference({
         code: `
           op testOp(@test("target") select: string, other: string): void;
         `,
         ref: "testOp::parameters.select",
+      }));
+
+    describe("Operation::parameters through template parameter constrained to Reflection.Operation", () =>
+      itCanReference({
+        code: `
+          op testOp(@test("target") select: string, other: string): void;
+          model ParametersWrapper<T extends Reflection.Operation> {
+            value: T::parameters;
+          }
+          alias WrappedParameters = ParametersWrapper<testOp>;
+        `,
+        ref: "WrappedParameters.value::type.select",
       }));
 
     it("emits a diagnostic when referencing a non-existent meta type property", async () => {
@@ -820,6 +890,26 @@ describe("compiler: references", () => {
         {
           code: "invalid-ref",
           message: `Model doesn't have meta property foo`,
+        },
+      ]);
+    });
+
+    it("emits a diagnostic when template access is not guaranteed by the constraint", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model Y<M extends Reflection.Model> {
+          p: M.a::type;
+        }
+        `,
+      );
+
+      const diagnostics = await testHost.diagnose("./main.tsp");
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-ref",
+          message: `Model doesn't have member a`,
         },
       ]);
     });

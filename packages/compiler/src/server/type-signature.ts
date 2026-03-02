@@ -112,6 +112,16 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
       return `(enum member)\n${fence(getEnumMemberSignature(type))}`;
     case "TemplateParameter":
       return `(template parameter)\n${fence(type.node.id.sv)}`;
+    case "TemplateParameterAccess":
+      return [
+        "(template access)",
+        fence(type.path),
+        type.constraint?.type
+          ? `Constraint: \`${getTypeName(type.constraint.type, { printable: true })}\``
+          : undefined,
+      ]
+        .filter((x) => x !== undefined)
+        .join("\n\n");
     case "UnionVariant":
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":

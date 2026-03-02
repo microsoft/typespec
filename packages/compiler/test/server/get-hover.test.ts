@@ -1,4 +1,4 @@
-import { deepStrictEqual } from "assert";
+import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
 import { Hover, MarkupKind } from "vscode-languageserver/node.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
@@ -706,6 +706,111 @@ interface TestNs.Bird {
     });
   });
 
+  describe("template access", () => {
+    it("shows template access hover with concrete constraint information", async () => {
+      const hover = await getHoverAtCursor(
+        `
+        model X {
+          a: string;
+        }
+        model Y<M extends X> {
+          p: M.a::ty┆pe;
+        }
+        `,
+      );
+
+      const value = getHoverValue(hover);
+      ok(value);
+      ok(value.includes("(template access)"));
+      ok(value.includes("M.a::type"));
+      ok(value.includes("Constraint: `string`"));
+    });
+
+    it("shows template access hover for reflection-constrained metaproperties", async () => {
+      const hover = await getHoverAtCursor(
+        `
+        model Y<P extends Reflection.ModelProperty> {
+          p: P::ty┆pe;
+        }
+        `,
+      );
+
+      const value = getHoverValue(hover);
+      ok(value);
+      ok(value.includes("(template access)"));
+      ok(value.includes("P::type"));
+      ok(value.includes("Constraint: `unknown`"));
+    });
+
+    it("keeps template access hover in template declarations with downstream instantiations", async () => {
+      const memberHover = await getHoverAtCursor(`
+        model X<s extends Reflection.Scalar> {
+          y: s;
+        }
+
+        model A<M extends X<string>> {
+          z: M.┆y::type;
+        }
+
+        op foo<s extends Reflection.Scalar>(): A<X<string>>;
+
+        interface Operations<O extends Reflection.Operation> {
+          get(): O::returnType;
+        }
+
+        interface Z extends Operations<foo<string>> {}
+      `);
+      const memberValue = getHoverValue(memberHover);
+      ok(memberValue);
+      ok(memberValue.includes("(template access)"));
+      ok(memberValue.includes("M.y"));
+
+      const metapropertyHover = await getHoverAtCursor(`
+        model X<s extends Reflection.Scalar> {
+          y: s;
+        }
+
+        model A<M extends X<string>> {
+          z: M.y::ty┆pe;
+        }
+
+        op foo<s extends Reflection.Scalar>(): A<X<string>>;
+
+        interface Operations<O extends Reflection.Operation> {
+          get(): O::returnType;
+        }
+
+        interface Z extends Operations<foo<string>> {}
+      `);
+      const metapropertyValue = getHoverValue(metapropertyHover);
+      ok(metapropertyValue);
+      ok(metapropertyValue.includes("(template access)"));
+      ok(metapropertyValue.includes("M.y::type"));
+
+      const returnTypeHover = await getHoverAtCursor(`
+        model X<s extends Reflection.Scalar> {
+          y: s;
+        }
+
+        model A<M extends X<string>> {
+          z: M.y::type;
+        }
+
+        op foo<s extends Reflection.Scalar>(): A<X<string>>;
+
+        interface Operations<O extends Reflection.Operation> {
+          get(): O::ret┆urnType;
+        }
+
+        interface Z extends Operations<foo<string>> {}
+      `);
+      const returnTypeValue = getHoverValue(returnTypeHover);
+      ok(returnTypeValue);
+      ok(returnTypeValue.includes("(template access)"));
+      ok(returnTypeValue.includes("O::returnType"));
+    });
+  });
+
   async function getHoverAtCursor(sourceWithCursor: string): Promise<Hover | undefined> {
     const { source, pos } = extractCursor(sourceWithCursor);
     const testHost = await createTestServerHost();
@@ -717,5 +822,17 @@ interface TestNs.Bird {
       textDocument,
       position: textDocument.positionAt(pos),
     });
+  }
+
+  function getHoverValue(hover: Hover | undefined): string | undefined {
+    if (!hover) return undefined;
+    const contents = hover.contents;
+    if (typeof contents === "string") {
+      return contents;
+    }
+    if (Array.isArray(contents)) {
+      return contents.map((x) => (typeof x === "string" ? x : x.value)).join("\n");
+    }
+    return contents.value;
   }
 });

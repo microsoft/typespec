@@ -568,6 +568,48 @@ describe("identifiers", () => {
     ]);
   });
 
+  it("completes model members from template parameter constraints", async () => {
+    const completions = await complete(
+      `
+      model X {
+        a: string;
+        b: int32;
+      }
+      model Y<M extends X> {
+        p: M.┆
+      }
+      `,
+    );
+
+    ok(completions.items.find((item) => item.label === "a"));
+    ok(completions.items.find((item) => item.label === "b"));
+  });
+
+  it("completes meta property '::type' from Reflection.ModelProperty-constrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<P extends Reflection.ModelProperty> {
+        value: P::┆
+      }
+      `,
+    );
+
+    ok(completions.items.find((item) => item.label === "type"));
+  });
+
+  it("completes operation meta properties from Reflection.Operation-constrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<O extends Reflection.Operation> {
+        value: O::┆
+      }
+      `,
+    );
+
+    ok(completions.items.find((item) => item.label === "parameters"));
+    ok(completions.items.find((item) => item.label === "returnType"));
+  });
+
   it("completes partial identifiers", async () => {
     const completions = await complete(
       `

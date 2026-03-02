@@ -16,6 +16,7 @@ import {
   StringTemplate,
   StringTemplateSpan,
   TemplateParameter,
+  TemplateParameterAccess,
   Tuple,
   Type,
   TypeListeners,
@@ -386,6 +387,13 @@ function navigateTemplateParameter(type: TemplateParameter, context: NavigationC
   if (context.emit("templateParameter", type) === ListenerFlow.NoRecursion) return;
 }
 
+function navigateTemplateParameterAccess(type: TemplateParameterAccess, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("templateParameterAccess", type) === ListenerFlow.NoRecursion) return;
+}
+
 function navigateDecoratorDeclaration(type: Decorator, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
@@ -436,6 +444,8 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
         return navigateStringTemplateSpan(entity, context);
       case "TemplateParameter":
         return navigateTemplateParameter(entity, context);
+      case "TemplateParameterAccess":
+        return navigateTemplateParameterAccess(entity, context);
       case "Decorator":
         return navigateDecoratorDeclaration(entity, context);
       case "ScalarConstructor":
@@ -499,7 +509,9 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
 const eventNames: Array<keyof SemanticNodeListener> = [
   "root",
   "templateParameter",
+  "templateParameterAccess",
   "exitTemplateParameter",
+  "exitTemplateParameterAccess",
   "scalar",
   "exitScalar",
   "model",

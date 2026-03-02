@@ -1,4 +1,4 @@
-import { deepStrictEqual } from "assert";
+import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
 import { DocumentHighlight } from "vscode-languageserver/node.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
@@ -170,6 +170,20 @@ describe("compiler: server: documentHighlight", () => {
         },
       },
     ]);
+  });
+
+  it("includes template access references in highlighting", async () => {
+    const ranges = await findDocumentHighlight(`
+    model X {
+      a: string;
+    }
+    model Y<M extends X> {
+      p1: M.a┆::type;
+      p2: M.a::type;
+    }`);
+
+    const templateAccessRanges = ranges.filter((x) => x.range.start.line >= 5);
+    ok(templateAccessRanges.length >= 2);
   });
 
   async function findDocumentHighlight(sourceWithCursor: string): Promise<DocumentHighlight[]> {
