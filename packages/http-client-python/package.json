@@ -15,7 +15,8 @@
   },
   "keywords": [
     "typespec",
-    "python"
+    "python",
+    "typespec:emitter"
   ],
   "type": "module",
   "main": "dist/emitter/index.js",

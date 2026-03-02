@@ -15,7 +15,9 @@
   },
   "keywords": [
     "TypeSpec",
-    "json schema"
+    "json schema",
+    "typespec:lib",
+    "typespec:emitter"
   ],
   "type": "module",
   "main": "dist/src/index.js",

@@ -18,7 +18,8 @@
     "http",
     "server",
     "javascript",
-    "typescript"
+    "typescript",
+    "typespec:emitter"
   ],
   "type": "module",
   "main": "dist/src/index.js",

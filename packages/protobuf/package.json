@@ -16,7 +16,9 @@
   "keywords": [
     "typespec",
     "protobuf",
-    "grpc"
+    "grpc",
+    "typespec:lib",
+    "typespec:emitter"
   ],
   "main": "dist/src/index.js",
   "exports": {

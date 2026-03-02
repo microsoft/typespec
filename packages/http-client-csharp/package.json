@@ -14,7 +14,9 @@
     "url": "https://github.com/Microsoft/typespec/issues"
   },
   "keywords": [
-    "typespec"
+    "typespec",
+    "typespec:lib",
+    "typespec:emitter"
   ],
   "type": "module",
   "main": "dist/emitter/src/index.js",
