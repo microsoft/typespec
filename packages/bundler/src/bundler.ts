@@ -241,6 +241,9 @@ async function createEsBuildContext(
     format: "esm",
     target: "es2024",
     minify,
+    banner: {
+      js: "delete globalThis.__ALLOY__;",
+    },
     plugins: [virtualPlugin, nodeModulesPolyfillPlugin({}), ...plugins],
     define: {
       "process.env": "{}",
