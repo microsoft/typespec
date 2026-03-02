@@ -612,6 +612,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       node: undefined as any, // TODO: is this correct?
     });
 
+    const internalDecorators = [
+      typespecNamespaceBinding!.exports?.get("@indexer"),
+      typespecNamespaceBinding!.exports?.get("@docFromComment"),
+      typespecNamespaceBinding!.exports?.get("Prototypes")?.exports?.get("@getter"),
+    ];
+
+    for (const decorator of internalDecorators) {
+      if (decorator) {
+        mutate(decorator).flags |= SymbolFlags.Internal;
+      }
+    }
+
     // Until we have an `unit` type for `null`
     mutate(resolver.symbols.null).type = nullType;
     getSymbolLinks(resolver.symbols.null).type = nullType;

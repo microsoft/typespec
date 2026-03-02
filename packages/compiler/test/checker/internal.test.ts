@@ -85,6 +85,35 @@ describe("access control", () => {
     return Tester.files(files);
   }
 
+  describe("compiler internal decorators", () => {
+    it("rejects access to TypeSpec.indexer from user code", async () => {
+      const diagnostics = await Tester.diagnose(`
+          @TypeSpec.indexer(string, string)
+          model Test {}
+        `);
+
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
+    });
+
+    it("rejects access to TypeSpec.docFromComment from user code", async () => {
+      const diagnostics = await Tester.diagnose(`
+          @TypeSpec.docFromComment("self", "test")
+          model Test {}
+        `);
+
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
+    });
+
+    it("rejects access to TypeSpec.Prototypes.getter from user code", async () => {
+      const diagnostics = await Tester.diagnose(`
+          @TypeSpec.Prototypes.getter
+          model Test {}
+        `);
+
+      expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: /internal/ }]);
+    });
+  });
+
   describe("cross-library access", () => {
     it("rejects access to internal model from another package", async () => {
       const diagnostics = await createLibraryTester({
