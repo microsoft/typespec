@@ -217,7 +217,8 @@ namespace Microsoft.TypeSpec.Generator
                         suppression.RestoreStatement.Write(this);
                     }
                 }
-                else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial))
+                else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
+                    || method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
                 {
                     using (WriteMethodDeclarationNoScope(method.Signature))
                     {
@@ -813,6 +814,7 @@ namespace Microsoft.TypeSpec.Generator
             if (methodBase is MethodSignature method)
             {
                 AppendRawIf("virtual ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Virtual))
+                    .AppendRawIf("abstract ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
                     .AppendRawIf("override ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Override))
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));

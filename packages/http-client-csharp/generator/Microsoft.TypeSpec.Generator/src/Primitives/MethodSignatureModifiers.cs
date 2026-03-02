@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         Operator = 1024,
         Explicit = 2048,
         Implicit = 4096,
-        Partial = 8192
+        Partial = 8192,
+        Abstract = 16384
     }
 }
