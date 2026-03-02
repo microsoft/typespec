@@ -78,6 +78,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return base.BuildProperties();
             }
 
+            // For dynamic models with BinaryData additional properties (Record<unknown>),
+            // skip generating AdditionalProperties since JsonPatch handles dynamic properties.
+            if (SupportsBinaryDataAdditionalProperties)
+            {
+                return [JsonPatchProperty, .. base.BuildProperties().Where(p => !p.IsAdditionalProperties)];
+            }
+
             return [JsonPatchProperty, .. base.BuildProperties()];
         }
 
@@ -122,7 +129,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             foreach (var statement in constructor.BodyStatements)
                             {
                                 if (statement is ExpressionStatement { Expression: AssignmentExpression assignmentExpression }
-                                    && assignmentExpression.Value.Equals(RawDataField.AsParameter))
+                                    && (assignmentExpression.Value.Equals(RawDataField.AsParameter) ||
+                                        assignmentExpression.Variable is MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }))
                                 {
                                     continue;
                                 }
@@ -152,6 +160,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         constructor.Update(bodyStatements: updatedBody);
                     }
                 }
+                else if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && constructor.BodyStatements != null)
+                {
+                    // Remove the additional binary data properties initialization from the init constructor
+                    var updatedBody = constructor.BodyStatements
+                        .Where(s => s is not ExpressionStatement
+                        {
+                            Expression: AssignmentExpression
+                            {
+                                Variable: MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }
+                            }
+                        })
+                        .ToList();
+                    constructor.Update(bodyStatements: updatedBody);
+                }
                 updatedConstructors.Add(constructor);
             }
 
@@ -166,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private FieldProvider? BuildJsonPatchField()
         {
-            if (!IsDynamicModel || SupportsBinaryDataAdditionalProperties)
+            if (!IsDynamicModel)
             {
                 return null;
             }
@@ -232,9 +254,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return true;
             }
 
-            return FullConstructor.Signature.Parameters
-                .Any(p => p.Field?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true);
+            return FullConstructor.Signature.Parameters.Any(IsAdditionalBinaryDataParameter);
         }
+
+        private static bool IsAdditionalBinaryDataParameter(ParameterProvider p) =>
+            p.Field?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true ||
+            p.Property?.BackingField?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true;
 
         private void UpdateFullConstructorParameters()
         {
@@ -249,7 +274,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var parameter in FullConstructor.Signature.Parameters)
             {
-                if (parameter.Field?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true)
+                if (IsAdditionalBinaryDataParameter(parameter))
                 {
                     updatedParameters.Add(jsonPatchParameter);
                 }

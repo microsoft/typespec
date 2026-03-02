@@ -157,6 +157,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
+            // Dynamic models with Record<unknown> (BinaryData additional properties) should generate
+            // JsonPatch instead of AdditionalProperties.
+            Assert.IsNotNull(model.JsonPatchProperty, "Dynamic models with Record<unknown> should generate JsonPatch");
+            Assert.IsFalse(model.Properties.Any(p => p.IsAdditionalProperties),
+                "Dynamic models with Record<unknown> should not generate AdditionalProperties");
             AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
