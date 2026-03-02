@@ -3625,6 +3625,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return getTypeSymbol(accessedType) ?? createLateBoundTypeSymbol(node, accessedType);
     }
 
+    if (ctx.mapper !== undefined) {
+      if (shouldUseLateBoundTemplateAccessType(accessedType)) {
+        return createLateBoundTypeSymbol(node, accessedType);
+      }
+      return getTypeSymbol(accessedType) ?? createLateBoundTypeSymbol(node, accessedType);
+    }
+
     return createTemplateAccessSymbol(baseEntity, node, accessedType, useCache);
   }
 

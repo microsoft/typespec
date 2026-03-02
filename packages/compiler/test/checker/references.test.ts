@@ -812,6 +812,7 @@ describe("compiler: references", () => {
           alias YOfX = Y<X>;
         `,
         ref: "YOfX.p::type",
+        resolveTarget: (target: any) => target.type,
       }));
     describe("Operation::returnType", () =>
       itCanReference({

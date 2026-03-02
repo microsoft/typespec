@@ -343,12 +343,9 @@ export function createAssetEmitter<T, TOptions extends object>(
         incomingReferenceContextTarget = type ?? incomingReferenceContextTarget;
       }
 
-      const emittedType = resolveTypeForEmission(type);
       const declName =
-        isDeclaration(emittedType) && emittedType.kind !== "Namespace"
-          ? typeEmitter.declarationName(emittedType)
-          : null;
-      const key = typeEmitterKey(emittedType);
+        isDeclaration(type) && type.kind !== "Namespace" ? typeEmitter.declarationName(type) : null;
+      const key = typeEmitterKey(type);
       let args: any[];
       switch (key) {
         case "scalarDeclaration":
@@ -365,11 +362,11 @@ export function createAssetEmitter<T, TOptions extends object>(
           break;
 
         case "arrayDeclaration":
-          const arrayDeclElement = (emittedType as Model).indexer!.value;
+          const arrayDeclElement = (type as Model).indexer!.value;
           args = [declName, arrayDeclElement];
           break;
         case "arrayLiteral":
-          const arrayLiteralElement = (emittedType as Model).indexer!.value;
+          const arrayLiteralElement = (type as Model).indexer!.value;
           args = [arrayLiteralElement];
           break;
         case "intrinsic":
@@ -379,7 +376,7 @@ export function createAssetEmitter<T, TOptions extends object>(
           args = [];
       }
 
-      const result = (invokeTypeEmitter as any)(key, emittedType, ...args);
+      const result = (invokeTypeEmitter as any)(key, type, ...args);
 
       return result;
     },
@@ -837,18 +834,6 @@ export function createAssetEmitter<T, TOptions extends object>(
       default:
         compilerAssert(false, `Encountered type ${type.kind} which we don't know how to emit.`);
     }
-  }
-
-  function resolveTypeForEmission(type: Type): Type {
-    let current = type;
-    while (current.kind === "TemplateParameter" || current.kind === "TemplateParameterAccess") {
-      const constrained = (current as { constraint?: { type?: Type } }).constraint?.type;
-      if (!constrained || constrained === current) {
-        return program.checker.getStdType("Record");
-      }
-      current = constrained;
-    }
-    return current;
   }
   function currentScope() {
     return context.referenceContext?.scope ?? context.lexicalContext?.scope ?? null;
