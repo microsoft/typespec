@@ -20,6 +20,12 @@ jobs:
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
 
+      - uses: actions/setup-dotnet@v5
+        name: Setup .NET
+        with:
+          # Automatically read .NET SDK version from global.json to stay in sync
+          global-json-file: packages/http-client-csharp/global.json
+
       - uses: ./.github/actions/setup
 
       - name: Install dependencies

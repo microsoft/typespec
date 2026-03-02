@@ -1,0 +1,9 @@
+# Diff upstream baseline cache (fetched from autorest.python for comparison)
+generator/test/unbranded/.baseline/
+generator/test/azure/.baseline/
+
+# Diff summary output file
+generator/test/.diff-summary.md
+
+# Regeneration marker (tracks when generated code was last regenerated)
+.last-regenerate
