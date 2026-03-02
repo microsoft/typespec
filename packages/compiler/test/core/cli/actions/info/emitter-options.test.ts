@@ -90,6 +90,7 @@ describe("extractEmitterOptionsInfo", () => {
       {
         name: "openapi-versions",
         type: "string[]",
+        allowedValues: ["3.0.0", "3.1.0"],
         default: '["3.0.0"]',
         description: "OpenAPI versions to emit.",
       },
@@ -318,6 +319,27 @@ describe("formatEmitterOptions", () => {
             separator: string
               Separator character.
 
+
+    `);
+  });
+
+  it("formats array option with enum items as union array", () => {
+    const schema = {
+      type: "object",
+      properties: {
+        "openapi-versions": {
+          type: "array",
+          items: { type: "string", enum: ["3.0.0", "3.1.0"] },
+          default: ["3.0.0"],
+          description: "OpenAPI versions to emit.",
+        },
+      },
+    };
+    expect(formatOptionsPlain(schema)).toBe(d`
+      Emitter Options
+
+        openapi-versions: ("3.0.0" | "3.1.0")[] (default: ["3.0.0"])
+          OpenAPI versions to emit.
 
     `);
   });

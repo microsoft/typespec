@@ -104,6 +104,8 @@ function extractOptionInfo(name: string, prop: any): EmitterOptionInfo {
 
   if (prop.enum) {
     info.allowedValues = prop.enum;
+  } else if (prop.type === "array" && prop.items?.enum) {
+    info.allowedValues = prop.items.enum;
   }
 
   if (prop.default !== undefined) {
@@ -277,7 +279,12 @@ function formatOption(lines: string[], opt: EmitterOptionInfo, depth: number): v
   const parts: string[] = [`${pc.bold(pc.cyan(opt.name))}:`];
 
   if (opt.allowedValues) {
-    parts.push(opt.allowedValues.map((v: string) => pc.green(`"${v}"`)).join(" | "));
+    const valuesStr = opt.allowedValues.map((v: string) => pc.green(`"${v}"`)).join(" | ");
+    if (opt.type.endsWith("[]")) {
+      parts.push(`(${valuesStr})${pc.yellow("[]")}`);
+    } else {
+      parts.push(valuesStr);
+    }
   } else if (opt.type) {
     parts.push(pc.yellow(opt.type));
   }
@@ -309,7 +316,12 @@ function formatVariant(lines: string[], variant: EmitterOptionVariant, depth: nu
   // Build variant header line
   const parts: string[] = [`${pc.gray("-")}`];
   if (variant.allowedValues) {
-    parts.push(variant.allowedValues.map((v: string) => pc.green(`"${v}"`)).join(" | "));
+    const valuesStr = variant.allowedValues.map((v: string) => pc.green(`"${v}"`)).join(" | ");
+    if (variant.type.endsWith("[]")) {
+      parts.push(`(${valuesStr})${pc.yellow("[]")}`);
+    } else {
+      parts.push(valuesStr);
+    }
   } else {
     parts.push(pc.yellow(variant.type));
   }
