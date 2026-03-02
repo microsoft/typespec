@@ -45,7 +45,14 @@ export interface HttpPayload {
   readonly metadata: HttpProperty[];
 }
 
-export interface ExtractBodyAndMetadataOptions extends GetHttpPropertyOptions {}
+export interface ExtractBodyAndMetadataOptions extends GetHttpPropertyOptions {
+  /**
+   * When true, suppress the `content-type-ignored` diagnostic when there is no body but
+   * a `Content-Type` property is present. Used for HEAD responses where content-type
+   * is a valid response header even when there is no body.
+   */
+  allowContentTypeWithoutBody?: boolean;
+}
 
 /**
  * The disposition of a payload in an HTTP operation.
@@ -78,7 +85,7 @@ export function resolveHttpPayload(
     resolvePayloadProperties(program, type, visibility, disposition, options),
   );
 
-  const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, disposition));
+  const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, disposition, options));
 
   if (body) {
     if (
@@ -104,6 +111,7 @@ function resolveBody(
   metadata: HttpProperty[],
   visibility: Visibility,
   disposition: HttpPayloadDisposition,
+  options: ExtractBodyAndMetadataOptions = {},
 ): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
 
@@ -207,7 +215,7 @@ function resolveBody(
       );
     }
   }
-  if (resolvedBody === undefined && contentTypeProperty) {
+  if (resolvedBody === undefined && contentTypeProperty && !options.allowContentTypeWithoutBody) {
     diagnostics.add(
       createDiagnostic({
         code: "content-type-ignored",

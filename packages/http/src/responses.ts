@@ -21,7 +21,7 @@ import {
   getStatusCodesWithDiagnostics,
 } from "./decorators.js";
 import { HttpProperty } from "./http-property.js";
-import { HttpStateKeys, reportDiagnostic } from "./lib.js";
+import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
@@ -125,16 +125,13 @@ function processResponseType(
   const verb = getOperationVerb(program, operation);
   let { body: resolvedBody, metadata } = diagnostics.pipe(
     resolveHttpPayload(program, responseType, Visibility.Read, HttpPayloadDisposition.Response, {
-      treatContentTypeAsHeader: verb === "head",
+      allowContentTypeWithoutBody: verb === "head",
     }),
   );
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
     getResponseStatusCodes(program, responseType, metadata),
   );
-
-  // Get response headers
-  const headers = getResponseHeaders(program, metadata);
 
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {
@@ -148,6 +145,28 @@ function processResponseType(
       statusCodes.push(200);
     } else {
       statusCodes.push(200);
+    }
+  }
+
+  // Emit a warning if a HEAD response has a body (HTTP spec disallows this)
+  if (verb === "head" && resolvedBody !== undefined) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "head-verb-body",
+        target: responseType,
+      }),
+    );
+  }
+
+  // Get response headers
+  const headers = getResponseHeaders(program, metadata);
+
+  // For HEAD responses with no body, include the content-type as a response header
+  // (HTTP spec allows HEAD to return the same headers as GET, even though the body is omitted)
+  if (verb === "head" && resolvedBody === undefined) {
+    const contentTypeProperty = metadata.find((x) => x.kind === "contentType");
+    if (contentTypeProperty) {
+      headers["content-type"] = contentTypeProperty.property;
     }
   }
 

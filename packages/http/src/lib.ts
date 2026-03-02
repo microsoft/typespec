@@ -96,6 +96,13 @@ export const $lib = createTypeSpecLibrary({
         default: "`Content-Type` header ignored because there is no body.",
       },
     },
+    "head-verb-body": {
+      severity: "warning",
+      messages: {
+        default:
+          "Operation with `@head` verb should not have a response body. The HTTP specification does not allow response bodies for HEAD requests.",
+      },
+    },
     "metadata-ignored": {
       severity: "warning",
       messages: {

@@ -2,6 +2,7 @@ import { Diagnostic, Namespace, Program } from "@typespec/compiler";
 import {
   createTestHost as coreCreateTestHost,
   expectDiagnosticEmpty,
+  expectDiagnostics,
 } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
@@ -38,11 +39,18 @@ async function createTestHost() {
   });
 }
 
-export async function validateTsp(code: string) {
+export async function validateTsp(
+  code: string,
+  expectedDiagnostics?: readonly { code: string; severity?: string }[],
+) {
   const host = await createTestHost();
   host.addTypeSpecFile("main.tsp", code);
   const [, diagnostics] = await host.compileAndDiagnose("main.tsp");
-  expectDiagnosticEmpty(diagnostics);
+  if (expectedDiagnostics && expectedDiagnostics.length > 0) {
+    expectDiagnostics(diagnostics, expectedDiagnostics as any);
+  } else {
+    expectDiagnosticEmpty(diagnostics);
+  }
 }
 
 export async function tspForOpenAPI3(props: OpenAPI3Options) {

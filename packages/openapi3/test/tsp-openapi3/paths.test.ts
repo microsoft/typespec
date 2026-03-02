@@ -983,7 +983,7 @@ model Foo {
         "
       `);
 
-      await validateTsp(tsp);
+      await validateTsp(tsp, [{ code: "@typespec/http/head-verb-body", severity: "warning" }]);
     });
   });
 
@@ -1210,7 +1210,7 @@ model Foo {
       "
     `);
 
-    await validateTsp(tsp);
+    await validateTsp(tsp, [{ code: "@typespec/http/head-verb-body", severity: "warning" }]);
   });
 
   it("supports header references", async () => {

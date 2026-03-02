@@ -156,6 +156,59 @@ it("treats content-type as a header for HEAD responses", async () => {
   deepStrictEqual(Object.keys(response.headers), ["content-type"]);
 });
 
+it("emits a warning when HEAD response has a body", async () => {
+  const [routes, diagnostics] = await getOperationsWithServiceNamespace(
+    `
+      @head
+      op head(): { @header contentType: "text/plain"; value: string };
+    `,
+  );
+
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http/head-verb-body",
+      severity: "warning",
+    },
+  ]);
+  strictEqual(routes.length, 1);
+  const response = routes[0].responses[0].responses[0];
+  // Body should still be present and use the correct content-type
+  ok(response.body);
+  deepStrictEqual(response.body.contentTypes, ["text/plain"]);
+});
+
+it("respects content-type from model when HEAD response has a body", async () => {
+  const [routes, diagnostics] = await getOperationsWithServiceNamespace(
+    `
+      @head
+      op listHead(): OkResponse | Error;
+
+      @error
+      model Error {
+        @header
+        contentType: "application/problem+json";
+        type: string;
+      }
+    `,
+  );
+
+  // Should get warning about body in HEAD response
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http/head-verb-body",
+      severity: "warning",
+    },
+  ]);
+  strictEqual(routes.length, 1);
+  // Find the error response
+  const errorResponse = routes[0].responses.find((r) => r.statusCodes === "*");
+  ok(errorResponse);
+  const responseContent = errorResponse.responses[0];
+  // Body should use the correct content-type from the model
+  ok(responseContent.body);
+  deepStrictEqual(responseContent.body.contentTypes, ["application/problem+json"]);
+});
+
 // Regression test for https://github.com/microsoft/typespec/issues/328
 it("empty response model becomes body if it has children", async () => {
   const [routes, diagnostics] = await getOperationsWithServiceNamespace(

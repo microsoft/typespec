@@ -9,10 +9,15 @@ describe("specify verb with each decorator", () => {
     ["@put", "put"],
     ["@patch", "patch"],
     ["@delete", "delete"],
-    ["@head", "head"],
   ])("%s set verb to %s", async (dec, expected) => {
     const routes = await getRoutesFor(`${dec} op test(): string;`);
     expect(routes[0].verb).toBe(expected);
+  });
+
+  it("@head set verb to head", async () => {
+    // Use void to avoid triggering the head-verb-body warning
+    const routes = await getRoutesFor(`@head op test(): void;`);
+    expect(routes[0].verb).toBe("head");
   });
 });
 
