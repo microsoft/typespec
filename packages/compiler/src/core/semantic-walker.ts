@@ -387,7 +387,10 @@ function navigateTemplateParameter(type: TemplateParameter, context: NavigationC
   if (context.emit("templateParameter", type) === ListenerFlow.NoRecursion) return;
 }
 
-function navigateTemplateParameterAccess(type: TemplateParameterAccess, context: NavigationContext) {
+function navigateTemplateParameterAccess(
+  type: TemplateParameterAccess,
+  context: NavigationContext,
+) {
   if (checkVisited(context.visited, type)) {
     return;
   }
