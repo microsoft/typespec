@@ -300,9 +300,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // was not also defined in custom code so Roslyn does not recognize it.
                 if (string.IsNullOrEmpty(baseType.Namespace))
                 {
-                    if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name, out var baseInputModel))
+                    // Cheap check: the base model may already be created and registered under the right name.
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            baseType.Name, out var resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedModel)
                     {
-                        baseType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseInputModel);
+                        return resolvedModel;
+                    }
+
+                    // Force-create all input models so that visitors run (which may rename models
+                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
+                    // This is a no-op for models that have already been created.
+                    foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                    }
+
+                    if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
+                            baseType.Name, out resolvedProvider) &&
+                        resolvedProvider is ModelProvider resolvedAfterCreate)
+                    {
+                        return resolvedAfterCreate;
                     }
                 }
 
