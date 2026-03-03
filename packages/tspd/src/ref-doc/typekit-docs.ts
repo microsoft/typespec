@@ -15,6 +15,7 @@ import { readPackageJson } from "./utils/misc.js";
 
 export interface TypekitCollection {
   namespaces: Record<string, TypekitNamespace>;
+  isExperimental?: boolean;
 }
 
 export interface TypekitNamespace {
@@ -22,6 +23,7 @@ export interface TypekitNamespace {
   typeName: string;
   doc?: DocSection;
   entries: Record<string, TypekitEntryDoc>;
+  isExperimental?: boolean;
 }
 
 type TypekitEntryDoc = TypekitNamespace | TypekitFunctionDoc;
@@ -72,7 +74,7 @@ export async function writeTypekitDocs(libraryPath: string, outputDir: string): 
   if (!typekits) {
     return;
   }
-  const output = await createTypekitDocs(typekits);
+  const output = await createTypekitDocs(typekits, pkgJson.name);
   for (const [file, content] of Object.entries(output)) {
     await writeFile(joinPaths(outputDir, file), content);
   }
@@ -87,6 +89,7 @@ async function getTypekitApi(
     return undefined;
   }
   const namespaces: Record<string, TypekitNamespace> = {};
+  let hasExperimental = false;
   for (const pkgMember of api.packages[0].members) {
     for (const member of pkgMember.members) {
       if (member instanceof ApiInterface) {
@@ -96,19 +99,29 @@ async function getTypekitApi(
           const name = (typekitTag.content.nodes[0] as any).nodes.filter(
             (x: DocNode) => x.kind === "PlainText",
           )[0].text;
-          const typekit: TypekitNamespace = resolveTypekit(member, [name]);
+          const isExperimental =
+            docComment?.modifierTagSet.hasTagName("@experimental") ?? false;
+          if (isExperimental) {
+            hasExperimental = true;
+          }
+          const typekit: TypekitNamespace = resolveTypekit(member, [name], isExperimental);
           namespaces[name] = typekit;
         }
       }
     }
   }
 
-  function resolveTypekit(iface: ApiInterface, path: string[]): TypekitNamespace {
+  function resolveTypekit(
+    iface: ApiInterface,
+    path: string[],
+    isExperimental: boolean,
+  ): TypekitNamespace {
     const typekit: TypekitNamespace = {
       name: path[0],
       typeName: iface.displayName,
       doc: iface.tsdocComment?.summarySection,
       entries: {},
+      isExperimental,
     };
     for (const member of iface.members) {
       if (member instanceof ApiPropertySignature) {
@@ -119,6 +132,7 @@ async function getTypekitApi(
             typekit.entries[member.displayName] = resolveTypekit(
               subkit.resolvedApiItem as ApiInterface,
               [...path, member.displayName],
+              isExperimental,
             );
           } else if (propertyReference.toString() === "@typespec/compiler!Diagnosable:type") {
             typekit.entries[member.displayName] = {
@@ -170,5 +184,6 @@ async function getTypekitApi(
 
   return {
     namespaces,
+    isExperimental: hasExperimental,
   };
 }
