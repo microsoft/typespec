@@ -309,7 +309,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? collectionFormat = null,
             string? serializedName = null,
             InputConstant? defaultValue = null,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            string? collectionHeaderPrefix = null)
         {
             return new InputHeaderParameter(
                 name: name,
@@ -325,7 +326,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 collectionFormat: collectionFormat,
                 scope: scope,
                 arraySerializationDelimiter: null,
-                serializedName: serializedName ?? name);
+                serializedName: serializedName ?? name,
+                collectionHeaderPrefix: collectionHeaderPrefix);
         }
 
         public static InputQueryParameter QueryParameter(
@@ -500,7 +502,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<InputModelType>? derivedModels = null,
             InputModelProperty? discriminatorProperty = null,
             bool isDynamicModel = false,
-            InputExternalTypeMetadata? external = null)
+            InputExternalTypeMetadata? external = null,
+            InputSerializationOptions? serializationOptions = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -524,7 +527,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                     : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
-                new(),
+                serializationOptions ?? new(),
                 isDynamicModel);
             if (baseModel is not null)
             {

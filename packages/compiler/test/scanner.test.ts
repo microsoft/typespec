@@ -396,8 +396,11 @@ describe("compiler: scanner", () => {
       Token.NeverKeyword,
       Token.UnknownKeyword,
       Token.ExternKeyword,
+      Token.InternalKeyword,
       Token.ValueOfKeyword,
       Token.TypeOfKeyword,
+      // `fn` can be either a statement or the start of an expr depending on context.
+      Token.FnKeyword,
     ];
     let minKeywordLengthFound = Number.MAX_SAFE_INTEGER;
     let maxKeywordLengthFound = Number.MIN_SAFE_INTEGER;

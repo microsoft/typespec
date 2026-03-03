@@ -22,6 +22,8 @@ export interface CodeModel extends Metadata {
   clients: Array<Client>;
 
   arm?: boolean;
+
+  apiVersionMap?: Record<string, string>;
 }
 
 export class CodeModel extends Metadata implements CodeModel {

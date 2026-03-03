@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -17,6 +18,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     internal class PipelineRequestHeadersExtensionsDefinition : TypeProvider
     {
         private const string _setDelimited = "SetDelimited";
+        private const string _addWithPrefix = "Add";
         private ParameterProvider _pipelineRequestHeadersParam;
         public PipelineRequestHeadersExtensionsDefinition()
         {
@@ -38,6 +40,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             [
                 BuildSetDelimited(false),
                 BuildSetDelimited(true),
+                BuildAddWithPrefix(),
             ];
         }
 
@@ -71,6 +74,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                new InvokeMethodExpression(_pipelineRequestHeadersParam, "Set", [nameParameter, StringSnippets.Join(delimiterParameter, stringValues)]).Terminate()
             };
 
+            return new(signature, body, this);
+        }
+
+        private MethodProvider BuildAddWithPrefix()
+        {
+            var prefixParameter = new ParameterProvider("prefix", $"The prefix to prepend to each header key.", typeof(string));
+            var headersToAddParameter = new ParameterProvider("value", $"The dictionary of headers to add.", new CSharpType(typeof(IDictionary<,>), typeof(string), typeof(string)));
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension;
+            MethodSignature signature = new MethodSignature(
+                Name: _addWithPrefix,
+                Modifiers: modifiers,
+                Parameters: [_pipelineRequestHeadersParam, prefixParameter, headersToAddParameter],
+                ReturnType: null,
+                Description: null,
+                ReturnDescription: null);
+
+            var dictionaryExpression = headersToAddParameter.AsDictionary(typeof(string), typeof(string));
+            var forEachStatement = new ForEachStatement("header", dictionaryExpression, out var header);
+            forEachStatement.Add(
+                new InvokeMethodExpression(_pipelineRequestHeadersParam, nameof(PipelineRequestHeaders.Add),
+                    [new BinaryOperatorExpression("+", prefixParameter, header.Key), header.Value]).Terminate()
+            );
+
+            MethodBodyStatement[] body = [forEachStatement];
             return new(signature, body, this);
         }
     }
