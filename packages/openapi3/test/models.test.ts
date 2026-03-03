@@ -288,6 +288,21 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
     expect(res.schemas.M.properties.p.default).toBeUndefined();
   });
 
+  it("known scalar constructors used as default values produce correct defaults", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+        model Foo {
+          int32Prop: int32 = int32(12);
+          stringProp: string = string("this is the string value");
+        }
+      `,
+    );
+
+    expect(res.schemas.Foo.properties.int32Prop.default).toEqual(12);
+    expect(res.schemas.Foo.properties.stringProp.default).toEqual("this is the string value");
+  });
+
   it("encode know scalar as a default value", async () => {
     const res = await oapiForModel(
       "Test",
