@@ -200,7 +200,7 @@ function isHostInNoProxy(hostname: string, noProxy?: string): boolean {
 /**
  * Builds the undici `connect` options object from the npm fetch configuration.
  * This object is passed directly to `Agent` and `ProxyAgent` constructors and
- * controls TLS behaviour: certificate verification, custom CA/cert/key material.
+ * controls TLS behavior: certificate verification, custom CA/cert/key material.
  *
  * Exported so that tests can verify the exact TLS options that would be applied
  * for a given `NpmFetchConfig` without constructing a full dispatcher.

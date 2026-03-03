@@ -101,8 +101,8 @@ describe("parseNpmConfig", () => {
 
   it("treats null ca/cert/key from npm config JSON as undefined", () => {
     // npm config list --json returns null for unset PEM fields; we must not pass
-    // null as an env var to spawned npm (it would be stringified to "null" and fail
-    // with ERR_OSSL_PEM_NO_START_LINE).
+    // null as an env var to spawned npm (it would be stringified to "null" and
+    // cause an OpenSSL "no start line" parse error).
     const config = parseNpmConfig({ ca: null, cert: null, key: null } as Record<string, unknown>);
     expect(config.ca).toBeUndefined();
     expect(config.cert).toBeUndefined();
@@ -251,7 +251,6 @@ describe("buildConnectOptions", () => {
     });
   });
 });
-
 
 describe("buildFetchDispatcher", () => {
   it("returns an Agent for direct HTTPS with TLS settings", () => {
