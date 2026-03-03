@@ -1075,6 +1075,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkAugmentDecorator(ctx, node);
       case SyntaxKind.UsingStatement:
         return checkUsings(ctx, node);
+      case SyntaxKind.DirectiveExpression:
+        // #enable/#disable directives are handled during program loading, nothing to check here
+        return voidType;
       default:
         return errorType;
     }

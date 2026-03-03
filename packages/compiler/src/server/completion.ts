@@ -480,7 +480,7 @@ async function addIdentifierCompletion(
   }
 }
 
-const directiveNames = ["suppress", "deprecated"];
+const directiveNames = ["suppress", "deprecated", "enable", "disable"];
 function addDirectiveCompletion({ completions }: CompletionContext, node: IdentifierNode) {
   if (!(node.parent?.kind === SyntaxKind.DirectiveExpression && node.parent.target === node)) {
     return;

@@ -14,6 +14,7 @@ import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js
 import { compilerAssert } from "./diagnostics.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
+import { getAllFeatureDefinitions, getFeatureDefinition, isKnownFeature } from "./features.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import {
@@ -129,6 +130,9 @@ export interface Program {
   /** Return location context of the given source file. */
   getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
 
+  /** Check if a language feature is enabled for this project. */
+  isFeatureEnabled(featureName: string): boolean;
+
   /**
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
@@ -218,6 +222,7 @@ async function createProgram(
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
   const complexityStats: ComplexityStats = {} as any;
+  const enabledFeatures = new Set<string>();
   let sourceResolution: SourceResolution;
   let error = false;
   let continueToNextStage = true;
@@ -261,6 +266,7 @@ async function createProgram(
     /** @internal */
     resolveTypeOrValueReference,
     getSourceFileLocationContext,
+    isFeatureEnabled: (name) => enabledFeatures.has(name),
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
 
@@ -278,6 +284,8 @@ async function createProgram(
   await checkForCompilerVersionMismatch(basedir);
 
   runtimeStats.loader = await perf.timeAsync(() => loadSources(resolvedMain));
+
+  resolveFeatures();
 
   const emit = options.noEmit ? [] : (options.emit ?? []);
   const emitterOptions = options.options;
@@ -469,6 +477,92 @@ async function createProgram(
     const locationContext = sourceResolution.locationContexts.get(sourcefile);
     compilerAssert(locationContext, "SourceFile should have a declaration locationContext.");
     return locationContext;
+  }
+
+  /**
+   * Collect #enable/#disable directives from project source files and resolve the enabled feature set.
+   */
+  function resolveFeatures() {
+    const enables = new Map<string, DirectiveExpressionNode>();
+    const disables = new Map<string, DirectiveExpressionNode>();
+
+    for (const [_, sourceFile] of program.sourceFiles) {
+      const locationContext = sourceResolution.locationContexts.get(sourceFile.file);
+      if (locationContext?.type !== "project") {
+        continue;
+      }
+
+      for (const stmt of sourceFile.statements) {
+        if (stmt.kind !== SyntaxKind.DirectiveExpression) continue;
+        const directiveName = stmt.target.sv;
+        if (directiveName !== "enable" && directiveName !== "disable") continue;
+
+        const featureArg = stmt.arguments[0];
+        if (!featureArg || featureArg.kind !== SyntaxKind.StringLiteral) continue;
+        const featureName = featureArg.value;
+
+        if (!isKnownFeature(featureName)) {
+          reportDiagnostic(
+            createDiagnostic({
+              code: "unknown-feature",
+              format: { feature: featureName },
+              target: featureArg,
+            }),
+          );
+          continue;
+        }
+
+        if (directiveName === "enable") {
+          enables.set(featureName, stmt);
+        } else {
+          disables.set(featureName, stmt);
+        }
+      }
+    }
+
+    // Check for conflicts (both enable and disable for same feature)
+    for (const [name, node] of enables) {
+      if (disables.has(name)) {
+        reportDiagnostic(
+          createDiagnostic({
+            code: "feature-conflict",
+            format: { feature: name },
+            target: node,
+          }),
+        );
+      }
+    }
+
+    // Resolve effective feature set
+    for (const [name] of enables) {
+      if (!disables.has(name)) {
+        enabledFeatures.add(name);
+      }
+    }
+
+    // Features that are "default" status are on unless explicitly disabled
+    for (const def of getAllFeatureDefinitions()) {
+      if (def.status === "default" || def.status === "mandatory") {
+        if (!disables.has(def.name)) {
+          enabledFeatures.add(def.name);
+        }
+      }
+    }
+
+    // Check for disable on mandatory features
+    for (const [name, node] of disables) {
+      const def = getFeatureDefinition(name);
+      if (def?.status === "mandatory") {
+        reportDiagnostic(
+          createDiagnostic({
+            code: "feature-mandatory",
+            format: { feature: name },
+            target: node,
+          }),
+        );
+        enabledFeatures.add(name);
+      }
+    }
   }
 
   async function loadEmitters(
