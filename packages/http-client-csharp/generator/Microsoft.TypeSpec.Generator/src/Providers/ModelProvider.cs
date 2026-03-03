@@ -85,6 +85,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
+        /// <summary>
+        /// Gets the input model type that this provider was created from.
+        /// </summary>
+        public InputModelType InputModel => _inputModel;
+
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
         public ValueExpression? DiscriminatorValueExpression { get; init; }
 
@@ -169,6 +174,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= BuildBaseModelProvider();
+
+        /// <summary>
+        /// Replaces the base model provider. Use this when a visitor needs to change the base type
+        /// (e.g., custom code overrides the base to a different framework type).
+        /// Call <see cref="TypeProvider.Reset"/> after setting to rebuild dependent members.
+        /// </summary>
+        public void SetBaseModelProvider(ModelProvider? baseModelProvider)
+        {
+            _baseModelProvider = baseModelProvider;
+        }
+
+        /// <inheritdoc/>
+        public override void Reset()
+        {
+            base.Reset();
+            _rawDataField = null;
+            _additionalPropertyFields = null;
+            _additionalPropertyProperties = null;
+            _fullConstructor = null;
+        }
+
         protected FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
         private List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
@@ -498,6 +524,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
+            // When the base model provider is a SystemObjectModelProvider (e.g., from a custom code base type
+            // override), also include properties from its InputModel chain. This handles the case where the
+            // spec-defined base differs from the custom code base (e.g., spec says Resource but custom code
+            // says TrackedResourceData), ensuring all base properties are properly deduplicated.
+            if (HasSystemObjectModelBase() && BaseModelProvider is SystemObjectModelProvider systemObjBase)
+            {
+                var baseInputModel = systemObjBase.InputModel;
+                while (baseInputModel != null)
+                {
+                    foreach (var prop in baseInputModel.Properties)
+                    {
+                        baseProperties.TryAdd(prop.Name, prop);
+                    }
+                    baseInputModel = baseInputModel.BaseModel;
+                }
+            }
             // Build a set of serialized names for base discriminator properties to handle cases where
             // the derived model has a discriminator with a different C# name but the same wire name
             HashSet<string> baseDiscriminatorSerializedNames = EnumerateBaseModels()
