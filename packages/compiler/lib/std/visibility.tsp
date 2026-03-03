@@ -299,12 +299,52 @@ model VisibilityFilter {
  * }
  * ```
  */
-#deprecated "withVisibilityFilter is deprecated and will be removed in a future release. Use the Lifecycle specific templates (e.g. `Read`, `Create`, `Update`, etc.) instead."
+#deprecated "withVisibilityFilter is deprecated and will be removed in a future release. Use the `FilterVisibility` template or Lifecycle specific templates (e.g. `Read`, `Create`, `Update`, etc.) instead."
 extern dec withVisibilityFilter(
   target: Model,
   filter: valueof VisibilityFilter,
   nameTemplate?: valueof string
 );
+
+/**
+ * A copy of the input model `M` with only the properties that match the given visibility filter.
+ *
+ * This transformation is recursive, so it will also apply the filter to any nested
+ * or referenced models that are the types of any properties in the `target`.
+ *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
+ * @template M the model to apply the visibility filter to.
+ * @template Filter the visibility filter to apply to the properties of the target model.
+ * @template NameTemplate the name template to use when renaming new type instances.
+ *
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(CustomVisibility.A)
+ *   id: int32;
+ *   @removeVisibility(CustomVisibility.A)
+ *   name: string;
+ * }
+ *
+ * enum CustomVisibility {
+ *   A,
+ *   B,
+ * }
+ *
+ * const customFilter: VisibilityFilter = #{ all: #[CustomVisibility.A] };
+ *
+ * // This model will have the `id` property but not the `name` property, since `id` has the CustomVisibility.A visibility and `name` does not.
+ * model DogRead is FilterVisibility<Dog, customFilter, "Read{name}">;
+ * ```
+ */
+alias FilterVisibility<
+  M extends Model,
+  Filter extends valueof VisibilityFilter,
+  NameTemplate extends valueof string
+> = applyVisibilityFilter(M, Filter, NameTemplate);
 
 #suppress "experimental-feature"
 internal extern fn applyVisibilityFilter(
