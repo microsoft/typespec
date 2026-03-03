@@ -382,12 +382,6 @@ alias Create<
   T extends Model,
   NameTemplate extends valueof string = "Create{name}"
 > = applyVisibilityFilter(T, #{ all: #[Lifecycle.Create] }, NameTemplate);
-// @doc("")
-// @friendlyName(NameTemplate, T)
-// @withVisibilityFilter(#{ all: #[Lifecycle.Create] }, NameTemplate)
-// model Create<T extends Reflection.Model, NameTemplate extends valueof string = "Create{name}"> {
-//   ...T;
-// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -425,12 +419,6 @@ alias Read<
   T extends Model,
   NameTemplate extends valueof string = "Read{name}"
 > = applyVisibilityFilter(T, #{ all: #[Lifecycle.Read] }, NameTemplate);
-// @doc("")
-// @friendlyName(NameTemplate, T)
-// @withVisibilityFilter(#{ all: #[Lifecycle.Read] }, NameTemplate)
-// model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Read{name}"> {
-//   ...T;
-// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -469,12 +457,6 @@ alias Update<
   T extends Model,
   NameTemplate extends valueof string = "Update{name}"
 > = applyLifecycleUpdate(T, NameTemplate);
-// @doc("")
-// @friendlyName(NameTemplate, T)
-// @withLifecycleUpdate(NameTemplate)
-// model Update<T extends Reflection.Model, NameTemplate extends valueof string = "Update{name}"> {
-//   ...T;
-// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -515,15 +497,6 @@ alias CreateOrUpdate<
   T extends Model,
   NameTemplate extends valueof string = "CreateOrUpdate{name}"
 > = applyVisibilityFilter(T, #{ any: #[Lifecycle.Create, Lifecycle.Update] }, NameTemplate);
-// @doc("")
-// @friendlyName(NameTemplate, T)
-// @withVisibilityFilter(#{ any: #[Lifecycle.Create, Lifecycle.Update] }, NameTemplate)
-// model CreateOrUpdate<
-//   T extends Reflection.Model,
-//   NameTemplate extends valueof string = "CreateOrUpdate{name}"
-// > {
-//   ...T;
-// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -563,12 +536,6 @@ alias Delete<
   T extends Model,
   NameTemplate extends valueof string = "Delete{name}"
 > = applyVisibilityFilter(T, #{ all: #[Lifecycle.Delete] }, NameTemplate);
-// @doc("")
-// @friendlyName(NameTemplate, T)
-// @withVisibilityFilter(#{ all: #[Lifecycle.Delete] }, NameTemplate)
-// model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "Delete{name}"> {
-//   ...T;
-// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -616,9 +583,3 @@ alias Query<
   T extends Model,
   NameTemplate extends valueof string = "Query{name}"
 > = applyVisibilityFilter(T, #{ all: #[Lifecycle.Query] }, NameTemplate);
-// @doc("")
-// @friendlyName(NameTemplate, T)
-// @withVisibilityFilter(#{ all: #[Lifecycle.Query] }, NameTemplate)
-// model Query<T extends Reflection.Model, NameTemplate extends valueof string = "Query{name}"> {
-//   ...T;
-// }
