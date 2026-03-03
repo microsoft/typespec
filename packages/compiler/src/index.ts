@@ -232,7 +232,7 @@ export {
 export type { PackageJson } from "./types/package-json.js";
 
 import { $decorators as intrinsicDecorators } from "./lib/intrinsic/tsp-index.js";
-import { $decorators as stdDecorators } from "./lib/tsp-index.js";
+import { $decorators as stdDecorators, $functions as stdFunctions } from "./lib/tsp-index.js";
 /** @internal for Typespec compiler */
 export const $decorators = {
   TypeSpec: {
@@ -240,6 +240,13 @@ export const $decorators = {
   },
   "TypeSpec.Prototypes": {
     ...intrinsicDecorators["TypeSpec.Prototypes"],
+  },
+};
+
+/** @internal for Typespec compiler */
+export const $functions = {
+  TypeSpec: {
+    ...stdFunctions.TypeSpec,
   },
 };
 

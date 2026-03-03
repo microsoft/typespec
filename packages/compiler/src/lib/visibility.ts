@@ -405,12 +405,13 @@ interface VisibilityFilterMutatorCacheByNameTemplate {
   lifecycleUpdate?: Mutator;
 }
 
-export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
-  context: DecoratorContext,
-  target: Model,
+/** @internal  */
+export function applyVisibilityFilter(
+  context: { program: Program },
+  input: Model,
   _filter: GeneratedVisibilityFilter,
   nameTemplate?: string,
-) => {
+): Model {
   const filter = VisibilityFilter.fromDecoratorArgument(_filter);
 
   const mutatorCache = ((context.program as VisibilityFilterMutatorCache)[
@@ -441,22 +442,39 @@ export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
     mutatorCacheByVisibilityFilter.set(vfKey, mutator);
   }
 
-  setAlwaysMutate(context.program, target);
+  setAlwaysMutate(context.program, input);
 
-  const { type } = cachedMutateSubgraph(context.program, mutator, target);
+  const { type } = cachedMutateSubgraph(context.program, mutator, input);
 
-  setAlwaysMutate(context.program, target, false);
+  setAlwaysMutate(context.program, input, false);
 
-  target.properties = (type as Model).properties;
+  compilerAssert(
+    type.kind === "Model",
+    "Expected visibility filter mutator to return a Model type.",
+  );
+
+  return type;
+}
+
+export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  _filter: GeneratedVisibilityFilter,
+  nameTemplate?: string,
+) => {
+  const transformed = applyVisibilityFilter(context, target, _filter, nameTemplate);
+
+  target.properties = transformed.properties;
 };
 
 // -- @withLifecycleUpdate decorator ----------------------
 
-export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
-  context: DecoratorContext,
-  target: Model,
+/** @internal */
+export function applyLifecycleUpdate(
+  context: { program: Program },
+  input: Model,
   nameTemplate?: string,
-) => {
+): Model {
   const mutatorCache = ((context.program as VisibilityFilterMutatorCache)[
     VISIBILITY_FILTER_MUTATOR_CACHE
   ] ??= {});
@@ -493,13 +511,28 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
     mutatorCacheByNameTemplate.lifecycleUpdate = mutator;
   }
 
-  setAlwaysMutate(context.program, target);
+  setAlwaysMutate(context.program, input);
 
-  const { type } = cachedMutateSubgraph(context.program, mutator, target);
+  const { type } = cachedMutateSubgraph(context.program, mutator, input);
 
-  setAlwaysMutate(context.program, target, false);
+  setAlwaysMutate(context.program, input, false);
 
-  target.properties = (type as Model).properties;
+  compilerAssert(
+    type.kind === "Model",
+    "Expected lifecycle update mutator to return a Model type.",
+  );
+
+  return type;
+}
+
+export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  nameTemplate?: string,
+) => {
+  const transformed = applyLifecycleUpdate(context, target, nameTemplate);
+
+  target.properties = transformed.properties;
 };
 
 const VISIBILITY_FILTER_MUTATOR_RESULT = Symbol.for("TypeSpec.Core.visibilityFilterMutatorResult");

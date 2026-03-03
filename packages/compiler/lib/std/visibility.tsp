@@ -299,11 +299,19 @@ model VisibilityFilter {
  * }
  * ```
  */
+#deprecated "withVisibilityFilter is deprecated and will be removed in a future release. Use the Lifecycle specific templates (e.g. `Read`, `Create`, `Update`, etc.) instead."
 extern dec withVisibilityFilter(
   target: Model,
   filter: valueof VisibilityFilter,
   nameTemplate?: valueof string
 );
+
+#suppress "experimental-feature"
+internal extern fn applyVisibilityFilter(
+  input: Model,
+  filter: valueof VisibilityFilter,
+  nameTemplate?: valueof string
+): Model;
 
 /**
  * Transforms the `target` model to include only properties that are visible during the
@@ -338,7 +346,11 @@ extern dec withVisibilityFilter(
  * }
  * ```
  */
+#deprecated "withLifecycleUpdate is deprecated and will be removed in a future release. Use the `Update` template instead."
 extern dec withLifecycleUpdate(target: Model, nameTemplate?: valueof string);
+
+#suppress "experimental-feature"
+internal extern fn applyLifecycleUpdate(input: Model, nameTemplate?: valueof string): Model;
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -366,12 +378,16 @@ extern dec withLifecycleUpdate(target: Model, nameTemplate?: valueof string);
  * model CreateDog is Create<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Create] }, NameTemplate)
-model Create<T extends Reflection.Model, NameTemplate extends valueof string = "Create{name}"> {
-  ...T;
-}
+alias Create<
+  T extends Model,
+  NameTemplate extends valueof string = "Create{name}"
+> = applyVisibilityFilter(T, #{ all: #[Lifecycle.Create] }, NameTemplate);
+// @doc("")
+// @friendlyName(NameTemplate, T)
+// @withVisibilityFilter(#{ all: #[Lifecycle.Create] }, NameTemplate)
+// model Create<T extends Reflection.Model, NameTemplate extends valueof string = "Create{name}"> {
+//   ...T;
+// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -405,12 +421,16 @@ model Create<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model ReadDog is Read<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Read] }, NameTemplate)
-model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Read{name}"> {
-  ...T;
-}
+alias Read<
+  T extends Model,
+  NameTemplate extends valueof string = "Read{name}"
+> = applyVisibilityFilter(T, #{ all: #[Lifecycle.Read] }, NameTemplate);
+// @doc("")
+// @friendlyName(NameTemplate, T)
+// @withVisibilityFilter(#{ all: #[Lifecycle.Read] }, NameTemplate)
+// model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Read{name}"> {
+//   ...T;
+// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -445,12 +465,16 @@ model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Re
  * model UpdateDog is Update<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withLifecycleUpdate(NameTemplate)
-model Update<T extends Reflection.Model, NameTemplate extends valueof string = "Update{name}"> {
-  ...T;
-}
+alias Update<
+  T extends Model,
+  NameTemplate extends valueof string = "Update{name}"
+> = applyLifecycleUpdate(T, NameTemplate);
+// @doc("")
+// @friendlyName(NameTemplate, T)
+// @withLifecycleUpdate(NameTemplate)
+// model Update<T extends Reflection.Model, NameTemplate extends valueof string = "Update{name}"> {
+//   ...T;
+// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -487,15 +511,19 @@ model Update<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model CreateOrUpdateDog is CreateOrUpdate<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ any: #[Lifecycle.Create, Lifecycle.Update] }, NameTemplate)
-model CreateOrUpdate<
-  T extends Reflection.Model,
+alias CreateOrUpdate<
+  T extends Model,
   NameTemplate extends valueof string = "CreateOrUpdate{name}"
-> {
-  ...T;
-}
+> = applyVisibilityFilter(T, #{ any: #[Lifecycle.Create, Lifecycle.Update] }, NameTemplate);
+// @doc("")
+// @friendlyName(NameTemplate, T)
+// @withVisibilityFilter(#{ any: #[Lifecycle.Create, Lifecycle.Update] }, NameTemplate)
+// model CreateOrUpdate<
+//   T extends Reflection.Model,
+//   NameTemplate extends valueof string = "CreateOrUpdate{name}"
+// > {
+//   ...T;
+// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -531,12 +559,16 @@ model CreateOrUpdate<
  * model DeleteDog is Delete<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Delete] }, NameTemplate)
-model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "Delete{name}"> {
-  ...T;
-}
+alias Delete<
+  T extends Model,
+  NameTemplate extends valueof string = "Delete{name}"
+> = applyVisibilityFilter(T, #{ all: #[Lifecycle.Delete] }, NameTemplate);
+// @doc("")
+// @friendlyName(NameTemplate, T)
+// @withVisibilityFilter(#{ all: #[Lifecycle.Delete] }, NameTemplate)
+// model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "Delete{name}"> {
+//   ...T;
+// }
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -580,9 +612,13 @@ model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model QueryDog is Query<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Query] }, NameTemplate)
-model Query<T extends Reflection.Model, NameTemplate extends valueof string = "Query{name}"> {
-  ...T;
-}
+alias Query<
+  T extends Model,
+  NameTemplate extends valueof string = "Query{name}"
+> = applyVisibilityFilter(T, #{ all: #[Lifecycle.Query] }, NameTemplate);
+// @doc("")
+// @friendlyName(NameTemplate, T)
+// @withVisibilityFilter(#{ all: #[Lifecycle.Query] }, NameTemplate)
+// model Query<T extends Reflection.Model, NameTemplate extends valueof string = "Query{name}"> {
+//   ...T;
+// }
