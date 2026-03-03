@@ -44,9 +44,9 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 ### `file-type`
 
-**Type:** `"yaml" | "json"`
+**Type:** `string,array`
 
-If the content should be serialized as YAML or JSON. Default 'yaml', it not specified infer from the `output-file` extension
+If the content should be serialized as YAML or JSON. Can be a single value or an array to emit multiple formats. Default 'yaml', if not specified infer from the `output-file` extension
 
 ### `output-file`
 
@@ -58,8 +58,10 @@ Output file will interpolate the following values:
 - service-name: Name of the service
 - service-name-if-multiple: Name of the service if multiple
 - version: Version of the service if multiple
+- file-type: The file type being emitted (json or yaml). Useful when `file-type` is an array.
 
 Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`
+When `file-type` is an array: `{service-name-if-multiple}.{version}.openapi.{file-type}`
 
 Example Single service no versioning
 
