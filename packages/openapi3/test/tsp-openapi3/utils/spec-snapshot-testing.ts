@@ -88,7 +88,9 @@ function defineSpecSnaphotTest(context: TestContext, config: SpecSnapshotTestOpt
           await writeFile(snapshotPath, content);
           context.registerSnapshot(resolvePath(spec.name, relativePath));
         } catch (e) {
-          throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`);
+          throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`, {
+            cause: e,
+          });
         }
       }
     } else {
@@ -142,7 +144,7 @@ async function readFilesInDirRecursively(dir: string): Promise<string[]> {
     if (isEnoentError(e)) {
       return [];
     } else {
-      throw new Error(`Failed to read dir "${dir}"\n Error: ${e}`);
+      throw new Error(`Failed to read dir "${dir}"\n Error: ${e}`, { cause: e });
     }
   }
   const files: string[] = [];

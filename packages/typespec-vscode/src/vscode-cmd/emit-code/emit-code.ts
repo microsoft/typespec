@@ -583,7 +583,7 @@ export async function emitCode(
     tel.lastStep = "Check compiler capability";
     return ResultCode.Cancelled;
   }
-  let tspProjectFile: string = "";
+  let tspProjectFile: string;
   if (!uri) {
     const targetPathes = await TraverseMainTspFileInWorkspace();
     logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
