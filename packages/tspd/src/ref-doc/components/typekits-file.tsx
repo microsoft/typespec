@@ -17,7 +17,7 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName?: stri
   const experimentalImport = isHttpPackage
     ? `import "@typespec/http/experimental/typekit";`
     : `import "@typespec/compiler/typekit";`;
-  
+
   const usageExample = isHttpPackage
     ? `\`\`\`ts
 import { getHttpOperation } from "@typespec/http";

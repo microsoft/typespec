@@ -99,8 +99,7 @@ async function getTypekitApi(
           const name = (typekitTag.content.nodes[0] as any).nodes.filter(
             (x: DocNode) => x.kind === "PlainText",
           )[0].text;
-          const isExperimental =
-            docComment?.modifierTagSet.hasTagName("@experimental") ?? false;
+          const isExperimental = docComment?.modifierTagSet.hasTagName("@experimental") ?? false;
           if (isExperimental) {
             hasExperimental = true;
           }
