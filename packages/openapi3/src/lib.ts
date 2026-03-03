@@ -133,7 +133,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       enum: ["yaml", "json"],
       nullable: true,
       description:
-        "If the content should be serialized as YAML or JSON. Default 'yaml', it not specified infer from the `output-file` extension",
+        "If the content should be serialized as YAML or JSON. Default 'yaml', if not specified infer from the `output-file` extension",
     },
     "output-file": {
       type: "string",
