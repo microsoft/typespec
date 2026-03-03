@@ -4,5 +4,5 @@ packages:
   - "@typespec/http"
 ---
 
-- Emit a `head-verb-body` warning when a `@head` operation response contains a body (which is against the HTTP specification).
-- Fix incorrect content-type handling where body content-types were wrongly moved to headers when `@head` verb was used with response models containing both a content-type header property and body properties.
+- Emit a `head-no-body` warning when a `@head` operation response contains a body (HTTP spec: "head request must not return a message-body in the response").
+- Fix the `content-type-ignored` warning incorrectly firing for `@head` responses that have a content-type header but no body.

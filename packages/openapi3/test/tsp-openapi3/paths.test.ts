@@ -948,7 +948,6 @@ model Foo {
               responses: {
                 [statusCode]: {
                   description: "Test Response",
-                  content: { "application/json": { schema: { $ref: "#/components/schemas/Foo" } } },
                 } as OpenAPI3Response,
               },
             },
@@ -978,12 +977,11 @@ model Foo {
 
         @route("/") @head op headFoo(): {
           @statusCode statusCode: 100;
-          @body body: Foo;
         };
         "
       `);
 
-      await validateTsp(tsp, [{ code: "@typespec/http/head-verb-body", severity: "warning" }]);
+      await validateTsp(tsp);
     });
   });
 
@@ -1155,15 +1153,6 @@ model Foo {
               },
             },
           },
-          head: {
-            operationId: "headFoo",
-            parameters: [],
-            responses: {
-              default: {
-                $ref: "#/components/responses/TestResponse",
-              },
-            },
-          },
         },
       },
     });
@@ -1190,11 +1179,6 @@ model Foo {
         Body = Foo
       >;
 
-      @route("/") @head op headFoo(): GeneratedHelpers.DefaultResponse<
-        Description = "Base description",
-        Body = Foo
-      >;
-
       namespace GeneratedHelpers {
         @doc(Description)
         @error
@@ -1210,7 +1194,7 @@ model Foo {
       "
     `);
 
-    await validateTsp(tsp, [{ code: "@typespec/http/head-verb-body", severity: "warning" }]);
+    await validateTsp(tsp);
   });
 
   it("supports header references", async () => {

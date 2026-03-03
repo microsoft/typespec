@@ -125,7 +125,7 @@ function processResponseType(
   const verb = getOperationVerb(program, operation);
   let { body: resolvedBody, metadata } = diagnostics.pipe(
     resolveHttpPayload(program, responseType, Visibility.Read, HttpPayloadDisposition.Response, {
-      allowContentTypeWithoutBody: verb === "head",
+      treatContentTypeAsHeader: verb === "head",
     }),
   );
   // Get explicity defined status codes
@@ -152,7 +152,7 @@ function processResponseType(
   if (verb === "head" && resolvedBody !== undefined) {
     diagnostics.add(
       createDiagnostic({
-        code: "head-verb-body",
+        code: "head-no-body",
         target: responseType,
       }),
     );
@@ -160,15 +160,6 @@ function processResponseType(
 
   // Get response headers
   const headers = getResponseHeaders(program, metadata);
-
-  // For HEAD responses with no body, include the content-type as a response header
-  // (HTTP spec allows HEAD to return the same headers as GET, even though the body is omitted)
-  if (verb === "head" && resolvedBody === undefined) {
-    const contentTypeProperty = metadata.find((x) => x.kind === "contentType");
-    if (contentTypeProperty) {
-      headers["content-type"] = contentTypeProperty.property;
-    }
-  }
 
   // Put them into currentEndpoint.responses
   for (const statusCode of statusCodes) {
