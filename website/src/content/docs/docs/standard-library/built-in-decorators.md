@@ -1508,7 +1508,7 @@ model DogRead {
 
 ### `@withVisibilityFilter` {#@withVisibilityFilter}
 :::caution
-**Deprecated**: withVisibilityFilter is deprecated and will be removed in a future release. Use the Lifecycle specific templates (e.g. `Read`, `Create`, `Update`, etc.) instead.
+**Deprecated**: withVisibilityFilter is deprecated and will be removed in a future release. Use the `FilterVisibility` template or Lifecycle specific templates (e.g. `Read`, `Create`, `Update`, etc.) instead.
 :::
 
 Applies the given visibility filter to the properties of the target model.
