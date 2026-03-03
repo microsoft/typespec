@@ -127,6 +127,8 @@ jobs:
 
       - name: Run version change
         run: npm run change:version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install workspace dependencies
         run: pnpm install
