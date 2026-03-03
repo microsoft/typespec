@@ -53,6 +53,21 @@ describe("compiler: interfaces", () => {
     ok(blues.has(Foo));
   });
 
+  it("supports interpolated interface declaration names", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      const suffix = "A";
+      @test interface \`Interface\${suffix}\` {}
+      `,
+    );
+
+    const { InterfaceA } = (await testHost.compile("./")) as {
+      InterfaceA: Interface;
+    };
+    strictEqual(InterfaceA.name, "InterfaceA");
+  });
+
   it("throws diagnostics for duplicate properties", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",

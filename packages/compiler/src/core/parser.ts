@@ -338,6 +338,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   let previousTokenEnd = -1;
   let realPositionOfLastError = -1;
   let missingIdentifierCounter = 0;
+  let interpolatedIdentifierCounter = 0;
   let treePrintable = true;
   let newLineIsTrivia = true;
   let currentMode = ParseMode.Syntax;
@@ -2009,6 +2010,17 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     // Temporary solution to allow reserved keywords as identifiers in certain contexts. This should get expanded to a more general solution per keyword category.
     allowReservedIdentifier?: boolean;
   }): IdentifierNode {
+    if (token() === Token.StringTemplateHead) {
+      const pos = tokenPos();
+      const interpolation = parseStringTemplateExpression();
+      return {
+        kind: SyntaxKind.Identifier,
+        sv: `<interpolated identifier>${++interpolatedIdentifierCounter}`,
+        interpolation,
+        ...finishNode(pos),
+      };
+    }
+
     if (isKeyword(token())) {
       if (!(isModifier(token()) && options?.allowReservedIdentifier)) {
         error({ code: "reserved-identifier" });
@@ -3161,7 +3173,9 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:
+      return;
     case SyntaxKind.Identifier:
+      return visitNode(cb, node.interpolation);
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:

@@ -1102,6 +1102,7 @@ export function createScanner(
     tail: T,
   ): M | T {
     const multiLine = requestedTokenFlags & TokenFlags.TripleQuoted;
+    const backticked = requestedTokenFlags & TokenFlags.Backticked;
     tokenFlags = requestedTokenFlags;
     loop: for (; !eof(); position++) {
       const ch = input.charCodeAt(position);
@@ -1114,6 +1115,9 @@ export function createScanner(
           }
           continue;
         case CharCode.DoubleQuote:
+          if (backticked) {
+            continue;
+          }
           if (multiLine) {
             if (lookAhead(1) === CharCode.DoubleQuote && lookAhead(2) === CharCode.DoubleQuote) {
               position += 3;
@@ -1127,6 +1131,13 @@ export function createScanner(
             token = tail;
             return tail;
           }
+        case CharCode.Backtick:
+          if (!backticked) {
+            continue;
+          }
+          position++;
+          token = tail;
+          return tail;
         case CharCode.$:
           if (lookAhead(1) === CharCode.OpenBrace) {
             position += 2;
@@ -1151,6 +1162,9 @@ export function createScanner(
     token: Token.StringLiteral | StringTemplateToken,
     tokenFlags: TokenFlags,
   ) {
+    if (tokenFlags & TokenFlags.Backticked) {
+      return 1; // ` or }
+    }
     switch (token) {
       case Token.StringLiteral:
       case Token.StringTemplateHead:
@@ -1164,6 +1178,9 @@ export function createScanner(
     token: Token.StringLiteral | StringTemplateToken,
     tokenFlags: TokenFlags,
   ) {
+    if (tokenFlags & TokenFlags.Backticked) {
+      return token === Token.StringTemplateHead || token === Token.StringTemplateMiddle ? 2 : 1;
+    }
     switch (token) {
       case Token.StringLiteral:
       case Token.StringTemplateTail:
@@ -1531,7 +1548,7 @@ export function createScanner(
     return (token = Token.Identifier);
   }
 
-  function scanBacktickedIdentifier(): Token.Identifier {
+  function scanBacktickedIdentifier(): Token.Identifier | Token.StringTemplateHead {
     position++; // consume '`'
 
     tokenFlags |= TokenFlags.Backticked;
@@ -1542,6 +1559,12 @@ export function createScanner(
         case CharCode.Backslash:
           position++;
           tokenFlags |= TokenFlags.Escaped;
+          continue;
+        case CharCode.$:
+          if (lookAhead(1) === CharCode.OpenBrace) {
+            position += 2;
+            return (token = Token.StringTemplateHead);
+          }
           continue;
         case CharCode.Backtick:
           position++;
