@@ -164,10 +164,11 @@ jobs:
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ steps.pr-body.outputs.body }}
         run: |
           PR_URL=$(gh pr create \
             --title "[python] release new version" \
-            --body "${{ steps.pr-body.outputs.body }}" \
+            --body "$PR_BODY" \
             --base ${{ inputs.branch || github.ref_name }} \
             --draft)
           echo "✅ PR created: $PR_URL"
