@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
     /// <see cref="SystemObjectTypeProvider"/> extends <see cref="TypeProvider"/> and cannot
     /// serve as a <see cref="ModelProvider.BaseModelProvider"/>. <see cref="SystemObjectModelProvider"/>
     /// extends <see cref="ModelProvider"/> to fill this gap — enabling derived models to inherit
-    /// from framework/system types while getting proper property dedup, raw data field, and
+    /// from framework/system types while getting proper property deduplication, raw data field, and
     /// serialization handling.
     /// </para>
     /// </summary>
