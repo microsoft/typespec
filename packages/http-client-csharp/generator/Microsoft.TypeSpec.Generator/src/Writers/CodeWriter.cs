@@ -786,6 +786,11 @@ namespace Microsoft.TypeSpec.Generator
 
         public IDisposable WriteMethodDeclarationNoScope(MethodSignatureBase methodBase, params string[] disabledWarnings)
         {
+            if (methodBase.NonDocumentComment is { } comment)
+            {
+                WriteLine($"// {comment}");
+            }
+
             foreach (var attribute in methodBase.Attributes)
             {
                 attribute.Write(this);

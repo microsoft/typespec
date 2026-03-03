@@ -194,6 +194,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
+        public void CodeWriter_WriteMethod_NonDocumentComment()
+        {
+            var methodSignature = new MethodSignature(
+                "TestMethod",
+                $"To test a method with a non-document comment",
+                MethodSignatureModifiers.Public,
+                typeof(void),
+                null,
+                [],
+                NonDocumentComment: "This is a non-document comment");
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethodDeclarationNoScope(methodSignature);
+
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual("// This is a non-document comment\npublic global::System.Void TestMethod()", result);
+        }
+
+        [Test]
         public void CodeWriter_WriteField()
         {
             var field1 = new FieldProvider(FieldModifiers.Private, typeof(int), "_intConst", new TestTypeProvider(), $"To test int");
