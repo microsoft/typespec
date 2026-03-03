@@ -12,28 +12,7 @@ import { format as prettierFormat } from "prettier";
 import { TypekitCollection } from "../typekit-docs.js";
 import { TypekitSection } from "./typekit-section.js";
 
-export function createTypekitDocs(typekit: TypekitCollection, packageName?: string) {
-  const isHttpPackage = packageName === "@typespec/http";
-  const experimentalImport = isHttpPackage
-    ? `import "@typespec/http/experimental/typekit";`
-    : `import "@typespec/compiler/typekit";`;
-
-  const usageExample = isHttpPackage
-    ? `\`\`\`ts
-import { getHttpOperation } from "@typespec/http";
-import { $ } from "@typespec/compiler/typekit";
-import "@typespec/http/experimental/typekit";
-
-const [httpOperation] = getHttpOperation(program, operation);
-const responses = $(program).httpOperation.flattenResponses(httpOperation);
-\`\`\``
-    : `\`\`\`ts
-import { $ } from "@typespec/compiler/typekit";
-
-// Use typekits in your code
-const arrayType = $(program).array.create(stringType);
-\`\`\``;
-
+export function createTypekitDocs(typekit: TypekitCollection) {
   const jsxContent = (
     <Output>
       <md.SourceFile path={`typekits.mdx`}>
@@ -50,21 +29,11 @@ const arrayType = $(program).array.create(stringType);
         <Aside type="caution">
         **Experimental Feature**: These typekits are currently experimental. The API surface is volatile and may have breaking changes without notice. Use with caution in production environments.
         </Aside>
+        `}
+            {typekit.usageDoc &&
+              code`
         
-        ## Usage
-        
-        To use these typekits in your TypeSpec emitter or tool, you need to import the${isHttpPackage ? " experimental" : ""} typekit module:
-        
-        \`\`\`ts
-        ${experimentalImport}
-        import { $ } from "@typespec/compiler/typekit";
-        \`\`\`
-        
-        The first import registers the${isHttpPackage ? " HTTP-specific" : ""} typekit extensions. This import only needs to exist once in your compilation as only its side effects are important.
-        
-        ### Example
-        
-        ${usageExample}
+        ${typekit.usageDoc}
         `}
           </>
         )}
