@@ -536,7 +536,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #getSchemaForScalar(scalar: Scalar) {
-    let result: any = {};
+    let result: any;
     const isStd = this.#isStdType(scalar);
     if (isStd) {
       result = this.#getSchemaForStdScalars(scalar);
