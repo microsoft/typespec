@@ -7,6 +7,7 @@ import { join } from "path";
 import { Agent, ProxyAgent } from "undici";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  buildConnectOptions,
   buildFetchDispatcher,
   NpmFetchConfig,
   parseNpmConfig,
@@ -164,8 +165,74 @@ describe("readNpmConfig", () => {
 });
 
 // ---------------------------------------------------------------------------
-// buildFetchDispatcher – verifies correct undici dispatcher is chosen
+// buildConnectOptions – verifies TLS options passed to Agent/ProxyAgent
 // ---------------------------------------------------------------------------
+describe("buildConnectOptions", () => {
+  it("maps strictSsl=true to rejectUnauthorized=true", () => {
+    const opts = buildConnectOptions({ registry: "https://r.example.com", strictSsl: true });
+    expect(opts.rejectUnauthorized).toBe(true);
+  });
+
+  it("maps strictSsl=false to rejectUnauthorized=false", () => {
+    const opts = buildConnectOptions({ registry: "https://r.example.com", strictSsl: false });
+    expect(opts.rejectUnauthorized).toBe(false);
+  });
+
+  it("includes ca when set", () => {
+    const opts = buildConnectOptions({
+      registry: "https://r.example.com",
+      strictSsl: true,
+      ca: "-----BEGIN CERTIFICATE-----\nmy-ca\n-----END CERTIFICATE-----",
+    });
+    expect(opts.ca).toBe("-----BEGIN CERTIFICATE-----\nmy-ca\n-----END CERTIFICATE-----");
+  });
+
+  it("includes cert and key when set", () => {
+    const opts = buildConnectOptions({
+      registry: "https://r.example.com",
+      strictSsl: true,
+      cert: "my-cert",
+      key: "my-key",
+    });
+    expect(opts.cert).toBe("my-cert");
+    expect(opts.key).toBe("my-key");
+  });
+
+  it("omits ca, cert, and key when not present in config", () => {
+    const opts = buildConnectOptions({ registry: "https://r.example.com", strictSsl: true });
+    expect("ca" in opts).toBe(false);
+    expect("cert" in opts).toBe(false);
+    expect("key" in opts).toBe(false);
+  });
+
+  it("accepts ca as an array of certificates", () => {
+    const opts = buildConnectOptions({
+      registry: "https://r.example.com",
+      strictSsl: true,
+      ca: ["cert1", "cert2"],
+    });
+    expect(Array.isArray(opts.ca)).toBe(true);
+    expect(opts.ca).toEqual(["cert1", "cert2"]);
+  });
+
+  it("returns all TLS settings from a full corporate config", () => {
+    const opts = buildConnectOptions({
+      registry: "https://corp.registry.example.com",
+      strictSsl: false,
+      ca: "corp-ca",
+      cert: "client-cert",
+      key: "client-key",
+    });
+    expect(opts).toEqual({
+      rejectUnauthorized: false,
+      ca: "corp-ca",
+      cert: "client-cert",
+      key: "client-key",
+    });
+  });
+});
+
+
 describe("buildFetchDispatcher", () => {
   it("returns an Agent for direct HTTPS with TLS settings", () => {
     const config: NpmFetchConfig = {

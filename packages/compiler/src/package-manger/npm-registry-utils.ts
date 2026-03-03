@@ -185,18 +185,36 @@ function isHostInNoProxy(hostname: string, noProxy?: string): boolean {
 }
 
 /**
+ * Builds the undici `connect` options object from the npm fetch configuration.
+ * This object is passed directly to `Agent` and `ProxyAgent` constructors and
+ * controls TLS behaviour: certificate verification, custom CA/cert/key material.
+ *
+ * Exported so that tests can verify the exact TLS options that would be applied
+ * for a given `NpmFetchConfig` without constructing a full dispatcher.
+ * @internal
+ */
+export function buildConnectOptions(config: NpmFetchConfig): {
+  rejectUnauthorized: boolean;
+  ca?: string | string[];
+  cert?: string;
+  key?: string;
+} {
+  return {
+    rejectUnauthorized: config.strictSsl,
+    ...(config.ca !== undefined && { ca: config.ca }),
+    ...(config.cert !== undefined && { cert: config.cert }),
+    ...(config.key !== undefined && { key: config.key }),
+  };
+}
+
+/**
  * Builds an undici dispatcher (Agent or ProxyAgent) that applies all npm HTTP config
  * settings: TLS verification, custom CA/cert/key, and proxy routing with noproxy bypass.
  * Pass the returned dispatcher as `{ dispatcher }` in fetch calls.
  * @internal
  */
 export function buildFetchDispatcher(url: string, config: NpmFetchConfig): Dispatcher {
-  const connect = {
-    rejectUnauthorized: config.strictSsl,
-    ...(config.ca !== undefined && { ca: config.ca }),
-    ...(config.cert !== undefined && { cert: config.cert }),
-    ...(config.key !== undefined && { key: config.key }),
-  };
+  const connect = buildConnectOptions(config);
 
   const urlObj = new URL(url);
   const isHttps = urlObj.protocol === "https:";
