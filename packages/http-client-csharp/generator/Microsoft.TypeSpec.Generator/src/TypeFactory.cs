@@ -39,20 +39,6 @@ namespace Microsoft.TypeSpec.Generator
 
         internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
-        internal IDictionary<string, InputModelType> InputModelTypeNameMap
-        {
-            get
-            {
-                if (_inputModelTypeNameMap == null)
-                {
-                    _inputModelTypeNameMap = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.ToDictionary(m => m.Name.ToIdentifierName(), m => m);
-                }
-
-                return _inputModelTypeNameMap;
-            }
-        }
-        private IDictionary<string, InputModelType>? _inputModelTypeNameMap;
-
         protected internal TypeFactory()
         {
         }
@@ -190,6 +176,10 @@ namespace Microsoft.TypeSpec.Generator
             if (InputTypeToModelProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
 
+            // Add sentinel before construction to prevent re-entrant creation of the same model
+            // (e.g., when BuildBaseModelProvider triggers CreateModel for all input models).
+            InputTypeToModelProvider[model] = null;
+
             modelProvider = CreateModelCore(model);
 
             foreach (var visitor in Visitors)
@@ -197,7 +187,7 @@ namespace Microsoft.TypeSpec.Generator
                 modelProvider = visitor.PreVisitModel(model, modelProvider);
             }
 
-            InputTypeToModelProvider.Add(model, modelProvider);
+            InputTypeToModelProvider[model] = modelProvider;
 
             if (modelProvider != null)
             {
