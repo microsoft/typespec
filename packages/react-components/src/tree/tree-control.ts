@@ -29,6 +29,9 @@ export function useTreeControls({ onSetExpanded }: TreeControlsOptions): TreeCon
 
   const expand = useCallback(
     (key: string) => {
+      if (expanded.has(key)) {
+        return;
+      }
       expanded.add(key);
       onSetExpanded?.(expanded);
       setRerender((x) => x + 1);
@@ -37,6 +40,9 @@ export function useTreeControls({ onSetExpanded }: TreeControlsOptions): TreeCon
   );
   const collapse = useCallback(
     (key: string) => {
+      if (!expanded.has(key)) {
+        return;
+      }
       expanded.delete(key);
       onSetExpanded?.(expanded);
       setRerender((x) => x + 1);
