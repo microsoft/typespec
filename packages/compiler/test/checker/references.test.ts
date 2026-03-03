@@ -570,6 +570,8 @@ describe("compiler: references", () => {
       }));
 
     describe("reference sibling members", () => {
+      // Those tests look broken https://github.com/microsoft/typespec/issues/9731
+      // eslint-disable-next-line no-unassigned-vars
       let linkedValue: Operation | undefined;
       beforeEach(() => {
         testHost.addJsFile("./test-link.js", {

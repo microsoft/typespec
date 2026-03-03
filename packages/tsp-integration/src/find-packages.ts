@@ -127,7 +127,7 @@ async function extractPackageNameFromTgzFile(tgzFilePath: string): Promise<strin
 
     return null;
   } catch (error) {
-    throw new Error(`Failed to read package.json from ${tgzFilePath}: ${error}`);
+    throw new Error(`Failed to read package.json from ${tgzFilePath}: ${error}`, { cause: error });
   }
 }
 
