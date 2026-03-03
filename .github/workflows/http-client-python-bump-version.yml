@@ -1,6 +1,9 @@
 name: "[Python] Bump Version and Create Release PR"
 
 on:
+  push:
+    branches:
+      - yuchaoyan/add-python-bump-version-workflow
   workflow_dispatch:
     inputs:
       branch:
@@ -25,7 +28,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ inputs.branch || github.ref_name }}
           fetch-depth: 0
 
       - uses: ./.github/actions/setup
@@ -148,7 +151,7 @@ jobs:
       - name: Generate PR body
         id: pr-body
         run: |
-          BODY=$(git diff ${{ inputs.branch }} -- package.json | head -100)
+          BODY=$(git diff ${{ inputs.branch || github.ref_name }} -- package.json | head -100)
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "body<<$EOF" >> "$GITHUB_OUTPUT"
           echo '```diff' >> "$GITHUB_OUTPUT"
@@ -163,6 +166,6 @@ jobs:
           PR_URL=$(gh pr create \
             --title "[python] release new version" \
             --body "${{ steps.pr-body.outputs.body }}" \
-            --base ${{ inputs.branch }} \
+            --base ${{ inputs.branch || github.ref_name }} \
             --draft)
           echo "✅ PR created: $PR_URL"
