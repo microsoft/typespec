@@ -21,6 +21,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         Override = 512,
         Operator = 1024,
         Explicit = 2048,
-        Implicit = 4096
+        Implicit = 4096,
+        Partial = 8192,
+        Abstract = 16384
     }
 }
