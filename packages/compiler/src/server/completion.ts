@@ -10,8 +10,8 @@ import {
 import { getSymNode } from "../core/binder.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
-import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getLocationContext } from "../core/helpers/location-context.js";
+import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getFirstAncestor, positionInRange } from "../core/parser.js";
 import {
   getAnyExtensionFromPath,
@@ -28,8 +28,8 @@ import {
   NodeFlags,
   PositionDetail,
   StringLiteralNode,
-  SymbolFlags,
   Sym,
+  SymbolFlags,
   SyntaxKind,
   Type,
   TypeSpecScriptNode,
@@ -485,7 +485,10 @@ async function addIdentifierCompletion(
     addKeywordCompletion("identifier", completions);
   }
 
-  function canAccessCompletionSymbol(sym: Sym, sourceLocation: ReturnType<typeof getLocationContext>) {
+  function canAccessCompletionSymbol(
+    sym: Sym,
+    sourceLocation: ReturnType<typeof getLocationContext>,
+  ) {
     const isInternalDeclaration =
       (sym.flags & (SymbolFlags.Internal | SymbolFlags.Declaration)) ===
       (SymbolFlags.Internal | SymbolFlags.Declaration);

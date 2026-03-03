@@ -617,7 +617,8 @@ function createVisibilityFilterMutator(
     application: DecoratorApplication,
     decoratorName: `@${string}`,
     decoratorFn: DecoratorFunction,
-  ): boolean => isTypeSpecDecorator(application, decoratorName) || application.decorator === decoratorFn;
+  ): boolean =>
+    isTypeSpecDecorator(application, decoratorName) || application.decorator === decoratorFn;
   const mpMutator: Mutator = {
     name: "VisibilityFilterProperty",
     ModelProperty: {
