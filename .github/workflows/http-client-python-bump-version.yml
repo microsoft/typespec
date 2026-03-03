@@ -1,7 +1,13 @@
 name: "[Python] Bump Version and Create Release PR"
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to checkout and bump versions on"
+        required: false
+        default: "main"
+        type: string
 
 permissions:
   contents: write
@@ -16,10 +22,10 @@ jobs:
         working-directory: packages/http-client-python
 
     steps:
-      - name: Checkout main
+      - name: Checkout branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ inputs.branch }}
           fetch-depth: 0
 
       - uses: ./.github/actions/setup
@@ -142,7 +148,7 @@ jobs:
       - name: Generate PR body
         id: pr-body
         run: |
-          BODY=$(git diff main -- package.json | head -100)
+          BODY=$(git diff ${{ inputs.branch }} -- package.json | head -100)
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "body<<$EOF" >> "$GITHUB_OUTPUT"
           echo '```diff' >> "$GITHUB_OUTPUT"
@@ -157,6 +163,6 @@ jobs:
           PR_URL=$(gh pr create \
             --title "[python] release new version" \
             --body "${{ steps.pr-body.outputs.body }}" \
-            --base main \
+            --base ${{ inputs.branch }} \
             --draft)
           echo "✅ PR created: $PR_URL"
