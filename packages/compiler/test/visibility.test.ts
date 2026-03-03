@@ -4,6 +4,7 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { VisibilityFilter } from "../src/core/visibility/core.js";
+import type { EnumMember, EnumValue, FunctionContext } from "../src/index.js";
 import {
   $visibility,
   addVisibilityModifiers,
@@ -11,7 +12,6 @@ import {
   Diagnostic,
   EmptyVisibilityProvider,
   Enum,
-  getFriendlyName,
   getLifecycleVisibilityEnum,
   getParameterVisibilityFilter,
   getVisibilityForClass,
@@ -26,6 +26,7 @@ import {
   sealVisibilityModifiers,
   sealVisibilityModifiersForProgram,
 } from "../src/index.js";
+import { applyLifecycleUpdate, applyVisibilityFilter } from "../src/lib/visibility.js";
 import {
   BasicTestRunner,
   createTestRunner,
@@ -40,6 +41,21 @@ function assertSetsEqual<T>(a: Set<T>, b: Set<T>): void {
   for (const item of a) {
     ok(b.has(item));
   }
+}
+
+function enumMemberToValue(member: EnumMember): EnumValue {
+  return {
+    entityKind: "Value",
+    valueKind: "EnumValue",
+    value: member,
+    type: member.enum,
+  };
+}
+
+function anyFilter(...members: EnumMember[]): Parameters<typeof applyVisibilityFilter>[2] {
+  return {
+    any: members.map((m) => enumMemberToValue(m)),
+  };
 }
 
 describe("compiler: visibility core", () => {
@@ -810,6 +826,74 @@ describe("compiler: visibility core", () => {
       validateUpdateTransform(props, Result, getProperties);
     });
 
+    it("correctly applies Update transform via applyLifecycleUpdate", async () => {
+      const Lifecycle = {
+        Read: "Lifecycle.Read",
+        Create: "Lifecycle.Create",
+        Update: "Lifecycle.Update",
+      };
+
+      const { Example } = (await runner.compile(`
+        @test model Example {
+          @visibility(${Lifecycle.Read})
+          r: string;
+
+          cru: string;
+
+          @visibility(${Lifecycle.Create}, ${Lifecycle.Read})
+          cr: string;
+
+          @visibility(${Lifecycle.Create}, ${Lifecycle.Update})
+          cu: string;
+
+          @visibility(${Lifecycle.Create})
+          c: string;
+
+          @visibility(${Lifecycle.Update}, ${Lifecycle.Read})
+          ru: string;
+
+          @visibility(${Lifecycle.Update})
+          u: string;
+
+          @invisible(Lifecycle)
+          invisible: string;
+
+          nested: Nested;
+        }
+
+        model Nested {
+          @visibility(${Lifecycle.Read})
+          r: string;
+
+          cru: string;
+
+          @visibility(${Lifecycle.Create}, ${Lifecycle.Read})
+          cr: string;
+
+          @visibility(${Lifecycle.Create}, ${Lifecycle.Update})
+          cu: string;
+
+          @visibility(${Lifecycle.Create})
+          c: string;
+
+          @visibility(${Lifecycle.Update}, ${Lifecycle.Read})
+          ru: string;
+
+          @visibility(${Lifecycle.Update})
+          u: string;
+
+          @invisible(Lifecycle)
+          invisible: string;
+        };
+      `)) as { Example: Model };
+
+      const fnContext = { program: runner.program } satisfies Pick<FunctionContext, "program">;
+      const Result = applyLifecycleUpdate(fnContext, Example, "Update{name}");
+      const props = getProperties(Result);
+
+      validateUpdateTransform(props, Result, getProperties);
+    });
+
     it("correctly applies CreateOrUpdate transform", async () => {
       const Result = await compileWithTransform("CreateOrUpdate");
       const props = getProperties(Result);
@@ -991,16 +1075,81 @@ describe("compiler: visibility core", () => {
         foo_a: string;
       }
 
+      #suppress "deprecated"
       @withVisibilityFilter(#{ any: #[Example.A] }, "{name}A")
       @test model DataA {
         ...Data
       }
 
+      #suppress "deprecated"
       @withVisibilityFilter(#{ any: #[Example.B] }, "{name}B")
       @test model DataB {
         ...Data
       }
     `)) as { DataA: Model; DataB: Model };
+
+    ok(DataA);
+    ok(DataB);
+
+    ok(DataA.properties.has("data_a"));
+    ok(!DataA.properties.has("data_b"));
+    ok(DataB.properties.has("data_b"));
+    ok(!DataB.properties.has("data_a"));
+
+    const dataA = DataA.properties.get("data_a")!;
+    const dataB = DataB.properties.get("data_b")!;
+
+    strictEqual(dataA.type.kind, "Model");
+    strictEqual(dataB.type.kind, "Model");
+
+    const FooA = dataA.type as Model;
+    const FooB = dataB.type as Model;
+
+    strictEqual(FooA.name, "FooA");
+    strictEqual(FooB.name, "FooB");
+
+    ok(FooA.properties.has("foo_a"));
+    ok(!FooA.properties.has("foo_b"));
+    ok(FooB.properties.has("foo_b"));
+    ok(!FooB.properties.has("foo_a"));
+  });
+
+  it("deeply renames types using the name template via applyVisibilityFilter", async () => {
+    const { Data, Example } = (await runner.compile(`
+      @test enum Example {
+        A,
+        B,
+      }
+
+      @test model Data {
+        @visibility(Example.A)
+        data_a: Foo;
+
+        @visibility(Example.B)
+        data_b: Foo;
+      }
+        
+      model Foo {
+        @visibility(Example.B)
+        foo_b: string;
+        @visibility(Example.A)
+        foo_a: string;
+      }
+    `)) as { Data: Model; Example: Enum };
+
+    const fnContext = { program: runner.program } satisfies Pick<FunctionContext, "program">;
+    const DataA = applyVisibilityFilter(
+      fnContext,
+      Data,
+      anyFilter(Example.members.get("A")!),
+      "{name}A",
+    );
+    const DataB = applyVisibilityFilter(
+      fnContext,
+      Data,
+      anyFilter(Example.members.get("B")!),
+      "{name}B",
+    );
 
     ok(DataA);
     ok(DataB);
@@ -1078,8 +1227,8 @@ describe("compiler: visibility core", () => {
     const A = a.type as Model;
     const B = b.type as Model;
 
-    ok(getFriendlyName(runner.program, A) === "ReadA");
-    ok(getFriendlyName(runner.program, B) === "ReadB");
+    ok(A.name === "ReadA");
+    ok(B.name === "ReadB");
 
     ok(A.properties.has("a"));
     ok(!A.properties.has("invisible"));
@@ -1150,6 +1299,7 @@ describe("compiler: visibility core", () => {
         invisible: string;
       }
 
+      #suppress "deprecated"
       @withVisibilityFilter(#{ any: #[Lifecycle.Read] }, "{name}Transform")
       @test model Result {
         array: A[];
@@ -1161,6 +1311,63 @@ describe("compiler: visibility core", () => {
 
     const array = Result.properties.get("array");
     const record = Result.properties.get("record");
+
+    ok(array);
+    ok(record);
+
+    const arrayType = array.type;
+    const recordType = record.type;
+
+    strictEqual(arrayType.kind, "Model");
+    strictEqual(recordType.kind, "Model");
+
+    ok($(runner.program).array.is(arrayType));
+    ok($(runner.program).record.is(recordType));
+
+    const arrayA = (arrayType as Model).indexer!.value as Model;
+    const recordA = (recordType as Model).indexer!.value as Model;
+
+    strictEqual(arrayA.kind, "Model");
+    strictEqual(recordA.kind, "Model");
+
+    strictEqual(arrayA.name, "ATransform");
+    strictEqual(recordA.name, "ATransform");
+
+    strictEqual(arrayA, recordA);
+
+    ok(arrayA.properties.has("a"));
+    ok(!arrayA.properties.has("invisible"));
+  });
+
+  it("correctly transforms arrays and records via applyVisibilityFilter", async () => {
+    const { Result } = (await runner.compile(`
+      model A {
+        @visibility(Lifecycle.Read)
+        a: string;
+
+        @visibility(Lifecycle.Create)
+        invisible: string;
+      }
+
+      @test model Result {
+        array: A[];
+        record: Record<A>;
+      }
+    `)) as { Result: Model };
+
+    const fnContext = { program: runner.program } satisfies Pick<FunctionContext, "program">;
+    const lifecycle = getLifecycleVisibilityEnum(runner.program);
+    const transformed = applyVisibilityFilter(
+      fnContext,
+      Result,
+      anyFilter(lifecycle.members.get("Read")!),
+      "{name}Transform",
+    );
+
+    ok(transformed);
+
+    const array = transformed.properties.get("array");
+    const record = transformed.properties.get("record");
 
     ok(array);
     ok(record);
@@ -1203,6 +1410,7 @@ describe("compiler: visibility core", () => {
 
       model C is Record<A>;
 
+      #suppress "deprecated"
       @withVisibilityFilter(#{ any: #[Lifecycle.Read] }, "{name}Transform")
       @test model Result {
         arr: B;
@@ -1214,6 +1422,67 @@ describe("compiler: visibility core", () => {
 
     const arr = Result.properties.get("arr");
     const rec = Result.properties.get("rec");
+
+    ok(arr);
+    ok(rec);
+
+    const arrType = arr.type;
+    const recType = rec.type;
+
+    strictEqual(arrType.kind, "Model");
+    strictEqual(recType.kind, "Model");
+
+    ok($(runner.program).array.is(arrType));
+    ok($(runner.program).record.is(recType));
+
+    strictEqual(arrType.name, "BTransform");
+    strictEqual(recType.name, "CTransform");
+
+    const arrA = (arrType as Model).indexer!.value as Model;
+    const recA = (recType as Model).indexer!.value as Model;
+
+    strictEqual(arrA, recA);
+
+    strictEqual(arrA.kind, "Model");
+    strictEqual(arrA.name, "ATransform");
+
+    ok(arrA.properties.has("a"));
+    ok(!arrA.properties.has("invisible"));
+  });
+
+  it("correctly transforms 'model is' declarations of arrays and records via applyVisibilityFilter", async () => {
+    const { Result } = (await runner.compile(`
+      model A {
+        @visibility(Lifecycle.Read)
+        a: string;
+
+        @visibility(Lifecycle.Create)
+        invisible: string;
+      }
+
+      model B is Array<A>;
+
+      model C is Record<A>;
+
+      @test model Result {
+        arr: B;
+        rec: C;
+      }
+    `)) as { Result: Model };
+
+    const fnContext = { program: runner.program } satisfies Pick<FunctionContext, "program">;
+    const lifecycle = getLifecycleVisibilityEnum(runner.program);
+    const transformed = applyVisibilityFilter(
+      fnContext,
+      Result,
+      anyFilter(lifecycle.members.get("Read")!),
+      "{name}Transform",
+    );
+
+    ok(transformed);
+
+    const arr = transformed.properties.get("arr");
+    const rec = transformed.properties.get("rec");
 
     ok(arr);
     ok(rec);
