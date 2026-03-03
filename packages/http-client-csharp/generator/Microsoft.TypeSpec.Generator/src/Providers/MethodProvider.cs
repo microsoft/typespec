@@ -73,6 +73,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MethodProvider"/> class with only a method signature and no body,
+        /// for use with partial method declarations.
+        /// </summary>
+        /// <param name="signature">The method signature.</param>
+        /// <param name="enclosingType">The enclosing type.</param>
+        /// <param name="xmlDocProvider">The XML documentation provider.</param>
+        public MethodProvider(
+            MethodSignature signature,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default)
+        {
+            Signature = signature;
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
+            EnclosingType = enclosingType;
+            Suppressions = [];
+        }
+
         public void Update(
             MethodSignature? signature = null,
             MethodBodyStatement? bodyStatements = null,
@@ -129,9 +147,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     BodyExpression = expression;
                 }
             }
-            else
+            else if (BodyStatements != null)
             {
-                var updatedStatements = BodyStatements!.Accept(visitor, this);
+                var updatedStatements = BodyStatements.Accept(visitor, this);
                 if (!ReferenceEquals(updatedStatements, BodyStatements))
                 {
                     BodyStatements = updatedStatements;
