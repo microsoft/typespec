@@ -235,13 +235,13 @@ async function runPackageManager(
   if (config.noProxy !== undefined) {
     npmEnvOverrides["npm_config_noproxy"] = config.noProxy;
   }
-  if (config.ca !== undefined) {
+  if (config.ca) {
     npmEnvOverrides["npm_config_ca"] = Array.isArray(config.ca) ? config.ca.join("\n") : config.ca;
   }
-  if (config.cert !== undefined) {
+  if (config.cert) {
     npmEnvOverrides["npm_config_cert"] = config.cert;
   }
-  if (config.key !== undefined) {
+  if (config.key) {
     npmEnvOverrides["npm_config_key"] = config.key;
   }
   const child = fork(binPath, packageManager.commands.install, {

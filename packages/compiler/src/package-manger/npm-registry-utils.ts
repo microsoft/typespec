@@ -127,8 +127,19 @@ export function parseNpmConfig(
   rawConfig: Record<string, unknown>,
   readFileFn: (path: string) => string = (p) => readFileSync(p, "utf8"),
 ): NpmFetchConfig {
-  // Read CA cert: explicit `ca` takes priority; fall back to reading `cafile`
-  let ca: string | string[] | undefined = rawConfig.ca as string | string[] | undefined;
+  // Read CA cert: explicit `ca` takes priority; fall back to reading `cafile`.
+  // npm config list --json may return null for unset values; guard against that here.
+  const rawCa = rawConfig.ca;
+  let ca: string | string[] | undefined;
+  if (Array.isArray(rawCa)) {
+    // Filter out any null/empty entries that npm may include in the array.
+    const filtered = (rawCa as unknown[]).filter(
+      (c): c is string => typeof c === "string" && c.length > 0,
+    );
+    ca = filtered.length > 0 ? filtered : undefined;
+  } else if (typeof rawCa === "string" && rawCa.length > 0) {
+    ca = rawCa;
+  }
   const cafilePath = rawConfig.cafile as string | undefined;
   if (!ca && cafilePath) {
     try {
@@ -139,6 +150,8 @@ export function parseNpmConfig(
   }
 
   const proxy = rawConfig.proxy as string | undefined;
+  const rawCert = rawConfig.cert;
+  const rawKey = rawConfig.key;
   return {
     registry: ((rawConfig.registry as string) ?? defaultRegistry).replace(/\/$/, ""),
     strictSsl: rawConfig["strict-ssl"] !== false,
@@ -146,8 +159,8 @@ export function parseNpmConfig(
     httpsProxy: (rawConfig["https-proxy"] ?? proxy) as string | undefined,
     noProxy: (rawConfig.noproxy ?? rawConfig["no-proxy"]) as string | undefined,
     ca,
-    cert: rawConfig.cert as string | undefined,
-    key: rawConfig.key as string | undefined,
+    cert: typeof rawCert === "string" && rawCert.length > 0 ? rawCert : undefined,
+    key: typeof rawKey === "string" && rawKey.length > 0 ? rawKey : undefined,
   };
 }
 

@@ -99,6 +99,26 @@ describe("parseNpmConfig", () => {
     expect(readFileCalled.value).toBe(false);
   });
 
+  it("treats null ca/cert/key from npm config JSON as undefined", () => {
+    // npm config list --json returns null for unset PEM fields; we must not pass
+    // null as an env var to spawned npm (it would be stringified to "null" and fail
+    // with ERR_OSSL_PEM_NO_START_LINE).
+    const config = parseNpmConfig({ ca: null, cert: null, key: null } as Record<string, unknown>);
+    expect(config.ca).toBeUndefined();
+    expect(config.cert).toBeUndefined();
+    expect(config.key).toBeUndefined();
+  });
+
+  it("filters null entries out of a ca array", () => {
+    const config = parseNpmConfig({ ca: [null, "real-cert", null] } as Record<string, unknown>);
+    expect(config.ca).toEqual(["real-cert"]);
+  });
+
+  it("treats an all-null ca array as undefined", () => {
+    const config = parseNpmConfig({ ca: [null, null] } as Record<string, unknown>);
+    expect(config.ca).toBeUndefined();
+  });
+
   it("silently ignores cafile read errors", () => {
     const config = parseNpmConfig({ cafile: "/nonexistent/ca.pem" }, () => {
       throw new Error("ENOENT: no such file");
