@@ -8,7 +8,7 @@ import {
 } from "@microsoft/api-extractor-model";
 import { DocNode, type DocComment, type DocSection } from "@microsoft/tsdoc";
 import { joinPaths, PackageJson } from "@typespec/compiler";
-import { readdir, readFile, writeFile } from "fs/promises";
+import { writeFile } from "fs/promises";
 import { createApiModel } from "./api-extractor.js";
 import { createTypekitDocs } from "./components/typekits-file.js";
 import { readPackageJson } from "./utils/misc.js";
@@ -82,46 +82,6 @@ export async function writeTypekitDocs(libraryPath: string, outputDir: string): 
   }
 }
 
-async function extractUsageDocFromLibrary(libraryPath: string): Promise<string | undefined> {
-  // Look for typekit files in the library and extract @usageDoc
-  async function searchDirectory(dir: string): Promise<string | undefined> {
-    try {
-      const entries = await readdir(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = joinPaths(dir, entry.name);
-        if (entry.isDirectory()) {
-          const result = await searchDirectory(fullPath);
-          if (result) return result;
-        } else if (entry.isFile() && entry.name.endsWith(".ts")) {
-          const content = await readFile(fullPath, "utf-8");
-          const usageMatch = content.match(
-            /@usageDoc\s+([\s\S]*?)(?:\n\s*\*\s*@(?:experimental|typekit)|\n\s*\*\/)/,
-          );
-          if (usageMatch) {
-            return usageMatch[1]
-              .split("\n")
-              .map((line) => line.replace(/^\s*\*\s?/, ""))
-              .join("\n")
-              .trim();
-          }
-        }
-      }
-    } catch (error) {
-      // Ignore errors (e.g., directory doesn't exist)
-    }
-    return undefined;
-  }
-
-  // Search in src/typekit and src/experimental/typekit directories
-  const typekitDir = joinPaths(libraryPath, "src", "typekit");
-  let result = await searchDirectory(typekitDir);
-  if (!result) {
-    const experimentalTypekitDir = joinPaths(libraryPath, "src", "experimental", "typekit");
-    result = await searchDirectory(experimentalTypekitDir);
-  }
-  return result;
-}
-
 async function getTypekitApi(
   libraryPath: string,
   pkgJson: PackageJson,
@@ -132,9 +92,7 @@ async function getTypekitApi(
   }
   const namespaces: Record<string, TypekitNamespace> = {};
   let hasExperimental = false;
-
-  // Extract usage documentation from the library source files once
-  const collectionUsageDoc = await extractUsageDocFromLibrary(libraryPath);
+  let collectionUsageDoc: string | undefined;
 
   for (const pkgMember of api.packages[0].members) {
     for (const member of pkgMember.members) {
@@ -150,7 +108,14 @@ async function getTypekitApi(
             hasExperimental = true;
           }
 
-          // Usage doc is extracted once for the entire collection from source files
+          // Extract usage documentation from @usageDoc custom block if present
+          const usageDocTag = docComment?.customBlocks.find(
+            (x) => x.blockTag.tagName === "@usageDoc",
+          );
+          if (usageDocTag && !collectionUsageDoc) {
+            collectionUsageDoc = extractTextFromDocSection(usageDocTag.content);
+          }
+
           const typekit: TypekitNamespace = resolveTypekit(
             member,
             [name],
@@ -161,6 +126,35 @@ async function getTypekitApi(
         }
       }
     }
+  }
+
+  function extractTextFromDocSection(section: DocSection): string {
+    // Extract text content preserving markdown structure
+    const textParts: string[] = [];
+    function visit(node: DocNode): void {
+      if (node.kind === "PlainText") {
+        textParts.push((node as any).text);
+      } else if (node.kind === "SoftBreak") {
+        textParts.push("\n");
+      } else if (node.kind === "CodeSpan") {
+        textParts.push("`" + (node as any).code + "`");
+      } else if (node.kind === "FencedCode") {
+        const fenced = node as any;
+        textParts.push("\n```" + (fenced.language || "") + "\n" + fenced.code + "\n```\n");
+      } else if ((node as any).nodes) {
+        for (const child of (node as any).nodes) {
+          visit(child);
+        }
+      }
+    }
+
+    // Access nested structure - TSDoc wraps content in paragraph nodes
+    if ((section as any).nodes) {
+      for (const node of (section as any).nodes) {
+        visit(node);
+      }
+    }
+    return textParts.join("").trim();
   }
 
   function resolveTypekit(

@@ -75,6 +75,10 @@ export function createApiModelFileForExport(
           tagName: "@typekit",
           syntaxKind: "block",
         },
+        {
+          tagName: "@usageDoc",
+          syntaxKind: "block",
+        },
       ],
     }),
     packageJsonFullPath: joinPaths(libraryPath, "package.json"),
