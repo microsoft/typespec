@@ -1273,6 +1273,7 @@ export function createScanner(
       if (isCrlf(end - 2, 0, end)) {
         end--;
       }
+      // eslint-disable-next-line no-useless-assignment
       end--;
     }
 
@@ -1472,7 +1473,6 @@ export function createScanner(
 
   function scanIdentifierOrKeyword(): Token {
     let count = 0;
-    let ch = input.charCodeAt(position);
 
     while (true) {
       position++;
@@ -1482,7 +1482,7 @@ export function createScanner(
         break;
       }
 
-      ch = input.charCodeAt(position);
+      const ch = input.charCodeAt(position);
       if (count < KeywordLimit.MaxLength && isLowercaseAsciiLetter(ch)) {
         continue;
       }
