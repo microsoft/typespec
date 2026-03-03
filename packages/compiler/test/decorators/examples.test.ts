@@ -142,7 +142,7 @@ describe("@example", () => {
       expect(serializeValueAsJson(program, examples[0].value, target)).toBeUndefined();
     });
 
-    it("serializes first argument for custom scalar with initializer", async () => {
+    it("returns undefined for custom scalar with string-argument initializer", async () => {
       const { program, examples, target } = await getExamplesFor(`
         @example(test.name("Shorty"))
         @test scalar test {
@@ -150,7 +150,7 @@ describe("@example", () => {
         }
       `);
       expect(examples).toHaveLength(1);
-      expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("Shorty");
+      expect(serializeValueAsJson(program, examples[0].value, target)).toBeUndefined();
     });
   });
 

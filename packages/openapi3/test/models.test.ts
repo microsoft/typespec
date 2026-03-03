@@ -262,7 +262,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
     });
   });
 
-  it("scalar used as a default value", async () => {
+  it("scalar with unknown constructor used as a default value produces no default and no diagnostic", async () => {
     const res = await oapiForModel(
       "Pet",
       `
@@ -272,7 +272,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
       `,
     );
 
-    expect(res.schemas.Pet.properties.name.default).toEqual("Shorty");
+    expect(res.schemas.Pet.properties.name.default).toBeUndefined();
   });
 
   it("scalar with no-argument initializer used as a default value does not crash", async () => {
