@@ -39,20 +39,6 @@ namespace Microsoft.TypeSpec.Generator
 
         internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
-        internal IDictionary<string, InputModelType> InputModelTypeNameMap
-        {
-            get
-            {
-                if (_inputModelTypeNameMap == null)
-                {
-                    _inputModelTypeNameMap = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.ToDictionary(m => m.Name.ToIdentifierName(), m => m);
-                }
-
-                return _inputModelTypeNameMap;
-            }
-        }
-        private IDictionary<string, InputModelType>? _inputModelTypeNameMap;
-
         protected internal TypeFactory()
         {
         }
