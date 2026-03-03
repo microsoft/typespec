@@ -1,4 +1,4 @@
-import { deepStrictEqual, ok } from "assert";
+import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
 import { DocumentHighlight } from "vscode-languageserver/node.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
@@ -182,8 +182,34 @@ describe("compiler: server: documentHighlight", () => {
       p2: M.a::type;
     }`);
 
-    const templateAccessRanges = ranges.filter((x) => x.range.start.line >= 5);
-    ok(templateAccessRanges.length >= 2);
+    deepStrictEqual(ranges, [
+      {
+        kind: 2,
+        range: {
+          end: {
+            character: 13,
+            line: 5,
+          },
+          start: {
+            character: 12,
+            line: 5,
+          },
+        },
+      },
+      {
+        kind: 2,
+        range: {
+          end: {
+            character: 13,
+            line: 6,
+          },
+          start: {
+            character: 12,
+            line: 6,
+          },
+        },
+      },
+    ]);
   });
 
   async function findDocumentHighlight(sourceWithCursor: string): Promise<DocumentHighlight[]> {

@@ -611,6 +611,33 @@ describe("identifiers", () => {
     ok(completions.items.find((item) => item.label === "returnType"));
   });
 
+  it("does not complete model members for unconstrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<M> {
+        value: M.┆
+      }
+      `,
+    );
+
+    ok(!completions.items.find((item) => item.label === "a"));
+    ok(!completions.items.find((item) => item.label === "b"));
+  });
+
+  it("does not complete meta properties for unconstrained template parameters", async () => {
+    const completions = await complete(
+      `
+      model Wrapper<M> {
+        value: M::┆
+      }
+      `,
+    );
+
+    ok(!completions.items.find((item) => item.label === "type"));
+    ok(!completions.items.find((item) => item.label === "parameters"));
+    ok(!completions.items.find((item) => item.label === "returnType"));
+  });
+
   it("completes partial identifiers", async () => {
     const completions = await complete(
       `

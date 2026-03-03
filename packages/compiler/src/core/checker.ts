@@ -536,7 +536,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Tracking the template parameters used or not.
    */
   const templateParameterUsageMap = new Map<TemplateParameterDeclarationNode, boolean>();
-  const templateAccessTypeCache = new Map<string, TemplateParameterAccess>();
   const templateAccessSymbolCache = new Map<string, Sym>();
   const symbolCacheIds = new WeakMap<Sym, number>();
   let nextSymbolCacheId = 1;
@@ -3224,24 +3223,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       if (base) {
-        if (base) {
-          if (memberExpression.selector === "::") {
-            if (base?.node === undefined && base?.declarations && base.declarations.length > 0) {
-              // Process meta properties separately, such as `::parameters`, `::returnType`
-              const nodeModels = base?.declarations[0];
-              if (nodeModels.kind === SyntaxKind.OperationStatement) {
-                const operation = nodeModels as OperationStatementNode;
-                addCompletion("parameters", operation.symbol);
-                addCompletion("returnType", operation.symbol);
-              }
-            } else if (base?.node?.kind === SyntaxKind.ModelProperty) {
-              // Process meta properties separately, such as `::type`
-              const metaProperty = base.node as ModelPropertyNode;
-              addCompletion("type", metaProperty.symbol);
+        if (memberExpression.selector === "::") {
+          if (base?.node === undefined && base?.declarations && base.declarations.length > 0) {
+            // Process meta properties separately, such as `::parameters`, `::returnType`
+            const nodeModels = base?.declarations[0];
+            if (nodeModels.kind === SyntaxKind.OperationStatement) {
+              const operation = nodeModels as OperationStatementNode;
+              addCompletion("parameters", operation.symbol);
+              addCompletion("returnType", operation.symbol);
             }
-          } else {
-            addCompletions(base.exports ?? base.members);
+          } else if (base?.node?.kind === SyntaxKind.ModelProperty) {
+            // Process meta properties separately, such as `::type`
+            const metaProperty = base.node as ModelPropertyNode;
+            addCompletion("type", metaProperty.symbol);
           }
+        } else {
+          addCompletions(base.exports ?? base.members);
         }
       }
     } else {
@@ -3843,14 +3840,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function resolveTemplateConstraintType(
     templateType: TemplateParameter | TemplateParameterAccess,
   ): Type | undefined {
-    const constraintType = templateType.constraint?.type;
-    if (!constraintType || isErrorType(constraintType)) {
-      return undefined;
+    const visited = new Set<TemplateParameter | TemplateParameterAccess>();
+    let current: TemplateParameter | TemplateParameterAccess = templateType;
+    while (true) {
+      if (visited.has(current)) {
+        return undefined;
+      }
+      visited.add(current);
+
+      const constraintType = current.constraint?.type;
+      if (!constraintType || isErrorType(constraintType)) {
+        return undefined;
+      }
+      if (!isTemplateAccessType(constraintType)) {
+        return constraintType;
+      }
+      current = constraintType;
     }
-    if (constraintType && isTemplateAccessType(constraintType)) {
-      return resolveTemplateConstraintType(constraintType);
-    }
-    return constraintType;
   }
 
   function hasErrorTemplateConstraint(
@@ -4038,7 +4044,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const symbol = createSymbol(node, node.id.sv, SymbolFlags.LateBound);
     mutate(symbol).type = type;
     if (useCache) {
-      templateAccessTypeCache.set(cacheKey, type);
       templateAccessSymbolCache.set(cacheKey, symbol);
     }
     return symbol;
