@@ -83,7 +83,10 @@ export const DashboardTable: FunctionComponent<DashboardTableProps> = ({
   return (
     <table css={TableStyles}>
       <thead>
-        <DashboardHeaderRow coverageSummary={coverageSummary} emitterDisplayNames={emitterDisplayNames} />
+        <DashboardHeaderRow
+          coverageSummary={coverageSummary}
+          emitterDisplayNames={emitterDisplayNames}
+        />
       </thead>
       <tbody>{rows}</tbody>
     </table>
@@ -139,7 +142,6 @@ const ScenarioGroupStatusBox: FunctionComponent<ScenarioGroupStatusBoxProps> = (
   return <ScenarioGroupRatioStatusBox ratio={ratio} />;
 };
 
-
 interface DashboardHeaderRowProps {
   coverageSummary: CoverageSummary;
   emitterDisplayNames?: Record<string, string>;
@@ -164,7 +166,13 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({
     <tr>
       {tableHeader}
       {data.map(([lang, status, report]) => (
-        <GeneratorHeaderCell key={lang} status={status} report={report} language={lang} displayName={emitterDisplayNames?.[lang as string]} />
+        <GeneratorHeaderCell
+          key={lang}
+          status={status}
+          report={report}
+          language={lang}
+          displayName={emitterDisplayNames?.[lang as string]}
+        />
       ))}
     </tr>
   );
