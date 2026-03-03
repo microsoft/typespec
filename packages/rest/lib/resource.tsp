@@ -132,6 +132,7 @@ interface ResourceCreateOrUpdate<Resource extends {}, Error> {
   @autoRoute
   @doc("Creates or update an instance of the resource.")
   @createsOrUpdatesResource(Resource)
+  #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @patch(#{ implicitOptionality: true }) // for legacy behavior
   createOrUpdate(
     ...ResourceParameters<Resource>,
@@ -188,6 +189,7 @@ interface ResourceUpdate<Resource extends {}, Error> {
   @autoRoute
   @doc("Updates an existing instance of the resource.")
   @updatesResource(Resource)
+  #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @patch(#{ implicitOptionality: true }) // for legacy behavior
   update(
     ...ResourceParameters<Resource>,
@@ -339,6 +341,7 @@ interface SingletonResourceUpdate<Singleton extends {}, Resource extends {}, Err
   @doc("Updates the singleton resource.")
   @segmentOf(Singleton)
   @updatesResource(Singleton)
+  #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @patch(#{ implicitOptionality: true }) // for legacy behavior
   update(
     ...ResourceParameters<Resource>,
@@ -398,6 +401,7 @@ interface ExtensionResourceCreateOrUpdate<Extension extends {}, Resource extends
   @autoRoute
   @doc("Creates or update an instance of the extension resource.")
   @createsOrUpdatesResource(Extension)
+  #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @patch(#{ implicitOptionality: true }) // for legacy behavior
   createOrUpdate(
     ...ResourceParameters<Resource>,
@@ -446,6 +450,7 @@ interface ExtensionResourceUpdate<Extension extends {}, Resource extends {}, Err
   @autoRoute
   @doc("Updates an existing instance of the extension resource.")
   @updatesResource(Extension)
+  #suppress "@typespec/http/deprecated-implicit-optionality" "for legacy behavior"
   @patch(#{ implicitOptionality: true }) // for legacy behavior
   update(
     ...ResourceParameters<Resource>,

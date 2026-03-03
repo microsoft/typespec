@@ -244,12 +244,9 @@ export type PostDecorator = (
  * ```typespec
  * @patch op update(pet: Pet): void;
  * ```
- * @example
+ * @example Using MergePatch template for proper merge-patch semantics
  * ```typespec
- * // Disable implicit optionality, making the body of the PATCH operation use the
- * // optionality as defined in the `Pet` model.
- * @patch(#{ implicitOptionality: false })
- * op update(pet: Pet): void;
+ * @patch op update(...MergePatchUpdate<Pet>): void;
  * ```
  */
 export type PatchDecorator = (

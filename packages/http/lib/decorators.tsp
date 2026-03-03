@@ -266,6 +266,7 @@ model PatchOptions {
   /**
    * If set to `false`, disables the implicit transform that makes the body of a
    * PATCH operation deeply optional.
+   * @deprecated Use MergePatch templates instead.
    */
   implicitOptionality?: boolean;
 }
@@ -281,12 +282,9 @@ model PatchOptions {
  * @patch op update(pet: Pet): void;
  * ```
  *
- * @example
+ * @example Using MergePatch template for proper merge-patch semantics
  * ```typespec
- * // Disable implicit optionality, making the body of the PATCH operation use the
- * // optionality as defined in the `Pet` model.
- * @patch(#{ implicitOptionality: false })
- * op update(pet: Pet): void;
+ * @patch op update(@body pet: MergePatchUpdate<Pet>): void;
  * ```
  */
 extern dec patch(target: Operation, options?: valueof PatchOptions);

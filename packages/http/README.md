@@ -344,11 +344,10 @@ Specify the HTTP verb for the target operation to be `PATCH`.
 @patch op update(pet: Pet): void;
 ```
 
+###### Using MergePatch template for proper merge-patch semantics
+
 ```typespec
-// Disable implicit optionality, making the body of the PATCH operation use the
-// optionality as defined in the `Pet` model.
-@patch(#{ implicitOptionality: false })
-op update(pet: Pet): void;
+@patch op update(@body pet: MergePatchUpdate<Pet>): void;
 ```
 
 #### `@path`

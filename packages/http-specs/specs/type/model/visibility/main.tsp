@@ -98,6 +98,7 @@ op putModel(@body input: VisibilityModel): void;
   }
   ```
   """)
+#suppress "@typespec/http/deprecated-implicit-optionality" "for legacy test"
 @patch(#{ implicitOptionality: true })
 op patchModel(@body input: VisibilityModel): void;
 

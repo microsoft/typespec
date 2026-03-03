@@ -416,7 +416,15 @@ export const $patch: PatchDecorator = (
 ) => {
   _patch(context, entity);
 
-  if (options) setPatchOptions(context.program, entity, options);
+  if (options) {
+    if (options.implicitOptionality === true) {
+      reportDiagnostic(context.program, {
+        code: "deprecated-implicit-optionality",
+        target: entity,
+      });
+    }
+    setPatchOptions(context.program, entity, options);
+  }
 };
 
 /**
