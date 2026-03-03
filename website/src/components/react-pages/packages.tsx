@@ -70,6 +70,9 @@ function PackageCard({ pkg }: { pkg: NpmPackage }) {
     }
   }, [pkg.publisherEmail]);
 
+  const isFirstParty =
+    pkg.name.startsWith("@typespec/") || pkg.name.startsWith("@azure-tools/");
+
   return (
     <li className={style["package-item"]}>
       <a
@@ -85,6 +88,7 @@ function PackageCard({ pkg }: { pkg: NpmPackage }) {
               <div className={style["card-title-row"]}>
                 <span className={style["package-name"]}>{pkg.name}</span>
                 <span className={style["version-badge"]}>v{pkg.version}</span>
+                {isFirstParty && <span className={style["first-party-badge"]}>✓ Official</span>}
               </div>
             </div>
             {pkg.description && <p className={style["description"]}>{pkg.description}</p>}

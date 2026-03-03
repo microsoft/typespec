@@ -135,6 +135,15 @@
   color: var(--colorNeutralForeground2);
 }
 
+.first-party-badge {
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  border-radius: 12px;
+  background-color: var(--colorBrandBackground);
+  color: var(--colorNeutralForegroundOnBrand);
+  font-weight: 600;
+}
+
 .description {
   color: var(--colorNeutralForeground2);
   font-size: 0.9rem;
