@@ -341,9 +341,6 @@ importers:
       temporal-polyfill:
         specifier: ^0.3.0
         version: 0.3.0
-      undici:
-        specifier: ^7.18.2
-        version: 7.22.0
       vscode-languageserver:
         specifier: ~9.0.1
         version: 9.0.1
@@ -19518,7 +19515,7 @@ snapshots:
       algoliasearch: 4.27.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       diff: 5.2.2
-      ink: 3.2.0(@types/react@19.2.14)(react@17.0.2)
+      ink: 3.2.0(@types/react@19.2.14)(react@19.2.4)
       ink-text-input: 4.0.3(ink@3.2.0(@types/react@19.2.14)(react@17.0.2))(react@17.0.2)
       react: 17.0.2
       semver: 7.7.4
@@ -19668,7 +19665,7 @@ snapshots:
       '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.44.0
-      ink: 3.2.0(@types/react@19.2.14)(react@19.2.4)
+      ink: 3.2.0(@types/react@19.2.14)(react@17.0.2)
       react: 17.0.2
       semver: 7.7.4
       tslib: 2.8.1

@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-compiler - Respect npm `registry` and `strict-ssl` configuration when fetching package manifests and downloading packages. This fixes `TypeError: fetch failed` errors caused by SSL certificate issues behind corporate firewalls.
+compiler - Support `TYPESPEC_NPM_REGISTRY` environment variable to override the npm registry used when fetching package manifests and downloading packages.
