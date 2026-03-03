@@ -5,11 +5,7 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import {
-  getOperationVerb,
-  getPathOptions,
-  getQueryOptions,
-} from "./decorators.js";
+import { getOperationVerb, getPathOptions, getQueryOptions } from "./decorators.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
