@@ -1177,6 +1177,108 @@ describe("compiler: visibility core", () => {
     ok(!FooB.properties.has("foo_a"));
   });
 
+  it("deeply renames types using FilterVisibility", async () => {
+    const { DataA, DataB } = (await runner.compile(`
+      enum Example {
+        A,
+        B,
+      }
+
+      model Data {
+        @visibility(Example.A)
+        data_a: Foo;
+
+        @visibility(Example.B)
+        data_b: Foo;
+      }
+
+      model Foo {
+        @visibility(Example.B)
+        foo_b: string;
+        @visibility(Example.A)
+        foo_a: string;
+      }
+
+      @test model DataA is FilterVisibility<Data, #{ any: #[Example.A] }, "{name}A">;
+      @test model DataB is FilterVisibility<Data, #{ any: #[Example.B] }, "{name}B">;
+    `)) as { DataA: Model; DataB: Model };
+
+    ok(DataA);
+    ok(DataB);
+
+    ok(DataA.properties.has("data_a"));
+    ok(!DataA.properties.has("data_b"));
+    ok(DataB.properties.has("data_b"));
+    ok(!DataB.properties.has("data_a"));
+
+    const dataA = DataA.properties.get("data_a")!;
+    const dataB = DataB.properties.get("data_b")!;
+
+    strictEqual(dataA.type.kind, "Model");
+    strictEqual(dataB.type.kind, "Model");
+
+    const FooA = dataA.type as Model;
+    const FooB = dataB.type as Model;
+
+    strictEqual(FooA.name, "FooA");
+    strictEqual(FooB.name, "FooB");
+
+    ok(FooA.properties.has("foo_a"));
+    ok(!FooA.properties.has("foo_b"));
+    ok(FooB.properties.has("foo_b"));
+    ok(!FooB.properties.has("foo_a"));
+  });
+
+  it("correctly transforms arrays and records via FilterVisibility", async () => {
+    const { Result } = (await runner.compile(`
+      model A {
+        @visibility(Lifecycle.Read)
+        a: string;
+
+        @visibility(Lifecycle.Create)
+        invisible: string;
+      }
+
+      model Input {
+        array: A[];
+        record: Record<A>;
+      }
+
+      @test model Result is FilterVisibility<Input, #{ any: #[Lifecycle.Read] }, "{name}Transform">;
+    `)) as { Result: Model };
+
+    ok(Result);
+
+    const array = Result.properties.get("array");
+    const record = Result.properties.get("record");
+
+    ok(array);
+    ok(record);
+
+    const arrayType = array.type;
+    const recordType = record.type;
+
+    strictEqual(arrayType.kind, "Model");
+    strictEqual(recordType.kind, "Model");
+
+    ok($(runner.program).array.is(arrayType));
+    ok($(runner.program).record.is(recordType));
+
+    const arrayA = (arrayType as Model).indexer!.value as Model;
+    const recordA = (recordType as Model).indexer!.value as Model;
+
+    strictEqual(arrayA.kind, "Model");
+    strictEqual(recordA.kind, "Model");
+
+    strictEqual(arrayA.name, "ATransform");
+    strictEqual(recordA.name, "ATransform");
+
+    strictEqual(arrayA, recordA);
+
+    ok(arrayA.properties.has("a"));
+    ok(!arrayA.properties.has("invisible"));
+  });
+
   it("correctly caches and deduplicates transformed instances", async () => {
     const { Out } = (await runner.compile(`
       model A {
