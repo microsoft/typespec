@@ -1178,7 +1178,6 @@ interface Widgets {
       [
         "IWidgets.cs",
         [
-          "using TypeSpec.Http;",
           "public interface IWidgets",
           "Task<Widget> UpdateAsync( string id, WidgetMergePatchUpdate body);",
         ],
@@ -1186,7 +1185,6 @@ interface Widgets {
       [
         "WidgetsController.cs",
         [
-          "using TypeSpec.Http;",
           "public partial class WidgetsController: ControllerBase",
           "public virtual async Task<IActionResult> Update(string id, WidgetMergePatchUpdate body)",
         ],
@@ -1194,7 +1192,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace TypeSpec.Http {",
+          "namespace Microsoft.Contoso {",
           "public string Id { get; set; }",
           "public int? Weight { get; set; }",
           "public string Color { get; set; }",
