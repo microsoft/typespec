@@ -1,10 +1,11 @@
 import { css } from "@emotion/react";
 import { Popover, PopoverSurface, PopoverTrigger, tokens } from "@fluentui/react-components";
 import { CodeBlock16Filled, Print16Filled } from "@fluentui/react-icons";
-import { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
+import { ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent, useCallback, useMemo, useState } from "react";
 import { CoverageSummary, GeneratorCoverageSuiteReport } from "../apis.js";
 import { Colors } from "../constants.js";
+import { getCompletedRatio } from "../utils/coverage-utils.js";
 import { GeneratorInformation } from "./generator-information.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
 import { ScenarioStatusBox } from "./scenario-status.js";
@@ -13,6 +14,7 @@ import { ManifestTreeNode, TreeTableRow } from "./tree-table/types.js";
 
 export interface DashboardTableProps {
   coverageSummary: CoverageSummary;
+  emitterDisplayNames?: Record<string, string>;
 }
 
 function buildTreeRows(
@@ -52,7 +54,10 @@ function buildTreeRows(
   return rows;
 }
 
-export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverageSummary }) => {
+export const DashboardTable: FunctionComponent<DashboardTableProps> = ({
+  coverageSummary,
+  emitterDisplayNames,
+}) => {
   const languages: string[] = Object.keys(coverageSummary.generatorReports) as any;
   const tree = useMemo(() => createTree(coverageSummary.manifest), [coverageSummary.manifest]);
 
@@ -78,7 +83,7 @@ export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverag
   return (
     <table css={TableStyles}>
       <thead>
-        <DashboardHeaderRow coverageSummary={coverageSummary} />
+        <DashboardHeaderRow coverageSummary={coverageSummary} emitterDisplayNames={emitterDisplayNames} />
       </thead>
       <tbody>{rows}</tbody>
     </table>
@@ -134,28 +139,16 @@ const ScenarioGroupStatusBox: FunctionComponent<ScenarioGroupStatusBoxProps> = (
   return <ScenarioGroupRatioStatusBox ratio={ratio} />;
 };
 
-function getCompletedRatio(
-  scenarios: ScenarioData[],
-  report: GeneratorCoverageSuiteReport,
-  scope: string = "",
-) {
-  const filtered = scenarios.filter((x) => x.name.startsWith(scope));
-  let coveredCount = 0;
-  for (const scenario of filtered) {
-    const status = report.results[scenario.name];
-    if (status === "pass" || status === "not-applicable" || status === "not-supported") {
-      coveredCount++;
-    }
-  }
-
-  return coveredCount / filtered.length;
-}
 
 interface DashboardHeaderRowProps {
   coverageSummary: CoverageSummary;
+  emitterDisplayNames?: Record<string, string>;
 }
 
-const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ coverageSummary }) => {
+const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({
+  coverageSummary,
+  emitterDisplayNames,
+}) => {
   const data: [string, number, GeneratorCoverageSuiteReport | undefined][] = Object.entries(
     coverageSummary.generatorReports,
   ).map(([language, report]) => {
@@ -171,7 +164,7 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ covera
     <tr>
       {tableHeader}
       {data.map(([lang, status, report]) => (
-        <GeneratorHeaderCell key={lang} status={status} report={report} language={lang} />
+        <GeneratorHeaderCell key={lang} status={status} report={report} language={lang} displayName={emitterDisplayNames?.[lang as string]} />
       ))}
     </tr>
   );
@@ -200,12 +193,14 @@ export interface GeneratorHeaderCellProps {
   status: number;
   report: GeneratorCoverageSuiteReport | undefined;
   language: string;
+  displayName?: string;
 }
 
 export const GeneratorHeaderCell: FunctionComponent<GeneratorHeaderCellProps> = ({
   status,
   report,
   language,
+  displayName,
 }) => {
   return (
     <th css={{ padding: "0 !important" }}>
@@ -238,7 +233,7 @@ export const GeneratorHeaderCell: FunctionComponent<GeneratorHeaderCellProps> = 
         >
           <Popover withArrow>
             <PopoverTrigger>
-              <div>{report?.generatorMetadata?.name ?? language}</div>
+              <div>{displayName ?? report?.generatorMetadata?.name ?? language}</div>
             </PopoverTrigger>
             <PopoverSurface>
               {report && <GeneratorInformation status={status} report={report} />}
