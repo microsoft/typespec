@@ -103,6 +103,7 @@ const sidebar: SidebarItem[] = [
       "language-basics/alias",
       "language-basics/values",
       "language-basics/type-relations",
+      "language-basics/access-modifiers",
       "language-basics/visibility",
     ],
   },

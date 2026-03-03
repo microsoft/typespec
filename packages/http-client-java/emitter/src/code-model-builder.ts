@@ -2077,6 +2077,11 @@ export class CodeModelBuilder {
 
         if (jsonMergePatch) {
           // skip model flatten, if "application/merge-patch+json"
+          reportDiagnostic(this.program, {
+            code: "spread-json-merge-patch-payload-not-supported",
+            target: sdkMethod.__raw ?? NoTarget,
+          });
+
           if (sdkType.isGeneratedName) {
             schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
           }

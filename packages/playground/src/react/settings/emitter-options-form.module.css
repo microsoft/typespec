@@ -1,13 +1,17 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .item {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
+}
+
+.description {
+  color: var(--colorNeutralForeground3);
 }
 
 .switch :global(label) {

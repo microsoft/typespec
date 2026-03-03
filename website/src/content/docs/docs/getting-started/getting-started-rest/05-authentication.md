@@ -18,7 +18,7 @@ Bearer authentication uses tokens for access control. The server generates a tok
 
 Let's update our existing operations by enforcing authentication using the `@useAuth` decorator.We'll add authentication to the operations that modify pet data, such as creating, updating, and deleting pets. We'll also add a new error model for unauthorized access.
 
-```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={59,72-75,79,90-92,104,107-109,126-130}
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}" ins={59,72-75,79,90-92,103,107-109,126-130}
 import "@typespec/http";
 
 using Http;
