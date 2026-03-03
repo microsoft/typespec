@@ -658,8 +658,11 @@ namespace Microsoft.TypeSpec.Generator
                 UseNamespace(type.Namespace);
 
                 AppendRaw("global::");
-                AppendRaw(type.Namespace);
-                AppendRaw(".");
+                if (!string.IsNullOrEmpty(type.Namespace))
+                {
+                    AppendRaw(type.Namespace);
+                    AppendRaw(".");
+                }
                 if (type.DeclaringType is not null)
                     AppendRaw($"{type.DeclaringType.Name}.");
                 AppendRaw(type.Name);

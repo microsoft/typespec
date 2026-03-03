@@ -727,5 +727,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var result = codeWriter.ToString(false);
             Assert.AreEqual(expected, result);
         }
+
+        // Regression test for https://github.com/microsoft/typespec/issues/9880
+        // When a CSharpType has an empty namespace (can happen when Roslyn cannot resolve the type),
+        // the CodeWriter should not output "global::." (global prefix followed by empty namespace and dot).
+        [Test]
+        public void TypeWithEmptyNamespaceDoesNotOutputGlobalDot()
+        {
+            // Create a CSharpType with an empty namespace (simulating an unresolved error type)
+            var typeWithEmptyNamespace = new CSharpType(
+                "UnresolvedType",
+                "", // empty namespace
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: [],
+                isPublic: true,
+                isStruct: false);
+
+            using var writer = new CodeWriter();
+            writer.Append($"{typeWithEmptyNamespace}");
+            var result = writer.ToString(false);
+
+            // Should contain "global::UnresolvedType" (without extra dot after global::)
+            Assert.That(result, Does.Contain("global::UnresolvedType"),
+                "Type with empty namespace should be prefixed with 'global::' directly followed by the type name");
+        }
+
+        // Verifies that types with proper namespaces still work correctly
+        [Test]
+        public void TypeWithNamespaceOutputsCorrectly()
+        {
+            var typeWithNamespace = new CSharpType(
+                "ResolvedType",
+                "Sample.Models",
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: [],
+                isPublic: true,
+                isStruct: false);
+
+            using var writer = new CodeWriter();
+            writer.Append($"{typeWithNamespace}");
+            var result = writer.ToString(false);
+
+            // Should contain the full qualified name
+            Assert.That(result, Does.Contain("global::Sample.Models.ResolvedType"),
+                "Type with namespace should include the full namespace in output");
+        }
     }
 }
