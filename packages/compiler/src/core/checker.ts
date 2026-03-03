@@ -3291,6 +3291,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     return completions;
 
+    /** Resolve a usable base type for member/meta-member completions. */
     function getCompletionBaseType(base: IdentifierNode | MemberExpressionNode): Type | undefined {
       const entity = getTypeOrValueForNode(base, CheckContext.DEFAULT);
       if (!entity || !isType(entity) || isErrorType(entity)) {
@@ -3311,6 +3312,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return entity;
     }
 
+    /** Resolve a completion base type from a symbol when node-based typing is unavailable. */
     function getCompletionBaseTypeFromSymbol(base: Sym): Type | undefined {
       if (base.flags & SymbolFlags.LateBound) {
         const lateBoundType = base.type;
@@ -3330,10 +3332,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
+    /** Normalize template access types to their effective constraint for completion. */
     function resolveCompletionType(type: Type): Type | undefined {
       return isTemplateAccessType(type) ? resolveTemplateConstraintType(type) : type;
     }
 
+    /** Add member completions based on the resolved base type kind. */
     function addMemberCompletionsForType(baseType: Type) {
       switch (baseType.kind) {
         case "Model":
@@ -3384,6 +3388,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
+    /** Add `::` meta-member completions for the resolved base type. */
     function addMetaCompletionsForType(baseType: Type) {
       const baseSymbol = getTypeSymbol(baseType);
       if (!baseSymbol) {
@@ -3614,6 +3619,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     compilerAssert(false, `Unknown type reference kind "${SyntaxKind[(node as any).kind]}"`, node);
   }
 
+  /**
+   * Resolve member/meta-member access rooted in a template parameter or template access chain.
+   * Falls back to late-bound symbols when the concrete symbol cannot be safely determined.
+   *
+   * @param ctx Check context for mapper and usage observation.
+   * @param node Member expression being resolved.
+   * @param baseSym Resolved symbol for the member expression base.
+   * @returns The resolved symbol for the template access, or `undefined` when not applicable.
+   */
   function tryResolveTemplateAccessSymbol(
     ctx: CheckContext,
     node: MemberExpressionNode,
@@ -3657,6 +3671,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return createTemplateAccessSymbol(baseEntity, node, accessedType, useCache);
   }
 
+  /**
+   * Resolve template access directly from a mapped template argument when available.
+   *
+   * @param ctx Check context containing the active template mapper.
+   * @param node Member expression being resolved.
+   * @param baseSym Base symbol for the access expression.
+   * @returns A concrete or late-bound symbol for the mapped access, or `undefined`.
+   */
   function tryResolveMappedTemplateAccessSymbol(
     ctx: CheckContext,
     node: MemberExpressionNode,
@@ -3696,6 +3718,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return getTypeSymbol(resolvedType) ?? createLateBoundTypeSymbol(node, resolvedType);
   }
 
+  /** Return true when a type declaration is templated but has not been instantiated. */
   function isUninstantiatedTemplateType(type: Type): boolean {
     if ("templateMapper" in type && type.templateMapper !== undefined) {
       return false;
@@ -3704,10 +3727,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return Boolean(node && "templateParameters" in node && node.templateParameters.length > 0);
   }
 
+  /** Return true when the resolved type should remain late-bound due to templating. */
   function shouldUseLateBoundTemplateAccessType(type: Type): boolean {
     return "templateMapper" in type && type.templateMapper !== undefined;
   }
 
+  /**
+   * Resolve the template entity (parameter or access) that acts as the base for a member expression.
+   */
   function getTemplateAccessBaseEntity(
     _ctx: CheckContext,
     baseNode: IdentifierNode | MemberExpressionNode,
@@ -3741,6 +3768,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return probeTemplateAccessBaseEntity(baseNode);
   }
 
+  /** Probe a node for a template access base without surfacing diagnostics. */
   function probeTemplateAccessBaseEntity(
     node: IdentifierNode | MemberExpressionNode,
   ): TemplateParameter | TemplateParameterAccess | undefined {
@@ -3751,6 +3779,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return isType(entity) && isTemplateAccessType(entity) ? entity : undefined;
   }
 
+  /** Resolve a template parameter type from lexical scope by identifier name. */
   function getTemplateParameterTypeFromScope(
     identifier: IdentifierNode,
   ): TemplateParameter | TemplateParameterAccess | undefined {
@@ -3763,6 +3792,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return isType(mapped) && isTemplateAccessType(mapped) ? mapped : undefined;
   }
 
+  /** Find the closest template parameter declaration matching the given name. */
   function findTemplateParameterDeclarationInScope(
     node: Node,
     name: string,
@@ -3780,6 +3810,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return undefined;
   }
 
+  /**
+   * Resolve the resulting type for a template parameter access expression.
+   *
+   * @param ctx Check context for mapper-aware resolution.
+   * @param node Access expression (`.` or `::`) being resolved.
+   * @param baseEntity Template parameter or prior template access chain.
+   * @returns The resolved member/meta-member type, or `errorType` when not guaranteed.
+   */
   function resolveTemplateAccessType(
     ctx: CheckContext,
     node: MemberExpressionNode,
@@ -3807,6 +3845,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return resolvedType;
   }
 
+  /**
+   * Resolve the concrete base type that a template access should evaluate against.
+   *
+   * @param ctx Check context containing optional template mapper.
+   * @param baseEntity Template parameter/access entity.
+   * @returns The mapped or constrained base type, if determinable.
+   */
   function resolveTemplateAccessBaseType(
     ctx: CheckContext,
     baseEntity: TemplateParameter | TemplateParameterAccess,
@@ -3837,6 +3882,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return resolveTemplateConstraintType(baseEntity);
   }
 
+  /**
+   * Resolve the terminal non-template constraint type for a template access chain.
+   *
+   * @param templateType Template parameter or access node.
+   * @returns The terminal constrained type, or `undefined` when missing/invalid/cyclic.
+   */
   function resolveTemplateConstraintType(
     templateType: TemplateParameter | TemplateParameterAccess,
   ): Type | undefined {
@@ -3859,6 +3910,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
+  /** Return true when a template access chain includes an error constraint. */
   function hasErrorTemplateConstraint(
     templateType: TemplateParameter | TemplateParameterAccess,
   ): boolean {
@@ -3875,6 +3927,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
+  /** Track template parameter usage for a template access base chain. */
   function observeTemplateAccessBase(
     ctx: CheckContext,
     base: TemplateParameter | TemplateParameterAccess,
@@ -3884,6 +3937,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     templateParameterUsageMap.set(root.node, true);
   }
 
+  /** Return the root template parameter for a template access chain. */
   function getTemplateAccessRoot(
     base: TemplateParameter | TemplateParameterAccess,
   ): TemplateParameter {
@@ -3894,6 +3948,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return current;
   }
 
+  /** Resolve `.` access from a constrained type by kind-specific member lookup. */
   function resolveMemberTypeFromConstraint(
     constraintType: Type,
     memberName: string,
@@ -3919,6 +3974,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
+  /**
+   * Resolve `::` meta-member access from a constrained type.
+   *
+   * @param ctx Check context used for symbol-to-entity evaluation.
+   * @param constraintType Base constrained type.
+   * @param node Meta-member expression node.
+   * @returns The resolved meta-member type, `unknownType` for projection-only cases, or `undefined`.
+   */
   function resolveMetaTypeFromConstraint(
     ctx: CheckContext,
     constraintType: Type,
@@ -3967,6 +4030,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return unknownType;
   }
 
+  /** Return true for TypeSpec.Reflection model symbols backed by projection metadata. */
   function isReflectionMetaProjectionSymbol(sym: Sym): boolean {
     return (
       sym.node?.kind === SyntaxKind.ModelStatement &&
@@ -3975,6 +4039,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
   }
 
+  /** Report an invalid-ref diagnostic for unsupported template member/meta-member access. */
   function reportTemplateAccessNotGuaranteed(
     node: MemberExpressionNode,
     baseType: Type | TemplateParameter | TemplateParameterAccess,
@@ -3989,6 +4054,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
   }
 
+  /** Get the diagnostic kind label used when template access resolution fails. */
   function getTemplateAccessKindName(
     type: Type | TemplateParameter | TemplateParameterAccess,
   ): string {
@@ -4008,10 +4074,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
+  /** Type guard for template parameters and template parameter access types. */
   function isTemplateAccessType(type: Type): type is TemplateParameter | TemplateParameterAccess {
     return type.kind === "TemplateParameter" || type.kind === "TemplateParameterAccess";
   }
 
+  /**
+   * Create (or retrieve from cache) a late-bound symbol representing template access.
+   *
+   * @param base Template parameter/access base.
+   * @param node Member expression node.
+   * @param constraintType Resolved constraint for the access result.
+   * @param useCache Whether to reuse/access symbol cache.
+   * @returns A symbol whose type is `TemplateParameterAccess`.
+   */
   function createTemplateAccessSymbol(
     base: TemplateParameter | TemplateParameterAccess,
     node: MemberExpressionNode,
@@ -4049,10 +4125,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return symbol;
   }
 
+  /** Compute the user-facing access path for a template access chain. */
   function getTemplateAccessPath(base: TemplateParameter | TemplateParameterAccess): string {
     return base.kind === "TemplateParameterAccess" ? base.path : base.node.id.sv;
   }
 
+  /** Build a stable cache key for a template access symbol/type chain. */
   function getTemplateAccessCacheKey(
     base: TemplateParameter | TemplateParameterAccess,
     node: MemberExpressionNode,
@@ -4064,10 +4142,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return `${baseKey}${node.selector}${node.id.sv}`;
   }
 
+  /** Resolve the merged symbol associated with a type, when one exists. */
   function getTypeSymbol(type: Type): Sym | undefined {
     return type.node?.symbol ? getMergedSymbol(type.node.symbol) : undefined;
   }
 
+  /** Get a stable numeric id for a symbol used in template access cache keys. */
   function getSymbolCacheId(sym: Sym): number {
     const existing = symbolCacheIds.get(sym);
     if (existing !== undefined) {
@@ -4229,6 +4309,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
+  /**
+   * Resolve a member/meta-member access from the base symbol's resolved type.
+   *
+   * @param ctx Check context.
+   * @param base Base symbol.
+   * @param node Member expression to resolve.
+   * @returns Concrete symbol, late-bound symbol, or `undefined` when unresolved.
+   */
   function resolveMemberOnSymbolType(
     ctx: CheckContext,
     base: Sym,
@@ -4288,6 +4376,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return createLateBoundTypeSymbol(node, resolvedType);
   }
 
+  /** Resolve the effective type used for member lookup on a base symbol. */
   function getMemberResolutionType(ctx: CheckContext, base: Sym): Type | undefined {
     if (base.flags & SymbolFlags.LateBound) {
       return base.type && isType(base.type) ? base.type : undefined;
@@ -4299,6 +4388,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return undefined;
   }
 
+  /** Create a late-bound symbol carrying a precomputed type for member resolution. */
   function createLateBoundTypeSymbol(node: MemberExpressionNode, type: Type): Sym {
     const symbol = createSymbol(node, node.id.sv, SymbolFlags.LateBound);
     mutate(symbol).type = type;

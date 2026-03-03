@@ -733,12 +733,16 @@ export function createResolver(program: Program): NameResolver {
     return getter(baseSym);
   }
 
+  /** Get the available meta-member names for a symbol's meta-type prototype. */
   function getMetaMemberNames(baseSym: Sym): readonly string[] {
     const baseNode = getSymNode(baseSym);
     const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
     return prototype ? [...prototype.keys()] : [];
   }
 
+  /**
+   * Resolve the meta-type prototype for a symbol, including Reflection model aliases.
+   */
   function getMetaTypePrototypeForSymbol(baseSym: Sym, baseNode: Node): TypePrototype | undefined {
     const prototype = metaTypePrototypes.get(baseNode.kind);
     if (prototype) {

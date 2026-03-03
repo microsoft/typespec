@@ -387,6 +387,7 @@ function navigateTemplateParameter(type: TemplateParameter, context: NavigationC
   if (context.emit("templateParameter", type) === ListenerFlow.NoRecursion) return;
 }
 
+/** Emit semantic walker events for template parameter access nodes. */
 function navigateTemplateParameterAccess(
   type: TemplateParameterAccess,
   context: NavigationContext,

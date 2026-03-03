@@ -150,6 +150,7 @@ function getMixedConstraintSignature(
   return result;
 }
 
+/** Format `T extends ...` style signatures for template parameters/access paths. */
 function getTemplateConstraintSignature(
   nameOrPath: string,
   constraint?: MixedParameterConstraint,

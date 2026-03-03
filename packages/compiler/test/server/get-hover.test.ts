@@ -835,6 +835,7 @@ interface TestNs.Bird {
     });
   }
 
+  /** Normalize hover contents into a single comparable string for assertions. */
   function getHoverValue(hover: Hover | undefined): string | undefined {
     if (!hover) return undefined;
     const contents = hover.contents;

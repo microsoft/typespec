@@ -114,6 +114,7 @@ function getTemplateParameters(templateParameters: readonly TemplateParameterDec
   return `<${params.join(", ")}>`;
 }
 
+/** Format `T extends ...` style signatures for template parameters/access paths. */
 function getTemplateConstraintSignature(
   nameOrPath: string,
   constraint?: TemplateConstraintLike,
