@@ -101,6 +101,7 @@ import {
   getCSharpIdentifier,
   getCSharpStatusCode,
   getCSharpType,
+  getControllerReturnStatement,
   getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
   getFreePort,
@@ -873,7 +874,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         });
 
       const hasResponseValue = response.name !== "void";
-      const resultString = `${status === 204 ? "NoContent" : "Ok"}`;
+      const returnStatement = getControllerReturnStatement(status, hasResponseValue);
       if (!this.#isMultipartRequest(httpOperation)) {
         return this.emitter.result.declaration(
           operation.name,
@@ -887,9 +888,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           ${
             hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}(result);`
+          ${returnStatement}`
               : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}();`
+          ${returnStatement}`
           }
         }`,
         );
@@ -915,9 +916,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           ${
             hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}(result);`
+          ${returnStatement}`
               : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}();`
+          ${returnStatement}`
           }
         }`,
         );
@@ -956,7 +957,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         });
 
       const hasResponseValue = response.name !== "void";
-      const resultString = `${status === 204 ? "NoContent" : "Ok"}`;
+      const returnStatement = getControllerReturnStatement(status, hasResponseValue);
       return this.emitter.result.declaration(
         operation.name,
         code`
@@ -969,9 +970,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           ${
             hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}(result);`
+          ${returnStatement}`
               : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
-          return ${resultString}();`
+          ${returnStatement}`
           }
         }`,
       );
