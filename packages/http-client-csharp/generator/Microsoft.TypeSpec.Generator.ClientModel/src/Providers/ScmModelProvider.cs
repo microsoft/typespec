@@ -39,6 +39,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal bool HasDynamicProperties => _hasDynamicProperties ??= BuildHasDynamicProperties();
         private bool? _hasDynamicProperties;
 
+        // When true, the model needs to generate both JsonPatch and AdditionalProperties for
+        // backward compatibility (the model was previously shipped with AdditionalProperties).
+        private bool NeedsBackCompatAdditionalProperties => _needsBackCompatAdditionalProperties ??= BuildNeedsBackCompatAdditionalProperties();
+        private bool? _needsBackCompatAdditionalProperties;
+
         internal static SuppressionStatement JsonPatchSuppression = new SuppressionStatement(null,
             Literal(ScmEvaluationTypeDiagnosticId),
             ScmEvaluationTypeSuppressionJustification);
@@ -62,10 +67,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in fields)
             {
-                if (!field.Equals(RawDataField))
+                // Keep the RawDataField when backcompat requires AdditionalProperties to be generated alongside JsonPatch
+                if (field.Equals(RawDataField) && !NeedsBackCompatAdditionalProperties)
                 {
-                    updatedFields.Add(field);
+                    continue;
                 }
+                updatedFields.Add(field);
             }
 
             return [JsonPatchField, .. updatedFields];
@@ -80,7 +87,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // For dynamic models with BinaryData additional properties (Record<unknown>),
             // skip generating AdditionalProperties since JsonPatch handles dynamic properties.
-            if (SupportsBinaryDataAdditionalProperties)
+            // Exception: when backcompat requires preserving AdditionalProperties from the last contract.
+            if (SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties)
             {
                 return [JsonPatchProperty, .. base.BuildProperties().Where(p => !p.IsAdditionalProperties)];
             }
@@ -130,7 +138,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             {
                                 if (statement is ExpressionStatement { Expression: AssignmentExpression assignmentExpression }
                                     && (assignmentExpression.Value.Equals(RawDataField.AsParameter) ||
-                                        assignmentExpression.Variable is MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }))
+                                        (!NeedsBackCompatAdditionalProperties &&
+                                         assignmentExpression.Variable is MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName })))
                                 {
                                     continue;
                                 }
@@ -160,7 +169,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         constructor.Update(bodyStatements: updatedBody);
                     }
                 }
-                else if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && constructor.BodyStatements != null)
+                else if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties && constructor.BodyStatements != null)
                 {
                     // Remove the additional binary data properties initialization from the init constructor
                     var updatedBody = constructor.BodyStatements
@@ -276,7 +285,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (IsAdditionalBinaryDataParameter(parameter))
                 {
-                    updatedParameters.Add(jsonPatchParameter);
+                    if (NeedsBackCompatAdditionalProperties)
+                    {
+                        // Backcompat: keep the additionalBinaryData parameter and add patch after it
+                        updatedParameters.Add(parameter);
+                        updatedParameters.Add(jsonPatchParameter);
+                    }
+                    else
+                    {
+                        // Replace the additionalBinaryData parameter with patch
+                        updatedParameters.Add(jsonPatchParameter);
+                    }
                 }
                 else
                 {
@@ -366,6 +385,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return null;
+        }
+
+        private bool BuildNeedsBackCompatAdditionalProperties()
+        {
+            if (!IsDynamicModel || !SupportsBinaryDataAdditionalProperties || LastContractView == null)
+            {
+                return false;
+            }
+
+            return LastContractView.Properties.Any(p =>
+                p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
         }
     }
 }
