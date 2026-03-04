@@ -157,7 +157,7 @@ function Invoke-OpenAICodeGen {
     
     try {
         Write-Host "Running $invokeCodeGenPath..." -ForegroundColor Yellow
-        & $invokeCodeGenPath
+        & $invokeCodeGenPath -Clean
         if ($LASTEXITCODE -ne 0) {
             throw "Invoke-CodeGen.ps1 failed with exit code $LASTEXITCODE"
         }
