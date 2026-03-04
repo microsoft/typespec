@@ -119,9 +119,27 @@ namespace Microsoft.TypeSpec.Generator
             _visitors.Add(visitor);
         }
 
+        /// <summary>
+        /// Removes all visitors of the specified type from the list of visitors.
+        /// </summary>
+        /// <typeparam name="T">The type of visitor to remove.</typeparam>
+        public virtual void RemoveVisitor<T>() where T : LibraryVisitor
+        {
+            _visitors.RemoveAll(v => v.GetType() == typeof(T));
+        }
+
         public virtual void AddRewriter(LibraryRewriter rewriter)
         {
             _rewriters.Add(rewriter);
+        }
+
+        /// <summary>
+        /// Removes all rewriters of the specified type from the list of rewriters.
+        /// </summary>
+        /// <typeparam name="T">The type of rewriter to remove.</typeparam>
+        public virtual void RemoveRewriter<T>() where T : LibraryRewriter
+        {
+            _rewriters.RemoveAll(r => r.GetType() == typeof(T));
         }
 
         public virtual void AddMetadataReference(MetadataReference reference)
