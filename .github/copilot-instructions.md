@@ -5,9 +5,7 @@
 TypeSpec is a language for defining cloud service APIs and shapes. This monorepo contains the TypeSpec compiler, standard library packages, tools, documentation, and various language client emitters.
 
 > [!IMPORTANT]
-> **These instructions do NOT apply to the language emitter packages** (`http-client-csharp`, `http-client-java`, `http-client-python`). Those packages are excluded from the pnpm workspace and do not use pnpm or the changelog workflow described here. Some emitter packages have their own dedicated instruction files:
-> - [http-client-csharp](./instructions/http-client-csharp.instructions.md)
-> - [http-client-java](./instructions/http-client-java.instructions.md)
+> **These instructions do NOT apply to the language emitter packages** (`http-client-csharp`, `http-client-java`, `http-client-python`). Those packages are excluded from the pnpm workspace and do not require using pnpm.
 
 ## Essential Setup and Build Commands
 
