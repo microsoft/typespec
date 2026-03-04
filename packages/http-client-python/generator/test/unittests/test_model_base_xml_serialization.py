@@ -4,7 +4,7 @@
 # ------------------------------------
 import xml.etree.ElementTree as ET
 
-from typing import Literal
+from typing import Literal, Optional
 
 from specialwords._utils.model_base import (
     _get_element,
@@ -165,7 +165,7 @@ class TestXmlDeserialization:
             _xml = {"name": "Data"}
 
         result = _deserialize_xml(XmlModel, basic_xml)
-        assert result.age is None
+        assert result.age == []
 
     def test_list_wrapped_items_name_basic_types(self):
         """Test XML list and wrap, items is basic type and there is itemsName."""
@@ -638,7 +638,69 @@ class TestXmlDeserialization:
         assert result.container_name == "acontainer"
         assert result.delimiter == "/"
         assert isinstance(result.blobs, BlobsSegment)
-        # With <Blobs />, no <BlobPrefix> or <Blob> children exist → unwrapped empty lists stay None
+        # With <Blobs />, no <BlobPrefix> or <Blob> children exist → unwrapped non-optional lists default to []
+        assert result.blobs.blob_prefixes == []
+        assert result.blobs.blob_items == []
+        assert result.next_marker == ""
+
+    def test_enumeration_results_azure_sdk_pattern_optional(self):
+        """Test the Azure SDK pattern where unwrapped list fields are Optional[list[X]].
+
+        When the type is Optional[list[X]], empty unwrapped lists should stay None
+        (the element is absent, and None is a valid value for the optional type).
+        """
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="acontainer"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
+
+        class BlobPrefix(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "BlobPrefix"}
+
+        class BlobItem(Model):
+            name: str = rest_field(name="Name", xml={"name": "Name"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Blob"}
+
+        class BlobsSegment(Model):
+            blob_prefixes: Optional[list[BlobPrefix]] = rest_field(
+                name="blob_prefixes", xml={"name": "BlobPrefix", "unwrapped": True}
+            )
+            blob_items: Optional[list[BlobItem]] = rest_field(
+                name="blob_items", xml={"name": "Blob", "unwrapped": True}
+            )
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Blobs"}
+
+        class EnumerationResults(Model):
+            service_endpoint: str = rest_field(
+                name="ServiceEndpoint", xml={"name": "ServiceEndpoint", "attribute": True}
+            )
+            container_name: str = rest_field(name="ContainerName", xml={"name": "ContainerName", "attribute": True})
+            delimiter: str = rest_field(name="Delimiter", xml={"name": "Delimiter"})
+            blobs: BlobsSegment = rest_field(name="Blobs", xml={"name": "Blobs"})
+            next_marker: str = rest_field(name="NextMarker", xml={"name": "NextMarker"})
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "EnumerationResults"}
+
+        result = _deserialize_xml(EnumerationResults, xml_payload)
+
+        assert result.service_endpoint == "https://service.blob.core.windows.net/"
+        assert result.container_name == "acontainer"
+        assert result.delimiter == "/"
+        assert isinstance(result.blobs, BlobsSegment)
+        # With <Blobs />, no <BlobPrefix> or <Blob> children exist → Optional lists stay None
         assert result.blobs.blob_prefixes is None
         assert result.blobs.blob_items is None
         assert result.next_marker == ""
