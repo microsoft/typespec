@@ -24,11 +24,13 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
     selectedTier,
   );
 
-  const summaryTables = filteredSummaries.map((coverageSummary, i) => (
-    <div key={i} css={{ margin: 5 }}>
-      <DashboardTable coverageSummary={coverageSummary} />
-    </div>
-  ));
+  const summaryTables = filteredSummaries
+    .filter((s) => !selectedTier || s.manifest.scenarios.length > 0)
+    .map((coverageSummary, i) => (
+      <div key={i} css={{ margin: 5 }}>
+        <DashboardTable coverageSummary={coverageSummary} />
+      </div>
+    ));
 
   const specsCardTable = coverageSummaries.map((coverageSummary, i) => (
     <div key={i} css={{ margin: 5, flex: 0 }}>
