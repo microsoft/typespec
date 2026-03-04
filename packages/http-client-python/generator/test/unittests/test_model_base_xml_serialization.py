@@ -517,7 +517,7 @@ class TestXmlDeserialization:
 
     def test_enumeration_results(self):
         """Test deserializing an Azure Blob Storage EnumerationResults XML payload."""
-        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="mycontainer108f32e8"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="my-container-108f32e8"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
 
         class EnumerationResults(Model):
             service_endpoint: str = rest_field(
@@ -536,14 +536,14 @@ class TestXmlDeserialization:
         result = _deserialize_xml(EnumerationResults, xml_payload)
 
         assert result.service_endpoint == "https://service.blob.core.windows.net/"
-        assert result.container_name == "mycontainer108f32e8"
+        assert result.container_name == "my-container-108f32e8"
         assert result.delimiter == "/"
         assert result.blobs == []
         assert result.next_marker == ""
 
     def test_enumeration_results_nested_empty_list(self):
         """Test deserializing XML where a container element holds a nested empty list (e.g. Blobs/BlobPrefixes)."""
-        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="mycontainer"><Delimiter>/</Delimiter><Blobs><BlobPrefixes /></Blobs><NextMarker /></EnumerationResults>'
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="my-container"><Delimiter>/</Delimiter><Blobs><BlobPrefixes /></Blobs><NextMarker /></EnumerationResults>'
 
         class BlobPrefix(Model):
             name: str = rest_field(name="Name", xml={"name": "Name"})
@@ -580,7 +580,7 @@ class TestXmlDeserialization:
         result = _deserialize_xml(EnumerationResults, xml_payload)
 
         assert result.service_endpoint == "https://service.blob.core.windows.net/"
-        assert result.container_name == "mycontainer"
+        assert result.container_name == "my-container"
         assert result.delimiter == "/"
         assert result.blobs.blob_prefixes == []
         assert result.next_marker == ""
@@ -589,7 +589,7 @@ class TestXmlDeserialization:
         """Test the real Azure SDK model pattern where BlobsSegment has two unwrapped list fields."""
         # Both blob_prefixes and blob_items are unwrapped lists (items appear directly in <Blobs>).
         # With <Blobs />, no matching children are found so both are None.
-        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="mycontainer"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="my-container"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
 
         class BlobPrefix(Model):
             name: str = rest_field(name="Name", xml={"name": "Name"})
@@ -635,7 +635,7 @@ class TestXmlDeserialization:
         result = _deserialize_xml(EnumerationResults, xml_payload)
 
         assert result.service_endpoint == "https://service.blob.core.windows.net/"
-        assert result.container_name == "mycontainer"
+        assert result.container_name == "my-container"
         assert result.delimiter == "/"
         assert isinstance(result.blobs, BlobsSegment)
         # With <Blobs />, no <BlobPrefix> or <Blob> children exist → unwrapped non-optional lists default to []
@@ -649,7 +649,7 @@ class TestXmlDeserialization:
         When the type is Optional[list[X]], empty unwrapped lists should stay None
         (the element is absent, and None is a valid value for the optional type).
         """
-        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="mycontainer"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="my-container"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
 
         class BlobPrefix(Model):
             name: str = rest_field(name="Name", xml={"name": "Name"})
@@ -697,7 +697,7 @@ class TestXmlDeserialization:
         result = _deserialize_xml(EnumerationResults, xml_payload)
 
         assert result.service_endpoint == "https://service.blob.core.windows.net/"
-        assert result.container_name == "mycontainer"
+        assert result.container_name == "my-container"
         assert result.delimiter == "/"
         assert isinstance(result.blobs, BlobsSegment)
         # With <Blobs />, no <BlobPrefix> or <Blob> children exist → Optional lists stay None
@@ -709,7 +709,7 @@ class TestXmlDeserialization:
         """Test what happens when the blobs field itself is declared with unwrapped=True."""
         # When a non-list model field uses unwrapped=True, the matching XML elements are collected
         # as a list and stored as-is (the field receives a list of ET.Element objects).
-        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="mycontainer"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
+        xml_payload = '<?xml version="1.0" encoding="utf-8"?><EnumerationResults ServiceEndpoint="https://service.blob.core.windows.net/" ContainerName="my-container"><Delimiter>/</Delimiter><Blobs /><NextMarker /></EnumerationResults>'
 
         class BlobPrefix(Model):
             name: str = rest_field(name="Name", xml={"name": "Name"})
@@ -748,7 +748,7 @@ class TestXmlDeserialization:
         result = _deserialize_xml(EnumerationResults, xml_payload)
 
         assert result.service_endpoint == "https://service.blob.core.windows.net/"
-        assert result.container_name == "mycontainer"
+        assert result.container_name == "my-container"
         assert result.delimiter == "/"
         # unwrapped=True on a model field collects matching elements; <Blobs /> is found so it
         # returns a list containing the raw ET.Element instead of a deserialized BlobsSegment.
