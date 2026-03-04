@@ -332,6 +332,32 @@ describe("Typescript Interface", () => {
           }`);
       });
 
+      it("omits extends clause when known properties are incompatible with the record element type", async () => {
+        const program = await getProgram(`
+          namespace DemoService;
+          model Widget {
+            id: int32;
+            ...Record<string>;
+          }
+          `);
+
+        const [namespace] = program.resolveTypeReference("DemoService");
+        const models = Array.from((namespace as Namespace).models.values());
+
+        expect(
+          <Output program={program}>
+            <SourceFile path="test.ts">
+              {models.map((model) => (
+                <InterfaceDeclaration export type={model} />
+              ))}
+            </SourceFile>
+          </Output>,
+        ).toRenderTo(`
+          export interface Widget {
+            id: number;
+          }`);
+      });
+
       it("handles a type reference to a union variant", async () => {
         const program = await getProgram(`
           namespace DemoService;
