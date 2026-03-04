@@ -287,15 +287,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (NeedsBackCompatAdditionalProperties)
                     {
-                        // Backcompat: keep the additionalBinaryData parameter and add patch after it
+                        // Backcompat: keep the additionalBinaryData parameter
                         updatedParameters.Add(parameter);
-                        updatedParameters.Add(jsonPatchParameter);
                     }
-                    else
-                    {
-                        // Replace the additionalBinaryData parameter with patch
-                        updatedParameters.Add(jsonPatchParameter);
-                    }
+                    updatedParameters.Add(jsonPatchParameter);
                 }
                 else
                 {
