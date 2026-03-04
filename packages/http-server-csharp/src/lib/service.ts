@@ -784,6 +784,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         usings: [],
       };
       for (const [name, operation] of iface.operations) {
+        if (isTemplateDeclaration(operation)) continue;
         const doc = getDoc(this.emitter.getProgram(), operation);
         const returnTypes: Type[] = [];
         const [httpOp, _] = getHttpOperation(this.emitter.getProgram(), operation);
@@ -1004,7 +1005,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           .checker.cloneType(responseType, { name: modelName });
         responseType = returnedType;
       }
-      this.emitter.emitType(responseType);
+      // TemplateParameter types cannot be emitted (they are unresolved template placeholders).
+      // Template operations are filtered in interfaceDeclarationOperations, but this guard
+      // prevents crashes if a TemplateParameter response type is encountered via other paths.
+      if (responseType.kind !== "TemplateParameter") {
+        this.emitter.emitType(responseType);
+      }
 
       const context = this.emitter.getContext();
       const result = getCSharpType(this.emitter.getProgram(), responseType, context.namespace);
