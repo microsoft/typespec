@@ -4,7 +4,7 @@
   "description": "TypeSpec library for emitting Java client from the TypeSpec REST protocol binding",
   "keywords": [
     "TypeSpec",
-    "typespec:emitter"
+    "typespec-emitter"
   ],
   "author": "Microsoft Corporation",
   "homepage": "https://typespec.io",

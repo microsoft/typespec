@@ -17,8 +17,8 @@
     "typespec",
     "protobuf",
     "grpc",
-    "typespec:lib",
-    "typespec:emitter"
+    "typespec-lib",
+    "typespec-emitter"
   ],
   "main": "dist/src/index.js",
   "exports": {

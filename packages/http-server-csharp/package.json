@@ -17,7 +17,7 @@
     "typespec",
     "service",
     "c-sharp",
-    "typespec:emitter"
+    "typespec-emitter"
   ],
   "type": "module",
   "bin": {

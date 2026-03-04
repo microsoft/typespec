@@ -40,7 +40,7 @@
     "typespec",
     "javascript",
     "typescript",
-    "typespec:emitter"
+    "typespec-emitter"
   ],
   "bugs": {
     "url": "https://github.com/microsoft/typespec/issues"

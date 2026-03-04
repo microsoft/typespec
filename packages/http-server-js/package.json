@@ -19,7 +19,7 @@
     "server",
     "javascript",
     "typescript",
-    "typespec:emitter"
+    "typespec-emitter"
   ],
   "type": "module",
   "main": "dist/src/index.js",

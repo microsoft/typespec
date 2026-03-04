@@ -15,8 +15,8 @@
   },
   "keywords": [
     "typespec",
-    "typespec:lib",
-    "typespec:emitter"
+    "typespec-lib",
+    "typespec-emitter"
   ],
   "type": "module",
   "main": "dist/emitter/src/index.js",

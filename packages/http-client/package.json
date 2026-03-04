@@ -61,6 +61,6 @@
     "format:check": "prettier --check ."
   },
   "keywords": [
-    "typespec:lib"
+    "typespec-lib"
   ]
 }

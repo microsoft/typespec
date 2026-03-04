@@ -58,7 +58,7 @@
     }
   },
   "keywords": [
-    "typespec:emitter"
+    "typespec-emitter"
   ],
   "author": "",
   "license": "MIT",
