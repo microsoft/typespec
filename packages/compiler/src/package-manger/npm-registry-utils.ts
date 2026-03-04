@@ -85,7 +85,7 @@ export interface NpmHuman {
   readonly url?: string | undefined;
 }
 
-const registry = `https://registry.npmjs.org`;
+const registry = process.env.TYPESPEC_NPM_REGISTRY_URL ?? `https://registry.npmjs.org`;
 
 export async function fetchPackageManifest(
   packageName: string,
