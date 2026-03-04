@@ -5,7 +5,7 @@ import { useTierFiltering } from "../hooks/use-tier-filtering.js";
 import { TierConfig } from "../utils/tier-filtering-utils.js";
 import { DashboardTable } from "./dashboard-table.js";
 import { InfoEntry, InfoReport } from "./info-table.js";
-import { TierFilterDropdown } from "./tier-filter.js";
+import { TierFilterTabs } from "./tier-filter.js";
 
 export interface DashboardProps {
   coverageSummaries: CoverageSummary[];
@@ -24,11 +24,13 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
     selectedTier,
   );
 
-  const summaryTables = filteredSummaries.map((coverageSummary, i) => (
-    <div key={i} css={{ margin: 5 }}>
-      <DashboardTable coverageSummary={coverageSummary} />
-    </div>
-  ));
+  const summaryTables = filteredSummaries
+    .filter((s) => !selectedTier || s.manifest.scenarios.length > 0)
+    .map((coverageSummary, i) => (
+      <div key={i} css={{ margin: 5 }}>
+        <DashboardTable coverageSummary={coverageSummary} />
+      </div>
+    ));
 
   const specsCardTable = coverageSummaries.map((coverageSummary, i) => (
     <div key={i} css={{ margin: 5, flex: 0 }}>
@@ -38,7 +40,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
 
   return (
     <div>
-      <TierFilterDropdown
+      <TierFilterTabs
         allTiers={allTiers}
         selectedTier={selectedTier}
         setSelectedTier={setSelectedTier}
