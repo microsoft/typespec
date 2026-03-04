@@ -379,7 +379,16 @@ function emitHttpOperation(
   for (const exception of operation.exceptions) {
     exceptions.push(emitHttpResponse(context, exception.statusCodes, exception, undefined, true)!);
   }
-  const includeRootSlash = getClientOptions(rootClient, "includeRootSlash") !== false;
+  // Walk up the client hierarchy to find the option, allowing sub-clients to
+  // override values set on the root client.
+  let includeRootSlashOption: unknown;
+  let current: SdkClientType<SdkHttpOperation> | undefined = rootClient;
+  while (current) {
+    includeRootSlashOption = getClientOptions(current, "includeRootSlash");
+    if (includeRootSlashOption !== undefined) break;
+    current = current.parent;
+  }
+  const includeRootSlash = includeRootSlashOption !== false;
 
   const result = {
     url: includeRootSlash ? operation.path : operation.path.replace(/^\//, ""),

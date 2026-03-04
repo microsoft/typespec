@@ -1285,6 +1285,13 @@ describe("compiler: checker: type relations", () => {
       });
     });
     testReflectionType("UnionVariant", "Foo.a", `union Foo {a: string, b: int32};`);
+
+    it("can assign never to a Reflection type constraint", async () => {
+      await expectTypeAssignable({
+        source: "never",
+        target: `TypeSpec.Reflection.Model`,
+      });
+    });
   });
 
   describe("Value constraint", () => {

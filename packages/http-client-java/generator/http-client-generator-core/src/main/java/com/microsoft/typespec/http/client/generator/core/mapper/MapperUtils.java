@@ -82,38 +82,11 @@ public final class MapperUtils {
                 description = "Defines values for " + enumTypeName + ".";
             }
 
-            List<ClientEnumValue> enumValues = new ArrayList<>();
-            for (ChoiceValue enumValue : enumType.getChoices()) {
-                String enumName = enumValue.getValue();
-                String enumDescription = null;
-                if (useCodeModelNameForEnumMember) {
-                    if (enumValue.getLanguage() != null
-                        && enumValue.getLanguage().getJava() != null
-                        && enumValue.getLanguage().getJava().getName() != null) {
-                        enumName = enumValue.getLanguage().getJava().getName();
-                        enumDescription = enumValue.getLanguage().getJava().getDescription();
-                    } else if (enumValue.getLanguage() != null
-                        && enumValue.getLanguage().getDefault() != null
-                        && enumValue.getLanguage().getDefault().getName() != null) {
-                        enumName = enumValue.getLanguage().getDefault().getName();
-                        enumDescription = enumValue.getLanguage().getDefault().getDescription();
-                    }
-                }
-                final String memberName = CodeNamer.getEnumMemberName(enumName);
-                long counter = enumValues.stream().filter(v -> v.getName().equals(memberName)).count();
-                if (counter > 0) {
-                    enumValues
-                        .add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription));
-                } else {
-                    enumValues.add(new ClientEnumValue(memberName, enumValue.getValue(), enumDescription));
-                }
-            }
-
             return new EnumType.Builder().packageName(enumPackage)
                 .name(enumTypeName)
                 .description(description)
                 .expandable(expandable)
-                .values(enumValues)
+                .values(createEnumValues(enumType, useCodeModelNameForEnumMember))
                 .elementType(Mappers.getSchemaMapper().map(enumType.getChoiceType()))
                 .implementationDetails(
                     new ImplementationDetails.Builder().usages(SchemaUtil.mapSchemaContext(enumType.getUsage()))
@@ -123,6 +96,91 @@ public final class MapperUtils {
                 .toMethodName(serializationMethodName)
                 .build();
         }
+    }
+
+    private static List<ClientEnumValue> createEnumValues(ChoiceSchema enumType,
+        boolean useCodeModelNameForEnumMember) {
+        List<ClientEnumValue> enumValues = new ArrayList<>();
+        for (ChoiceValue enumValue : enumType.getChoices()) {
+            String enumName = enumValue.getValue();
+            String enumDescription = null;
+            if (useCodeModelNameForEnumMember) {
+                if (enumValue.getLanguage() != null
+                    && enumValue.getLanguage().getJava() != null
+                    && enumValue.getLanguage().getJava().getName() != null) {
+                    enumName = enumValue.getLanguage().getJava().getName();
+                    enumDescription = enumValue.getLanguage().getJava().getDescription();
+                } else if (enumValue.getLanguage() != null
+                    && enumValue.getLanguage().getDefault() != null
+                    && enumValue.getLanguage().getDefault().getName() != null) {
+                    enumName = enumValue.getLanguage().getDefault().getName();
+                    enumDescription = enumValue.getLanguage().getDefault().getDescription();
+                }
+            }
+            final String memberName = CodeNamer.getEnumMemberName(enumName);
+            long counter = enumValues.stream().filter(v -> v.getName().equals(memberName)).count();
+            if (counter > 0) {
+                enumValues.add(new ClientEnumValue(memberName + "_" + counter, enumValue.getValue(), enumDescription));
+            } else {
+                enumValues.add(new ClientEnumValue(memberName, enumValue.getValue(), enumDescription));
+            }
+        }
+        return enumValues;
+    }
+
+    /**
+     * Map to external enum client type, if applicable.
+     *
+     * @param enumType code model schema for enum
+     * @param expandable whether it's expandable enum
+     * @return enum client type, or null if not applicable.
+     */
+    public static EnumType mapExternalModel(ChoiceSchema enumType, boolean expandable) {
+        EnumType type = null;
+        if (enumType.getUsage() != null
+            && enumType.getUsage().contains(SchemaContext.EXTERNAL)
+            && enumType.getLanguage() != null
+            && enumType.getLanguage().getJava() != null
+            && enumType.getLanguage().getJava().getNamespace() != null
+            && enumType.getLanguage().getJava().getName() != null) {
+
+            IType elementType = Mappers.getSchemaMapper().map(enumType.getChoiceType());
+
+            // schema is external model
+            String namespace = enumType.getLanguage().getJava().getNamespace();
+            String name = enumType.getLanguage().getJava().getName();
+
+            String fromMethodName = null;
+            String toMethodName = null;
+            if (namespace.startsWith("java.")) {
+                // a hack here, we know that built-in Java enum will not have "fromString" method
+                // (and also won't be expandable)
+                expandable = false;
+                fromMethodName = "valueOf";
+                toMethodName = "name";
+            }
+
+            if (expandable) {
+                boolean isStringEnum = elementType == ClassType.STRING;
+                JavaSettings javaSettings = JavaSettings.getInstance();
+                if (!(isStringEnum && javaSettings.isAzureV1())) {
+                    // core-v2 always use ExpandableEnum, as well as non-string enum in v1
+                    fromMethodName = "getValue";
+                    toMethodName = "fromValue";
+                }
+            }
+
+            type = new EnumType.Builder().packageName(namespace)
+                .name(name)
+                .expandable(expandable)
+                .values(createEnumValues(enumType, false))
+                .elementType(elementType)
+                .fromMethodName(fromMethodName)
+                .toMethodName(toMethodName)
+                .build();
+        }
+
+        return type;
     }
 
     public static IType getExpectedResponseBodyType(Operation operation, JavaSettings settings) {

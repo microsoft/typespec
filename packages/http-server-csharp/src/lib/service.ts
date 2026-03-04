@@ -161,6 +161,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         case "StringTemplateSpan":
         case "TemplateParameter":
         case "Tuple":
+        case "FunctionType":
           return undefined;
         case "EnumMember":
           return this.#getOrAddNamespaceForType(type.enum);

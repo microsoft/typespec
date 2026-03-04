@@ -118,8 +118,8 @@ describe("compiler: checker: decorators", () => {
         dec testDec(target: unknown);
       `);
       expectDiagnostics(diagnostics, {
-        code: "decorator-extern",
-        message: "A decorator declaration must be prefixed with the 'extern' modifier.",
+        code: "invalid-modifier",
+        message: "Declaration of type 'dec' is missing required modifier 'extern'.",
       });
     });
 

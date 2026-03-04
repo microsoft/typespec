@@ -161,7 +161,7 @@ export function TypeExpression(props: TypeExpressionProps) {
     case "Operation": {
       // Render function types as typing.Callable[[ArgTypes...], ReturnType]
       // If parameters cannot be enumerated, fall back to Callable[..., ReturnType]
-      let paramTypes: Type[] | null = null;
+      let paramTypes: Type[] | null;
       const op: any = type as any;
       if (op.parameters) {
         try {
@@ -276,18 +276,19 @@ const pythonTypeToImport = new Map<string, any>([
 function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType): string | null {
   let intrinsicName: string;
   if ($.scalar.is(type)) {
-    if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
-      const encoding = $.scalar.getEncoding(type);
-      intrinsicName = "utcDateTime";
-      switch (encoding?.encoding) {
-        case "unixTimestamp":
-        case "rfc7231":
-        case "rfc3339":
-        default:
-          intrinsicName = `utcDateTime`;
-          break;
-      }
-    }
+    // This was always is overridden below?
+    // if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
+    //   const encoding = $.scalar.getEncoding(type);
+    //   intrinsicName = "utcDateTime";
+    //   switch (encoding?.encoding) {
+    //     case "unixTimestamp":
+    //     case "rfc7231":
+    //     case "rfc3339":
+    //     default:
+    //       intrinsicName = `utcDateTime`;
+    //       break;
+    //   }
+    // }
     intrinsicName = $.scalar.getStdBase(type)?.name ?? "";
   } else {
     intrinsicName = type.name;

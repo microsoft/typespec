@@ -58,6 +58,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private Dictionary<InputOperation, ScmMethodProviderCollection>? _methodCache;
         private Dictionary<InputOperation, ScmMethodProviderCollection> MethodCache => _methodCache ??= [];
+        private TypeProvider? _backCompatProvider;
+
+        /// <summary>
+        /// Gets the effective type provider to use for backward compatibility checks.
+        /// When a <see cref="_backCompatProvider"/> is set, it is used instead of this client.
+        /// </summary>
+        internal TypeProvider BackCompatProvider => _backCompatProvider ?? this;
 
         public ParameterProvider? ClientOptionsParameter { get; }
 
@@ -835,8 +842,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        public ScmMethodProviderCollection GetMethodCollectionByOperation(InputOperation operation)
+        public ScmMethodProviderCollection GetMethodCollectionByOperation(InputOperation operation, TypeProvider? backCompatProvider = null)
         {
+            if (backCompatProvider != null && backCompatProvider != this)
+            {
+                if (_backCompatProvider != backCompatProvider)
+                {
+                    _backCompatProvider = backCompatProvider;
+                    // reset cache so methods are rebuilt with the new backcompat provider
+                    Reset();
+                    _methodCache = null;
+                }
+            }
+            else if (_backCompatProvider != null)
+            {
+                // backcompat provider was previously set but not requested now — reset to default
+                _backCompatProvider = null;
+                Reset();
+                _methodCache = null;
+            }
             _ = Methods; // Ensure methods are built
             return MethodCache[operation];
         }
@@ -973,7 +997,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? originalMethods.Concat(CustomCodeView.Methods)
                 : originalMethods;
 
-            return allMethods.ToDictionary(m => m.Signature, m => m, MethodSignature.MethodSignatureComparer);
+            var result = new Dictionary<MethodSignature, MethodProvider>(MethodSignature.MethodSignatureComparer);
+            foreach (var method in allMethods)
+            {
+                result.TryAdd(method.Signature, method);
+            }
+            return result;
         }
 
         private static bool ShouldProcessMethodForBackCompat(

@@ -313,6 +313,13 @@ export class CodeModelBuilder {
     this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, sdkContextOptions);
     this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
+    // metadata
+    if (this.sdkContext.sdkPackage.metadata.apiVersions) {
+      this.codeModel.apiVersionMap = Object.fromEntries(
+        this.sdkContext.sdkPackage.metadata.apiVersions,
+      );
+    }
+
     // license
     if (this.sdkContext.sdkPackage.licenseInfo) {
       this.codeModel.info.license = new License(this.sdkContext.sdkPackage.licenseInfo.name, {
@@ -1879,6 +1886,8 @@ export class CodeModelBuilder {
 
         // group schema
 
+        // TODO: double check this suppression
+        // eslint-disable-next-line no-useless-assignment
         let coreNamespace = this.namespace;
         if (this.isAzureV1()) {
           coreNamespace = "com.azure.core.http";
@@ -2070,6 +2079,11 @@ export class CodeModelBuilder {
 
         if (jsonMergePatch) {
           // skip model flatten, if "application/merge-patch+json"
+          reportDiagnostic(this.program, {
+            code: "spread-json-merge-patch-payload-not-supported",
+            target: sdkMethod.__raw ?? NoTarget,
+          });
+
           if (sdkType.isGeneratedName) {
             schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
           }
@@ -2201,10 +2215,8 @@ export class CodeModelBuilder {
     // TODO: what to do if more than 1 response?
     // It happens when the response type is Union, on one status code.
     // let response: Response;
-    let headers: Array<HttpHeader> | undefined = undefined;
+    const headers: Array<HttpHeader> = [];
 
-    // headers
-    headers = [];
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.name);
@@ -2649,6 +2661,11 @@ export class CodeModelBuilder {
       // java name
       schema.language.java = schema.language.java ?? new Language();
       schema.language.java.name = getExternalJavaClassName(type);
+
+      // add external to usage
+      this.trackSchemaUsage(schema, {
+        usage: [SchemaContext.External],
+      });
     }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
