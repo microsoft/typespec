@@ -14,6 +14,7 @@ import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 import { InterfaceMember } from "./interface-member.js";
+import { RecordExpression } from "./record-expression.js";
 import { TypeExpression } from "./type-expression.jsx";
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
   type: Model | Interface;
@@ -90,9 +91,7 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
     if ($.array.is(type.baseModel)) {
       extending.push(<TypeExpression type={type.baseModel} />);
     } else if ($.record.is(type.baseModel)) {
-      // Here we are in the additional properties land.
-      // Instead of extending we need to create an envelope property
-      // do nothing here.
+      extending.push(<RecordExpression elementType={type.baseModel.indexer!.value} />);
     } else {
       extending.push(efRefkey(type.baseModel));
     }
@@ -100,11 +99,18 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
 
   const indexType = $.model.getIndexType(type);
   if (indexType) {
-    // When extending a record we need to override the element type to be unknown to avoid type errors
     if ($.record.is(indexType)) {
-      // Here we are in the additional properties land.
-      // Instead of extending we need to create an envelope property
-      // do nothing here.
+      const elementType = indexType.indexer!.value;
+      // Only use extends Record<string, T> if all known properties are assignable to T.
+      // When properties have incompatible types (e.g., id: number with Record<string, string>),
+      // skip the extends clause to avoid TypeScript index signature conflicts.
+      const properties = $.model.getProperties(type);
+      const allCompatible = Array.from(properties.values()).every((prop) =>
+        $.type.isAssignableTo(prop.type, elementType),
+      );
+      if (allCompatible) {
+        extending.push(<RecordExpression elementType={elementType} />);
+      }
     } else {
       extending.push(<TypeExpression type={indexType} />);
     }
@@ -126,19 +132,31 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
  */
 function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
   const { $ } = useTsp();
+  const additionalPropertiesKey = "additionalProperties";
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
   if ($.model.is(props.type)) {
     typeMembers = $.model.getProperties(props.type);
-    const additionalProperties = $.model.getAdditionalPropertiesRecord(props.type);
-    if (additionalProperties) {
-      typeMembers.set(
-        "additionalProperties",
-        $.modelProperty.create({
-          name: "additionalProperties",
-          optional: true,
-          type: additionalProperties,
-        }),
+
+    // When the model has a record indexer (from ...Record<T> spreads) but the named
+    // properties are not assignable to the element type, TypeScript cannot represent
+    // this with `extends Record<string, T>` (index signature compatibility constraint).
+    // Instead, add an `additionalProperties` named property to represent the extra properties.
+    const indexType = $.model.getIndexType(props.type);
+    if (indexType && $.record.is(indexType)) {
+      const elementType = indexType.indexer!.value;
+      const allCompatible = Array.from(typeMembers.values()).every((prop) =>
+        $.modelProperty.is(prop) ? $.type.isAssignableTo(prop.type, elementType) : true,
       );
+      if (!allCompatible) {
+        typeMembers.set(
+          additionalPropertiesKey,
+          $.modelProperty.create({
+            name: additionalPropertiesKey,
+            optional: true,
+            type: indexType,
+          }),
+        );
+      }
     }
   } else {
     typeMembers = createRekeyableMap(props.type.operations);
