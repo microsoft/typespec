@@ -141,6 +141,7 @@ export function applyMergePatchTransform(
   );
 
   setMergePatchSource(ctx.program, type, input);
+  setMediaTypeHint(ctx.program, type, "application/merge-patch+json");
 
   return type;
 }
@@ -329,6 +330,7 @@ function createMergePatchMutator(
             }
           }
 
+          setMediaTypeHint(program, clone, "application/merge-patch+json");
           rename(ctx.program, clone, nameTemplate);
         },
       },
