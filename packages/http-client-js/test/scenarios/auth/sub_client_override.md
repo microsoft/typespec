@@ -29,16 +29,21 @@ namespace Sub {
 
 The client signature should include a positional parameter for credential of type KeyCredential. A basic auth token is a key credential that gets put into the Authorization header/
 
-The subclient is not a child of the TestClient because they have different parameter.
+The subclient is accessible from the TestClient via an accessor method since they have different constructor parameters. The accessor method takes only the subclient's unique parameters.
 
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
+  #endpoint: string;
   constructor(endpoint: string, credential: BasicCredential, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, credential, options);
+    this.#endpoint = endpoint;
   }
   async valid(options?: ValidOptions) {
     return valid(this.#context, options);
+  }
+  subClient(options?: SubClientOptions) {
+    return new SubClient(this.#endpoint, options);
   }
 }
 ```
