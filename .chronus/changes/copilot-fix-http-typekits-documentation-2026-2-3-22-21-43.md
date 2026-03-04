@@ -4,4 +4,4 @@ packages:
   - "@typespec/http"
 ---
 
-Add @usageDoc JSDoc tag to HTTP typekit for auto-generated usage documentation
+Provide additional usage information and example usage of the experimental typekit

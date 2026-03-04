@@ -31,11 +31,9 @@ import {
  * ### Example
  *
  * ```ts
- * import { getHttpOperation } from "@typespec/http";
  * import { $ } from "@typespec/compiler/typekit";
  * import "@typespec/http/experimental/typekit";
  *
- * const [httpOperation] = getHttpOperation(program, operation);
  * const responses = $(program).httpOperation.flattenResponses(httpOperation);
  * ```
  */
