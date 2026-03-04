@@ -6,6 +6,7 @@
 
 - [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
 
+
 ## 0.13.0
 
 ### Bump dependencies
@@ -13,11 +14,13 @@
 - [#9202](https://github.com/microsoft/typespec/pull/9202) Update to alloy 0.22
 - [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
 
+
 ## 0.12.0
 
 ### Bump dependencies
 
 - [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
 
 ## 0.11.0
 
@@ -25,11 +28,13 @@
 
 - [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
 
+
 ## 0.10.0
 
 ### Bug Fixes
 
 - [#8613](https://github.com/microsoft/typespec/pull/8613) Remove warning when no explicit content type is provided to a multipart part
+
 
 ## 0.9.0
 
@@ -45,6 +50,7 @@
 
 - [#8362](https://github.com/microsoft/typespec/pull/8362) Upgrade alloy to 0.20
 
+
 ## 0.8.0
 
 ### Bump dependencies
@@ -55,6 +61,7 @@
 ### Bug Fixes
 
 - [#8056](https://github.com/microsoft/typespec/pull/8056) Fix the missing `main` field issue in package.json
+
 
 ## 0.7.0
 
