@@ -580,16 +580,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
 
-            if (!hasMethods && !hasConstructors)
+            IEnumerable<FieldProvider>? newFields = null;
+            if (this is EnumProvider)
             {
-                return;
+                var hasFields = LastContractView?.Fields != null && LastContractView.Fields.Count > 0;
+                if (hasFields)
+                {
+                    var newEnumValues = BuildEnumValuesForBackCompatibility(EnumValues);
+                    if (newEnumValues != null)
+                    {
+                        _enumValues = newEnumValues;
+                        newFields = newEnumValues.Select(v => v.Field);
+                    }
+                }
             }
 
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
 
-            Update(methods: newMethods, constructors: newConstructors);
+            if (newFields != null || newMethods != null || newConstructors != null)
+            {
+                Update(fields: newFields, methods: newMethods, constructors: newConstructors);
+            }
         }
+
+        protected internal virtual IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)
+            => null;
 
         protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
             => [.. originalMethods];
