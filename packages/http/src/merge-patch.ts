@@ -16,6 +16,7 @@ import {
   navigateType,
   Program,
   resetVisibilityModifiersForClass,
+  setMediaTypeHint,
   Tuple,
   Type,
   Union,
@@ -392,6 +393,7 @@ function createMergePatchMutator(
           }
 
           clone.decorators = clone.decorators.filter((d) => d.decorator !== $applyMergePatch);
+          setMediaTypeHint(program, clone, "application/merge-patch+json");
           ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(clone, model);
           rename(ctx.program, clone, nameTemplate);
         },

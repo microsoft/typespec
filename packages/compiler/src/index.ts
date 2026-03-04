@@ -191,6 +191,7 @@ export {
   serializeValueAsJson,
   Service,
   ServiceDetails,
+  setMediaTypeHint,
   VisibilityProvider,
   type BytesKnownEncoding,
   type DateTimeKnownEncoding,
