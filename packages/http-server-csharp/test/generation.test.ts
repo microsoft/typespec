@@ -1204,6 +1204,44 @@ interface Widgets {
   );
 });
 
+it("Handles MergePatchUpdate with enum type in different namespace", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+enum WidgetColor {
+  Red,
+  Blue,
+  Green
+}
+
+model Widget {
+  id: string;
+  weight: int32;
+  color: WidgetColor;
+}
+
+@route("/widgets")
+@tag("Widgets")
+interface Widgets {
+  /** Update a widget */
+  @patch update(@path id: string, @body body: MergePatchUpdate<Widget>): Widget;
+}
+    `,
+    [
+      [
+        "WidgetMergePatchUpdate.cs",
+        [
+          "namespace TypeSpec.Http {",
+          "using Microsoft.Contoso;",
+          "public string Id { get; set; }",
+          "public int? Weight { get; set; }",
+          "public WidgetColor? Color { get; set; }",
+        ],
+      ],
+    ],
+  );
+});
+
 it("Handles user-defined model templates", async () => {
   await compileAndValidateMultiple(
     tester,
