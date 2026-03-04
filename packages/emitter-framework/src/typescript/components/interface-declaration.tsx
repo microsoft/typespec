@@ -132,9 +132,32 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
  */
 function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
   const { $ } = useTsp();
+  const additionalPropertiesKey = "additionalProperties";
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
   if ($.model.is(props.type)) {
     typeMembers = $.model.getProperties(props.type);
+
+    // When the model has a record indexer (from ...Record<T> spreads) but the named
+    // properties are not assignable to the element type, TypeScript cannot represent
+    // this with `extends Record<string, T>` (index signature compatibility constraint).
+    // Instead, add an `additionalProperties` named property to represent the extra properties.
+    const indexType = $.model.getIndexType(props.type);
+    if (indexType && $.record.is(indexType)) {
+      const elementType = indexType.indexer!.value;
+      const allCompatible = Array.from(typeMembers.values()).every((prop) =>
+        $.modelProperty.is(prop) ? $.type.isAssignableTo(prop.type, elementType) : true,
+      );
+      if (!allCompatible) {
+        typeMembers.set(
+          additionalPropertiesKey,
+          $.modelProperty.create({
+            name: additionalPropertiesKey,
+            optional: true,
+            type: indexType,
+          }),
+        );
+      }
+    }
   } else {
     typeMembers = createRekeyableMap(props.type.operations);
   }

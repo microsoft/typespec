@@ -297,6 +297,7 @@ describe("Typescript Interface", () => {
           }
           export interface DifferentSpreadModelRecord {
             knownProp: string;
+            additionalProperties?: Record<string, ModelForRecord>;
           }
           export interface DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
             derivedProp: ModelForRecord;
@@ -332,7 +333,7 @@ describe("Typescript Interface", () => {
           }`);
       });
 
-      it("omits extends clause when known properties are incompatible with the record element type", async () => {
+      it("adds additionalProperties when known properties are incompatible with the record element type", async () => {
         const program = await getProgram(`
           namespace DemoService;
           model Widget {
@@ -355,6 +356,35 @@ describe("Typescript Interface", () => {
         ).toRenderTo(`
           export interface Widget {
             id: number;
+            additionalProperties?: Record<string, string>;
+          }`);
+      });
+
+      it("adds additionalProperties for multiple incompatible record spreads as a union type", async () => {
+        const program = await getProgram(`
+          namespace DemoService;
+          model Foo {
+            id: int32;
+            ...Record<string>;
+            ...Record<float32>;
+          }
+          `);
+
+        const [namespace] = program.resolveTypeReference("DemoService");
+        const models = Array.from((namespace as Namespace).models.values());
+
+        expect(
+          <Output program={program}>
+            <SourceFile path="test.ts">
+              {models.map((model) => (
+                <InterfaceDeclaration export type={model} />
+              ))}
+            </SourceFile>
+          </Output>,
+        ).toRenderTo(`
+          export interface Foo {
+            id: number;
+            additionalProperties?: Record<string, string | number>;
           }`);
       });
 

@@ -25,6 +25,7 @@ export interface Widget {
   name: string;
   age: number;
   optional?: string;
+  additionalProperties?: Record<string, string>;
 }
 ```
 
@@ -38,7 +39,7 @@ export function jsonWidgetToTransportTransform(input_?: Widget | null): any {
     return input_ as any;
   }
   return {
-    ...jsonRecordStringToTransportTransform((({ name, age, optional, ...rest }) => rest)(input_)),
+    ...jsonRecordStringToTransportTransform(input_.additionalProperties),
     name: input_.name,
     age: input_.age,
     optional: input_.optional,
@@ -56,7 +57,9 @@ export function jsonWidgetToApplicationTransform(input_?: any): Widget {
     return input_ as any;
   }
   return {
-    ...jsonRecordStringToApplicationTransform((({ name, age, optional, ...rest }) => rest)(input_)),
+    additionalProperties: jsonRecordStringToApplicationTransform(
+      (({ name, age, optional, ...rest }) => rest)(input_),
+    ),
     name: input_.name,
     age: input_.age,
     optional: input_.optional,
