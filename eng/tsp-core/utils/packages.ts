@@ -50,6 +50,6 @@ export async function getAllPackages(): Promise<PackageInfo[]> {
 export async function getPublishablePackages(): Promise<PackageInfo[]> {
   const allPackages = await getAllPackages();
   return allPackages.filter(
-    (pkg) => !pkg.isPrivate && !EXCLUDED_PACKAGES.includes(pkg.path)
+    (pkg) => !pkg.isPrivate && !EXCLUDED_PACKAGES.includes(pkg.path),
   );
 }
