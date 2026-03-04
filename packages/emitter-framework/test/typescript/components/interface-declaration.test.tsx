@@ -295,7 +295,7 @@ describe("Typescript Interface", () => {
           export interface ModelForRecord {
             state: string;
           }
-          export interface DifferentSpreadModelRecord extends Record<string, ModelForRecord> {
+          export interface DifferentSpreadModelRecord {
             knownProp: string;
           }
           export interface DifferentSpreadModelDerived extends DifferentSpreadModelRecord {

@@ -32,7 +32,7 @@ export interface ExtraFeature {
 ```
 
 ```ts src/models/models.ts interface Dog
-export interface Dog extends Record<string, ExtraFeature> {
+export interface Dog {
   id: string;
   name: string;
   color: "black" | "brown";
@@ -47,7 +47,7 @@ export function jsonDogToTransportTransform(input_?: Dog | null): any {
     return input_ as any;
   }
   return {
-    ...jsonRecordExtraFeatureToTransportTransform(input_.additionalProperties),
+    ...jsonRecordExtraFeatureToTransportTransform((({ id, name, color, ...rest }) => rest)(input_)),
     id: input_.id,
     name: input_.name,
     color: input_.color,
@@ -63,7 +63,7 @@ export function jsonDogToApplicationTransform(input_?: any): Dog {
     return input_ as any;
   }
   return {
-    additionalProperties: jsonRecordExtraFeatureToApplicationTransform(
+    ...jsonRecordExtraFeatureToApplicationTransform(
       (({ id, name, color, ...rest }) => rest)(input_),
     ),
     id: input_.id,

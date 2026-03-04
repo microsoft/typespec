@@ -100,7 +100,17 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
   const indexType = $.model.getIndexType(type);
   if (indexType) {
     if ($.record.is(indexType)) {
-      extending.push(<RecordExpression elementType={indexType.indexer!.value} />);
+      const elementType = indexType.indexer!.value;
+      // Only use extends Record<string, T> if all known properties are assignable to T.
+      // When properties have incompatible types (e.g., id: number with Record<string, string>),
+      // skip the extends clause to avoid TypeScript index signature conflicts.
+      const properties = $.model.getProperties(type);
+      const allCompatible = Array.from(properties.values()).every((prop) =>
+        $.type.isAssignableTo(prop.type, elementType),
+      );
+      if (allCompatible) {
+        extending.push(<RecordExpression elementType={elementType} />);
+      }
     } else {
       extending.push(<TypeExpression type={indexType} />);
     }

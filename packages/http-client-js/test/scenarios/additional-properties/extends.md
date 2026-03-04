@@ -37,7 +37,7 @@ export function jsonWidgetToTransportTransform(input_?: Widget | null): any {
     return input_ as any;
   }
   return {
-    ...jsonRecordUnknownToTransportTransform(input_.additionalProperties),
+    ...jsonRecordUnknownToTransportTransform((({ name, age, optional, ...rest }) => rest)(input_)),
     name: input_.name,
     age: input_.age,
     optional: input_.optional,
@@ -55,7 +55,7 @@ export function jsonWidgetToApplicationTransform(input_?: any): Widget {
     return input_ as any;
   }
   return {
-    additionalProperties: jsonRecordUnknownToApplicationTransform(
+    ...jsonRecordUnknownToApplicationTransform(
       (({ name, age, optional, ...rest }) => rest)(input_),
     ),
     name: input_.name,

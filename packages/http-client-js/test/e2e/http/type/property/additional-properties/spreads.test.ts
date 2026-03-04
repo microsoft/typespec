@@ -4,13 +4,21 @@ import {
   ExtendsDifferentSpreadModelArrayClient,
   ExtendsDifferentSpreadModelClient,
   ExtendsDifferentSpreadStringClient,
+  ExtendsFloatAdditionalProperties,
   ExtendsFloatClient,
+  ExtendsModelAdditionalProperties,
+  ExtendsModelArrayAdditionalProperties,
   ExtendsModelArrayClient,
   ExtendsModelClient,
+  ExtendsStringAdditionalProperties,
   ExtendsStringClient,
+  IsFloatAdditionalProperties,
   IsFloatClient,
+  IsModelAdditionalProperties,
+  IsModelArrayAdditionalProperties,
   IsModelArrayClient,
   IsModelClient,
+  IsStringAdditionalProperties,
   IsStringClient,
   MultipleSpreadClient,
   SpreadDifferentFloatClient,
@@ -18,16 +26,17 @@ import {
   SpreadDifferentModelClient,
   SpreadDifferentStringClient,
   SpreadFloatClient,
+  SpreadFloatRecord,
   SpreadModelArrayClient,
+  SpreadModelArrayRecord,
   SpreadModelClient,
-  SpreadRecordForNonDiscriminatedUnion,
-  SpreadRecordForNonDiscriminatedUnion2,
-  SpreadRecordForNonDiscriminatedUnion3,
+  SpreadModelRecord,
   SpreadRecordNonDiscriminatedUnion2Client,
   SpreadRecordNonDiscriminatedUnion3Client,
   SpreadRecordNonDiscriminatedUnionClient,
   SpreadRecordUnionClient,
   SpreadStringClient,
+  SpreadStringRecord,
 } from "../../../../generated/type/property/additional-properties/src/index.js";
 
 // Helper to create a client instance with common options.
@@ -39,9 +48,9 @@ const clientOptions = {
 describe("Missing AdditionalProperties Endpoints", () => {
   describe("ExtendsString", () => {
     const client = new ExtendsStringClient(clientOptions);
-    const expected = {
-      additionalProperties: { prop: "abc" },
+    const expected: ExtendsStringAdditionalProperties = {
       name: "ExtendsStringAdditionalProperties",
+      prop: "abc",
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -54,9 +63,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("IsString", () => {
     const client = new IsStringClient({ allowInsecureConnection: true });
-    const expected = {
-      additionalProperties: { prop: "abc" },
+    const expected: IsStringAdditionalProperties = {
       name: "IsStringAdditionalProperties",
+      prop: "abc",
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -71,9 +80,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new SpreadStringClient({
       allowInsecureConnection: true,
     });
-    const expected = {
-      additionalProperties: { prop: "abc" },
+    const expected: SpreadStringRecord = {
       name: "SpreadSpringRecord",
+      prop: "abc",
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -86,9 +95,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("ExtendsFloat", () => {
     const client = new ExtendsFloatClient(clientOptions);
-    const expected = {
-      additionalProperties: { prop: 43.125 },
+    const expected: ExtendsFloatAdditionalProperties = {
       id: 43.125,
+      prop: 43.125,
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -101,9 +110,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("IsFloat", () => {
     const client = new IsFloatClient(clientOptions);
-    const expected = {
-      additionalProperties: { prop: 43.125 },
+    const expected: IsFloatAdditionalProperties = {
       id: 43.125,
+      prop: 43.125,
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -116,9 +125,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("SpreadFloat", () => {
     const client = new SpreadFloatClient(clientOptions);
-    const expected = {
-      additionalProperties: { prop: 43.125 },
+    const expected: SpreadFloatRecord = {
       id: 43.125,
+      prop: 43.125,
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -131,9 +140,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("ExtendsModel", () => {
     const client = new ExtendsModelClient(clientOptions);
-    const expected = {
+    const expected: ExtendsModelAdditionalProperties = {
       knownProp: { state: "ok" },
-      additionalProperties: { prop: { state: "ok" } },
+      prop: { state: "ok" },
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -146,9 +155,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("IsModel", () => {
     const client = new IsModelClient(clientOptions);
-    const expected = {
+    const expected: IsModelAdditionalProperties = {
       knownProp: { state: "ok" },
-      additionalProperties: { prop: { state: "ok" } },
+      prop: { state: "ok" },
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -161,9 +170,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("SpreadModel", () => {
     const client = new SpreadModelClient(clientOptions);
-    const expected = {
+    const expected: SpreadModelRecord = {
       knownProp: { state: "ok" },
-      additionalProperties: { prop: { state: "ok" } },
+      prop: { state: "ok" },
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -176,9 +185,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("ExtendsModelArray", () => {
     const client = new ExtendsModelArrayClient(clientOptions);
-    const expected = {
+    const expected: ExtendsModelArrayAdditionalProperties = {
       knownProp: [{ state: "ok" }, { state: "ok" }],
-      additionalProperties: { prop: [{ state: "ok" }, { state: "ok" }] },
+      prop: [{ state: "ok" }, { state: "ok" }],
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -191,9 +200,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("IsModelArray", () => {
     const client = new IsModelArrayClient(clientOptions);
-    const expected = {
+    const expected: IsModelArrayAdditionalProperties = {
       knownProp: [{ state: "ok" }, { state: "ok" }],
-      additionalProperties: { prop: [{ state: "ok" }, { state: "ok" }] },
+      prop: [{ state: "ok" }, { state: "ok" }],
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -206,9 +215,9 @@ describe("Missing AdditionalProperties Endpoints", () => {
 
   describe("SpreadModelArray", () => {
     const client = new SpreadModelArrayClient(clientOptions);
-    const expected = {
+    const expected: SpreadModelArrayRecord = {
       knownProp: [{ state: "ok" }, { state: "ok" }],
-      additionalProperties: { prop: [{ state: "ok" }, { state: "ok" }] },
+      prop: [{ state: "ok" }, { state: "ok" }],
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
@@ -224,14 +233,14 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new SpreadDifferentStringClient(clientOptions);
     const expected = {
       id: 43.125,
-      additionalProperties: { prop: "abc" },
+      prop: "abc",
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
@@ -239,14 +248,14 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new SpreadDifferentFloatClient(clientOptions);
     const expected = {
       name: "abc",
-      additionalProperties: { prop: 43.125 },
+      prop: 43.125,
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
@@ -254,14 +263,14 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new SpreadDifferentModelClient(clientOptions);
     const expected = {
       knownProp: "abc",
-      additionalProperties: { prop: { state: "ok" } },
+      prop: { state: "ok" },
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
@@ -269,14 +278,14 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new SpreadDifferentModelArrayClient(clientOptions);
     const expected = {
       knownProp: "abc",
-      additionalProperties: { prop: [{ state: "ok" }, { state: "ok" }] },
+      prop: [{ state: "ok" }, { state: "ok" }],
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
@@ -284,7 +293,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new ExtendsDifferentSpreadStringClient(clientOptions);
     const expected = {
       id: 43.125,
-      additionalProperties: { prop: "abc" },
+      prop: "abc",
       derivedProp: "abc",
     };
     it("GET returns the expected response", async () => {
@@ -292,7 +301,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
@@ -300,7 +309,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new ExtendsDifferentSpreadFloatClient(clientOptions);
     const expected = {
       name: "abc",
-      additionalProperties: { prop: 43.125 },
+      prop: 43.125,
       derivedProp: 43.125,
     };
     it("GET returns the expected response", async () => {
@@ -308,7 +317,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
@@ -316,7 +325,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new ExtendsDifferentSpreadModelClient(clientOptions);
     const expected = {
       knownProp: "abc",
-      additionalProperties: { prop: { state: "ok" } },
+      prop: { state: "ok" },
       derivedProp: { state: "ok" },
     };
     it("GET returns the expected response", async () => {
@@ -324,7 +333,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
@@ -332,7 +341,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new ExtendsDifferentSpreadModelArrayClient(clientOptions);
     const expected = {
       knownProp: "abc",
-      additionalProperties: { prop: [{ state: "ok" }, { state: "ok" }] },
+      prop: [{ state: "ok" }, { state: "ok" }],
       derivedProp: [{ state: "ok" }, { state: "ok" }],
     };
     it("GET returns the expected response", async () => {
@@ -340,7 +349,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
@@ -349,14 +358,15 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new MultipleSpreadClient(clientOptions);
     const expected = {
       flag: true,
-      additionalProperties: { prop1: "abc", prop2: 43.125 },
+      prop1: "abc",
+      prop2: 43.125,
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
@@ -364,28 +374,27 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const client = new SpreadRecordUnionClient(clientOptions);
     const expected = {
       flag: true,
-      additionalProperties: { prop1: "abc", prop2: 43.125 },
+      prop1: "abc",
+      prop2: 43.125,
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
   describe("SpreadRecordNonDiscriminatedUnion", () => {
     const client = new SpreadRecordNonDiscriminatedUnionClient(clientOptions);
-    const expected: SpreadRecordForNonDiscriminatedUnion = {
+    const expected = {
       name: "abc",
-      additionalProperties: {
-        prop1: { kind: "kind0", fooProp: "abc" },
-        prop2: {
-          kind: "kind1",
-          start: "2021-01-01T00:00:00Z",
-          end: "2021-01-02T00:00:00Z",
-        } as any,
+      prop1: { kind: "kind0", fooProp: "abc" },
+      prop2: {
+        kind: "kind1",
+        start: "2021-01-01T00:00:00Z",
+        end: "2021-01-02T00:00:00Z",
       },
     };
     it("GET returns the expected response", async () => {
@@ -393,21 +402,19 @@ describe("Missing AdditionalProperties Endpoints", () => {
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
   describe("SpreadRecordNonDiscriminatedUnion2", () => {
     const client = new SpreadRecordNonDiscriminatedUnion2Client(clientOptions);
-    const expected: SpreadRecordForNonDiscriminatedUnion2 = {
+    const expected = {
       name: "abc",
-      additionalProperties: {
-        prop1: { kind: "kind1", start: "2021-01-01T00:00:00Z" },
-        prop2: {
-          kind: "kind1",
-          start: "2021-01-01T00:00:00Z",
-          end: "2021-01-02T00:00:00Z",
-        } as any,
+      prop1: { kind: "kind1", start: "2021-01-01T00:00:00Z" },
+      prop2: {
+        kind: "kind1",
+        start: "2021-01-01T00:00:00Z",
+        end: "2021-01-02T00:00:00Z",
       },
     };
     it("GET returns the expected response", async () => {
@@ -415,24 +422,22 @@ describe("Missing AdditionalProperties Endpoints", () => {
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 
   describe("SpreadRecordNonDiscriminatedUnion3", () => {
     const client = new SpreadRecordNonDiscriminatedUnion3Client(clientOptions);
-    const expected: SpreadRecordForNonDiscriminatedUnion3 = {
+    const expected = {
       name: "abc",
-      additionalProperties: {
-        prop1: [
-          { kind: "kind1", start: "2021-01-01T00:00:00Z" },
-          { kind: "kind1", start: "2021-01-01T00:00:00Z" },
-        ],
-        prop2: {
-          kind: "kind1",
-          start: "2021-01-01T00:00:00Z",
-          end: "2021-01-02T00:00:00Z",
-        } as any,
+      prop1: [
+        { kind: "kind1", start: "2021-01-01T00:00:00Z" },
+        { kind: "kind1", start: "2021-01-01T00:00:00Z" },
+      ],
+      prop2: {
+        kind: "kind1",
+        start: "2021-01-01T00:00:00Z",
+        end: "2021-01-02T00:00:00Z",
       },
     };
     it("GET returns the expected response", async () => {
@@ -440,7 +445,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
       expect(response).toEqual(expected);
     });
     it("PUT accepts the expected input", async () => {
-      await client.put(expected);
+      await client.put(expected as any);
     });
   });
 });

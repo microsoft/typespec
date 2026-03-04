@@ -1,5 +1,4 @@
 import { Children, code, mapJoin } from "@alloy-js/core";
-import * as ts from "@alloy-js/typescript";
 import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { getJsonRecordTransformRefkey } from "./json-record-transform.jsx";
@@ -18,36 +17,23 @@ export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertie
     return null;
   }
 
-  if (props.target === "application") {
-    const properties = $.model.getProperties(props.type, { includeExtended: true });
-    const destructuredProperties = mapJoin(
-      () => properties,
-      (name) => name,
-      {
-        joiner: ",",
-        ender: ",",
-      },
-    );
+  const properties = $.model.getProperties(props.type, { includeExtended: true });
+  const destructuredProperties = mapJoin(
+    () => properties,
+    (name) => name,
+    {
+      joiner: ",",
+      ender: ",",
+    },
+  );
 
-    // Inline destructuring that extracts the properties and passes the rest to jsonRecordUnknownToApplicationTransform_2
-    const inlineDestructure = code`
-    ${getJsonRecordTransformRefkey(additionalProperties, props.target)}(
-      (({ ${destructuredProperties} ...rest }) => rest)(${props.itemRef})
-    ),
-    `;
+  // Extract additional properties by destructuring known properties and spreading the rest
+  const restExpr = code`(({ ${destructuredProperties} ...rest }) => rest)(${props.itemRef})`;
 
-    return (
-      <>
-        <ts.ObjectProperty name="additionalProperties">{inlineDestructure}</ts.ObjectProperty>
-      </>
-    );
-  }
-
-  const itemRef = code`${props.itemRef}.additionalProperties`;
-
+  // Spread additional properties directly onto the object (not wrapped in additionalProperties)
   return (
     <>
-      ...({getJsonRecordTransformRefkey(additionalProperties, props.target)}({itemRef}) ),
+      ...({getJsonRecordTransformRefkey(additionalProperties, props.target)}({restExpr}) ),
     </>
   );
 }

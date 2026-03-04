@@ -47,7 +47,7 @@ export function jsonSpreadRecordForDiscriminatedUnionToTransportTransform(
     return input_ as any;
   }
   return {
-    ...jsonRecordWidgetDataToTransportTransform(input_.additionalProperties),
+    ...jsonRecordWidgetDataToTransportTransform((({ name, ...rest }) => rest)(input_)),
     name: input_.name,
   }!;
 }
@@ -61,9 +61,7 @@ export function jsonSpreadRecordForDiscriminatedUnionToApplicationTransform(
     return input_ as any;
   }
   return {
-    additionalProperties: jsonRecordWidgetDataToApplicationTransform(
-      (({ name, ...rest }) => rest)(input_),
-    ),
+    ...jsonRecordWidgetDataToApplicationTransform((({ name, ...rest }) => rest)(input_)),
     name: input_.name,
   }!;
 }

@@ -21,7 +21,7 @@ op foo(): Widget;
 Should generate a model with name `Widget` with the known properties in the root and an evelop property called `additionalProperties`
 
 ```ts src/models/models.ts interface Widget
-export interface Widget extends Record<string, string> {
+export interface Widget {
   name: string;
   age: number;
   optional?: string;
@@ -38,7 +38,7 @@ export function jsonWidgetToTransportTransform(input_?: Widget | null): any {
     return input_ as any;
   }
   return {
-    ...jsonRecordStringToTransportTransform(input_.additionalProperties),
+    ...jsonRecordStringToTransportTransform((({ name, age, optional, ...rest }) => rest)(input_)),
     name: input_.name,
     age: input_.age,
     optional: input_.optional,
@@ -56,9 +56,7 @@ export function jsonWidgetToApplicationTransform(input_?: any): Widget {
     return input_ as any;
   }
   return {
-    additionalProperties: jsonRecordStringToApplicationTransform(
-      (({ name, age, optional, ...rest }) => rest)(input_),
-    ),
+    ...jsonRecordStringToApplicationTransform((({ name, age, optional, ...rest }) => rest)(input_)),
     name: input_.name,
     age: input_.age,
     optional: input_.optional,
