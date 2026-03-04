@@ -1441,8 +1441,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithNextLink(CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithNextLink", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithNextLink", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1450,8 +1450,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithNextLink", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithNextLink", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary>
@@ -1491,8 +1491,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithStringNextLink", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithStringNextLink", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1500,8 +1500,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithStringNextLink", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithStringNextLink", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary>
@@ -1544,8 +1544,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationToken(string token = default, CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithContinuationToken", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithContinuationToken", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary> List things with continuation token. </summary>
@@ -1554,8 +1554,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithContinuationToken", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithContinuationToken", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary>
@@ -1598,8 +1598,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationTokenHeaderResponse(string token = default, CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithContinuationTokenHeaderResponse", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithContinuationTokenHeaderResponse", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary> List things with continuation token header response. </summary>
@@ -1608,8 +1608,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenHeaderResponseAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithContinuationTokenHeaderResponse", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithContinuationTokenHeaderResponse", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary>
@@ -1649,8 +1649,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithPaging(CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithPaging", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithPaging", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary> List things with paging. </summary>
@@ -1658,8 +1658,8 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithPagingAsync(CancellationToken cancellationToken = default)
         {
-            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithPaging", ActivityKind.Client);
-            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetWithPaging", ActivityKind.Client);
+            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions(), activity);
         }
 
         /// <summary>

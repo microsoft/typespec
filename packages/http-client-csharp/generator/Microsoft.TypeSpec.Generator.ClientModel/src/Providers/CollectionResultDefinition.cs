@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected bool IsAsync { get; }
         protected ClientProvider Client { get; }
         protected FieldProvider ClientField { get; }
+        protected FieldProvider? ActivityField { get; }
 
         protected InputOperation Operation { get; }
         protected InputPagingServiceMetadata Paging { get; }
@@ -73,6 +75,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Client.Type,
                 "_client",
                 this);
+
+            if (Client.ActivitySourceField != null)
+            {
+                ActivityField = new FieldProvider(
+                    FieldModifiers.Private | FieldModifiers.ReadOnly,
+                    new CSharpType(typeof(Activity), isNullable: true),
+                    "_activity",
+                    this);
+            }
+
             Operation = serviceMethod.Operation;
             Paging = serviceMethod.PagingMetadata;
             IsAsync = isAsync;
@@ -187,7 +199,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
+        protected override FieldProvider[] BuildFields()
+            => ActivityField != null
+                ? [ClientField, ActivityField, .. RequestFields]
+                : [ClientField, .. RequestFields];
 
         protected override CSharpType[] BuildImplements() =>
          (_modelType: ItemModelType, IsAsync) switch
@@ -204,6 +219,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 "client",
                 $"The {Client.Type.Name} client used to send requests.",
                 Client.Type);
+            var parameters = new List<ParameterProvider> { clientParameter };
+            parameters.AddRange(CreateRequestParameters);
+            ParameterProvider? activityParameter = null;
+            if (ActivityField != null)
+            {
+                activityParameter = new ParameterProvider(
+                    "activity",
+                    $"The activity for distributed tracing.",
+                    new CSharpType(typeof(Activity), isNullable: true),
+                    defaultValue: Null);
+                parameters.Add(activityParameter);
+            }
             return
             [
                 new ConstructorProvider(
@@ -211,11 +238,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         Type,
                         $"Initializes a new instance of {Name}, which is used to iterate over the pages of a collection.",
                         MethodSignatureModifiers.Public,
-                        [
-                            clientParameter,
-                            .. CreateRequestParameters
-                        ]),
-                    BuildConstructorBody(clientParameter),
+                        parameters),
+                    BuildConstructorBody(clientParameter, activityParameter),
                     this)
             ];
         }
@@ -230,7 +254,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ResponseModel.GetPropertyExpression(responseModel, segments);
         }
 
-        private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
+        private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter, ParameterProvider? activityParameter)
         {
             var statements = new List<MethodBodyStatement>(CreateRequestParameters.Count + 1);
 
@@ -242,6 +266,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var field = RequestFields[parameterNumber];
                 statements.Add(field.Assign(parameter).Terminate());
             }
+
+            if (ActivityField != null && activityParameter != null)
+            {
+                statements.Add(ActivityField.Assign(activityParameter).Terminate());
+            }
+
             return statements.ToArray();
         }
 
@@ -253,6 +283,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 (not null, _) => BuildGetRawPagesForNextLink(),
                 (_, not null) => BuildGetRawPagesForContinuationToken()
             };
+
+            // Wrap with try-finally to dispose the activity when enumeration completes
+            if (ActivityField != null)
+            {
+                getRawPagesMethodBody =
+                [
+                    new TryCatchFinallyStatement(
+                        new TryExpression(getRawPagesMethodBody),
+                        [],
+                        new FinallyExpression(ActivityField.AsValueExpression.NullConditional().Invoke(nameof(IDisposable.Dispose), []).Terminate()))
+                ];
+            }
 
             var methods = new List<MethodProvider>
             {

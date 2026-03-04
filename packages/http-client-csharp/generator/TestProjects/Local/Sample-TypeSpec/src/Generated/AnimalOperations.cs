@@ -8,6 +8,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace SampleTypeSpec
     public partial class AnimalOperations
     {
         private readonly Uri _endpoint;
+        private static readonly ActivitySource _activitySource = new ActivitySource("SampleTypeSpec");
 
         /// <summary> Initializes a new instance of AnimalOperations for mocking. </summary>
         protected AnimalOperations()
@@ -86,6 +88,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
+            using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdatePetAsAnimal", ActivityKind.Client);
             ClientResult result = UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Animal)result, result.GetRawResponse());
         }
@@ -99,6 +102,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
+            using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdatePetAsAnimal", ActivityKind.Client);
             ClientResult result = await UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Animal)result, result.GetRawResponse());
         }
@@ -154,6 +158,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
+            using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdateDogAsAnimal", ActivityKind.Client);
             ClientResult result = UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Animal)result, result.GetRawResponse());
         }
@@ -167,6 +172,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
+            using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdateDogAsAnimal", ActivityKind.Client);
             ClientResult result = await UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Animal)result, result.GetRawResponse());
         }

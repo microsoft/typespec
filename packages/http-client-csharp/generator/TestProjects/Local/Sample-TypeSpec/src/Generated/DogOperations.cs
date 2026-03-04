@@ -8,6 +8,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace SampleTypeSpec
     public partial class DogOperations
     {
         private readonly Uri _endpoint;
+        private static readonly ActivitySource _activitySource = new ActivitySource("SampleTypeSpec");
 
         /// <summary> Initializes a new instance of DogOperations for mocking. </summary>
         protected DogOperations()
@@ -86,6 +88,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(dog, nameof(dog));
 
+            using Activity activity = _activitySource.StartActivity("DogOperations.UpdateDogAsDog", ActivityKind.Client);
             ClientResult result = UpdateDogAsDog(dog, cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((Dog)result, result.GetRawResponse());
         }
@@ -99,6 +102,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(dog, nameof(dog));
 
+            using Activity activity = _activitySource.StartActivity("DogOperations.UpdateDogAsDog", ActivityKind.Client);
             ClientResult result = await UpdateDogAsDogAsync(dog, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((Dog)result, result.GetRawResponse());
         }

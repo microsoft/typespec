@@ -76,7 +76,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<OutputLibrary>? createOutputLibrary = null,
             bool includeXmlDocs = false,
             Func<InputType, bool>? createCSharpTypeCoreFallback = null,
-            Func<InputModelType, ModelProvider?>? createModelCore = null)
+            Func<InputModelType, ModelProvider?>? createModelCore = null,
+            bool enableMethodInstrumentation = false)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
@@ -149,6 +150,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             if (includeXmlDocs)
             {
                 configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\", \"generate-method-instrumentation\": false}";
+            }
+            else if (enableMethodInstrumentation)
+            {
+                configuration = "{\"package-name\": \"SampleLibrary\", \"generate-method-instrumentation\": true}";
             }
             object?[] parameters = [_configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);

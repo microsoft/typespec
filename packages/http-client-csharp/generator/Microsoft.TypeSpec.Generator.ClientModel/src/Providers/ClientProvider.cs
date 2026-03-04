@@ -370,9 +370,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// Gets the ActivitySource field used for distributed tracing instrumentation.
-        /// Returns <c>null</c> if method instrumentation is disabled or if this is a sub-client.
+        /// Returns <c>null</c> if method instrumentation is disabled.
         /// </summary>
-        internal FieldProvider? ActivitySourceField => ScmCodeModelGenerator.Instance.Configuration.GenerateMethodInstrumentation && ClientOptions != null
+        internal FieldProvider? ActivitySourceField => ScmCodeModelGenerator.Instance.Configuration.GenerateMethodInstrumentation
             ? _activitySourceField ??= BuildActivitySourceField()
             : null;
 

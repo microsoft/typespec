@@ -9,40 +9,51 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SampleTypeSpec
 {
     internal partial class SampleTypeSpecClientGetWithNextLinkCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly Activity _activity;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        /// <param name="activity"> The activity for distributed tracing. </param>
+        public SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options, Activity activity = null)
         {
             _client = client;
             _options = options;
+            _activity = activity;
         }
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            PipelineMessage message = _client.CreateGetWithNextLinkRequest(_options);
-            Uri nextPageUri = null;
-            while (true)
+            try
             {
-                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
-                yield return result;
-
-                nextPageUri = ((ListWithNextLinkResponse)result).Next;
-                if (nextPageUri == null)
+                PipelineMessage message = _client.CreateGetWithNextLinkRequest(_options);
+                Uri nextPageUri = null;
+                while (true)
                 {
-                    yield break;
+                    ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                    yield return result;
+
+                    nextPageUri = ((ListWithNextLinkResponse)result).Next;
+                    if (nextPageUri == null)
+                    {
+                        yield break;
+                    }
+                    message = _client.CreateNextGetWithNextLinkRequest(nextPageUri, _options);
                 }
-                message = _client.CreateNextGetWithNextLinkRequest(nextPageUri, _options);
+            }
+            finally
+            {
+                _activity?.Dispose();
             }
         }
 

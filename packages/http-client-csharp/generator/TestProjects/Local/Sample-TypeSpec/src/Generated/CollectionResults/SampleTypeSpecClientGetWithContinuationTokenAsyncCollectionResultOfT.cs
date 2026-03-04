@@ -9,6 +9,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace SampleTypeSpec
@@ -16,6 +17,7 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly Activity _activity;
         private readonly string _token;
         private readonly RequestOptions _options;
 
@@ -23,30 +25,39 @@ namespace SampleTypeSpec
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="token"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
+        /// <param name="activity"> The activity for distributed tracing. </param>
+        public SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options, Activity activity = null)
         {
             _client = client;
             _token = token;
             _options = options;
+            _activity = activity;
         }
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
-            string nextToken = null;
-            while (true)
+            try
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
-                yield return result;
-
-                nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
-                if (string.IsNullOrEmpty(nextToken))
+                PipelineMessage message = _client.CreateGetWithContinuationTokenRequest(_token, _options);
+                string nextToken = null;
+                while (true)
                 {
-                    yield break;
+                    ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                    yield return result;
+
+                    nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
+                    if (string.IsNullOrEmpty(nextToken))
+                    {
+                        yield break;
+                    }
+                    message = _client.CreateGetWithContinuationTokenRequest(nextToken, _options);
                 }
-                message = _client.CreateGetWithContinuationTokenRequest(nextToken, _options);
+            }
+            finally
+            {
+                _activity?.Dispose();
             }
         }
 
