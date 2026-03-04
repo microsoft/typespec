@@ -323,18 +323,5 @@ function createTree(manifest: ScenarioManifest): ManifestTreeNode {
     current.scenario = scenario;
   }
 
-  return cutTillMultipleChildren(root);
-}
-
-function cutTillMultipleChildren(node: ManifestTreeNode): ManifestTreeNode {
-  let newRoot: ManifestTreeNode = node;
-  while (newRoot.children) {
-    if (Object.keys(newRoot.children).length === 1) {
-      newRoot = Object.values(newRoot.children)[0];
-    } else {
-      break;
-    }
-  }
-
-  return newRoot;
+  return root;
 }
