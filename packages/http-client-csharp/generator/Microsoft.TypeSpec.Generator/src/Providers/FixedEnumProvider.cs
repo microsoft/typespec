@@ -87,24 +87,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 values[i] = new EnumTypeMember(name, field, inputValue.Value);
             }
-            return BuildEnumValuesForBackwardCompatibility(values);
+            return values;
         }
 
-        private IReadOnlyList<EnumTypeMember> BuildEnumValuesForBackwardCompatibility(EnumTypeMember[] currentValues)
+        protected internal override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> currentValues)
         {
-            if (!IsIntValueType)
-            {
-                return currentValues;
-            }
-
             var lastContractFields = LastContractView?.Fields;
             if (lastContractFields == null || lastContractFields.Count == 0)
             {
-                return currentValues;
+                return null;
             }
 
             var currentLookup = currentValues.ToDictionary(v => v.Name, StringComparer.OrdinalIgnoreCase);
-            var allMembers = new List<EnumTypeMember>(currentValues.Length);
+            var allMembers = new List<EnumTypeMember>(currentValues.Count);
 
             // First, add members in the order from the last contract, preserving their initialization values
             foreach (var field in lastContractFields)

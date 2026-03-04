@@ -382,6 +382,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var enumType = EnumProvider.Create(input);
             Assert.IsFalse(enumType is ApiVersionEnumProvider);
 
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
             var fields = enumType.Fields;
             Assert.AreEqual(2, fields.Count);
 
@@ -415,6 +419,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var enumType = EnumProvider.Create(input);
             Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
 
             var fields = enumType.Fields;
             Assert.AreEqual(3, fields.Count);
@@ -454,6 +462,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var enumType = EnumProvider.Create(input);
             Assert.IsFalse(enumType is ApiVersionEnumProvider);
 
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
             var fields = enumType.Fields;
             Assert.AreEqual(2, fields.Count);
 
@@ -470,9 +482,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(1, value2?.Literal);
         }
 
-        // Validates that string enums are NOT affected by backward compatibility reordering
+        // Validates that string enum order is also preserved from last contract
         [Test]
-        public async Task BackCompat_StringEnumOrderNotAffected()
+        public async Task BackCompat_StringEnumOrderPreserved()
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: (inputType) => typeof(string),
@@ -485,13 +497,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             ]);
 
             var enumType = EnumProvider.Create(input);
-            var fields = enumType.Fields;
 
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
             Assert.AreEqual(2, fields.Count);
 
-            // String enums should NOT be reordered - they keep the input order
-            Assert.AreEqual("Default", fields[0].Name);
-            Assert.AreEqual("Recover", fields[1].Name);
+            // Order should be preserved from last contract: Recover first, Default second
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
         }
 
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)
