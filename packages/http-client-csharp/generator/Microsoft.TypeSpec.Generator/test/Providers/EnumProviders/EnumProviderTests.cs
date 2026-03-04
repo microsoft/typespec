@@ -471,7 +471,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         // Validates that string enums are NOT affected by backward compatibility reordering
-        [TestCase]
+        [Test]
         public async Task BackCompat_StringEnumOrderNotAffected()
         {
             await MockHelpers.LoadMockGeneratorAsync(
