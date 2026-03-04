@@ -44,28 +44,34 @@ export function createPolicyChain<Out extends (ctx: HttpContext, ...rest: any[])
     return out;
   }
 
-  function applyPolicy(ctx: HttpContext, index: number) {
+  function applyPolicy(ctx: HttpContext, index: number): Promise<void> {
     if (index >= policies.length) {
-      return out(ctx, ...outParams);
+      return Promise.resolve(out(ctx, ...outParams));
     }
 
-    policies[index](ctx, function nextPolicy(nextRequest) {
-      applyPolicy(
-        {
-          ...ctx,
-          request: nextRequest ?? ctx.request,
-        },
-        index + 1,
-      );
+    return new Promise<void>((resolve, reject) => {
+      try {
+        policies[index](ctx, function nextPolicy(nextRequest) {
+          applyPolicy(
+            {
+              ...ctx,
+              request: nextRequest ?? ctx.request,
+            },
+            index + 1,
+          ).then(resolve, reject);
+        });
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 
   return {
     [name](ctx: HttpContext, ...params: any[]) {
       outParams = params;
-      applyPolicy(ctx, 0);
+      return applyPolicy(ctx, 0);
     },
-  }[name] as Out;
+  }[name] as unknown as Out;
 }
 
 /**
