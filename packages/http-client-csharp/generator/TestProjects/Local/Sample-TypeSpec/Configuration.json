@@ -1,4 +1,5 @@
 {
+  "generate-method-instrumentation": true,
   "package-name": "SampleTypeSpec",
   "license": {
     "name": "MIT License",
