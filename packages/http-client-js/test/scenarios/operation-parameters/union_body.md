@@ -74,7 +74,9 @@ export class TestClient {
 ```
 
 ```ts src/models/internal/serializers.ts function jsonEnumsOnlyCasesToTransportTransform
-export function jsonEnumsOnlyCasesToTransportTransform(input_?: EnumsOnlyCases | null): any {
+export function jsonEnumsOnlyCasesToTransportTransform(
+  input_?: EnumsOnlyCases | null,
+): any {
   if (!input_) {
     return input_ as any;
   }

@@ -32,11 +32,10 @@ export interface ExtraFeature {
 ```
 
 ```ts src/models/models.ts interface Dog
-export interface Dog {
+export interface Dog extends Record<string, ExtraFeature> {
   id: string;
   name: string;
   color: "black" | "brown";
-  additionalProperties?: Record<string, ExtraFeature>;
 }
 ```
 

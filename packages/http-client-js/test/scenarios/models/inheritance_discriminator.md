@@ -36,7 +36,9 @@ export interface TRex extends Dinosaur {
 ## Serializer
 
 ```ts src/models/internal/serializers.ts function jsonDinosaurToTransportTransform
-export function jsonDinosaurToTransportTransform(input_?: Dinosaur | null): any {
+export function jsonDinosaurToTransportTransform(
+  input_?: Dinosaur | null,
+): any {
   if (!input_) {
     return input_ as any;
   }

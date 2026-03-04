@@ -21,11 +21,10 @@ op foo(): Widget;
 Should generate a model with name `Widget` with the known properties in the root and an evelop property called `additionalProperties`
 
 ```ts src/models/models.ts interface Widget
-export interface Widget {
+export interface Widget extends Record<string, string> {
   name: string;
   age: number;
   optional?: string;
-  additionalProperties?: Record<string, string>;
 }
 ```
 
