@@ -5,7 +5,7 @@ import { useTierFiltering } from "../hooks/use-tier-filtering.js";
 import { TierConfig } from "../utils/tier-filtering-utils.js";
 import { DashboardTable } from "./dashboard-table.js";
 import { InfoEntry, InfoReport } from "./info-table.js";
-import { TierFilterDropdown } from "./tier-filter.js";
+import { TierFilterTabs } from "./tier-filter.js";
 
 export interface DashboardProps {
   coverageSummaries: CoverageSummary[];
@@ -38,7 +38,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
 
   return (
     <div>
-      <TierFilterDropdown
+      <TierFilterTabs
         allTiers={allTiers}
         selectedTier={selectedTier}
         setSelectedTier={setSelectedTier}
