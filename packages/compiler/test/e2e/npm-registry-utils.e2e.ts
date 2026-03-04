@@ -34,7 +34,7 @@ function execAsync(command: string, args: string[], env: NodeJS.ProcessEnv): Pro
   });
 }
 
-describe.runIf(nodeVersion >= 24)("npm-registry-utils: HTTP proxy support (Node >= 24)", () => {
+describe.runIf(nodeVersion >= 22)("HTTP proxy support (Node >= 24)", () => {
   let proxyServer: ReturnType<typeof createServer>;
   let proxyPort: number;
   let tmpDir: string;
