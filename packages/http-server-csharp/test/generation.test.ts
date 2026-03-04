@@ -1429,6 +1429,76 @@ interface Widgets {
   );
 });
 
+it("Emits using for base class namespace and separate property namespace (regression: AddedScope cap)", async () => {
+  // With the old AddedScope guard, checkOrAddNamespaceToScope returned false after adding
+  // the first dynamic namespace import, forcing subsequent ones to be fully-qualified.
+  // This test verifies that a model inheriting from a base class in one sub-namespace and
+  // having a property from a second sub-namespace gets BOTH using directives.
+  await compileAndValidateMultiple(
+    tester,
+    `
+namespace Models {
+  model ParentWidget { id: string; }
+}
+
+namespace Colors {
+  enum WidgetColor { Red, Blue, Green }
+}
+
+model Widget extends Models.ParentWidget {
+  color: Colors.WidgetColor;
+}
+
+@get op getWidget(): Widget;
+    `,
+    [
+      [
+        "Widget.cs",
+        [
+          "namespace Microsoft.Contoso {",
+          "using Microsoft.Contoso.Models;",
+          "using Microsoft.Contoso.Colors;",
+          "public WidgetColor Color { get; set; }",
+          ": ParentWidget",
+        ],
+      ],
+    ],
+  );
+});
+
+it("Emits only one using directive when multiple properties share the same external namespace", async () => {
+  // Verifies that the import deduplication (imports.has(ns)) prevents duplicate
+  // using directives when more than one property references the same external namespace.
+  await compileAndValidateMultiple(
+    tester,
+    `
+namespace Colors {
+  enum WidgetColor { Red, Blue, Green }
+  enum BorderColor { Black, White }
+}
+
+model Widget {
+  id: string;
+  color: Colors.WidgetColor;
+  borderColor: Colors.BorderColor;
+}
+
+@get op getWidget(): Widget;
+    `,
+    [
+      [
+        "Widget.cs",
+        [
+          "namespace Microsoft.Contoso {",
+          "using Microsoft.Contoso.Colors;",
+          "public WidgetColor Color { get; set; }",
+          "public BorderColor BorderColor { get; set; }",
+        ],
+      ],
+    ],
+  );
+});
+
 it("Handles user-defined model templates", async () => {
   await compileAndValidateMultiple(
     tester,
