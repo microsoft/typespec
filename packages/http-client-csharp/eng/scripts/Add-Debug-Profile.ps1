@@ -143,35 +143,28 @@ function Invoke-TspClientCommands {
     }
 }
 
-# Build OpenAI plugin codegen package
-function Build-OpenAICodegen {
+# Regenerate the OpenAI library by finding and invoking Invoke-CodeGen.ps1
+function Invoke-OpenAICodeGen {
     param([string]$OpenAIRepoPath)
     
-    $codegenPath = Join-Path $OpenAIRepoPath "codegen"
+    $invokeCodeGenPath = Join-Path $OpenAIRepoPath "scripts" "Invoke-CodeGen.ps1"
     
-    if (-not (Test-Path $codegenPath)) {
-        throw "Codegen directory not found at: $codegenPath. Please ensure you're pointing to the OpenAI repository root."
+    if (-not (Test-Path $invokeCodeGenPath)) {
+        throw "Invoke-CodeGen.ps1 not found at: $invokeCodeGenPath. Please ensure you're pointing to the OpenAI repository root."
     }
     
-    Write-Host "Building OpenAI codegen package..." -ForegroundColor Cyan
+    Write-Host "Regenerating OpenAI library using Invoke-CodeGen.ps1..." -ForegroundColor Cyan
     
     try {
-        # Install dependencies in the repo root
-        Write-Host "Installing dependencies in OpenAI repo root..." -ForegroundColor Yellow
-        Invoke-Command-Safe "npm ci" -WorkingDirectory $OpenAIRepoPath
-        
-        # Clean the cache before building
-        Write-Host "Cleaning codegen cache..." -ForegroundColor Yellow
-        Invoke-Command-Safe "npm run clean" -WorkingDirectory $codegenPath
-        
-        # Build the codegen package
-        Write-Host "Building codegen package..." -ForegroundColor Yellow
-        Invoke-Command-Safe "npm run build" -WorkingDirectory $codegenPath
-        
-        Write-Host "OpenAI codegen build completed." -ForegroundColor Green
+        Write-Host "Running $invokeCodeGenPath..." -ForegroundColor Yellow
+        & $invokeCodeGenPath
+        if ($LASTEXITCODE -ne 0) {
+            throw "Invoke-CodeGen.ps1 failed with exit code $LASTEXITCODE"
+        }
+        Write-Host "OpenAI library regeneration completed." -ForegroundColor Green
     }
     catch {
-        Write-Error "Failed to build OpenAI codegen: $($_.Exception.Message)"
+        Write-Error "Failed to regenerate OpenAI library: $($_.Exception.Message)"
         throw
     }
 }
@@ -444,8 +437,8 @@ try {
         # OpenAI plugin workflow
         Write-Host "Detected OpenAI plugin repository. Setting up debug profile..." -ForegroundColor Cyan
         
-        # Build OpenAI codegen
-        Build-OpenAICodegen $sdkPath
+        # Regenerate the OpenAI library using Invoke-CodeGen.ps1
+        Invoke-OpenAICodeGen $sdkPath
         
         # Add debug profile
         $profileName = Add-DebugProfile $sdkPath -IsOpenAI $true
