@@ -2,9 +2,9 @@
 
 namespace Sample.Models
 {
-    public enum MockInputEnum
+    public static class MockInputEnum
     {
-        Recover,
-        Default,
+        public const string Recover = "recover";
+        public const string Default = "default";
     }
 }
