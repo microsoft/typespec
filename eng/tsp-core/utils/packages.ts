@@ -1,4 +1,4 @@
-import { readdir } from "fs/promises";
+import { readdir, readFile } from "fs/promises";
 import { join } from "path";
 import { repoRoot } from "../../common/scripts/utils/common.js";
 
@@ -19,25 +19,36 @@ export interface PackageInfo {
   name: string;
   path: string;
   isStandalone: boolean;
+  isPrivate: boolean;
 }
 
 export async function getAllPackages(): Promise<PackageInfo[]> {
   const packagesDir = join(repoRoot, "packages");
   const packages = await readdir(packagesDir, { withFileTypes: true });
 
-  return packages
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => {
-      const pkgPath = `packages/${dirent.name}`;
-      return {
-        name: dirent.name,
-        path: pkgPath,
-        isStandalone: STANDALONE_PACKAGES.includes(pkgPath),
-      };
+  const results: PackageInfo[] = [];
+  for (const dirent of packages.filter((d) => d.isDirectory())) {
+    const pkgPath = `packages/${dirent.name}`;
+    const pkgJsonPath = join(repoRoot, pkgPath, "package.json");
+    let pkgJson: { private?: boolean };
+    try {
+      pkgJson = JSON.parse(await readFile(pkgJsonPath, "utf-8"));
+    } catch {
+      // eslint-disable-next-line no-console
+      console.warn(`Could not read package.json for ${pkgPath}, skipping.`);
+      continue;
+    }
+    results.push({
+      name: dirent.name,
+      path: pkgPath,
+      isStandalone: STANDALONE_PACKAGES.includes(pkgPath),
+      isPrivate: pkgJson.private === true,
     });
+  }
+  return results;
 }
 
 export async function getPublishablePackages(): Promise<PackageInfo[]> {
   const allPackages = await getAllPackages();
-  return allPackages.filter((pkg) => !EXCLUDED_PACKAGES.includes(pkg.path));
+  return allPackages.filter((pkg) => !pkg.isPrivate && !EXCLUDED_PACKAGES.includes(pkg.path));
 }
