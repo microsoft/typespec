@@ -136,6 +136,61 @@ describe("openapi3: output file", () => {
     });
   });
 
+  describe("multiple file types", () => {
+    it("emit both json and yaml when file-type is an array", async () => {
+      await compileOpenAPI({ "file-type": ["json", "yaml"] });
+      expectOutput("openapi.json", expectedJsonEmptySpec);
+      expectOutput("openapi.yaml", expectedYamlEmptySpec);
+    });
+
+    it("emit both formats with custom output-file using {file-type}", async () => {
+      await compileOpenAPI({
+        "file-type": ["json", "yaml"],
+        "output-file": "my.spec.{file-type}",
+      });
+      expectOutput("my.spec.json", expectedJsonEmptySpec);
+      expectOutput("my.spec.yaml", expectedYamlEmptySpec);
+    });
+
+    it("emit both formats for multiple services", async () => {
+      await compileOpenAPI(
+        { "file-type": ["json", "yaml"] },
+        `
+          @service namespace Service1 {}
+          @service namespace Service2 {}
+        `,
+      );
+      expectHasOutput("openapi.Service1.json");
+      expectHasOutput("openapi.Service2.json");
+      expectHasOutput("openapi.Service1.yaml");
+      expectHasOutput("openapi.Service2.yaml");
+    });
+
+    it("emit both formats for versioned services", async () => {
+      await compileOpenAPI(
+        { "file-type": ["json", "yaml"] },
+        `
+          using Versioning;
+          @versioned(Versions) @service namespace Service1 {
+            enum Versions {v1, v2}
+          }
+        `,
+      );
+      expectHasOutput("openapi.v1.json");
+      expectHasOutput("openapi.v2.json");
+      expectHasOutput("openapi.v1.yaml");
+      expectHasOutput("openapi.v2.yaml");
+    });
+
+    it("{file-type} variable works with single file-type string", async () => {
+      await compileOpenAPI({
+        "file-type": "json",
+        "output-file": "my.spec.{file-type}",
+      });
+      expectOutput("my.spec.json", expectedJsonEmptySpec);
+    });
+  });
+
   describe("Predefined variable name behavior", () => {
     interface ServiceNameCase {
       description: string;
