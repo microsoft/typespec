@@ -143,25 +143,6 @@ namespace Microsoft.TypeSpec.Generator
             _rewriters.Add(rewriter);
         }
 
-        /// <summary>
-        /// Removes all rewriters of the specified type from the list of rewriters.
-        /// </summary>
-        /// <typeparam name="T">The type of rewriter to remove.</typeparam>
-        public virtual void RemoveRewriter<T>() where T : LibraryRewriter
-        {
-            _rewriters.RemoveAll(r => r.GetType() == typeof(T));
-        }
-
-        /// <summary>
-        /// Removes all rewriters whose type name matches the specified name from the list of rewriters.
-        /// This overload is useful when the rewriter type is not publicly accessible.
-        /// </summary>
-        /// <param name="rewriterTypeName">The name of the rewriter type to remove.</param>
-        public virtual void RemoveRewriter(string rewriterTypeName)
-        {
-            _rewriters.RemoveAll(r => r.GetType().Name == rewriterTypeName);
-        }
-
         public virtual void AddMetadataReference(MetadataReference reference)
         {
             _additionalMetadataReferences.Add(reference);
