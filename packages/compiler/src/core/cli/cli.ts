@@ -9,10 +9,12 @@ try {
 import yargs from "yargs";
 import { installTypeSpecDependencies } from "../../install/install.js";
 import { typespecVersion } from "../../manifest.js";
+import { logDiagnostics } from "../diagnostics.js";
 import { getTypeSpecEngine } from "../engine.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
 import { printInfoAction } from "./actions/info.js";
+import { printEmitterOptionsAction } from "./actions/info/emitter-options.js";
 import { initAction } from "./actions/init.js";
 import { installVSExtension, uninstallVSExtension } from "./actions/vs.js";
 import {
@@ -23,13 +25,51 @@ import {
 } from "./actions/vscode.js";
 import {
   CliHostArgs,
+  createCLICompilerHost,
   handleInternalCompilerError,
+  logDiagnosticCount,
   withCliHost,
   withCliHostAndDiagnostics,
 } from "./utils.js";
 
+/**
+ * Intercept `tsp compile --emit <emitter> --help` to display emitter options.
+ * Returns true if the interception was handled.
+ */
+async function handleCompileEmitHelp(argv: string[]): Promise<boolean> {
+  if (argv[0] !== "compile" || !argv.includes("--help")) {
+    return false;
+  }
+  const emitIdx = argv.indexOf("--emit");
+  if (emitIdx === -1 || emitIdx + 1 >= argv.length) {
+    return false;
+  }
+  const emitterName = argv[emitIdx + 1];
+  if (!emitterName || emitterName.startsWith("-")) {
+    return false;
+  }
+
+  const host = createCLICompilerHost({ pretty: true });
+  const diagnostics = await printEmitterOptionsAction(host, emitterName);
+  if (diagnostics.length > 0) {
+    logDiagnostics(diagnostics, host.logSink);
+    logDiagnosticCount(diagnostics);
+  }
+  if (diagnostics.some((d) => d.severity === "error")) {
+    process.exit(1);
+  }
+  return true;
+}
+
 async function main() {
-  await yargs(process.argv.slice(2))
+  const argv = process.argv.slice(2);
+
+  // Handle `tsp compile --emit <emitter> --help` early before yargs intercepts --help
+  if (await handleCompileEmitHelp(argv)) {
+    return;
+  }
+
+  await yargs(argv)
     .scriptName("tsp")
     .help()
     .strict()
@@ -99,7 +139,8 @@ async function main() {
           .option("emit", {
             type: "array",
             string: true,
-            describe: "Name of the emitters",
+            describe:
+              "Name of the emitters. Use `tsp info <emitter>` to see available emitter options.",
           })
           .option("list-files", {
             type: "boolean",
@@ -270,10 +311,15 @@ async function main() {
       ),
     )
     .command(
-      "info",
-      "Show information about the current TypeSpec compiler.",
-      () => {},
-      withCliHostAndDiagnostics((host) => printInfoAction(host)),
+      "info [emitter]",
+      "Show information about the current TypeSpec compiler, or about a specific emitter.",
+      (cmd) => {
+        return cmd.positional("emitter", {
+          description: "The emitter package name to show options for.",
+          type: "string",
+        });
+      },
+      withCliHostAndDiagnostics((host, args) => printInfoAction(host, { emitter: args.emitter })),
     )
     .version(getTypeSpecEngine() === "tsp" ? `${typespecVersion} standalone` : typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;

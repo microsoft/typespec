@@ -10,7 +10,7 @@
     Azure SDK Mode (default):
     1. Builds a local npm package of @typespec/http-client-csharp with a versioned name (1.0.0-alpha.YYYYMMDD.hash)
     2. Builds and packages the three NuGet generator framework packages with the same versioning
-    3. Updates Packages.Data.props in azure-sdk-for-net with the local NuGet version
+    3. Updates Directory.Generation.Packages.props in azure-sdk-for-net with the local NuGet version
     4. Updates the Azure generator (@azure-typespec/http-client-csharp) to use the local unbranded generator
     5. Builds and packages the Azure generator locally
     6. Updates the management plane generator (@azure-typespec/http-client-csharp-mgmt) to use local generators
@@ -30,7 +30,7 @@
     1. Builds a local npm package of @typespec/http-client-csharp with a versioned name
     2. Builds and packages the NuGet generator framework packages
     3. Updates the Azure generator's package.json to use the local unbranded package
-    4. Updates Packages.Data.props with local NuGet version and adds local NuGet source
+    4. Updates Directory.Generation.Packages.props with local NuGet version and adds local NuGet source
     5. Runs the Azure generator's Generate.ps1 to regenerate spector test scenarios
     6. Restores all modified artifacts to original state
     
@@ -251,14 +251,14 @@ function Update-PackageJsonVersion {
     $packageJson | ConvertTo-Json -Depth 100 | Set-Content $PackageJsonPath -Encoding utf8 -NoNewline
 }
 
-# Update UnbrandedGeneratorVersion in Packages.Data.props
+# Update UnbrandedGeneratorVersion in Directory.Generation.Packages.props
 function Update-UnbrandedGeneratorVersion {
     param(
         [string]$PackagesDataPropsPath,
         [string]$NewVersion
     )
     
-    Write-Host "Updating UnbrandedGeneratorVersion to $NewVersion in Packages.Data.props" -ForegroundColor Gray
+    Write-Host "Updating UnbrandedGeneratorVersion to $NewVersion in Directory.Generation.Packages.props" -ForegroundColor Gray
     
     $content = Get-Content $PackagesDataPropsPath -Raw
     
@@ -761,10 +761,10 @@ try {
     
     # Azure SDK Mode: Continue with Azure SDK-specific steps
     
-    # Update Packages.Data.props with local NuGet version
-    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
+    # Update Directory.Generation.Packages.props with local NuGet version
+    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
     if (-not (Test-Path $packagesDataPropsPath)) {
-        throw "Packages.Data.props not found at: $packagesDataPropsPath"
+        throw "Directory.Generation.Packages.props not found at: $packagesDataPropsPath"
     }
     
     Update-UnbrandedGeneratorVersion -PackagesDataPropsPath $packagesDataPropsPath -NewVersion $localVersion
@@ -821,7 +821,7 @@ try {
         Write-Host "Building Azure generator..." -ForegroundColor Gray
         
         $azureGeneratorPath = Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp"
-        $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
+        $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
         
         $azurePackagePath = Update-AzureGenerator `
             -AzureGeneratorPath $azureGeneratorPath `
@@ -1088,7 +1088,7 @@ try {
                 "eng/packages/http-client-csharp/package-lock.json"
                 "eng/packages/http-client-csharp-mgmt/package.json"
                 "eng/packages/http-client-csharp-mgmt/package-lock.json"
-                "eng/Packages.Data.props"
+                "eng/centralpackagemanagement/Directory.Generation.Packages.props"
                 "NuGet.Config"
             )
             $restoreCmd = "git restore $($filesToRestore -join ' ')"

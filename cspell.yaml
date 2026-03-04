@@ -254,6 +254,7 @@ words:
   - ssvs
   - statment
   - strs
+  - stubbed
   - swaggerui
   - syncpack
   - TCGC
@@ -289,6 +290,7 @@ words:
   - unprojected
   - unrepresentable
   - unsourced
+  - unstubbed
   - unversioned
   - venv
   - venvtools
