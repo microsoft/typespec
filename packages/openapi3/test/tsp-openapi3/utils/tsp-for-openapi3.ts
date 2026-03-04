@@ -14,9 +14,8 @@ import {
 } from "../../../src/types.js";
 
 function wrapCodeInTest(code: string): string {
-  // Find the 1st namespace declaration and decorate it
-  const serviceIndex = code.indexOf("@service");
-  return `${code.slice(0, serviceIndex)}@test\n${code.slice(serviceIndex)}`;
+  // Place a fourslash marker before the namespace identifier so we can extract it
+  return code.replace("namespace TestService", "namespace /*TestService*/TestService");
 }
 
 export interface OpenAPI3Options extends Partial<OpenAPI3Document> {

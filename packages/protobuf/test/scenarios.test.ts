@@ -143,7 +143,7 @@ async function doEmit(
   }
 
   return {
-    files: result.outputs,
+    files: prefixedOutputs,
     diagnostics: diagnostics.map((x) => formatDiagnostic(x)),
   };
 }

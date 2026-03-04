@@ -294,12 +294,10 @@ union MixedEvents {
     const diagnostics = await Tester.diagnose(
       `
 model StringEvent {
-  @test("EventPayload")
   @Events.contentType("text/plain")
   payload: string;
 }
 
-@test
 @events
 union MixedEvents {
   stringEvent: StringEvent,
