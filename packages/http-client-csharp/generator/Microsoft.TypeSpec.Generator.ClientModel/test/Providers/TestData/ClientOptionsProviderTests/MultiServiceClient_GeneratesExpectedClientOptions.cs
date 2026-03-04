@@ -4,6 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
@@ -26,6 +28,12 @@ namespace Sample
                 global::Sample.TestClientOptions.ServiceBVersion.V4_0 => "4.0",
                 _ => throw new global::System.NotSupportedException()
             };
+        }
+
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        {
+            if (((section is null) || !section.Exists())) return;
         }
 
         internal string ServiceAApiVersion { get; }

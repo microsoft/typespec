@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -102,6 +103,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
+            ClientSettings = ClientOptions != null ? new ClientSettingsProvider(_inputClient, this) : null;
             IsMultiServiceClient = _inputClient.IsMultiServiceClient;
 
             var apiKey = _inputAuth?.ApiKey;
@@ -362,6 +364,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         public RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
         public ClientOptionsProvider? ClientOptions { get; }
+        public ClientSettingsProvider? ClientSettings { get; }
 
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
@@ -570,9 +573,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var shouldIncludeMockingConstructor = !onlyContainsUnsupportedAuth && secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
 
+            var settingsConstructors = BuildSettingsConstructors();
+
             return shouldIncludeMockingConstructor
-                ? [ConstructorProviderHelper.BuildMockingConstructor(this), .. secondaryConstructors, .. primaryConstructors]
-                : [.. secondaryConstructors, .. primaryConstructors];
+                ? [ConstructorProviderHelper.BuildMockingConstructor(this), .. secondaryConstructors, .. primaryConstructors, .. settingsConstructors]
+                : [.. secondaryConstructors, .. primaryConstructors, .. settingsConstructors];
 
             void AppendConstructors(
                 AuthFields? authFields,
@@ -610,6 +615,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     secondaryConstructors.Add(simplifiedConstructorWithOptions);
                 }
             }
+        }
+
+        private IEnumerable<ConstructorProvider> BuildSettingsConstructors()
+        {
+            if (ClientSettings == null || ClientSettings.EndpointPropertyName == null)
+            {
+                yield break;
+            }
+
+            var settingsParam = new ParameterProvider("settings", $"The settings for {Name}.", ClientSettings.Type);
+            var experimentalAttr = new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ClientSettingsProvider.ClientSettingsDiagnosticId)]);
+
+            // Build the arguments for the this(...) initializer to call primary constructor
+            var args = new List<ValueExpression>();
+
+            // endpoint argument - we know EndpointPropertyName is not null at this point
+            args.Add(new MemberExpression(new NullConditionalExpression(settingsParam), ClientSettings.EndpointPropertyName));
+
+            // credential argument
+            if (_oauth2Fields != null)
+            {
+                var credentialExpr = new MemberExpression(new NullConditionalExpression(settingsParam), "CredentialProvider");
+                args.Add(new AsExpression(credentialExpr, _oauth2Fields.AuthField.Type));
+            }
+            else if (_apiKeyAuthFields != null)
+            {
+                var credentialExpr = new MemberExpression(new NullConditionalExpression(settingsParam), "CredentialProvider");
+                args.Add(new AsExpression(credentialExpr, _apiKeyAuthFields.AuthField.Type));
+            }
+
+            // options argument
+            args.Add(new MemberExpression(new NullConditionalExpression(settingsParam), "Options"));
+
+            var settingsConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    Type,
+                    $"Initializes a new instance of {Name} from settings.",
+                    MethodSignatureModifiers.Public,
+                    [settingsParam],
+                    attributes: [experimentalAttr],
+                    initializer: new ConstructorInitializer(false, args)),
+                MethodBodyStatement.Empty,
+                this);
+
+            yield return settingsConstructor;
         }
 
         private void AppendSubClientPublicConstructors(List<ConstructorProvider> constructors)

@@ -663,6 +663,20 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return type;
         }
 
+        /// <summary>
+        /// Creates a <see cref="CSharpType"/> for a type that is not available as a .NET <see cref="Type"/> object,
+        /// such as a type from a package not yet referenced or a future API surface.
+        /// </summary>
+        /// <param name="name">The type name.</param>
+        /// <param name="namespace">The namespace of the type.</param>
+        /// <param name="isNullable">Whether the type is nullable.</param>
+        /// <param name="isPublic">Whether the type is public.</param>
+        /// <returns>A <see cref="CSharpType"/> representing the external type.</returns>
+        public static CSharpType FromExternalType(string name, string @namespace, bool isNullable = false, bool isPublic = true)
+        {
+            return new CSharpType(name, @namespace, false, isNullable, null, Array.Empty<CSharpType>(), isPublic, false);
+        }
+
         public CSharpType MakeGenericType(IReadOnlyList<CSharpType> arguments)
         {
             if (IsFrameworkType)

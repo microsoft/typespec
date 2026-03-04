@@ -41,6 +41,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             if (clientOptions != null)
             {
                 types.Add(clientOptions);
+                var clientSettings = client.ClientSettings;
+                if (clientSettings != null)
+                {
+                    types.Add(clientSettings);
+                }
             }
 
             // We use the spec view methods so that we include collection definitions even if the user is customizing or suppressing

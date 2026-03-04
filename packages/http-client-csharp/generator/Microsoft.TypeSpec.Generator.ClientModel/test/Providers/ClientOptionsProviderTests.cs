@@ -137,21 +137,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(clientOptionsProvider);
 
             var ctors = clientOptionsProvider.Constructors;
+            // IConfigurationSection constructor is always generated
+            var configSectionCtor = ctors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor, "IConfigurationSection constructor should always be generated");
+
             if (containsApiVersions)
             {
-                Assert.AreEqual(1, ctors.Count);
-                var ctor = ctors[0];
-                var signature = ctor.Signature;
+                Assert.AreEqual(2, ctors.Count);
+                var versionCtor = ctors.First(c => c.Signature.Parameters.Any(p => p.Name == "version"));
+                var signature = versionCtor.Signature;
                 Assert.AreEqual(1, signature.Parameters.Count);
                 var versionParam = signature.Parameters[0];
                 Assert.AreEqual("version", versionParam.Name);
                 Assert.AreEqual(clientOptionsProvider.NestedTypes[0].Type, versionParam.Type);
                 Assert.IsNotNull(versionParam.DefaultValue);
-                Assert.IsNotNull(ctor.BodyStatements);
+                Assert.IsNotNull(versionCtor.BodyStatements);
             }
             else
             {
-                Assert.AreEqual(0, ctors.Count);
+                Assert.AreEqual(1, ctors.Count);
             }
         }
 
