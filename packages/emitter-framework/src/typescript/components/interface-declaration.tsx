@@ -14,6 +14,7 @@ import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 import { InterfaceMember } from "./interface-member.js";
+import { RecordExpression } from "./record-expression.js";
 import { TypeExpression } from "./type-expression.jsx";
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
   type: Model | Interface;
@@ -90,9 +91,7 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
     if ($.array.is(type.baseModel)) {
       extending.push(<TypeExpression type={type.baseModel} />);
     } else if ($.record.is(type.baseModel)) {
-      // Here we are in the additional properties land.
-      // Instead of extending we need to create an envelope property
-      // do nothing here.
+      extending.push(<RecordExpression elementType={type.baseModel.indexer!.value} />);
     } else {
       extending.push(efRefkey(type.baseModel));
     }
@@ -100,11 +99,8 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
 
   const indexType = $.model.getIndexType(type);
   if (indexType) {
-    // When extending a record we need to override the element type to be unknown to avoid type errors
     if ($.record.is(indexType)) {
-      // Here we are in the additional properties land.
-      // Instead of extending we need to create an envelope property
-      // do nothing here.
+      extending.push(<RecordExpression elementType={indexType.indexer!.value} />);
     } else {
       extending.push(<TypeExpression type={indexType} />);
     }
@@ -129,17 +125,6 @@ function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
   if ($.model.is(props.type)) {
     typeMembers = $.model.getProperties(props.type);
-    const additionalProperties = $.model.getAdditionalPropertiesRecord(props.type);
-    if (additionalProperties) {
-      typeMembers.set(
-        "additionalProperties",
-        $.modelProperty.create({
-          name: "additionalProperties",
-          optional: true,
-          type: additionalProperties,
-        }),
-      );
-    }
   } else {
     typeMembers = createRekeyableMap(props.type.operations);
   }

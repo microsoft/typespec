@@ -187,9 +187,8 @@ describe("Typescript Interface", () => {
             </SourceFile>
           </Output>,
         ).toRenderTo(`
-            export interface DifferentSpreadModelRecord {
+            export interface DifferentSpreadModelRecord extends Record<string, unknown> {
               knownProp: string;
-              additionalProperties?: Record<string, unknown>;
             }
             `);
       });
@@ -235,9 +234,7 @@ describe("Typescript Interface", () => {
             </SourceFile>
           </Output>,
         ).toRenderTo(`
-          export interface Foo {
-            additionalProperties?: Record<string, string>;
-          }`);
+          export interface Foo extends Record<string, string> {}`);
       });
 
       it("creates an interface of a model that spreads a Record", async () => {
@@ -261,9 +258,7 @@ describe("Typescript Interface", () => {
             </SourceFile>
           </Output>,
         ).toRenderTo(`
-            export interface Foo {
-              additionalProperties?: Record<string, string>;
-            }
+            export interface Foo extends Record<string, string> {}
             `);
       });
 
@@ -300,13 +295,11 @@ describe("Typescript Interface", () => {
           export interface ModelForRecord {
             state: string;
           }
-          export interface DifferentSpreadModelRecord {
+          export interface DifferentSpreadModelRecord extends Record<string, ModelForRecord> {
             knownProp: string;
-            additionalProperties?: Record<string, ModelForRecord>;
           }
           export interface DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
             derivedProp: ModelForRecord;
-            additionalProperties?: Record<string, ModelForRecord>;
           }`);
       });
 
@@ -332,11 +325,10 @@ describe("Typescript Interface", () => {
             </SourceFile>
           </Output>,
         ).toRenderTo(`
-          export interface Widget {
+          export interface Widget extends Record<string, unknown> {
             id: string;
             weight: number;
             color: "blue" | "red";
-            additionalProperties?: Record<string, unknown>;
           }`);
       });
 
