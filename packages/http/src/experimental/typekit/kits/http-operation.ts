@@ -16,26 +16,6 @@ import {
  * Utilities for working with HTTP operations.
  * @typekit httpOperation
  * @experimental
- * @usageDoc
- * ## Usage
- *
- * To use these typekits in your TypeSpec emitter or tool, you need to import the experimental typekit module:
- *
- * ```ts
- * import "@typespec/http/experimental/typekit";
- * import { $ } from "@typespec/compiler/typekit";
- * ```
- *
- * The first import registers the HTTP-specific typekit extensions. This import only needs to exist once in your compilation as only its side effects are important.
- *
- * ### Example
- *
- * ```ts
- * import { $ } from "@typespec/compiler/typekit";
- * import "@typespec/http/experimental/typekit";
- *
- * const responses = $(program).httpOperation.flattenResponses(httpOperation);
- * ```
  */
 export interface HttpOperationKit {
   /**

@@ -16,7 +16,6 @@ import { readPackageJson } from "./utils/misc.js";
 export interface TypekitCollection {
   namespaces: Record<string, TypekitNamespace>;
   isExperimental?: boolean;
-  usageDoc?: string;
 }
 
 export interface TypekitNamespace {
@@ -25,7 +24,6 @@ export interface TypekitNamespace {
   doc?: DocSection;
   entries: Record<string, TypekitEntryDoc>;
   isExperimental?: boolean;
-  usageDoc?: string;
 }
 
 type TypekitEntryDoc = TypekitNamespace | TypekitFunctionDoc;
@@ -76,7 +74,7 @@ export async function writeTypekitDocs(libraryPath: string, outputDir: string): 
   if (!typekits) {
     return;
   }
-  const output = await createTypekitDocs(typekits);
+  const output = await createTypekitDocs(typekits, pkgJson.name);
   for (const [file, content] of Object.entries(output)) {
     await writeFile(joinPaths(outputDir, file), content);
   }
@@ -92,7 +90,6 @@ async function getTypekitApi(
   }
   const namespaces: Record<string, TypekitNamespace> = {};
   let hasExperimental = false;
-  let collectionUsageDoc: string | undefined;
 
   for (const pkgMember of api.packages[0].members) {
     for (const member of pkgMember.members) {
@@ -108,60 +105,17 @@ async function getTypekitApi(
             hasExperimental = true;
           }
 
-          // Extract usage documentation from @usageDoc custom block if present
-          const usageDocTag = docComment?.customBlocks.find(
-            (x) => x.blockTag.tagName === "@usageDoc",
-          );
-          if (usageDocTag && !collectionUsageDoc) {
-            collectionUsageDoc = extractTextFromDocSection(usageDocTag.content);
-          }
-
-          const typekit: TypekitNamespace = resolveTypekit(
-            member,
-            [name],
-            isExperimental,
-            collectionUsageDoc,
-          );
+          const typekit: TypekitNamespace = resolveTypekit(member, [name], isExperimental);
           namespaces[name] = typekit;
         }
       }
     }
   }
 
-  function extractTextFromDocSection(section: DocSection): string {
-    // Extract text content preserving markdown structure
-    const textParts: string[] = [];
-    function visit(node: DocNode): void {
-      if (node.kind === "PlainText") {
-        textParts.push((node as any).text);
-      } else if (node.kind === "SoftBreak") {
-        textParts.push("\n");
-      } else if (node.kind === "CodeSpan") {
-        textParts.push("`" + (node as any).code + "`");
-      } else if (node.kind === "FencedCode") {
-        const fenced = node as any;
-        textParts.push("\n```" + (fenced.language || "") + "\n" + fenced.code + "\n```\n");
-      } else if ((node as any).nodes) {
-        for (const child of (node as any).nodes) {
-          visit(child);
-        }
-      }
-    }
-
-    // Access nested structure - TSDoc wraps content in paragraph nodes
-    if ((section as any).nodes) {
-      for (const node of (section as any).nodes) {
-        visit(node);
-      }
-    }
-    return textParts.join("").trim();
-  }
-
   function resolveTypekit(
     iface: ApiInterface,
     path: string[],
     isExperimental: boolean,
-    usageDoc?: string,
   ): TypekitNamespace {
     const typekit: TypekitNamespace = {
       name: path[0],
@@ -169,7 +123,6 @@ async function getTypekitApi(
       doc: iface.tsdocComment?.summarySection,
       entries: {},
       isExperimental,
-      usageDoc,
     };
     for (const member of iface.members) {
       if (member instanceof ApiPropertySignature) {
@@ -181,7 +134,6 @@ async function getTypekitApi(
               subkit.resolvedApiItem as ApiInterface,
               [...path, member.displayName],
               isExperimental,
-              undefined, // Sub-kits don't have their own usage docs
             );
           } else if (propertyReference.toString() === "@typespec/compiler!Diagnosable:type") {
             typekit.entries[member.displayName] = {
@@ -234,6 +186,5 @@ async function getTypekitApi(
   return {
     namespaces,
     isExperimental: hasExperimental,
-    usageDoc: collectionUsageDoc,
   };
 }

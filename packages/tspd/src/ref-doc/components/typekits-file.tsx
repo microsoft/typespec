@@ -12,7 +12,22 @@ import { format as prettierFormat } from "prettier";
 import { TypekitCollection } from "../typekit-docs.js";
 import { TypekitSection } from "./typekit-section.js";
 
-export function createTypekitDocs(typekit: TypekitCollection) {
+export function createTypekitDocs(typekit: TypekitCollection, packageName: string) {
+  // Determine the import path based on package name and experimental status
+  const isHttpPackage = packageName === "@typespec/http";
+  const isCompilerPackage = packageName === "@typespec/compiler";
+
+  // Generate import statement based on package
+  let importStatement: string;
+  if (isHttpPackage && typekit.isExperimental) {
+    importStatement = `import "@typespec/http/experimental/typekit";`;
+  } else if (isCompilerPackage) {
+    importStatement = `import "@typespec/compiler/typekit";`;
+  } else {
+    // Generic case for other packages
+    importStatement = `import "${packageName}/typekit";`;
+  }
+
   const jsxContent = (
     <Output>
       <md.SourceFile path={`typekits.mdx`}>
@@ -29,11 +44,15 @@ export function createTypekitDocs(typekit: TypekitCollection) {
         <Aside type="caution">
         **Experimental Feature**: These typekits are currently experimental. The API surface is volatile and may have breaking changes without notice. Use with caution in production environments.
         </Aside>
-        `}
-            {typekit.usageDoc &&
-              code`
         
-        ${typekit.usageDoc}
+        To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
+        
+        \`\`\`ts
+        ${importStatement}
+        import { $ } from "@typespec/compiler/typekit";
+        \`\`\`
+        
+        The first import registers the typekit extensions. This import only needs to exist once in your compilation as only its side effects are important.
         `}
           </>
         )}
