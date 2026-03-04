@@ -1,14 +1,26 @@
 import { spawn } from "child_process";
-import { createServer } from "http";
 import { mkdtemp, rm, writeFile } from "fs/promises";
+import { createServer } from "http";
 import { connect } from "net";
 import { tmpdir } from "os";
 import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
-const pkgRoot = await findTestPackageRoot(import.meta.url);
 const nodeVersion = parseInt(process.versions.node.split(".")[0], 10);
+
+// Minimal npm package manifest shape expected by fetchPackageManifest
+const mockManifest = {
+  name: "typescript",
+  version: "5.0.0",
+  dependencies: {},
+  optionalDependencies: {},
+  devDependencies: {},
+  peerDependencies: {},
+  bundleDependencies: false,
+  dist: { shasum: "abc123", tarball: "http://example.com/ts.tgz" },
+  bin: null,
+  _shrinkwrap: null,
+};
 
 interface ExecResult {
   exitCode: number;
@@ -34,8 +46,15 @@ function execAsync(command: string, args: string[], env: NodeJS.ProcessEnv): Pro
   });
 }
 
-describe.runIf(nodeVersion >= 22)("HTTP proxy support (Node >= 24)", () => {
+// The test uses a non-existent hostname for the registry URL so that fetch can only
+// succeed when HTTP_PROXY is respected. The proxy's CONNECT handler intercepts the
+// connection and tunnels it to a local mock npm registry instead of the real host.
+// This makes the test fail when --use-env-proxy is absent (DNS error) and pass only
+// when the proxy is properly configured.
+describe.runIf(nodeVersion >= 22)("npm-registry-utils: HTTP proxy support (Node >= 24)", () => {
+  let mockRegistryServer: ReturnType<typeof createServer>;
   let proxyServer: ReturnType<typeof createServer>;
+  let mockRegistryPort: number;
   let proxyPort: number;
   let tmpDir: string;
   let proxyWasUsed: boolean;
@@ -44,14 +63,23 @@ describe.runIf(nodeVersion >= 22)("HTTP proxy support (Node >= 24)", () => {
     proxyWasUsed = false;
     tmpDir = await mkdtemp(join(tmpdir(), "typespec-proxy-test-"));
 
-    // Create a simple HTTP proxy that handles HTTPS CONNECT tunneling
-    proxyServer = createServer();
+    // Local mock npm registry serving a minimal package manifest
+    mockRegistryServer = createServer((_req, res) => {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(mockManifest));
+    });
+    await new Promise<void>((resolve) =>
+      mockRegistryServer.listen(0, "127.0.0.1", resolve as () => void),
+    );
+    mockRegistryPort = (mockRegistryServer.address() as { port: number }).port;
 
-    // Handle CONNECT requests (used for HTTPS tunneling)
+    // HTTP proxy: intercepts CONNECT tunneling (used by undici even for plain HTTP targets)
+    // and redirects ALL connections to the local mock registry instead.
+    proxyServer = createServer();
     proxyServer.on("connect", (req, clientSocket, head) => {
       proxyWasUsed = true;
-      const [hostname, portStr] = req.url!.split(":");
-      const serverSocket = connect(Number(portStr) || 443, hostname, () => {
+      // Redirect the tunnel to our mock registry regardless of the requested host
+      const serverSocket = connect(mockRegistryPort, "127.0.0.1", () => {
         clientSocket.write(
           "HTTP/1.1 200 Connection Established\r\nProxy-Agent: test-proxy\r\n\r\n",
         );
@@ -62,42 +90,48 @@ describe.runIf(nodeVersion >= 22)("HTTP proxy support (Node >= 24)", () => {
       serverSocket.on("error", () => clientSocket.destroy());
       clientSocket.on("error", () => serverSocket.destroy());
     });
-
-    await new Promise<void>((resolve) =>
-      proxyServer.listen(0, "127.0.0.1", resolve as () => void),
-    );
+    await new Promise<void>((resolve) => proxyServer.listen(0, "127.0.0.1", resolve as () => void));
     proxyPort = (proxyServer.address() as { port: number }).port;
   });
 
   afterEach(async () => {
-    await new Promise<void>((resolve) => proxyServer.close(() => resolve()));
+    proxyServer.closeAllConnections();
+    mockRegistryServer.closeAllConnections();
+    await Promise.all([
+      new Promise<void>((resolve) => proxyServer.close(() => resolve())),
+      new Promise<void>((resolve) => mockRegistryServer.close(() => resolve())),
+    ]);
     await rm(tmpDir, { recursive: true, force: true });
   });
 
-  it("fetchPackageManifest routes HTTPS requests through the proxy when HTTPS_PROXY is set", async () => {
-    // Write a small script that uses fetchPackageManifest from the built package
-    const utilsPath = join(pkgRoot, "dist/src/package-manger/npm-registry-utils.js");
+  it("fetch routes through HTTP proxy when --use-env-proxy and HTTP_PROXY are set", async () => {
     const scriptPath = join(tmpDir, "test-fetch.mjs");
-
     const proxyUrl = `http://127.0.0.1:${proxyPort}`;
 
+    // The script fetches from a non-existent hostname. Without a proxy that intercepts
+    // and redirects the connection, this will fail with a DNS error.
     await writeFile(
       scriptPath,
-      `import { fetchPackageManifest } from ${JSON.stringify(utilsPath)};
-const manifest = await fetchPackageManifest("typescript", "latest");
-console.log(manifest.name);
+      `
+const res = await fetch("http://nonexistent-npm-registry.invalid/typescript/latest");
+const data = await res.json();
+console.log(data.name);
+process.exit(0);
 `,
     );
 
     const result = await execAsync(process.execPath, ["--use-env-proxy", scriptPath], {
       ...process.env,
-      HTTPS_PROXY: proxyUrl,
-      https_proxy: proxyUrl,
+      HTTP_PROXY: proxyUrl,
+      http_proxy: proxyUrl,
+      // Ensure no exclusions bypass the proxy
+      NO_PROXY: "",
+      no_proxy: "",
     });
 
     expect(result.exitCode, `Script failed:\n${result.stderr}`).toBe(0);
     expect(result.stdout.trim()).toBe("typescript");
-    expect(proxyWasUsed, "Expected the fetch request to be routed through the HTTPS proxy").toBe(
+    expect(proxyWasUsed, "Expected the fetch request to be routed through the HTTP proxy").toBe(
       true,
     );
   });
