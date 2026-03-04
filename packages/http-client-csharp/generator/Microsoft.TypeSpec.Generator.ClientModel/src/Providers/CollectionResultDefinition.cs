@@ -284,7 +284,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 (_, not null) => BuildGetRawPagesForContinuationToken()
             };
 
-            // Wrap with try-finally to dispose the activity when enumeration completes
+            // Wrap with try-finally to dispose the activity when enumeration completes.
+            // Note: A catch clause cannot be added here because C# does not allow 'yield return' inside
+            // a try block that has a catch clause (CS1626). Exception tracking is handled in the
+            // non-paging convenience methods instead.
             if (ActivityField != null)
             {
                 getRawPagesMethodBody =

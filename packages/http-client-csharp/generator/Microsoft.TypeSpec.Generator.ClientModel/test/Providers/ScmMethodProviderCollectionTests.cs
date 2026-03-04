@@ -2022,6 +2022,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             StringAssert.Contains("_activitySource.StartActivity(\"TestClient.TestOperation\"", methodBody);
             // Verify it uses `using` so it's disposed when the method returns
             StringAssert.Contains("using global::System.Diagnostics.Activity activity", methodBody);
+            // Verify exception tracking: catch block sets error status before rethrowing
+            StringAssert.Contains("catch", methodBody);
+            StringAssert.Contains("SetStatus", methodBody);
+            StringAssert.Contains("ActivityStatusCode.Error", methodBody);
         }
 
         [Test]
@@ -2148,13 +2152,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var activityParam = ctor!.Signature.Parameters.FirstOrDefault(p => p.Name == "activity");
             Assert.IsNotNull(activityParam, "Constructor should have an 'activity' parameter");
 
-            // GetRawPages method should have try-finally to dispose the activity
+            // GetRawPages method should have try-finally to dispose the activity.
+            // Note: C# does not allow 'yield return' inside a try-catch (CS1626), so only try-finally is used here.
             var getRawPagesMethod = collectionResultDefinition.Methods.FirstOrDefault(m => m.Signature.Name == "GetRawPages");
             Assert.IsNotNull(getRawPagesMethod);
             var rawPagesBody = getRawPagesMethod!.BodyStatements!.ToDisplayString();
             StringAssert.Contains("try", rawPagesBody);
             StringAssert.Contains("finally", rawPagesBody);
             StringAssert.Contains("_activity?.Dispose()", rawPagesBody);
+            // No catch block in iterator methods (CS1626 restriction)
+            StringAssert.DoesNotContain("catch", rawPagesBody);
         }
 
     }

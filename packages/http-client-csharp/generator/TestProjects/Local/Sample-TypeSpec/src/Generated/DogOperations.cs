@@ -89,8 +89,16 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(dog, nameof(dog));
 
             using Activity activity = _activitySource.StartActivity("DogOperations.UpdateDogAsDog", ActivityKind.Client);
-            ClientResult result = UpdateDogAsDog(dog, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+            try
+            {
+                ClientResult result = UpdateDogAsDog(dog, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update a dog as a dog. </summary>
@@ -103,8 +111,16 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(dog, nameof(dog));
 
             using Activity activity = _activitySource.StartActivity("DogOperations.UpdateDogAsDog", ActivityKind.Client);
-            ClientResult result = await UpdateDogAsDogAsync(dog, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+            try
+            {
+                ClientResult result = await UpdateDogAsDogAsync(dog, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
     }
 }

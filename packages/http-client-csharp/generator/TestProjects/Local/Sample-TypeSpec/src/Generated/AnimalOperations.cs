@@ -89,8 +89,16 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(animal, nameof(animal));
 
             using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdatePetAsAnimal", ActivityKind.Client);
-            ClientResult result = UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            try
+            {
+                ClientResult result = UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update a pet as an animal. </summary>
@@ -103,8 +111,16 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(animal, nameof(animal));
 
             using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdatePetAsAnimal", ActivityKind.Client);
-            ClientResult result = await UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            try
+            {
+                ClientResult result = await UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -159,8 +175,16 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(animal, nameof(animal));
 
             using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdateDogAsAnimal", ActivityKind.Client);
-            ClientResult result = UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            try
+            {
+                ClientResult result = UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update a dog as an animal. </summary>
@@ -173,8 +197,16 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(animal, nameof(animal));
 
             using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdateDogAsAnimal", ActivityKind.Client);
-            ClientResult result = await UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            try
+            {
+                ClientResult result = await UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
     }
 }

@@ -181,7 +181,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Prepend activity instrumentation statement if enabled (non-paging methods only;
-            // paging methods handle the activity in the collection via try-finally)
+            // paging methods handle the activity disposal in the collection via try-finally)
             if (Client.ActivitySourceField != null && _pagingServiceMethod == null)
             {
                 var activityStatement = UsingDeclare(
@@ -190,8 +190,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Client.ActivitySourceField.Invoke(
                         nameof(ActivitySource.StartActivity),
                         [Literal($"{Client.Name}.{ServiceMethod.Name}"), FrameworkEnumValue(ActivityKind.Client)]),
-                    out _);
-                methodBody = [activityStatement, .. methodBody];
+                    out var activityVar);
+                var exceptionDeclaration = new DeclarationExpression(typeof(Exception), "ex", out var exVar);
+                var catchBlock = new CatchExpression(exceptionDeclaration,
+                    activityVar.NullConditional().Invoke(nameof(Activity.SetStatus),
+                        [FrameworkEnumValue(ActivityStatusCode.Error), exVar.Property(nameof(Exception.Message))]).Terminate(),
+                    Throw());
+                methodBody = [activityStatement, new TryCatchFinallyStatement(new TryExpression(methodBody), catchBlock)];
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
