@@ -34,6 +34,7 @@ export async function getAllPackages(): Promise<PackageInfo[]> {
     try {
       pkgJson = JSON.parse(await readFile(pkgJsonPath, "utf-8"));
     } catch {
+      // eslint-disable-next-line no-console
       console.warn(`Could not read package.json for ${pkgPath}, skipping.`);
       continue;
     }
@@ -49,7 +50,5 @@ export async function getAllPackages(): Promise<PackageInfo[]> {
 
 export async function getPublishablePackages(): Promise<PackageInfo[]> {
   const allPackages = await getAllPackages();
-  return allPackages.filter(
-    (pkg) => !pkg.isPrivate && !EXCLUDED_PACKAGES.includes(pkg.path),
-  );
+  return allPackages.filter((pkg) => !pkg.isPrivate && !EXCLUDED_PACKAGES.includes(pkg.path));
 }
