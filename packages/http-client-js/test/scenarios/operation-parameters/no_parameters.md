@@ -12,10 +12,7 @@ namespace Test;
 Even when there are no parameters defined in the spec, it will have an optional options bag which contains operation options.
 
 ```ts src/api/testClientOperations.ts function get
-export async function get(
-  client: TestClientContext,
-  options?: GetOptions,
-): Promise<number> {
+export async function get(client: TestClientContext, options?: GetOptions): Promise<number> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},
@@ -25,10 +22,7 @@ export async function get(
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (
-    +response.status === 200 &&
-    response.headers["content-type"]?.includes("application/json")
-  ) {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return response.body!;
   }
   throw createRestError(response);

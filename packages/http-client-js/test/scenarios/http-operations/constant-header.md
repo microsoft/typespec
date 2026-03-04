@@ -13,10 +13,7 @@ model Foo {
 ## Operation
 
 ```ts src/api/testClientOperations.ts function foo
-export async function foo(
-  client: TestClientContext,
-  options?: FooOptions,
-): Promise<Foo> {
+export async function foo(client: TestClientContext, options?: FooOptions): Promise<Foo> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {
@@ -28,10 +25,7 @@ export async function foo(
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (
-    +response.status === 200 &&
-    response.headers["content-type"]?.includes("application/json")
-  ) {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonFooToApplicationTransform(response.body)!;
   }
   throw createRestError(response);

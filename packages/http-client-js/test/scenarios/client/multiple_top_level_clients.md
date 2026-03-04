@@ -54,12 +54,7 @@ import {
   type BarClientOptions,
   createBarClientContext,
 } from "./api/barClientContext.js";
-import {
-  create,
-  type CreateOptions,
-  get,
-  type GetOptions,
-} from "./api/barClientOperations.js";
+import { create, type CreateOptions, get, type GetOptions } from "./api/barClientOperations.js";
 import type { BarItem } from "./models/models.js";
 
 export class BarClient {

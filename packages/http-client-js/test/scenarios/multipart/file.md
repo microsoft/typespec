@@ -139,11 +139,7 @@ export async function doThing(
     headers: {
       "content-type": options?.contentType ?? "multipart/form-data",
     },
-    body: [
-      ...bodyParam.files.map((files: any) =>
-        createFilePartDescriptor("files", files),
-      ),
-    ],
+    body: [...bodyParam.files.map((files: any) => createFilePartDescriptor("files", files))],
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 

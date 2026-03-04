@@ -36,9 +36,7 @@ export interface Foo {
 The generated transformation functions iterate over `int32[]` values, but since **no actual transformation occurs**, this code could be **optimized away**.
 
 ```ts src/models/internal/serializers.ts function jsonArrayInt32ToTransportTransform
-export function jsonArrayInt32ToTransportTransform(
-  items_?: Array<number> | null,
-): any {
+export function jsonArrayInt32ToTransportTransform(items_?: Array<number> | null): any {
   if (!items_) {
     return items_ as any;
   }
@@ -73,10 +71,7 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
 Handles the API request, expecting a `Widget` response and applying the correct deserialization function.
 
 ```ts src/api/clientOperations.ts function foo
-export async function foo(
-  client: ClientContext,
-  options?: FooOptions,
-): Promise<Foo> {
+export async function foo(client: ClientContext, options?: FooOptions): Promise<Foo> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},
@@ -86,10 +81,7 @@ export async function foo(
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (
-    +response.status === 200 &&
-    response.headers["content-type"]?.includes("application/json")
-  ) {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonFooToApplicationTransform(response.body)!;
   }
   throw createRestError(response);
@@ -101,9 +93,7 @@ export async function foo(
 Again, the transformation logic is redundant for primitive types. Instead of generating a function, the deserializer could **use the array directly**.
 
 ```ts src/models/internal/serializers.ts function jsonArrayInt32ToApplicationTransform
-export function jsonArrayInt32ToApplicationTransform(
-  items_?: any,
-): Array<number> {
+export function jsonArrayInt32ToApplicationTransform(items_?: any): Array<number> {
   if (!items_) {
     return items_ as any;
   }

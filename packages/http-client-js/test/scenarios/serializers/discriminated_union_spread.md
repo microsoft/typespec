@@ -70,9 +70,7 @@ export function jsonSpreadRecordForDiscriminatedUnionToApplicationTransform(
 ```
 
 ```ts src/models/internal/serializers.ts function jsonWidgetDataToTransportTransform
-export function jsonWidgetDataToTransportTransform(
-  input_?: WidgetData | null,
-): any {
+export function jsonWidgetDataToTransportTransform(input_?: WidgetData | null): any {
   if (!input_) {
     return input_ as any;
   }
@@ -81,9 +79,7 @@ export function jsonWidgetDataToTransportTransform(
 ```
 
 ```ts src/models/internal/serializers.ts function jsonWidgetDataToApplicationDiscriminator
-export function jsonWidgetDataToApplicationDiscriminator(
-  input_?: any,
-): WidgetData {
+export function jsonWidgetDataToApplicationDiscriminator(input_?: any): WidgetData {
   if (!input_) {
     return input_ as any;
   }
@@ -101,9 +97,7 @@ export function jsonWidgetDataToApplicationDiscriminator(
 ```
 
 ```ts src/models/internal/serializers.ts function jsonWidgetDataToTransportDiscriminator
-export function jsonWidgetDataToTransportDiscriminator(
-  input_?: WidgetData,
-): any {
+export function jsonWidgetDataToTransportDiscriminator(input_?: WidgetData): any {
   if (!input_) {
     return input_ as any;
   }

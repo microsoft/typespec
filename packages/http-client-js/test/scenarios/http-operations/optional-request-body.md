@@ -18,10 +18,7 @@ op omit(@body body?: BodyModel): NoContentResponse;
 ## Operations
 
 ```ts src/api/testClientOperations.ts function set
-export async function set(
-  client: TestClientContext,
-  options?: SetOptions,
-): Promise<void> {
+export async function set(client: TestClientContext, options?: SetOptions): Promise<void> {
   const path = parse("/set").expand({});
   const httpRequestOptions = {
     headers: {},
@@ -42,9 +39,7 @@ export async function set(
 ## Transform
 
 ```ts src/models/internal/serializers.ts function jsonBodyModelToTransportTransform
-export function jsonBodyModelToTransportTransform(
-  input_?: BodyModel | null,
-): any {
+export function jsonBodyModelToTransportTransform(input_?: BodyModel | null): any {
   if (!input_) {
     return input_ as any;
   }
