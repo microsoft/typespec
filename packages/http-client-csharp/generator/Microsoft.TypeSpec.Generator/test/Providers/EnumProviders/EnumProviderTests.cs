@@ -393,13 +393,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Recover", fields[0].Name);
             Assert.AreEqual("Default", fields[1].Name);
 
-            // Values should be preserved from last contract
-            var value1 = fields[0].InitializationValue as LiteralExpression;
-            Assert.IsNotNull(value1);
-            Assert.AreEqual(0, value1?.Literal);
-            var value2 = fields[1].InitializationValue as LiteralExpression;
-            Assert.IsNotNull(value2);
-            Assert.AreEqual(1, value2?.Literal);
+            // No explicit initialization values - compiler auto-assigns based on order
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
         }
 
         // Validates that int enum member order is preserved and new values are appended
@@ -432,14 +428,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Default", fields[1].Name);
             Assert.AreEqual("Third", fields[2].Name);
 
-            // Values from last contract are preserved for existing members
-            var value1 = fields[0].InitializationValue as LiteralExpression;
-            Assert.IsNotNull(value1);
-            Assert.AreEqual(0, value1?.Literal);
-            var value2 = fields[1].InitializationValue as LiteralExpression;
-            Assert.IsNotNull(value2);
-            Assert.AreEqual(1, value2?.Literal);
-            // New value gets its value from the input
+            // No explicit initialization values for reordered members - compiler auto-assigns based on order
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
+            // New value keeps its initialization value from the input
             var value3 = fields[2].InitializationValue as LiteralExpression;
             Assert.IsNotNull(value3);
             Assert.AreEqual(2, value3?.Literal);
@@ -473,13 +465,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Recover", fields[0].Name);
             Assert.AreEqual("Default", fields[1].Name);
 
-            // Values should be preserved from last contract
-            var value1 = fields[0].InitializationValue as LiteralExpression;
-            Assert.IsNotNull(value1);
-            Assert.AreEqual(0, value1?.Literal);
-            var value2 = fields[1].InitializationValue as LiteralExpression;
-            Assert.IsNotNull(value2);
-            Assert.AreEqual(1, value2?.Literal);
+            // No explicit initialization values - compiler auto-assigns based on order
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
         }
 
         // Validates that string enum order is also preserved from last contract
