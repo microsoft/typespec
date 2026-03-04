@@ -43,12 +43,3 @@ TYPESPEC_NPM_REGISTRY=https://my-corp-registry.example.com tsp init
 ```
 
 If this variable is not set, TypeSpec defaults to `https://registry.npmjs.org`.
-
-:::tip
-If you are behind a corporate firewall with SSL inspection, you can also set `NODE_TLS_REJECT_UNAUTHORIZED=0` to disable SSL certificate verification (use with caution):
-
-```bash
-NODE_TLS_REJECT_UNAUTHORIZED=0 tsp init
-```
-
-:::
