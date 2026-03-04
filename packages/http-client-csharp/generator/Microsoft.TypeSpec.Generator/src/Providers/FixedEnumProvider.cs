@@ -101,8 +101,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var currentLookup = currentValues.ToDictionary(v => v.Name, StringComparer.OrdinalIgnoreCase);
             var allMembers = new List<EnumTypeMember>(currentValues.Count);
 
-            // First, add members in the order from the last contract without explicit initialization values
-            // (the compiler will auto-assign values based on order)
             foreach (var field in lastContractFields)
             {
                 if (currentLookup.TryGetValue(field.Name, out var existingMember))
