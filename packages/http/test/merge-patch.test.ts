@@ -1,11 +1,11 @@
 import {
   Diagnostic,
+  getMediaTypeHint,
   Model,
   ModelProperty,
   Program,
   Type,
   TypeKind,
-  getMediaTypeHint,
 } from "@typespec/compiler";
 import {
   expectDiagnosticEmpty,
