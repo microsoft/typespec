@@ -24,6 +24,7 @@ export interface CSharpEmitterOptions {
   "sdk-context-options"?: CreateSdkContextOptions;
   "generate-protocol-methods"?: boolean;
   "generate-convenience-methods"?: boolean;
+  "generate-method-instrumentation"?: boolean;
   "package-name"?: string;
   license?: {
     name: string;
@@ -60,6 +61,12 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "Set to `false` to skip generation of convenience methods. The default value is `true`.",
+    },
+    "generate-method-instrumentation": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `false` to disable generation of ActivitySource-based distributed tracing instrumentation in client methods. The default value is `true`.",
     },
     "unreferenced-types-handling": {
       type: "string",
@@ -156,6 +163,7 @@ export const defaultOptions = {
   "save-inputs": false,
   "generate-protocol-methods": true,
   "generate-convenience-methods": true,
+  "generate-method-instrumentation": true,
   "package-name": undefined,
   debug: undefined,
   logLevel: LoggerLevel.INFO,

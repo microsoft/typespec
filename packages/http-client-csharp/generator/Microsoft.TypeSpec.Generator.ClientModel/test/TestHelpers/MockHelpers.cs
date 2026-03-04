@@ -148,7 +148,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
             if (includeXmlDocs)
             {
-                configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}";
+                configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\", \"generate-method-instrumentation\": false}";
             }
             object?[] parameters = [_configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);

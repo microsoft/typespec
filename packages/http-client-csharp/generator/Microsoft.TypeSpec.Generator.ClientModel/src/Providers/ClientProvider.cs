@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -59,6 +60,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private Dictionary<InputOperation, ScmMethodProviderCollection>? _methodCache;
         private Dictionary<InputOperation, ScmMethodProviderCollection> MethodCache => _methodCache ??= [];
         private TypeProvider? _backCompatProvider;
+        private FieldProvider? _activitySourceField;
 
         /// <summary>
         /// Gets the effective type provider to use for backward compatibility checks.
@@ -366,6 +368,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
 
+        /// <summary>
+        /// Gets the ActivitySource field used for distributed tracing instrumentation.
+        /// Returns <c>null</c> if method instrumentation is disabled or if this is a sub-client.
+        /// </summary>
+        internal FieldProvider? ActivitySourceField => ScmCodeModelGenerator.Instance.Configuration.GenerateMethodInstrumentation && ClientOptions != null
+            ? _activitySourceField ??= BuildActivitySourceField()
+            : null;
+
+        private FieldProvider BuildActivitySourceField()
+            => new FieldProvider(
+                FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly,
+                typeof(ActivitySource),
+                "_activitySource",
+                this,
+                initializationValue: New.Instance(typeof(ActivitySource), Literal(ScmCodeModelGenerator.Instance.Configuration.PackageName)));
+
         public IReadOnlyList<ClientProvider> SubClients => _subClients.Value;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
@@ -375,6 +393,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override FieldProvider[] BuildFields()
         {
             List<FieldProvider> fields = [EndpointField];
+
+            // Add ActivitySource field for distributed tracing instrumentation (only for root clients)
+            if (ActivitySourceField != null)
+            {
+                fields.Add(ActivitySourceField);
+            }
 
             if (_apiKeyAuthFields != null)
             {

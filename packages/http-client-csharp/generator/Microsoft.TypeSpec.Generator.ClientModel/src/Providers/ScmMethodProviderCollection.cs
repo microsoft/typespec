@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -163,6 +164,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 result.GetRawResponse()))
                         },
                 ];
+            }
+
+            // Prepend activity instrumentation statement if enabled
+            if (Client.ActivitySourceField != null)
+            {
+                var activityStatement = UsingDeclare(
+                    "activity",
+                    new CSharpType(typeof(Activity), isNullable: true),
+                    Client.ActivitySourceField.Invoke(
+                        nameof(ActivitySource.StartActivity),
+                        [Literal($"{Client.Name}.{ServiceMethod.Name}"), FrameworkEnumValue(ActivityKind.Client)]),
+                    out _);
+                methodBody = [activityStatement, .. methodBody];
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);

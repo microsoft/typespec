@@ -5,5 +5,6 @@
   "unknown-bool-property": false,
   "package-name": "SampleLibrary",
   "unknown-string-property": "unknownPropertyValue",
-  "disable-xml-docs": true
+  "disable-xml-docs": true,
+  "generate-method-instrumentation": false
 }
