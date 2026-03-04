@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 const nodeVersion = parseInt(process.versions.node.split(".")[0], 10);
 
-// Minimal npm package manifest shape expected by fetchPackageManifest
+// Minimal npm package manifest shape
 const mockManifest = {
   name: "typescript",
   version: "5.0.0",
@@ -50,7 +50,7 @@ function execAsync(command: string, args: string[], env: NodeJS.ProcessEnv): Pro
 // succeed when HTTP_PROXY is respected. The proxy's CONNECT handler intercepts the
 // connection and tunnels it to a local mock npm registry instead of the real host.
 // This makes the test fail when --use-env-proxy is absent (DNS error) and pass only
-// when the proxy is properly configured.
+// when the proxy is properly configured (Node.js 24+).
 describe.runIf(nodeVersion >= 22)("npm-registry-utils: HTTP proxy support (Node >= 24)", () => {
   let mockRegistryServer: ReturnType<typeof createServer>;
   let proxyServer: ReturnType<typeof createServer>;
