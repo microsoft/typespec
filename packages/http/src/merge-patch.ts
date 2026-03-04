@@ -105,7 +105,6 @@ export function applyMergePatchTransform(
   nameTemplate: string,
   options: ApplyMergePatchOptions,
 ): Model {
-  // setMergePatchSource(ctx.program, target, source);
   let reported = false;
   navigateType(
     input,
@@ -142,7 +141,6 @@ export function applyMergePatchTransform(
   );
 
   setMergePatchSource(ctx.program, type, input);
-  ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(type, input);
 
   return type;
 }
