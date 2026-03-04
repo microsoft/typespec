@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -362,6 +363,135 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
             Assert.IsFalse(rootTypes.Contains("Sample.Models.StringEnum"));
+        }
+
+        // Validates that int enum member order is preserved from the last contract when values are reordered
+        [Test]
+        public async Task BackCompat_IntEnumOrderPreserved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has values in DIFFERENT order than last contract (Default first, Recover second)
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order should be preserved from last contract: Recover first, Default second
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+
+            // Values should be preserved from last contract
+            var value1 = fields[0].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(value1);
+            Assert.AreEqual(0, value1?.Literal);
+            var value2 = fields[1].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(value2);
+            Assert.AreEqual(1, value2?.Literal);
+        }
+
+        // Validates that int enum member order is preserved and new values are appended
+        [Test]
+        public async Task BackCompat_IntEnumNewValueAppended()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has different order AND a new value
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+                ("Third", 2),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(3, fields.Count);
+
+            // Order should be preserved from last contract: Recover first, Default second, new value Third appended
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+            Assert.AreEqual("Third", fields[2].Name);
+
+            // Values from last contract are preserved for existing members
+            var value1 = fields[0].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(value1);
+            Assert.AreEqual(0, value1?.Literal);
+            var value2 = fields[1].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(value2);
+            Assert.AreEqual(1, value2?.Literal);
+            // New value gets its value from the input
+            var value3 = fields[2].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(value3);
+            Assert.AreEqual(2, value3?.Literal);
+        }
+
+        // Validates that removed enum values from last contract are not included
+        [Test]
+        public async Task BackCompat_IntEnumValueRemoved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has values in different order and removed "Third"
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order should be preserved from last contract for members that still exist
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+
+            // Values should be preserved from last contract
+            var value1 = fields[0].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(value1);
+            Assert.AreEqual(0, value1?.Literal);
+            var value2 = fields[1].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(value2);
+            Assert.AreEqual(1, value2?.Literal);
+        }
+
+        // Validates that string enums are NOT affected by backward compatibility reordering
+        [TestCase]
+        public async Task BackCompat_StringEnumOrderNotAffected()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has values in DIFFERENT order than last contract
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            var fields = enumType.Fields;
+
+            Assert.AreEqual(2, fields.Count);
+
+            // String enums should NOT be reordered - they keep the input order
+            Assert.AreEqual("Default", fields[0].Name);
+            Assert.AreEqual("Recover", fields[1].Name);
         }
 
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)

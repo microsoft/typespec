@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -86,7 +87,52 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 values[i] = new EnumTypeMember(name, field, inputValue.Value);
             }
-            return values;
+            return BuildEnumValuesForBackwardCompatibility(values);
+        }
+
+        private IReadOnlyList<EnumTypeMember> BuildEnumValuesForBackwardCompatibility(EnumTypeMember[] currentValues)
+        {
+            if (!IsIntValueType)
+            {
+                return currentValues;
+            }
+
+            var lastContractFields = LastContractView?.Fields;
+            if (lastContractFields == null || lastContractFields.Count == 0)
+            {
+                return currentValues;
+            }
+
+            var currentLookup = currentValues.ToDictionary(v => v.Name, StringComparer.OrdinalIgnoreCase);
+            var allMembers = new List<EnumTypeMember>(currentValues.Length);
+
+            // First, add members in the order from the last contract, preserving their initialization values
+            foreach (var field in lastContractFields)
+            {
+                if (currentLookup.TryGetValue(field.Name, out var existingMember))
+                {
+                    var updatedField = new FieldProvider(
+                        existingMember.Field.Modifiers,
+                        existingMember.Field.Type,
+                        existingMember.Name,
+                        existingMember.Field.EnclosingType,
+                        existingMember.Field.Description,
+                        field.InitializationValue);
+                    allMembers.Add(new EnumTypeMember(existingMember.Name, updatedField, existingMember.Value));
+                }
+            }
+
+            // Then, add new members that weren't in the last contract (in their original input order)
+            var processedNames = new HashSet<string>(lastContractFields.Select(f => f.Name), StringComparer.OrdinalIgnoreCase);
+            foreach (var current in currentValues)
+            {
+                if (!processedNames.Contains(current.Name))
+                {
+                    allMembers.Add(current);
+                }
+            }
+
+            return allMembers;
         }
 
         protected internal override FieldProvider[] BuildFields()
