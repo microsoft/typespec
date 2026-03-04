@@ -119,6 +119,25 @@ namespace Microsoft.TypeSpec.Generator
             _visitors.Add(visitor);
         }
 
+        /// <summary>
+        /// Removes all visitors of the specified type from the list of visitors.
+        /// </summary>
+        /// <typeparam name="T">The type of visitor to remove.</typeparam>
+        public virtual void RemoveVisitor<T>() where T : LibraryVisitor
+        {
+            _visitors.RemoveAll(v => v.GetType() == typeof(T));
+        }
+
+        /// <summary>
+        /// Removes all visitors whose type name matches the specified name from the list of visitors.
+        /// This overload is useful when the visitor type is not publicly accessible.
+        /// </summary>
+        /// <param name="visitorTypeName">The name of the visitor type to remove.</param>
+        public virtual void RemoveVisitor(string visitorTypeName)
+        {
+            _visitors.RemoveAll(v => v.GetType().Name == visitorTypeName);
+        }
+
         public virtual void AddRewriter(LibraryRewriter rewriter)
         {
             _rewriters.Add(rewriter);
