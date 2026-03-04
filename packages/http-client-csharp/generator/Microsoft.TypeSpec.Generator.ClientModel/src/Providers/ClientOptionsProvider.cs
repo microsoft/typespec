@@ -305,16 +305,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var body = new List<MethodBodyStatement> { guardStatement };
 
+            // Build a set of version property names for O(1) lookup
+            var versionPropertyNames = VersionProperties?.Values.Select(vp => vp.Name).ToHashSet();
+
             // Bind non-version properties from configuration
             foreach (var property in Properties)
             {
-                if (VersionProperties != null && VersionProperties.Values.Any(vp => vp.Name == property.Name))
+                if (versionPropertyNames?.Contains(property.Name) == true)
                 {
                     continue;
                 }
 
                 // string? propValue = section["PropertyName"];
-                var propValueVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), property.Name.ToVariableName() + "Value");
+                var propValueVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), $"{property.Name.ToVariableName()}FromConfig");
                 body.Add(Declare(propValueVar, new IndexerExpression(sectionParam, Literal(property.Name))));
 
                 // if (!string.IsNullOrEmpty(propValue)) { Property = propValue; }
