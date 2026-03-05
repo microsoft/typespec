@@ -465,4 +465,170 @@ describe("Operation Converter", () => {
       });
     });
   });
+
+  describe("includeRootSlash client option", () => {
+    it("should strip leading slash from operation path when includeRootSlash is false on client", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @clientOption("includeRootSlash", false, "csharp")
+          interface MyClient {
+            @route("?restype=container")
+            op getContainer(): void;
+          }
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const myClient = root.clients[0].children?.find((c) => c.name === "MyClient");
+      ok(myClient);
+      const operation = myClient.methods[0].operation;
+      strictEqual(operation.path, "?restype=container");
+    });
+
+    it("should keep leading slash when includeRootSlash is not set (default)", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("/foo/bar")
+          op test(): void;
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      strictEqual(operation.path, "/foo/bar");
+    });
+
+    it("should strip leading slash from operation path when includeRootSlash is false on operation", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @clientOption("includeRootSlash", false, "csharp")
+          @route("/foo/bar")
+          op test(): void;
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      strictEqual(operation.path, "foo/bar");
+    });
+
+    it("should allow sub-client to override parent client includeRootSlash option", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @clientOption("includeRootSlash", false, "csharp")
+          @route("/root")
+          interface ParentClient {
+            @route("/parent-op")
+            op parentOp(): void;
+          }
+
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @clientOption("includeRootSlash", true, "csharp")
+          @route("/child")
+          interface ChildClient {
+            @route("/child-op")
+            op childOp(): void;
+          }
+        `,
+        runner,
+        { IsTCGCNeeded: true, IsNamespaceNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      // Parent client operations should have no leading slash
+      const parentClient = root.clients[0].children?.find((c) => c.name === "ParentClient");
+      ok(parentClient);
+      const parentOp = parentClient.methods[0].operation;
+      strictEqual(parentOp.path, "root/parent-op");
+
+      // Child client operations should keep leading slash (override)
+      const childClient = root.clients[0].children?.find((c) => c.name === "ChildClient");
+      ok(childClient);
+      const childOp = childClient.methods[0].operation;
+      strictEqual(childOp.path, "/child/child-op");
+    });
+
+    it("should allow operation to override client includeRootSlash option", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @clientOption("includeRootSlash", false, "csharp")
+          interface MyClient {
+            @route("/op1")
+            op op1(): void;
+
+            #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+            @clientOption("includeRootSlash", true, "csharp")
+            @route("/op2")
+            op op2(): void;
+          }
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const myClient = root.clients[0].children?.find((c) => c.name === "MyClient");
+      ok(myClient);
+
+      // op1 should inherit client's includeRootSlash=false
+      const op1 = myClient.methods.find((m) => m.name === "op1");
+      ok(op1);
+      strictEqual(op1.operation.path, "op1");
+
+      // op2 should override with includeRootSlash=true
+      const op2 = myClient.methods.find((m) => m.name === "op2");
+      ok(op2);
+      strictEqual(op2.operation.path, "/op2");
+    });
+
+    it("should inherit includeRootSlash from parent client when sub-client does not set it", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @clientOption("includeRootSlash", false, "csharp")
+          @service(#{
+            title: "Test Service",
+          })
+          namespace TestService;
+
+          @route("/sub")
+          interface SubClient {
+            @route("/sub-op")
+            op subOp(): void;
+          }
+        `,
+        runner,
+        { IsTCGCNeeded: true, IsNamespaceNeeded: false },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      // Root client has includeRootSlash=false, sub-client inherits
+      const subClient = root.clients[0].children?.find((c) => c.name === "SubClient");
+      ok(subClient);
+      const subOp = subClient.methods[0].operation;
+      strictEqual(subOp.path, "sub/sub-op");
+    });
+  });
 });
