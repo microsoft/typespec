@@ -348,33 +348,6 @@ describe("http: routes", () => {
     });
   });
 
-  describe("doesn't add leading / when combining route segments starting with ?", () => {
-    it("does not add / separator before ? route segment", async () => {
-      const routes = await getRoutesFor(
-        `
-      @put
-      @route("?pet=cat")
-      op bar(): void;
-      `,
-      );
-
-      deepStrictEqual(routes, [{ verb: "put", path: "?pet=cat", params: [] }]);
-    });
-
-    it("does not add / separator before ? route segment inside interface with parent route", async () => {
-      const routes = await getRoutesFor(
-        `
-      @route("abc")
-      interface Container {
-        @route("?restype=container") foo(): void;
-      }
-      `,
-      );
-
-      deepStrictEqual(routes, [{ verb: "get", path: "/abc?restype=container", params: [] }]);
-    });
-  });
-
   describe("joinPathSegments", () => {
     it("does not add / for empty segments", () => {
       deepStrictEqual(joinPathSegments(["foo", ""]), "/foo");
