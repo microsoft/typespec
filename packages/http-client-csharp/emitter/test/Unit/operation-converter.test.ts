@@ -698,9 +698,7 @@ describe("Operation Converter", () => {
       strictEqual(deleteOp.operation.path, "delete");
 
       // ContainerClient: client-level includeRootSlash=true
-      const containerClient = root.clients[0].children?.find(
-        (c) => c.name === "ContainerClient",
-      );
+      const containerClient = root.clients[0].children?.find((c) => c.name === "ContainerClient");
       ok(containerClient);
 
       const createOp = containerClient.methods.find((m) => m.name === "create");
