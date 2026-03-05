@@ -55,6 +55,12 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName: strin
         <Aside type="caution">
         **Experimental Feature**: These typekits are currently experimental. The API surface is volatile and may have breaking changes without notice. Use with caution in production environments.
         </Aside>
+        
+        To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
+        
+        \`\`\`ts
+        import { $ } from "@typespec/compiler/typekit";
+        \`\`\`
         `}
           </>
         )}
