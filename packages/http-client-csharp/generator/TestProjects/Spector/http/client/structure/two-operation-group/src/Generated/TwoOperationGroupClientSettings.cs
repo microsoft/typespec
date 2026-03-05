@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
+using Client.Structure.Service;
 using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.TwoOperationGroup
@@ -13,6 +14,12 @@ namespace Client.Structure.TwoOperationGroup
     public partial class TwoOperationGroupClientSettings : ClientSettings
     {
         public Uri Endpoint
+        {
+            get => throw null;
+            set => throw null;
+        }
+
+        public ClientType? Client
         {
             get => throw null;
             set => throw null;

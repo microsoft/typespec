@@ -10,6 +10,8 @@ namespace Payload.ContentNegotiation
 {
     public partial class ContentNegotiationClientOptions : ClientPipelineOptions
     {
+        public ContentNegotiationClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal ContentNegotiationClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

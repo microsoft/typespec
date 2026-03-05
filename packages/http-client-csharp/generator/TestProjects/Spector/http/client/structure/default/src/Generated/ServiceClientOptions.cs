@@ -10,6 +10,8 @@ namespace Client.Structure.Service
 {
     public partial class ServiceClientOptions : ClientPipelineOptions
     {
+        public ServiceClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal ServiceClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

@@ -10,6 +10,8 @@ namespace Authentication.Http.Custom
 {
     public partial class CustomClientOptions : ClientPipelineOptions
     {
+        public CustomClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal CustomClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

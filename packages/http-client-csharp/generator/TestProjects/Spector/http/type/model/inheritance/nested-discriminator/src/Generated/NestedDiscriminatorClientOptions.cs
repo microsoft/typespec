@@ -10,6 +10,8 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 {
     public partial class NestedDiscriminatorClientOptions : ClientPipelineOptions
     {
+        public NestedDiscriminatorClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal NestedDiscriminatorClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

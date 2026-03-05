@@ -22,7 +22,7 @@ namespace Client.Structure.Service
         public ServiceClient(Uri endpoint, ClientType client, ServiceClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public ServiceClient(ServiceClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public ServiceClient(ServiceClientSettings settings) : this(settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

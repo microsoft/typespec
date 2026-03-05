@@ -20,7 +20,7 @@ namespace Resiliency.ServiceDriven
         public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public ResiliencyServiceDrivenClient(ResiliencyServiceDrivenClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public ResiliencyServiceDrivenClient(ResiliencyServiceDrivenClientSettings settings) : this(settings?.Endpoint, settings?.ServiceDeploymentVersion, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

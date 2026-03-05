@@ -10,6 +10,8 @@ namespace Payload.Xml
 {
     public partial class XmlClientOptions : ClientPipelineOptions
     {
+        public XmlClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal XmlClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

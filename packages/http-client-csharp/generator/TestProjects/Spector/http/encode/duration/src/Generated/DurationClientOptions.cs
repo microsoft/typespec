@@ -10,6 +10,8 @@ namespace Encode.Duration
 {
     public partial class DurationClientOptions : ClientPipelineOptions
     {
+        public DurationClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal DurationClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

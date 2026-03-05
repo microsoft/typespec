@@ -10,6 +10,8 @@ namespace Payload.MultiPart
 {
     public partial class MultiPartClientOptions : ClientPipelineOptions
     {
+        public MultiPartClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal MultiPartClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

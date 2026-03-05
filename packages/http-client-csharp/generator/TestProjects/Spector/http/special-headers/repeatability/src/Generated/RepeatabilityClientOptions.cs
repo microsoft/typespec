@@ -10,6 +10,8 @@ namespace SpecialHeaders.Repeatability
 {
     public partial class RepeatabilityClientOptions : ClientPipelineOptions
     {
+        public RepeatabilityClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal RepeatabilityClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

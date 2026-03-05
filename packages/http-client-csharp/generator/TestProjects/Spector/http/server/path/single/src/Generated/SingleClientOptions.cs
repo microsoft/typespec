@@ -10,6 +10,8 @@ namespace Server.Path.Single
 {
     public partial class SingleClientOptions : ClientPipelineOptions
     {
+        public SingleClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal SingleClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

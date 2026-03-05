@@ -10,6 +10,8 @@ namespace Parameters.Path
 {
     public partial class PathClientOptions : ClientPipelineOptions
     {
+        public PathClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal PathClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

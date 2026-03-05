@@ -10,6 +10,8 @@ namespace Encode.Datetime
 {
     public partial class DatetimeClientOptions : ClientPipelineOptions
     {
+        public DatetimeClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal DatetimeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

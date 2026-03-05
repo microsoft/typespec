@@ -21,7 +21,7 @@ namespace Client.Structure.ClientOperationGroup
         public FirstClient(Uri endpoint, ClientType client, FirstClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public FirstClient(FirstClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public FirstClient(FirstClientSettings settings) : this(settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

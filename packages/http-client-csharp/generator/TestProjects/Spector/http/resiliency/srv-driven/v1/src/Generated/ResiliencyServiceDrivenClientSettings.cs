@@ -18,6 +18,12 @@ namespace Resiliency.ServiceDriven
             set => throw null;
         }
 
+        public string ServiceDeploymentVersion
+        {
+            get => throw null;
+            set => throw null;
+        }
+
         public ResiliencyServiceDrivenClientOptions Options
         {
             get => throw null;

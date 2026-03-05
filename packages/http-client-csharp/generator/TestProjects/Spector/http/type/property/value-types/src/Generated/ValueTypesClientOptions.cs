@@ -10,6 +10,8 @@ namespace _Type.Property.ValueTypes
 {
     public partial class ValueTypesClientOptions : ClientPipelineOptions
     {
+        public ValueTypesClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal ValueTypesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

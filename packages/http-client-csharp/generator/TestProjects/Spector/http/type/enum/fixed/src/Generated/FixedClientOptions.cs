@@ -10,6 +10,8 @@ namespace _Type._Enum.Fixed
 {
     public partial class FixedClientOptions : ClientPipelineOptions
     {
+        public FixedClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal FixedClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

@@ -10,6 +10,8 @@ namespace _Type.Property.Optional
 {
     public partial class OptionalClientOptions : ClientPipelineOptions
     {
+        public OptionalClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal OptionalClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

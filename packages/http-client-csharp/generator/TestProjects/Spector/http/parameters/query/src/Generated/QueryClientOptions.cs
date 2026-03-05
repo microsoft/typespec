@@ -10,6 +10,8 @@ namespace Parameters.Query
 {
     public partial class QueryClientOptions : ClientPipelineOptions
     {
+        public QueryClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal QueryClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

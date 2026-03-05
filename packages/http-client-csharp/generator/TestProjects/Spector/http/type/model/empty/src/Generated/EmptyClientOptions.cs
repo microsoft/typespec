@@ -10,6 +10,8 @@ namespace _Type.Model.Empty
 {
     public partial class EmptyClientOptions : ClientPipelineOptions
     {
+        public EmptyClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal EmptyClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

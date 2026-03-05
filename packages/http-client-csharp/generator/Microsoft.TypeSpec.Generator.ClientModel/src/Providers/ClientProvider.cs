@@ -633,6 +633,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // endpoint argument - we know EndpointPropertyName is not null at this point
             args.Add(new MemberExpression(new NullConditionalExpression(settingsParam), ClientSettings.EndpointPropertyName));
 
+            // other required parameters (non-auth, non-endpoint) in primary constructor order
+            foreach (var param in ClientSettings.OtherRequiredParams)
+            {
+                var propName = param.Name.ToIdentifierName();
+                var propAccess = new MemberExpression(new NullConditionalExpression(settingsParam), propName);
+                // Value types (enums, primitives) need ?? default since null-conditional returns T?
+                ValueExpression arg = param.Type.IsValueType
+                    ? new BinaryOperatorExpression("??", propAccess, new KeywordExpression("default", null))
+                    : propAccess;
+                args.Add(arg);
+            }
+
             // credential argument
             if (_oauth2Fields != null)
             {
@@ -641,12 +653,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else if (_apiKeyAuthFields != null)
             {
-                // settings?.Credential?.Key is string key ? new ApiKeyCredential(key) : null
+                // settings?.Credential?.Key != null ? new ApiKeyCredential(settings?.Credential?.Key) : null
                 var credentialExpr = new MemberExpression(new NullConditionalExpression(settingsParam), "Credential");
                 var keyExpr = new MemberExpression(new NullConditionalExpression(credentialExpr), "Key");
                 var keyNotNull = new BinaryOperatorExpression("!=", keyExpr, Null);
                 var newApiKeyCredExpr = New.Instance(_apiKeyAuthFields.AuthField.Type,
-                    new MemberExpression(new MemberExpression(settingsParam, "Credential"), "Key"));
+                    new MemberExpression(new NullConditionalExpression(new MemberExpression(new NullConditionalExpression(settingsParam), "Credential")), "Key"));
                 args.Add(new TernaryConditionalExpression(keyNotNull, newApiKeyCredExpr, Null));
             }
 

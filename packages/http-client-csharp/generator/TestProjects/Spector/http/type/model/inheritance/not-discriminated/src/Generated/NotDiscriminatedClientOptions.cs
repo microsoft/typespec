@@ -10,6 +10,8 @@ namespace _Type.Model.Inheritance.NotDiscriminated
 {
     public partial class NotDiscriminatedClientOptions : ClientPipelineOptions
     {
+        public NotDiscriminatedClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal NotDiscriminatedClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

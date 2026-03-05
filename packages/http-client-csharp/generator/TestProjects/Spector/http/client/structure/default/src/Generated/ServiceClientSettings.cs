@@ -18,6 +18,12 @@ namespace Client.Structure.Service
             set => throw null;
         }
 
+        public ClientType? Client
+        {
+            get => throw null;
+            set => throw null;
+        }
+
         public ServiceClientOptions Options
         {
             get => throw null;

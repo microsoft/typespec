@@ -10,6 +10,8 @@ namespace SpecialWords
 {
     public partial class SpecialWordsClientOptions : ClientPipelineOptions
     {
+        public SpecialWordsClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal SpecialWordsClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

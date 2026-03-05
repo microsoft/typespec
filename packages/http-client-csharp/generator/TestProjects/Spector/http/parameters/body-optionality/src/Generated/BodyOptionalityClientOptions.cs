@@ -10,6 +10,8 @@ namespace Parameters.BodyOptionality
 {
     public partial class BodyOptionalityClientOptions : ClientPipelineOptions
     {
+        public BodyOptionalityClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal BodyOptionalityClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

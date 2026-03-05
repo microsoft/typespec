@@ -10,6 +10,8 @@ namespace Payload.MediaType
 {
     public partial class MediaTypeClientOptions : ClientPipelineOptions
     {
+        public MediaTypeClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal MediaTypeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

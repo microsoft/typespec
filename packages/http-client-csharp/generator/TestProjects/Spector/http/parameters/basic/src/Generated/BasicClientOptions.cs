@@ -10,6 +10,8 @@ namespace Parameters.Basic
 {
     public partial class BasicClientOptions : ClientPipelineOptions
     {
+        public BasicClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal BasicClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

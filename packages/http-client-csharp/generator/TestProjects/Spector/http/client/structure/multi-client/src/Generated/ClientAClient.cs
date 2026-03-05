@@ -21,7 +21,7 @@ namespace Client.Structure.MultiClient
         public ClientAClient(Uri endpoint, ClientType client, ClientAClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public ClientAClient(ClientAClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public ClientAClient(ClientAClientSettings settings) : this(settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

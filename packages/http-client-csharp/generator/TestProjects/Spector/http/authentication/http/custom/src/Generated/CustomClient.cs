@@ -22,7 +22,7 @@ namespace Authentication.Http.Custom
         public CustomClient(Uri endpoint, ApiKeyCredential credential, CustomClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public CustomClient(CustomClientSettings settings) : this(settings?.Endpoint, settings?.CredentialProvider as ApiKeyCredential, settings?.Options) => throw null;
+        public CustomClient(CustomClientSettings settings) : this(settings?.Endpoint, settings?.Credential?.Key != null ? new ApiKeyCredential(settings?.Credential?.Key) : null, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

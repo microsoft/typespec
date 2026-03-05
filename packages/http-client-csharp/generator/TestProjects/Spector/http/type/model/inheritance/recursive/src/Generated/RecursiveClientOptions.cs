@@ -10,6 +10,8 @@ namespace _Type.Model.Inheritance.Recursive
 {
     public partial class RecursiveClientOptions : ClientPipelineOptions
     {
+        public RecursiveClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal RecursiveClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

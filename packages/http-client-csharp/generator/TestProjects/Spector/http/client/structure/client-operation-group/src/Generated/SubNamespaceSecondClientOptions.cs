@@ -10,6 +10,8 @@ namespace Client.Structure.AnotherClientOperationGroup
 {
     public partial class SubNamespaceSecondClientOptions : ClientPipelineOptions
     {
+        public SubNamespaceSecondClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal SubNamespaceSecondClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

@@ -10,6 +10,8 @@ namespace _Type.Dictionary
 {
     public partial class DictionaryClientOptions : ClientPipelineOptions
     {
+        public DictionaryClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal DictionaryClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

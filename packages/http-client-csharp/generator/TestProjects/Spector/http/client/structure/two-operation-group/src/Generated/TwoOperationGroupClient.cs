@@ -18,7 +18,7 @@ namespace Client.Structure.TwoOperationGroup
         public TwoOperationGroupClient(Uri endpoint, ClientType client, TwoOperationGroupClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public TwoOperationGroupClient(TwoOperationGroupClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public TwoOperationGroupClient(TwoOperationGroupClientSettings settings) : this(settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

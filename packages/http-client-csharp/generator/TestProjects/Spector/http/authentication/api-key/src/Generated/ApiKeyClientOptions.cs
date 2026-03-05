@@ -10,6 +10,8 @@ namespace Authentication.ApiKey
 {
     public partial class ApiKeyClientOptions : ClientPipelineOptions
     {
+        public ApiKeyClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal ApiKeyClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

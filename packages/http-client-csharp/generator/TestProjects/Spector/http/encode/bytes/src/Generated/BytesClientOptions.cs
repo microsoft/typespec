@@ -10,6 +10,8 @@ namespace Encode.Bytes
 {
     public partial class BytesClientOptions : ClientPipelineOptions
     {
+        public BytesClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal BytesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

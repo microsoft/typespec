@@ -10,6 +10,8 @@ namespace _Type.Property.AdditionalProperties
 {
     public partial class AdditionalPropertiesClientOptions : ClientPipelineOptions
     {
+        public AdditionalPropertiesClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal AdditionalPropertiesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

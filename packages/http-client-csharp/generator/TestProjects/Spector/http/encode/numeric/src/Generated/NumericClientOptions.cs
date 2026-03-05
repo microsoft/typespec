@@ -10,6 +10,8 @@ namespace Encode.Numeric
 {
     public partial class NumericClientOptions : ClientPipelineOptions
     {
+        public NumericClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal NumericClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

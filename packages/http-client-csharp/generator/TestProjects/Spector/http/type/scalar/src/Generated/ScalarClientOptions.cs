@@ -10,6 +10,8 @@ namespace _Type.Scalar
 {
     public partial class ScalarClientOptions : ClientPipelineOptions
     {
+        public ScalarClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal ScalarClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

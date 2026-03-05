@@ -10,6 +10,8 @@ namespace _Type.Union
 {
     public partial class UnionClientOptions : ClientPipelineOptions
     {
+        public UnionClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal UnionClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

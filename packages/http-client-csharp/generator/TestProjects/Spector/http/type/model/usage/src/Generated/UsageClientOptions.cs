@@ -10,6 +10,8 @@ namespace _Type.Model.Usage
 {
     public partial class UsageClientOptions : ClientPipelineOptions
     {
+        public UsageClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal UsageClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

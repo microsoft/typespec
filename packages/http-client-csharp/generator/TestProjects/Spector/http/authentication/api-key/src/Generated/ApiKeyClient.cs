@@ -22,7 +22,7 @@ namespace Authentication.ApiKey
         public ApiKeyClient(Uri endpoint, ApiKeyCredential credential, ApiKeyClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public ApiKeyClient(ApiKeyClientSettings settings) : this(settings?.Endpoint, settings?.CredentialProvider as ApiKeyCredential, settings?.Options) => throw null;
+        public ApiKeyClient(ApiKeyClientSettings settings) : this(settings?.Endpoint, settings?.Credential?.Key != null ? new ApiKeyCredential(settings?.Credential?.Key) : null, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -21,7 +21,7 @@ namespace Client.Structure.RenamedOperation
         public RenamedOperationClient(Uri endpoint, ClientType client, RenamedOperationClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public RenamedOperationClient(RenamedOperationClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public RenamedOperationClient(RenamedOperationClientSettings settings) : this(settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

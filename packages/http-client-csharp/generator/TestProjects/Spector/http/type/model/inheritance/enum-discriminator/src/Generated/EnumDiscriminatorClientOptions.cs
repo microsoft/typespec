@@ -10,6 +10,8 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     public partial class EnumDiscriminatorClientOptions : ClientPipelineOptions
     {
+        public EnumDiscriminatorClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal EnumDiscriminatorClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

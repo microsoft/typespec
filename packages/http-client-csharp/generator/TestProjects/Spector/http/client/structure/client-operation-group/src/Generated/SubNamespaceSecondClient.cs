@@ -21,7 +21,7 @@ namespace Client.Structure.AnotherClientOperationGroup
         public SubNamespaceSecondClient(Uri endpoint, ClientType client, SubNamespaceSecondClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public SubNamespaceSecondClient(SubNamespaceSecondClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public SubNamespaceSecondClient(SubNamespaceSecondClientSettings settings) : this(settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

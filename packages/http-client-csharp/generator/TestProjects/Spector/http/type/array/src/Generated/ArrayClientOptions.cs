@@ -10,6 +10,8 @@ namespace _Type._Array
 {
     public partial class ArrayClientOptions : ClientPipelineOptions
     {
+        public ArrayClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal ArrayClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

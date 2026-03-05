@@ -10,6 +10,8 @@ namespace Payload.Pageable
 {
     public partial class PageableClientOptions : ClientPipelineOptions
     {
+        public PageableClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal PageableClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

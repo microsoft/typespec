@@ -10,6 +10,8 @@ namespace Response.StatusCodeRange
 {
     public partial class StatusCodeRangeClientOptions : ClientPipelineOptions
     {
+        public StatusCodeRangeClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal StatusCodeRangeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

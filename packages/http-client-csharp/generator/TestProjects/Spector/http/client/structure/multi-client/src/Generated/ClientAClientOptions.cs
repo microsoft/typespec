@@ -10,6 +10,8 @@ namespace Client.Structure.MultiClient
 {
     public partial class ClientAClientOptions : ClientPipelineOptions
     {
+        public ClientAClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal ClientAClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

@@ -10,6 +10,8 @@ namespace Routes
 {
     public partial class RoutesClientOptions : ClientPipelineOptions
     {
+        public RoutesClientOptions() => throw null;
+
         [Experimental("SCME0002")]
         internal RoutesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }

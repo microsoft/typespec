@@ -24,6 +24,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private readonly ClientProvider _clientProvider;
         private readonly InputEndpointParameter? _inputEndpointParam;
+        private readonly IReadOnlyList<ParameterProvider> _otherRequiredParams;
 
 #pragma warning disable SCME0002 // ClientSettings is for evaluation purposes only
         internal static readonly CSharpType ClientSettingsType = typeof(ClientSettings);
@@ -36,9 +37,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _clientProvider = clientProvider;
             _inputEndpointParam = inputClient.Parameters
                 .FirstOrDefault(p => p is InputEndpointParameter ep && ep.IsEndpoint) as InputEndpointParameter;
+
+            // Collect non-endpoint, non-apiVersion required parameters (auth params come separately via InputClient.Auth)
+            _otherRequiredParams = inputClient.Parameters
+                .Where(p => p.IsRequired && !p.IsApiVersion &&
+                            !(p is InputEndpointParameter ep && ep.IsEndpoint))
+                .Select(p => ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(p))
+                .Where(p => p != null)
+                .Select(p => p!)
+                .ToList();
         }
 
         internal string? EndpointPropertyName => _inputEndpointParam?.Name.ToIdentifierName();
+
+        /// <summary>Gets non-endpoint, non-auth required parameters that have settings properties.</summary>
+        internal IReadOnlyList<ParameterProvider> OtherRequiredParams => _otherRequiredParams;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -64,6 +77,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodSignatureModifiers.Public,
                     new CSharpType(typeof(Uri), isNullable: true),
                     EndpointPropertyName!,
+                    new AutoPropertyBody(true),
+                    this));
+            }
+
+            foreach (var param in _otherRequiredParams)
+            {
+                properties.Add(new PropertyProvider(
+                    null,
+                    MethodSignatureModifiers.Public,
+                    param.Type.WithNullable(true),
+                    param.Name.ToIdentifierName(),
                     new AutoPropertyBody(true),
                     this));
             }
@@ -99,6 +123,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var ifStatement = new IfStatement(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", endpointVar)));
                 ifStatement.Add(This.Property(endpointPropertyName).Assign(New.Instance(typeof(Uri), endpointVar)).Terminate());
                 body.Add(ifStatement);
+            }
+
+            foreach (var param in _otherRequiredParams)
+            {
+                var propName = param.Name.ToIdentifierName();
+                // For string types: if (section[propName] is string val) PropName = val;
+                if (param.Type.IsFrameworkType && param.Type.FrameworkType == typeof(string))
+                {
+                    var valVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), param.Name.ToVariableName());
+                    body.Add(Declare(valVar, new IndexerExpression(sectionParam, Literal(propName))));
+                    var ifStatement = new IfStatement(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", valVar)));
+                    ifStatement.Add(This.Property(propName).Assign(valVar).Terminate());
+                    body.Add(ifStatement);
+                }
+                // Other types are skipped in BindCore (users can customize via partial class)
             }
 
             if (_clientProvider.ClientOptions != null)
