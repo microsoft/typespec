@@ -1,46 +1,35 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import type { Program } from "../../src/core/program.js";
-import { DecoratorContext, Type } from "../../src/core/types.js";
-import { TestHost, createTestHost } from "../../src/testing/index.js";
+import { type DecoratorContext, type Model, type Type } from "../../src/core/types.js";
+import { mockFile, t, TemplateWithMarkers } from "../../src/testing/index.js";
 import { createRekeyableMap } from "../../src/utils/misc.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: type cloning", () => {
-  let testHost: TestHost;
-  const blues = new Set();
+  const blues = new Set<Type>();
 
-  beforeEach(async () => {
-    testHost = await createTestHost();
-    testHost.addJsFile("test.js", {
+  const BlueTester = Tester.files({
+    "test.js": mockFile.js({
       $blue(_: Program, t: Type) {
         blues.add(t);
       },
-    });
-  });
+    }),
+  }).import("./test.js");
 
-  testClone("models", "@test @blue model test { p: string; }");
-  testClone("model properties", "model Foo { @test @blue test: string }");
-  testClone("operations", "@test @blue op test(): string;");
-  testClone("parameters", "op test(@test @blue test: string): string;");
-  testClone("enums", "@test @blue enum test { e }");
-  testClone("enum members", "enum Foo { @test @blue test: 1 }");
-  testClone("interfaces", "@test @blue interface test { o(): void; }");
-  testClone("unions", "@test @blue union test { s: string; n: int32; }");
+  testClone("models", t.code`@blue model ${t.model("test")} { p: string; }`);
+  testClone("model properties", t.code`model Foo { @blue ${t.modelProperty("test")}: string }`);
+  testClone("operations", t.code`@blue op ${t.op("test")}(): string;`);
+  testClone("parameters", t.code`op test(@blue ${t.modelProperty("test")}: string): string;`);
+  testClone("enums", t.code`@blue enum ${t.enum("test")} { e }`);
+  testClone("enum members", t.code`enum Foo { @blue ${t.enumMember("test")}: 1 }`);
+  testClone("interfaces", t.code`@blue interface ${t.interface("test")} { o(): void; }`);
+  testClone("unions", t.code`@blue union ${t.union("test")} { s: string; n: int32; }`);
 
-  function testClone(description: string, code: string) {
+  function testClone(description: string, code: TemplateWithMarkers<{ test: Type }>) {
     it(`clones ${description}`, async () => {
-      testHost.addTypeSpecFile(
-        "test.tsp",
-        `
-        import "./test.js";
-        ${code}
-        `,
-      );
-
-      const { test } = (await testHost.compile("./test.tsp")) as {
-        test: Type;
-      };
-      const clone = testHost.program.checker.cloneType(test);
+      const { test, program } = await BlueTester.compile(code);
+      const clone = program.checker.cloneType(test);
       ok(blues.has(clone!), "the clone is blue");
       deepStrictEqual(test, clone!);
 
@@ -53,8 +42,8 @@ describe("compiler: type cloning", () => {
           args: [],
         });
 
-        strictEqual(test.decorators.length, 2);
-        strictEqual(clone.decorators.length, 3);
+        strictEqual(test.decorators.length, 1);
+        strictEqual(clone.decorators.length, 2);
       }
 
       // Ensure that cloned members are re-parented
@@ -84,28 +73,28 @@ describe("compiler: type cloning", () => {
       // Ensure that you can set your own member list
       switch (test.kind) {
         case "Model":
-          const newModel = testHost.program.checker.cloneType(test, {
+          const newModel = program.checker.cloneType(test, {
             properties: createRekeyableMap(),
           });
           ok(test.properties.size > 0, "no properties to change");
           strictEqual(newModel.properties.size, 0, "properties not set.");
           break;
         case "Enum":
-          const newEnum = testHost.program.checker.cloneType(test, {
+          const newEnum = program.checker.cloneType(test, {
             members: createRekeyableMap(),
           });
           ok(test.members.size > 0, "no members to change");
           strictEqual(newEnum.members.size, 0, "members not set");
           break;
         case "Interface":
-          const newInterface = testHost.program.checker.cloneType(test, {
+          const newInterface = program.checker.cloneType(test, {
             operations: createRekeyableMap(),
           });
           ok(test.operations.size > 0, "no operations to change");
           strictEqual(newInterface.operations.size, 0, "operations not set");
           break;
         case "Union":
-          const newUnion = testHost.program.checker.cloneType(test, {
+          const newUnion = program.checker.cloneType(test, {
             variants: createRekeyableMap(),
           });
           ok(test.variants.size > 0, "no variants to change");
@@ -116,20 +105,16 @@ describe("compiler: type cloning", () => {
   }
 
   it("preserves template arguments", async () => {
-    testHost.addTypeSpecFile(
-      "test.tsp",
-      `
+    const { test, program } = await Tester.compile(t.code`
       model Template<T, U> {}
       model Test {
-        @test test: Template<string, int32>;
+        ${t.modelProperty("test")}: Template<string, int32>;
       }
-      `,
-    );
-
-    const { test } = await testHost.compile("./test.tsp");
+    `);
     strictEqual(test.kind, "ModelProperty" as const);
     strictEqual(test.type.kind, "Model" as const);
-    const clone = testHost.program.checker.cloneType(test.type);
-    deepStrictEqual(test.type.templateMapper, clone.templateMapper);
+    const testModel = test.type as Model;
+    const clone = program.checker.cloneType(testModel);
+    deepStrictEqual(testModel.templateMapper, clone.templateMapper);
   });
 });
