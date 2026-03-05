@@ -1387,6 +1387,7 @@ export type Statement =
   | AugmentDecoratorStatementNode
   | ConstStatementNode
   | CallExpressionNode
+  | DirectiveExpressionNode
   | EmptyStatementNode
   | InvalidStatementNode;
 
@@ -2182,7 +2183,7 @@ export interface DirectiveBase {
   node: DirectiveExpressionNode;
 }
 
-export type Directive = SuppressDirective | DeprecatedDirective;
+export type Directive = SuppressDirective | DeprecatedDirective | EnableDirective | DisableDirective;
 
 export interface SuppressDirective extends DirectiveBase {
   name: "suppress";
@@ -2193,6 +2194,16 @@ export interface SuppressDirective extends DirectiveBase {
 export interface DeprecatedDirective extends DirectiveBase {
   name: "deprecated";
   message: string;
+}
+
+export interface EnableDirective extends DirectiveBase {
+  name: "enable";
+  feature: string;
+}
+
+export interface DisableDirective extends DirectiveBase {
+  name: "disable";
+  feature: string;
 }
 
 export interface RmOptions {

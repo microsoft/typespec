@@ -1090,6 +1090,27 @@ const diagnostics = {
     },
   },
   // #endregion CLI
+
+  // #region Features
+  "unknown-feature": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unknown feature '${"feature"}'.`,
+    },
+  },
+  "feature-conflict": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Feature '${"feature"}' is both enabled and disabled.`,
+    },
+  },
+  "feature-mandatory": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Feature '${"feature"}' is mandatory and cannot be disabled.`,
+    },
+  },
+  // #endregion Features
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;

@@ -430,7 +430,33 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     let seenUsing = false;
     while (token() !== Token.EndOfFile) {
       const { pos, docs, directives, decorators } = parseAnnotations();
+
+      // Extract #enable/#disable directives as standalone statements
+      const featureDirectives: DirectiveExpressionNode[] = [];
+      const attachDirectives: DirectiveExpressionNode[] = [];
+      for (const d of directives) {
+        if (d.target.sv === "enable" || d.target.sv === "disable") {
+          featureDirectives.push(d);
+        } else {
+          attachDirectives.push(d);
+        }
+      }
+      for (const fd of featureDirectives) {
+        stmts.push(fd);
+      }
+
       const tok = token();
+
+      // If only feature directives remain and nothing else follows, continue
+      if (
+        tok === Token.EndOfFile &&
+        attachDirectives.length === 0 &&
+        decorators.length === 0 &&
+        docs.length === 0
+      ) {
+        break;
+      }
+
       let item: Statement;
       switch (tok) {
         case Token.AtAt:
@@ -463,7 +489,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.InternalKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-          item = parseDeclaration(pos, decorators, docs, directives);
+          item = parseDeclaration(pos, decorators, docs, attachDirectives);
           break;
         default:
           item = parseInvalidStatement(pos, decorators);
@@ -471,7 +497,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       }
 
       if (tok !== Token.NamespaceKeyword) {
-        mutate(item).directives = directives;
+        mutate(item).directives = attachDirectives;
         mutate(item).docs = docs;
       }
 
@@ -504,7 +530,36 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     while (token() !== Token.CloseBrace) {
       const { pos, docs, directives, decorators } = parseAnnotations();
+
+      // Extract #enable/#disable directives as standalone statements
+      const featureDirectives: DirectiveExpressionNode[] = [];
+      const attachDirectives: DirectiveExpressionNode[] = [];
+      for (const d of directives) {
+        if (d.target.sv === "enable" || d.target.sv === "disable") {
+          featureDirectives.push(d);
+        } else {
+          attachDirectives.push(d);
+        }
+      }
+      for (const fd of featureDirectives) {
+        stmts.push(fd);
+      }
+
       const tok = token();
+
+      // If only feature directives remain and nothing else follows, continue
+      if (
+        (tok === Token.CloseBrace || tok === Token.EndOfFile) &&
+        attachDirectives.length === 0 &&
+        decorators.length === 0 &&
+        docs.length === 0
+      ) {
+        if (tok === Token.EndOfFile) {
+          parseExpected(Token.CloseBrace);
+          return stmts;
+        }
+        break;
+      }
 
       let item: Statement;
       switch (tok) {
@@ -534,7 +589,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.InternalKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
-          item = parseDeclaration(pos, decorators, docs, directives);
+          item = parseDeclaration(pos, decorators, docs, attachDirectives);
           break;
         case Token.EndOfFile:
           parseExpected(Token.CloseBrace);
@@ -552,7 +607,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         error({ code: "blockless-namespace-first", messageId: "topLevel", target: item });
       }
 
-      mutate(item).directives = directives;
+      mutate(item).directives = attachDirectives;
       if (tok !== Token.NamespaceKeyword) {
         mutate(item).docs = docs;
       }
@@ -1608,7 +1663,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     parseExpected(Token.Hash);
 
     const target = parseIdentifier();
-    if (target.sv !== "suppress" && target.sv !== "deprecated") {
+    if (
+      target.sv !== "suppress" &&
+      target.sv !== "deprecated" &&
+      target.sv !== "enable" &&
+      target.sv !== "disable"
+    ) {
       error({
         code: "unknown-directive",
         format: { id: target.sv },
