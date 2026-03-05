@@ -186,9 +186,8 @@ describe("$.entity.resolve", () => {
     const unknownType = $(program).entity.resolve("UnknownModel");
     expect(unknownType).toBeUndefined();
 
-    const [unknownTypeDiag, diagnostics] = $(program).entity.resolve.withDiagnostics(
-      "UnknownModel",
-    );
+    const [unknownTypeDiag, diagnostics] =
+      $(program).entity.resolve.withDiagnostics("UnknownModel");
     expect(unknownTypeDiag).toBeUndefined();
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].code).toBe("invalid-ref");

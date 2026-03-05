@@ -538,7 +538,11 @@ describe("compiler: visibility core", () => {
     }
 
     it("mixed visibility classes in filter", async () => {
-      const { Example, Dummy: DummyEnum, program } = await Tester.compile(t.code`
+      const {
+        Example,
+        Dummy: DummyEnum,
+        program,
+      } = await Tester.compile(t.code`
         model ${t.model("Example")} {
           @visibility(Lifecycle.Create, Dummy.B)
           x: string;

@@ -30,8 +30,7 @@ describe("compiler: checker: decorators", () => {
             }),
           })
             .import("./test.js")
-            .using("TypeSpec.Reflection")
-            .compile(`
+            .using("TypeSpec.Reflection").compile(`
               extern dec otherDec(target: unknown);
             `);
 
@@ -53,17 +52,13 @@ describe("compiler: checker: decorators", () => {
             }),
           })
             .import("./test.js")
-            .using("TypeSpec.Reflection")
-            .compile(`
+            .using("TypeSpec.Reflection").compile(`
               namespace Foo.Bar {
                 extern dec otherDec(target: unknown);
               }
             `);
 
-          const ns = program
-            .getGlobalNamespaceType()
-            .namespaces.get("Foo")
-            ?.namespaces.get("Bar");
+          const ns = program.getGlobalNamespaceType().namespaces.get("Foo")?.namespaces.get("Bar");
           ok(ns);
           const otherDecDecorator = ns.decoratorDeclarations.get("otherDec");
           ok(otherDecDecorator);
@@ -81,8 +76,7 @@ describe("compiler: checker: decorators", () => {
             }),
           })
             .import("./test.js")
-            .using("TypeSpec.Reflection")
-            .compile(`
+            .using("TypeSpec.Reflection").compile(`
               extern dec otherDec(target: unknown);
             `);
 
@@ -102,17 +96,13 @@ describe("compiler: checker: decorators", () => {
             }),
           })
             .import("./test.js")
-            .using("TypeSpec.Reflection")
-            .compile(`
+            .using("TypeSpec.Reflection").compile(`
               namespace Foo.Bar {
                 extern dec otherDec(target: unknown);
               }
             `);
 
-          const ns = program
-            .getGlobalNamespaceType()
-            .namespaces.get("Foo")
-            ?.namespaces.get("Bar");
+          const ns = program.getGlobalNamespaceType().namespaces.get("Foo")?.namespaces.get("Bar");
           ok(ns);
           const otherDecDecorator = ns.decoratorDeclarations.get("otherDec");
           ok(otherDecDecorator);
@@ -490,9 +480,7 @@ describe("compiler: checker: decorators", () => {
           called = true;
         },
       }),
-    })
-      .import("./test.js")
-      .compile(`
+    }).import("./test.js").compile(`
         model foo { };
         @foo()
         model MyFoo { };
@@ -505,9 +493,7 @@ describe("compiler: checker: decorators", () => {
       "test.js": mockFile.js({
         $foo(_: any, __: any, t: any) {},
       }),
-    })
-      .import("./test.js")
-      .diagnose(`
+    }).import("./test.js").diagnose(`
         model foo { }
         @foo(foo)
         model Bar { }
@@ -527,9 +513,7 @@ describe("compiler: checker: decorators", () => {
           result = blueThing === t;
         },
       }),
-    })
-      .import("./test.js")
-      .diagnose(`
+    }).import("./test.js").diagnose(`
         @isBlue
         @blue
         model Foo { };

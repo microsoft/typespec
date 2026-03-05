@@ -1,8 +1,8 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { expectDiagnostics } from "../../src/testing/expect.js";
-import { extractSquiggles } from "../../src/testing/source-utils.js";
 import { mockFile, t } from "../../src/testing/index.js";
+import { extractSquiggles } from "../../src/testing/source-utils.js";
 import { Tester } from "../tester.js";
 
 async function compileTypeOf(typeofCode: string, commonCode?: string) {

@@ -96,9 +96,7 @@ describe("compiler: enums", () => {
           refViaMyLib = ref;
         },
       }),
-    })
-      .import("./lib.js")
-      .compile(`
+    }).import("./lib.js").compile(`
         @saveMyService(MyLib.E)
         namespace MyService {}
 

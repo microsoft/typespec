@@ -7,7 +7,7 @@ import {
   MutatorFlow,
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
-import { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
+import { Model, Namespace, Operation } from "../../src/index.js";
 import { mockFile, t } from "../../src/testing/index.js";
 import { expectTypeEquals } from "../../src/testing/test-utils.js";
 import { Tester } from "../tester.js";
@@ -416,9 +416,7 @@ describe("decorators", () => {
 
     const { Foo, program } = await Tester.files({
       "dec.js": mockFile.js({ $myDec: () => {} }),
-    })
-      .import("./dec.js")
-      .compile(t.code`
+    }).import("./dec.js").compile(t.code`
       extern dec myDec(target, value: valueof unknown);
       
       enum E {
@@ -472,9 +470,7 @@ describe("decorators", () => {
   it("doesn't crash when mutating null value", async () => {
     const { Foo, program } = await Tester.files({
       "dec.js": mockFile.js({ $myDec: () => {} }),
-    })
-      .import("./dec.js")
-      .compile(t.code`
+    }).import("./dec.js").compile(t.code`
       extern dec myDec(target, value: valueof unknown);
       
       @myDec(null)

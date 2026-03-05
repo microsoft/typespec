@@ -5,7 +5,6 @@ import { expectDiagnostics, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: service", () => {
-
   it("allows no services", async () => {
     const { program } = await Tester.compile(t.code`
       op test(): string;

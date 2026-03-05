@@ -1,13 +1,7 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
-import {
-  DecoratorContext,
-  Diagnostic,
-  Model,
-  StringLiteral,
-  Type,
-} from "../../src/core/types.js";
+import { DecoratorContext, Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
 import { isUnknownType } from "../../src/index.js";
 import {
   expectDiagnosticEmpty,
@@ -219,7 +213,7 @@ describe("compiler: templates", () => {
     expectDiagnostics(diagnostics, {
       code: "value-in-type",
       message:
-        "Template parameter has no constraint but a value is passed. Add \`extends valueof unknown\` to accept any value.",
+        "Template parameter has no constraint but a value is passed. Add `extends valueof unknown` to accept any value.",
     });
   });
 
@@ -931,9 +925,7 @@ describe("compiler: templates", () => {
             members.push([target, value]);
           },
         }),
-      })
-        .import("./effect.js")
-        .compile(t.code`
+      }).import("./effect.js").compile(t.code`
           @effect(T)
           model Dec<T> { t: T }
 
@@ -971,9 +963,7 @@ describe("compiler: templates", () => {
         "effect.js": mockFile.js({
           $call: () => null,
         }),
-      })
-        .import("./effect.js")
-        .diagnose(`
+      }).import("./effect.js").diagnose(`
         extern dec call(target, arg: valueof string);
         @call(T) model Dec<T extends valueof string> {}
         `);
@@ -985,9 +975,7 @@ describe("compiler: templates", () => {
         "effect.js": mockFile.js({
           $call: () => null,
         }),
-      })
-        .import("./effect.js")
-        .diagnose(`
+      }).import("./effect.js").diagnose(`
         extern dec call(target, arg: valueof unknown);
         @call(#{foo: T}) model Dec<T extends valueof string> {}
         `);
@@ -999,9 +987,7 @@ describe("compiler: templates", () => {
         "effect.js": mockFile.js({
           $call: () => null,
         }),
-      })
-        .import("./effect.js")
-        .diagnose(`
+      }).import("./effect.js").diagnose(`
         extern dec call(target, arg: valueof {foo: int32});
         @call(#{foo: T}) model Dec<T extends valueof string> {}
         `);

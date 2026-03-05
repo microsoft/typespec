@@ -41,10 +41,7 @@ describe("compiler: libraries", () => {
     }).createInstance();
     // Add test-lib placeholder (normally added internally by Tester.diagnose)
     instance.fs.addTypeSpecFile("./node_modules/@typespec/compiler/test-lib/main.tsp", "");
-    const program = await compile(
-      instance.fs.compilerHost,
-      resolveVirtualPath("other/main.tsp"),
-    );
+    const program = await compile(instance.fs.compilerHost, resolveVirtualPath("other/main.tsp"));
     expectDiagnostics(program.diagnostics, {
       code: "compiler-version-mismatch",
       severity: "warning",

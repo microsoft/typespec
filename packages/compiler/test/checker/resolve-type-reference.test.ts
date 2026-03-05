@@ -52,18 +52,14 @@ describe("compiler: resolveTypeReference", () => {
     ));
 
   it("resolve metatype", () =>
-    expectResolve(
-      "Pet.home::type.street",
-      `model Pet { home: { /*target*/street: string } }`,
-    ));
+    expectResolve("Pet.home::type.street", `model Pet { home: { /*target*/street: string } }`));
 
   it("doesn't instantiate template", async () => {
     const diagnostics = await diagnoseResolution("Foo<{}>", `model Foo<T> {t: T}`);
     expectDiagnostics(diagnostics, []);
   });
 
-  it("resolve enum member", () =>
-    expectResolve("Direction.up", `enum Direction { /*target*/up }`));
+  it("resolve enum member", () => expectResolve("Direction.up", `enum Direction { /*target*/up }`));
 
   it("resolve enum member with spread", async () => {
     const { Direction, program } = (await Tester.compile(`
@@ -78,10 +74,7 @@ describe("compiler: resolveTypeReference", () => {
   });
 
   it("resolve via alias", () =>
-    expectResolve(
-      "PetName",
-      `model Pet { /*target*/name: string } alias PetName = Pet.name;`,
-    ));
+    expectResolve("PetName", `model Pet { /*target*/name: string } alias PetName = Pet.name;`));
 
   it("emit diagnostic if not found", async () => {
     const diagnostics = await diagnoseResolution("Direction.up", ``);

@@ -1,12 +1,6 @@
 import { rejects, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { Model } from "../../src/core/types.js";
-import {
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-  mockFile,
-  t,
-} from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: using statements", () => {

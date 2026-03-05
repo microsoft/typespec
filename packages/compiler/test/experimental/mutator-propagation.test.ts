@@ -1,7 +1,7 @@
 // TODO: find better name for file
 import { expect, it } from "vitest";
 import { mutateSubgraph, Mutator } from "../../src/experimental/mutators.js";
-import { getTypeName, Model } from "../../src/index.js";
+import { getTypeName } from "../../src/index.js";
 import { t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

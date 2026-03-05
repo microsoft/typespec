@@ -2,12 +2,7 @@ import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, SyntaxKind, Type } from "../../src/core/types.js";
-import {
-  Numeric,
-  getDoc,
-  isArrayModelType,
-  isRecordModelType,
-} from "../../src/index.js";
+import { Numeric, getDoc, isArrayModelType, isRecordModelType } from "../../src/index.js";
 import {
   expectDiagnosticEmpty,
   expectDiagnostics,
@@ -28,9 +23,7 @@ describe("compiler: models", () => {
           t2 = _t2;
         },
       }),
-    })
-      .import("./dec.js")
-      .compile(t.code`
+    }).import("./dec.js").compile(t.code`
       model ${t.model("B")} { }
       model ${t.model("C")} { }
       @myDec(T1, T2)
@@ -604,9 +597,7 @@ describe("compiler: models", () => {
             reds.add(_t);
           },
         }),
-      })
-        .import("./dec.js")
-        .compile(t.code`
+      }).import("./dec.js").compile(t.code`
         @blue model A { }
         @red model ${t.model("B")} is A { };
         `);
@@ -817,9 +808,7 @@ describe("compiler: models", () => {
         "utils.js": mockFile.js({
           $observe,
         }),
-      })
-        .import("./utils.js")
-        .compile(t.code`
+      }).import("./utils.js").compile(t.code`
         model A<T> {
           b: T;
           c: C<string>;
@@ -857,9 +846,7 @@ describe("compiler: models", () => {
         "utils.js": mockFile.js({
           $observe,
         }),
-      })
-        .import("./utils.js")
-        .compile(t.code`
+      }).import("./utils.js").compile(t.code`
         model X<T> {
           prop: T;
           y: Y<T>;

@@ -5,7 +5,6 @@ import { t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: tag decorator", () => {
-
   it("applies @tag decorator to namespaces, interfaces, and operations", async (): Promise<void> => {
     const {
       OpNamespace,

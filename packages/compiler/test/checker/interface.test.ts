@@ -7,7 +7,6 @@ import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: interfaces", () => {
-
   it("works", async () => {
     const blues = new Set<Type>();
     const { Foo, program } = await Tester.files({
@@ -16,9 +15,7 @@ describe("compiler: interfaces", () => {
           blues.add(target);
         },
       }),
-    })
-      .import("./test.js")
-      .compile(t.code`
+    }).import("./test.js").compile(t.code`
       @blue interface ${t.interface("Foo")} {
         @blue bar(): string;
       }
@@ -116,9 +113,7 @@ describe("compiler: interfaces", () => {
           blues.add(target);
         },
       }),
-    })
-      .import("./test.js")
-      .compile(t.code`
+    }).import("./test.js").compile(t.code`
       @blue interface Foo { foo(): int32 }
       interface ${t.interface("Bar")} extends Foo {
         bar(): int32;
@@ -139,9 +134,7 @@ describe("compiler: interfaces", () => {
           blues.add(target);
         },
       }),
-    })
-      .import("./test.js")
-      .compile(t.code`
+    }).import("./test.js").compile(t.code`
       interface Foo { @blue foo(): int32 }
       interface ${t.interface("Bar")} extends Foo {}
       `);
@@ -369,9 +362,7 @@ describe("compiler: interfaces", () => {
             _track();
           },
         }),
-      })
-        .import("./dec.js")
-        .compile(`
+      }).import("./dec.js").compile(`
         interface Base<A> {
           @track bar<B>(input: A): B;
         }
@@ -385,9 +376,7 @@ describe("compiler: interfaces", () => {
       const $track = vi.fn();
       await Tester.files({
         "dec.js": mockFile.js({ $track }),
-      })
-        .import("./dec.js")
-        .compile(`
+      }).import("./dec.js").compile(`
         interface Base<T> {
           @track bar(): T;
         }

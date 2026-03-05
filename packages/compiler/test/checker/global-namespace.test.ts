@@ -79,9 +79,7 @@ describe("compiler: global namespace", () => {
   });
 
   it("can override TypeSpec library things", async () => {
-    const { int32 } = await Tester.compile(
-      t.code`model ${t.model("int32")} { x: TypeSpec.int32 }`,
-    );
+    const { int32 } = await Tester.compile(t.code`model ${t.model("int32")} { x: TypeSpec.int32 }`);
     notStrictEqual(int32, int32.properties.get("x")!.type);
   });
 });
