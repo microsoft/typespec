@@ -1245,6 +1245,23 @@ it("Handles user-defined model templates", async () => {
   );
 });
 
+it("Handles template operations in interfaces without crashing", async () => {
+  // Regression test: interfaces with template operations should not crash with
+  // "Encountered type TemplateParameter which we don't know how to emit."
+  // Template operations (e.g. getItem<T>(): T) should be skipped during emission.
+  await compileAndValidateMultiple(
+    tester,
+    `
+       interface MyOps {
+         @get list(): string;
+         @get getItem<T>(): T;
+       }
+    `,
+    [["IMyOps.cs", ["interface IMyOps", "Task<string> ListAsync( );"]]],
+    [["IMyOps.cs", ["GetItemAsync"]]],
+  );
+});
+
 it("Handles void type in operations", async () => {
   await compileAndValidateMultiple(
     tester,
