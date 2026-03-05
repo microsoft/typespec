@@ -22,7 +22,9 @@ describe("specify verb with each decorator", () => {
 
   it("@head with body emits head-operation-no-body warning", async () => {
     const diagnostics = await diagnoseOperations(`@head op test(): string;`);
-    expectDiagnostics(diagnostics, [{ code: "@typespec/http/head-operation-no-body", severity: "warning" }]);
+    expectDiagnostics(diagnostics, [
+      { code: "@typespec/http/head-operation-no-body", severity: "warning" },
+    ]);
   });
 });
 
