@@ -153,7 +153,7 @@ function processResponseType(
     diagnostics.add(
       createDiagnostic({
         code: "head-operation-no-body",
-        target: responseType,
+        target: operation,
       }),
     );
   }
