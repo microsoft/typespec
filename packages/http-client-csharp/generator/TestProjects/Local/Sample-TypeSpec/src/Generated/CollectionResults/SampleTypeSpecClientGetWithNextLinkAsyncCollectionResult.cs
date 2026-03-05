@@ -10,50 +10,44 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
     internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
-        private readonly Activity _activity;
+        private readonly ActivitySource _activitySource;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <param name="activity"> The activity for distributed tracing. </param>
-        public SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options, Activity activity = null)
+        /// <param name="activitySource"> The activity source for distributed tracing. </param>
+        public SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options, ActivitySource activitySource = null)
         {
             _client = client;
             _options = options;
-            _activity = activity;
+            _activitySource = activitySource;
         }
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            try
+            PipelineMessage message = _client.CreateGetWithNextLinkRequest(_options);
+            Uri nextPageUri = null;
+            while (true)
             {
-                PipelineMessage message = _client.CreateGetWithNextLinkRequest(_options);
-                Uri nextPageUri = null;
-                while (true)
-                {
-                    ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
-                    yield return result;
+                ClientResult result = await ExecutePageRequestAsync(message).ConfigureAwait(false);
+                yield return result;
 
-                    nextPageUri = ((ListWithNextLinkResponse)result).Next;
-                    if (nextPageUri == null)
-                    {
-                        yield break;
-                    }
-                    message = _client.CreateNextGetWithNextLinkRequest(nextPageUri, _options);
+                nextPageUri = ((ListWithNextLinkResponse)result).Next;
+                if (nextPageUri == null)
+                {
+                    yield break;
                 }
-            }
-            finally
-            {
-                _activity?.Dispose();
+                message = _client.CreateNextGetWithNextLinkRequest(nextPageUri, _options);
             }
         }
 
@@ -70,6 +64,21 @@ namespace SampleTypeSpec
             else
             {
                 return null;
+            }
+        }
+
+        /// <param name="message"> The pipeline message. </param>
+        private async Task<ClientResult> ExecutePageRequestAsync(PipelineMessage message)
+        {
+            using Activity activity = _activitySource?.StartActivity("SampleTypeSpecClient.GetWithNextLink", ActivityKind.Client);
+            try
+            {
+                return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
             }
         }
     }

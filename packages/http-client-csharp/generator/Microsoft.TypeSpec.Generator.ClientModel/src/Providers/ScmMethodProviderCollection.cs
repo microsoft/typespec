@@ -129,21 +129,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
-                // For paging, declare activity WITHOUT `using` so it's passed to the collection and disposed there via try-finally
-                VariableExpression? activityVar = null;
-                MethodBodyStatement[] pagingPrefix = [];
-                if (Client.ActivitySourceField != null)
-                {
-                    var activityDecl = Declare(
-                        "activity",
-                        new CSharpType(typeof(Activity), isNullable: true),
-                        Client.ActivitySourceField.Invoke(
-                            nameof(ActivitySource.StartActivity),
-                            [Literal($"{Client.Name}.{ServiceMethod.Name}"), FrameworkEnumValue(ActivityKind.Client)]),
-                        out activityVar);
-                    pagingPrefix = [activityDecl];
-                }
-                methodBody = [.. pagingPrefix, .. GetPagingMethodBody(collection, ConvenienceMethodParameters, true, activityVar)];
+                // Pass the ActivitySource to the collection so each page request can start its own activity.
+                // No activity is started here - tracing is per-page in the collection's ExecutePageRequest helper.
+                ValueExpression? activitySourceExpr = Client.ActivitySourceField?.AsValueExpression;
+                methodBody = [.. GetPagingMethodBody(collection, ConvenienceMethodParameters, true, activitySourceExpr)];
             }
             else if (responseBodyType is null)
             {
@@ -181,7 +170,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Prepend activity instrumentation statement if enabled (non-paging methods only;
-            // paging methods handle the activity disposal in the collection via try-finally)
+            // paging methods start a new activity per page request in ExecutePageRequest/ExecutePageRequestAsync)
             if (Client.ActivitySourceField != null && _pagingServiceMethod == null)
             {
                 var activityStatement = UsingDeclare(

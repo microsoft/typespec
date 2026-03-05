@@ -2106,15 +2106,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(convenienceMethod);
 
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
-            // Paging methods: activity declared without `using` so it's passed to the collection
-            StringAssert.Contains("_activitySource.StartActivity(\"TestClient.GetCats\"", methodBody);
-            // Should NOT use `using` for paging - the activity is disposed inside the collection via try-finally
-            StringAssert.DoesNotContain("using global::System.Diagnostics.Activity activity", methodBody);
-            StringAssert.Contains("global::System.Diagnostics.Activity activity =", methodBody);
+            // Paging methods: ActivitySource is passed to the collection, no activity started here.
+            // Each page request starts its own activity inside ExecutePageRequest in the collection.
+            StringAssert.DoesNotContain("StartActivity", methodBody);
+            StringAssert.DoesNotContain("Activity activity", methodBody);
+            // The _activitySource field should be passed to the collection constructor
+            StringAssert.Contains("_activitySource", methodBody);
         }
 
         [Test]
-        public void TracingInPagingCollectionDisposesActivityViaFinally()
+        public void TracingInPagingCollectionStartsActivityPerPage()
         {
             var pagingMetadata = InputFactory.PagingMetadata(["items"], null, null);
             var inputModel = InputFactory.Model("cat", properties:
@@ -2142,26 +2143,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 .FirstOrDefault();
             Assert.IsNotNull(collectionResultDefinition);
 
-            // CollectionResultDefinition should have an _activity field
-            var activityField = collectionResultDefinition!.Fields.FirstOrDefault(f => f.Name == "_activity");
-            Assert.IsNotNull(activityField, "CollectionResultDefinition should have an _activity field");
+            // CollectionResultDefinition should have an _activitySource field (not _activity)
+            var activitySourceField = collectionResultDefinition!.Fields.FirstOrDefault(f => f.Name == "_activitySource");
+            Assert.IsNotNull(activitySourceField, "CollectionResultDefinition should have an _activitySource field");
+            Assert.IsNull(collectionResultDefinition.Fields.FirstOrDefault(f => f.Name == "_activity"),
+                "CollectionResultDefinition should NOT have an _activity field");
 
-            // The constructor should accept an activity parameter
+            // The constructor should accept an activitySource parameter
             var ctor = collectionResultDefinition.Constructors.FirstOrDefault();
             Assert.IsNotNull(ctor);
-            var activityParam = ctor!.Signature.Parameters.FirstOrDefault(p => p.Name == "activity");
-            Assert.IsNotNull(activityParam, "Constructor should have an 'activity' parameter");
+            var activitySourceParam = ctor!.Signature.Parameters.FirstOrDefault(p => p.Name == "activitySource");
+            Assert.IsNotNull(activitySourceParam, "Constructor should have an 'activitySource' parameter");
 
-            // GetRawPages method should have try-finally to dispose the activity.
-            // Note: C# does not allow 'yield return' inside a try-catch (CS1626), so only try-finally is used here.
+            // GetRawPages method should NOT have try-finally (no per-collection activity).
+            // It should call ExecutePageRequest which handles per-page activity.
             var getRawPagesMethod = collectionResultDefinition.Methods.FirstOrDefault(m => m.Signature.Name == "GetRawPages");
             Assert.IsNotNull(getRawPagesMethod);
             var rawPagesBody = getRawPagesMethod!.BodyStatements!.ToDisplayString();
-            StringAssert.Contains("try", rawPagesBody);
-            StringAssert.Contains("finally", rawPagesBody);
-            StringAssert.Contains("_activity?.Dispose()", rawPagesBody);
-            // No catch block in iterator methods (CS1626 restriction)
-            StringAssert.DoesNotContain("catch", rawPagesBody);
+            StringAssert.Contains("ExecutePageRequest", rawPagesBody);
+            StringAssert.DoesNotContain("_activitySource.StartActivity", rawPagesBody);
+
+            // ExecutePageRequest helper should have per-page activity with try-catch
+            var executePageMethod = collectionResultDefinition.Methods.FirstOrDefault(m => m.Signature.Name == "ExecutePageRequest");
+            Assert.IsNotNull(executePageMethod, "CollectionResultDefinition should have an ExecutePageRequest method");
+            var executePageBody = executePageMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("_activitySource?.StartActivity(\"TestClient.GetCats\"", executePageBody);
+            StringAssert.Contains("using global::System.Diagnostics.Activity activity", executePageBody);
+            StringAssert.Contains("catch", executePageBody);
+            StringAssert.Contains("SetStatus", executePageBody);
+            StringAssert.Contains("ActivityStatusCode.Error", executePageBody);
         }
 
     }

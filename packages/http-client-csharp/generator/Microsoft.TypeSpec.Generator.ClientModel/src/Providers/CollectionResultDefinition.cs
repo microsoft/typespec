@@ -28,7 +28,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected bool IsAsync { get; }
         protected ClientProvider Client { get; }
         protected FieldProvider ClientField { get; }
-        protected FieldProvider? ActivityField { get; }
+        protected FieldProvider? ActivitySourceField { get; }
+        private string? _executePageRequestMethodName;
+        private string ExecutePageRequestMethodName => _executePageRequestMethodName ??= IsAsync ? "ExecutePageRequestAsync" : "ExecutePageRequest";
 
         protected InputOperation Operation { get; }
         protected InputPagingServiceMetadata Paging { get; }
@@ -78,10 +80,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (Client.ActivitySourceField != null)
             {
-                ActivityField = new FieldProvider(
+                ActivitySourceField = new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
-                    new CSharpType(typeof(Activity), isNullable: true),
-                    "_activity",
+                    new CSharpType(typeof(ActivitySource), isNullable: true),
+                    "_activitySource",
                     this);
             }
 
@@ -200,8 +202,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
         protected override FieldProvider[] BuildFields()
-            => ActivityField != null
-                ? [ClientField, ActivityField, .. RequestFields]
+            => ActivitySourceField != null
+                ? [ClientField, ActivitySourceField, .. RequestFields]
                 : [ClientField, .. RequestFields];
 
         protected override CSharpType[] BuildImplements() =>
@@ -221,15 +223,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Client.Type);
             var parameters = new List<ParameterProvider> { clientParameter };
             parameters.AddRange(CreateRequestParameters);
-            ParameterProvider? activityParameter = null;
-            if (ActivityField != null)
+            ParameterProvider? activitySourceParameter = null;
+            if (ActivitySourceField != null)
             {
-                activityParameter = new ParameterProvider(
-                    "activity",
-                    $"The activity for distributed tracing.",
-                    new CSharpType(typeof(Activity), isNullable: true),
+                activitySourceParameter = new ParameterProvider(
+                    "activitySource",
+                    $"The activity source for distributed tracing.",
+                    new CSharpType(typeof(ActivitySource), isNullable: true),
                     defaultValue: Null);
-                parameters.Add(activityParameter);
+                parameters.Add(activitySourceParameter);
             }
             return
             [
@@ -239,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         $"Initializes a new instance of {Name}, which is used to iterate over the pages of a collection.",
                         MethodSignatureModifiers.Public,
                         parameters),
-                    BuildConstructorBody(clientParameter, activityParameter),
+                    BuildConstructorBody(clientParameter, activitySourceParameter),
                     this)
             ];
         }
@@ -254,7 +256,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ResponseModel.GetPropertyExpression(responseModel, segments);
         }
 
-        private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter, ParameterProvider? activityParameter)
+        private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter, ParameterProvider? activitySourceParameter)
         {
             var statements = new List<MethodBodyStatement>(CreateRequestParameters.Count + 1);
 
@@ -267,9 +269,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(field.Assign(parameter).Terminate());
             }
 
-            if (ActivityField != null && activityParameter != null)
+            if (ActivitySourceField != null && activitySourceParameter != null)
             {
-                statements.Add(ActivityField.Assign(activityParameter).Terminate());
+                statements.Add(ActivitySourceField.Assign(activitySourceParameter).Terminate());
             }
 
             return statements.ToArray();
@@ -283,21 +285,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 (not null, _) => BuildGetRawPagesForNextLink(),
                 (_, not null) => BuildGetRawPagesForContinuationToken()
             };
-
-            // Wrap with try-finally to dispose the activity when enumeration completes.
-            // Note: A catch clause cannot be added here because C# does not allow 'yield return' inside
-            // a try block that has a catch clause (CS1626). Exception tracking is handled in the
-            // non-paging convenience methods instead.
-            if (ActivityField != null)
-            {
-                getRawPagesMethodBody =
-                [
-                    new TryCatchFinallyStatement(
-                        new TryExpression(getRawPagesMethodBody),
-                        [],
-                        new FinallyExpression(ActivityField.AsValueExpression.NullConditional().Invoke(nameof(IDisposable.Dispose), []).Terminate()))
-                ];
-            }
 
             var methods = new List<MethodProvider>
             {
@@ -329,6 +316,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     this)
             };
 
+            if (ActivitySourceField != null)
+            {
+                methods.Add(BuildExecutePageRequestMethod());
+            }
+
             if (ItemModelType != null)
             {
                 methods.Add(new MethodProvider(
@@ -347,6 +339,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return methods.ToArray();
+        }
+
+        private MethodProvider BuildExecutePageRequestMethod()
+        {
+            var messageParam = new ParameterProvider("message", $"The pipeline message.", new CSharpType(typeof(PipelineMessage)));
+            string activityName = $"{Client.Name}.{Operation.Name.ToIdentifierName()}";
+            CSharpType returnType = IsAsync
+                ? new CSharpType(typeof(Task<>), typeof(ClientResult))
+                : new CSharpType(typeof(ClientResult));
+            MethodSignatureModifiers modifiers = IsAsync
+                ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Async
+                : MethodSignatureModifiers.Private;
+
+            // using Activity? activity = _activitySource?.StartActivity("...", ActivityKind.Client);
+            var activityDecl = UsingDeclare(
+                "activity",
+                new CSharpType(typeof(Activity), isNullable: true),
+                ActivitySourceField!.AsValueExpression.NullConditional().Invoke(
+                    nameof(ActivitySource.StartActivity),
+                    [Literal(activityName), FrameworkEnumValue(ActivityKind.Client)]),
+                out var activityVar);
+
+            // try { return ...; } catch (Exception ex) { activity?.SetStatus(ActivityStatusCode.Error, ex.Message); throw; }
+            var pipelineResponse = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
+                ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
+                    messageParam.ToApi<HttpMessageApi>(),
+                    RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
+                    IsAsync)).ToApi<ClientResponseApi>();
+            var exDecl = new DeclarationExpression(typeof(Exception), "ex", out var exVar);
+            var catchBlock = new CatchExpression(exDecl,
+                activityVar.NullConditional().Invoke(nameof(Activity.SetStatus),
+                    [FrameworkEnumValue(ActivityStatusCode.Error), exVar.Property(nameof(Exception.Message))]).Terminate(),
+                Throw());
+
+            MethodBodyStatement[] body = [activityDecl, new TryCatchFinallyStatement(new TryExpression(Return(pipelineResponse)), catchBlock)];
+            return new MethodProvider(
+                new MethodSignature(ExecutePageRequestMethodName, null, modifiers, returnType, null, [messageParam]),
+                body,
+                this);
         }
 
         private MethodBodyStatement[] BuildGetValuesFromPages()
@@ -425,6 +456,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
+        private ClientResponseApi InvokePageRequest(ScopedApi<PipelineMessage> message)
+        {
+            if (ActivitySourceField != null)
+            {
+                return This.Invoke(ExecutePageRequestMethodName, [message], IsAsync).ToApi<ClientResponseApi>();
+            }
+            return ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
+                ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
+                    message.ToApi<HttpMessageApi>(),
+                    RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
+                    IsAsync)).ToApi<ClientResponseApi>();
+        }
+
         private MethodBodyStatement[] BuildGetRawPagesForNextLink()
         {
             var nextPageVariable = new VariableExpression(typeof(Uri), "nextPageUri");
@@ -444,11 +488,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     Declare(
                         "result",
-                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
-                            ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
-                                message.ToApi<HttpMessageApi>(),
-                                RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
-                                IsAsync)).ToApi<ClientResponseApi>(),
+                        InvokePageRequest(message),
                         out ClientResponseApi result),
 
                     // Yield return result
@@ -483,11 +523,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     Declare(
                         "result",
-                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
-                            ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
-                                message.ToApi<HttpMessageApi>(),
-                                RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
-                                IsAsync)).ToApi<ClientResponseApi>(),
+                        InvokePageRequest(message),
                         out ClientResponseApi result),
 
                     // Yield return result
@@ -509,16 +545,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     "message",
                     InvokeCreateInitialRequest(),
                     out ScopedApi<PipelineMessage> m);
-            var pipelineResponse = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
-                        ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
-                            m.ToApi<HttpMessageApi>(),
-                            RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
-                            IsAsync)).ToApi<ClientResponseApi>();
+            var pageRequestResult = InvokePageRequest(m);
             return
             [
                 pipelineMessageDeclaration,
                 // Yield return result
-                YieldReturn(pipelineResponse),
+                YieldReturn(pageRequestResult),
             ];
         }
 

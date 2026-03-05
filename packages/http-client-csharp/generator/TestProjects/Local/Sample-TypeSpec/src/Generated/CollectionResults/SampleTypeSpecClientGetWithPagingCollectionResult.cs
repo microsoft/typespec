@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -15,33 +16,26 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithPagingCollectionResult : CollectionResult
     {
         private readonly SampleTypeSpecClient _client;
-        private readonly Activity _activity;
+        private readonly ActivitySource _activitySource;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <param name="activity"> The activity for distributed tracing. </param>
-        public SampleTypeSpecClientGetWithPagingCollectionResult(SampleTypeSpecClient client, RequestOptions options, Activity activity = null)
+        /// <param name="activitySource"> The activity source for distributed tracing. </param>
+        public SampleTypeSpecClientGetWithPagingCollectionResult(SampleTypeSpecClient client, RequestOptions options, ActivitySource activitySource = null)
         {
             _client = client;
             _options = options;
-            _activity = activity;
+            _activitySource = activitySource;
         }
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            try
-            {
-                PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
-                yield return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
-            }
-            finally
-            {
-                _activity?.Dispose();
-            }
+            PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
+            yield return ExecutePageRequest(message);
         }
 
         /// <summary> Gets the continuation token from the specified page. </summary>
@@ -50,6 +44,21 @@ namespace SampleTypeSpec
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
+        }
+
+        /// <param name="message"> The pipeline message. </param>
+        private ClientResult ExecutePageRequest(PipelineMessage message)
+        {
+            using Activity activity = _activitySource?.StartActivity("SampleTypeSpecClient.GetWithPaging", ActivityKind.Client);
+            try
+            {
+                return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
     }
 }
