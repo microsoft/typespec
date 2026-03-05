@@ -6,6 +6,7 @@ import {
   DecoratorApplication,
   DecoratorContext,
   EnumValue,
+  FunctionContext,
   getDiscriminatedUnion,
   getDiscriminator,
   getLifecycleVisibilityEnum,
@@ -15,6 +16,7 @@ import {
   navigateType,
   Program,
   resetVisibilityModifiersForClass,
+  setMediaTypeHint,
   Tuple,
   Type,
   Union,
@@ -97,23 +99,21 @@ interface MergePatchMutatorCache {
 
 type MergePatchVisibilityMode = "Update" | "CreateOrUpdate";
 
-export const $applyMergePatch: ApplyMergePatchDecorator = (
-  ctx: DecoratorContext,
-  target: Model,
-  source: Model,
+export function applyMergePatchTransform(
+  ctx: FunctionContext | DecoratorContext,
+  input: Model,
   nameTemplate: string,
   options: ApplyMergePatchOptions,
-) => {
-  setMergePatchSource(ctx.program, target, source);
+): Model {
   let reported = false;
   navigateType(
-    source,
+    input,
     {
       intrinsic: (i) => {
         if (!reported && i.name === "null") {
           reportDiagnostic(ctx.program, {
             code: "merge-patch-contains-null",
-            target,
+            target: input,
           });
           reported = true;
         }
@@ -133,10 +133,29 @@ export const $applyMergePatch: ApplyMergePatchDecorator = (
     visibilityMode,
   ));
 
-  const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
+  const { type } = cachedMutateSubgraph(ctx.program, mutator, input);
 
-  target.properties = (mutated.type as Model).properties;
-  ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, source);
+  compilerAssert(
+    type.kind === "Model",
+    "Expected the root of the MergePatch transform to be a Model",
+  );
+
+  setMergePatchSource(ctx.program, type, input);
+  setMediaTypeHint(ctx.program, type, "application/merge-patch+json");
+
+  return type;
+}
+
+export const $applyMergePatch: ApplyMergePatchDecorator = (
+  ctx: DecoratorContext,
+  target: Model,
+  source: Model,
+  nameTemplate: string,
+  options: ApplyMergePatchOptions,
+) => {
+  const transformed = applyMergePatchTransform(ctx, source, nameTemplate, options);
+
+  target.properties = transformed.properties;
 };
 
 function visibilityModeToFilters(
@@ -200,7 +219,7 @@ function setPropertyOverride(
  * @returns
  */
 function createMergePatchMutator(
-  ctx: DecoratorContext,
+  ctx: DecoratorContext | FunctionContext,
   nameTemplate: string,
   visibilityMode: MergePatchVisibilityMode,
 ): Mutator {
@@ -311,6 +330,7 @@ function createMergePatchMutator(
             }
           }
 
+          setMediaTypeHint(program, clone, "application/merge-patch+json");
           rename(ctx.program, clone, nameTemplate);
         },
       },
@@ -373,6 +393,7 @@ function createMergePatchMutator(
           }
 
           clone.decorators = clone.decorators.filter((d) => d.decorator !== $applyMergePatch);
+          setMediaTypeHint(program, clone, "application/merge-patch+json");
           ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(clone, model);
           rename(ctx.program, clone, nameTemplate);
         },

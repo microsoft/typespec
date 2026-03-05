@@ -1,4 +1,12 @@
-import { Diagnostic, Model, ModelProperty, Program, Type, TypeKind } from "@typespec/compiler";
+import {
+  Diagnostic,
+  getMediaTypeHint,
+  Model,
+  ModelProperty,
+  Program,
+  Type,
+  TypeKind,
+} from "@typespec/compiler";
 import {
   expectDiagnosticEmpty,
   expectDiagnostics,
@@ -245,6 +253,36 @@ describe("http operation support", () => {
   });
 });
 describe("mutator validation", () => {
+  it("sets media type hint on transformed models", async () => {
+    const [program, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Child {
+        id: string;
+      }
+
+      model Foo {
+        id: string;
+        child?: Child;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): void;`,
+    );
+
+    expectDiagnosticEmpty(diag);
+    const bodyType = program[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    expect(getMediaTypeHint(runner.program, bodyType)).toBe("application/merge-patch+json");
+
+    const childProp = bodyType.properties.get("child");
+    ok(childProp);
+    const childType = getNonNullableType(childProp.type);
+    ok(childType);
+    deepStrictEqual(childType.kind, "Model");
+    expect(getMediaTypeHint(runner.program, childType)).toBe("application/merge-patch+json");
+  });
+
   it("handles optional and required properties", async () => {
     const [program, diag] = await compileAndDiagnoseWithRunner(
       runner,

@@ -10,6 +10,7 @@ import {
   Union,
   getDiscriminatedUnion,
   isSecret,
+  setMediaTypeHint,
 } from "../../src/index.js";
 import {
   getDoc,
@@ -1607,6 +1608,28 @@ describe("compiler: built-in decorators", () => {
 
       strictEqual(getMediaTypeHint(runner.program, A), undefined);
       strictEqual(getMediaTypeHint(runner.program, B), "text/plain");
+    });
+
+    it("can set media type hint programmatically", async () => {
+      const { A } = (await runner.compile(`
+        @test
+        model A {}
+      `)) as { A: Model };
+
+      strictEqual(getMediaTypeHint(runner.program, A), undefined);
+      setMediaTypeHint(runner.program, A, "application/merge-patch+json");
+      strictEqual(getMediaTypeHint(runner.program, A), "application/merge-patch+json");
+    });
+
+    it("validates media type when set programmatically", async () => {
+      const { A } = (await runner.compile(`
+        @test
+        model A {}
+      `)) as { A: Model };
+
+      expect(() => setMediaTypeHint(runner.program, A, "not-a-mime-type")).toThrow(
+        "Invalid MIME type 'not-a-mime-type' provided to setMediaTypeHint",
+      );
     });
   });
 });

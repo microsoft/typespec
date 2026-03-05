@@ -190,6 +190,23 @@ describe("compiler: models", () => {
         strictEqual(foo.defaultValue?.valueKind, "StringValue");
       });
 
+      it(`set it with valid passthrough template constraint`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model X<V extends valueof uint32> {
+          @test i: uint32 = V;
+        }
+
+        model Y<V extends valueof uint32> {
+          x: X<V>;
+        }
+        `,
+        );
+        const diagnostics = await testHost.diagnose("main.tsp");
+        expectDiagnosticEmpty(diagnostics);
+      });
+
       it(`error if constraint is not compatible with property type`, async () => {
         testHost.addTypeSpecFile(
           "main.tsp",
