@@ -29,32 +29,42 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName: strin
         import { Badge${typekit.isExperimental ? ", Aside" : ""} } from '@astrojs/starlight/components';
         `}
         </>
-        {typekit.isExperimental && !isCompilerPackage && (
+        {typekit.isExperimental && (
           <>
             {code`
         
         <Aside type="caution">
         **Experimental Feature**: These typekits are currently experimental. The API surface is volatile and may have breaking changes without notice. Use with caution in production environments.
         </Aside>
-        
-        To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
-        
-        \`\`\`ts
-        import "${typekitImportPath}";
-        import { $ } from "@typespec/compiler/typekit";
-        \`\`\`
-        
-        The first import registers the typekit extensions. This import only needs to exist once in your compilation as only its side effects are important.
         `}
           </>
         )}
-        {typekit.isExperimental && isCompilerPackage && (
+        {!isCompilerPackage && (
           <>
             {code`
         
-        <Aside type="caution">
-        **Experimental Feature**: These typekits are currently experimental. The API surface is volatile and may have breaking changes without notice. Use with caution in production environments.
-        </Aside>
+        To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
+        
+        \`\`\`ts${
+          typekit.isExperimental
+            ? `
+        import "${typekitImportPath}";`
+            : ""
+        }
+        import { $ } from "@typespec/compiler/typekit";
+        \`\`\`${
+          typekit.isExperimental
+            ? `
+        
+        The first import registers the typekit extensions. This import only needs to exist once in your compilation as only its side effects are important.`
+            : ""
+        }
+        `}
+          </>
+        )}
+        {isCompilerPackage && (
+          <>
+            {code`
         
         To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
         
