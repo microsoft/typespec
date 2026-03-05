@@ -1,20 +1,11 @@
 /* eslint-disable vitest/valid-describe-callback */
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
-import {
-  TestHost,
-  createTestHost,
-  expectDiagnostics,
-  expectTypeEquals,
-} from "../../src/testing/index.js";
+import { expectDiagnostics, expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: references", () => {
-  let testHost: TestHost;
-  beforeEach(async () => {
-    testHost = await createTestHost();
-  });
-
   function itCanReference({
     code,
     ref,
@@ -24,21 +15,19 @@ describe("compiler: references", () => {
     ref: string;
     resolveTarget?: (target: any) => Type | undefined;
   }) {
-    async function runTest(code: string) {
-      testHost.addTypeSpecFile("main.tsp", code);
-      const { RefContainer, target } = (await testHost.compile("./main.tsp")) as {
-        RefContainer: Model;
-        target: any;
-      };
+    async function runTest(codeBefore: string, codeAfter: string) {
+      const { RefContainer, target } = (await Tester.compile(
+        t.code`
+          ${codeBefore}
+          model ${t.model("RefContainer")} { y: ${ref} }
+          ${codeAfter}
+        `,
+      )) as any;
       const expectedTarget = resolveTarget ? resolveTarget(target) : target;
       expectTypeEquals(RefContainer.properties.get("y")!.type, expectedTarget);
     }
-    const refCode = `
-      @test model RefContainer { y: ${ref} }
-    `;
-    it("reference before declaration", () => runTest(`${refCode}\n${code}`));
-
-    it("reference after declaration", () => runTest(`${code}\n${refCode}`));
+    it("reference before declaration", () => runTest("", code));
+    it("reference after declaration", () => runTest(code, ""));
   }
 
   describe("model properties", () => {
@@ -227,52 +216,36 @@ describe("compiler: references", () => {
 
     describe("sibling property", () => {
       it("can reference sibling property defined before", async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-          @test model Foo {
+        const { Foo } = await Tester.compile(t.code`
+          model ${t.model("Foo")} {
             a: string;
             b: Foo.a;
           }
-          `,
-        );
+        `);
 
-        const { Foo } = (await testHost.compile("./main.tsp")) as {
-          Foo: Model;
-        };
         expectTypeEquals(Foo.properties.get("b")!.type, Foo.properties.get("a")!);
       });
 
       it("can reference sibling property defined after", async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-      @test model Foo {
-        a: Foo.b;
-        b: string;
-      }
-      `,
-        );
+        const { Foo } = await Tester.compile(t.code`
+          model ${t.model("Foo")} {
+            a: Foo.b;
+            b: string;
+          }
+        `);
 
-        const { Foo } = (await testHost.compile("./main.tsp")) as {
-          Foo: Model;
-        };
         strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
       });
     });
 
     it("member reference via templated alias with default parameters", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { X } = await Tester.compile(t.code`
         model M<T = string> { prop: T; } 
         alias A<T = string> = M<T>;
 
-        @test model X { y: A.prop; }
-        `,
-      );
+        model ${t.model("X")} { y: A.prop; }
+      `);
 
-      const { X } = (await testHost.compile("./main.tsp")) as { X: Model };
       const y = X.properties.get("y")!;
       strictEqual(y.type.kind, "ModelProperty");
       strictEqual(y.type.type.kind, "Scalar");
@@ -280,17 +253,13 @@ describe("compiler: references", () => {
     });
 
     it("member reference via templated alias with different alias defaults", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { X } = await Tester.compile(t.code`
           model M<T = string> { prop: T; }
           alias A<U = boolean> = M<U>;
 
-          @test model X { y: A.prop; }
-        `,
-      );
+          model ${t.model("X")} { y: A.prop; }
+      `);
 
-      const { X } = (await testHost.compile("./main.tsp")) as { X: Model };
       const y = X.properties.get("y")!;
       strictEqual(y.type.kind, "ModelProperty");
       strictEqual(y.type.type.kind, "Scalar");
@@ -298,19 +267,15 @@ describe("compiler: references", () => {
     });
 
     it("member reference via alias-of-alias (templated, defaultable)", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { X } = await Tester.compile(t.code`
           model M<T> { prop: T; }
 
           alias A<T> = M<T>;
           alias B<T = boolean> = A<T>;
 
-          @test model X { y: B.prop; }
-        `,
-      );
+          model ${t.model("X")} { y: B.prop; }
+      `);
 
-      const { X } = (await testHost.compile("./main.tsp")) as { X: Model };
       const y = X.properties.get("y")!;
       strictEqual(y.type.kind, "ModelProperty");
       strictEqual(y.type.type.kind, "Scalar");
@@ -318,15 +283,11 @@ describe("compiler: references", () => {
     });
 
     it("member reference via templated alias to model literal with default argument", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { Example } = await Tester.compile(t.code`
         alias A<T = string> = { t: T; };
-        @test model Example { prop: A.t }
-        `,
-      );
+        model ${t.model("Example")} { prop: A.t }
+      `);
 
-      const { Example } = (await testHost.compile("./main.tsp")) as { Example: Model };
       const prop = Example.properties.get("prop")!;
       strictEqual(prop.type.kind, "ModelProperty");
       strictEqual(prop.type.type.kind, "Scalar");
@@ -334,15 +295,10 @@ describe("compiler: references", () => {
     });
 
     it("reports an error when referencing an uninstantiated alias", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const diagnostics = await Tester.diagnose(`
         alias A<T> = { t: T; };
-        @test model Example { prop: A.t }
-        `,
-      );
-
-      const diagnostics = await testHost.diagnose("./main.tsp");
+        model Example { prop: A.t }
+      `);
 
       expectDiagnostics(diagnostics, [
         {
@@ -392,80 +348,65 @@ describe("compiler: references", () => {
       }));
 
     describe("reference in namespace decorator", () => {
-      let taggedValue: Model | undefined;
-
-      beforeEach(() => {
-        taggedValue = undefined;
-        testHost.addJsFile("collect.js", {
-          $collect: (_: any, t: any, value: any) => (taggedValue = value),
-        });
-      });
-
       it("can reference enum resolved in a namespace decorator", async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-          import "./collect.js";
-          @test enum MyEnum { a, b }
+        let taggedValue: Model | undefined;
+        const { MyEnum } = await Tester.files({
+          "collect.js": mockFile.js({
+            $collect: (_: any, _t: any, value: any) => (taggedValue = value),
+          }),
+        }).import("./collect.js").compile(t.code`
+            enum ${t.enum("MyEnum")} { a, b }
 
-          model Template<T extends AorB> {
-            t: T;
-          }
+            model Template<T extends AorB> {
+              t: T;
+            }
 
-          alias AorB = A | B;
+            alias AorB = A | B;
 
-          model A {
-            type: MyEnum.a;
-          }
+            model A {
+              type: MyEnum.a;
+            }
 
-          model B {
-            type: MyEnum.b;
-          }
+            model B {
+              type: MyEnum.b;
+            }
 
-          model My {
-            type: MyEnum.b;
-          }
+            model My {
+              type: MyEnum.b;
+            }
 
-          @collect(Template<My>)
-          namespace Test { }
-      `,
-        );
-
-        const { MyEnum } = (await testHost.compile("./main.tsp")) as { MyEnum: Enum };
+            @collect(Template<My>)
+            namespace Test { }
+          `);
 
         ok(taggedValue);
-        const t = taggedValue.properties.get("t")?.type;
-        strictEqual(t?.kind, "Model" as const);
-        strictEqual(t.properties.get("type")?.type.kind, "EnumMember" as const);
-        strictEqual(t.properties.get("type")?.type, MyEnum.members.get("b"));
+        const tagType = taggedValue.properties.get("t")?.type;
+        strictEqual(tagType?.kind, "Model" as const);
+        strictEqual(tagType.properties.get("type")?.type.kind, "EnumMember" as const);
+        strictEqual(tagType.properties.get("type")?.type, MyEnum.members.get("b"));
       });
 
       it("alias don't conflict", async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-        import "./collect.js";
-        
-        @collect(Foo.a)
-        namespace MyService;
+        let taggedValue: Model | undefined;
+        const { Foo } = await Tester.files({
+          "collect.js": mockFile.js({
+            $collect: (_: any, _t: any, value: any) => (taggedValue = value),
+          }),
+        }).import("./collect.js").compile(t.code`
+            @collect(Foo.a)
+            namespace MyService;
 
-        interface Base<TResource> {}
-        
-        alias ViaAlias<T> = Base<T>;
-        alias ViaAlias2 = ViaAlias<string>;
-        
-        interface MyInterface extends ViaAlias2 {}
-        
-        @test enum Foo {
-          a,
-        }
-        
-      `,
-        );
-
-        const { Foo } = (await testHost.compile("./main.tsp")) as {
-          Foo: Enum;
-        };
+            interface Base<TResource> {}
+            
+            alias ViaAlias<T> = Base<T>;
+            alias ViaAlias2 = ViaAlias<string>;
+            
+            interface MyInterface extends ViaAlias2 {}
+            
+            enum ${t.enum("Foo")} {
+              a,
+            }
+          `);
 
         strictEqual(taggedValue, Foo.members.get("a"));
       });
@@ -570,97 +511,77 @@ describe("compiler: references", () => {
       }));
 
     describe("reference sibling members", () => {
+      // Those tests look broken https://github.com/microsoft/typespec/issues/9731
+      // eslint-disable-next-line no-unassigned-vars
       let linkedValue: Operation | undefined;
-      beforeEach(() => {
-        testHost.addJsFile("./test-link.js", {
-          $testLink: (_: any, t: any, value: Operation) => {},
-        });
-      });
-      it("defined before", async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-        import "./test-link.js";
-        @test interface Foo {
-          one(): void;
-          @testLink(Foo.one)
-          two(): void;
-        }
-      `,
-        );
 
-        const { Foo } = (await testHost.compile("./main.tsp")) as {
-          Foo: Interface;
-        };
+      it("defined before", async () => {
+        const { Foo } = await Tester.files({
+          "test-link.js": mockFile.js({
+            $testLink: (_: any, _t: any, value: Operation) => {},
+          }),
+        }).import("./test-link.js").compile(t.code`
+            interface ${t.interface("Foo")} {
+              one(): void;
+              @testLink(Foo.one)
+              two(): void;
+            }
+          `);
+
         strictEqual(linkedValue, Foo.operations.get("a"));
       });
 
       it("defined after", async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-        import "./test-link.js";
-        @test interface Foo {
-          @testLink(Foo.two) // <- No issues here!
-          one(): void;
-          two(): void;
-        }
-      `,
-        );
+        const { Foo } = await Tester.files({
+          "test-link.js": mockFile.js({
+            $testLink: (_: any, _t: any, value: Operation) => {},
+          }),
+        }).import("./test-link.js").compile(t.code`
+            interface ${t.interface("Foo")} {
+              @testLink(Foo.two) 
+              one(): void;
+              two(): void;
+            }
+          `);
 
-        const { Foo } = (await testHost.compile("./main.tsp")) as {
-          Foo: Interface;
-        };
         strictEqual(linkedValue, Foo.operations.get("a"));
       });
     });
 
     it("operation reference via templated alias with default parameters", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { example } = await Tester.compile(t.code`
           interface I<T = string> { o(): T; }
           alias A<T = string> = I<T>;
 
-          @test op example is A.o;
-        `,
-      );
-      const { example } = (await testHost.compile("./main.tsp")) as { example: Operation };
+          op ${t.op("example")} is A.o;
+      `);
       strictEqual(example.kind, "Operation");
       strictEqual(example.returnType.kind, "Scalar");
       strictEqual(example.returnType.name, "string");
     });
 
     it("operation reference via templated alias with different alias defaults", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { example } = await Tester.compile(t.code`
           interface I<T = string> { o(): T; }
           alias A<U = boolean> = I<U>;
 
-          @test op example is A.o;
-        `,
-      );
+          op ${t.op("example")} is A.o;
+      `);
 
-      const { example } = (await testHost.compile("./main.tsp")) as { example: Operation };
       strictEqual(example.kind, "Operation");
       strictEqual(example.returnType.kind, "Scalar");
       strictEqual(example.returnType.name, "boolean");
     });
 
     it("operation reference via alias-of-alias (templated, defaultable)", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { example } = await Tester.compile(t.code`
           interface I<T> { o(): T; }
           alias A<T> = I<T>;
           alias B<T = boolean> = A<T>;
           
-          @test op example is B.o;
-        `,
-      );
+          op ${t.op("example")} is B.o;
+      `);
 
-      const { example } = (await testHost.compile("./main.tsp")) as { example: Operation };
       strictEqual(example.kind, "Operation");
       strictEqual(example.returnType.kind, "Scalar");
       strictEqual(example.returnType.name, "boolean");
@@ -668,9 +589,7 @@ describe("compiler: references", () => {
   });
 
   it("throws proper diagnostics", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const diagnostics = await Tester.diagnose(`
       model M { }
       interface I { }
       union U { }
@@ -682,10 +601,7 @@ describe("compiler: references", () => {
         u: U.x;
         e: E.x;
       }
-      `,
-    );
-
-    const diagnostics = await testHost.diagnose("./main.tsp");
+    `);
 
     expectDiagnostics(diagnostics, [
       {
@@ -708,15 +624,10 @@ describe("compiler: references", () => {
   });
 
   it("referencing alias that reference an invalid ref should emit diagnostic", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const diagnostics = await Tester.diagnose(`
       alias A = NotDefined;
       alias B = A;
-      `,
-    );
-
-    const diagnostics = await testHost.diagnose("./main.tsp");
+    `);
 
     expectDiagnostics(diagnostics, [
       {
@@ -799,9 +710,7 @@ describe("compiler: references", () => {
       }));
 
     it("emits a diagnostic when referencing a non-existent meta type property", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const diagnostics = await Tester.diagnose(`
         model A {
           name: string;
         }
@@ -811,10 +720,7 @@ describe("compiler: references", () => {
         }
 
         op testOp(...B::foo): void;
-        `,
-      );
-
-      const diagnostics = await testHost.diagnose("./main.tsp");
+      `);
 
       expectDiagnostics(diagnostics, [
         {
@@ -825,9 +731,7 @@ describe("compiler: references", () => {
     });
 
     it("allows spreading meta type property", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { Spread } = await Tester.compile(t.code`
         model A {
           name: string;
         }
@@ -836,34 +740,26 @@ describe("compiler: references", () => {
           a: A;
         }
 
-        @test model Spread {
+        model ${t.model("Spread")} {
           ... B.a::type;
         }
-        `,
-      );
+      `);
 
-      const { Spread } = (await testHost.compile("./main.tsp")) as { Spread: Model };
       strictEqual(Spread.properties.size, 1);
       ok(Spread.properties.get("name"));
     });
 
     it("the Johan test case", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const { azureVersion } = await Tester.compile(t.code`
         model Completion { 
           choices: string[];
         }
         
         op baseVersion("model": string, top_n: int32): Completion;
         
-        @test op azureVersion(... baseVersion::parameters, dataSources: string[]): baseVersion::returnType & { rai: string[] };
-        `,
-      );
+        op ${t.op("azureVersion")}(... baseVersion::parameters, dataSources: string[]): baseVersion::returnType & { rai: string[] };
+      `);
 
-      const { azureVersion } = (await testHost.compile("./main.tsp")) as {
-        azureVersion: Operation;
-      };
       const existingNames = [...azureVersion.parameters.properties.values()].map((v) => v.name);
       strictEqual(existingNames.length, 3);
       ok(existingNames.includes("model"));

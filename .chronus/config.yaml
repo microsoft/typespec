@@ -77,4 +77,5 @@ additionalPackages:
 changedFiles:
   - "!**/*.md"
   - "!**/*.test.ts"
+  - "!**/packages/*/test/**/*"
   - "!**/*.e2e.ts"

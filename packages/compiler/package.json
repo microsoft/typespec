@@ -1,7 +1,7 @@
 {
   "name": "@typespec/compiler",
   "version": "1.9.0",
-  "description": "TypeSpec Compiler Preview",
+  "description": "TypeSpec compiler and standard library",
   "author": "Microsoft Corporation",
   "license": "MIT",
   "homepage": "https://typespec.io",
