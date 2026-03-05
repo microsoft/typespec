@@ -325,7 +325,32 @@ describe("http: routes", () => {
       `,
     );
 
-    deepStrictEqual(routes, [{ verb: "get", path: "/:action", params: [] }]);
+    deepStrictEqual(routes, [{ verb: "get", path: ":action", params: [] }]);
+  });
+
+  it("does not add / separator before ? route segment", async () => {
+    const routes = await getRoutesFor(
+      `
+      @put
+      @route("?pet=cat")
+      op bar(): void;
+      `,
+    );
+
+    deepStrictEqual(routes, [{ verb: "put", path: "?pet=cat", params: [] }]);
+  });
+
+  it("does not add / separator before ? route segment inside interface with parent route", async () => {
+    const routes = await getRoutesFor(
+      `
+      @route("abc")
+      interface Container {
+        @route("?restype=container") foo(): void;
+      }
+      `,
+    );
+
+    deepStrictEqual(routes, [{ verb: "get", path: "/abc?restype=container", params: [] }]);
   });
 
   it("defaults to POST when operation has a body but didn't specify the verb", async () => {

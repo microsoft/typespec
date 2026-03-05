@@ -26,7 +26,7 @@ import {
 import { parseUriTemplate, UriTemplate } from "./uri-template.js";
 
 // The set of allowed segment separator characters
-const AllowedSegmentSeparators = ["/", ":"];
+const AllowedSegmentSeparators = ["/", ":", "?"];
 
 function needsSlashPrefix(fragment: string) {
   return !(
@@ -59,8 +59,10 @@ function buildPath(pathFragments: string[]) {
   // Join all fragments with leading and trailing slashes trimmed
   const path = pathFragments.length === 0 ? "/" : joinPathSegments(pathFragments);
 
-  // The final path must start with a '/' or {/ (path expansion)
-  return path[0] === "/" || (path[0] === "{" && path[1] === "/") ? path : `/${path}`;
+  // The final path must start with a '/', {/ (path expansion), or an allowed segment separator
+  return AllowedSegmentSeparators.includes(path[0]) || (path[0] === "{" && path[1] === "/")
+    ? path
+    : `/${path}`;
 }
 
 export function resolvePathAndParameters(
