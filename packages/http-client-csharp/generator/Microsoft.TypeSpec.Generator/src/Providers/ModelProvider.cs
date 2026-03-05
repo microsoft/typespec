@@ -85,11 +85,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
-        /// <summary>
-        /// Gets the input model type that this provider was created from.
-        /// </summary>
-        public InputModelType InputModel => _inputModel;
-
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
         public ValueExpression? DiscriminatorValueExpression { get; init; }
 
@@ -530,7 +525,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // says TrackedResourceData), ensuring all base properties are properly deduplicated.
             if (HasSystemObjectModelBase() && BaseModelProvider is SystemObjectModelProvider systemObjBase)
             {
-                var baseInputModel = systemObjBase.InputModel;
+                var baseInputModel = systemObjBase._inputModel;
                 while (baseInputModel != null)
                 {
                     foreach (var prop in baseInputModel.Properties)
