@@ -630,5 +630,102 @@ describe("Operation Converter", () => {
       const subOp = subClient.methods[0].operation;
       strictEqual(subOp.path, "sub/sub-op");
     });
+
+    it("should handle multiple sub-clients with different includeRootSlash values per operation", async () => {
+      const program = await typeSpecCompile(
+        `
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @clientOption("includeRootSlash", false, "csharp")
+          interface BlobClient {
+            @route("/list")
+            op list(): void;
+
+            #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+            @clientOption("includeRootSlash", true, "csharp")
+            @route("/get")
+            op get(): void;
+
+            @route("/delete")
+            op delete(): void;
+          }
+
+          #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+          @clientOption("includeRootSlash", true, "csharp")
+          interface ContainerClient {
+            @route("/create")
+            op create(): void;
+
+            #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+            @clientOption("includeRootSlash", false, "csharp")
+            @route("/remove")
+            op remove(): void;
+
+            @route("/info")
+            op info(): void;
+          }
+
+          interface DefaultClient {
+            @route("/ping")
+            op ping(): void;
+
+            #suppress "@azure-tools/typespec-client-generator-core/client-option" "test"
+            @clientOption("includeRootSlash", false, "csharp")
+            @route("/status")
+            op status(): void;
+          }
+        `,
+        runner,
+        { IsTCGCNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      // BlobClient: client-level includeRootSlash=false
+      const blobClient = root.clients[0].children?.find((c) => c.name === "BlobClient");
+      ok(blobClient);
+
+      const listOp = blobClient.methods.find((m) => m.name === "list");
+      ok(listOp);
+      strictEqual(listOp.operation.path, "list");
+
+      const getOp = blobClient.methods.find((m) => m.name === "get");
+      ok(getOp);
+      strictEqual(getOp.operation.path, "/get");
+
+      const deleteOp = blobClient.methods.find((m) => m.name === "delete");
+      ok(deleteOp);
+      strictEqual(deleteOp.operation.path, "delete");
+
+      // ContainerClient: client-level includeRootSlash=true
+      const containerClient = root.clients[0].children?.find(
+        (c) => c.name === "ContainerClient",
+      );
+      ok(containerClient);
+
+      const createOp = containerClient.methods.find((m) => m.name === "create");
+      ok(createOp);
+      strictEqual(createOp.operation.path, "/create");
+
+      const removeOp = containerClient.methods.find((m) => m.name === "remove");
+      ok(removeOp);
+      strictEqual(removeOp.operation.path, "remove");
+
+      const infoOp = containerClient.methods.find((m) => m.name === "info");
+      ok(infoOp);
+      strictEqual(infoOp.operation.path, "/info");
+
+      // DefaultClient: no client-level option (default includeRootSlash=true)
+      const defaultClient = root.clients[0].children?.find((c) => c.name === "DefaultClient");
+      ok(defaultClient);
+
+      const pingOp = defaultClient.methods.find((m) => m.name === "ping");
+      ok(pingOp);
+      strictEqual(pingOp.operation.path, "/ping");
+
+      const statusOp = defaultClient.methods.find((m) => m.name === "status");
+      ok(statusOp);
+      strictEqual(statusOp.operation.path, "status");
+    });
   });
 });

@@ -8,7 +8,7 @@ import {
   isHttpMetadata,
   SdkBodyParameter,
   SdkBuiltInKinds,
-  SdkClientType as SdkClientTypeOfT,
+  SdkClientType,
   SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
@@ -32,6 +32,7 @@ import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
+import { ClientOptions } from "../type/client-options.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
 import { InputConstant } from "../type/input-constant.js";
@@ -68,15 +69,13 @@ import { fromSdkHttpExamples } from "./example-converter.js";
 import { fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
 
-type SdkClientType = SdkClientTypeOfT<SdkHttpOperation>;
-
 export function fromSdkServiceMethod(
   sdkContext: CSharpEmitterContext,
   sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
   namespace: string,
-  client?: SdkClientType,
+  client?: SdkClientType<SdkHttpOperation>,
 ): InputServiceMethod | undefined {
   let method = sdkContext.__typeCache.methods.get(sdkMethod);
   if (method) {
@@ -168,7 +167,7 @@ export function fromSdkServiceMethodOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
-  client?: SdkClientType,
+  client?: SdkClientType<SdkHttpOperation>,
 ): InputOperation {
   let operation = sdkContext.__typeCache.operations.get(method.operation);
   if (operation) {
@@ -188,9 +187,11 @@ export function fromSdkServiceMethodOperation(
   }
 
   const includeRootSlash = resolveIncludeRootSlash(method, client);
-  const path = includeRootSlash
-    ? method.operation.path
-    : method.operation.path.replace(/^\//, "");
+  const operationPath = method.operation.path;
+  const path =
+    !includeRootSlash && operationPath.length > 0 && operationPath[0] === "/"
+      ? operationPath.substring(1)
+      : operationPath;
 
   operation = {
     name: method.name,
@@ -257,7 +258,7 @@ function createServiceMethod<T extends InputServiceMethod>(
   uri: string,
   rootApiVersions: string[],
   namespace: string,
-  client?: SdkClientType,
+  client?: SdkClientType<SdkHttpOperation>,
 ): T {
   return {
     kind: method.kind,
@@ -719,7 +720,7 @@ function loadPagingServiceMetadata(
   rootApiVersions: string[],
   uri: string,
   namespace: string,
-  client?: SdkClientType,
+  client?: SdkClientType<SdkHttpOperation>,
 ): InputPagingServiceMetadata {
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
@@ -1004,7 +1005,7 @@ function getCollectionHeaderPrefix(
   sdkContext: CSharpEmitterContext,
   p: SdkHeaderParameter,
 ): string | undefined {
-  const value = getClientOptions(p, "collectionHeaderPrefix");
+  const value = getClientOptions(p, ClientOptions.collectionHeaderPrefix);
   if (value === undefined) {
     return undefined;
   }
@@ -1017,7 +1018,7 @@ function getCollectionHeaderPrefix(
     sdkContext.logger.reportDiagnostic({
       code: "general-warning",
       format: {
-        message: `The 'collectionHeaderPrefix' client option must be a string value, but got '${typeof value}'. The option will be ignored.`,
+        message: `The '${ClientOptions.collectionHeaderPrefix}' client option must be a string value, but got '${typeof value}'. The option will be ignored.`,
       },
       target: p.__raw ?? NoTarget,
     });
@@ -1028,18 +1029,18 @@ function getCollectionHeaderPrefix(
 
 function resolveIncludeRootSlash(
   method: SdkServiceMethod<SdkHttpOperation>,
-  client?: SdkClientType,
+  client?: SdkClientType<SdkHttpOperation>,
 ): boolean {
   // First check the method/operation level
-  const methodOption = getClientOptions(method, "includeRootSlash");
+  const methodOption = getClientOptions(method, ClientOptions.includeRootSlash);
   if (methodOption !== undefined) {
     return methodOption !== false;
   }
 
   // Walk up the client hierarchy
-  let current: SdkClientType | undefined = client;
+  let current: SdkClientType<SdkHttpOperation> | undefined = client;
   while (current) {
-    const clientOption = getClientOptions(current, "includeRootSlash");
+    const clientOption = getClientOptions(current, ClientOptions.includeRootSlash);
     if (clientOption !== undefined) {
       return clientOption !== false;
     }
