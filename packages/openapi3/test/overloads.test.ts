@@ -156,6 +156,13 @@ describe("overloads in versioned namespace", () => {
     );
 
     ok(result.v1);
+    const operation = result.v1.paths["/"].post;
+    ok(operation);
+    strictEqual(operation.operationId, "Widgets_create");
+    deepStrictEqual(Object.keys((operation.requestBody as OpenAPI3RequestBody).content), [
+      "text/plain",
+      "application/octet-stream",
+    ]);
   });
 
   it("overloads work in a versioned namespace", async () => {
@@ -182,5 +189,13 @@ describe("overloads in versioned namespace", () => {
     );
 
     ok(result.v1);
+    strictEqual(Object.keys(result.v1.paths).length, 1);
+    const operation = result.v1.paths["/upload"].post;
+    ok(operation);
+    strictEqual(operation.operationId, "upload");
+    deepStrictEqual(Object.keys((operation.requestBody as OpenAPI3RequestBody).content), [
+      "text/plain",
+      "application/octet-stream",
+    ]);
   });
 });
