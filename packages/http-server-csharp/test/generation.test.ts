@@ -2335,6 +2335,53 @@ model FileAttachmentMultipartRequest {
   );
 });
 
+it("Produces Accepted result for 202 response with body", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+    model AcceptedResponse {
+      @statusCode statusCode: 202;
+      jobId: string;
+    }
+
+    @post
+    op startJob(): AcceptedResponse;
+    `,
+    [["ContosoOperationsController.cs", ["return Accepted(result)"]]],
+  );
+});
+
+it("Produces Accepted result for 202 response without body", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+    model AcceptedNoBodyResponse {
+      @statusCode statusCode: 202;
+    }
+
+    @post
+    op startJob(): AcceptedNoBodyResponse;
+    `,
+    [["ContosoOperationsController.cs", ["return Accepted()"]]],
+  );
+});
+
+it("Produces StatusCode result for 201 response with body", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+    model CreatedResponse {
+      @statusCode statusCode: 201;
+      id: string;
+    }
+
+    @post
+    op createResource(): CreatedResponse;
+    `,
+    [["ContosoOperationsController.cs", ["return StatusCode(201, result)"]]],
+  );
+});
+
 const multipartSpec = `
 @error
 model NotFoundErrorResponse {
