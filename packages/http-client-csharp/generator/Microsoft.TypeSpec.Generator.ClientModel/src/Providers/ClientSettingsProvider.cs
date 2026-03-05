@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -23,10 +25,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly ClientProvider _clientProvider;
         private readonly InputEndpointParameter? _inputEndpointParam;
 
-        // ClientSettings base type - not yet in current NuGet package
-        internal static readonly CSharpType ClientSettingsType = CSharpType.FromExternalType("ClientSettings", "System.ClientModel.Primitives");
+#pragma warning disable SCME0002 // ClientSettings is for evaluation purposes only
+        internal static readonly CSharpType ClientSettingsType = typeof(ClientSettings);
+#pragma warning restore SCME0002
 
-        internal static readonly CSharpType IConfigurationSectionType = CSharpType.FromExternalType("IConfigurationSection", "Microsoft.Extensions.Configuration");
+        internal static readonly CSharpType IConfigurationSectionType = typeof(IConfigurationSection);
 
         internal ClientSettingsProvider(InputClient inputClient, ClientProvider clientProvider)
         {
