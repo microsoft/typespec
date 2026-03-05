@@ -210,15 +210,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         // -------------------------------------------------------------------
 
         [Test]
-        public void SystemObjectModelProvider_Properties_AreEmpty()
+        public void SystemObjectModelProvider_Properties_ComeFromInputModel()
         {
             var systemType = CreateSystemCSharpType("ResourceData", "TestFramework");
             var prop = InputFactory.Property("Name", InputPrimitiveType.String);
             var inputModel = InputFactory.Model("Resource", properties: [prop]);
             var provider = new SystemObjectModelProvider(systemType, inputModel);
 
-            Assert.IsEmpty(provider.Properties,
-                "SystemObjectModelProvider should not generate properties — the framework type already has them");
+            // Properties are now built from the input model so derived models can see
+            // base properties for constructor building and property deduplication.
+            var propertyNames = provider.Properties.Select(p => p.Name).ToList();
+            Assert.IsTrue(propertyNames.Contains("Name"),
+                "SystemObjectModelProvider should expose properties from the input model for derived model constructor building");
         }
 
         [Test]
@@ -233,14 +236,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void SystemObjectModelProvider_Constructors_AreEmpty()
+        public void SystemObjectModelProvider_Constructors_AreBuiltFromInputModel()
         {
             var systemType = CreateSystemCSharpType("ResourceData", "TestFramework");
-            var inputModel = InputFactory.Model("Resource", properties: []);
+            var prop = InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true);
+            var inputModel = InputFactory.Model("Resource", properties: [prop]);
             var provider = new SystemObjectModelProvider(systemType, inputModel);
 
-            Assert.IsEmpty(provider.Constructors,
-                "SystemObjectModelProvider should not generate constructors");
+            // Constructors are now built from the input model so derived models can use
+            // BaseModelProvider.FullConstructor.Signature.Parameters for constructor building.
+            Assert.IsNotEmpty(provider.Constructors,
+                "SystemObjectModelProvider should build constructors from the input model for derived model constructor building");
         }
 
         [Test]
