@@ -171,13 +171,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => _baseModelProvider ??= BuildBaseModelProvider();
 
         /// <summary>
-        /// Replaces the base model provider. Use this when a visitor needs to change the base type
-        /// (e.g., custom code overrides the base to a different framework type).
-        /// Call <see cref="TypeProvider.Reset"/> after setting to rebuild dependent members.
+        /// Updates the model provider, optionally replacing the base model provider.
+        /// When <paramref name="baseModelProvider"/> is specified, the model is automatically
+        /// reset to rebuild all dependent members (constructors, properties, etc.).
         /// </summary>
-        public void SetBaseModelProvider(ModelProvider? baseModelProvider)
+        /// <param name="baseModelProvider">The new base model provider to replace the current one.</param>
+        public void Update(
+            ModelProvider? baseModelProvider = null,
+            IEnumerable<MethodProvider>? methods = null,
+            IEnumerable<ConstructorProvider>? constructors = null,
+            IEnumerable<PropertyProvider>? properties = null,
+            IEnumerable<FieldProvider>? fields = null,
+            IEnumerable<TypeProvider>? serializations = null,
+            IEnumerable<TypeProvider>? nestedTypes = null,
+            IEnumerable<AttributeStatement>? attributes = default,
+            IEnumerable<CSharpType>? implements = null,
+            XmlDocProvider? xmlDocs = null,
+            TypeSignatureModifiers? modifiers = null,
+            string? name = null,
+            string? @namespace = null,
+            string? relativeFilePath = null,
+            bool reset = false)
         {
-            _baseModelProvider = baseModelProvider;
+            if (baseModelProvider != null)
+            {
+                _baseModelProvider = baseModelProvider;
+                reset = true;
+            }
+            base.Update(methods, constructors, properties, fields, serializations, nestedTypes, attributes, implements, xmlDocs, modifiers, name, @namespace, relativeFilePath, reset);
         }
 
         /// <inheritdoc/>
