@@ -725,6 +725,10 @@ class Model(_MyMutableMapping):
     def __init_subclass__(cls, discriminator: typing.Optional[str] = None) -> None:
         for base in cls.__bases__:
             if hasattr(base, "__mapping__"):
+                if discriminator is None:
+                    # This could mean that a ploymorphic model has been patched without an explicit discriminator.
+                    # We will attempt to find and replace its parent in the mapping.
+                    discriminator = next((k for k, v in base.__mapping__.items() if v == base), None)
                 base.__mapping__[discriminator or cls.__name__] = cls  # type: ignore
 
     {% if code_model.has_padded_model_property %}
