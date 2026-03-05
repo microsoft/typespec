@@ -1,12 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { StringLiteral, Type } from "../../src/core/types.js";
-import {
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-  mockFile,
-  t,
-} from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 it("run decorator without arguments", async () => {
@@ -18,9 +13,7 @@ it("run decorator without arguments", async () => {
         blueThing = t;
       },
     }),
-  })
-    .import("./test.js")
-    .compile(t.code`
+  }).import("./test.js").compile(t.code`
       model ${t.model("Foo")} { };
 
       @@blue(Foo);
@@ -37,9 +30,7 @@ it("run decorator with arguments", async () => {
         customName = n.value;
       },
     }),
-  })
-    .import("./test.js")
-    .compile(`
+  }).import("./test.js").compile(`
       model Foo { };
 
       @@customName(Foo, "FooCustom");
@@ -57,9 +48,7 @@ describe("declaration scope", () => {
           blueThing = t;
         },
       }),
-    })
-      .import("./test.js")
-      .compile(t.code`
+    }).import("./test.js").compile(t.code`
         model ${t.model("Foo")} { };
 
         @@blue(Foo);
@@ -76,9 +65,7 @@ describe("declaration scope", () => {
           blueThing = t;
         },
       }),
-    })
-      .import("./test.js")
-      .compile(t.code`
+    }).import("./test.js").compile(t.code`
         namespace MyLibrary;
 
         model ${t.model("Foo")} { };
@@ -97,9 +84,7 @@ describe("declaration scope", () => {
           blueThing = t;
         },
       }),
-    })
-      .import("./test.js")
-      .compile(t.code`
+    }).import("./test.js").compile(t.code`
         namespace MyLibrary {
           model ${t.model("Foo")} { };
 
@@ -123,9 +108,7 @@ describe("declaration scope", () => {
           blueThing = t;
         },
       }),
-    })
-      .import("./test.js")
-      .compile(t.code`
+    }).import("./test.js").compile(t.code`
         model ${t.model("Foo")} {};
 
         interface Factory<T> {
@@ -179,9 +162,7 @@ describe("augment types", () => {
           customName = n.value;
         },
       }),
-    })
-      .import("./test.js")
-      .compileAndDiagnose(`
+    }).import("./test.js").compileAndDiagnose(`
         ${code}
 
         @@customName(${reference}, "FooCustom");
@@ -189,6 +170,7 @@ describe("augment types", () => {
 
     expectDiagnosticEmpty(diagnostics);
     ok(result.target, `Missing element decorated with '@test("target")'`);
+    strictEqual(result.target?.entityKind, "Type");
     strictEqual(runOnTarget?.kind, result.target.kind);
     strictEqual(runOnTarget, result.target);
     strictEqual(customName, "FooCustom");
@@ -439,7 +421,7 @@ describe("augment location", () => {
     })
       .import("./test.js")
       .compile(code);
-
+    strictEqual(target?.entityKind, "Type");
     strictEqual(runOnTarget?.kind, target.kind);
     strictEqual(runOnTarget, target);
     strictEqual(customName, "FooCustom");
@@ -495,6 +477,7 @@ describe("augment order", () => {
       .import("./test.js")
       .compile(code);
 
+    strictEqual(target?.entityKind, "Type");
     strictEqual(runOnTarget?.kind, target.kind);
     strictEqual(runOnTarget, target);
     strictEqual(customName, "FooCustom");

@@ -2,12 +2,11 @@ import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
 import { UsageFlags, resolveUsages } from "../../src/core/helpers/usage-resolver.js";
 import { getTypeName } from "../../src/index.js";
-import { t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: helpers: usage resolver", () => {
   async function getUsages(
-    code: any,
+    code: string,
     targetNames?: string | string[],
   ): Promise<{ inputs: string[]; outputs: string[] }> {
     const compileResult: any = await Tester.compile(code);
@@ -152,11 +151,11 @@ describe("compiler: helpers: usage resolver", () => {
     describe("resolving usage of specific operation", () => {
       it("only collect types used in that operation", async () => {
         const usages = await getUsages(
-          t.code`
+          `
           model Foo {}
           model Bar {}
           op set(): Bar;
-          op ${t.op("get")}(): Foo; 
+          op /*get*/get(): Foo; 
         `,
           "get",
         );
@@ -166,10 +165,10 @@ describe("compiler: helpers: usage resolver", () => {
 
       it("only collect specific usage(input/output) for that operation", async () => {
         const usages = await getUsages(
-          t.code`
+          `
           model Foo {}
           op set(input: Foo): void;
-          op ${t.op("get")}(): Foo; 
+          op /*get*/get(): Foo; 
         `,
           "get",
         );
@@ -181,13 +180,13 @@ describe("compiler: helpers: usage resolver", () => {
     describe("resolving usage of specific interface", () => {
       it("only find usage in that interface", async () => {
         const usages = await getUsages(
-          t.code`
+          `
           model Foo {}
           model Bar {}
           interface One {
             set(input: Foo): void;
           }
-          interface ${t.interface("Two")} {
+          interface /*Two*/Two {
             get(): Foo;
             other(input: Bar): void;
           }
@@ -202,15 +201,15 @@ describe("compiler: helpers: usage resolver", () => {
     describe("resolving usage for a list of operations", () => {
       it("only find usage in those operations", async () => {
         const usages = await getUsages(
-          t.code`
+          `
           model Foo {}
           model Bar {}
           interface One {
-            ${t.op("set")}(input: Foo): void;
+            /*set*/set(input: Foo): void;
           }
           interface Two {
             get(): Foo;
-            ${t.op("other")}(input: Bar): void;
+            /*other*/other(input: Bar): void;
           }
         `,
           ["set", "other"],

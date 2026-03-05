@@ -9,10 +9,10 @@ describe("compiler: checker: doc comments", () => {
   const docComment = `/**
    *  ${expectedMainDoc}
    */`;
-  function testMainDoc(name: string, code: any, key = "target") {
+  function testMainDoc(name: string, code: string, key = "target") {
     it(name, async () => {
       const result = (await Tester.compile(code)) as any;
-      ok(result[key], `Make sure to have ${key} in code.`);
+      ok(result[key], `Make sure to have /*${key}*/ marker in code.`);
 
       strictEqual(getDoc(result.program, result[key]), expectedMainDoc);
     });
@@ -21,8 +21,8 @@ describe("compiler: checker: doc comments", () => {
   describe("main doc apply to", () => {
     testMainDoc(
       "model",
-      t.code`${docComment}
-      model ${t.model("target")} {}`,
+      `${docComment}
+      model /*target*/Foo {}`,
     );
 
     it("templated model", async () => {
@@ -36,45 +36,45 @@ describe("compiler: checker: doc comments", () => {
 
     testMainDoc(
       "model property",
-      t.code`
+      `
       model Foo {
         ${docComment}
-        ${t.modelProperty("target")}: string;
+        /*target*/name: string;
       }
     `,
     );
 
     testMainDoc(
       "scalar",
-      t.code`${docComment}
-      scalar ${t.scalar("target")};`,
+      `${docComment}
+      scalar /*target*/unreal;`,
     );
 
     testMainDoc(
       "enum",
-      t.code`${docComment}
-      enum ${t.enum("target")} {}`,
+      `${docComment}
+      enum /*target*/Foo {}`,
     );
 
     testMainDoc(
       "enum memember",
-      t.code`
+      `
       enum Foo {
         ${docComment}
-        ${t.enumMember("target")},
+        /*target*/a,
       }
     `,
     );
     testMainDoc(
       "operation",
-      t.code`${docComment}
-      op ${t.op("target")}(): string;`,
+      `${docComment}
+      op /*target*/foo(): string;`,
     );
 
     testMainDoc(
       "interface",
-      t.code`${docComment}
-      interface ${t.interface("target")} {}`,
+      `${docComment}
+      interface /*target*/Foo {}`,
     );
   });
 
@@ -237,38 +237,38 @@ describe("compiler: checker: doc comments", () => {
 });
 
 describe("@param", () => {
-  async function getDocForParam(code: any): Promise<string | undefined> {
+  async function getDocForParam(code: string): Promise<string | undefined> {
     const { target, program } = (await Tester.compile(code)) as any;
-    ok(target, `Make sure to have target in code.`);
+    ok(target, `Make sure to have /*target*/ marker in code.`);
     return getDoc(program, target.parameters.properties.get("one")!);
   }
 
   it("applies doc on param", async () => {
-    const doc = await getDocForParam(t.code`
+    const doc = await getDocForParam(`
       /**
        * @param one Doc comment
        */
-      op ${t.op("target")}(one: string): void;
+      op /*target*/target(one: string): void;
     `);
     strictEqual(doc, "Doc comment");
   });
 
   it("@doc on param wins", async () => {
-    const doc = await getDocForParam(t.code`
+    const doc = await getDocForParam(`
       /**
        * @param one Doc comment
        */
-      op ${t.op("target")}(@doc("Explicit") one: string): void;
+      op /*target*/target(@doc("Explicit") one: string): void;
     `);
     strictEqual(doc, "Explicit");
   });
 
   it("augment @@doc on param wins", async () => {
-    const doc = await getDocForParam(t.code`
+    const doc = await getDocForParam(`
       /**
        * @param one Doc comment
        */
-      op ${t.op("target")}(one: string): void;
+      op /*target*/target(one: string): void;
 
       @@doc(target::parameters.one, "Override");
     `);
@@ -276,19 +276,19 @@ describe("@param", () => {
   });
 
   it("carry over with op is", async () => {
-    const doc = await getDocForParam(t.code`
+    const doc = await getDocForParam(`
       /**
        * @param one Doc comment
        */
       op base(one: string): void;
       
-      op ${t.op("target")} is base;
+      op /*target*/target is base;
     `);
     strictEqual(doc, "Doc comment");
   });
 
   it("@param on child operation override parent @param", async () => {
-    const doc = await getDocForParam(t.code`
+    const doc = await getDocForParam(`
       /**
        * @param one Doc comment
        */
@@ -297,13 +297,13 @@ describe("@param", () => {
       /**
        * @param one Override for child
        */
-      op ${t.op("target")} is base;
+      op /*target*/target is base;
     `);
     strictEqual(doc, "Override for child");
   });
 
   it("augment @@doc wins over @param on child operation", async () => {
-    const doc = await getDocForParam(t.code`
+    const doc = await getDocForParam(`
       /**
        * @param one Doc comment
        */
@@ -312,31 +312,31 @@ describe("@param", () => {
       /**
        * @param one Override for child
        */
-      op ${t.op("target")} is base;
+      op /*target*/target is base;
       @@doc(target::parameters.one, "Override for child again");
     `);
     strictEqual(doc, "Override for child again");
   });
 
   it("spread model without @param keeps doc on property", async () => {
-    const doc = await getDocForParam(t.code`
+    const doc = await getDocForParam(`
       model A {
         @doc("Via model") one: string
       }
-      op ${t.op("target")}(...A): void;
+      op /*target*/target(...A): void;
     `);
     strictEqual(doc, "Via model");
   });
 
   it("@param override doc set from spread model", async () => {
-    const doc = await getDocForParam(t.code`
+    const doc = await getDocForParam(`
       model A {
         @doc("Via model") one: string
       }
       /**
        * @param one Doc comment
        */
-      op ${t.op("target")}(...A): void;
+      op /*target*/target(...A): void;
     `);
     strictEqual(doc, "Doc comment");
   });
@@ -366,38 +366,38 @@ describe("@param", () => {
 });
 
 describe("@prop", () => {
-  async function getDocForProp(code: any): Promise<string | undefined> {
+  async function getDocForProp(code: string): Promise<string | undefined> {
     const { target, program } = (await Tester.compile(code)) as any;
-    ok(target, `Make sure to have target in code.`);
+    ok(target, `Make sure to have /*target*/ marker in code.`);
     return getDoc(program, target.properties.get("one")!);
   }
 
   it("applies doc on param", async () => {
-    const doc = await getDocForProp(t.code`
+    const doc = await getDocForProp(`
       /**
        * @prop one Doc comment
        */
-      model ${t.model("target")} { one: string }
+      model /*target*/target { one: string }
     `);
     strictEqual(doc, "Doc comment");
   });
 
   it("@doc on param wins", async () => {
-    const doc = await getDocForProp(t.code`
+    const doc = await getDocForProp(`
       /**
        * @prop one Doc comment
        */
-      model ${t.model("target")} { @doc("Explicit") one: string }
+      model /*target*/target { @doc("Explicit") one: string }
     `);
     strictEqual(doc, "Explicit");
   });
 
   it("augment @@doc on param wins", async () => {
-    const doc = await getDocForProp(t.code`
+    const doc = await getDocForProp(`
       /**
        * @prop one Doc comment
        */
-      model ${t.model("target")} { one: string }
+      model /*target*/target { one: string }
 
       @@doc(target.one, "Override");
     `);
@@ -405,19 +405,19 @@ describe("@prop", () => {
   });
 
   it("carry over with model is", async () => {
-    const doc = await getDocForProp(t.code`
+    const doc = await getDocForProp(`
       /**
        * @prop one Doc comment
        */
       model Base { one: string }
       
-      model ${t.model("target")} is Base;
+      model /*target*/target is Base;
     `);
     strictEqual(doc, "Doc comment");
   });
 
   it("@prop on child operation override parent @prop", async () => {
-    const doc = await getDocForProp(t.code`
+    const doc = await getDocForProp(`
       /**
        * @prop one Doc comment
        */
@@ -426,13 +426,13 @@ describe("@prop", () => {
       /**
        * @prop one Override for child
        */
-      model ${t.model("target")} is Base;
+      model /*target*/target is Base;
     `);
     strictEqual(doc, "Override for child");
   });
 
   it("augment @@doc wins over @prop on child operation", async () => {
-    const doc = await getDocForProp(t.code`
+    const doc = await getDocForProp(`
       /**
        * @prop one Doc comment
        */
@@ -441,31 +441,31 @@ describe("@prop", () => {
       /**
        * @prop one Override for child
        */
-      model ${t.model("target")} is Base;
+      model /*target*/target is Base;
       @@doc(target.one, "Override for child again");
     `);
     strictEqual(doc, "Override for child again");
   });
 
   it("spread model without @prop keeps doc on property", async () => {
-    const doc = await getDocForProp(t.code`
+    const doc = await getDocForProp(`
       model Base {
         @doc("Via model") one: string
       }
-      model ${t.model("target")} { ...Base }
+      model /*target*/target { ...Base }
     `);
     strictEqual(doc, "Via model");
   });
 
   it("@prop override doc set from spread model", async () => {
-    const doc = await getDocForProp(t.code`
+    const doc = await getDocForProp(`
       model Base {
         @doc("Via model") one: string
       }
       /**
        * @prop one Doc comment
        */
-      model ${t.model("target")} { ...Base }
+      model /*target*/target { ...Base }
     `);
     strictEqual(doc, "Doc comment");
   });

@@ -2,7 +2,7 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import type { Program } from "../../src/core/program.js";
 import { type DecoratorContext, type Model, type Type } from "../../src/core/types.js";
-import { mockFile, t } from "../../src/testing/index.js";
+import { mockFile, t, TemplateWithMarkers } from "../../src/testing/index.js";
 import { createRekeyableMap } from "../../src/utils/misc.js";
 import { Tester } from "../tester.js";
 
@@ -26,13 +26,9 @@ describe("compiler: type cloning", () => {
   testClone("interfaces", t.code`@blue interface ${t.interface("test")} { o(): void; }`);
   testClone("unions", t.code`@blue union ${t.union("test")} { s: string; n: int32; }`);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function testClone(description: string, code: any) {
+  function testClone(description: string, code: TemplateWithMarkers<{ test: Type }>) {
     it(`clones ${description}`, async () => {
-      const { test, program } = (await BlueTester.compile(code)) as {
-        test: Type;
-        program: Program;
-      };
+      const { test, program } = await BlueTester.compile(code);
       const clone = program.checker.cloneType(test);
       ok(blues.has(clone!), "the clone is blue");
       deepStrictEqual(test, clone!);

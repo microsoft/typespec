@@ -39,6 +39,8 @@ describe("compiler: libraries", () => {
       }),
       "./other/node_modules/@typespec/compiler/index.js": mockFile.js({}),
     }).createInstance();
+    // Add test-lib placeholder (normally added internally by Tester.diagnose)
+    instance.fs.addTypeSpecFile("./node_modules/@typespec/compiler/test-lib/main.tsp", "");
     const program = await compile(
       instance.fs.compilerHost,
       resolveVirtualPath("other/main.tsp"),

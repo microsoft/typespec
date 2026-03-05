@@ -1,9 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import {
-  getDiscriminatedUnion,
-  isSecret,
-} from "../../src/index.js";
+import { getDiscriminatedUnion, isSecret } from "../../src/index.js";
 import {
   getDoc,
   getEncode,
@@ -569,7 +566,7 @@ describe("compiler: built-in decorators", () => {
         // Do not block unknown encoding
         ["utcDateTime", "custom-encoding", undefined],
         ["duration", "custom-encoding", "int32"],
-      ];
+      ] as const;
       const invalidCases = [
         [
           "utcDateTime",
@@ -862,13 +859,8 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("can define operation overloads outside of a namespace or interface", async () => {
-      const {
-        someThing,
-        someStringThing,
-        someNumberThing,
-        someUnrelatedThing,
-        program,
-      } = await Tester.compile(t.code`
+      const { someThing, someStringThing, someNumberThing, someUnrelatedThing, program } =
+        await Tester.compile(t.code`
         op ${t.op("someThing")}(param: string | int32): string | int32;
 
         @overload(someThing)
@@ -894,12 +886,7 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("can overload operations defined in a namespace", async () => {
-      const {
-        someThing,
-        someStringThing,
-        someNumberThing,
-        program,
-      } = await Tester.compile(t.code`
+      const { someThing, someStringThing, someNumberThing, program } = await Tester.compile(t.code`
         namespace MyArea {
           op ${t.op("someThing")}(param: string | int32): string | int32;
 
@@ -923,12 +910,7 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("can overload operations defined in an interface", async () => {
-      const {
-        someThing,
-        someStringThing,
-        someNumberThing,
-        program,
-      } = await Tester.compile(t.code`
+      const { someThing, someStringThing, someNumberThing, program } = await Tester.compile(t.code`
         interface SomeInterface {
           op ${t.op("someThing")}(param: string | int32): string | int32;
 
@@ -1201,13 +1183,17 @@ describe("compiler: built-in decorators", () => {
       });
     });
 
+    async function getTestDiscriminatedUnion(code: string) {
+      const { Foo, program } = (await Tester.compile(code)) as any;
+      return getDiscriminatedUnion(program, Foo)[0]!;
+    }
+
     it("discriminated by default", async () => {
-      const { Foo, program } = await Tester.compile(t.code`
+      const union = await getTestDiscriminatedUnion(`
         @discriminated
-        union ${t.union("Foo")} {
+        union /*Foo*/Foo {
         }
       `);
-      const union = getDiscriminatedUnion(program, Foo)[0]!;
 
       expect(union?.options).toEqual({
         envelope: "object",
@@ -1217,12 +1203,11 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("change discriminator", async () => {
-      const { Foo, program } = await Tester.compile(t.code`
+      const union = await getTestDiscriminatedUnion(`
         @discriminated(#{discriminatorPropertyName: "dataKind"})
-        union ${t.union("Foo")} {
+        union /*Foo*/Foo {
         }
       `);
-      const union = getDiscriminatedUnion(program, Foo)[0]!;
 
       expect(union?.options).toEqual({
         envelope: "object",
@@ -1232,12 +1217,11 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("change envelopePropertyName", async () => {
-      const { Foo, program } = await Tester.compile(t.code`
+      const union = await getTestDiscriminatedUnion(`
         @discriminated(#{envelopePropertyName: "data"})
-        union ${t.union("Foo")} {
+        union /*Foo*/Foo {
         }
       `);
-      const union = getDiscriminatedUnion(program, Foo)[0]!;
 
       expect(union?.options).toEqual({
         envelope: "object",
@@ -1247,12 +1231,11 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("set envelope: none", async () => {
-      const { Foo, program } = await Tester.compile(t.code`
+      const union = await getTestDiscriminatedUnion(`
         @discriminated(#{envelope: "none"})
-        union ${t.union("Foo")} {
+        union /*Foo*/Foo {
         }
       `);
-      const union = getDiscriminatedUnion(program, Foo)[0]!;
 
       expect(union?.options).toEqual({
         envelope: "none",
@@ -1353,10 +1336,7 @@ describe("compiler: built-in decorators", () => {
         }
       `);
       strictEqual(resolveEncodedName(program, expireAt, "application/json"), "exp");
-      strictEqual(
-        resolveEncodedName(program, expireAt, "application/merge-patch+json"),
-        "exp",
-      );
+      strictEqual(resolveEncodedName(program, expireAt, "application/merge-patch+json"), "exp");
     });
 
     it("resolve default name if no explicit encoded name", async () => {
