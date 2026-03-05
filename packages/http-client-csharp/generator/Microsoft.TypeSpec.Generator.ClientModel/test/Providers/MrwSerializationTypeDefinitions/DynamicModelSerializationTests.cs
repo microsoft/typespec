@@ -1489,5 +1489,81 @@ var serialization = derivedModelProvider.SerializationProviders.SingleOrDefault(
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public async Task WriteModelWithBinaryDataAdditionalPropsBackCompat()
+        {
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                additionalProperties: InputPrimitiveType.Any,
+                properties:
+                [
+                    InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            Assert.IsTrue(model.Properties.Any(p => p.IsAdditionalProperties),
+                "Backcompat model should still generate AdditionalProperties");
+
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            // Ensure Constructors have been built (which updates FullConstructor parameters
+            // used by the serialization provider). In the full pipeline, the model's Constructors
+            // are always written before the serialization file.
+            Assert.AreEqual(2, model.Constructors.Count);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task DeserializeModelWithBinaryDataAdditionalPropsBackCompat()
+        {
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                additionalProperties: InputPrimitiveType.Any,
+                properties:
+                [
+                    InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            Assert.IsTrue(model.Properties.Any(p => p.IsAdditionalProperties),
+                "Backcompat model should still generate AdditionalProperties");
+
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            // Ensure Constructors have been built (which updates FullConstructor parameters
+            // used by the serialization provider). In the full pipeline, the model's Constructors
+            // are always written before the serialization file.
+            Assert.AreEqual(2, model.Constructors.Count);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name.StartsWith("Deserialize")));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

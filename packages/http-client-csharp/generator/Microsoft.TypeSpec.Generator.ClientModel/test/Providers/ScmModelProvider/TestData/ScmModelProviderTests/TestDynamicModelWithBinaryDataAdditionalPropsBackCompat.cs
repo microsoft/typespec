@@ -2,7 +2,9 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
@@ -14,18 +16,21 @@ namespace Sample.Models
     {
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
         private global::System.ClientModel.Primitives.JsonPatch _patch;
+        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         public DynamicModel(string p1)
         {
             global::Sample.Argument.AssertNotNull(p1, nameof(p1));
 
             P1 = p1;
+            _additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
         }
 
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal DynamicModel(string p1, in global::System.ClientModel.Primitives.JsonPatch patch)
+        internal DynamicModel(string p1, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties, in global::System.ClientModel.Primitives.JsonPatch patch)
         {
             P1 = p1;
+            _additionalBinaryDataProperties = additionalProperties;
             _patch = patch;
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -36,5 +41,7 @@ namespace Sample.Models
         public ref global::System.ClientModel.Primitives.JsonPatch Patch => ref _patch;
 
         public string P1 { get; set; }
+
+        public global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> AdditionalProperties => _additionalBinaryDataProperties;
     }
 }

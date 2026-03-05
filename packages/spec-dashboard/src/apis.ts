@@ -30,6 +30,10 @@ export interface CoverageFromAzureStorageOptions {
   readonly tables?: TableDefinition[];
   /** Optional tier config to filter scenarios by tier */
   readonly tiers?: TierConfig;
+  /** Show coverage overview cards at the top of the dashboard */
+  readonly showOverview?: boolean;
+  /** Optional friendly display names for emitters. Key is the emitter package name, value is the display name. */
+  readonly emitterDisplayNames?: Readonly<Record<string, string>>;
 }
 
 export interface GeneratorCoverageSuiteReport extends CoverageReport {
