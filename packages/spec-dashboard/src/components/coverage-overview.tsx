@@ -1,7 +1,8 @@
-import { Card, Text, tokens } from "@fluentui/react-components";
+import { Card, Text } from "@fluentui/react-components";
 import { FunctionComponent, useMemo } from "react";
 import { CoverageSummary } from "../apis.js";
 import { GroupRatioColors, GroupRatios } from "../constants.js";
+import style from "./coverage-overview.module.css";
 
 interface EmitterOverview {
   name: string;
@@ -103,34 +104,11 @@ export const CoverageOverview: FunctionComponent<CoverageOverviewProps> = ({
   }
 
   return (
-    <section
-      css={{
-        marginBottom: 32,
-        padding: "20px 24px",
-        backgroundColor: tokens.colorNeutralBackground2,
-        borderRadius: tokens.borderRadiusXLarge,
-        border: `1px solid ${tokens.colorNeutralStroke2}`,
-      }}
-    >
-      <Text
-        as="h2"
-        weight="semibold"
-        size={500}
-        css={{
-          display: "block",
-          marginBottom: 16,
-          color: tokens.colorNeutralForeground1,
-        }}
-      >
+    <section className={style["section"]}>
+      <Text as="h2" weight="semibold" size={500} className={style["heading"]}>
         Coverage Overview
       </Text>
-      <div
-        css={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-          gap: 16,
-        }}
-      >
+      <div className={style["grid"]}>
         {emitterOverviews.map((emitter) => (
           <EmitterOverviewCard key={emitter.name} emitter={emitter} />
         ))}
@@ -148,33 +126,11 @@ const EmitterOverviewCard: FunctionComponent<EmitterOverviewCardProps> = ({ emit
   const percentage = Math.floor(emitter.coverageRatio * 100);
 
   return (
-    <Card
-      css={{
-        backgroundColor: tokens.colorNeutralBackground1,
-        borderTop: `3px solid ${accentColor}`,
-        padding: "16px 16px 20px",
-        textAlign: "center",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 4,
-        minHeight: 100,
-      }}
-    >
-      <Text
-        weight="semibold"
-        size={300}
-        css={{
-          color: tokens.colorNeutralForeground2,
-          minHeight: `calc(${tokens.lineHeightBase300})`,
-          display: "flex",
-          alignItems: "center",
-          textAlign: "center",
-        }}
-      >
+    <Card className={style["card"]} style={{ borderTop: `3px solid ${accentColor}` }}>
+      <Text weight="semibold" size={300} className={style["card-name"]}>
         {emitter.displayName}
       </Text>
-      <Text weight="bold" size={800} css={{ color: accentColor }}>
+      <Text weight="bold" size={800} style={{ color: accentColor }}>
         {percentage}%
       </Text>
     </Card>
