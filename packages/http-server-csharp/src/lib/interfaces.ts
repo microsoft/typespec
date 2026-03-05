@@ -84,18 +84,9 @@ export function checkOrAddNamespaceToScope(
     case "sourceFile": {
       const fileNameSpace = scope.sourceFile.meta["ResolvedNamespace"];
       if (fileNameSpace && fileNameSpace.startsWith(ns)) return true;
-      for (const entry of scope.sourceFile.imports.keys()) {
-        if (entry === ns) {
-          return true;
-        }
-      }
-      const added: string | undefined = scope.sourceFile.meta["AddedScope"];
-      if (added === undefined) {
-        scope.sourceFile.imports.set(ns, [ns]);
-        scope.sourceFile.meta["AddedScope"] = ns;
-        return true;
-      }
-      return false;
+      if (scope.sourceFile.imports.has(ns)) return true;
+      scope.sourceFile.imports.set(ns, [ns]);
+      return true;
     }
     default:
       return false;

@@ -5,6 +5,7 @@ import { useTierFiltering } from "../hooks/use-tier-filtering.js";
 import { TierConfig } from "../utils/tier-filtering-utils.js";
 import { CoverageOverview } from "./coverage-overview.js";
 import { DashboardTable } from "./dashboard-table.js";
+import style from "./dashboard.module.css";
 import { InfoEntry, InfoReport } from "./info-table.js";
 import { TierFilterTabs } from "./tier-filter.js";
 
@@ -34,7 +35,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
   const summaryTables = filteredSummaries
     .filter((s) => !selectedTier || s.manifest.scenarios.length > 0)
     .map((coverageSummary, i) => (
-      <div key={i} css={{ margin: 5 }}>
+      <div key={i} className={style["summary-table"]}>
         <DashboardTable
           coverageSummary={coverageSummary}
           emitterDisplayNames={emitterDisplayNames}
@@ -43,7 +44,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
     ));
 
   const specsCardTable = coverageSummaries.map((coverageSummary, i) => (
-    <div key={i} css={{ margin: 5, flex: 0 }}>
+    <div key={i} className={style["specs-card"]}>
       <CadlRanchSpecsCard coverageSummary={coverageSummary} />
     </div>
   ));
@@ -61,8 +62,8 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
           emitterDisplayNames={emitterDisplayNames}
         />
       )}
-      <div css={{ display: "flex" }}>{specsCardTable}</div>
-      <div css={{ height: 30 }}></div>
+      <div className={style["specs-row"]}>{specsCardTable}</div>
+      <div className={style["spacer"]}></div>
       {summaryTables}
     </div>
   );
@@ -76,7 +77,7 @@ const CadlRanchSpecsCard: FunctionComponent<{
   const packageName = coverageSummary.manifest.packageName;
 
   return (
-    <Card css={{ width: 500 }}>
+    <Card className={style["card"]}>
       <CardHeader header={<Text weight="bold">{heading}</Text>} />
       <InfoReport>
         <InfoEntry
