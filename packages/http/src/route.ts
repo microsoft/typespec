@@ -30,13 +30,14 @@ const AllowedSegmentSeparators = ["/", ":", "?"];
 
 function needsSlashPrefix(fragment: string) {
   return !(
+    fragment.length === 0 ||
     AllowedSegmentSeparators.indexOf(fragment[0]) !== -1 ||
     (fragment[0] === "{" && fragment[1] === "/")
   );
 }
 
 function normalizeFragment(fragment: string, trimLast = false) {
-  if (fragment.length > 0 && needsSlashPrefix(fragment)) {
+  if (needsSlashPrefix(fragment)) {
     // Insert the default separator
     fragment = `/${fragment}`;
   }

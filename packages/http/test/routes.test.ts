@@ -2,7 +2,12 @@ import { expectDiagnosticEmpty, expectDiagnostics, t } from "@typespec/compiler/
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { PathOptions } from "../generated-defs/TypeSpec.Http.js";
-import { getRoutePath, HttpOperation, HttpOperationParameter } from "../src/index.js";
+import {
+  getRoutePath,
+  HttpOperation,
+  HttpOperationParameter,
+  joinPathSegments,
+} from "../src/index.js";
 import {
   compileOperations,
   diagnoseOperations,
@@ -367,6 +372,20 @@ describe("http: routes", () => {
       );
 
       deepStrictEqual(routes, [{ verb: "get", path: "/abc?restype=container", params: [] }]);
+    });
+  });
+
+  describe("joinPathSegments", () => {
+    it("does not add / for empty segments", () => {
+      deepStrictEqual(joinPathSegments(["foo", ""]), "/foo");
+    });
+
+    it("does not add / for empty segments in the middle", () => {
+      deepStrictEqual(joinPathSegments(["foo", "", "bar"]), "/foo/bar");
+    });
+
+    it("does not add / for empty segment at the start", () => {
+      deepStrictEqual(joinPathSegments(["", "bar"]), "/bar");
     });
   });
 
