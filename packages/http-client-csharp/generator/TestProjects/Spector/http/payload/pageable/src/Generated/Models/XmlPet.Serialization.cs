@@ -22,6 +22,6 @@ namespace Payload.Pageable
 
         string IPersistableModel<XmlPet>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options) => throw null;
+        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options) => throw null;
     }
 }
