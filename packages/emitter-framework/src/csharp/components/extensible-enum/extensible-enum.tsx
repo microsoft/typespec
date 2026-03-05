@@ -11,7 +11,7 @@ import {
 import type { Union } from "@typespec/compiler";
 import { declarationRefkeys } from "../utils/refkey.js";
 
-export interface EnumDeclarationProps extends Omit<StructDeclarationProps, "name"> {
+export interface ExtensibleEnumDeclarationProps extends Omit<StructDeclarationProps, "name"> {
   /** Union that should be rendered as an extensible enum struct */
   type: Union;
   /** Name override */
@@ -21,7 +21,7 @@ export interface EnumDeclarationProps extends Omit<StructDeclarationProps, "name
 /**
  * Render a struct designed to represent an extensible enum based on a TypeSpec union.
  */
-export function ExtensibleEnumDeclaration(props: EnumDeclarationProps): Children {
+export function ExtensibleEnumDeclaration(props: ExtensibleEnumDeclarationProps): Children {
   const { variants, kind } = getExtensibleEnumVariantsFromUnion(props.type);
   const refkeys = declarationRefkeys(props.refkey, props.type)[0];
   return (
