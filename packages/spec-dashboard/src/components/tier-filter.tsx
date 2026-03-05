@@ -1,5 +1,6 @@
 import { Tab, TabList } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
+import style from "./dashboard.module.css";
 export interface TierFilterProps {
   allTiers?: string[];
   selectedTier?: string;
@@ -19,7 +20,7 @@ export const TierFilterTabs: FunctionComponent<TierFilterProps> = ({
   }
 
   return (
-    <div css={{ marginBottom: 20 }}>
+    <div className={style["tier-filter"]}>
       <TabList
         selectedValue={selectedTier ?? "all"}
         onTabSelect={(_, data) => {
