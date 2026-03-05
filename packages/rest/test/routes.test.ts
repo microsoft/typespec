@@ -22,8 +22,8 @@ describe("rest: routes", () => {
     );
 
     deepStrictEqual(routes, [
-      { verb: "get", path: "/:action", params: [] },
-      { verb: "get", path: "/:actionTwo", params: [] },
+      { verb: "get", path: ":action", params: [] },
+      { verb: "get", path: ":actionTwo", params: [] },
     ]);
   });
 
