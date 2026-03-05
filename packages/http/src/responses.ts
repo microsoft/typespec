@@ -152,7 +152,7 @@ function processResponseType(
   if (verb === "head" && resolvedBody !== undefined) {
     diagnostics.add(
       createDiagnostic({
-        code: "head-no-body",
+        code: "head-operation-no-body",
         target: responseType,
       }),
     );

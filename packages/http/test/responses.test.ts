@@ -166,7 +166,7 @@ it("emits a warning when HEAD response has a body", async () => {
 
   expectDiagnostics(diagnostics, [
     {
-      code: "@typespec/http/head-no-body",
+      code: "@typespec/http/head-operation-no-body",
       severity: "warning",
     },
   ]);
@@ -195,7 +195,7 @@ it("emits a warning when HEAD @error response has a body", async () => {
   // Should get warning about body in HEAD response
   expectDiagnostics(diagnostics, [
     {
-      code: "@typespec/http/head-no-body",
+      code: "@typespec/http/head-operation-no-body",
       severity: "warning",
     },
   ]);
