@@ -235,7 +235,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (LatestVersionsFields is null)
             {
-                return [configSectionCtor];
+                var defaultCtor = new ConstructorProvider(
+                    new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, []),
+                    MethodBodyStatement.Empty,
+                    this);
+                return [defaultCtor, configSectionCtor];
             }
 
             var constructorBody = new List<MethodBodyStatement>();
@@ -300,7 +304,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // if (section is null || !section.Exists()) { return; }
             var guardCondition = sectionParam.Is(Null).Or(Not(sectionParam.Invoke("Exists")));
-            var guardStatement = new IfStatement(guardCondition, inline: true);
+            var guardStatement = new IfStatement(guardCondition);
             guardStatement.Add(Return());
 
             var body = new List<MethodBodyStatement> { guardStatement };

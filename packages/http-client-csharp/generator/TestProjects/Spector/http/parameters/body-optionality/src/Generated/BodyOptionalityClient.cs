@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Parameters.BodyOptionality._OptionalExplicit;
@@ -16,6 +17,9 @@ namespace Parameters.BodyOptionality
         public BodyOptionalityClient() : this(new Uri("http://localhost:3000"), new BodyOptionalityClientOptions()) => throw null;
 
         public BodyOptionalityClient(Uri endpoint, BodyOptionalityClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public BodyOptionalityClient(BodyOptionalityClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

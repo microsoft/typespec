@@ -641,8 +641,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else if (_apiKeyAuthFields != null)
             {
-                var credentialExpr = new MemberExpression(new NullConditionalExpression(settingsParam), "CredentialProvider");
-                args.Add(new AsExpression(credentialExpr, _apiKeyAuthFields.AuthField.Type));
+                // settings?.Credential?.Key is string key ? new ApiKeyCredential(key) : null
+                var credentialExpr = new MemberExpression(new NullConditionalExpression(settingsParam), "Credential");
+                var keyExpr = new MemberExpression(new NullConditionalExpression(credentialExpr), "Key");
+                var keyNotNull = new BinaryOperatorExpression("!=", keyExpr, Null);
+                var newApiKeyCredExpr = New.Instance(_apiKeyAuthFields.AuthField.Type,
+                    new MemberExpression(new MemberExpression(settingsParam, "Credential"), "Key"));
+                args.Add(new TernaryConditionalExpression(keyNotNull, newApiKeyCredExpr, Null));
             }
 
             // options argument

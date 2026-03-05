@@ -155,7 +155,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
             else
             {
-                Assert.AreEqual(1, ctors.Count);
+                Assert.AreEqual(2, ctors.Count);
+                var defaultCtor = ctors.First(c => !c.Signature.Parameters.Any());
+                Assert.IsNotNull(defaultCtor, "Default parameterless constructor should be generated");
             }
         }
 

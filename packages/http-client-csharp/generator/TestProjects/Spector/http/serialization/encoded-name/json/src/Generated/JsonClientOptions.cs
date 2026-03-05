@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Serialization.EncodedName.Json
 {
     public partial class JsonClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal JsonClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

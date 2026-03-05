@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +16,9 @@ namespace _Type.Model.Inheritance.NotDiscriminated
         public NotDiscriminatedClient() : this(new Uri("http://localhost:3000"), new NotDiscriminatedClientOptions()) => throw null;
 
         public NotDiscriminatedClient(Uri endpoint, NotDiscriminatedClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public NotDiscriminatedClient(NotDiscriminatedClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

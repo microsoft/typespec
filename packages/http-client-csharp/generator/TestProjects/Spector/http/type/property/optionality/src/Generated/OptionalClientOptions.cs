@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace _Type.Property.Optional
 {
     public partial class OptionalClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal OptionalClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace _Type._Enum.Fixed
 {
     public partial class FixedClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal FixedClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

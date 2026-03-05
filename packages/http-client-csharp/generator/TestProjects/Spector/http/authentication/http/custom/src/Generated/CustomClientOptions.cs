@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Authentication.Http.Custom
 {
     public partial class CustomClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal CustomClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

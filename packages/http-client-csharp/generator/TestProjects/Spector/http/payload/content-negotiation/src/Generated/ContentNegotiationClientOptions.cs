@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Payload.ContentNegotiation
 {
     public partial class ContentNegotiationClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal ContentNegotiationClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

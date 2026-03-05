@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Authentication.Union
 {
     public partial class UnionClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal UnionClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

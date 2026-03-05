@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,6 +26,9 @@ namespace Authentication.Union
         public UnionClient(Uri endpoint, ApiKeyCredential credential, UnionClientOptions options) => throw null;
 
         public UnionClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, UnionClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public UnionClient(UnionClientSettings settings) : this(settings?.Endpoint, settings?.CredentialProvider as AuthenticationTokenProvider, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

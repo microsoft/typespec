@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Encode._Array
 {
     public partial class ArrayClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal ArrayClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

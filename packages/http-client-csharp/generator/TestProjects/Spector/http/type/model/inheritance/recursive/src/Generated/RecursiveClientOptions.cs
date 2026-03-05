@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Inheritance.Recursive
 {
     public partial class RecursiveClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal RecursiveClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

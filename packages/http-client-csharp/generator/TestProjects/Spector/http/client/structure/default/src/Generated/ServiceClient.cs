@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Client.Structure.Service._Baz;
@@ -19,6 +20,9 @@ namespace Client.Structure.Service
         public ServiceClient(Uri endpoint, ClientType client) : this(endpoint, client, new ServiceClientOptions()) => throw null;
 
         public ServiceClient(Uri endpoint, ClientType client, ServiceClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public ServiceClient(ServiceClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

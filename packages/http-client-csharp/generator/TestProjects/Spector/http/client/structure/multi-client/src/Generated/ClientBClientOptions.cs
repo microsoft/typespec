@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Client.Structure.MultiClient
 {
     public partial class ClientBClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal ClientBClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

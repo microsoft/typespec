@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,9 @@ namespace Versioning.TypeChangedFrom
         public TypeChangedFromClient(Uri endpoint) : this(endpoint, new TypeChangedFromClientOptions()) => throw null;
 
         public TypeChangedFromClient(Uri endpoint, TypeChangedFromClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public TypeChangedFromClient(TypeChangedFromClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Payload.MediaType
 {
     public partial class MediaTypeClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal MediaTypeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

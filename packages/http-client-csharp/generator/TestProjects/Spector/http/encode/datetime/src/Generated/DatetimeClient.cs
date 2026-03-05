@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using Encode.Datetime._Header;
 using Encode.Datetime._Property;
 using Encode.Datetime._Query;
@@ -16,6 +17,9 @@ namespace Encode.Datetime
         public DatetimeClient() : this(new Uri("http://localhost:3000"), new DatetimeClientOptions()) => throw null;
 
         public DatetimeClient(Uri endpoint, DatetimeClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public DatetimeClient(DatetimeClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _Type.Property.AdditionalProperties
 {
@@ -12,6 +13,9 @@ namespace _Type.Property.AdditionalProperties
         public AdditionalPropertiesClient() : this(new Uri("http://localhost:3000"), new AdditionalPropertiesClientOptions()) => throw null;
 
         public AdditionalPropertiesClient(Uri endpoint, AdditionalPropertiesClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public AdditionalPropertiesClient(AdditionalPropertiesClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

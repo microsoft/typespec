@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Encode.Duration
 {
     public partial class DurationClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal DurationClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

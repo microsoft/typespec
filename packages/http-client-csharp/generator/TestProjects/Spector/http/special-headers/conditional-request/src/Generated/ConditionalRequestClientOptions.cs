@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace SpecialHeaders.ConditionalRequest
 {
     public partial class ConditionalRequestClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal ConditionalRequestClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

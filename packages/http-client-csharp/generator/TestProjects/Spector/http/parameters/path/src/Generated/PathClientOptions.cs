@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Parameters.Path
 {
     public partial class PathClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal PathClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

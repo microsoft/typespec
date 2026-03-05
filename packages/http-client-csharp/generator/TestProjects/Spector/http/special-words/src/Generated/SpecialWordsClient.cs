@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using SpecialWords._ModelProperties;
 using SpecialWords._Models;
 
@@ -14,6 +15,9 @@ namespace SpecialWords
         public SpecialWordsClient() : this(new Uri("http://localhost:3000"), new SpecialWordsClientOptions()) => throw null;
 
         public SpecialWordsClient(Uri endpoint, SpecialWordsClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public SpecialWordsClient(SpecialWordsClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

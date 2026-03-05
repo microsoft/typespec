@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _Type.Union
 {
@@ -12,6 +13,9 @@ namespace _Type.Union
         public UnionClient() : this(new Uri("http://localhost:3000"), new UnionClientOptions()) => throw null;
 
         public UnionClient(Uri endpoint, UnionClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public UnionClient(UnionClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

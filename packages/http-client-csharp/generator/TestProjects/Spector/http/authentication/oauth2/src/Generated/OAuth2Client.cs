@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,6 +20,9 @@ namespace Authentication.OAuth2
         public OAuth2Client(AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) : this(new Uri("http://localhost:3000"), tokenProvider, options) => throw null;
 
         public OAuth2Client(Uri endpoint, AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public OAuth2Client(OAuth2ClientSettings settings) : this(settings?.Endpoint, settings?.CredentialProvider as AuthenticationTokenProvider, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

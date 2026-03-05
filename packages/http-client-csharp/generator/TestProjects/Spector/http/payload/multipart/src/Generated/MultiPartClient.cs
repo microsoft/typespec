@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using Payload.MultiPart._FormData;
 
 namespace Payload.MultiPart
@@ -13,6 +14,9 @@ namespace Payload.MultiPart
         public MultiPartClient() : this(new Uri("http://localhost:3000"), new MultiPartClientOptions()) => throw null;
 
         public MultiPartClient(Uri endpoint, MultiPartClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public MultiPartClient(MultiPartClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

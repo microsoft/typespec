@@ -3,10 +3,14 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace _Type.Property.ValueTypes
 {
     public partial class ValueTypesClientOptions : ClientPipelineOptions
     {
+        [Experimental("SCME0002")]
+        internal ValueTypesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }
