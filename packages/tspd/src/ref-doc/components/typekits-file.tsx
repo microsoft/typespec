@@ -13,20 +13,12 @@ import { TypekitCollection } from "../typekit-docs.js";
 import { TypekitSection } from "./typekit-section.js";
 
 export function createTypekitDocs(typekit: TypekitCollection, packageName: string) {
-  // Determine the import path based on package name and experimental status
-  const isHttpPackage = packageName === "@typespec/http";
   const isCompilerPackage = packageName === "@typespec/compiler";
 
-  // Generate import statement based on package
-  let importStatement: string;
-  if (isHttpPackage && typekit.isExperimental) {
-    importStatement = `import "@typespec/http/experimental/typekit";`;
-  } else if (isCompilerPackage) {
-    importStatement = `import "@typespec/compiler/typekit";`;
-  } else {
-    // Generic case for other packages
-    importStatement = `import "${packageName}/typekit";`;
-  }
+  // Construct import path: for experimental typekits, use /experimental/typekit pattern
+  const typekitImportPath = typekit.isExperimental
+    ? `${packageName}/experimental/typekit`
+    : `${packageName}/typekit`;
 
   const jsxContent = (
     <Output>
@@ -37,7 +29,7 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName: strin
         import { Badge${typekit.isExperimental ? ", Aside" : ""} } from '@astrojs/starlight/components';
         `}
         </>
-        {typekit.isExperimental && (
+        {typekit.isExperimental && !isCompilerPackage && (
           <>
             {code`
         
@@ -48,11 +40,21 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName: strin
         To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
         
         \`\`\`ts
-        ${importStatement}
+        import "${typekitImportPath}";
         import { $ } from "@typespec/compiler/typekit";
         \`\`\`
         
         The first import registers the typekit extensions. This import only needs to exist once in your compilation as only its side effects are important.
+        `}
+          </>
+        )}
+        {typekit.isExperimental && isCompilerPackage && (
+          <>
+            {code`
+        
+        <Aside type="caution">
+        **Experimental Feature**: These typekits are currently experimental. The API surface is volatile and may have breaking changes without notice. Use with caution in production environments.
+        </Aside>
         `}
           </>
         )}
