@@ -1178,6 +1178,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #createEnumContext(namespace: string, file: SourceFile<string>, name: string): Context {
       file.imports.set("System.Text.Json", ["System.Text.Json"]);
       file.imports.set("System.Text.Json.Serialization", ["System.Text.Json.Serialization"]);
+      file.meta[this.#nsKey] = namespace;
 
       return {
         namespace: namespace,
