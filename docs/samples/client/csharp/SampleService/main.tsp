@@ -833,19 +833,14 @@ interface PlantOperations {
   };
 }
 
-model MetricsClientParams {
-  metricsNamespace: string;
-}
-
 @clientInitialization({
   initializedBy: InitializedBy.individually | InitializedBy.parent,
-  parameters: MetricsClientParams,
 })
 interface Metrics {
   @doc("Get Widget metrics for given day of week")
   @get
-  @route("/metrics/{metricsNamespace}/widgets/daysOfWeek")
-  getWidgetMetrics(@path metricsNamespace: string, @path day: DaysOfWeekExtensibleEnum): {
+  @route("/metrics/widgets/daysOfWeek")
+  getWidgetMetrics(@path day: DaysOfWeekExtensibleEnum): {
     numSold: int32;
     averagePrice: float32;
   };

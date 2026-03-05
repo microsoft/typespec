@@ -313,70 +313,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Determines whether this subclient has non-infrastructure parameters that need to be
         /// included as parameters in the parent's accessor method rather than stored on the parent.
         /// A subclient has accessor-only parameters if it has non-infrastructure parameters
-        /// (not API versions, not endpoint) that are:
-        /// <list type="bullet">
-        /// <item>Not present on the parent's InputClient.Parameters at all, OR</item>
-        /// <item>Present on the parent but "subclient-specific": not shared across all siblings
-        /// or not used in the parent's own operations.</item>
-        /// </list>
+        /// (not API versions, not endpoint) that are not present on the parent's InputClient.Parameters.
         /// Uses the raw <see cref="InputClient.Parameters"/> to avoid circular lazy-initialization dependencies.
         /// </summary>
         internal bool HasAccessorOnlyParameters(InputClient parentInputClient)
         {
-            var subClientNonInfraParams = _inputClient.Parameters
-                .Where(p => !p.IsApiVersion && !(p is InputEndpointParameter ep && ep.IsEndpoint))
-                .ToArray();
-
-            if (subClientNonInfraParams.Length == 0)
-            {
-                return false;
-            }
-
             var parentParamNames = parentInputClient.Parameters
                 .Select(p => p.Name)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Collect non-infrastructure parameter names for each sibling (including this subclient)
-            var siblings = parentInputClient.Children;
-            var siblingParamSets = new List<HashSet<string>>(siblings.Count);
-            foreach (var sibling in siblings)
-            {
-                var siblingParams = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var param in sibling.Parameters)
-                {
-                    if (!param.IsApiVersion && !(param is InputEndpointParameter epp && epp.IsEndpoint))
-                    {
-                        siblingParams.Add(param.Name);
-                    }
-                }
-                siblingParamSets.Add(siblingParams);
-            }
-
-            // Check parent's own operations
-            var parentOperationParamNames = new HashSet<string>(
-                parentInputClient.Methods.SelectMany(m => m.Operation.Parameters).Select(p => p.Name),
-                StringComparer.OrdinalIgnoreCase);
-            bool parentHasOperations = parentInputClient.Methods.Count > 0;
-
-            foreach (var param in subClientNonInfraParams)
-            {
-                // Case 1: param is not on the parent at all → accessor-only
-                if (!parentParamNames.Contains(param.Name))
-                {
-                    return true;
-                }
-
-                // Case 2: param is on the parent but was propagated from a subclient
-                bool onAllSiblings = siblingParamSets.All(s => s.Contains(param.Name));
-                bool unusedByParent = parentHasOperations && !parentOperationParamNames.Contains(param.Name);
-
-                if (!onAllSiblings || unusedByParent)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _inputClient.Parameters
+                .Where(p => !p.IsApiVersion && !(p is InputEndpointParameter ep && ep.IsEndpoint))
+                .Any(p => !parentParamNames.Contains(p.Name));
         }
 
         private Lazy<IReadOnlyList<ParameterProvider>> _clientParameters;
@@ -975,15 +923,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 List<ParameterProvider> accessorMethodParams = [];
 
                 // Determine which subclient parameters should be on the accessor method.
-                // This includes parameters that are either not on the parent at all,
-                // or were propagated from the subclient (not used in parent's own operations).
-                var propagatedParamNames = GetPropagatedSubClientParameterNames();
+                // Subclient-specific parameters (not on the parent) need to be passed via the accessor.
                 var parentEffectiveParamNames = _allClientParameters
                     .Select(p => p.Name)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
                 var subClientExtraInputParamNames = subClient._inputClient.Parameters
                     .Where(p => !p.IsApiVersion && !(p is InputEndpointParameter ep && ep.IsEndpoint))
-                    .Where(p => !parentEffectiveParamNames.Contains(p.Name) || propagatedParamNames.Contains(p.Name))
+                    .Where(p => !parentEffectiveParamNames.Contains(p.Name))
                     .Select(p => p.Name)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -1340,15 +1286,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
                     .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
 
-            // Exclude parameters that were propagated from child subclients.
-            // Subclient-specific parameters should appear on the subclient accessor method,
-            // not on the parent's constructor.
-            var propagatedParamNames = GetPropagatedSubClientParameterNames();
-            if (propagatedParamNames.Count > 0)
-            {
-                parameters = parameters.Where(p => !propagatedParamNames.Contains(p.Name)).ToArray();
-            }
-
             foreach (var subClient in _subClients.Value)
             {
                 // Only hoist ApiVersion parameters from sub-clients; other sub-client parameters should remain on the sub-client.
@@ -1357,64 +1294,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return parameters;
-        }
-
-        /// <summary>
-        /// Identifies parameter names on the parent that were propagated from child subclients.
-        /// These parameters should be on the subclient accessor method rather than the parent constructor.
-        /// A non-infrastructure parameter is considered "subclient-specific" (propagated) if:
-        /// <list type="bullet">
-        /// <item>It is NOT present on ALL children (specific to some subclients), OR</item>
-        /// <item>The parent has its own operations and the parameter is not used in any of them.</item>
-        /// </list>
-        /// </summary>
-        private HashSet<string> GetPropagatedSubClientParameterNames()
-        {
-            var propagated = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var children = _inputClient.Children;
-
-            if (children.Count == 0)
-            {
-                return propagated;
-            }
-
-            // Collect non-infrastructure parameter names for each child
-            var childParamSets = new List<HashSet<string>>(children.Count);
-            foreach (var child in children)
-            {
-                var childParams = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var param in child.Parameters)
-                {
-                    if (!param.IsApiVersion && !(param is InputEndpointParameter ep && ep.IsEndpoint))
-                    {
-                        childParams.Add(param.Name);
-                    }
-                }
-                childParamSets.Add(childParams);
-            }
-
-            // Collect parameter names used in the parent's own operations
-            var parentOperationParamNames = new HashSet<string>(
-                _inputClient.Methods.SelectMany(m => m.Operation.Parameters).Select(p => p.Name),
-                StringComparer.OrdinalIgnoreCase);
-            bool parentHasOperations = _inputClient.Methods.Count > 0;
-
-            // Check each child parameter
-            var allChildParamNames = childParamSets.SelectMany(s => s).Distinct(StringComparer.OrdinalIgnoreCase);
-            foreach (var paramName in allChildParamNames)
-            {
-                bool onAllChildren = childParamSets.All(s => s.Contains(paramName));
-                bool unusedByParent = parentHasOperations && !parentOperationParamNames.Contains(paramName);
-
-                // A parameter is subclient-specific (should go on accessor) if it's not shared
-                // across all children, or if the parent has its own operations that don't use it.
-                if (!onAllChildren || unusedByParent)
-                {
-                    propagated.Add(paramName);
-                }
-            }
-
-            return propagated;
         }
 
         private FieldProvider BuildTokenCredentialScopesField(InputOAuth2Auth oauth2Auth, CSharpType tokenCredentialType)
