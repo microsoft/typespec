@@ -35,7 +35,8 @@ namespace Microsoft.TypeSpec.Generator
             string packageName,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
-            LicenseInfo? licenseInfo)
+            LicenseInfo? licenseInfo,
+            bool generateMethodInstrumentation = true)
         {
             OutputDirectory = outputPath;
             AdditionalConfigurationOptions = additionalConfigurationOptions;
@@ -43,6 +44,7 @@ namespace Microsoft.TypeSpec.Generator
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
             LicenseInfo = licenseInfo;
+            GenerateMethodInstrumentation = generateMethodInstrumentation;
         }
 
         /// <summary>
@@ -53,12 +55,18 @@ namespace Microsoft.TypeSpec.Generator
             public const string PackageName = "package-name";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
+            public const string GenerateMethodInstrumentation = "generate-method-instrumentation";
         }
 
         /// <summary>
         /// Gets whether XML docs are disabled.
         /// </summary>
         public bool DisableXmlDocs { get; }
+
+        /// <summary>
+        /// Gets whether ActivitySource-based distributed tracing instrumentation should be generated in client methods.
+        /// </summary>
+        public bool GenerateMethodInstrumentation { get; }
 
         /// <summary>
         /// Gets the root output directory for the generated library.
@@ -123,7 +131,8 @@ namespace Microsoft.TypeSpec.Generator
                 ReadRequiredStringOption(root, Options.PackageName),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
-                ReadLicenseInfo(root));
+                ReadLicenseInfo(root),
+                ReadOption(root, Options.GenerateMethodInstrumentation));
         }
 
         private static LicenseInfo? ReadLicenseInfo(JsonElement root)
@@ -154,6 +163,7 @@ namespace Microsoft.TypeSpec.Generator
         private static readonly Dictionary<string, bool> _defaultBoolOptionValues = new()
         {
             { Options.DisableXmlDocs, false },
+            { Options.GenerateMethodInstrumentation, true },
         };
 
         /// <summary>
@@ -164,6 +174,7 @@ namespace Microsoft.TypeSpec.Generator
             Options.PackageName,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,
+            Options.GenerateMethodInstrumentation,
         };
 
         private static bool ReadOption(JsonElement root, string option)

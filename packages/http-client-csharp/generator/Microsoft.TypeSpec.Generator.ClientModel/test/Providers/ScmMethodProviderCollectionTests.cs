@@ -1996,5 +1996,183 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsFalse(methodBody.Contains("rootNameHint"));
             Assert.IsFalse(methodBody.Contains("childNameHint"));
         }
+
+        [Test]
+        public void TracingIsAddedToConvenienceMethod()
+        {
+            var inputOperation = InputFactory.Operation("TestOperation");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], enableMethodInstrumentation: true);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            // Root client has ActivitySourceField
+            Assert.IsNotNull(client!.ActivitySourceField);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "TestOperation");
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            // Verify activity is started with the correct name
+            StringAssert.Contains("_activitySource.StartActivity(\"TestClient.TestOperation\"", methodBody);
+            // Verify it uses `using` so it's disposed when the method returns
+            StringAssert.Contains("using global::System.Diagnostics.Activity activity", methodBody);
+            // Verify exception tracking: catch block sets error status before rethrowing
+            StringAssert.Contains("catch", methodBody);
+            StringAssert.Contains("SetStatus", methodBody);
+            StringAssert.Contains("ActivityStatusCode.Error", methodBody);
+        }
+
+        [Test]
+        public void TracingIsNotAddedToConvenienceMethodWhenDisabled()
+        {
+            var inputOperation = InputFactory.Operation("TestOperation");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            Assert.IsNull(client!.ActivitySourceField);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "TestOperation");
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.DoesNotContain("StartActivity", methodBody);
+        }
+
+        [Test]
+        public void TracingIsAddedToSubClientConvenienceMethod()
+        {
+            var inputOperation = InputFactory.Operation("SubOperation");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("SubOperation", inputOperation);
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClient = InputFactory.Client("SubClient", methods: [inputServiceMethod], parent: parentClient);
+
+            MockHelpers.LoadMockGenerator(clients: () => [parentClient, subClient], enableMethodInstrumentation: true);
+
+            var subClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(subClient);
+            Assert.IsNotNull(subClientProvider);
+
+            // Sub-client also has ActivitySourceField when instrumentation is enabled
+            Assert.IsNotNull(subClientProvider!.ActivitySourceField);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, subClientProvider);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "SubOperation");
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            // Sub-client methods get the activity with sub-client name
+            StringAssert.Contains("_activitySource.StartActivity(\"SubClient.SubOperation\"", methodBody);
+            StringAssert.Contains("using global::System.Diagnostics.Activity activity", methodBody);
+        }
+
+        [Test]
+        public void TracingIsAddedToPagingConvenienceMethod()
+        {
+            var pagingMetadata = InputFactory.PagingMetadata(["items"], null, null);
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
+            var operation = InputFactory.Operation("GetCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("GetCats", operation, pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [inputClient], enableMethodInstrumentation: true);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "GetCats");
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            // Paging methods: ActivitySource is passed to the collection, no activity started here.
+            // Each page request starts its own activity inside ExecutePageRequest in the collection.
+            StringAssert.DoesNotContain("StartActivity", methodBody);
+            StringAssert.DoesNotContain("Activity activity", methodBody);
+            // The _activitySource field should be passed to the collection constructor
+            StringAssert.Contains("_activitySource", methodBody);
+        }
+
+        [Test]
+        public void TracingInPagingCollectionStartsActivityPerPage()
+        {
+            var pagingMetadata = InputFactory.PagingMetadata(["items"], null, null);
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
+            var operation = InputFactory.Operation("GetCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("GetCats", operation, pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [inputClient], enableMethodInstrumentation: true);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            // Find the CollectionResultDefinition that was generated
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<CollectionResultDefinition>()
+                .FirstOrDefault();
+            Assert.IsNotNull(collectionResultDefinition);
+
+            // CollectionResultDefinition should have an _activitySource field (not _activity)
+            var activitySourceField = collectionResultDefinition!.Fields.FirstOrDefault(f => f.Name == "_activitySource");
+            Assert.IsNotNull(activitySourceField, "CollectionResultDefinition should have an _activitySource field");
+            Assert.IsNull(collectionResultDefinition.Fields.FirstOrDefault(f => f.Name == "_activity"),
+                "CollectionResultDefinition should NOT have an _activity field");
+
+            // The constructor should accept an activitySource parameter
+            var ctor = collectionResultDefinition.Constructors.FirstOrDefault();
+            Assert.IsNotNull(ctor);
+            var activitySourceParam = ctor!.Signature.Parameters.FirstOrDefault(p => p.Name == "activitySource");
+            Assert.IsNotNull(activitySourceParam, "Constructor should have an 'activitySource' parameter");
+
+            // GetRawPages method should NOT have try-finally (no per-collection activity).
+            // It should call ExecutePageRequest which handles per-page activity.
+            var getRawPagesMethod = collectionResultDefinition.Methods.FirstOrDefault(m => m.Signature.Name == "GetRawPages");
+            Assert.IsNotNull(getRawPagesMethod);
+            var rawPagesBody = getRawPagesMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("ExecutePageRequest", rawPagesBody);
+            StringAssert.DoesNotContain("_activitySource.StartActivity", rawPagesBody);
+
+            // ExecutePageRequest helper should have per-page activity with try-catch
+            var executePageMethod = collectionResultDefinition.Methods.FirstOrDefault(m => m.Signature.Name == "ExecutePageRequest");
+            Assert.IsNotNull(executePageMethod, "CollectionResultDefinition should have an ExecutePageRequest method");
+            var executePageBody = executePageMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("_activitySource?.StartActivity(\"TestClient.GetCats\"", executePageBody);
+            StringAssert.Contains("using global::System.Diagnostics.Activity activity", executePageBody);
+            StringAssert.Contains("catch", executePageBody);
+            StringAssert.Contains("SetStatus", executePageBody);
+            StringAssert.Contains("ActivityStatusCode.Error", executePageBody);
+        }
+
     }
 }

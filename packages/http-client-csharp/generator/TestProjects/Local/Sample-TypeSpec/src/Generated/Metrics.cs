@@ -8,6 +8,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace SampleTypeSpec
     public partial class Metrics
     {
         private readonly Uri _endpoint;
+        private static readonly ActivitySource _activitySource = new ActivitySource("SampleTypeSpec");
 
         /// <summary> Initializes a new instance of Metrics for mocking. </summary>
         protected Metrics()
@@ -98,8 +100,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<GetWidgetMetricsResponse> GetWidgetMetrics(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
-            ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("Metrics.GetWidgetMetrics", ActivityKind.Client);
+            try
+            {
+                ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Get Widget metrics for given day of week. </summary>
@@ -108,8 +119,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<GetWidgetMetricsResponse>> GetWidgetMetricsAsync(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
-            ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("Metrics.GetWidgetMetrics", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
     }
 }

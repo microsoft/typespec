@@ -8,6 +8,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace SampleTypeSpec
     public partial class PetOperations
     {
         private readonly Uri _endpoint;
+        private static readonly ActivitySource _activitySource = new ActivitySource("SampleTypeSpec");
 
         /// <summary> Initializes a new instance of PetOperations for mocking. </summary>
         protected PetOperations()
@@ -86,8 +88,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = UpdatePetAsPet(pet, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PetOperations.UpdatePetAsPet", ActivityKind.Client);
+            try
+            {
+                ClientResult result = UpdatePetAsPet(pet, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update a pet as a pet. </summary>
@@ -99,8 +110,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = await UpdatePetAsPetAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PetOperations.UpdatePetAsPet", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await UpdatePetAsPetAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -154,8 +174,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = UpdateDogAsPet(pet, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PetOperations.UpdateDogAsPet", ActivityKind.Client);
+            try
+            {
+                ClientResult result = UpdateDogAsPet(pet, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update a dog as a pet. </summary>
@@ -167,8 +196,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = await UpdateDogAsPetAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PetOperations.UpdateDogAsPet", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await UpdateDogAsPetAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
     }
 }

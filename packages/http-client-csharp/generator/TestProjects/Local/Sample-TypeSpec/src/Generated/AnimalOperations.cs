@@ -8,6 +8,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace SampleTypeSpec
     public partial class AnimalOperations
     {
         private readonly Uri _endpoint;
+        private static readonly ActivitySource _activitySource = new ActivitySource("SampleTypeSpec");
 
         /// <summary> Initializes a new instance of AnimalOperations for mocking. </summary>
         protected AnimalOperations()
@@ -86,8 +88,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdatePetAsAnimal", ActivityKind.Client);
+            try
+            {
+                ClientResult result = UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update a pet as an animal. </summary>
@@ -99,8 +110,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = await UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdatePetAsAnimal", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -154,8 +174,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdateDogAsAnimal", ActivityKind.Client);
+            try
+            {
+                ClientResult result = UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update a dog as an animal. </summary>
@@ -167,8 +196,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = await UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("AnimalOperations.UpdateDogAsAnimal", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
     }
 }

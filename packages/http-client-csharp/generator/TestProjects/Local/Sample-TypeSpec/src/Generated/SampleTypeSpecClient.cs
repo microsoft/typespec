@@ -9,6 +9,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace SampleTypeSpec
     public partial class SampleTypeSpecClient
     {
         private readonly Uri _endpoint;
+        private static readonly ActivitySource _activitySource = new ActivitySource("SampleTypeSpec");
         /// <summary> A credential used to authenticate to the service. </summary>
         private readonly ApiKeyCredential _keyCredential;
         private const string AuthorizationHeader = "my-api-key";
@@ -157,8 +159,17 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
             Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            ClientResult result = SayHi(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.SayHi", ActivityKind.Client);
+            try
+            {
+                ClientResult result = SayHi(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Return hi. </summary>
@@ -174,8 +185,17 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
             Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.SayHi", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -244,8 +264,17 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
             Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = HelloAgain(p2, p1, action, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.HelloAgain", ActivityKind.Client);
+            try
+            {
+                ClientResult result = HelloAgain(p2, p1, action, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Return hi again. </summary>
@@ -262,8 +291,17 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
             Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = await HelloAgainAsync(p2, p1, action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.HelloAgain", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await HelloAgainAsync(p2, p1, action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -327,8 +365,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(info, nameof(info));
 
-            ClientResult result = NoContentType(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.NoContentType", ActivityKind.Client);
+            try
+            {
+                ClientResult result = NoContentType(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Return hi again. </summary>
@@ -340,8 +387,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(info, nameof(info));
 
-            ClientResult result = await NoContentTypeAsync(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.NoContentType", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await NoContentTypeAsync(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -383,8 +439,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> HelloDemo2(CancellationToken cancellationToken = default)
         {
-            ClientResult result = HelloDemo2(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.HelloDemo2", ActivityKind.Client);
+            try
+            {
+                ClientResult result = HelloDemo2(cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Return hi in demo2. </summary>
@@ -392,8 +457,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> HelloDemo2Async(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await HelloDemo2Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.HelloDemo2", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await HelloDemo2Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -447,8 +521,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = CreateLiteral(body, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.CreateLiteral", ActivityKind.Client);
+            try
+            {
+                ClientResult result = CreateLiteral(body, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Create with literal value. </summary>
@@ -460,8 +543,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await CreateLiteralAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.CreateLiteral", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await CreateLiteralAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -503,8 +595,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> HelloLiteral(CancellationToken cancellationToken = default)
         {
-            ClientResult result = HelloLiteral(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.HelloLiteral", ActivityKind.Client);
+            try
+            {
+                ClientResult result = HelloLiteral(cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Send literal parameters. </summary>
@@ -512,8 +613,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> HelloLiteralAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await HelloLiteralAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.HelloLiteral", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await HelloLiteralAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -558,8 +668,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> TopAction(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
-            ClientResult result = TopAction(action, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.TopAction", ActivityKind.Client);
+            try
+            {
+                ClientResult result = TopAction(action, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> top level method. </summary>
@@ -568,8 +687,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> TopActionAsync(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
-            ClientResult result = await TopActionAsync(action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.TopAction", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await TopActionAsync(action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -718,27 +846,36 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
             Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
-            Thing spreadModel = new Thing(
-                default,
-                requiredUnion,
-                "accept",
-                requiredNullableString,
-                optionalNullableString,
-                123,
-                1.23F,
-                false,
-                optionalLiteralString,
-                requiredNullableLiteralString,
-                optionalLiteralInt,
-                optionalLiteralFloat,
-                optionalLiteralBool,
-                requiredBadDescription,
-                optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                propertyWithSpecialDocs,
-                default);
-            ClientResult result = AnonymousBody(spreadModel, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.AnonymousBody", ActivityKind.Client);
+            try
+            {
+                Thing spreadModel = new Thing(
+                    default,
+                    requiredUnion,
+                    "accept",
+                    requiredNullableString,
+                    optionalNullableString,
+                    123,
+                    1.23F,
+                    false,
+                    optionalLiteralString,
+                    requiredNullableLiteralString,
+                    optionalLiteralInt,
+                    optionalLiteralFloat,
+                    optionalLiteralBool,
+                    requiredBadDescription,
+                    optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    propertyWithSpecialDocs,
+                    default);
+                ClientResult result = AnonymousBody(spreadModel, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> body parameter without body decorator. </summary>
@@ -769,27 +906,36 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
             Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
-            Thing spreadModel = new Thing(
-                default,
-                requiredUnion,
-                "accept",
-                requiredNullableString,
-                optionalNullableString,
-                123,
-                1.23F,
-                false,
-                optionalLiteralString,
-                requiredNullableLiteralString,
-                optionalLiteralInt,
-                optionalLiteralFloat,
-                optionalLiteralBool,
-                requiredBadDescription,
-                optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                propertyWithSpecialDocs,
-                default);
-            ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.AnonymousBody", ActivityKind.Client);
+            try
+            {
+                Thing spreadModel = new Thing(
+                    default,
+                    requiredUnion,
+                    "accept",
+                    requiredNullableString,
+                    optionalNullableString,
+                    123,
+                    1.23F,
+                    false,
+                    optionalLiteralString,
+                    requiredNullableLiteralString,
+                    optionalLiteralInt,
+                    optionalLiteralFloat,
+                    optionalLiteralBool,
+                    requiredBadDescription,
+                    optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    propertyWithSpecialDocs,
+                    default);
+                ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -844,9 +990,18 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            Friend spreadModel = new Friend(name, default);
-            ClientResult result = FriendlyModel(spreadModel, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.FriendlyModel", ActivityKind.Client);
+            try
+            {
+                Friend spreadModel = new Friend(name, default);
+                ClientResult result = FriendlyModel(spreadModel, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Friend)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Model can have its friendly name. </summary>
@@ -859,9 +1014,18 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            Friend spreadModel = new Friend(name, default);
-            ClientResult result = await FriendlyModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.FriendlyModel", ActivityKind.Client);
+            try
+            {
+                Friend spreadModel = new Friend(name, default);
+                ClientResult result = await FriendlyModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Friend)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -903,7 +1067,16 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult AddTimeHeader(CancellationToken cancellationToken = default)
         {
-            return AddTimeHeader(cancellationToken.ToRequestOptions());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.AddTimeHeader", ActivityKind.Client);
+            try
+            {
+                return AddTimeHeader(cancellationToken.ToRequestOptions());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> AddTimeHeader. </summary>
@@ -911,7 +1084,16 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> AddTimeHeaderAsync(CancellationToken cancellationToken = default)
         {
-            return await AddTimeHeaderAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.AddTimeHeader", ActivityKind.Client);
+            try
+            {
+                return await AddTimeHeaderAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -966,9 +1148,18 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-            RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
-            ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.ProjectedNameModel", ActivityKind.Client);
+            try
+            {
+                RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
+                ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -981,9 +1172,18 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-            RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
-            ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.ProjectedNameModel", ActivityKind.Client);
+            try
+            {
+                RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
+                ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1025,8 +1225,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<ReturnsAnonymousModelResponse> ReturnsAnonymousModel(CancellationToken cancellationToken = default)
         {
-            ClientResult result = ReturnsAnonymousModel(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.ReturnsAnonymousModel", ActivityKind.Client);
+            try
+            {
+                ClientResult result = ReturnsAnonymousModel(cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> return anonymous model. </summary>
@@ -1034,8 +1243,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await ReturnsAnonymousModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.ReturnsAnonymousModel", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await ReturnsAnonymousModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1092,8 +1310,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(accept, nameof(accept));
 
-            ClientResult result = GetUnknownValue(accept, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetUnknownValue", ActivityKind.Client);
+            try
+            {
+                ClientResult result = GetUnknownValue(accept, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> get extensible enum. </summary>
@@ -1106,8 +1333,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(accept, nameof(accept));
 
-            ClientResult result = await GetUnknownValueAsync(accept, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetUnknownValue", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await GetUnknownValueAsync(accept, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1161,8 +1397,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = InternalProtocol(body, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.InternalProtocol", ActivityKind.Client);
+            try
+            {
+                ClientResult result = InternalProtocol(body, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
@@ -1174,8 +1419,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await InternalProtocolAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.InternalProtocol", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await InternalProtocolAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1217,7 +1471,16 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult StillConvenient(CancellationToken cancellationToken = default)
         {
-            return StillConvenient(cancellationToken.ToRequestOptions());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.StillConvenient", ActivityKind.Client);
+            try
+            {
+                return StillConvenient(cancellationToken.ToRequestOptions());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
@@ -1225,7 +1488,16 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> StillConvenientAsync(CancellationToken cancellationToken = default)
         {
-            return await StillConvenientAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.StillConvenient", ActivityKind.Client);
+            try
+            {
+                return await StillConvenientAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1282,7 +1554,16 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            return HeadAsBoolean(id, cancellationToken.ToRequestOptions());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.HeadAsBoolean", ActivityKind.Client);
+            try
+            {
+                return HeadAsBoolean(id, cancellationToken.ToRequestOptions());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> head as boolean. </summary>
@@ -1295,7 +1576,16 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            return await HeadAsBooleanAsync(id, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.HeadAsBoolean", ActivityKind.Client);
+            try
+            {
+                return await HeadAsBooleanAsync(id, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1352,7 +1642,16 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            return WithApiVersion(p1, cancellationToken.ToRequestOptions());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.WithApiVersion", ActivityKind.Client);
+            try
+            {
+                return WithApiVersion(p1, cancellationToken.ToRequestOptions());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Return hi again. </summary>
@@ -1365,7 +1664,16 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            return await WithApiVersionAsync(p1, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.WithApiVersion", ActivityKind.Client);
+            try
+            {
+                return await WithApiVersionAsync(p1, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1405,7 +1713,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithNextLink(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1413,7 +1721,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary>
@@ -1453,7 +1761,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1461,7 +1769,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary>
@@ -1504,7 +1812,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationToken(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary> List things with continuation token. </summary>
@@ -1513,7 +1821,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary>
@@ -1556,7 +1864,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationTokenHeaderResponse(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary> List things with continuation token header response. </summary>
@@ -1565,7 +1873,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenHeaderResponseAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary>
@@ -1605,7 +1913,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithPaging(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary> List things with paging. </summary>
@@ -1613,7 +1921,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithPagingAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions(), _activitySource);
         }
 
         /// <summary>
@@ -1681,7 +1989,16 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.EmbeddedParameters", ActivityKind.Client);
+            try
+            {
+                return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> An operation with embedded parameters within the body. </summary>
@@ -1693,7 +2010,16 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.EmbeddedParameters", ActivityKind.Client);
+            try
+            {
+                return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1747,7 +2073,16 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return DynamicModelOperation(body, cancellationToken.ToRequestOptions());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.DynamicModelOperation", ActivityKind.Client);
+            try
+            {
+                return DynamicModelOperation(body, cancellationToken.ToRequestOptions());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> An operation with a dynamic model. </summary>
@@ -1759,7 +2094,16 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.DynamicModelOperation", ActivityKind.Client);
+            try
+            {
+                return await DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1801,8 +2145,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<XmlAdvancedModel> GetXmlAdvancedModel(CancellationToken cancellationToken = default)
         {
-            ClientResult result = GetXmlAdvancedModel(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetXmlAdvancedModel", ActivityKind.Client);
+            try
+            {
+                ClientResult result = GetXmlAdvancedModel(cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Get an advanced XML model with various property types. </summary>
@@ -1810,8 +2163,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<XmlAdvancedModel>> GetXmlAdvancedModelAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await GetXmlAdvancedModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.GetXmlAdvancedModel", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await GetXmlAdvancedModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -1865,8 +2227,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = UpdateXmlAdvancedModel(body, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.UpdateXmlAdvancedModel", ActivityKind.Client);
+            try
+            {
+                ClientResult result = UpdateXmlAdvancedModel(body, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update an advanced XML model with various property types. </summary>
@@ -1878,8 +2249,17 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("SampleTypeSpecClient.UpdateXmlAdvancedModel", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>

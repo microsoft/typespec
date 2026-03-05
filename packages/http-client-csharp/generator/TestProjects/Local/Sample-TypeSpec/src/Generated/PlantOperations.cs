@@ -8,6 +8,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace SampleTypeSpec
     public partial class PlantOperations
     {
         private readonly Uri _endpoint;
+        private static readonly ActivitySource _activitySource = new ActivitySource("SampleTypeSpec");
 
         /// <summary> Initializes a new instance of PlantOperations for mocking. </summary>
         protected PlantOperations()
@@ -74,8 +76,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Tree> GetTree(CancellationToken cancellationToken = default)
         {
-            ClientResult result = GetTree(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PlantOperations.GetTree", ActivityKind.Client);
+            try
+            {
+                ClientResult result = GetTree(cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Get a tree as a plant. </summary>
@@ -83,8 +94,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Tree>> GetTreeAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await GetTreeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PlantOperations.GetTree", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await GetTreeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -126,8 +146,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Tree> GetTreeAsJson(CancellationToken cancellationToken = default)
         {
-            ClientResult result = GetTreeAsJson(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PlantOperations.GetTreeAsJson", ActivityKind.Client);
+            try
+            {
+                ClientResult result = GetTreeAsJson(cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Get a tree as a plant. </summary>
@@ -135,8 +164,17 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Tree>> GetTreeAsJsonAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await GetTreeAsJsonAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PlantOperations.GetTreeAsJson", ActivityKind.Client);
+            try
+            {
+                ClientResult result = await GetTreeAsJsonAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -190,9 +228,18 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            using BinaryContent content = tree.ToBinaryContent("X");
-            ClientResult result = UpdateTree(content, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PlantOperations.UpdateTree", ActivityKind.Client);
+            try
+            {
+                using BinaryContent content = tree.ToBinaryContent("X");
+                ClientResult result = UpdateTree(content, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -204,9 +251,18 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            using BinaryContent content = tree.ToBinaryContent("X");
-            ClientResult result = await UpdateTreeAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PlantOperations.UpdateTree", ActivityKind.Client);
+            try
+            {
+                using BinaryContent content = tree.ToBinaryContent("X");
+                ClientResult result = await UpdateTreeAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
@@ -260,9 +316,18 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            using BinaryContent content = tree.ToBinaryContent("J");
-            ClientResult result = UpdateTreeAsJson(content, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PlantOperations.UpdateTreeAsJson", ActivityKind.Client);
+            try
+            {
+                using BinaryContent content = tree.ToBinaryContent("J");
+                ClientResult result = UpdateTreeAsJson(content, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
 
         /// <summary> Update a tree as a plant. </summary>
@@ -274,9 +339,18 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(tree, nameof(tree));
 
-            using BinaryContent content = tree.ToBinaryContent("J");
-            ClientResult result = await UpdateTreeAsJsonAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            using Activity activity = _activitySource.StartActivity("PlantOperations.UpdateTreeAsJson", ActivityKind.Client);
+            try
+            {
+                using BinaryContent content = tree.ToBinaryContent("J");
+                ClientResult result = await UpdateTreeAsJsonAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Tree)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
     }
 }

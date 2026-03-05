@@ -9,21 +9,26 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
     internal partial class SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly ActivitySource _activitySource;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
+        /// <param name="activitySource"> The activity source for distributed tracing. </param>
+        public SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options, ActivitySource activitySource = null)
         {
             _client = client;
             _options = options;
+            _activitySource = activitySource;
         }
 
         /// <summary> Gets the raw pages of the collection. </summary>
@@ -34,7 +39,7 @@ namespace SampleTypeSpec
             Uri nextPageUri = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                ClientResult result = await ExecutePageRequestAsync(message).ConfigureAwait(false);
                 yield return result;
 
                 string nextPageString = ((ListWithStringNextLinkResponse)result).Next;
@@ -60,6 +65,21 @@ namespace SampleTypeSpec
             else
             {
                 return null;
+            }
+        }
+
+        /// <param name="message"> The pipeline message. </param>
+        private async Task<ClientResult> ExecutePageRequestAsync(PipelineMessage message)
+        {
+            using Activity activity = _activitySource?.StartActivity("SampleTypeSpecClient.GetWithStringNextLink", ActivityKind.Client);
+            try
+            {
+                return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
             }
         }
     }

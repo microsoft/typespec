@@ -5,24 +5,30 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
     internal partial class SampleTypeSpecClientGetWithPagingAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly ActivitySource _activitySource;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithPagingAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
+        /// <param name="activitySource"> The activity source for distributed tracing. </param>
+        public SampleTypeSpecClientGetWithPagingAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options, ActivitySource activitySource = null)
         {
             _client = client;
             _options = options;
+            _activitySource = activitySource;
         }
 
         /// <summary> Gets the raw pages of the collection. </summary>
@@ -30,7 +36,7 @@ namespace SampleTypeSpec
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateGetWithPagingRequest(_options);
-            yield return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            yield return await ExecutePageRequestAsync(message).ConfigureAwait(false);
         }
 
         /// <summary> Gets the continuation token from the specified page. </summary>
@@ -39,6 +45,21 @@ namespace SampleTypeSpec
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
+        }
+
+        /// <param name="message"> The pipeline message. </param>
+        private async Task<ClientResult> ExecutePageRequestAsync(PipelineMessage message)
+        {
+            using Activity activity = _activitySource?.StartActivity("SampleTypeSpecClient.GetWithPaging", ActivityKind.Client);
+            try
+            {
+                return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                throw;
+            }
         }
     }
 }

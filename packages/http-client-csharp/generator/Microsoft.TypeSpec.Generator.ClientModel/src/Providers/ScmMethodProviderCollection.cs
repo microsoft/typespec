@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -128,7 +129,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, ConvenienceMethodParameters, true)];
+                // Pass the ActivitySource to the collection so each page request can start its own activity.
+                // No activity is started here - tracing is per-page in the collection's ExecutePageRequest helper.
+                ValueExpression? activitySourceExpr = Client.ActivitySourceField?.AsValueExpression;
+                methodBody = [.. GetPagingMethodBody(collection, ConvenienceMethodParameters, true, activitySourceExpr)];
             }
             else if (responseBodyType is null)
             {
@@ -163,6 +167,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 result.GetRawResponse()))
                         },
                 ];
+            }
+
+            // Prepend activity instrumentation statement if enabled (non-paging methods only;
+            // paging methods start a new activity per page request in ExecutePageRequest/ExecutePageRequestAsync)
+            if (Client.ActivitySourceField != null && _pagingServiceMethod == null)
+            {
+                var activityStatement = UsingDeclare(
+                    "activity",
+                    new CSharpType(typeof(Activity), isNullable: true),
+                    Client.ActivitySourceField.Invoke(
+                        nameof(ActivitySource.StartActivity),
+                        [Literal($"{Client.Name}.{ServiceMethod.Name}"), FrameworkEnumValue(ActivityKind.Client)]),
+                    out var activityVar);
+                var exceptionDeclaration = new DeclarationExpression(typeof(Exception), "ex", out var exVar);
+                var catchBlock = new CatchExpression(exceptionDeclaration,
+                    activityVar.NullConditional().Invoke(nameof(Activity.SetStatus),
+                        [FrameworkEnumValue(ActivityStatusCode.Error), exVar.Property(nameof(Exception.Message))]).Terminate(),
+                    Throw());
+                methodBody = [activityStatement, new TryCatchFinallyStatement(new TryExpression(methodBody), catchBlock)];
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
@@ -999,20 +1022,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IEnumerable<MethodBodyStatement> GetPagingMethodBody(
             TypeProvider collection,
             IReadOnlyList<ParameterProvider> parameters,
-            bool isConvenience)
+            bool isConvenience,
+            ValueExpression? activityVar = null)
         {
             if (isConvenience)
             {
-                return
-                    [
-                        .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
-                        Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            .. GetProtocolMethodArguments(declarations)
-                        ]))
-                    ];
+                var stackStatements = GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations).ToArray();
+                var constructorArgs = new List<ValueExpression> { This };
+                constructorArgs.AddRange(GetProtocolMethodArguments(declarations));
+                if (activityVar != null)
+                {
+                    constructorArgs.Add(activityVar);
+                }
+                return [.. stackStatements, Return(New.Instance(collection.Type, [.. constructorArgs]))];
             }
 
             return Return(New.Instance(
