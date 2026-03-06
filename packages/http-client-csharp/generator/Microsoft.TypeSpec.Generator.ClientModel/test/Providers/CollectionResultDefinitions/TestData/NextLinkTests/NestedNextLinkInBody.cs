@@ -6,7 +6,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using Sample.Models;
+using System.Text.Json;
 
 namespace Sample
 {
@@ -30,7 +30,42 @@ namespace Sample
                 global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
-                nextPageUri = ((global::Sample.Models.Page)result).NestedNext?.NextCat;
+                nextPageUri = null;
+                global::System.BinaryData data = result.GetRawResponse().Content;
+                global::System.Text.Json.Utf8JsonReader reader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);
+                reader.Read();
+                while (reader.Read())
+                {
+                    if (((reader.TokenType == global::System.Text.Json.JsonTokenType.PropertyName) && reader.ValueTextEquals("nestedNext")))
+                    {
+                        reader.Read();
+                        if ((reader.TokenType == global::System.Text.Json.JsonTokenType.StartObject))
+                        {
+                            while (reader.Read())
+                            {
+                                if (((reader.TokenType == global::System.Text.Json.JsonTokenType.PropertyName) && reader.ValueTextEquals("nextCat")))
+                                {
+                                    reader.Read();
+                                    string nextPageStr = reader.GetString();
+                                    if (!string.IsNullOrEmpty(nextPageStr))
+                                    {
+                                        nextPageUri = new global::System.Uri(nextPageStr, global::System.UriKind.RelativeOrAbsolute);
+                                    }
+                                    break;
+                                }
+                                if (((reader.TokenType == global::System.Text.Json.JsonTokenType.StartObject) || (reader.TokenType == global::System.Text.Json.JsonTokenType.StartArray)))
+                                {
+                                    reader.Skip();
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    if (((reader.TokenType == global::System.Text.Json.JsonTokenType.StartObject) || (reader.TokenType == global::System.Text.Json.JsonTokenType.StartArray)))
+                    {
+                        reader.Skip();
+                    }
+                }
                 if ((nextPageUri == null))
                 {
                     yield break;
@@ -41,7 +76,42 @@ namespace Sample
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            global::System.Uri nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextCat;
+            global::System.Uri nextPage = null;
+            global::System.BinaryData data = page.GetRawResponse().Content;
+            global::System.Text.Json.Utf8JsonReader reader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);
+            reader.Read();
+            while (reader.Read())
+            {
+                if (((reader.TokenType == global::System.Text.Json.JsonTokenType.PropertyName) && reader.ValueTextEquals("nestedNext")))
+                {
+                    reader.Read();
+                    if ((reader.TokenType == global::System.Text.Json.JsonTokenType.StartObject))
+                    {
+                        while (reader.Read())
+                        {
+                            if (((reader.TokenType == global::System.Text.Json.JsonTokenType.PropertyName) && reader.ValueTextEquals("nextCat")))
+                            {
+                                reader.Read();
+                                string nextPageStr = reader.GetString();
+                                if (!string.IsNullOrEmpty(nextPageStr))
+                                {
+                                    nextPage = new global::System.Uri(nextPageStr, global::System.UriKind.RelativeOrAbsolute);
+                                }
+                                break;
+                            }
+                            if (((reader.TokenType == global::System.Text.Json.JsonTokenType.StartObject) || (reader.TokenType == global::System.Text.Json.JsonTokenType.StartArray)))
+                            {
+                                reader.Skip();
+                            }
+                        }
+                    }
+                    break;
+                }
+                if (((reader.TokenType == global::System.Text.Json.JsonTokenType.StartObject) || (reader.TokenType == global::System.Text.Json.JsonTokenType.StartArray)))
+                {
+                    reader.Skip();
+                }
+            }
             if ((nextPage != null))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));

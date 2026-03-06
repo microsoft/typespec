@@ -43,5 +43,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static InvokeMethodExpression GetGuid(this VariableExpression reader)
             => reader.Invoke(nameof(Utf8JsonReader.GetGuid));
+
+        public static InvokeMethodExpression ValueTextEquals(this VariableExpression reader, string text)
+            => reader.Invoke(nameof(Utf8JsonReader.ValueTextEquals), Literal(text));
+
+        public static InvokeMethodExpression Skip(this VariableExpression reader)
+            => reader.Invoke(nameof(Utf8JsonReader.Skip));
     }
 }
