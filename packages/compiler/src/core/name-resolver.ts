@@ -136,6 +136,8 @@ export interface NameResolver {
 
   /** Get the meta member by name */
   resolveMetaMemberByName(sym: Sym, name: string): ResolutionResult;
+  /** Get the list of available meta member names */
+  getMetaMemberNames(sym: Sym): readonly string[];
 
   /** Resolve the given type reference. This should only need to be called on dynamically created nodes that want to resolve which symbol they reference */
   resolveTypeReference(
@@ -228,6 +230,7 @@ export function createResolver(program: Program): NameResolver {
 
     resolveMemberExpressionForSym,
     resolveMetaMemberByName,
+    getMetaMemberNames,
     resolveTypeReference,
 
     getAugmentDecoratorsForSym,
@@ -728,6 +731,38 @@ export function createResolver(program: Program): NameResolver {
     }
 
     return getter(baseSym);
+  }
+
+  /** Get the available meta-member names for a symbol's meta-type prototype. */
+  function getMetaMemberNames(baseSym: Sym): readonly string[] {
+    const baseNode = getSymNode(baseSym);
+    const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
+    return prototype ? [...prototype.keys()] : [];
+  }
+
+  /**
+   * Resolve the meta-type prototype for a symbol, including Reflection model aliases.
+   */
+  function getMetaTypePrototypeForSymbol(baseSym: Sym, baseNode: Node): TypePrototype | undefined {
+    const prototype = metaTypePrototypes.get(baseNode.kind);
+    if (prototype) {
+      return prototype;
+    }
+
+    if (
+      baseNode.kind === SyntaxKind.ModelStatement &&
+      baseSym.parent?.name === "Reflection" &&
+      baseSym.parent?.parent?.name === "TypeSpec"
+    ) {
+      switch (baseSym.name) {
+        case "ModelProperty":
+          return metaTypePrototypes.get(SyntaxKind.ModelProperty);
+        case "Operation":
+          return metaTypePrototypes.get(SyntaxKind.OperationStatement);
+      }
+    }
+
+    return undefined;
   }
 
   function tableLookup(table: SymbolTable, node: IdentifierNode, resolveDecorator = false) {

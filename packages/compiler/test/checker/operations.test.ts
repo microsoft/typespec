@@ -122,6 +122,34 @@ describe("compiler: operations", () => {
     strictEqual(props[1].type.kind, "Scalar");
   });
 
+  it("resolves template member metaproperty parameter types when operation is instantiated", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      model ResourceBase {
+        id: string;
+      }
+
+      @format("uuid")
+      scalar uuid extends string;
+
+      model MyResource extends ResourceBase {
+        id: uuid;
+      }
+
+      op get<R extends ResourceBase>(id: R.id::type): R;
+
+      @test op myGet is get<MyResource>;
+      `,
+    );
+
+    const { myGet } = (await testHost.compile("./main.tsp")) as { myGet: Operation };
+    const idParam = myGet.parameters.properties.get("id");
+    ok(idParam);
+    strictEqual(idParam.type.kind, "Scalar");
+    strictEqual((idParam.type as any).name, "uuid");
+  });
+
   it("can reference an operation defined inside an interface", async () => {
     const { newFoo } = await Tester.compile(t.code`
       interface Foo {

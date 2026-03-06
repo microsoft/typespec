@@ -154,6 +154,7 @@ export type Type =
   | StringTemplate
   | StringTemplateSpan
   | TemplateParameter
+  | TemplateParameterAccess
   | Tuple
   | Union
   | UnionVariant;
@@ -711,6 +712,20 @@ export interface TemplateParameter extends BaseType {
   constraint?: MixedParameterConstraint;
   /** @internal */
   default?: Type | Value | IndeterminateEntity;
+}
+
+export interface TemplateParameterAccess extends BaseType {
+  kind: "TemplateParameterAccess";
+  /** @internal */
+  node: MemberExpressionNode;
+  /** @internal */
+  base: TemplateParameter | TemplateParameterAccess;
+  /** @internal */
+  path: string;
+  /** @internal */
+  cacheKey: string;
+  /** @internal */
+  constraint?: MixedParameterConstraint;
 }
 
 export interface Decorator extends BaseType {
