@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
                 TypedConstantKind.Primitive => [Literal(argument.Value)],
                 TypedConstantKind.Enum => [Literal(argument.Value)],
                 TypedConstantKind.Type => [TypeOf(((ITypeSymbol)argument.Value!).GetCSharpType())],
-                TypedConstantKind.Array => [..argument.Values.SelectMany(ConvertArgumentToValueExpression)],
+                TypedConstantKind.Array => [.. argument.Values.SelectMany(ConvertArgumentToValueExpression)],
                 _ => throw new NotSupportedException($"Unsupported argument kind: {argument.Kind}")
             };
         }

@@ -61,7 +61,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 - Second bullet point
 - Third bullet point";
             var result = DocHelpers.GetDescription(null, markdown);
-            
+
             Assert.That(result, Does.Contain("<list type=\"bullet\">"));
             Assert.That(result, Does.Contain("<item><description>First bullet point</description></item>"));
             Assert.That(result, Does.Contain("<item><description>Second bullet point</description></item>"));
@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 - Bullet with **bold text**
 - Bullet with *italic text*";
             var result = DocHelpers.GetDescription(null, markdown);
-            
+
             Assert.That(result, Does.Contain("<list type=\"bullet\">"));
             Assert.That(result, Does.Contain("<item><description>Simple bullet point</description></item>"));
             Assert.That(result, Does.Contain("<item><description>Bullet with <b>bold text</b></description></item>"));
@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 2. Second step
 3. Third step";
             var result = DocHelpers.GetDescription(null, markdown);
-            
+
             Assert.That(result, Does.Contain("<list type=\"number\">"));
             Assert.That(result, Does.Contain("<item><description>First step</description></item>"));
             Assert.That(result, Does.Contain("<item><description>Second step</description></item>"));
@@ -108,7 +108,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 2. Second step with *emphasis*
 3. Third step combining **bold** and *italic*";
             var result = DocHelpers.GetDescription(null, markdown);
-            
+
             Assert.That(result, Does.Contain("<list type=\"number\">"));
             Assert.That(result, Does.Contain("<item><description>First step with <b>important</b> note</description></item>"));
             Assert.That(result, Does.Contain("<item><description>Second step with <i>emphasis</i></description></item>"));
@@ -122,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 - Second bullet
 Another paragraph with *italic* text.";
             var result = DocHelpers.GetDescription(null, markdown);
-            
+
             Assert.That(result, Does.Contain("<b>bold</b>"));
             Assert.That(result, Does.Contain("<list type=\"bullet\">"));
             Assert.That(result, Does.Contain("<i>italic</i>"));

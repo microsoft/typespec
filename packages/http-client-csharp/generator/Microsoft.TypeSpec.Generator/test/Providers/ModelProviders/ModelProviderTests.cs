@@ -1108,7 +1108,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1140,7 +1140,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1173,7 +1173,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1224,7 +1224,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(false, true, InputModelTypeUsage.Output, true, false)]
-        [TestCase(false, false,InputModelTypeUsage.Output, true, false)]
+        [TestCase(false, false, InputModelTypeUsage.Output, true, false)]
         [TestCase(true, true, InputModelTypeUsage.Input, true, false)]
         [TestCase(true, true, InputModelTypeUsage.Input | InputModelTypeUsage.Output, true, true)]
         [TestCase(true, false, InputModelTypeUsage.Input, false, false)]
@@ -1382,7 +1382,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             MockHelpers.LoadMockGenerator(
                 inputModelTypes: [inputModel, derivedInputModel],
@@ -1780,7 +1780,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
                     InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -1792,7 +1792,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // Without ProcessTypeForBackCompatibility, constructor should be private protected
             var privateProtectedConstructor = modelProvider!.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) 
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private)
                     && c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)
                     && c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(privateProtectedConstructor, "Expected a private protected constructor before back compat processing");
@@ -1802,7 +1802,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // After ProcessTypeForBackCompatibility, constructor should be public to match last contract
             var publicConstructor = modelProvider.Constructors
-                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) 
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                     && c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(publicConstructor, "Constructor modifier should be changed to public for backward compatibility");
             Assert.AreEqual("baseProp", publicConstructor!.Signature.Parameters[0].Name);

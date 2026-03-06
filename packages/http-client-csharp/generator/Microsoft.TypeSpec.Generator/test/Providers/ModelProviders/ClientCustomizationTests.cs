@@ -419,7 +419,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             private readonly string _namespace;
             public FooTypeProvider(string ns)
             {
-               _namespace = ns;
+                _namespace = ns;
             }
             protected override string BuildRelativeFilePath() => ".";
 
