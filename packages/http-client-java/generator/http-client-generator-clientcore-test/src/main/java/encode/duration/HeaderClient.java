@@ -297,7 +297,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsWithResponse(int duration, RequestContext requestContext) {
+    public Response<Void> int32MillisecondsWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32Milliseconds", requestContext,
             updatedContext -> this.serviceClient.int32MillisecondsWithResponse(duration, updatedContext));
     }
@@ -312,7 +312,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32Milliseconds(int duration) {
+    public void int32Milliseconds(Duration duration) {
         int32MillisecondsWithResponse(duration, RequestContext.none());
     }
 
@@ -328,7 +328,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsLargerUnitWithResponse(int duration, RequestContext requestContext) {
+    public Response<Void> int32MillisecondsLargerUnitWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32MillisecondsLargerUnit",
             requestContext,
             updatedContext -> this.serviceClient.int32MillisecondsLargerUnitWithResponse(duration, updatedContext));
@@ -344,7 +344,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32MillisecondsLargerUnit(int duration) {
+    public void int32MillisecondsLargerUnit(Duration duration) {
         int32MillisecondsLargerUnitWithResponse(duration, RequestContext.none());
     }
 
@@ -360,7 +360,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> floatMillisecondsWithResponse(double duration, RequestContext requestContext) {
+    public Response<Void> floatMillisecondsWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.floatMilliseconds", requestContext,
             updatedContext -> this.serviceClient.floatMillisecondsWithResponse(duration, updatedContext));
     }
@@ -375,7 +375,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatMilliseconds(double duration) {
+    public void floatMilliseconds(Duration duration) {
         floatMillisecondsWithResponse(duration, RequestContext.none());
     }
 
@@ -391,7 +391,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> floatMillisecondsLargerUnitWithResponse(double duration, RequestContext requestContext) {
+    public Response<Void> floatMillisecondsLargerUnitWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.floatMillisecondsLargerUnit",
             requestContext,
             updatedContext -> this.serviceClient.floatMillisecondsLargerUnitWithResponse(duration, updatedContext));
@@ -407,7 +407,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatMillisecondsLargerUnit(double duration) {
+    public void floatMillisecondsLargerUnit(Duration duration) {
         floatMillisecondsLargerUnitWithResponse(duration, RequestContext.none());
     }
 
@@ -423,7 +423,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> float64MillisecondsWithResponse(double duration, RequestContext requestContext) {
+    public Response<Void> float64MillisecondsWithResponse(Duration duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.float64Milliseconds", requestContext,
             updatedContext -> this.serviceClient.float64MillisecondsWithResponse(duration, updatedContext));
     }
@@ -438,7 +438,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void float64Milliseconds(double duration) {
+    public void float64Milliseconds(Duration duration) {
         float64MillisecondsWithResponse(duration, RequestContext.none());
     }
 
@@ -454,7 +454,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> int32MillisecondsArrayWithResponse(List<Integer> duration, RequestContext requestContext) {
+    public Response<Void> int32MillisecondsArrayWithResponse(List<Duration> duration, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32MillisecondsArray",
             requestContext,
             updatedContext -> this.serviceClient.int32MillisecondsArrayWithResponse(duration, updatedContext));
@@ -470,7 +470,7 @@ public final class HeaderClient {
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32MillisecondsArray(List<Integer> duration) {
+    public void int32MillisecondsArray(List<Duration> duration) {
         int32MillisecondsArrayWithResponse(duration, RequestContext.none());
     }
 }
