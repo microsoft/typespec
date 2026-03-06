@@ -21,7 +21,7 @@ import {
   getStatusCodesWithDiagnostics,
 } from "./decorators.js";
 import { HttpProperty } from "./http-property.js";
-import { HttpStateKeys, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
@@ -133,9 +133,6 @@ function processResponseType(
     getResponseStatusCodes(program, responseType, metadata),
   );
 
-  // Get response headers
-  const headers = getResponseHeaders(program, metadata);
-
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {
     if (isErrorModel(program, responseType)) {
@@ -150,6 +147,19 @@ function processResponseType(
       statusCodes.push(200);
     }
   }
+
+  // Emit a warning if a HEAD response has a body (HTTP spec disallows this)
+  if (verb === "head" && resolvedBody !== undefined) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "head-operation-no-body",
+        target: operation,
+      }),
+    );
+  }
+
+  // Get response headers
+  const headers = getResponseHeaders(program, metadata);
 
   // Put them into currentEndpoint.responses
   for (const statusCode of statusCodes) {
