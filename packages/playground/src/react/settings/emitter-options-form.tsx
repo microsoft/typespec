@@ -50,20 +50,23 @@ export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
   return (
     <div className={style["form"]}>
       {entries.map(([key, value]) => {
+        const resolved = (value as any).oneOf
+          ? resolveOneOfProperty(value as JsonSchemaOneOfProperty)
+          : value;
         return (
           <div key={key} className={style["form-item"]}>
-            {(value as any).type === "array" ? (
+            {(resolved as any).type === "array" ? (
               <JsonSchemaArrayPropertyInput
                 emitterOptions={options[library.name] ?? {}}
                 name={key}
-                prop={value as any}
+                prop={resolved as any}
                 onChange={handleChange}
               />
             ) : (
               <JsonSchemaPropertyInput
                 emitterOptions={options[library.name] ?? {}}
                 name={key}
-                prop={value as any}
+                prop={resolved as any}
                 onChange={handleChange}
               />
             )}
@@ -89,6 +92,28 @@ interface JsonSchemaArrayProperty {
   readonly items: JsonSchemaScalarProperty;
 }
 
+interface JsonSchemaOneOfProperty {
+  readonly oneOf: ReadonlyArray<JsonSchemaScalarProperty | JsonSchemaArrayProperty>;
+  readonly description?: string;
+}
+
+/**
+ * Resolve a `oneOf` schema to the most appropriate single schema for rendering.
+ * Prefers the array branch (if present) since it supports both single and multi-select.
+ */
+function resolveOneOfProperty(
+  prop: JsonSchemaOneOfProperty,
+): JsonSchemaScalarProperty | JsonSchemaArrayProperty {
+  const arrayBranch = prop.oneOf.find(
+    (branch): branch is JsonSchemaArrayProperty => (branch as any).type === "array",
+  );
+  if (arrayBranch) {
+    return { ...arrayBranch, description: arrayBranch.description ?? prop.description };
+  }
+  const first = prop.oneOf[0] as JsonSchemaScalarProperty;
+  return { ...first, description: first.description ?? prop.description };
+}
+
 type JsonSchemaArrayPropertyInputProps = Omit<JsonSchemaPropertyInputProps, "prop"> & {
   readonly prop: JsonSchemaArrayProperty;
 };
@@ -100,7 +125,9 @@ const JsonSchemaArrayPropertyInput: FunctionComponent<JsonSchemaArrayPropertyInp
   onChange,
 }) => {
   const itemsSchema = prop.items;
-  const value = emitterOptions[name] ?? itemsSchema.default;
+  const rawValue = emitterOptions[name] ?? itemsSchema.default;
+  // Normalize to array: handles cases where a oneOf-resolved property stored a single string
+  const value = Array.isArray(rawValue) ? rawValue : rawValue != null ? [rawValue] : [];
   const prettyName = useMemo(
     () => name[0].toUpperCase() + name.slice(1).replace(/-/g, " "),
     [name],

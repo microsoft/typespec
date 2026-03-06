@@ -1,0 +1,8 @@
+.row {
+  margin: 10px 0;
+}
+
+.value-cell {
+  padding-left: 20px;
+  text-align: right;
+}
