@@ -146,6 +146,23 @@ function createQueryServerTests(
     kind: "MockApiDefinition",
   });
 }
+
+function createNumericQueryServerTests(uri: string, value: number) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.deepEqual(Number(req.query?.input), value);
+      return {
+        status: 204,
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
 Scenarios.Encode_Duration_Query_default = createQueryServerTests(
   "/encode/duration/query/default",
   {
@@ -175,19 +192,13 @@ Scenarios.Encode_Duration_Query_int32SecondsArray = createQueryServerTests(
   ["36", "47"],
   "csv",
 );
-Scenarios.Encode_Duration_Query_floatSeconds = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatSeconds = createNumericQueryServerTests(
   "/encode/duration/query/float-seconds",
-  {
-    input: 35.625,
-  },
-  "35.625",
+  35.625,
 );
-Scenarios.Encode_Duration_Query_float64Seconds = createQueryServerTests(
+Scenarios.Encode_Duration_Query_float64Seconds = createNumericQueryServerTests(
   "/encode/duration/query/float64-seconds",
-  {
-    input: 35.625,
-  },
-  "35.625",
+  35.625,
 );
 
 Scenarios.Encode_Duration_Query_int32Milliseconds = createQueryServerTests(
@@ -197,19 +208,13 @@ Scenarios.Encode_Duration_Query_int32Milliseconds = createQueryServerTests(
   },
   "36000",
 );
-Scenarios.Encode_Duration_Query_floatMilliseconds = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatMilliseconds = createNumericQueryServerTests(
   "/encode/duration/query/float-milliseconds",
-  {
-    input: 35625,
-  },
-  "35625",
+  35625,
 );
-Scenarios.Encode_Duration_Query_float64Milliseconds = createQueryServerTests(
+Scenarios.Encode_Duration_Query_float64Milliseconds = createNumericQueryServerTests(
   "/encode/duration/query/float64-milliseconds",
-  {
-    input: 35625,
-  },
-  "35625",
+  35625,
 );
 Scenarios.Encode_Duration_Query_int32MillisecondsArray = createQueryServerTests(
   "/encode/duration/query/int32-milliseconds-array",
@@ -226,12 +231,9 @@ Scenarios.Encode_Duration_Query_int32SecondsLargerUnit = createQueryServerTests(
   },
   "120",
 );
-Scenarios.Encode_Duration_Query_floatSecondsLargerUnit = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatSecondsLargerUnit = createNumericQueryServerTests(
   "/encode/duration/query/float-seconds-larger-unit",
-  {
-    input: 150,
-  },
-  "150",
+  150,
 );
 Scenarios.Encode_Duration_Query_int32MillisecondsLargerUnit = createQueryServerTests(
   "/encode/duration/query/int32-milliseconds-larger-unit",
@@ -240,12 +242,9 @@ Scenarios.Encode_Duration_Query_int32MillisecondsLargerUnit = createQueryServerT
   },
   "180000",
 );
-Scenarios.Encode_Duration_Query_floatMillisecondsLargerUnit = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatMillisecondsLargerUnit = createNumericQueryServerTests(
   "/encode/duration/query/float-milliseconds-larger-unit",
-  {
-    input: 210000,
-  },
-  "210000",
+  210000,
 );
 
 function createHeaderServerTests(uri: string, headersData: any, value: any) {
@@ -257,6 +256,23 @@ function createHeaderServerTests(uri: string, headersData: any, value: any) {
     },
     response: {
       status: 204,
+    },
+    kind: "MockApiDefinition",
+  });
+}
+
+function createNumericHeaderServerTests(uri: string, value: number) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      req.expect.deepEqual(Number(req.headers?.duration), value);
+      return {
+        status: 204,
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -283,19 +299,13 @@ Scenarios.Encode_Duration_Header_int32Seconds = createHeaderServerTests(
   },
   "36",
 );
-Scenarios.Encode_Duration_Header_floatSeconds = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatSeconds = createNumericHeaderServerTests(
   "/encode/duration/header/float-seconds",
-  {
-    duration: "35.625",
-  },
-  "35.625",
+  35.625,
 );
-Scenarios.Encode_Duration_Header_float64Seconds = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_float64Seconds = createNumericHeaderServerTests(
   "/encode/duration/header/float64-seconds",
-  {
-    duration: "35.625",
-  },
-  "35.625",
+  35.625,
 );
 Scenarios.Encode_Duration_Header_iso8601Array = createHeaderServerTests(
   "/encode/duration/header/iso8601-array",
@@ -312,19 +322,13 @@ Scenarios.Encode_Duration_Header_int32Milliseconds = createHeaderServerTests(
   },
   "36000",
 );
-Scenarios.Encode_Duration_Header_floatMilliseconds = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatMilliseconds = createNumericHeaderServerTests(
   "/encode/duration/header/float-milliseconds",
-  {
-    duration: "35625",
-  },
-  "35625",
+  35625,
 );
-Scenarios.Encode_Duration_Header_float64Milliseconds = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_float64Milliseconds = createNumericHeaderServerTests(
   "/encode/duration/header/float64-milliseconds",
-  {
-    duration: "35625",
-  },
-  "35625",
+  35625,
 );
 Scenarios.Encode_Duration_Header_int32MillisecondsArray = createHeaderServerTests(
   "/encode/duration/header/int32-milliseconds-array",
@@ -340,12 +344,9 @@ Scenarios.Encode_Duration_Header_int32SecondsLargerUnit = createHeaderServerTest
   },
   "120",
 );
-Scenarios.Encode_Duration_Header_floatSecondsLargerUnit = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatSecondsLargerUnit = createNumericHeaderServerTests(
   "/encode/duration/header/float-seconds-larger-unit",
-  {
-    duration: "150",
-  },
-  "150",
+  150,
 );
 Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServerTests(
   "/encode/duration/header/int32-milliseconds-larger-unit",
@@ -354,10 +355,7 @@ Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServe
   },
   "180000",
 );
-Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createNumericHeaderServerTests(
   "/encode/duration/header/float-milliseconds-larger-unit",
-  {
-    duration: "210000",
-  },
-  "210000",
+  210000,
 );
