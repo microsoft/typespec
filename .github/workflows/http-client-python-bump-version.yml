@@ -1,0 +1,174 @@
+name: "[Python] Bump Version and Create Release PR"
+
+on:
+  push:
+    branches:
+      - yuchaoyan/add-python-bump-version-workflow
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to checkout and bump versions on"
+        required: false
+        default: "main"
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump-version:
+    name: Bump Version
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/http-client-python
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch || github.ref_name }}
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - name: Install workspace dependencies
+        run: pnpm install
+        working-directory: ${{ github.workspace }}
+
+      - name: Install npm-check-updates
+        run: npm install -g npm-check-updates@latest
+
+      - name: Create release branch
+        id: branch
+        run: |
+          BRANCH_NAME="publish/python-release-$(date +'%Y-%m-%d')-${GITHUB_RUN_NUMBER}"
+          git checkout -b "$BRANCH_NAME"
+          echo "name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Save original package.json
+        run: cp package.json package.json.orig
+
+      - name: Install semver
+        run: npm install --no-save semver
+
+      - name: Update @typespec/* and @azure-tools/* dependencies
+        run: npx npm-check-updates -u --filter '@typespec/*,@azure-tools/*' --packageFile package.json
+
+      - name: Restore versions where original was newer (dev versions)
+        run: |
+          node -e "
+          const fs = require('fs');
+          const semver = require('semver');
+
+          const orig = JSON.parse(fs.readFileSync('package.json.orig', 'utf8'));
+          const updated = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
+          const origDeps = { ...orig.dependencies, ...orig.devDependencies };
+
+          for (const depType of ['dependencies', 'devDependencies']) {
+            if (!updated[depType]) continue;
+            for (const [pkg, newRange] of Object.entries(updated[depType])) {
+              if (!origDeps[pkg]) continue;
+              const origVer = origDeps[pkg].replace(/^[\^~]/, '');
+              const newVer = newRange.replace(/^[\^~]/, '');
+              if (semver.valid(origVer) && semver.valid(newVer) && semver.gt(origVer, newVer)) {
+                console.log('Keeping ' + pkg + ': ' + origDeps[pkg] + ' (newer than ' + newRange + ')');
+                updated[depType][pkg] = origDeps[pkg];
+              }
+            }
+          }
+
+          fs.writeFileSync('package.json', JSON.stringify(updated, null, 2) + '\n');
+          "
+
+      - name: Update peerDependencies
+        run: |
+          node -e "
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
+          const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+          const peerDeps = pkg.peerDependencies || {};
+
+          for (const [name, range] of Object.entries(peerDeps)) {
+            if (!allDeps[name]) {
+              console.log(name + ': not in deps, keeping ' + range);
+              continue;
+            }
+            const newVer = allDeps[name].replace(/^[\^~]/, '');
+
+            if (range.startsWith('>=') && range.includes('<')) {
+              // Format: '>=0.a.b <1.0.0' — update only the lower bound
+              const parts = range.split('<');
+              if (parts.length === 2) {
+                const upper = '<' + parts[1].trim();
+                const newRange = '>=' + newVer + ' ' + upper;
+                console.log(name + ': ' + range + ' -> ' + newRange);
+                peerDeps[name] = newRange;
+              }
+            } else if (range.startsWith('^')) {
+              // Format: '^1.a.b'
+              const newRange = '^' + newVer;
+              console.log(name + ': ' + range + ' -> ' + newRange);
+              peerDeps[name] = newRange;
+            } else {
+              console.log(name + ': kept unchanged ' + range);
+            }
+          }
+
+          pkg.peerDependencies = peerDeps;
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
+      - name: Clean up temp file
+        run: rm -f package.json.orig
+
+      - name: Run version change
+        run: npm run change:version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install workspace dependencies
+        run: pnpm install
+        working-directory: ${{ github.workspace }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "bump version"
+
+      - name: Push branch
+        run: git push -u origin HEAD
+
+      - name: Generate PR body
+        id: pr-body
+        run: |
+          BODY=$(git diff ${{ inputs.branch || github.ref_name }} -- package.json | head -100)
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "body<<$EOF" >> "$GITHUB_OUTPUT"
+          echo '```diff' >> "$GITHUB_OUTPUT"
+          echo "$BODY" >> "$GITHUB_OUTPUT"
+          echo '```' >> "$GITHUB_OUTPUT"
+          echo "$EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ steps.pr-body.outputs.body }}
+        run: |
+          PR_URL=$(gh pr create \
+            --title "[python] release new version" \
+            --body "$PR_BODY" \
+            --base ${{ inputs.branch || github.ref_name }} \
+            --draft)
+          echo "✅ PR created: $PR_URL"
