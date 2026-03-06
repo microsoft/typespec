@@ -63,6 +63,9 @@ async def test_put_flatten_read_only_model(client: FlattenPropertyClient):
         name="foo",
         properties=SolutionProperties(solution_id="solution1", title="Solution Title", content="Solution Content"),
     )
+    assert result.solution_id == "solution1"
+    assert result.title == "Solution Title"
+    assert result.content == "Solution Content"
 
 
 @pytest.mark.asyncio  # ============test for compatibility ============
