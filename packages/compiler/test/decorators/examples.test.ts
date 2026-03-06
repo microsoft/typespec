@@ -1,36 +1,29 @@
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
 import { Operation, getExamples, getOpExamples, serializeValueAsJson } from "../../src/index.js";
-import { expectDiagnostics } from "../../src/testing/expect.js";
-import { createTestRunner } from "../../src/testing/test-host.js";
+import { expectDiagnostics } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 async function getExamplesFor(code: string) {
-  const runner = await createTestRunner();
-  const { test } = await runner.compile(code);
+  const { test, program } = (await Tester.compile(code)) as any;
 
-  ok(test, "Expect to have @test type named test.");
+  ok(test, "Expect to have /*test*/ marker in code.");
   return {
-    program: runner.program,
+    program,
     target: test,
-    examples: getExamples(runner.program, test as any),
+    examples: getExamples(program, test as any),
   };
 }
 
 async function getOpExamplesFor(code: string) {
-  const runner = await createTestRunner();
-  const { test } = (await runner.compile(code)) as { test: Operation };
+  const { test, program } = (await Tester.compile(code)) as any;
 
-  ok(test, "Expect to have @test type named test.");
+  ok(test, "Expect to have /*test*/ marker in code.");
   return {
-    program: runner.program,
-    target: test,
-    examples: getOpExamples(runner.program, test as any),
+    program,
+    target: test as Operation,
+    examples: getOpExamples(program, test as any),
   };
-}
-
-async function diagnoseCode(code: string) {
-  const runner = await createTestRunner();
-  return await runner.diagnose(code);
 }
 
 describe("@example", () => {
@@ -38,7 +31,7 @@ describe("@example", () => {
     it("valid", async () => {
       const { program, examples, target } = await getExamplesFor(`
       @example(#{ a: 1, b: 2 })
-      @test model test {
+      model /*test*/test {
         a: int32;
         b: int32;
       }
@@ -49,9 +42,9 @@ describe("@example", () => {
 
     it("use const with type of model", async () => {
       const { program, examples, target } = await getExamplesFor(`
-      const example: Test = #{ a: 1, b: 2 };
+      const example: test = #{ a: 1, b: 2 };
       @example(example)
-      @test("test") model Test {
+      model /*test*/test {
         a: int32;
         b: int32;
       }
@@ -61,9 +54,9 @@ describe("@example", () => {
     });
 
     it("emit diagnostic for missing property", async () => {
-      const diagnostics = await diagnoseCode(`
+      const diagnostics = await Tester.diagnose(`
         @example(#{ a: 1 })
-        @test model test {
+        model test {
           a: int32;
           b: int32;
         }
@@ -79,7 +72,7 @@ describe("@example", () => {
       const { program, examples, target } = await getExamplesFor(`
       model TestModel {
         @example(1)
-        @test test: int32;
+        /*test*/test: int32;
         b: int32;
       }
     `);
@@ -88,10 +81,10 @@ describe("@example", () => {
     });
 
     it("emit diagnostic for unassignable value", async () => {
-      const diagnostics = await diagnoseCode(`
+      const diagnostics = await Tester.diagnose(`
         model TestModel {
           @example("abc")
-          @test test: int32;
+          test: int32;
           b: int32;
         }
       `);
@@ -105,7 +98,7 @@ describe("@example", () => {
     it("valid", async () => {
       const { program, examples, target } = await getExamplesFor(`
       @example(test.fromISO("11:32"))
-      @test scalar test extends utcDateTime;
+      scalar /*test*/test extends utcDateTime;
     `);
       expect(examples).toHaveLength(1);
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("11:32");
@@ -115,20 +108,42 @@ describe("@example", () => {
       const { program, examples, target } = await getExamplesFor(`
         const example: test = test.fromISO("11:32");
         @example(example)
-        @test scalar test extends utcDateTime;
+        scalar /*test*/test extends utcDateTime;
       `);
       expect(examples).toHaveLength(1);
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("11:32");
     });
 
     it("emit diagnostic for unassignable value", async () => {
-      const diagnostics = await diagnoseCode(`
+      const diagnostics = await Tester.diagnose(`
         @example("11:32")
-        @test scalar test extends utcDateTime;
+        scalar test extends utcDateTime;
       `);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
       });
+    });
+
+    it("returns undefined for custom scalar with no-argument initializer", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+        @example(test.i())
+        scalar /*test*/test {
+          init i();
+        }
+      `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toBeUndefined();
+    });
+
+    it("returns undefined for custom scalar with string-argument initializer", async () => {
+      const { program, examples, target } = await getExamplesFor(`
+        @example(test.name("Shorty"))
+        scalar /*test*/test {
+          init name(value: string);
+        }
+      `);
+      expect(examples).toHaveLength(1);
+      expect(serializeValueAsJson(program, examples[0].value, target)).toBeUndefined();
     });
   });
 
@@ -136,7 +151,7 @@ describe("@example", () => {
     it("valid", async () => {
       const { program, examples, target } = await getExamplesFor(`
       @example(test.a)
-      @test enum test {
+      enum /*test*/test {
         a,
         b,
       }
@@ -147,9 +162,9 @@ describe("@example", () => {
 
     it("use const with type of enum", async () => {
       const { program, examples, target } = await getExamplesFor(`
-      const example: Test = Test.a;
+      const example: test = test.a;
       @example(example)
-      @test("test") enum Test {
+      enum /*test*/test {
         a,
         b,
       }
@@ -159,9 +174,9 @@ describe("@example", () => {
     });
 
     it("emit diagnostic for unassignable value", async () => {
-      const diagnostics = await diagnoseCode(`
+      const diagnostics = await Tester.diagnose(`
         @example(1)
-        @test enum test {
+        enum test {
           a,
           b,
         }
@@ -176,7 +191,7 @@ describe("@example", () => {
     it("valid for union member reference", async () => {
       const { program, examples, target } = await getExamplesFor(`
       @example(test.a)
-      @test union test {a: "a", b: "b"}
+      union /*test*/test {a: "a", b: "b"}
     `);
       expect(examples).toHaveLength(1);
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("a");
@@ -197,7 +212,7 @@ describe("@example", () => {
           type: "a",
           a: "a string",
         })
-        @test union test {a: A, b: B}
+        union /*test*/test {a: A, b: B}
       `);
       expect(examples).toHaveLength(1);
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual({
@@ -207,9 +222,9 @@ describe("@example", () => {
     });
 
     it("emit diagnostic for unassignable value", async () => {
-      const diagnostics = await diagnoseCode(`
+      const diagnostics = await Tester.diagnose(`
         @example(1)
-        @test union test {a: "a", b: "b"}
+        union test {a: "a", b: "b"}
       `);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
@@ -218,7 +233,7 @@ describe("@example", () => {
   });
 
   it("emit diagnostic if used on Operation", async () => {
-    const diagnostics = await diagnoseCode(`
+    const diagnostics = await Tester.diagnose(`
       @example(1)
       op test(): void;
     `);
@@ -239,7 +254,7 @@ describe("@opExample", () => {
           returnType: #{ id: "some", name: "Fluffy" },
         }
       )
-      @test op test(...Pet): Pet;
+      op /*test*/test(...Pet): Pet;
     `);
     expect(examples).toHaveLength(1);
     ok(examples[0].parameters);
@@ -263,7 +278,7 @@ describe("@opExample", () => {
           parameters: #{ id: "some", name: "Fluffy" },
         }
       )
-      @test op test(...Pet): void;
+      op /*test*/test(...Pet): void;
     `);
     expect(examples).toHaveLength(1);
     ok(examples[0].parameters);
@@ -282,7 +297,7 @@ describe("@opExample", () => {
           returnType: #{ id: "some", name: "Fluffy" },
         }
       )
-      @test op test(): Pet;
+      op /*test*/test(): Pet;
     `);
     expect(examples).toHaveLength(1);
     ok(examples[0].parameters === undefined);
@@ -326,7 +341,7 @@ describe("@opExample", () => {
       @opExample(#{ returnType: #{ type: "BAR" } })
       @opExample(#{ returnType: #{ type: "ONE" } })
       @opExample(#{ returnType: #{ type: "TWO" } })
-      @test op test(): FooOrBar | OneOrTwo;
+      op /*test*/test(): FooOrBar | OneOrTwo;
     `);
 
     expect(examples).toHaveLength(4);
@@ -349,14 +364,14 @@ describe("@opExample", () => {
   });
 
   it("emit diagnostic for unassignable value", async () => {
-    const diagnostics = await diagnoseCode(`
+    const diagnostics = await Tester.diagnose(`
           model Pet { id: string; name: string; }
           @opExample(
             #{
               returnType: #{ id: 123, name: "Fluffy" },
             }
           )
-          @test op read(): Pet;
+          op read(): Pet;
       `);
     expectDiagnostics(diagnostics, {
       code: "unassignable",
@@ -375,7 +390,7 @@ describe("json serialization of examples", () => {
       @example(#{
         expireIn: 1
       })
-      @test model test {
+      model /*test*/test {
         @encodedName("application/json", "exp")
         expireIn: int32
       }
@@ -477,7 +492,7 @@ describe("json serialization of examples", () => {
           model TestModel {
             @example(${value})
             ${encode ?? ""}
-            @test test: ${type};
+            /*test*/test: ${type};
           }
         `);
           if (expected instanceof RegExp) {
@@ -493,7 +508,7 @@ describe("json serialization of examples", () => {
   it("serialize models with parent", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ a: "one", b: "two" })
-      @test("test") model B extends A {
+      model /*test*/test extends A {
         b: string;
       }
 
@@ -509,7 +524,7 @@ describe("json serialization of examples", () => {
   it("serialize nested models", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ a: #{ name: "one" } })
-      @test("test") model B {
+      model /*test*/test {
         a: A;
       }
 
@@ -525,7 +540,7 @@ describe("json serialization of examples", () => {
   it("serialize nested models in arrays", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ items: #[#{ name: "one" }, #{ name: "two" }] })
-      @test("test") model B {
+      model /*test*/test {
         items: Array<A>;
       }
 
@@ -541,7 +556,7 @@ describe("json serialization of examples", () => {
   it("serialize nested record in arrays", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ items: #{one: #{ name: "one" }, two: #{ name: "two" }} })
-      @test("test") model B {
+      model /*test*/test {
         items: Record<A>;
       }
 
@@ -557,7 +572,7 @@ describe("json serialization of examples", () => {
   it("serialize example as it is when type is unknown", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ a: #{ name: "one", other: 123 } })
-      @test("test") model B {
+      model /*test*/test {
         a: unknown
       }
     `);
@@ -568,7 +583,7 @@ describe("json serialization of examples", () => {
   it("serialize example targetting a union using one of the types", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ a: #{ name: "one", other: 123 } })
-      @test("test") model Test {
+      model /*test*/test {
         a: A | B;
       }
 

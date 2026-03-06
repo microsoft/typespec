@@ -1,15 +1,6 @@
-import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { ProgramViewerTestLibrary } from "../src/testing/index.js";
+import { resolvePath } from "@typespec/compiler";
+import { createTester } from "@typespec/compiler/testing";
 
-export async function createViewerTestHost() {
-  return createTestHost({
-    libraries: [ProgramViewerTestLibrary],
-  });
-}
-
-export async function createViewerTestRunner() {
-  const host = await createViewerTestHost();
-  return createTestWrapper(host, {
-    autoImports: [],
-  });
-}
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/html-program-viewer"],
+});

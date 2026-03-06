@@ -1,29 +1,25 @@
-import { definePackageFlags } from "@typespec/compiler";
-import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import { definePackageFlags, resolvePath } from "@typespec/compiler";
+import { createTester, expectDiagnosticEmpty, mockFile } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { generateExternDecorators } from "../../src/gen-extern-signatures/gen-extern-signatures.js";
 
+const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
+  libraries: [],
+})
+  .files({
+    "lib.js": mockFile.js({ $flags: definePackageFlags({}) }),
+  })
+  .import("./lib.js")
+  .using("TypeSpec.Reflection");
+
 async function generateDecoratorSignatures(code: string) {
-  const host = await createTestHost();
-  host.addTypeSpecFile(
-    "main.tsp",
-    `
-    import "./lib.js";
-    using TypeSpec.Reflection;
-    ${code}`,
-  );
-  host.addJsFile("lib.js", {
-    $flags: definePackageFlags({}),
-  });
-  await host.diagnose("main.tsp", {
-    parseOptions: { comments: true, docs: true },
+  const [{ program }] = await Tester.compileAndDiagnose(code, {
+    compilerOptions: { parseOptions: { comments: true, docs: true } },
   });
 
-  expectDiagnosticEmpty(
-    host.program.diagnostics.filter((x) => x.code !== "missing-implementation"),
-  );
+  expectDiagnosticEmpty(program.diagnostics.filter((x) => x.code !== "missing-implementation"));
 
-  const result = await generateExternDecorators(host.program, "test-lib", {
+  const result = await generateExternDecorators(program, "test-lib", {
     prettierConfig: {
       printWidth: 160, // So there is no inconsistency in the .each test with different parameter length
       plugins: [],
