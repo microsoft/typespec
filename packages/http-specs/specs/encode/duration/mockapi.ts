@@ -161,7 +161,7 @@ function createQueryFloatServerTests(uri: string, paramData: any, value: number)
     handler: (req: MockRequest) => {
       const actual = req.query["input"] as string;
       const actualNum = parseFloat(actual);
-      if (actualNum !== value) {
+      if (isNaN(actualNum) || actualNum !== value) {
         throw new ValidationError(
           `Expected query param input=${value} but got ${actual}`,
           String(value),
@@ -301,7 +301,7 @@ function createHeaderFloatServerTests(uri: string, value: number) {
     handler: (req: MockRequest) => {
       const actual = req.headers["duration"];
       const actualNum = parseFloat(actual);
-      if (actualNum !== value) {
+      if (isNaN(actualNum) || actualNum !== value) {
         throw new ValidationError(
           `Expected header duration=${value} but got ${actual}`,
           String(value),
