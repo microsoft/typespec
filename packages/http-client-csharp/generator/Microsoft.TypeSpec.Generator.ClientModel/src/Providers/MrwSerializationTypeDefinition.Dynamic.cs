@@ -382,7 +382,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. statements];
         }
 
-        private static MethodBodyStatement[] BuildCollectionIfStatements(
+        private MethodBodyStatement[] BuildCollectionIfStatements(
             PropertyProvider property,
             bool propagateGet,
             ParameterProvider valueParameter,
@@ -392,6 +392,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var currentType = property.Type;
             var accessorChain = new List<ValueExpression> { new IndexableExpression(property) };
             ValueExpression? remainderSlice = null;
+            bool isFirstLevel = true;
 
             statements.Add(Declare("propertyLength", typeof(int),
                 LiteralU8(GetJsonSerializedName(property.WireInfo!)).Property("Length"),
@@ -407,6 +408,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (currentType.IsList || currentType.IsArray)
                 {
+                    // V2: when PropagateGet and the outermost element is a direct dynamic model,
+                    // add an IsEmpty check so that array-level paths (e.g. "$.properties.items")
+                    // can be resolved via serialization of the CLR collection.
+                    if (propagateGet && isFirstLevel && IsDirectDynamicListProperty(property))
+                    {
+                        string tryResolveMethodName = $"TryResolve{property.Name}Array";
+                        VariableExpression valueVar = valueParameter;
+                        statements.Add(new IfStatement(currentSlice.Property("IsEmpty"))
+                        {
+                            Return(new InvokeMethodExpression(null, tryResolveMethodName,
+                                [new VariableExpression(valueVar.Type, valueVar.Declaration, IsOut: true)]))
+                        });
+                    }
+
                     statements.Add(new IfStatement(Not(currentSlice.Invoke(
                         "TryGetIndex",
                         [
@@ -457,6 +472,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 currentType = currentType.ElementType;
+                isFirstLevel = false;
             }
 
             var finalAccessor = accessorChain.Last();
@@ -481,6 +497,127 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return [.. statements];
         }
+
+        /// <summary>
+        /// Returns true if the property is a list or array whose direct element type is a dynamic model with a Patch property.
+        /// Only such properties support the V2 IsEmpty / TryResolveArray pattern.
+        /// </summary>
+        private static bool IsDirectDynamicListProperty(PropertyProvider property)
+        {
+            if (!property.Type.IsList && !property.Type.IsArray)
+                return false;
+            return ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                property.Type.ElementType,
+                out var provider) &&
+                provider is ScmModelProvider { JsonPatchProperty: not null };
+        }
+
+        /// <summary>
+        /// Builds the <c>TryResolve{PropertyName}Array</c> helper method that serializes the active
+        /// (non-removed) CLR items as a JSON array and returns an <see cref="JsonPatch.EncodedValue"/>.
+        /// </summary>
+        private MethodProvider BuildTryResolveArrayMethod(PropertyProvider property)
+        {
+            var valueParameter = new ParameterProvider("value", $"", typeof(JsonPatch.EncodedValue), isOut: true);
+
+            var signature = new MethodSignature(
+                $"TryResolve{property.Name}Array",
+                $"",
+                MethodSignatureModifiers.Private,
+                typeof(bool),
+                $"",
+                [valueParameter]);
+
+            var dataDeclStatement = Declare("data", typeof(BinaryData),
+                Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [
+                    new InvokeMethodExpression(null, $"Active{property.Name}", []),
+                    New.Instance(typeof(ModelReaderWriterOptions), Literal("J"))
+                ]),
+                out var dataVar);
+
+            var tempPatchDeclStatement = Declare("tempPatch", typeof(JsonPatch), New.Instance(typeof(JsonPatch)), out var tempPatchVar);
+
+            var bodyStatements = new MethodBodyStatement[]
+            {
+                valueParameter.Assign(Default).Terminate(),
+                dataDeclStatement,
+                tempPatchDeclStatement,
+                tempPatchVar.As<JsonPatch>().Set(LiteralU8("$"), dataVar.Invoke("ToMemory").Property("Span")),
+                Return(tempPatchVar.As<JsonPatch>().TryGetEncodedValue(LiteralU8("$"), valueParameter))
+            };
+
+            return new MethodProvider(
+                signature,
+                bodyStatements,
+                _model,
+                suppressions: [ScmModelProvider.JsonPatchSuppression]);
+        }
+
+        /// <summary>
+        /// Builds the <c>Active{PropertyName}</c> iterator that yields non-removed items from the CLR collection.
+        /// </summary>
+        private MethodProvider BuildActiveItemsMethod(PropertyProvider property)
+        {
+            var elementType = property.Type.ElementType;
+            var returnType = new CSharpType(typeof(IEnumerable<>), elementType);
+
+            var signature = new MethodSignature(
+                $"Active{property.Name}",
+                $"",
+                MethodSignatureModifiers.Private,
+                returnType,
+                $"",
+                []);
+
+            var propertyExpr = new IndexableExpression(property);
+            string lengthPropertyName = property.Type.IsArray ? "Length" : "Count";
+
+            var indexDeclaration = Declare<int>("i", out var indexVar);
+            var forStatement = new ForStatement(
+                indexDeclaration.Assign(Literal(0)),
+                indexVar.LessThan(((ValueExpression)property).Property(lengthPropertyName)),
+                indexVar.Increment())
+            {
+                new IfStatement(Not(propertyExpr[indexVar].Property("Patch").As<JsonPatch>().IsRemoved(LiteralU8("$"))))
+                {
+                    YieldReturn(propertyExpr[indexVar])
+                }
+            };
+
+            var bodyStatements = new MethodBodyStatement[]
+            {
+                new IfStatement(Not(OptionalSnippets.IsCollectionDefined((ValueExpression)property)))
+                {
+                    YieldBreak()
+                },
+                forStatement
+            };
+
+            return new MethodProvider(
+                signature,
+                bodyStatements,
+                _model,
+                suppressions: [ScmModelProvider.JsonPatchSuppression]);
+        }
+
+        /// <summary>
+        /// Returns all collection properties from this model and its base models that qualify for the
+        /// V2 PropagateGet pattern (outermost element is a direct dynamic model with a Patch property).
+        /// </summary>
+        private List<PropertyProvider> GetQualifyingDynamicListProperties()
+        {
+            var result = new List<PropertyProvider>();
+            var currentModel = _model;
+            while (currentModel != null)
+            {
+                var qualifyingProps = currentModel.CanonicalView.Properties
+                    .Where(p => p.WireInfo != null && IsDirectDynamicListProperty(p));
+                result.AddRange(qualifyingProps);
+                currentModel = currentModel.BaseModelProvider as ScmModelProvider;
+            }
+            return result;
+        }
+
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         private static string BuildJsonPathForElement(string propertySerializedName, List<ValueExpression> indices)

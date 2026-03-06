@@ -32,6 +32,10 @@ namespace Sample
             {
                 int propertyLength = "p2"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (currentSlice.IsEmpty)
+                {
+                    return TryResolveP2Array(out value);
+                }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
@@ -42,6 +46,10 @@ namespace Sample
             {
                 int propertyLength = "p3"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (currentSlice.IsEmpty)
+                {
+                    return TryResolveP3Array(out value);
+                }
                 if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
                 {
                     return false;
