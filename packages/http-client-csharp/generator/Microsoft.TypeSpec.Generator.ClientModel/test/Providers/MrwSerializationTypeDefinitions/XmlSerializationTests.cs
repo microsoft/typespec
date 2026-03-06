@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual("XmlModelWriteCore", xmlSerializationMethod!.Signature.Name);
             Assert.AreEqual(2, xmlSerializationMethod.Signature.Parameters.Count);
             Assert.AreEqual(typeof(XmlWriter), xmlSerializationMethod.Signature.Parameters[0].Type.FrameworkType);
-            Assert.IsTrue(xmlSerializationMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.IsTrue(xmlSerializationMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.IsTrue(xmlSerializationMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
         }
 
