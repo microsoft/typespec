@@ -342,5 +342,8 @@ interface ExtensibleStrings {
     """)
   @put
   @route("/string")
-  putExtensibleStringValue(@body body: ExtensibleString): ExtensibleString;
+  putExtensibleStringValue(@body body: ExtensibleString): {
+    @header contentType: "application/json";
+    @body body: ExtensibleString;
+  };
 }
