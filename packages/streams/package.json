@@ -14,7 +14,8 @@
     "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
-    "typespec"
+    "typespec",
+    "typespec-lib"
   ],
   "type": "module",
   "main": "dist/src/index.js",

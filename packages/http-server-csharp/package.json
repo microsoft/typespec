@@ -16,7 +16,8 @@
   "keywords": [
     "typespec",
     "service",
-    "c-sharp"
+    "c-sharp",
+    "typespec-emitter"
   ],
   "type": "module",
   "bin": {

@@ -57,7 +57,9 @@
       "default": "./dist/src/python/*"
     }
   },
-  "keywords": [],
+  "keywords": [
+    "typespec-emitter"
+  ],
   "author": "",
   "license": "MIT",
   "description": "",
