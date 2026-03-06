@@ -33,6 +33,8 @@ namespace Sample
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
         internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
+            ServiceAApiVersion = "2.0";
+            ServiceBApiVersion = "4.0";
             if (((section is null) || !section.Exists()))
             {
                 return;

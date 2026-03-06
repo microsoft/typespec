@@ -34,6 +34,7 @@ namespace SampleTypeSpec
         [Experimental("SCME0002")]
         internal SampleTypeSpecClientOptions(IConfigurationSection section) : base(section)
         {
+            Version = "2024-08-16-preview";
             if (section is null || !section.Exists())
             {
                 return;

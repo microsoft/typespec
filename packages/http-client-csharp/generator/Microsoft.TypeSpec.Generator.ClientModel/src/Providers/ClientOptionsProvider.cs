@@ -302,12 +302,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute),
                 [Literal(ClientSettingsProvider.ClientSettingsDiagnosticId)]);
 
+            // Set version to latest version before the guard so it is always initialized
+            var body = new List<MethodBodyStatement>();
+            if (LatestVersionsFields != null && VersionProperties != null)
+            {
+                foreach (var (_, serviceVersionEnum) in LatestVersionsFields)
+                {
+                    if (VersionProperties.TryGetValue(serviceVersionEnum, out var versionProperty))
+                    {
+                        var latestVersion = serviceVersionEnum.EnumValues[^1];
+                        body.Add(versionProperty.Assign(Literal(latestVersion.Value)).Terminate());
+                    }
+                }
+            }
+
             // if (section is null || !section.Exists()) { return; }
             var guardCondition = sectionParam.Is(Null).Or(Not(sectionParam.Invoke("Exists")));
             var guardStatement = new IfStatement(guardCondition);
             guardStatement.Add(Return());
 
-            var body = new List<MethodBodyStatement> { guardStatement };
+            body.Add(guardStatement);
 
             // Build a set of version property names for O(1) lookup
             var versionPropertyNames = VersionProperties?.Values.Select(vp => vp.Name).ToHashSet();
