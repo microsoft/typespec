@@ -310,9 +310,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Determines whether this subclient has non-infrastructure parameters that need to be
-        /// included as parameters in the parent's accessor method rather than stored on the parent.
-        /// A subclient has accessor-only parameters if it has non-infrastructure parameters
+        /// Determines whether this subclient has non-infrastructure parameters
         /// (not API versions, not endpoint) that are not present on the parent's InputClient.Parameters.
         /// Uses the raw <see cref="InputClient.Parameters"/> to avoid circular lazy-initialization dependencies.
         /// </summary>
@@ -922,18 +920,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 List<ValueExpression> subClientConstructorArgs = new(3);
                 List<ParameterProvider> accessorMethodParams = [];
 
-                // Determine which subclient parameters should be on the accessor method.
-                // Subclient-specific parameters (not on the parent) need to be passed via the accessor.
-                var parentEffectiveParamNames = _allClientParameters
+                // Identify subclient-specific parameters by comparing with the parent's input parameters.
+                // Parameters present on both parent and subclient are shared (sourced from parent fields/properties).
+                var parentInputParamNames = _inputClient.Parameters
                     .Select(p => p.Name)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
-                var subClientExtraInputParamNames = subClient._inputClient.Parameters
-                    .Where(p => !p.IsApiVersion && !(p is InputEndpointParameter ep && ep.IsEndpoint))
-                    .Where(p => !parentEffectiveParamNames.Contains(p.Name))
+                var subClientSpecificParamNames = subClient._inputClient.Parameters
+                    .Where(p => !parentInputParamNames.Contains(p.Name))
                     .Select(p => p.Name)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-                // Populate constructor arguments, collecting extra params for the accessor method signature
+                // Populate constructor arguments, collecting subclient-specific params for the accessor method signature
                 foreach (var param in subClient._subClientInternalConstructorParams.Value)
                 {
                     if (parentClientProperties.TryGetValue(param.Name, out var parentProperty))
@@ -953,14 +950,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             subClientConstructorArgs.Add(correspondingApiVersionField.Field);
                         }
                     }
-                    else if (subClientExtraInputParamNames.Contains(param.Name))
+                    else if (subClientSpecificParamNames.Contains(param.Name))
                     {
-                        // This parameter is subclient-specific and not available on the parent --
-                        // expose it as an accessor method parameter.
+                        // This parameter is subclient-specific — expose it as an accessor method parameter.
                         accessorMethodParams.Add(param);
                         subClientConstructorArgs.Add(param);
                     }
-                    // else: infra param (pipeline, auth, endpoint) not found in parent mock — silently skip
                 }
 
                 var factoryMethodName = subClient.Name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
