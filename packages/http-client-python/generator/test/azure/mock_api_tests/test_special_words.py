@@ -59,5 +59,5 @@ def test_model_properties_with_list(client: SpecialWordsClient):
 
 
 def test_extensible_strings(client: SpecialWordsClient):
-    result = client.extensible_strings.put_extensible_string_value(body=models.ExtensibleString.CLASSEnum)
+    result = client.extensible_strings.put_extensible_string_value(body=models.ExtensibleString.CLASS)
     assert result == '"class"'
