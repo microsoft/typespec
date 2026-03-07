@@ -64,3 +64,9 @@ async def test_model_properties_dict_methods(client: SpecialWordsClient):
 @pytest.mark.asyncio
 async def test_model_properties_with_list(client: SpecialWordsClient):
     await client.model_properties.with_list(model_properties_models.ModelWithList(list="ok"))
+
+
+@pytest.mark.asyncio
+async def test_extensible_strings(client: SpecialWordsClient):
+    result = await client.extensible_strings.put_extensible_string_value(body="class")
+    assert result == '"class"'
