@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +16,9 @@ namespace Payload.JsonMergePatch
         public JsonMergePatchClient() : this(new Uri("http://localhost:3000"), new JsonMergePatchClientOptions()) => throw null;
 
         public JsonMergePatchClient(Uri endpoint, JsonMergePatchClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public JsonMergePatchClient(JsonMergePatchClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

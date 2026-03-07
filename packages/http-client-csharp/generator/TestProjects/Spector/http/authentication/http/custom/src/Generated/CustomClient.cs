@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,6 +20,9 @@ namespace Authentication.Http.Custom
         public CustomClient(ApiKeyCredential credential, CustomClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
 
         public CustomClient(Uri endpoint, ApiKeyCredential credential, CustomClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public CustomClient(CustomClientSettings settings) : this(settings?.Endpoint, settings?.Credential?.Key != null ? new ApiKeyCredential(settings?.Credential?.Key) : null, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

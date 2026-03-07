@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,9 @@ namespace Server.Path.Multiple
         public MultipleClient(Uri endpoint) : this(endpoint, new MultipleClientOptions()) => throw null;
 
         public MultipleClient(Uri endpoint, MultipleClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public MultipleClient(MultipleClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

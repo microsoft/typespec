@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Shared;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
@@ -230,9 +231,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
+            var configSectionCtor = BuildConfigurationSectionConstructor();
+
             if (LatestVersionsFields is null)
             {
-                return [];
+                var defaultCtor = new ConstructorProvider(
+                    new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, []),
+                    MethodBodyStatement.Empty,
+                    this);
+                return [defaultCtor, configSectionCtor];
             }
 
             var constructorBody = new List<MethodBodyStatement>();
@@ -281,7 +288,72 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, constructorParameters),
                 constructorBody,
                 this);
-            return [constructor];
+            return [constructor, configSectionCtor];
+        }
+
+        private ConstructorProvider BuildConfigurationSectionConstructor()
+        {
+            var sectionParam = new ParameterProvider(
+                "section",
+                $"The configuration section.",
+                ClientSettingsProvider.IConfigurationSectionType);
+
+            var experimentalAttr = new AttributeStatement(
+                typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute),
+                [Literal(ClientSettingsProvider.ClientSettingsDiagnosticId)]);
+
+            // Set version to latest version before the guard so it is always initialized
+            var body = new List<MethodBodyStatement>();
+            if (LatestVersionsFields != null && VersionProperties != null)
+            {
+                foreach (var (_, serviceVersionEnum) in LatestVersionsFields)
+                {
+                    if (VersionProperties.TryGetValue(serviceVersionEnum, out var versionProperty))
+                    {
+                        var latestVersion = serviceVersionEnum.EnumValues[^1];
+                        body.Add(versionProperty.Assign(Literal(latestVersion.Value)).Terminate());
+                    }
+                }
+            }
+
+            // if (section is null || !section.Exists()) { return; }
+            var guardCondition = sectionParam.Is(Null).Or(Not(sectionParam.Invoke("Exists")));
+            var guardStatement = new IfStatement(guardCondition);
+            guardStatement.Add(Return());
+
+            body.Add(guardStatement);
+
+            // Build a set of version property names for O(1) lookup
+            var versionPropertyNames = VersionProperties?.Values.Select(vp => vp.Name).ToHashSet();
+
+            // Bind non-version properties from configuration
+            foreach (var property in Properties)
+            {
+                if (versionPropertyNames?.Contains(property.Name) == true)
+                {
+                    continue;
+                }
+
+                // string? propValue = section["PropertyName"];
+                var propValueVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), $"{property.Name.ToVariableName()}FromConfig");
+                body.Add(Declare(propValueVar, new IndexerExpression(sectionParam, Literal(property.Name))));
+
+                // if (!string.IsNullOrEmpty(propValue)) { Property = propValue; }
+                var ifProp = new IfStatement(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", propValueVar)));
+                ifProp.Add(This.Property(property.Name).Assign(propValueVar).Terminate());
+                body.Add(ifProp);
+            }
+
+            return new ConstructorProvider(
+                new ConstructorSignature(
+                    Type,
+                    $"Initializes a new instance of {_clientProvider.Name}Options from configuration.",
+                    MethodSignatureModifiers.Internal,
+                    [sectionParam],
+                    attributes: [experimentalAttr],
+                    initializer: new ConstructorInitializer(true, [sectionParam])),
+                new MethodBodyStatements([.. body]),
+                this);
         }
 
         protected override PropertyProvider[] BuildProperties()

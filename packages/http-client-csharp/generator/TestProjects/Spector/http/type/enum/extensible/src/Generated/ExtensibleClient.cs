@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _Type._Enum.Extensible
 {
@@ -12,6 +13,9 @@ namespace _Type._Enum.Extensible
         public ExtensibleClient() : this(new Uri("http://localhost:3000"), new ExtensibleClientOptions()) => throw null;
 
         public ExtensibleClient(Uri endpoint, ExtensibleClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public ExtensibleClient(ExtensibleClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using Encode._Array._Property;
 
 namespace Encode._Array
@@ -13,6 +14,9 @@ namespace Encode._Array
         public ArrayClient() : this(new Uri("http://localhost:3000"), new ArrayClientOptions()) => throw null;
 
         public ArrayClient(Uri endpoint, ArrayClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public ArrayClient(ArrayClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

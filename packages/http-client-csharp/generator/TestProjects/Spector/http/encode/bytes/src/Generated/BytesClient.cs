@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using Encode.Bytes._Header;
 using Encode.Bytes._Property;
 using Encode.Bytes._Query;
@@ -17,6 +18,9 @@ namespace Encode.Bytes
         public BytesClient() : this(new Uri("http://localhost:3000"), new BytesClientOptions()) => throw null;
 
         public BytesClient(Uri endpoint, BytesClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public BytesClient(BytesClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

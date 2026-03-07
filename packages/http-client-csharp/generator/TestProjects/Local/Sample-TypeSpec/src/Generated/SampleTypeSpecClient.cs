@@ -9,6 +9,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -88,6 +89,13 @@ namespace SampleTypeSpec
             _tokenProvider = tokenProvider;
             Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), new BearerTokenPolicy(_tokenProvider, _flows) }, Array.Empty<PipelinePolicy>());
             _apiVersion = options.Version;
+        }
+
+        /// <summary> Initializes a new instance of SampleTypeSpecClient from settings. </summary>
+        /// <param name="settings"> The settings for SampleTypeSpecClient. </param>
+        [Experimental("SCME0002")]
+        public SampleTypeSpecClient(SampleTypeSpecClientSettings settings) : this(settings?.SampleTypeSpecUrl, settings?.CredentialProvider as AuthenticationTokenProvider, settings?.Options)
+        {
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>

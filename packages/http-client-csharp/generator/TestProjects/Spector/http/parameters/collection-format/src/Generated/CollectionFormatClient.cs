@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using Parameters.CollectionFormat._Header;
 using Parameters.CollectionFormat._Query;
 
@@ -14,6 +15,9 @@ namespace Parameters.CollectionFormat
         public CollectionFormatClient() : this(new Uri("http://localhost:3000"), new CollectionFormatClientOptions()) => throw null;
 
         public CollectionFormatClient(Uri endpoint, CollectionFormatClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public CollectionFormatClient(CollectionFormatClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

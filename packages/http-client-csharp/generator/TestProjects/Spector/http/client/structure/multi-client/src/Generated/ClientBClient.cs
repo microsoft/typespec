@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Client.Structure.Service;
@@ -18,6 +19,9 @@ namespace Client.Structure.MultiClient
         public ClientBClient(Uri endpoint, ClientType client) : this(endpoint, client, new ClientBClientOptions()) => throw null;
 
         public ClientBClient(Uri endpoint, ClientType client, ClientBClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public ClientBClient(ClientBClientSettings settings) : this(settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

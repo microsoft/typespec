@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +16,9 @@ namespace _Type.Model.Empty
         public EmptyClient() : this(new Uri("http://localhost:3000"), new EmptyClientOptions()) => throw null;
 
         public EmptyClient(Uri endpoint, EmptyClientOptions options) => throw null;
+
+        [Experimental("SCME0002")]
+        public EmptyClient(EmptyClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

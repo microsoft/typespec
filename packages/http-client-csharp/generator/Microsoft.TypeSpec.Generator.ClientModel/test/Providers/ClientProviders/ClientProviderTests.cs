@@ -407,7 +407,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var primaryPublicConstructors = constructors.Where(
                 c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
             var secondaryPublicConstructors = constructors.Where(
-                c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
+                c => c.Signature?.Initializer != null &&
+                     c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
+                     !IsSettingsConstructor(c)).ToArray();
 
             // Check if endpoint has a default value
             var endpointParam = inputParameters.FirstOrDefault(p => p is InputEndpointParameter ep && ep.IsEndpoint);
@@ -543,14 +545,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var constructors = clientProvider.Constructors;
 
-            // Get all public constructors with an initializer (secondary constructors)
+            // Get all public constructors with an initializer (secondary constructors), excluding settings constructor
             var secondaryPublicConstructors = constructors.Where(
-                c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
+                c => c.Signature?.Initializer != null &&
+                     c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
+                     !IsSettingsConstructor(c)).ToList();
 
             // We should have 2 secondary constructors per auth type:
             // 1. Client(credential) - simple with just auth
             // 2. Client(credential, options) - simplified with auth + options
             Assert.AreEqual(2, secondaryPublicConstructors.Count);
+
+            // Verify the settings constructor also exists
+            var settingsConstructor = constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNotNull(settingsConstructor, "Expected a settings constructor");
 
             // Verify the simple constructor exists (just auth)
             var simpleConstructor = secondaryPublicConstructors.FirstOrDefault(c => c.Signature.Parameters.Count == 1);
@@ -1129,6 +1137,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.NotNull(initializer);
             Assert.IsTrue(primaryConstructors.Any(pc => pc.Signature.Parameters.Count == initializer?.Arguments.Count));
         }
+
+        private static bool IsSettingsConstructor(ConstructorProvider c) =>
+            c.Signature?.Initializer != null &&
+            c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
+            c.Signature.Parameters.Any(p => p.Name == "settings");
 
         [TestCaseSource(nameof(EndpointParamInitializationValueTestCases))]
         public void EndpointInitializationValue(InputParameter endpointParameter, ValueExpression? expectedValue)

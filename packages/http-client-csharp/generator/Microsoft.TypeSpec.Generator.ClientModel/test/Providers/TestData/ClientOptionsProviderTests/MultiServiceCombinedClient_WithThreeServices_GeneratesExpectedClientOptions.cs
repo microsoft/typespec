@@ -4,6 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Sample
 {
@@ -34,6 +36,18 @@ namespace Sample
                 global::Sample.TestClientOptions.ServiceComputeVersion.V2024_07_01 => "2024-07-01",
                 _ => throw new global::System.NotSupportedException()
             };
+        }
+
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
+        internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
+        {
+            ServiceKeyVaultApiVersion = "7.5";
+            ServiceStorageApiVersion = "2024-01-01";
+            ServiceComputeApiVersion = "2024-07-01";
+            if (((section is null) || !section.Exists()))
+            {
+                return;
+            }
         }
 
         internal string ServiceComputeApiVersion { get; }
