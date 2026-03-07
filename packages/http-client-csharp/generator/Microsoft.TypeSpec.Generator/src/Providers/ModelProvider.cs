@@ -169,6 +169,48 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= BuildBaseModelProvider();
+
+        /// <summary>
+        /// Updates the model provider, optionally replacing the base model provider.
+        /// When <paramref name="baseModelProvider"/> is specified, the model is automatically
+        /// reset to rebuild all dependent members (constructors, properties, etc.).
+        /// </summary>
+        /// <param name="baseModelProvider">The new base model provider to replace the current one.</param>
+        public void Update(
+            ModelProvider? baseModelProvider = null,
+            IEnumerable<MethodProvider>? methods = null,
+            IEnumerable<ConstructorProvider>? constructors = null,
+            IEnumerable<PropertyProvider>? properties = null,
+            IEnumerable<FieldProvider>? fields = null,
+            IEnumerable<TypeProvider>? serializations = null,
+            IEnumerable<TypeProvider>? nestedTypes = null,
+            IEnumerable<AttributeStatement>? attributes = default,
+            IEnumerable<CSharpType>? implements = null,
+            XmlDocProvider? xmlDocs = null,
+            TypeSignatureModifiers? modifiers = null,
+            string? name = null,
+            string? @namespace = null,
+            string? relativeFilePath = null,
+            bool reset = false)
+        {
+            if (baseModelProvider != null)
+            {
+                _baseModelProvider = baseModelProvider;
+                reset = true;
+            }
+            base.Update(methods, constructors, properties, fields, serializations, nestedTypes, attributes, implements, xmlDocs, modifiers, name, @namespace, relativeFilePath, reset);
+        }
+
+        /// <inheritdoc/>
+        public override void Reset()
+        {
+            base.Reset();
+            _rawDataField = null;
+            _additionalPropertyFields = null;
+            _additionalPropertyProperties = null;
+            _fullConstructor = null;
+        }
+
         protected FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
         private List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
@@ -333,10 +375,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return customBaseModel;
                 }
 
-                // If the custom base type has a namespace (external type), we don't return it here
-                // as it's handled by BuildBaseTypeProvider() which returns a TypeProvider
+                // If the custom base type has a namespace (external type), try name+namespace based
+                // lookup as a fallback. This handles the case where CSharpType equality fails due to
+                // framework vs non-framework type mismatch (e.g., a CSharpType from Roslyn with
+                // _type=typeof(T) vs a CSharpType from a model provider with _type=null).
                 if (!string.IsNullOrEmpty(baseType?.Namespace))
                 {
+                    foreach (var (mapKey, mapValue) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
+                    {
+                        if (mapValue is ModelProvider mp &&
+                            mapKey.Name == baseType.Name &&
+                            mapKey.Namespace == baseType.Namespace)
+                        {
+                            // Cache with the custom code's CSharpType for future lookups
+                            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = mp;
+                            return mp;
+                        }
+                    }
                     return null;
                 }
             }
@@ -503,6 +558,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
+            // When the base model provider is a SystemObjectModelProvider (e.g., from a custom code base type
+            // override), also include properties from its InputModel chain. This handles the case where the
+            // spec-defined base differs from the custom code base (e.g., spec says Resource but custom code
+            // says TrackedResourceData), ensuring all base properties are properly deduplicated.
+            if (HasSystemObjectModelBase() && BaseModelProvider is SystemObjectModelProvider systemObjBase)
+            {
+                var baseInputModel = systemObjBase._inputModel;
+                while (baseInputModel != null)
+                {
+                    foreach (var prop in baseInputModel.Properties)
+                    {
+                        baseProperties.TryAdd(prop.Name, prop);
+                    }
+                    baseInputModel = baseInputModel.BaseModel;
+                }
+            }
             // Build a set of serialized names for base discriminator properties to handle cases where
             // the derived model has a discriminator with a different C# name but the same wire name
             HashSet<string> baseDiscriminatorSerializedNames = EnumerateBaseModels()
@@ -560,6 +631,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var baseProperty = baseProperties.GetValueOrDefault(property.Name);
                     if (baseProperty is not null)
                     {
+                        // If the base chain includes a SystemObjectModelProvider, the framework type
+                        // already defines this property — skip generating it in the derived model.
+                        if (HasSystemObjectModelBase())
+                        {
+                            continue;
+                        }
+
                         if (DomainEqual(baseProperty, property))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Override;
@@ -595,6 +673,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 yield return model._inputModel;
                 model = model.BaseModelProvider;
             }
+        }
+
+        /// <summary>
+        /// Checks if any ancestor in the base model chain is a <see cref="SystemObjectModelProvider"/>.
+        /// </summary>
+        private bool HasSystemObjectModelBase()
+        {
+            var model = BaseModelProvider;
+            while (model != null)
+            {
+                if (model is SystemObjectModelProvider)
+                {
+                    return true;
+                }
+                model = model.BaseModelProvider;
+            }
+            return false;
         }
 
         private static bool DomainEqual(InputProperty baseProperty, InputProperty derivedProperty)
@@ -1216,7 +1311,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Builds the raw data field for the model to be used for serialization.
         /// </summary>
         /// <returns>The constructed <see cref="FieldProvider"/> if the model should generate the field.</returns>
-        private FieldProvider? BuildRawDataField()
+        protected virtual FieldProvider? BuildRawDataField()
         {
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
             var baseModelProvider = BaseModelProvider;
