@@ -36,7 +36,7 @@ export function ParametrizedEndpoint(props: ParametrizedEndpointProps) {
       {code`
       "${props.template}".replace(/{([^}]+)}/g, (_, key) =>
         key in ${paramsRef} ? String(params[key]) : (() => { throw new Error(\`Missing parameter: $\{key}\`); })()
-      );
+      )
     `}
     </ts.VarDeclaration>
   );
