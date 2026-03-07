@@ -1,24 +1,24 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using NuGet.Common;
 using NuGet.Configuration;
-using NuGet.Versioning;
-using System;
-using System.Net.Http;
-using System.Net;
-using System.Threading.Tasks;
-using System.Threading;
-using NuGet.Protocol.Core.Types;
-using System.Collections.Generic;
-using System.Linq;
-using NuGet.Protocol;
+using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Packaging.Signing;
-using NuGet.Packaging;
-using System.IO;
-using System.Diagnostics.CodeAnalysis;
+using NuGet.Protocol;
+using NuGet.Protocol.Core.Types;
 using NuGet.Repositories;
+using NuGet.Versioning;
 using ILogger = NuGet.Common.ILogger;
 using PackageArchiveDownloader = NuGet.Protocol.LocalPackageArchiveDownloader;
 
@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         {
             _nugetSettings = settings;
             _targetFrameworks = targetFrameworks is null
-                ? [ ..PreferredDotNetFrameworkVersions ]
+                ? [.. PreferredDotNetFrameworkVersions]
                 : [.. targetFrameworks];
             _availableSources = GetPrimaryPackageSources(settings);
             _globalNugetPackagePath = SettingsUtility.GetGlobalPackagesFolder(settings);

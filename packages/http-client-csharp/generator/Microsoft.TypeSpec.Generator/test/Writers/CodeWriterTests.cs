@@ -462,7 +462,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         {
             var index = new ParameterProvider("index", $"index", typeof(int), null);
             var indexer1 = new IndexPropertyProvider($"To test a method property without a setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc"))), new TestTypeProvider(), explicitInterface: typeof(IReadOnlyList<string>));
-            var indexer2 = new IndexPropertyProvider($"To test a method property with a setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property2").Assign(Value).Terminate()),new TestTypeProvider(), explicitInterface: typeof(IList<string>));
+            var indexer2 = new IndexPropertyProvider($"To test a method property with a setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property2").Assign(Value).Terminate()), new TestTypeProvider(), explicitInterface: typeof(IList<string>));
             var indexer3 = new IndexPropertyProvider($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property3").Assign(Value).Terminate(), MethodSignatureModifiers.Internal), new TestTypeProvider(), explicitInterface: typeof(IReadOnlyDictionary<int, string>));
 
             using var codeWriter = new CodeWriter();
@@ -537,10 +537,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var provider = new TestTypeProvider();
             var constructorSignature = new ConstructorSignature(
                 provider.Type,
-                $"Test constructor with suppressions", 
-                MethodSignatureModifiers.Public, 
+                $"Test constructor with suppressions",
+                MethodSignatureModifiers.Public,
                 [intParam]);
-            
+
             var bodyStatement = intParam.Assign(This.Property("Value")).Terminate();
             var suppressions = new List<SuppressionStatement>
             {
@@ -548,8 +548,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             };
 
             var constructor = new ConstructorProvider(
-                constructorSignature, 
-                bodyStatement, 
+                constructorSignature,
+                bodyStatement,
                 provider,
                 suppressions: suppressions);
 
@@ -568,8 +568,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var stringParam = new ParameterProvider("message", $"The message value.", typeof(string));
             var provider = new TestTypeProvider();
             var constructorSignature = new ConstructorSignature(
-                provider.Type, 
-                $"Test constructor with body expression and suppressions", 
+                provider.Type,
+                $"Test constructor with body expression and suppressions",
                 MethodSignatureModifiers.Public,
                 [stringParam]);
 
@@ -580,8 +580,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             };
 
             var constructor = new ConstructorProvider(
-                constructorSignature, 
-                bodyExpression, 
+                constructorSignature,
+                bodyExpression,
                 provider,
                 suppressions: suppressions);
 
@@ -613,9 +613,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         public void CodeWriter_WriteParameter_WithInModifier()
         {
             var parameter = new ParameterProvider(
-                "p1", 
-                $"The input value.", 
-                typeof(int), 
+                "p1",
+                $"The input value.",
+                typeof(int),
                 isIn: true);
 
             using var codeWriter = new CodeWriter();

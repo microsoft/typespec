@@ -187,11 +187,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Add non-spec properties
                 result.AddRange(nonSpecProperties);
 
-                return [..result];
+                return [.. result];
             }
 
             // For other types, there is no canonical order, so we can just return generated followed by custom properties.
-            return [..filteredGeneratedProperties, ..customProperties];
+            return [.. filteredGeneratedProperties, .. customProperties];
         }
 
         protected internal override FieldProvider[] BuildFields()
@@ -256,7 +256,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Order is not important for fields, so we can just return generated followed by custom fields
-            return [..FilterCustomizedFields(generatedFields), ..customFields];
+            return [.. FilterCustomizedFields(generatedFields), .. customFields];
         }
 
         private bool TryGetSpecProperty(

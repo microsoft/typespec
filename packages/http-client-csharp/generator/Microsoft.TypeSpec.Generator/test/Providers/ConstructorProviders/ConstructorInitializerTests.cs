@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ConstructorProviders
 
             var constructorWithInitializer = constructors.FirstOrDefault(c => c.Signature.Parameters.Count == 1);
             Assert.IsNotNull(constructorWithInitializer, "Constructor with single parameter should exist");
-            
+
             // This should pass after the fix - currently fails because Initializer is null
             Assert.IsNotNull(constructorWithInitializer!.Signature.Initializer, "Constructor initializer should be populated");
             Assert.IsFalse(constructorWithInitializer.Signature.Initializer!.IsBase, "Should be 'this' initializer, not 'base'");
@@ -56,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ConstructorProviders
             Assert.AreEqual(1, constructors.Count);
 
             var constructorWithInitializer = constructors.First();
-            
+
             // This should pass after the fix - currently fails because Initializer is null
             Assert.IsNotNull(constructorWithInitializer.Signature.Initializer, "Constructor initializer should be populated");
             Assert.IsTrue(constructorWithInitializer.Signature.Initializer!.IsBase, "Should be 'base' initializer");

@@ -75,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected internal override MethodProvider[] BuildMethods()
             {
-                var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.None, null, $"", [ new ParameterProvider("writer", $"", typeof(Utf8JsonWriter)), new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions)) ], null, null, null, new CSharpType(typeof(IJsonModel<>), Type));
+                var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.None, null, $"", [new ParameterProvider("writer", $"", typeof(Utf8JsonWriter)), new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions))], null, null, null, new CSharpType(typeof(IJsonModel<>), Type));
                 return [new MethodProvider(sig, Snippet.ThrowExpression(Snippet.Null), this, null)];
             }
 

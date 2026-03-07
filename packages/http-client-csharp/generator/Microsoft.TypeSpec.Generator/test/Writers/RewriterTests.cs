@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         public async Task RewriterIsInvoked()
         {
             var invokeMethodExpression = new InvokeMethodExpression(This, "VisitsInvokeMethodExpression", []);
-            var methods = new []
+            var methods = new[]
             {
                 new MethodProvider(
                     new MethodSignature("VisitsInvokeMethodExpression", $"", MethodSignatureModifiers.Public, null, $"", []),

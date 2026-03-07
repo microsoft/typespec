@@ -14,8 +14,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class MethodProvider
     {
         public MethodSignature Signature { get; private set; }
-        public MethodBodyStatement? BodyStatements { get; private set;}
-        public ValueExpression? BodyExpression { get; private set;}
+        public MethodBodyStatement? BodyStatements { get; private set; }
+        public ValueExpression? BodyExpression { get; private set; }
 
         public XmlDocProvider XmlDocs { get; private set; }
 
