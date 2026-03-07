@@ -1,8 +1,9 @@
+import { useDeclarationProvider } from "#core/context/declaration-provider.js";
+import { joinRefkeys } from "#typescript/utils/refkey.js";
 import * as ts from "@alloy-js/typescript";
 import type { Model, Operation } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
-import { declarationRefkeys } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.js";
 
 export interface FunctionDeclarationPropsWithType extends Omit<
@@ -30,7 +31,8 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     return <ts.FunctionDeclaration {...props} />;
   }
 
-  const refkeys = declarationRefkeys(props.refkey, props.type);
+  const dp = useDeclarationProvider();
+  const refkeys = joinRefkeys(props.refkey, dp.getRefkey(props.type));
 
   let name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
 

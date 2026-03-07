@@ -1,8 +1,7 @@
-import { code } from "@alloy-js/core";
+import { code, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { efRefkey } from "../utils/refkey.js";
 
-export const DateRfc3339SerializerRefkey = efRefkey();
+export const DateRfc3339SerializerRefkey = refkey();
 export function DateRfc3339Serializer() {
   return (
     <ts.FunctionDeclaration
@@ -23,7 +22,7 @@ export function DateRfc3339Serializer() {
   );
 }
 
-export const DateRfc7231SerializerRefkey = efRefkey();
+export const DateRfc7231SerializerRefkey = refkey();
 export function DateRfc7231Serializer() {
   return (
     <ts.FunctionDeclaration
@@ -44,7 +43,7 @@ export function DateRfc7231Serializer() {
   );
 }
 
-export const DateDeserializerRefkey = efRefkey();
+export const DateDeserializerRefkey = refkey();
 export function DateDeserializer() {
   return (
     <ts.FunctionDeclaration
@@ -65,7 +64,7 @@ export function DateDeserializer() {
   );
 }
 
-export const DateUnixTimestampDeserializerRefkey = efRefkey();
+export const DateUnixTimestampDeserializerRefkey = refkey();
 export function DateUnixTimestampDeserializer() {
   return (
     <ts.FunctionDeclaration
@@ -86,7 +85,7 @@ export function DateUnixTimestampDeserializer() {
   );
 }
 
-export const DateRfc7231DeserializerRefkey = efRefkey();
+export const DateRfc7231DeserializerRefkey = refkey();
 export function DateRfc7231Deserializer() {
   return (
     <ts.FunctionDeclaration
@@ -107,7 +106,7 @@ export function DateRfc7231Deserializer() {
   );
 }
 
-export const DateUnixTimestampSerializerRefkey = efRefkey();
+export const DateUnixTimestampSerializerRefkey = refkey();
 export function DateUnixTimestampSerializer() {
   return (
     <ts.FunctionDeclaration
@@ -128,7 +127,7 @@ export function DateUnixTimestampSerializer() {
   );
 }
 
-export const RecordSerializerRefkey = efRefkey();
+export const RecordSerializerRefkey = refkey();
 export function RecordSerializer() {
   const recordType = `Record<string, any>`;
   const convertFnType = `(item: any) => any`;
@@ -161,7 +160,7 @@ export function RecordSerializer() {
   );
 }
 
-export const ArraySerializerRefkey = efRefkey();
+export const ArraySerializerRefkey = refkey();
 export function ArraySerializer() {
   const arrayType = `any[]`;
   const convertFnType = `(item: any) => any`;
