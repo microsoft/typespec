@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -351,6 +352,15 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
                 .PutAsync(model);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task GetXmlErrorValue() => Test((host) =>
+        {
+            var exception = Assert.ThrowsAsync<ClientResultException>(
+                async () => await new XmlClient(host, null).GetXmlErrorValueClient().GetAsync());
+            Assert.AreEqual(400, exception!.Status);
+            return Task.CompletedTask;
         });
     }
 }

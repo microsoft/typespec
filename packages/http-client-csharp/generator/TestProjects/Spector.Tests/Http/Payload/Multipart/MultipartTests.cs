@@ -227,5 +227,83 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
                 .MultiBinaryPartsAsync(content, content.ContentType, null);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
+
+        [SpectorTest]
+        public Task WithWireName() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            content.Add("123", "id");
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            content.Add(imageStream, "profileImage", "profileImage", "application/octet-stream");
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .WithWireNameAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task OptionalParts() => Test(async (host) =>
+        {
+            var client = new MultiPartClient(host, null).GetFormDataClient();
+
+            using MultiPartFormDataBinaryContent contentIdOnly = new MultiPartFormDataBinaryContent();
+            contentIdOnly.Add("123", "id");
+            var response1 = await client.OptionalPartsAsync(contentIdOnly, contentIdOnly.ContentType, null);
+            Assert.AreEqual(204, response1.GetRawResponse().Status);
+
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            using MultiPartFormDataBinaryContent contentImageOnly = new MultiPartFormDataBinaryContent();
+            contentImageOnly.Add(imageStream1, "profileImage", "profileImage", "application/octet-stream");
+            var response2 = await client.OptionalPartsAsync(contentImageOnly, contentImageOnly.ContentType, null);
+            Assert.AreEqual(204, response2.GetRawResponse().Status);
+
+            await using var imageStream2 = File.OpenRead(SampleJpgPath);
+            using MultiPartFormDataBinaryContent contentBoth = new MultiPartFormDataBinaryContent();
+            contentBoth.Add("123", "id");
+            contentBoth.Add(imageStream2, "profileImage", "profileImage", "application/octet-stream");
+            var response3 = await client.OptionalPartsAsync(contentBoth, contentBoth.ContentType, null);
+            Assert.AreEqual(204, response3.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task FileUploadFileSpecificContentType() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            await using var imageStream = File.OpenRead(SamplePngPath);
+            content.Add(imageStream, "file", "image.png", "image/png");
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataFileClient()
+                .UploadFileSpecificContentTypeAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task FileUploadFileRequiredFilename() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            await using var imageStream = File.OpenRead(SamplePngPath);
+            content.Add(imageStream, "file", "image.png", "image/png");
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataFileClient()
+                .UploadFileRequiredFilenameAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task FileUploadFileArray() => Test(async (host) =>
+        {
+            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            await using var imageStream1 = File.OpenRead(SamplePngPath);
+            content.Add(imageStream1, "files", "image1.png", "image/png");
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            content.Add(imageStream2, "files", "image2.png", "image/png");
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataFileClient()
+                .UploadFileArrayAsync(content, content.ContentType, null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
     }
 }

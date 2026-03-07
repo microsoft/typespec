@@ -123,5 +123,38 @@ namespace TestProjects.Spector.Tests.Http.Routes
                 .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
+
+        [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/5139")]
+        public Task QueryContinuationExplodePrimitive() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetQueryParametersClient()
+                .GetQueryParametersQueryContinuationClient()
+                .GetQueryParametersQueryContinuationExplodeClient()
+                .PrimitiveAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/5139")]
+        public Task QueryContinuationExplodeArray() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetQueryParametersClient()
+                .GetQueryParametersQueryContinuationClient()
+                .GetQueryParametersQueryContinuationExplodeClient()
+                .ArrayAsync(["a", "b"]);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/5139")]
+        public Task QueryContinuationExplodeRecord() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetQueryParametersClient()
+                .GetQueryParametersQueryContinuationClient()
+                .GetQueryParametersQueryContinuationExplodeClient()
+                .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
     }
 }

@@ -135,5 +135,185 @@ namespace TestProjects.Spector.Tests.Http.Routes
                 .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
+
+        [SpectorTest]
+        public Task SimpleExpansionPrimitive() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersSimpleExpansionClient()
+                .GetPathParametersSimpleExpansionStandardClient()
+                .PrimitiveAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task SimpleExpansionArray() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersSimpleExpansionClient()
+                .GetPathParametersSimpleExpansionStandardClient()
+                .ArrayAsync(["a", "b"]);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task SimpleExpansionRecord() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersSimpleExpansionClient()
+                .GetPathParametersSimpleExpansionStandardClient()
+                .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task SimpleExpansionExplodePrimitive() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersSimpleExpansionClient()
+                .GetPathParametersSimpleExpansionExplodeClient()
+                .PrimitiveAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task SimpleExpansionExplodeArray() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersSimpleExpansionClient()
+                .GetPathParametersSimpleExpansionExplodeClient()
+                .ArrayAsync(["a", "b"]);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task SimpleExpansionExplodeRecord() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersSimpleExpansionClient()
+                .GetPathParametersSimpleExpansionExplodeClient()
+                .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task PathExpansionPrimitive() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersPathExpansionClient()
+                .GetPathParametersPathExpansionStandardClient()
+                .PrimitiveAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task PathExpansionArray() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersPathExpansionClient()
+                .GetPathParametersPathExpansionStandardClient()
+                .ArrayAsync(["a", "b"]);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task PathExpansionRecord() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersPathExpansionClient()
+                .GetPathParametersPathExpansionStandardClient()
+                .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task PathExpansionExplodePrimitive() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersPathExpansionClient()
+                .GetPathParametersPathExpansionExplodeClient()
+                .PrimitiveAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task PathExpansionExplodeArray() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersPathExpansionClient()
+                .GetPathParametersPathExpansionExplodeClient()
+                .ArrayAsync(["a", "b"]);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task PathExpansionExplodeRecord() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersPathExpansionClient()
+                .GetPathParametersPathExpansionExplodeClient()
+                .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task MatrixExpansionPrimitive() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersMatrixExpansionClient()
+                .GetPathParametersMatrixExpansionStandardClient()
+                .PrimitiveAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task MatrixExpansionArray() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersMatrixExpansionClient()
+                .GetPathParametersMatrixExpansionStandardClient()
+                .ArrayAsync(["a", "b"]);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task MatrixExpansionRecord() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersMatrixExpansionClient()
+                .GetPathParametersMatrixExpansionStandardClient()
+                .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task MatrixExpansionExplodePrimitive() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersMatrixExpansionClient()
+                .GetPathParametersMatrixExpansionExplodeClient()
+                .PrimitiveAsync("a");
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task MatrixExpansionExplodeArray() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersMatrixExpansionClient()
+                .GetPathParametersMatrixExpansionExplodeClient()
+                .ArrayAsync(["a", "b"]);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task MatrixExpansionExplodeRecord() => Test(async (host) =>
+        {
+            var response = await new RoutesClient(host, null).GetPathParametersClient()
+                .GetPathParametersMatrixExpansionClient()
+                .GetPathParametersMatrixExpansionExplodeClient()
+                .RecordAsync(new Dictionary<string, int> {{"a", 1}, {"b", 2}});
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
     }
 }
