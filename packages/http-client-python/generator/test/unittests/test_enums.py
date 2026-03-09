@@ -52,6 +52,7 @@ def test_join():
     assert EnumsWithCallableNames.JOIN == "join"
     assert callable(EnumsWithCallableNames.join)
 
+
 def test_extensible_strings_enum_with_special_words():
     assert extensible_strings_models.ExtensibleString.AND == "and"
     assert extensible_strings_models.ExtensibleString.AS == "as"
