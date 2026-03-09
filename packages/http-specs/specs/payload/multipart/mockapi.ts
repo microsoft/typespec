@@ -438,7 +438,9 @@ Scenarios.Payload_MultiPart_FormData_File_uploadFileSpecificContentType = passOn
   method: "post",
   request: {
     body: multipart({
-      files: [{ fieldname: "file", originalname: "image.png", buffer: pngFile, mimetype: "image/png" }],
+      files: [
+        { fieldname: "file", originalname: "image.png", buffer: pngFile, mimetype: "image/png" },
+      ],
     }),
   },
   response: {
@@ -461,7 +463,9 @@ Scenarios.Payload_MultiPart_FormData_File_uploadFileRequiredFilename = passOnSuc
   method: "post",
   request: {
     body: multipart({
-      files: [{ fieldname: "file", originalname: "image.png", buffer: pngFile, mimetype: "image/png" }],
+      files: [
+        { fieldname: "file", originalname: "image.png", buffer: pngFile, mimetype: "image/png" },
+      ],
     }),
   },
   response: {
