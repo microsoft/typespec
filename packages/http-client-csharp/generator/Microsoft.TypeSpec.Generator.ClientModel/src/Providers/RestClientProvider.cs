@@ -703,12 +703,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var paramIndex = pathSpan.IndexOf('{');
                 if (paramIndex < 0)
                 {
-                    statements.Add(uri.AppendPath(Literal(pathSpan.ToString()), false).Terminate());
+                    AppendLiteralSegment(uri, pathSpan.ToString(), statements);
                     break;
                 }
 
                 var path = pathSpan.Slice(0, paramIndex);
-                statements.Add(uri.AppendPath(Literal(path.ToString()), false).Terminate());
+                AppendLiteralSegment(uri, path.ToString(), statements);
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
@@ -773,6 +773,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
+            }
+        }
+
+        private static void AppendLiteralSegment(ScopedApi uri, string literal, List<MethodBodyStatement> statements)
+        {
+            var queryIndex = literal.IndexOf('?');
+            if (queryIndex < 0)
+            {
+                // No query string, just append as path
+                if (literal.Length > 0)
+                {
+                    statements.Add(uri.AppendPath(Literal(literal), false).Terminate());
+                }
+                return;
+            }
+
+            // Append the path portion (before ?)
+            var pathPart = literal.Substring(0, queryIndex);
+            if (pathPart.Length > 0)
+            {
+                statements.Add(uri.AppendPath(Literal(pathPart), false).Terminate());
+            }
+
+            // Parse and append query parameters (after ?)
+            var queryPart = literal.Substring(queryIndex + 1);
+            if (queryPart.Length > 0)
+            {
+                var queryParams = queryPart.Split('&');
+                foreach (var param in queryParams)
+                {
+                    var eqIndex = param.IndexOf('=');
+                    if (eqIndex > 0)
+                    {
+                        var name = param.Substring(0, eqIndex);
+                        var value = param.Substring(eqIndex + 1);
+                        statements.Add(uri.AppendQuery(Literal(name), Literal(value), true).Terminate());
+                    }
+                }
             }
         }
 
