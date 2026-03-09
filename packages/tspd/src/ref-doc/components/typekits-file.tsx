@@ -20,6 +20,17 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName: strin
     ? `${packageName}/experimental/typekit`
     : `${packageName}/typekit`;
 
+  // Build import statements for code blocks
+  const registrationImport =
+    typekit.isExperimental && !isCompilerPackage ? `import "${typekitImportPath}";\n` : "";
+  const typekitImport = `import { $ } from "@typespec/compiler/typekit";`;
+
+  // Build explanation text
+  const sideEffectsExplanation =
+    typekit.isExperimental && !isCompilerPackage
+      ? "\n\nThe first import registers the typekit extensions. This import only needs to exist once in your compilation as only its side effects are important."
+      : "";
+
   const jsxContent = (
     <Output>
       <md.SourceFile path={`typekits.mdx`}>
@@ -45,20 +56,9 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName: strin
         
         To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
         
-        \`\`\`ts${
-          typekit.isExperimental
-            ? `
-        import "${typekitImportPath}";`
-            : ""
-        }
-        import { $ } from "@typespec/compiler/typekit";
-        \`\`\`${
-          typekit.isExperimental
-            ? `
-        
-        The first import registers the typekit extensions. This import only needs to exist once in your compilation as only its side effects are important.`
-            : ""
-        }
+        \`\`\`ts
+        ${registrationImport}${typekitImport}
+        \`\`\`${sideEffectsExplanation}
         `}
           </>
         )}
@@ -69,7 +69,7 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName: strin
         To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
         
         \`\`\`ts
-        import { $ } from "@typespec/compiler/typekit";
+        ${typekitImport}
         \`\`\`
         `}
           </>
