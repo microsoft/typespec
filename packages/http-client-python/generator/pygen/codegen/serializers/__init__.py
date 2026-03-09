@@ -143,16 +143,7 @@ class JinjaSerializer(ReaderAndWriter):
         )
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
-        # Process namespaces deepest-first so that shallower namespaces (which write the models
-        # folder __init__.py) always overwrite the pkgutil namespace init written by deeper
-        # sub-namespaces that share the same directory path (e.g. an operation group named
-        # "models" that lives under the same "specialwords/models/" folder as the data models).
-        # The empty root namespace ("") is treated as depth 0 and processed last.
-        for client_namespace, client_namespace_type in sorted(
-            self.code_model.client_namespace_types.items(),
-            key=lambda x: len(x[0].split(".")) if x[0] else 0,
-            reverse=True,
-        ):
+        for client_namespace, client_namespace_type in self.code_model.client_namespace_types.items():
             generation_path = self.code_model.get_generation_dir(client_namespace)
             if client_namespace == "":
                 if self.code_model.options["basic-setup-py"]:
