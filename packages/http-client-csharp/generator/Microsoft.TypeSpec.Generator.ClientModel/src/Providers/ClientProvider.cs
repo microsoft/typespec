@@ -309,6 +309,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return subClientParameters;
         }
 
+        /// <summary>
+        /// Determines whether this subclient has non-infrastructure parameters
+        /// (not API versions, not endpoint) that are not present on the parent's InputClient.Parameters.
+        /// Uses the raw <see cref="InputClient.Parameters"/> to avoid circular lazy-initialization dependencies.
+        /// </summary>
+        internal bool HasAccessorOnlyParameters(InputClient parentInputClient)
+        {
+            var parentParamNames = parentInputClient.Parameters
+                .Select(p => p.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            return _inputClient.Parameters
+                .Where(p => !p.IsApiVersion && !(p is InputEndpointParameter ep && ep.IsEndpoint))
+                .Any(p => !parentParamNames.Contains(p.Name));
+        }
+
         private Lazy<IReadOnlyList<ParameterProvider>> _clientParameters;
         internal IReadOnlyList<ParameterProvider> ClientParameters => _clientParameters.Value;
         private IReadOnlyList<ParameterProvider> GetClientParameters()
@@ -397,7 +413,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // add sub-client caching fields
             foreach (var subClient in _subClients.Value)
             {
-                if (subClient._clientCachingField != null)
+                // Only add caching field when the accessor does not require additional parameters.
+                // If the subclient has parameters that are not on the parent, each accessor call may
+                // produce a different client instance, so caching is not appropriate.
+                if (subClient._clientCachingField != null && !subClient.HasAccessorOnlyParameters(_inputClient))
                 {
                     fields.Add(subClient._clientCachingField);
                 }
@@ -899,8 +918,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 var cachedClientFieldVar = new VariableExpression(subClient.Type, subClient._clientCachingField.Declaration, IsRef: true);
                 List<ValueExpression> subClientConstructorArgs = new(3);
+                List<ParameterProvider> accessorMethodParams = [];
 
-                // Populate constructor arguments
+                // Identify subclient-specific parameters by comparing with the parent's input parameters.
+                // Parameters present on both parent and subclient are shared (sourced from parent fields/properties).
+                var parentInputParamNames = _inputClient.Parameters
+                    .Select(p => p.Name)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var subClientSpecificParamNames = subClient._inputClient.Parameters
+                    .Where(p => !parentInputParamNames.Contains(p.Name))
+                    .Select(p => p.Name)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                // Populate constructor arguments, collecting subclient-specific params for the accessor method signature
                 foreach (var param in subClient._subClientInternalConstructorParams.Value)
                 {
                     if (parentClientProperties.TryGetValue(param.Name, out var parentProperty))
@@ -920,30 +950,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             subClientConstructorArgs.Add(correspondingApiVersionField.Field);
                         }
                     }
+                    else if (subClientSpecificParamNames.Contains(param.Name))
+                    {
+                        // This parameter is subclient-specific — expose it as an accessor method parameter.
+                        accessorMethodParams.Add(param);
+                        subClientConstructorArgs.Add(param);
+                    }
                 }
 
-                // Create the interlocked compare exchange expression for the body
-                var interlockedCompareExchange = Static(typeof(Interlocked)).Invoke(
-                    nameof(Interlocked.CompareExchange),
-                    [cachedClientFieldVar, New.Instance(subClient.Type, subClientConstructorArgs), Null]);
                 var factoryMethodName = subClient.Name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
                     ? $"Get{subClient.Name}"
                     : $"Get{subClient.Name}{ClientSuffix}";
 
-                var factoryMethod = new ScmMethodProvider(
-                    new(
-                        factoryMethodName,
-                        $"Initializes a new instance of {subClient.Type.Name}",
-                        MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
-                        subClient.Type,
-                        null,
-                        []),
-                    // return Volatile.Read(ref _cachedClient) ?? Interlocked.CompareExchange(ref _cachedClient, new Client(_pipeline, _keyCredential, _endpoint), null) ?? _cachedClient;
-                    Return(
-                        Static(typeof(Volatile)).Invoke(nameof(Volatile.Read), cachedClientFieldVar)
-                        .NullCoalesce(interlockedCompareExchange.NullCoalesce(subClient._clientCachingField))),
-                    this,
-                    ScmMethodKind.Convenience);
+                ScmMethodProvider factoryMethod;
+                if (accessorMethodParams.Count > 0)
+                {
+                    // When the accessor requires extra parameters, caching is not appropriate
+                    // (different parameter values may produce different client instances).
+                    // Return a new instance directly.
+                    factoryMethod = new ScmMethodProvider(
+                        new(
+                            factoryMethodName,
+                            $"Initializes a new instance of {subClient.Type.Name}",
+                            MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                            subClient.Type,
+                            null,
+                            [.. accessorMethodParams]),
+                        Return(New.Instance(subClient.Type, subClientConstructorArgs)),
+                        this,
+                        ScmMethodKind.Convenience);
+                }
+                else
+                {
+                    // No extra params - use the existing caching pattern
+                    var interlockedCompareExchange = Static(typeof(Interlocked)).Invoke(
+                        nameof(Interlocked.CompareExchange),
+                        [cachedClientFieldVar, New.Instance(subClient.Type, subClientConstructorArgs), Null]);
+                    factoryMethod = new ScmMethodProvider(
+                        new(
+                            factoryMethodName,
+                            $"Initializes a new instance of {subClient.Type.Name}",
+                            MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                            subClient.Type,
+                            null,
+                            []),
+                        // return Volatile.Read(ref _cachedClient) ?? Interlocked.CompareExchange(ref _cachedClient, new Client(_pipeline, _keyCredential, _endpoint), null) ?? _cachedClient;
+                        Return(
+                            Static(typeof(Volatile)).Invoke(nameof(Volatile.Read), cachedClientFieldVar)
+                            .NullCoalesce(interlockedCompareExchange.NullCoalesce(subClient._clientCachingField))),
+                        this,
+                        ScmMethodKind.Convenience);
+                }
                 methods.Add(factoryMethod);
             }
 

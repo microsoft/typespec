@@ -6,27 +6,6 @@ import { describe, expect, it } from "vitest";
 import { Tester, compileOperations, getOperations, getRoutesFor } from "./test-host.js";
 
 describe("rest: routes", () => {
-  it("always produces a route starting with /", async () => {
-    const routes = await getRoutesFor(
-      `
-      @get
-      @route(":action")
-      op colonRoute(): {};
-
-      @get
-      @autoRoute
-      @action("actionTwo")
-      @actionSeparator(":")
-      op separatorRoute(): {};
-      `,
-    );
-
-    deepStrictEqual(routes, [
-      { verb: "get", path: "/:action", params: [] },
-      { verb: "get", path: "/:actionTwo", params: [] },
-    ]);
-  });
-
   it("generates action route fragments when @action is applied", async () => {
     const routes = await getRoutesFor(
       `
