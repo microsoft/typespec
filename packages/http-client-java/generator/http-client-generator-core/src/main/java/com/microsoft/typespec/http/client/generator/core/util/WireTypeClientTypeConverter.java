@@ -43,6 +43,10 @@ public class WireTypeClientTypeConverter {
             expression = "Duration.ofSeconds(" + expression + ")";
         } else if (wireType == ClassType.DURATION_DOUBLE) {
             expression = "Duration.ofNanos((long) (" + expression + " * 1000_000_000L))";
+        } else if (wireType == ClassType.DURATION_MILLISECONDS_LONG) {
+            expression = "Duration.ofMillis(" + expression + ")";
+        } else if (wireType == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = "Duration.ofNanos((long) (" + expression + " * 1000_000L))";
         }
 
         return expression;
@@ -72,6 +76,10 @@ public class WireTypeClientTypeConverter {
             expression = expression + ".getSeconds()";
         } else if (clientType == ClassType.DURATION_DOUBLE) {
             expression = "(double) " + expression + ".toNanos() / 1000_000_000L";
+        } else if (clientType == ClassType.DURATION_MILLISECONDS_LONG) {
+            expression = expression + ".toMillis()";
+        } else if (clientType == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = "(double) " + expression + ".toNanos() / 1000_000L";
         }
 
         return expression;
@@ -99,6 +107,10 @@ public class WireTypeClientTypeConverter {
             expression = String.format("Duration.ofSeconds(%s)", expression);
         } else if (wireType == PrimitiveType.DURATION_DOUBLE) {
             expression = String.format("Duration.ofNanos((long) (%s * 1000_000_000L))", expression);
+        } else if (wireType == PrimitiveType.DURATION_MILLISECONDS_LONG) {
+            expression = String.format("Duration.ofMillis(%s)", expression);
+        } else if (wireType == PrimitiveType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = String.format("Duration.ofNanos((long) (%s * 1000_000L))", expression);
         }
         return expression;
     }
@@ -124,6 +136,10 @@ public class WireTypeClientTypeConverter {
             expression = String.format("%s.getSeconds()", expression);
         } else if (clientType == PrimitiveType.DURATION_DOUBLE) {
             expression = String.format("(double) %s.toNanos() / 1000_000_000L", expression);
+        } else if (clientType == PrimitiveType.DURATION_MILLISECONDS_LONG) {
+            expression = String.format("%s.toMillis()", expression);
+        } else if (clientType == PrimitiveType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = String.format("(double) %s.toNanos() / 1000_000L", expression);
         }
         return expression;
     }
@@ -152,6 +168,10 @@ public class WireTypeClientTypeConverter {
             literalValue = Duration.ofSeconds(Long.parseLong(literalValue)).toString();
         } else if (wireType.asNullable() == ClassType.DURATION_DOUBLE) {
             literalValue = Duration.ofNanos((long) (Double.parseDouble(literalInWireType) * 1000_000_000L)).toString();
+        } else if (wireType.asNullable() == ClassType.DURATION_MILLISECONDS_LONG) {
+            literalValue = Duration.ofMillis(Long.parseLong(literalValue)).toString();
+        } else if (wireType.asNullable() == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            literalValue = Duration.ofNanos((long) (Double.parseDouble(literalInWireType) * 1000_000L)).toString();
         }
         return literalValue;
     }

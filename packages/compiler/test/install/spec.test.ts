@@ -1,16 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { PackageJson } from "../../src/index.js";
 import { PackageManagerSpecError, resolvePackageManagerSpec } from "../../src/install/spec.js";
-import { createTestHost } from "../../src/testing/test-host.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";
+import { Tester } from "../tester.js";
 
 async function getPackageManagerSpecFor(cwd: string, packages: Record<string, PackageJson>) {
-  const host = await createTestHost();
+  const files: Record<string, string> = {};
   for (const [path, content] of Object.entries(packages)) {
-    host.addTypeSpecFile(path, JSON.stringify(content));
+    files[path] = JSON.stringify(content);
   }
+  const instance = await Tester.files(files).createInstance();
   const tracer: any = { trace: () => {}, sub: () => tracer };
-  return resolvePackageManagerSpec(host.compilerHost, tracer, resolveVirtualPath(cwd));
+  return resolvePackageManagerSpec(instance.fs.compilerHost, tracer, resolveVirtualPath(cwd));
 }
 
 it("return no-package if no package.json is found", async () => {
