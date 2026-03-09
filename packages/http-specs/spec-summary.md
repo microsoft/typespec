@@ -2509,7 +2509,7 @@ Expected response body:
 }
 ```
 
-### Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_linkPost
+### Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post
 
 - Endpoint: `post /payload/pageable/server-driven-pagination/link/initial-post`
 
@@ -2534,12 +2534,12 @@ Expected response body:
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ],
-  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/initial-post/nextPage"
+  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc"
 }
 ```
 
 2. Next page request (GET):
-   Expected route: /payload/pageable/server-driven-pagination/link/initial-post/nextPage
+   Expected route: /payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc
    Expected response body:
 
 ```json
