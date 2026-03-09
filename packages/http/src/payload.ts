@@ -774,11 +774,7 @@ function isXmlContentType(contentType: string): boolean {
 function isScalarExtendsBytes(type: Scalar): boolean {
   let current: Scalar | undefined = type;
   while (current) {
-    if (
-      current.name === "bytes" &&
-      current.namespace?.name === "TypeSpec" &&
-      current.namespace?.namespace?.name === ""
-    ) {
+    if (current.name === "bytes") {
       return true;
     }
     current = current.baseScalar;
