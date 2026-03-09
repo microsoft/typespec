@@ -64,10 +64,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
-                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+                : MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual;
             if (_shouldOverrideMethods)
             {
-                modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
+                modifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Override;
             }
 
             // void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
