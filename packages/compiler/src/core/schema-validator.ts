@@ -16,6 +16,7 @@ import {
 export interface JSONSchemaValidatorOptions {
   coerceTypes?: boolean;
   strict?: boolean;
+  useDefaults?: boolean;
 }
 
 function absolutePathStatus(path: string): "valid" | "not-absolute" | "windows-style" {
@@ -35,6 +36,7 @@ export function createJSONSchemaValidator<T>(
   const ajv = new Ajv({
     strict: options.strict,
     coerceTypes: options.coerceTypes,
+    useDefaults: options.useDefaults,
     allowUnionTypes: true,
     allErrors: true,
   } satisfies Options);
