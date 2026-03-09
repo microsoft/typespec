@@ -1,5 +1,4 @@
-import { css } from "@emotion/react";
-import { tokens } from "@fluentui/react-components";
+import { mergeClasses } from "@fluentui/react-components";
 import {
   Checkmark20Filled,
   ErrorCircle20Filled,
@@ -9,7 +8,7 @@ import {
 } from "@fluentui/react-icons";
 import { ScenarioStatus } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent } from "react";
-import { ScenarioStatusColors } from "../constants.js";
+import style from "./scenario-status.module.css";
 
 export interface ScenarioStatusBoxProps {
   readonly status: ScenarioStatus | undefined;
@@ -35,45 +34,27 @@ export const ScenarioStatusBox: FunctionComponent<ScenarioStatusBoxProps> = ({ s
   }
 };
 
-const ScenarioStatusBoxStyles = css({
-  height: "100%",
-  width: "100%",
-  color: tokens.colorNeutralForegroundOnBrand,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-});
-
 export const PassStatus = () => (
-  <div
-    title="Pass"
-    css={[ScenarioStatusBoxStyles, css({ backgroundColor: ScenarioStatusColors.pass })]}
-  >
+  <div title="Pass" className={mergeClasses(style["status-box"], style["pass"])}>
     <Checkmark20Filled />
   </div>
 );
 
 export const FailStatus = () => (
-  <div
-    title="Fail"
-    css={[ScenarioStatusBoxStyles, css({ backgroundColor: ScenarioStatusColors.fail })]}
-  >
+  <div title="Fail" className={mergeClasses(style["status-box"], style["fail"])}>
     <ErrorCircle20Filled />
   </div>
 );
 
 export const NotSupportedStatus = () => (
-  <div
-    title="Not supported"
-    css={[ScenarioStatusBoxStyles, css({ backgroundColor: ScenarioStatusColors.notSupported })]}
-  >
+  <div title="Not supported" className={mergeClasses(style["status-box"], style["not-supported"])}>
     <SpeakerMute20Filled />
   </div>
 );
 export const NotApplicableStatus = () => (
   <div
     title="Not applicable"
-    css={[ScenarioStatusBoxStyles, css({ backgroundColor: ScenarioStatusColors.notApplicable })]}
+    className={mergeClasses(style["status-box"], style["not-applicable"])}
   >
     <SpeakerMute20Filled />
   </div>
@@ -82,17 +63,14 @@ export const NotApplicableStatus = () => (
 export const NotImplementedStatus = () => (
   <div
     title="Not implemented"
-    css={[ScenarioStatusBoxStyles, css({ backgroundColor: ScenarioStatusColors.notImplemented })]}
+    className={mergeClasses(style["status-box"], style["not-implemented"])}
   >
     <Warning20Filled />
   </div>
 );
 
 export const NotReportedStatus = () => (
-  <div
-    title="Not reported"
-    css={[ScenarioStatusBoxStyles, css({ backgroundColor: ScenarioStatusColors.notReported })]}
-  >
+  <div title="Not reported" className={mergeClasses(style["status-box"], style["not-reported"])}>
     <QuestionCircle20Filled />
   </div>
 );

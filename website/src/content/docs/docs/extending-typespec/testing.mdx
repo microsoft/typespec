@@ -315,6 +315,7 @@ Remove the `beforeEach` runner setup and use `Tester` directly. The `program` is
 
 ```diff lang=ts title="test/my-library.test.ts"
 - import { createMyTestRunner } from "./test-host.js";
++ import { t } from "@typespec/compiler/testing";
 + import { Tester } from "./test-host.js";
 
 - let runner: BasicTestRunner;
