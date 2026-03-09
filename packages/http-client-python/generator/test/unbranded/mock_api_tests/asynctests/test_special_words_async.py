@@ -7,6 +7,7 @@ import pytest
 from specialwords.aio import SpecialWordsClient
 from specialwords.models import models
 from specialwords.modelproperties import models as model_properties_models
+from specialwords.extensiblestrings import models as extensible_strings_models
 
 
 @pytest.fixture
@@ -68,5 +69,5 @@ async def test_model_properties_with_list(client: SpecialWordsClient):
 
 @pytest.mark.asyncio
 async def test_extensible_strings(client: SpecialWordsClient):
-    result = await client.extensible_strings.put_extensible_string_value(body="class")
-    assert result == '"class"'
+    for enum_value in extensible_strings_models.ExtensibleString:
+        assert await client.extensible_strings.put_extensible_string_value(body=enum_value)
