@@ -165,11 +165,11 @@ namespace ServerDrivenPagination {
           { "id": "1", "name": "dog" },
           { "id": "2", "name": "cat" }
         ],
-        "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/initial-post/nextPage"
+        "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc"
       }
       ```
       2. Next page request (GET):
-      Expected route: /payload/pageable/server-driven-pagination/link/initial-post/nextPage
+      Expected route: /payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc
       Expected response body:
       ```json
       { "pets": [
@@ -182,7 +182,7 @@ namespace ServerDrivenPagination {
     @route("/link/initial-post")
     @list
     @post
-    op linkPost(@body body: Filter): {
+    op post(@body body: Filter): {
       @pageItems pets: Pet[];
       @nextLink next?: url;
     };
