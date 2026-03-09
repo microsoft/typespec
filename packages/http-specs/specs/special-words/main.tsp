@@ -291,50 +291,50 @@ namespace ModelProperties {
 }
 
 /**
- * Verify enum member names that are special words using extensible enum (union).
- */
-union ExtensibleString {
-  string,
-  and: "and",
-  as: "as",
-  assert: "assert",
-  async: "async",
-  await: "await",
-  break: "break",
-  class: "class",
-  constructor: "constructor",
-  continue: "continue",
-  def: "def",
-  del: "del",
-  elif: "elif",
-  `else`: "else",
-  except: "except",
-  exec: "exec",
-  finally: "finally",
-  for: "for",
-  from: "from",
-  global: "global",
-  `if`: "if",
-  `import`: "import",
-  in: "in",
-  `is`: "is",
-  lambda: "lambda",
-  not: "not",
-  or: "or",
-  pass: "pass",
-  raise: "raise",
-  `return`: "return",
-  try: "try",
-  while: "while",
-  with: "with",
-  yield: "yield",
-}
-
-/**
  * Verify enum member names that are special words.
  */
 @route("/extensible-strings")
-interface ExtensibleStrings {
+namespace ExtensibleStrings {
+  /**
+   * Verify enum member names that are special words using extensible enum (union).
+   */
+  union ExtensibleString {
+    string,
+    and: "and",
+    as: "as",
+    assert: "assert",
+    async: "async",
+    await: "await",
+    break: "break",
+    class: "class",
+    constructor: "constructor",
+    continue: "continue",
+    def: "def",
+    del: "del",
+    elif: "elif",
+    `else`: "else",
+    except: "except",
+    exec: "exec",
+    finally: "finally",
+    for: "for",
+    from: "from",
+    global: "global",
+    `if`: "if",
+    `import`: "import",
+    in: "in",
+    `is`: "is",
+    lambda: "lambda",
+    not: "not",
+    or: "or",
+    pass: "pass",
+    raise: "raise",
+    `return`: "return",
+    try: "try",
+    while: "while",
+    with: "with",
+    yield: "yield",
+  }
+
   @scenario
   @scenarioDoc("""
     Verify that enum members with special word names can be sent and received properly.
@@ -342,7 +342,7 @@ interface ExtensibleStrings {
     """)
   @put
   @route("/string")
-  putExtensibleStringValue(@body body: ExtensibleString): {
+  op putExtensibleStringValue(@body body: ExtensibleString): {
     @header contentType: "application/json";
     @body body: ExtensibleString;
   };
