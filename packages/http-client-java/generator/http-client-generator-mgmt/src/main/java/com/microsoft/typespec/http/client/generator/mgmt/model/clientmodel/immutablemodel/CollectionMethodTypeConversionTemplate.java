@@ -48,7 +48,7 @@ public class CollectionMethodTypeConversionTemplate implements ImmutableMethod {
                 block.line(
                     String.format("%1$s %2$s = this.%3$s().%4$s;", innerType, TypeConversionUtils.tempVariableName(),
                         ModelNaming.METHOD_SERVICE_CLIENT, fluentMethod.getMethodInvocation()));
-                if (TypeConversionUtils.isPagedIterable(innerType)) {
+                if (TypeConversionUtils.isPagedIterable(innerType) || TypeConversionUtils.isResponse(innerType)) {
                     block.methodReturn(
                         TypeConversionUtils.conversionExpression(innerType, TypeConversionUtils.tempVariableName()));
                 } else {
