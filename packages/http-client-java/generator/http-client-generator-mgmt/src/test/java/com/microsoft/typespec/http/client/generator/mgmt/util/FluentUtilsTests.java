@@ -73,10 +73,10 @@ public class FluentUtilsTests {
         // ies → y (policies → policy)
         Assertions.assertEquals("policy", FluentUtils.getSingular("policies"));
 
-        // sses → ss (addresses → address)
+        // (addresses → address)
         Assertions.assertEquals("address", FluentUtils.getSingular("addresses"));
 
-        // ches → ch (watches → watch)
+        // (watches → watch)
         Assertions.assertEquals("watch", FluentUtils.getSingular("watches"));
 
         // xes → x (boxes → box)
