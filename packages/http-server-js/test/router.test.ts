@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
+import type * as http from "node:http";
 import { describe, expect, it } from "vitest";
 import { createPolicyChain, type HttpContext, type Policy } from "../src/helpers/router.js";
-import type * as http from "node:http";
 
 function makeContext(): HttpContext {
   return {
