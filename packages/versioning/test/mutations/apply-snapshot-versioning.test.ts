@@ -1,5 +1,6 @@
 import type { Namespace, Scalar, Type } from "@typespec/compiler";
 import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
+import { t } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { getVersioningMutators } from "../../src/mutator.js";
@@ -210,4 +211,55 @@ describe("operations in interface", () => {
     (ns) => ns.interfaces.get("Test")!.operations,
     (decorators) => `interface Test { ${decorators} A(): void; }`,
   );
+});
+
+describe("apply multiple versioning mutators", () => {
+  // https://github.com/microsoft/typespec/issues/9927
+  it("properties with @added from different services are preserved", async () => {
+    const { ServiceA, ServiceB, program } = await Tester.compile(t.code`
+      @versioned(VersionsA)
+      namespace ${t.namespace("ServiceA")} {
+        enum VersionsA { av1, av2 }
+        model Foo {
+          name: string;
+          @added(VersionsA.av2)
+          description?: string;
+        }
+      }
+
+      @versioned(VersionsB)
+      namespace ${t.namespace("ServiceB")} {
+        enum VersionsB { bv1, bv2 }
+        model Bar {
+          id: int32;
+          @added(VersionsB.bv2)
+          value?: string;
+        }
+      }
+    `);
+
+    const serviceAMutators = getVersioningMutators(program, ServiceA);
+    const serviceBMutators = getVersioningMutators(program, ServiceB);
+
+    strictEqual(serviceAMutators?.kind, "versioned");
+    strictEqual(serviceBMutators?.kind, "versioned");
+
+    const serviceAV2 = serviceAMutators.snapshots[1].mutator;
+    const serviceBV2 = serviceBMutators.snapshots[1].mutator;
+
+    const globalNs = program.getGlobalNamespaceType();
+    const result = unsafe_mutateSubgraphWithNamespace(program, [serviceAV2, serviceBV2], globalNs);
+
+    const mutatedGlobal = result.type as Namespace;
+    const serviceA = mutatedGlobal.namespaces.get("ServiceA")!;
+    const serviceB = mutatedGlobal.namespaces.get("ServiceB")!;
+
+    const foo = serviceA.models.get("Foo")!;
+    expect(foo.properties.has("name")).toBe(true);
+    expect(foo.properties.has("description")).toBe(true);
+
+    const bar = serviceB.models.get("Bar")!;
+    expect(bar.properties.has("id")).toBe(true);
+    expect(bar.properties.has("value")).toBe(true);
+  });
 });
