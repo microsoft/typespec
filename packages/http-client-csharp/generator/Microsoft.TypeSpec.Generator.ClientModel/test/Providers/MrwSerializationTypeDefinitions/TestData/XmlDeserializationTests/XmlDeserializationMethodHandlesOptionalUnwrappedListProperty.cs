@@ -13,10 +13,6 @@ namespace Sample.Models
 {
     public partial class TestXmlModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>
     {
-        internal TestXmlModel()
-        {
-        }
-
         protected virtual global::Sample.Models.TestXmlModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
@@ -55,11 +51,7 @@ namespace Sample.Models
                     continue;
                 }
             }
-            if ((colors == null))
-            {
-                colors = new global::System.Collections.Generic.List<string>();
-            }
-            return new global::Sample.Models.TestXmlModel(colors, additionalBinaryDataProperties);
+            return new global::Sample.Models.TestXmlModel((colors ?? new global::Sample.ChangeTrackingList<string>()), additionalBinaryDataProperties);
         }
     }
 }

@@ -141,6 +141,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task XmlDeserializationMethodHandlesOptionalUnwrappedListProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "colors",
+                    InputFactory.Array(InputPrimitiveType.String),
+                    isRequired: false,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("colors", unwrapped: true)))]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+               inputModels: () => [inputModel],
+               createSerializationsCore: (inputType, typeProvider)
+                   => inputType is InputModelType modeltype
+                   ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                   : []);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task XmlDeserializationMethodHandlesWrappedListProperty()
         {
             var inputModel = InputFactory.Model(

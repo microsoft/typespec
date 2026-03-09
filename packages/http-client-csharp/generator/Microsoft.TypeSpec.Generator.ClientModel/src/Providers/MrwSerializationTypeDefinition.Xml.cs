@@ -595,6 +595,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     categorizedProperties.ElementProperties,
                     categorizedProperties.Namespaces,
                     isAttributes: false));
+
+                // Initialize non-nullable, required, unwrapped collection properties to empty collections
+                // in case no matching child elements were found during deserialization.
+                foreach (var prop in categorizedProperties.ElementProperties)
+                {
+                    if (prop.XmlWireInfo.Unwrapped == true
+                        && (prop.PropertyType.IsList || prop.PropertyType.IsArray)
+                        && prop.IsRequired
+                        && !prop.PropertyType.IsNullable)
+                    {
+                        statements.Add(new IfStatement(prop.DeserializationExp.Equal(Null))
+                        {
+                            prop.DeserializationExp.Assign(New.List(prop.PropertyType.ElementType)).Terminate()
+                        });
+                    }
+                }
             }
 
             if (categorizedProperties.TextContentProperty != null)

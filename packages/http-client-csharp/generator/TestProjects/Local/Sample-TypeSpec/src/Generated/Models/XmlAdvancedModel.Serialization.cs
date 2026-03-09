@@ -710,6 +710,22 @@ namespace SampleTypeSpec
                     continue;
                 }
             }
+            if (unwrappedStrings == null)
+            {
+                unwrappedStrings = new List<string>();
+            }
+            if (unwrappedCounts == null)
+            {
+                unwrappedCounts = new List<int>();
+            }
+            if (unwrappedItems == null)
+            {
+                unwrappedItems = new List<XmlItem>();
+            }
+            if (unwrappedModelsWithNamespaces == null)
+            {
+                unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
+            }
             content = element.Value;
 
             return new XmlAdvancedModel(
