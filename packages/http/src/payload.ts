@@ -93,6 +93,25 @@ export function resolveHttpPayload(
       );
       return diagnostics.wrap({ body: undefined, metadata });
     }
+
+    if (
+      body.bodyKind === "single" &&
+      body.type.kind === "Scalar" &&
+      isScalarExtendsBytes(body.type)
+    ) {
+      for (const ct of body.contentTypes) {
+        if (isXmlContentType(ct)) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "bytes-xml-body",
+              target: body.property ?? type,
+              format: { contentType: ct },
+            }),
+          );
+          break;
+        }
+      }
+    }
   }
 
   return diagnostics.wrap({ body, metadata });
@@ -744,4 +763,25 @@ function resolveContentTypesForBody(
       return { contentTypes: [contentType] };
     }
   }
+}
+
+const xmlContentTypeRegex = /^(application|text)\/(.+\+)?xml$/;
+
+function isXmlContentType(contentType: string): boolean {
+  return xmlContentTypeRegex.test(contentType);
+}
+
+function isScalarExtendsBytes(type: Scalar): boolean {
+  let current: Scalar | undefined = type;
+  while (current) {
+    if (
+      current.name === "bytes" &&
+      current.namespace?.name === "TypeSpec" &&
+      current.namespace?.namespace?.name === ""
+    ) {
+      return true;
+    }
+    current = current.baseScalar;
+  }
+  return false;
 }
