@@ -490,28 +490,16 @@ namespace SampleTypeSpec
                 }
                 if (localName == "unwrappedStrings")
                 {
-                    if (unwrappedStrings == null)
-                    {
-                        unwrappedStrings = new List<string>();
-                    }
                     unwrappedStrings.Add((string)child);
                     continue;
                 }
                 if (localName == "unwrappedCounts")
                 {
-                    if (unwrappedCounts == null)
-                    {
-                        unwrappedCounts = new List<int>();
-                    }
                     unwrappedCounts.Add((int)child);
                     continue;
                 }
                 if (localName == "unwrappedItems")
                 {
-                    if (unwrappedItems == null)
-                    {
-                        unwrappedItems = new List<XmlItem>();
-                    }
                     unwrappedItems.Add(XmlItem.DeserializeXmlItem(child, options));
                     continue;
                 }
@@ -632,10 +620,6 @@ namespace SampleTypeSpec
                 }
                 if (localName == "unwrappedModelsWithNamespaces")
                 {
-                    if (unwrappedModelsWithNamespaces == null)
-                    {
-                        unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
-                    }
                     unwrappedModelsWithNamespaces.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(child, options));
                     continue;
                 }

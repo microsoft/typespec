@@ -124,17 +124,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     InputFactory.Array(InputPrimitiveType.String),
                     isRequired: true,
                     serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("colors", unwrapped: true)))]);
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [inputModel]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+               inputModels: () => [inputModel],
+               createSerializationsCore: (inputType, typeProvider)
+                   => inputType is InputModelType modeltype
+                   ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)]
+                   : []);
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
             Assert.IsNotNull(serializationProvider);
 
-            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
-                serializationProvider,
-                name => name == "DeserializeTestXmlModel"));
-
+            var writer = new TypeProviderWriter(serializationProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
