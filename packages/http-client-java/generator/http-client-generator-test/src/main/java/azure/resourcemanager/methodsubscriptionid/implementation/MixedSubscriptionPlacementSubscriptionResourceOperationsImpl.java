@@ -33,12 +33,8 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsImpl
         Context context) {
         Response<SubscriptionResourceInner> inner
             = this.serviceClient().getWithResponse(subscriptionId, subscriptionResourceName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new SubscriptionResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new SubscriptionResourceImpl(inner.getValue(), this.manager()));
     }
 
     public SubscriptionResource get(String subscriptionId, String subscriptionResourceName) {
