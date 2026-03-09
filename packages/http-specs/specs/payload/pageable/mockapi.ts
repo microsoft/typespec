@@ -177,7 +177,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_nestedLink = passOnSuccess([
 ]);
 
 // POST-THEN-GET LINK PAGINATION
-Scenarios.Payload_Pageable_ServerDrivenPagination_linkPost = passOnSuccess([
+Scenarios.Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post = passOnSuccess([
   {
     uri: "/payload/pageable/server-driven-pagination/link/initial-post",
     method: "post",
