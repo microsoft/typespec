@@ -382,9 +382,9 @@ namespace SampleTypeSpec
             string originalName = default;
             string xmlIdentifier = default;
             string content = default;
-            IList<string> unwrappedStrings = default;
-            IList<int> unwrappedCounts = default;
-            IList<XmlItem> unwrappedItems = default;
+            IList<string> unwrappedStrings = new List<string>();
+            IList<int> unwrappedCounts = new List<int>();
+            IList<XmlItem> unwrappedItems = new List<XmlItem>();
             IList<string> wrappedColors = default;
             IList<XmlItem> items = default;
             XmlNestedModel nestedModel = default;
@@ -403,7 +403,7 @@ namespace SampleTypeSpec
             IList<string> fooItems = default;
             XmlNestedModel anotherModel = default;
             IList<XmlModelWithNamespace> modelsWithNamespaces = default;
-            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default;
+            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
             IList<IList<XmlItem>> listOfListFoo = default;
             IDictionary<string, XmlItem> dictionaryFoo = default;
             IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default;
@@ -709,22 +709,6 @@ namespace SampleTypeSpec
                     listOfDictionaryFoo = array;
                     continue;
                 }
-            }
-            if (unwrappedStrings == null)
-            {
-                unwrappedStrings = new List<string>();
-            }
-            if (unwrappedCounts == null)
-            {
-                unwrappedCounts = new List<int>();
-            }
-            if (unwrappedItems == null)
-            {
-                unwrappedItems = new List<XmlItem>();
-            }
-            if (unwrappedModelsWithNamespaces == null)
-            {
-                unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
             }
             content = element.Value;
 

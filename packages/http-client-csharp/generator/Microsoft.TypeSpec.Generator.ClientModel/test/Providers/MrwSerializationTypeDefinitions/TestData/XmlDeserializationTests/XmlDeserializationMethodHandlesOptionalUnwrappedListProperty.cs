@@ -5,29 +5,13 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.IO;
 using System.Xml.Linq;
-using Sample;
+using Sample.Models;
 
-namespace Sample.Models
+namespace Sample
 {
-    public partial class TestXmlModel : global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>
+    public partial class TestXmlModel
     {
-        protected virtual global::Sample.Models.TestXmlModel PersistableModelCreateCore(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
-        {
-            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestXmlModel>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "X":
-                    using (global::System.IO.Stream dataStream = data.ToStream())
-                    {
-                        return global::Sample.Models.TestXmlModel.DeserializeTestXmlModel(global::System.Xml.Linq.XElement.Load(dataStream, global::System.Xml.Linq.LoadOptions.PreserveWhitespace), options);
-                    }
-                default:
-                    throw new global::System.FormatException($"The model {nameof(global::Sample.Models.TestXmlModel)} does not support reading '{options.Format}' format.");
-            }
-        }
-
         internal static global::Sample.Models.TestXmlModel DeserializeTestXmlModel(global::System.Xml.Linq.XElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element == null))
