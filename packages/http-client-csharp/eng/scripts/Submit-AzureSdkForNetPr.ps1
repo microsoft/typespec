@@ -130,6 +130,10 @@ try {
     }
     
     Push-Location $tempDir
+
+    # Configure git user for commits in this repository
+    git config user.name "azure-sdk"
+    git config user.email "azuresdk@microsoft.com"
     
     # Add the remote
     git remote add origin "https://github.com/$RepoOwner/$RepoName.git"
