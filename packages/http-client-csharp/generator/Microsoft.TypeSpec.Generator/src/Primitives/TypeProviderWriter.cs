@@ -116,6 +116,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 for (int i = 0; i < _provider.Fields.Count; i++)
                 {
                     writer.WriteXmlDocsNoScope(_provider.Fields[i].XmlDocs);
+                    foreach (var attr in _provider.Fields[i].Attributes)
+                    {
+                        attr.Write(writer);
+                    }
                     writer.Append($"{_provider.Fields[i].Name}");
                     if (_provider.Fields[i].InitializationValue != null)
                     {
