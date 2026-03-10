@@ -66,6 +66,13 @@ enum StringFixedEnum {
   Four: "4",
 }
 
+@doc("Enum used only as a query parameter with convenientAPI false")
+enum QueryParameterEnum {
+  OptionA: "optionA",
+  OptionB: "optionB",
+  OptionC: "optionC",
+}
+
 @doc("Int based extensible enum")
 union IntExtensibleEnum {
   int32,
@@ -559,6 +566,15 @@ op topAction(@path action: utcDateTime): Thing;
 @get
 @convenientAPI(false)
 op topAction2(): Thing;
+
+@route("/enumQueryParameter")
+@doc("Operation with enum query parameter and convenientAPI false")
+@get
+@convenientAPI(false)
+op enumQueryParameter(
+  @query(#{ explode: true })
+  queryParam?: QueryParameterEnum[],
+): void;
 
 @route("/patch")
 @doc("top level patch")
