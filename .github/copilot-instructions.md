@@ -134,3 +134,4 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 - [http-client-csharp Development](./instructions/http-client-csharp.instructions.md): Instructions for developing the C# HTTP client
 - [http-client-java Development](./instructions/http-client-java.instructions.md): Instructions for developing the TypeSpec library for Java client.
 - [TCGC Upgrade](./prompts/upgrade-tcgc.instructions.md): Instructions for TCGC version on emitters. Activate with: `tcgc upgrade <emitter-name> <new-version>`
+- <a>Create Release Notes</a>: Create a release note for the next TypeSpec release from changesets. Use when asked to "create release note" or "prepare release notes".
