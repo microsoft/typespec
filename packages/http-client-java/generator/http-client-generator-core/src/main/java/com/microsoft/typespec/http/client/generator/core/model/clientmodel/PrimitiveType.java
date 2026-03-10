@@ -113,6 +113,14 @@ public class PrimitiveType implements IType, ConvertToJsonTypeTrait, ConvertFrom
     public static final PrimitiveType DURATION_DOUBLE
         = new Builder().prototypeAsDouble().nullableType(ClassType.DURATION_DOUBLE).build();
 
+    // JSON type is NUMERIC (milliseconds), client type is Duration
+    public static final PrimitiveType DURATION_MILLISECONDS_LONG
+        = new Builder().prototypeAsLong().nullableType(ClassType.DURATION_MILLISECONDS_LONG).build();
+
+    // JSON type is NUMERIC (milliseconds), client type is Duration
+    public static final PrimitiveType DURATION_MILLISECONDS_DOUBLE
+        = new Builder().prototypeAsDouble().nullableType(ClassType.DURATION_MILLISECONDS_DOUBLE).build();
+
     /**
      * The name of this type.
      */
@@ -223,6 +231,10 @@ public class PrimitiveType implements IType, ConvertToJsonTypeTrait, ConvertFrom
         } else if (this == PrimitiveType.DURATION_LONG) {
             clientType = ClassType.DURATION;
         } else if (this == PrimitiveType.DURATION_DOUBLE) {
+            clientType = ClassType.DURATION;
+        } else if (this == PrimitiveType.DURATION_MILLISECONDS_LONG) {
+            clientType = ClassType.DURATION;
+        } else if (this == PrimitiveType.DURATION_MILLISECONDS_DOUBLE) {
             clientType = ClassType.DURATION;
         }
         return clientType;

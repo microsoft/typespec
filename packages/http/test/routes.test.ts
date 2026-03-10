@@ -2,7 +2,12 @@ import { expectDiagnosticEmpty, expectDiagnostics, t } from "@typespec/compiler/
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { PathOptions } from "../generated-defs/TypeSpec.Http.js";
-import { getRoutePath, HttpOperation, HttpOperationParameter } from "../src/index.js";
+import {
+  getRoutePath,
+  HttpOperation,
+  HttpOperationParameter,
+  joinPathSegments,
+} from "../src/index.js";
 import {
   compileOperations,
   diagnoseOperations,
@@ -316,16 +321,45 @@ describe("http: routes", () => {
     deepStrictEqual(routes, [{ verb: "get", path: "/", params: [] }]);
   });
 
-  it("always produces a route starting with /", async () => {
-    const routes = await getRoutesFor(
-      `
-      @get
-      @route(":action")
-      op colonRoute(): {};
+  describe.each(["?", ":"])("route segments starting with %s", (sep) => {
+    it("does not add /", async () => {
+      const routes = await getRoutesFor(
+        `
+      @put
+      @route("${sep}pet=cat")
+      op bar(): void;
       `,
-    );
+      );
 
-    deepStrictEqual(routes, [{ verb: "get", path: "/:action", params: [] }]);
+      deepStrictEqual(routes, [{ verb: "put", path: `${sep}pet=cat`, params: [] }]);
+    });
+
+    it("does not add / separator when joining with parent route", async () => {
+      const routes = await getRoutesFor(
+        `
+      @route("abc")
+      interface Container {
+        @route("${sep}restype=container") foo(): void;
+      }
+      `,
+      );
+
+      deepStrictEqual(routes, [{ verb: "get", path: `/abc${sep}restype=container`, params: [] }]);
+    });
+  });
+
+  describe("joinPathSegments", () => {
+    it("does not add / for empty segments", () => {
+      deepStrictEqual(joinPathSegments(["foo", ""]), "/foo");
+    });
+
+    it("does not add / for empty segments in the middle", () => {
+      deepStrictEqual(joinPathSegments(["foo", "", "bar"]), "/foo/bar");
+    });
+
+    it("does not add / for empty segment at the start", () => {
+      deepStrictEqual(joinPathSegments(["", "bar"]), "/bar");
+    });
   });
 
   it("defaults to POST when operation has a body but didn't specify the verb", async () => {

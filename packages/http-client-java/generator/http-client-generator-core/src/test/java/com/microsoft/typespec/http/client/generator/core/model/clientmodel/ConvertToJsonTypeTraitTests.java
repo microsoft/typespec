@@ -15,6 +15,8 @@ public class ConvertToJsonTypeTraitTests {
         Assertions.assertEquals("Objects.toString(var, null)", PrimitiveType.INT_AS_STRING.convertToJsonType("var"));
         Assertions.assertEquals("(double) var.toNanos() / 1000_000_000L",
             PrimitiveType.DURATION_DOUBLE.convertToJsonType("var"));
+        Assertions.assertEquals("(double) var.toNanos() / 1000_000L",
+            PrimitiveType.DURATION_MILLISECONDS_DOUBLE.convertToJsonType("var"));
     }
 
     @Test

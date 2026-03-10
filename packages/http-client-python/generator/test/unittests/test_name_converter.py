@@ -33,4 +33,3 @@ def test_escaped_reserved_words():
     }
     for name in expected_conversion_parameter:
         assert pad_reserved_words(name, pad_type=PadType.PARAMETER) == expected_conversion_parameter[name]
-
