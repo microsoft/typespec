@@ -381,7 +381,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_apiKeyAuthFields != null)
             {
-                fields.Add(_apiKeyAuthFields.AuthField);
+                // No longer add AuthField (_keyCredential) — auth is handled via AuthenticationPolicy parameter in the internal constructor
                 fields.Add(_apiKeyAuthFields.AuthorizationHeaderField);
                 if (_apiKeyAuthFields.AuthorizationApiKeyPrefixField != null)
                 {
@@ -391,7 +391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_oauth2Fields != null)
             {
-                fields.Add(_oauth2Fields.AuthField);
+                // No longer add AuthField (_tokenProvider) — auth is handled via AuthenticationPolicy parameter in the internal constructor
                 fields.Add(_oauth2Fields.AuthorizationScopesField);
             }
 
@@ -585,15 +585,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 List<ConstructorProvider> secondaryConstructors,
                 bool onlyContainsUnsupportedAuth = false)
             {
+                // The internal implementation constructor takes AuthenticationPolicy? as first parameter.
+                var authPolicyParam = new ParameterProvider(
+                    "authenticationPolicy",
+                    $"The authentication policy to use for pipeline creation.",
+                    new CSharpType(typeof(AuthenticationPolicy), isNullable: true));
+
+                // Non-auth required parameters (all required non-endpoint params except auth credential)
+                var requiredNonAuthParams = GetRequiredParameters(null);
+                ParameterProvider[] internalConstructorParameters = [authPolicyParam, _endpointParameter, .. requiredNonAuthParams, ClientOptionsParameter];
+
+                // Internal constructor is the sole implementation constructor
+                var internalConstructor = new ConstructorProvider(
+                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
+                    BuildPrimaryConstructorBody(internalConstructorParameters, authFields, authPolicyParam, ClientOptions, ClientOptionsParameter),
+                    this);
+                primaryConstructors.Add(internalConstructor);
+
+                // Public constructor with credential parameter — delegates to the internal constructor.
                 var requiredParameters = GetRequiredParameters(authFields?.AuthField);
                 ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter];
-                // If auth exists but it's not supported, we will make the constructor internal.
                 var constructorModifier = onlyContainsUnsupportedAuth ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
-                var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters),
-                    BuildPrimaryConstructorBody(primaryConstructorParameters, authFields, ClientOptions, ClientOptionsParameter),
-                    this);
 
+                // Build the auth policy expression for the this() initializer
+                ValueExpression authPolicyArg = BuildAuthPolicyArgument(authFields, requiredParameters);
+                var initializerArgs = new List<ValueExpression> { authPolicyArg, _endpointParameter };
+                foreach (var p in requiredNonAuthParams)
+                    initializerArgs.Add(p);
+                initializerArgs.Add(ClientOptionsParameter!);
+
+                var primaryConstructor = new ConstructorProvider(
+                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters,
+                        initializer: new ConstructorInitializer(false, initializerArgs)),
+                    MethodBodyStatement.Empty,
+                    this);
                 primaryConstructors.Add(primaryConstructor);
 
                 // If the endpoint parameter contains an initialization value, it is not required.
@@ -627,8 +652,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var settingsParam = new ParameterProvider("settings", $"The settings for {Name}.", ClientSettings.Type);
             var experimentalAttr = new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ClientSettingsProvider.ClientSettingsDiagnosticId)]);
 
-            // Build the arguments for the this(...) initializer to call primary constructor
+            // Build the arguments for the this(...) internal constructor initializer:
+            // this(AuthenticationPolicy.Create(settings), settings?.Endpoint, otherParams..., settings?.Options)
             var args = new List<ValueExpression>();
+
+            // auth policy argument: AuthenticationPolicy.Create(settings)
+#pragma warning disable SCME0002
+            args.Add(Static(typeof(AuthenticationPolicy)).Invoke("Create", settingsParam));
+#pragma warning restore SCME0002
 
             // endpoint argument - we know EndpointPropertyName is not null at this point
             args.Add(new MemberExpression(new NullConditionalExpression(settingsParam), ClientSettings.EndpointPropertyName));
@@ -643,23 +674,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? new BinaryOperatorExpression("??", propAccess, new KeywordExpression("default", null))
                     : propAccess;
                 args.Add(arg);
-            }
-
-            // credential argument
-            if (_oauth2Fields != null)
-            {
-                var credentialExpr = new MemberExpression(new NullConditionalExpression(settingsParam), "CredentialProvider");
-                args.Add(new AsExpression(credentialExpr, _oauth2Fields.AuthField.Type));
-            }
-            else if (_apiKeyAuthFields != null)
-            {
-                // settings?.Credential?.Key != null ? new ApiKeyCredential(settings?.Credential?.Key) : null
-                var credentialExpr = new MemberExpression(new NullConditionalExpression(settingsParam), "Credential");
-                var keyExpr = new MemberExpression(new NullConditionalExpression(credentialExpr), "Key");
-                var keyNotNull = new BinaryOperatorExpression("!=", keyExpr, Null);
-                var newApiKeyCredExpr = New.Instance(_apiKeyAuthFields.AuthField.Type,
-                    new MemberExpression(new NullConditionalExpression(new MemberExpression(new NullConditionalExpression(settingsParam), "Credential")), "Key"));
-                args.Add(new TernaryConditionalExpression(keyNotNull, newApiKeyCredExpr, Null));
             }
 
             // options argument
@@ -728,7 +742,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, clientOptionsParameter];
                 var primaryConstructor = new ConstructorProvider(
                     new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
-                    BuildPrimaryConstructorBody(primaryConstructorParameters, authFields, clientOptionsProvider, clientOptionsParameter),
+                    BuildPrimaryConstructorBody(primaryConstructorParameters, authFields, null, clientOptionsProvider, clientOptionsParameter),
                     this);
 
                 primaryConstructors.Add(primaryConstructor);
@@ -801,7 +815,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return param;
         }
 
-        private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters, AuthFields? authFields, ClientOptionsProvider? clientOptionsProvider, ParameterProvider? clientOptionsParameter)
+        private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters, AuthFields? authFields, ParameterProvider? authPolicyParam, ClientOptionsProvider? clientOptionsProvider, ParameterProvider? clientOptionsParameter)
         {
             if (clientOptionsProvider is null || clientOptionsParameter is null)
             {
@@ -846,20 +860,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ValueExpression perRetryPolicies;
-            switch (authFields)
+            if (authPolicyParam != null && authFields != null)
             {
-                case ApiKeyFields keyAuthFields:
-                    ValueExpression? keyPrefixExpression = keyAuthFields.AuthorizationApiKeyPrefixField != null ? (ValueExpression)keyAuthFields.AuthorizationApiKeyPrefixField : null;
-                    perRetryPoliciesList.Add(This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression));
-                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
-                    break;
-                case OAuth2Fields oauth2AuthFields:
-                    perRetryPoliciesList.Add(This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField));
-                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
-                    break;
-                default:
-                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
-                    break;
+                // Internal implementation constructor: use the authenticationPolicy parameter directly
+                perRetryPoliciesList.Add(authPolicyParam);
+                perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
+            }
+            else
+            {
+                switch (authFields)
+                {
+                    case ApiKeyFields keyAuthFields:
+                        ValueExpression? keyPrefixExpression = keyAuthFields.AuthorizationApiKeyPrefixField != null ? (ValueExpression)keyAuthFields.AuthorizationApiKeyPrefixField : null;
+                        perRetryPoliciesList.Add(This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression));
+                        perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
+                        break;
+                    case OAuth2Fields oauth2AuthFields:
+                        perRetryPoliciesList.Add(This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField));
+                        perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
+                        break;
+                    default:
+                        perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
+                        break;
+                }
             }
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryPolicies)).Terminate());
@@ -874,6 +897,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. body];
+        }
+
+        /// <summary>
+        /// Builds the ValueExpression for the AuthenticationPolicy argument passed to the internal constructor initializer.
+        /// </summary>
+        private ValueExpression BuildAuthPolicyArgument(AuthFields? authFields, IReadOnlyList<ParameterProvider> requiredParameters)
+        {
+            if (authFields is ApiKeyFields keyFields)
+            {
+                // ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader, prefix?)
+                var credParam = requiredParameters.FirstOrDefault(p => p.Name == "credential");
+                if (credParam != null)
+                {
+                    ValueExpression? keyPrefixExpression = keyFields.AuthorizationApiKeyPrefixField != null ? (ValueExpression)keyFields.AuthorizationApiKeyPrefixField : null;
+                    return This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(credParam, keyFields.AuthorizationHeaderField, keyPrefixExpression);
+                }
+            }
+            else if (authFields is OAuth2Fields oauth2Fields)
+            {
+                // new BearerTokenPolicy(tokenProvider, AuthorizationScopes)
+                // The param name is derived from the field name: _tokenProvider → tokenProvider, _tokenCredential → credential
+                var credParam = requiredParameters.FirstOrDefault(p =>
+                    p.Name == TokenProviderFieldName.TrimStart('_') ||
+                    p.Name == "credential");
+                if (credParam != null)
+                {
+                    return This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(credParam, oauth2Fields.AuthorizationScopesField);
+                }
+            }
+
+            return Null;
         }
 
         /// <summary>

@@ -115,13 +115,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var endpointPropertyName = EndpointPropertyName!;
 
-                // string? endpoint = section["EndpointPropertyName"];
-                var endpointVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), "endpoint");
-                body.Add(Declare(endpointVar, new IndexerExpression(sectionParam, Literal(endpointPropertyName))));
-
-                // if (!string.IsNullOrEmpty(endpoint)) { EndpointProperty = new Uri(endpoint); }
-                var ifStatement = new IfStatement(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", endpointVar)));
-                ifStatement.Add(This.Property(endpointPropertyName).Assign(New.Instance(typeof(Uri), endpointVar)).Terminate());
+                // if (Uri.TryCreate(section["EndpointPropertyName"], UriKind.Absolute, out Uri varName)) { EndpointProperty = varName; }
+                var outUriDecl = new DeclarationExpression(typeof(Uri), endpointPropertyName.ToVariableName(), out var uriVar, isOut: true);
+                var ifStatement = new IfStatement(Static(typeof(Uri)).Invoke("TryCreate",
+                    new ValueExpression[]
+                    {
+                        new IndexerExpression(sectionParam, Literal(endpointPropertyName)),
+                        new MemberExpression(typeof(UriKind), nameof(UriKind.Absolute)),
+                        outUriDecl
+                    }));
+                ifStatement.Add(This.Property(endpointPropertyName).Assign(uriVar).Terminate());
                 body.Add(ifStatement);
             }
 

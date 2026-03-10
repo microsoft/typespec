@@ -323,6 +323,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             body.Add(guardStatement);
 
+            // Bind version properties from configuration (after guard, default already set before guard)
+            if (LatestVersionsFields != null && VersionProperties != null)
+            {
+                foreach (var (_, serviceVersionEnum) in LatestVersionsFields)
+                {
+                    if (VersionProperties.TryGetValue(serviceVersionEnum, out var versionProperty))
+                    {
+                        // if (section["VersionPropertyName"] is string version) { Version = version; }
+                        var versionVarDecl = Declare(versionProperty.Name.ToVariableName(), new CSharpType(typeof(string)), out var versionVar);
+                        var ifVersionStatement = new IfStatement(new IndexerExpression(sectionParam, Literal(versionProperty.Name)).Is(versionVarDecl));
+                        ifVersionStatement.Add(This.Property(versionProperty.Name).Assign(versionVar).Terminate());
+                        body.Add(ifVersionStatement);
+                    }
+                }
+            }
+
             // Build a set of version property names for O(1) lookup
             var versionPropertyNames = VersionProperties?.Values.Select(vp => vp.Name).ToHashSet();
 
