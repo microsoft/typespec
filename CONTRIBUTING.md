@@ -273,32 +273,13 @@ pnpm start
 
 Release notes are published at each release in `website/src/content/docs/docs/release-notes/`. They follow the pattern `release-YYYY-MM-DD.md`.
 
-### Automated approach (requires GitHub API access)
-
-Run the chronus changelog command to generate the changelog for the two main release policies:
+Run the following command to generate the changelog:
 
 ```bash
 pnpm chronus changelog --policy typespec-stable --policy typespec-preview
 ```
 
-Use the output as the basis for the release note. Remove the `Dependencies` category from the output.
-
-### Manual approach
-
-1. **Determine the next version**: Check `packages/compiler/package.json` for the current version and increment the minor version (e.g., `1.9.0` → `1.10.0`).
-
-2. **Gather changesets**: Read all files in `.chronus/changes/`. Each file contains:
-   - `changeKind`: `feature`, `fix`, `breaking`, `deprecation`, `internal`, or `dependencies`
-   - `packages`: List of affected packages
-   - A description below the `---` separator
-
-3. **Filter packages**: Only include changes for packages in the **typespec-stable** or **typespec-preview** version policies (defined in `.chronus/config.yaml`). Skip `internal` and `dependencies` changeKinds.
-
-4. **Find PR links**: Match changesets to commits using `git log --oneline --no-merges` to find the PR number for each change.
-
-5. **Create the file**: Use the template below and save to `website/src/content/docs/docs/release-notes/release-YYYY-MM-DD.md`.
-
-### Release note template
+Create a new file `website/src/content/docs/docs/release-notes/release-YYYY-MM-DD.md` with this frontmatter and paste the command output below it, removing the `Dependencies` category:
 
 ```markdown
 ---
@@ -306,35 +287,9 @@ title: "X.Y.0"
 releaseDate: YYYY-MM-DD
 version: "X.Y.0"
 ---
-
-# X.Y.0
-
-## Breaking Changes
-
-### @typespec/package-name
-
-- [#NNNN](https://github.com/microsoft/typespec/pull/NNNN) Description
-
-## Deprecations
-
-### @typespec/package-name
-
-- [#NNNN](https://github.com/microsoft/typespec/pull/NNNN) Description
-
-## Features
-
-### @typespec/package-name
-
-- [#NNNN](https://github.com/microsoft/typespec/pull/NNNN) Description
-
-## Bug Fixes
-
-### @typespec/package-name
-
-- [#NNNN](https://github.com/microsoft/typespec/pull/NNNN) Description
 ```
 
-Omit sections that have no entries. See existing release notes for examples.
+See existing release notes for examples.
 
 # Pull request
 
