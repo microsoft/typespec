@@ -203,6 +203,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
             return s;
         }
 
+        private const string SeeCrefStart = "<see ";
+        private const string SeeCrefEnd = "</see>";
+
         // Allowed XML documentation tags that should not be escaped
         private static readonly HashSet<string> AllowedXmlDocTags = new HashSet<string>(StringComparer.Ordinal)
         {

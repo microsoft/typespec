@@ -80,5 +80,18 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             return propertyName != null && (serializationName != null || serializationHook != null || deserializationHook != null || bicepSerializationHook != null);
         }
+
+        private static string[]? ToStringArray(ImmutableArray<TypedConstant> values)
+        {
+            if (values.IsDefaultOrEmpty)
+            {
+                return null;
+            }
+
+            return values
+                .Select(v => (string?)v.Value)
+                .OfType<string>()
+                .ToArray();
+        }
     }
 }

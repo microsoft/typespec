@@ -137,5 +137,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             public bool Equals(TestStructure other) => string.Equals(A, other.A, StringComparison.Ordinal) && B == other.B;
         }
+
+        private static IEnumerable<IEnumerable<string>> GetNotNullOrEmptyCollectionThrowsOnEmptyCollectionData()
+        {
+            static IEnumerable<string> NotNullOrEmptyCollectionThrowsOnEmptyCollection()
+            {
+                yield break;
+            }
+
+            yield return new string[0];
+            yield return NotNullOrEmptyCollectionThrowsOnEmptyCollection();
+        }
     }
 }

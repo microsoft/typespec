@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
@@ -42,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var postProcessor = new TestPostProcessor("RemovesInvalidUsings.cs");
 
             var resultProject = await postProcessor.RemoveAsync(project);
-            var doc = resultProject.Documents
+            var doc= resultProject.Documents
                 .Single(d => d.Name == "RemovesInvalidUsings.cs");
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
@@ -88,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var postProcessor = new TestPostProcessor("DoesNotRemoveValidUsings.cs");
 
             var resultProject = await postProcessor.RemoveAsync(project);
-            var doc = resultProject.Documents
+            var doc= resultProject.Documents
                 .Single(d => d.Name == "DoesNotRemoveValidUsings.cs");
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
@@ -137,7 +137,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var postProcessor = new TestPostProcessor("RootClass.cs", nonRootTypes: ["Sample.KeepMe"]);
 
             var resultProject = await postProcessor.RemoveAsync(project);
-            var doc = resultProject.Documents
+            var doc= resultProject.Documents
                 .Single(d => d.Name == removesInvalidAttributesFileName);
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
@@ -183,7 +183,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var postProcessor = new TestPostProcessor("RootClass.cs", nonRootTypes: ["Sample.KeepMe"]);
 
             var resultProject = await postProcessor.RemoveAsync(project);
-            var doc = resultProject.Documents
+            var doc= resultProject.Documents
                 .Single(d => d.Name == removesInvalidAttributesFileName);
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
@@ -229,7 +229,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var postProcessor = new TestPostProcessor("RootClass.cs", nonRootTypes: ["Sample.KeepMe"]);
 
             var resultProject = await postProcessor.RemoveAsync(project);
-            var doc = resultProject.Documents
+            var doc= resultProject.Documents
                 .Single(d => d.Name == removesInvalidAttributesFileName);
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
@@ -275,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var postProcessor = new TestPostProcessor("RootClass.cs");
 
             var resultProject = await postProcessor.RemoveAsync(project);
-            var doc = resultProject.Documents
+            var doc= resultProject.Documents
                 .Single(d => d.Name == doesNotRemoveValidAttributesFileName);
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;

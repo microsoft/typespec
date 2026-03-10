@@ -128,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             => new InvokeMethodExpression(parameter, methodName, args);
 
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, CSharpType? extensionType = null)
-            => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>()) { ExtensionType = extensionType };
+            => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>()) { ExtensionType = extensionType};
 
         public static InvokeMethodExpression InvokeLambda(this ParameterProvider parameter, params ValueExpression[] args)
             => new InvokeMethodExpression(null, parameter.Name, args);

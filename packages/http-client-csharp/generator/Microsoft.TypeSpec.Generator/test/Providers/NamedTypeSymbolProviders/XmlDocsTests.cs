@@ -167,7 +167,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected internal override MethodProvider[] BuildMethods()
             {
-                var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("value", $"This is an invalid description because it is missing closing slash <see cref=\"Y\">", typeof(int)), new ParameterProvider("options", $"", typeof(string))]);
+                var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.Public, null, $"", [ new ParameterProvider("value", $"This is an invalid description because it is missing closing slash <see cref=\"Y\">", typeof(int)), new ParameterProvider("options", $"", typeof(string)) ]);
                 return [new MethodProvider(sig, Snippet.ThrowExpression(Snippet.Null), this, null)];
             }
         }

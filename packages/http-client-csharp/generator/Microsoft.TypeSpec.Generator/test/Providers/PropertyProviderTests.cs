@@ -154,7 +154,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             };
 
             propertyProvider.Update(
-                modifiers: propertyProvider.Modifiers & ~MethodSignatureModifiers.Virtual,
+                modifiers: propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
                 type: new CSharpType(typeof(int)),
                 name: "newName",
                 body: new AutoPropertyBody(HasSetter: true),

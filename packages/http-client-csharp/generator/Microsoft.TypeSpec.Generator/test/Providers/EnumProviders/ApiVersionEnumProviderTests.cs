@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using NUnit.Framework;
+using System.Threading.Tasks;
 using Moq;
 using Moq.Protected;
-using NUnit.Framework;
+using Microsoft.TypeSpec.Generator.Expressions;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
 {
