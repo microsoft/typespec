@@ -29,6 +29,10 @@ def test_query(client: DurationClient):
     client.query.int32_seconds_array(input=[36, 47])
     client.query.float_seconds(input=35.625)
     client.query.float64_seconds(input=35.625)
+    client.query.float_milliseconds(input=35625.0)
+    client.query.float64_milliseconds(input=35625.0)
+    client.query.float_seconds_larger_unit(input=150.0)
+    client.query.float_milliseconds_larger_unit(input=210000.0)
 
 
 def test_property(client: DurationClient):
@@ -58,3 +62,7 @@ def test_header(client: DurationClient):
     client.header.int32_seconds(duration=36)
     client.header.float_seconds(duration=35.625)
     client.header.float64_seconds(duration=35.625)
+    client.header.float_milliseconds(duration=35625.0)
+    client.header.float64_milliseconds(duration=35625.0)
+    client.header.float_seconds_larger_unit(duration=150.0)
+    client.header.float_milliseconds_larger_unit(duration=210000.0)

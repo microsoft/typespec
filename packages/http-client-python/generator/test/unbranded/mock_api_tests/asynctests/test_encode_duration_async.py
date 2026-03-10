@@ -30,6 +30,10 @@ async def test_query(client: DurationClient):
     await client.query.int32_seconds_array(input=[36, 47])
     await client.query.float_seconds(input=35.625)
     await client.query.float64_seconds(input=35.625)
+    await client.query.float_milliseconds(input=35625.0)
+    await client.query.float64_milliseconds(input=35625.0)
+    await client.query.float_seconds_larger_unit(input=150.0)
+    await client.query.float_milliseconds_larger_unit(input=210000.0)
 
 
 @pytest.mark.asyncio
@@ -61,3 +65,7 @@ async def test_header(client: DurationClient):
     await client.header.int32_seconds(duration=36)
     await client.header.float_seconds(duration=35.625)
     await client.header.float64_seconds(duration=35.625)
+    await client.header.float_milliseconds(duration=35625.0)
+    await client.header.float64_milliseconds(duration=35625.0)
+    await client.header.float_seconds_larger_unit(duration=150.0)
+    await client.header.float_milliseconds_larger_unit(duration=210000.0)
