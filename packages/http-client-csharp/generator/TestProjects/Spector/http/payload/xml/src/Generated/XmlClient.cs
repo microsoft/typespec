@@ -39,6 +39,10 @@ namespace Payload.Xml
 
         public virtual ModelWithEncodedNamesValue GetModelWithEncodedNamesValueClient() => throw null;
 
+        public virtual ModelWithEnumValue GetModelWithEnumValueClient() => throw null;
+
+        public virtual ModelWithDatetimeValue GetModelWithDatetimeValueClient() => throw null;
+
         public virtual XmlErrorValue GetXmlErrorValueClient() => throw null;
     }
 }
