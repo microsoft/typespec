@@ -318,8 +318,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // if (section is null || !section.Exists()) { return; }
             var guardCondition = sectionParam.Is(Null).Or(Not(sectionParam.Invoke("Exists")));
-            var guardStatement = new IfStatement(guardCondition);
-            guardStatement.Add(Return());
+            var guardStatement = new IfStatement(guardCondition) { Return() };
 
             body.Add(guardStatement);
 
@@ -355,7 +354,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 body.Add(Declare(propValueVar, new IndexerExpression(sectionParam, Literal(property.Name))));
 
                 // if (!string.IsNullOrEmpty(propValue)) { Property = propValue; }
-                var ifProp = new IfStatement(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", propValueVar)));
+                var ifProp = new IfStatement(Not(StringSnippets.IsNullOrEmpty(propValueVar.As<string>())));
                 ifProp.Add(This.Property(property.Name).Assign(propValueVar).Terminate());
                 body.Add(ifProp);
             }

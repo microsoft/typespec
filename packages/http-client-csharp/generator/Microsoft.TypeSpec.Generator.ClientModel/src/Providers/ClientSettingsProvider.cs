@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -23,8 +24,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal const string ClientSettingsDiagnosticId = "SCME0002";
 
         private readonly ClientProvider _clientProvider;
-        private readonly InputEndpointParameter? _inputEndpointParam;
-        private readonly IReadOnlyList<ParameterProvider> _otherRequiredParams;
 
 #pragma warning disable SCME0002 // ClientSettings is for evaluation purposes only
         internal static readonly CSharpType ClientSettingsType = typeof(ClientSettings);
@@ -35,11 +34,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal ClientSettingsProvider(InputClient inputClient, ClientProvider clientProvider)
         {
             _clientProvider = clientProvider;
-            _inputEndpointParam = inputClient.Parameters
+
+            var inputEndpointParam = inputClient.Parameters
                 .FirstOrDefault(p => p is InputEndpointParameter ep && ep.IsEndpoint) as InputEndpointParameter;
+            EndpointPropertyName = inputEndpointParam?.Name.ToIdentifierName();
 
             // Collect non-endpoint, non-apiVersion required parameters (auth params come separately via InputClient.Auth)
-            _otherRequiredParams = inputClient.Parameters
+            OtherRequiredParams = inputClient.Parameters
                 .Where(p => p.IsRequired && !p.IsApiVersion &&
                             !(p is InputEndpointParameter ep && ep.IsEndpoint))
                 .Select(p => ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(p))
@@ -48,10 +49,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .ToList();
         }
 
-        internal string? EndpointPropertyName => _inputEndpointParam?.Name.ToIdentifierName();
+        internal string? EndpointPropertyName { get; }
 
         /// <summary>Gets non-endpoint, non-auth required parameters that have settings properties.</summary>
-        internal IReadOnlyList<ParameterProvider> OtherRequiredParams => _otherRequiredParams;
+        internal IReadOnlyList<ParameterProvider> OtherRequiredParams { get; }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -70,18 +71,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var properties = new List<PropertyProvider>();
 
-            if (_inputEndpointParam != null)
+            if (EndpointPropertyName != null)
             {
                 properties.Add(new PropertyProvider(
                     null,
                     MethodSignatureModifiers.Public,
                     new CSharpType(typeof(Uri), isNullable: true),
-                    EndpointPropertyName!,
+                    EndpointPropertyName,
                     new AutoPropertyBody(true),
                     this));
             }
 
-            foreach (var param in _otherRequiredParams)
+            foreach (var param in OtherRequiredParams)
             {
                 properties.Add(new PropertyProvider(
                     null,
@@ -111,24 +112,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var sectionParam = new ParameterProvider("section", $"The configuration section.", IConfigurationSectionType);
             var body = new List<MethodBodyStatement>();
 
-            if (_inputEndpointParam != null)
+            if (EndpointPropertyName != null)
             {
-                var endpointPropertyName = EndpointPropertyName!;
-
                 // if (Uri.TryCreate(section["EndpointPropertyName"], UriKind.Absolute, out Uri varName)) { EndpointProperty = varName; }
-                var outUriDecl = new DeclarationExpression(typeof(Uri), endpointPropertyName.ToVariableName(), out var uriVar, isOut: true);
+                var outUriDecl = new DeclarationExpression(typeof(Uri), EndpointPropertyName.ToVariableName(), out var uriVar, isOut: true);
                 var ifStatement = new IfStatement(Static(typeof(Uri)).Invoke("TryCreate",
                     new ValueExpression[]
                     {
-                        new IndexerExpression(sectionParam, Literal(endpointPropertyName)),
+                        new IndexerExpression(sectionParam, Literal(EndpointPropertyName)),
                         new MemberExpression(typeof(UriKind), nameof(UriKind.Absolute)),
                         outUriDecl
                     }));
-                ifStatement.Add(This.Property(endpointPropertyName).Assign(uriVar).Terminate());
+                ifStatement.Add(This.Property(EndpointPropertyName).Assign(uriVar).Terminate());
                 body.Add(ifStatement);
             }
 
-            foreach (var param in _otherRequiredParams)
+            foreach (var param in OtherRequiredParams)
             {
                 var propName = param.Name.ToIdentifierName();
                 // For string types: if (section[propName] is string val) PropName = val;
@@ -136,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     var valVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), param.Name.ToVariableName());
                     body.Add(Declare(valVar, new IndexerExpression(sectionParam, Literal(propName))));
-                    var ifStatement = new IfStatement(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", valVar)));
+                    var ifStatement = new IfStatement(Not(StringSnippets.IsNullOrEmpty(valVar.As<string>())));
                     ifStatement.Add(This.Property(propName).Assign(valVar).Terminate());
                     body.Add(ifStatement);
                 }

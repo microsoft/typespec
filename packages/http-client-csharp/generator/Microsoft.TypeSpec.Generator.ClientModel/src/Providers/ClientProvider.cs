@@ -686,7 +686,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var propAccess = new MemberExpression(new NullConditionalExpression(settingsParam), propName);
                 // Value types (enums, primitives) need ?? default since null-conditional returns T?
                 ValueExpression arg = param.Type.IsValueType
-                    ? new BinaryOperatorExpression("??", propAccess, new KeywordExpression("default", null))
+                    ? propAccess.NullCoalesce(new KeywordExpression("default", null))
                     : propAccess;
                 args.Add(arg);
             }
@@ -934,7 +934,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // new BearerTokenPolicy(tokenProvider, AuthorizationScopes)
                 // The param name is derived from the field name: _tokenProvider → tokenProvider, _tokenCredential → credential
                 var credParam = requiredParameters.FirstOrDefault(p =>
-                    p.Name == TokenProviderFieldName.TrimStart('_') ||
+                    p.Name == TokenProviderFieldName.ToVariableName() ||
                     p.Name == "credential");
                 if (credParam != null)
                 {
