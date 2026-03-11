@@ -2010,30 +2010,30 @@ export class CodeModelBuilder {
       requestBodyIsFile = Boolean(unknownRequestBody);
     }
 
-    // TODO: hack for a common definition error of enum/union as body without content-type
-    if (
-      !requestBodyIsFile &&
-      sdkBody.contentTypes.length === 1 &&
-      sdkBody.contentTypes[0] === "text/plain" &&
-      sdkType.kind === "enum"
-    ) {
-      op.requests![0].protocol.http!.mediaTypes = ["application/json"];
-      reportDiagnostic(this.program, {
-        code: "enum-text-plain-content-type",
-        format: {
-          operationName: op.language.default.name,
-          payloadKind: "request body",
-        },
-        target: sdkMethod.__raw ?? NoTarget,
-      });
-    }
-
     let schema: Schema;
     if (requestBodyIsFile) {
       // binary/file
       schema = this.processBinarySchema(sdkType);
     } else {
-      schema = this.processSchema(getNonNullSdkType(sdkType), sdkBody.name);
+      if (
+        !requestBodyIsFile &&
+        sdkBody.contentTypes.length === 1 &&
+        sdkBody.contentTypes[0] === "text/plain" &&
+        sdkType.kind === "enum"
+      ) {
+        // handle a common definition error of string based scalar type as body, without content-type
+        reportDiagnostic(this.program, {
+          code: "type-not-supported-on-text-plain",
+          format: {
+            operationName: op.language.default.name,
+            payloadKind: "request body",
+          },
+          target: sdkMethod.__raw ?? NoTarget,
+        });
+        schema = this.stringSchema;
+      } else {
+        schema = this.processSchema(getNonNullSdkType(sdkType), sdkBody.name);
+      }
     }
 
     const parameterName = sdkBody.name;
@@ -2306,13 +2306,32 @@ export class CodeModelBuilder {
         },
       });
     } else if (bodyType) {
-      // schema (usually JSON)
-      let schema: Schema | undefined = undefined;
       if (longRunning) {
         // LRO uses the LroMetadata for poll/final result, not the response of activation request
+        // hence the schema below is not tracked for convenience API
         trackConvenienceApi = false;
       }
-      if (!schema) {
+
+      // schema (usually JSON)
+      let schema: Schema | undefined = undefined;
+      if (
+        !responseBodyIsFile &&
+        sdkResponse.contentTypes &&
+        sdkResponse.contentTypes.length === 1 &&
+        sdkResponse.contentTypes[0] === "text/plain" &&
+        bodyType?.kind === "enum"
+      ) {
+        // handle a common definition error of string based scalar type as body, without content-type
+        reportDiagnostic(this.program, {
+          code: "type-not-supported-on-text-plain",
+          format: {
+            operationName: op.language.default.name,
+            payloadKind: "response body",
+          },
+          target: NoTarget,
+        });
+        schema = this.stringSchema;
+      } else {
         schema = this.processSchema(bodyType, op.language.default.name + "Response");
       }
       response = new SchemaResponse(schema, {
@@ -2330,25 +2349,6 @@ export class CodeModelBuilder {
           },
         },
       });
-
-      // TODO: hack for a common definition error of enum/union as body without content-type
-      if (
-        !responseBodyIsFile &&
-        sdkResponse.contentTypes &&
-        sdkResponse.contentTypes.length === 1 &&
-        sdkResponse.contentTypes[0] === "text/plain" &&
-        bodyType?.kind === "enum"
-      ) {
-        response.protocol.http!.mediaTypes = ["application/json"];
-        reportDiagnostic(this.program, {
-          code: "enum-text-plain-content-type",
-          format: {
-            operationName: op.language.default.name,
-            payloadKind: "response body",
-          },
-          target: NoTarget,
-        });
-      }
     } else {
       // not binary nor schema, usually NoContent
       response = new Response({
