@@ -342,7 +342,10 @@ namespace ExtensibleStrings {
     """)
   @put
   @route("/string")
-  op putExtensibleStringValue(@body body: ExtensibleString): {
+  op putExtensibleStringValue(
+    @header contentType: "application/json",
+    @body body: ExtensibleString,
+  ): {
     @header contentType: "application/json";
     @body body: ExtensibleString;
   };
