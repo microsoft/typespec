@@ -1713,7 +1713,7 @@ export class CodeModelBuilder {
     name: string,
     description: string | undefined = undefined,
   ): GroupSchema {
-    // the "GroupSchema" is simliar to "ObjectSchema", but the process is different
+    // the "GroupSchema" is similar to "ObjectSchema", but the process is different
 
     if (type && this.schemaCache.has(type)) {
       return this.schemaCache.get(type) as GroupSchema;
@@ -2011,8 +2011,21 @@ export class CodeModelBuilder {
     }
 
     // TODO: hack for a common definition error of enum/union as body without content-type
-    if (!requestBodyIsFile && sdkBody.contentTypes.length === 1 && sdkBody.contentTypes[0] === "text/plain" && sdkType.kind === "enum") {
+    if (
+      !requestBodyIsFile &&
+      sdkBody.contentTypes.length === 1 &&
+      sdkBody.contentTypes[0] === "text/plain" &&
+      sdkType.kind === "enum"
+    ) {
       op.requests![0].protocol.http!.mediaTypes = ["application/json"];
+      reportDiagnostic(this.program, {
+        code: "enum-text-plain-content-type",
+        format: {
+          operationName: op.language.default.name,
+          payloadKind: "request body",
+        },
+        target: sdkMethod.__raw ?? NoTarget,
+      });
     }
 
     let schema: Schema;
@@ -2319,8 +2332,22 @@ export class CodeModelBuilder {
       });
 
       // TODO: hack for a common definition error of enum/union as body without content-type
-      if (!responseBodyIsFile && sdkResponse.contentTypes && sdkResponse.contentTypes.length === 1 && sdkResponse.contentTypes[0] === "text/plain" && sdkType.kind === "enum") {
+      if (
+        !responseBodyIsFile &&
+        sdkResponse.contentTypes &&
+        sdkResponse.contentTypes.length === 1 &&
+        sdkResponse.contentTypes[0] === "text/plain" &&
+        bodyType?.kind === "enum"
+      ) {
         response.protocol.http!.mediaTypes = ["application/json"];
+        reportDiagnostic(this.program, {
+          code: "enum-text-plain-content-type",
+          format: {
+            operationName: op.language.default.name,
+            payloadKind: "response body",
+          },
+          target: NoTarget,
+        });
       }
     } else {
       // not binary nor schema, usually NoContent
