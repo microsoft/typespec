@@ -337,6 +337,7 @@ ignorePaths:
   - packages/mutator-framework/**/*.test.ts
   - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
+  - .lock.yml
   - "**/*.mp4"
   - "**/*.plist"
   - .git/**
