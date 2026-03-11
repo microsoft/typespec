@@ -588,6 +588,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsFalse(optionsArg is NewInstanceExpression, "Options argument should be the parameter itself, not a new instance");
         }
 
+        [TestCase(Category = KeyAuthCategory)]
+        [TestCase(Category = OAuth2Category)]
+        public void TestBuildConstructors_SettingsConstructor()
+        {
+            var inputParameters = new List<InputParameter>
+            {
+                InputFactory.EndpointParameter(
+                    KnownParameters.Endpoint.Name,
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+            var settingsConstructor = constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNotNull(settingsConstructor, "Expected a settings constructor");
+
+            // Validate it's public
+            Assert.AreEqual(MethodSignatureModifiers.Public, settingsConstructor!.Signature.Modifiers);
+
+            // Validate it has exactly 1 parameter: settings
+            Assert.AreEqual(1, settingsConstructor.Signature.Parameters.Count);
+            Assert.AreEqual("settings", settingsConstructor.Signature.Parameters[0].Name);
+
+            // Validate it's a pass-through (body is empty)
+            Assert.AreEqual(MethodBodyStatement.Empty, settingsConstructor.BodyStatements);
+
+            // Validate it has a this(...) initializer
+            var initializer = settingsConstructor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsFalse(initializer!.IsBase, "Settings constructor should use this() initializer, not base()");
+        }
+
+        [Test]
+        public void TestBuildConstructors_NoSettingsConstructor_WhenNoEndpoint()
+        {
+            // No endpoint parameter — settings constructor should not be generated
+            var client = InputFactory.Client(TestClientName);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+            var settingsConstructor = constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNull(settingsConstructor, "Settings constructor should not be generated when there is no endpoint");
+        }
+
         [Test]
         public void TestBuildConstructors_DeduplicatesParametersBySerializedName()
         {

@@ -163,6 +163,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
         [TestCase(true, Category = ApiVersionsCategory)]
         [TestCase(false)]
+        public void TestConfigurationSectionConstructorBody(bool containsApiVersions)
+        {
+            var client = InputFactory.Client("TestClient");
+            var clientProvider = new ClientProvider(client);
+            var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
+
+            var ctors = clientOptionsProvider.Constructors;
+            var configSectionCtor = ctors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "section"));
+            Assert.IsNotNull(configSectionCtor);
+
+            // Validate it's internal
+            Assert.AreEqual(MethodSignatureModifiers.Internal, configSectionCtor!.Signature.Modifiers);
+
+            // Validate it has the base(section) initializer
+            Assert.IsNotNull(configSectionCtor.Signature.Initializer);
+            Assert.IsTrue(configSectionCtor.Signature.Initializer!.IsBase);
+
+            // Validate the body is not empty
+            var body = configSectionCtor.BodyStatements;
+            Assert.IsNotNull(body);
+
+            var bodyString = body!.ToDisplayString();
+
+            // Always has a guard statement
+            Assert.IsTrue(bodyString.Contains("section is null") || bodyString.Contains("Exists"),
+                "Configuration section constructor should have a guard statement");
+
+            if (containsApiVersions)
+            {
+                // When API versions exist, Version should be set to latest before guard
+                Assert.IsTrue(bodyString.Contains("Version ="),
+                    "Configuration constructor should set Version when API versions exist");
+                // After guard, should read version from config
+                Assert.IsTrue(bodyString.Contains("section[\"Version\"]"),
+                    "Configuration constructor should read Version from config section");
+            }
+        }
+
+        [TestCase(true, Category = ApiVersionsCategory)]
+        [TestCase(false)]
         public void TestProperties(bool containsApiVersions)
         {
             var client = InputFactory.Client("TestClient");
