@@ -1,5 +1,5 @@
 {
-  "name": "@azure-tools/integration-tester",
+  "name": "@typespec/integration-tester",
   "private": true,
   "version": "0.1.0",
   "type": "module",
