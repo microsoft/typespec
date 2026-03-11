@@ -22,10 +22,10 @@ public interface PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return simple string along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Priority> setPriorityWithResponse(Priority priority, Context context);
+    Response<String> setPriorityWithResponse(Priority priority, Context context);
 
     /**
      * The setPriority operation.
@@ -34,8 +34,8 @@ public interface PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return simple string.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Priority setPriority(Priority priority);
+    String setPriority(Priority priority);
 }

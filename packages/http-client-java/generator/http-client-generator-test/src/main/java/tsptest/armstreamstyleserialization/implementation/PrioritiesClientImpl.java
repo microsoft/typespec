@@ -61,14 +61,14 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
         @Post("/priority")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<Priority>> setPriority(@HostParam("endpoint") String endpoint,
+        Mono<Response<String>> setPriority(@HostParam("endpoint") String endpoint,
             @QueryParam("priority") Priority priority, @HeaderParam("Accept") String accept, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Post("/priority")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<Priority> setPrioritySync(@HostParam("endpoint") String endpoint,
+        Response<String> setPrioritySync(@HostParam("endpoint") String endpoint,
             @QueryParam("priority") Priority priority, @HeaderParam("Accept") String accept, Context context);
     }
 
@@ -79,10 +79,10 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return simple string along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Priority>> setPriorityWithResponseAsync(Priority priority) {
+    private Mono<Response<String>> setPriorityWithResponseAsync(Priority priority) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
                 new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
@@ -103,10 +103,10 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * @return simple string on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Priority> setPriorityAsync(Priority priority) {
+    private Mono<String> setPriorityAsync(Priority priority) {
         return setPriorityWithResponseAsync(priority).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
@@ -118,10 +118,10 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return simple string along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Priority> setPriorityWithResponse(Priority priority, Context context) {
+    public Response<String> setPriorityWithResponse(Priority priority, Context context) {
         if (this.client.getEndpoint() == null) {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException(
@@ -142,10 +142,10 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return simple string.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Priority setPriority(Priority priority) {
+    public String setPriority(Priority priority) {
         return setPriorityWithResponse(priority, Context.NONE).getValue();
     }
 

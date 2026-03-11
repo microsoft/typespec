@@ -24,11 +24,11 @@ public final class PrioritiesImpl implements Priorities {
         this.serviceManager = serviceManager;
     }
 
-    public Response<Priority> setPriorityWithResponse(Priority priority, Context context) {
+    public Response<String> setPriorityWithResponse(Priority priority, Context context) {
         return this.serviceClient().setPriorityWithResponse(priority, context);
     }
 
-    public Priority setPriority(Priority priority) {
+    public String setPriority(Priority priority) {
         return this.serviceClient().setPriority(priority);
     }
 
