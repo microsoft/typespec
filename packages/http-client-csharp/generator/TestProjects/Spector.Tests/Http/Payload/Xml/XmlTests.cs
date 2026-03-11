@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -351,6 +353,62 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
                 .PutAsync(model);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task GetModelWithEnum() => Test(async (host) =>
+        {
+            var response = await new XmlClient(host, null).GetModelWithEnumValueClient().GetAsync();
+
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+
+            var model = response.Value;
+            Assert.NotNull(model);
+            Assert.AreEqual(Status.Success, model.Status);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithEnum() => Test(async (host) =>
+        {
+            var model = new ModelWithEnum(Status.Success);
+            var response = await new XmlClient(host, null).GetModelWithEnumValueClient()
+                .PutAsync(model);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task GetModelWithDatetime() => Test(async (host) =>
+        {
+            var response = await new XmlClient(host, null).GetModelWithDatetimeValueClient().GetAsync();
+
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+
+            var model = response.Value;
+            Assert.NotNull(model);
+            Assert.AreEqual(new DateTimeOffset(2022, 8, 26, 18, 38, 0, TimeSpan.Zero), model.Rfc3339);
+            Assert.AreEqual(new DateTimeOffset(2022, 8, 26, 14, 38, 0, TimeSpan.Zero), model.Rfc7231);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithDatetime() => Test(async (host) =>
+        {
+            var model = new ModelWithDatetime(
+                new DateTimeOffset(2022, 8, 26, 18, 38, 0, TimeSpan.Zero),
+                new DateTimeOffset(2022, 8, 26, 14, 38, 0, TimeSpan.Zero));
+            var response = await new XmlClient(host, null).GetModelWithDatetimeValueClient()
+                .PutAsync(model);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task GetXmlErrorValue() => Test(async (host) =>
+        {
+            var ex = Assert.ThrowsAsync<ClientResultException>(
+                async () => await new XmlClient(host, null).GetXmlErrorValueClient().GetAsync());
+
+            Assert.AreEqual(400, ex!.Status);
         });
     }
 }
