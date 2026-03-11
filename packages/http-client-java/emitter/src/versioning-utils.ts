@@ -36,11 +36,7 @@ export function getServiceApiVersions(
 
   const rawServices: Namespace | Namespace[] | undefined =
     client.__raw.services ?? (client.__raw as any).service;
-  const serviceList = Array.isArray(rawServices)
-    ? rawServices
-    : rawServices
-      ? [rawServices]
-      : [];
+  const serviceList = Array.isArray(rawServices) ? rawServices : rawServices ? [rawServices] : [];
 
   let apiVersions: Version[] | InconsistentVersions;
   // TCGC 0.63+ supports multiple api-version in a single client
