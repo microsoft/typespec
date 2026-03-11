@@ -7,10 +7,10 @@ using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 
-namespace _Type.Model.Usage
+namespace Versioning.MadeOptional
 {
     [Experimental("SCME0002")]
-    public partial class UsageClientSettings : ClientSettings
+    public partial class MadeOptionalClientSettings : ClientSettings
     {
         public Uri Endpoint
         {
@@ -18,7 +18,7 @@ namespace _Type.Model.Usage
             set => throw null;
         }
 
-        public UsageClientOptions Options
+        public MadeOptionalClientOptions Options
         {
             get => throw null;
             set => throw null;

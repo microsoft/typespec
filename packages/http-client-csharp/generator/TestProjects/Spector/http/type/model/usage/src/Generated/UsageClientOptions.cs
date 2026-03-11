@@ -8,23 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Usage
 {
-    /// <summary> Client options for <see cref="UsageClient"/>. </summary>
     public partial class UsageClientOptions : ClientPipelineOptions
     {
-        /// <summary> Initializes a new instance of UsageClientOptions. </summary>
-        public UsageClientOptions()
-        {
-        }
+        public UsageClientOptions() => throw null;
 
-        /// <summary> Initializes a new instance of UsageClientOptions from configuration. </summary>
-        /// <param name="section"> The configuration section. </param>
         [Experimental("SCME0002")]
-        internal UsageClientOptions(IConfigurationSection section) : base(section)
-        {
-            if (section is null || !section.Exists())
-            {
-                return;
-            }
-        }
+        internal UsageClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }
