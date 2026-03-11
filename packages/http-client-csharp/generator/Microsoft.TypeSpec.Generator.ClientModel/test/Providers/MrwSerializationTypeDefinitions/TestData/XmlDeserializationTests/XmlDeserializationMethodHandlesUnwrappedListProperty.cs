@@ -39,7 +39,7 @@ namespace Sample.Models
                 return null;
             }
 
-            global::System.Collections.Generic.IList<string> colors = default;
+            global::System.Collections.Generic.IList<string> colors = new global::System.Collections.Generic.List<string>();
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
 
             foreach (var child in element.Elements())
@@ -47,10 +47,6 @@ namespace Sample.Models
                 string localName = child.Name.LocalName;
                 if ((localName == "colors"))
                 {
-                    if ((colors == null))
-                    {
-                        colors = new global::System.Collections.Generic.List<string>();
-                    }
                     colors.Add(((string)child));
                     continue;
                 }
