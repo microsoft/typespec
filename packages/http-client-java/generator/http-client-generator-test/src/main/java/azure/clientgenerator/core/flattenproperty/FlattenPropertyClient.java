@@ -6,9 +6,7 @@ package azure.clientgenerator.core.flattenproperty;
 
 import azure.clientgenerator.core.flattenproperty.implementation.FlattenPropertyClientImpl;
 import azure.clientgenerator.core.flattenproperty.models.FlattenModel;
-import azure.clientgenerator.core.flattenproperty.models.FlattenUnknownModel;
 import azure.clientgenerator.core.flattenproperty.models.NestedFlattenModel;
-import azure.clientgenerator.core.flattenproperty.models.Solution;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
@@ -134,90 +132,6 @@ public final class FlattenPropertyClient {
     }
 
     /**
-     * The putFlattenUnknownModel operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     properties: BinaryData (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     properties: BinaryData (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return this is the model with unknown type properties to be flattened along with {@link Response}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> putFlattenUnknownModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.putFlattenUnknownModelWithResponse(input, requestOptions);
-    }
-
-    /**
-     * The putFlattenReadOnlyModel operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     properties (Optional): {
-     *         solutionId: String (Optional)
-     *         title: String (Optional)
-     *         content: String (Optional)
-     *     }
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     properties (Optional): {
-     *         solutionId: String (Optional)
-     *         title: String (Optional)
-     *         content: String (Optional)
-     *     }
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return this is the model with flattened properties that are all read-only along with {@link Response}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> putFlattenReadOnlyModelWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putFlattenReadOnlyModelWithResponse(body, requestOptions);
-    }
-
-    /**
      * The putFlattenModel operation.
      * 
      * @param input The input parameter.
@@ -257,47 +171,5 @@ public final class FlattenPropertyClient {
         RequestOptions requestOptions = new RequestOptions();
         return putNestedFlattenModelWithResponse(BinaryData.fromObject(input), requestOptions).getValue()
             .toObject(NestedFlattenModel.class);
-    }
-
-    /**
-     * The putFlattenUnknownModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is the model with unknown type properties to be flattened.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public FlattenUnknownModel putFlattenUnknownModel(FlattenUnknownModel input) {
-        // Generated convenience method for putFlattenUnknownModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return putFlattenUnknownModelWithResponse(BinaryData.fromObject(input), requestOptions).getValue()
-            .toObject(FlattenUnknownModel.class);
-    }
-
-    /**
-     * The putFlattenReadOnlyModel operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is the model with flattened properties that are all read-only.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Solution putFlattenReadOnlyModel(Solution body) {
-        // Generated convenience method for putFlattenReadOnlyModelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return putFlattenReadOnlyModelWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
-            .toObject(Solution.class);
     }
 }

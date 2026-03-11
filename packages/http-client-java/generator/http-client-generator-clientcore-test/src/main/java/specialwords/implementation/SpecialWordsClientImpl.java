@@ -106,20 +106,6 @@ public final class SpecialWordsClientImpl {
     }
 
     /**
-     * The ExtensibleStringsImpl object to access its operations.
-     */
-    private final ExtensibleStringsImpl extensibleStrings;
-
-    /**
-     * Gets the ExtensibleStringsImpl object to access its operations.
-     * 
-     * @return the ExtensibleStringsImpl object.
-     */
-    public ExtensibleStringsImpl getExtensibleStrings() {
-        return this.extensibleStrings;
-    }
-
-    /**
      * Initializes an instance of SpecialWordsClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -134,6 +120,5 @@ public final class SpecialWordsClientImpl {
         this.modelProperties = new ModelPropertiesImpl(this);
         this.operations = new OperationsImpl(this);
         this.parameters = new ParametersImpl(this);
-        this.extensibleStrings = new ExtensibleStringsImpl(this);
     }
 }
