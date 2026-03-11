@@ -124,7 +124,10 @@ public final class ModelWithDatetime implements XmlSerializable<ModelWithDatetim
                 if ("rfc3339".equals(elementName.getLocalPart())) {
                     rfc3339 = reader.getNullableElement(dateString -> OffsetDateTime.parse(dateString));
                 } else if ("rfc7231".equals(elementName.getLocalPart())) {
-                    rfc7231 = reader.getNullableElement(DateTimeRfc1123::new);
+                    DateTimeRfc1123 rfc7231Holder = reader.getNullableElement(DateTimeRfc1123::new);
+                    if (rfc7231Holder != null) {
+                        rfc7231 = rfc7231Holder.getDateTime();
+                    }
                 } else {
                     reader.skipElement();
                 }
