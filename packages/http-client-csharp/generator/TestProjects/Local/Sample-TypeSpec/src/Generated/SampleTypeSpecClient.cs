@@ -606,42 +606,6 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
-        /// [Protocol Method] Operation with enum query parameter and convenientAPI false
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="queryParam"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult EnumQueryParameter(IEnumerable<QueryParameterEnum> queryParam = default, RequestOptions options = null)
-        {
-            using PipelineMessage message = CreateEnumQueryParameterRequest(queryParam, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Operation with enum query parameter and convenientAPI false
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="queryParam"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> EnumQueryParameterAsync(IEnumerable<QueryParameterEnum> queryParam = default, RequestOptions options = null)
-        {
-            using PipelineMessage message = CreateEnumQueryParameterRequest(queryParam, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary>
         /// [Protocol Method] top level patch
         /// <list type="bullet">
         /// <item>

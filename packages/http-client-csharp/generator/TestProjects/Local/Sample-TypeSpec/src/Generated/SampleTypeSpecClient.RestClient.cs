@@ -8,7 +8,6 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
@@ -134,24 +133,6 @@ namespace SampleTypeSpec
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
             request.Headers.Set("Accept", "application/json");
-            message.Apply(options);
-            return message;
-        }
-
-        internal PipelineMessage CreateEnumQueryParameterRequest(IEnumerable<QueryParameterEnum> queryParam, RequestOptions options)
-        {
-            ClientUriBuilder uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/enumQueryParameter", false);
-            if (queryParam != null && !(queryParam is ChangeTrackingList<QueryParameterEnum> changeTrackingList && changeTrackingList.IsUndefined))
-            {
-                foreach (var @param in queryParam)
-                {
-                    uri.AppendQuery("queryParam", @param.ToSerialString(), true);
-                }
-            }
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
-            PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }
