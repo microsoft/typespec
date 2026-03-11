@@ -364,7 +364,7 @@ interface ModelWithDatetimeValue
       ModelWithDatetime,
       """
         <ModelWithDatetime>
-          <rfc3339>2022-08-26T18:38:00Z</rfc3339>
+          <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
           <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
         </ModelWithDatetime>
         """

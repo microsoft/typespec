@@ -64,10 +64,32 @@ export const validateXmlBodyEquals = (request: RequestExt, expectedBody: string)
     expectedParsedBody = result;
   });
 
-  if (!deepEqual(actualParsedBody, expectedParsedBody, { strict: true })) {
+  if (!deepEqual(normalizeXmlDatetimes(actualParsedBody), normalizeXmlDatetimes(expectedParsedBody), { strict: true })) {
     throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.rawBody);
   }
 };
+
+/**
+ * Recursively walk a parsed-XML object (from xml2js) and normalize RFC3339 UTC datetime strings
+ * so that equivalent forms compare equal (e.g. "2022-08-26T18:38:00.000Z" == "2022-08-26T18:38:00Z").
+ */
+function normalizeXmlDatetimes(value: unknown): unknown {
+  if (typeof value === "string") {
+    // Strip trailing zero milliseconds from UTC RFC3339 timestamps: .000Z -> Z
+    return value.replace(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.0+Z$/, "$1Z");
+  }
+  if (Array.isArray(value)) {
+    return value.map(normalizeXmlDatetimes);
+  }
+  if (value !== null && typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      result[k] = normalizeXmlDatetimes(v);
+    }
+    return result;
+  }
+  return value;
+}
 
 export const validateCoercedDateBodyEquals = (
   request: RequestExt,
