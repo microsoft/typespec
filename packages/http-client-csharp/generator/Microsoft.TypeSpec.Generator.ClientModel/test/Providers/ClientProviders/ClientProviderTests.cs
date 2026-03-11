@@ -173,7 +173,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // oauth2 auth should have the _flows field; _tokenProvider is no longer stored
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
+                    new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
                 });
                 // _tokenProvider field is no longer on the client (auth handled via AuthenticationPolicy parameter)
                 Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_tokenProvider"));
@@ -212,7 +212,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // oauth2 auth should have the _flows field; _tokenProvider is no longer stored on the client
             AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
             {
-                new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
+                new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
             });
             Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_tokenProvider"), "_tokenProvider should not be present - auth handled via AuthenticationPolicy parameter");
 
@@ -313,7 +313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // oauth2 auth should have _flows field; _tokenProvider is no longer stored
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
+                    new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
                 });
                 Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_tokenProvider"));
             }

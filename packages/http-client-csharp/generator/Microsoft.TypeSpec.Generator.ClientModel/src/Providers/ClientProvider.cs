@@ -1400,7 +1400,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return new FieldProvider(
-                FieldModifiers.Private | FieldModifiers.ReadOnly,
+                FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly,
                 typeof(Dictionary<string, object>[]),
                 TokenCredentialFlowsFieldName,
                 this,

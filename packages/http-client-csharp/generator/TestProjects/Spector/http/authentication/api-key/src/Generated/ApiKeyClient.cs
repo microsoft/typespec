@@ -13,11 +13,15 @@ namespace Authentication.ApiKey
 {
     public partial class ApiKeyClient
     {
+        private const string AuthorizationHeader = "x-ms-api-key";
+
         protected ApiKeyClient() => throw null;
 
         public ApiKeyClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new ApiKeyClientOptions()) => throw null;
 
         public ApiKeyClient(ApiKeyCredential credential, ApiKeyClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
+
+        internal ApiKeyClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ApiKeyClientOptions options) => throw null;
 
         public ApiKeyClient(Uri endpoint, ApiKeyCredential credential, ApiKeyClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options) => throw null;
 

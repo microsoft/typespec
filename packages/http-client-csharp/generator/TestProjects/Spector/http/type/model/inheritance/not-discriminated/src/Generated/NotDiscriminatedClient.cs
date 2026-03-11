@@ -15,10 +15,12 @@ namespace _Type.Model.Inheritance.NotDiscriminated
     {
         public NotDiscriminatedClient() : this(new Uri("http://localhost:3000"), new NotDiscriminatedClientOptions()) => throw null;
 
-        public NotDiscriminatedClient(Uri endpoint, NotDiscriminatedClientOptions options) => throw null;
+        internal NotDiscriminatedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NotDiscriminatedClientOptions options) => throw null;
+
+        public NotDiscriminatedClient(Uri endpoint, NotDiscriminatedClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public NotDiscriminatedClient(NotDiscriminatedClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public NotDiscriminatedClient(NotDiscriminatedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

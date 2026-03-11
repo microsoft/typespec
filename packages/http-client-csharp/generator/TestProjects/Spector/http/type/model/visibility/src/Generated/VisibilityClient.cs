@@ -15,10 +15,12 @@ namespace _Type.Model.Visibility
     {
         public VisibilityClient() : this(new Uri("http://localhost:3000"), new VisibilityClientOptions()) => throw null;
 
-        public VisibilityClient(Uri endpoint, VisibilityClientOptions options) => throw null;
+        internal VisibilityClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, VisibilityClientOptions options) => throw null;
+
+        public VisibilityClient(Uri endpoint, VisibilityClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public VisibilityClient(VisibilityClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public VisibilityClient(VisibilityClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
