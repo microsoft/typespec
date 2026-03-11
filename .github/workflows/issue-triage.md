@@ -24,6 +24,7 @@ safe-outputs:
   add-labels:
     max: 5
   add-comment:
+    footer: false
 
 tools:
   web-fetch:
