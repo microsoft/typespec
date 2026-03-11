@@ -15,14 +15,12 @@ namespace Versioning.TypeChangedFrom
     {
         protected TypeChangedFromClient() => throw null;
 
-        public TypeChangedFromClient(Uri endpoint) : this(endpoint, new TypeChangedFromClientOptions()) => throw null;
+        public TypeChangedFromClient(Uri endpoint) => throw null;
 
-        internal TypeChangedFromClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, TypeChangedFromClientOptions options) => throw null;
-
-        public TypeChangedFromClient(Uri endpoint, TypeChangedFromClientOptions options) : this(null, endpoint, options) => throw null;
+        public TypeChangedFromClient(Uri endpoint, TypeChangedFromClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public TypeChangedFromClient(TypeChangedFromClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public TypeChangedFromClient(TypeChangedFromClientSettings settings) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

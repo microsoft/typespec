@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -15,8 +14,6 @@ namespace Routes._QueryParameters
     public partial class QueryParameters
     {
         protected QueryParameters() => throw null;
-
-        internal QueryParameters(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

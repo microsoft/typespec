@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -13,8 +12,6 @@ namespace Documentation._Lists
     public partial class Lists
     {
         protected Lists() => throw null;
-
-        internal Lists(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

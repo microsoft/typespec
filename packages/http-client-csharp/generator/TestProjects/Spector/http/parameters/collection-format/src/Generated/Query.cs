@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -14,8 +13,6 @@ namespace Parameters.CollectionFormat._Query
     public partial class Query
     {
         protected Query() => throw null;
-
-        internal Query(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

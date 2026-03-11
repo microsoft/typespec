@@ -15,14 +15,12 @@ namespace Resiliency.ServiceDriven
     {
         protected ResiliencyServiceDrivenClient() => throw null;
 
-        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion) : this(endpoint, serviceDeploymentVersion, new ResiliencyServiceDrivenClientOptions()) => throw null;
+        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion) => throw null;
 
-        internal ResiliencyServiceDrivenClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) => throw null;
-
-        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) : this(null, endpoint, serviceDeploymentVersion, options) => throw null;
+        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public ResiliencyServiceDrivenClient(ResiliencyServiceDrivenClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.ServiceDeploymentVersion, settings?.Options) => throw null;
+        public ResiliencyServiceDrivenClient(ResiliencyServiceDrivenClientSettings settings) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

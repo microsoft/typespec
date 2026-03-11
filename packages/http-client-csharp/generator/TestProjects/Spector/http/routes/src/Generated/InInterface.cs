@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -13,8 +12,6 @@ namespace Routes
     public partial class InInterface
     {
         protected InInterface() => throw null;
-
-        internal InInterface(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

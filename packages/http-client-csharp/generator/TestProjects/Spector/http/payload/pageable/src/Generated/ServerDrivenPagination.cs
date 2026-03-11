@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -14,8 +13,6 @@ namespace Payload.Pageable._ServerDrivenPagination
     public partial class ServerDrivenPagination
     {
         protected ServerDrivenPagination() => throw null;
-
-        internal ServerDrivenPagination(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

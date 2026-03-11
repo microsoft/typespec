@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -13,8 +12,6 @@ namespace Versioning.Removed
     public partial class InterfaceV1
     {
         protected InterfaceV1() => throw null;
-
-        internal InterfaceV1(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

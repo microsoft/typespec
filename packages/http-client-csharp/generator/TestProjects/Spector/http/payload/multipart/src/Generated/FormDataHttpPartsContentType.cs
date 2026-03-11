@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
@@ -12,8 +11,6 @@ namespace Payload.MultiPart._FormData.HttpParts.ContentType
     public partial class FormDataHttpPartsContentType
     {
         protected FormDataHttpPartsContentType() => throw null;
-
-        internal FormDataHttpPartsContentType(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

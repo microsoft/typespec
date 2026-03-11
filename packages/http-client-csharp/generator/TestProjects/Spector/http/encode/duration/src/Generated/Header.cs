@@ -15,8 +15,6 @@ namespace Encode.Duration._Header
     {
         protected Header() => throw null;
 
-        internal Header(ClientPipeline pipeline, Uri endpoint) => throw null;
-
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Default(TimeSpan duration, RequestOptions options) => throw null;

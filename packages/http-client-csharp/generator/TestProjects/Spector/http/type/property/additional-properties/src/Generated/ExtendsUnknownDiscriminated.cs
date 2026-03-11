@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -13,8 +12,6 @@ namespace _Type.Property.AdditionalProperties
     public partial class ExtendsUnknownDiscriminated
     {
         protected ExtendsUnknownDiscriminated() => throw null;
-
-        internal ExtendsUnknownDiscriminated(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

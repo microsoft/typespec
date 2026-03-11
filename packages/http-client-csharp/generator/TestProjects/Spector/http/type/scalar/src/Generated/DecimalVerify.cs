@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -14,8 +13,6 @@ namespace _Type.Scalar
     public partial class DecimalVerify
     {
         protected DecimalVerify() => throw null;
-
-        internal DecimalVerify(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

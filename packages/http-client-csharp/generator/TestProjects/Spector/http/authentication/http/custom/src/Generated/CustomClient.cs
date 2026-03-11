@@ -13,21 +13,16 @@ namespace Authentication.Http.Custom
 {
     public partial class CustomClient
     {
-        private const string AuthorizationHeader = "Authorization";
-        private const string AuthorizationApiKeyPrefix = "SharedAccessKey";
-
         protected CustomClient() => throw null;
 
-        public CustomClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new CustomClientOptions()) => throw null;
+        public CustomClient(ApiKeyCredential credential) => throw null;
 
-        public CustomClient(ApiKeyCredential credential, CustomClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
+        public CustomClient(ApiKeyCredential credential, CustomClientOptions options) => throw null;
 
-        internal CustomClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, CustomClientOptions options) => throw null;
-
-        public CustomClient(Uri endpoint, ApiKeyCredential credential, CustomClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader, AuthorizationApiKeyPrefix), endpoint, options) => throw null;
+        public CustomClient(Uri endpoint, ApiKeyCredential credential, CustomClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public CustomClient(CustomClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public CustomClient(CustomClientSettings settings) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

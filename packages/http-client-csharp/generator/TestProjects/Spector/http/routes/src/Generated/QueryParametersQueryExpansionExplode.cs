@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -14,8 +13,6 @@ namespace Routes._QueryParameters.QueryExpansion.Explode
     public partial class QueryParametersQueryExpansionExplode
     {
         protected QueryParametersQueryExpansionExplode() => throw null;
-
-        internal QueryParametersQueryExpansionExplode(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -13,14 +13,12 @@ namespace Parameters.Path
 {
     public partial class PathClient
     {
-        public PathClient() : this(new Uri("http://localhost:3000"), new PathClientOptions()) => throw null;
+        public PathClient() => throw null;
 
-        internal PathClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, PathClientOptions options) => throw null;
-
-        public PathClient(Uri endpoint, PathClientOptions options) : this(null, endpoint, options) => throw null;
+        public PathClient(Uri endpoint, PathClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public PathClient(PathClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public PathClient(PathClientSettings settings) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -12,14 +12,12 @@ namespace Payload.ContentNegotiation
 {
     public partial class ContentNegotiationClient
     {
-        public ContentNegotiationClient() : this(new Uri("http://localhost:3000"), new ContentNegotiationClientOptions()) => throw null;
+        public ContentNegotiationClient() => throw null;
 
-        internal ContentNegotiationClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ContentNegotiationClientOptions options) => throw null;
-
-        public ContentNegotiationClient(Uri endpoint, ContentNegotiationClientOptions options) : this(null, endpoint, options) => throw null;
+        public ContentNegotiationClient(Uri endpoint, ContentNegotiationClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public ContentNegotiationClient(ContentNegotiationClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public ContentNegotiationClient(ContentNegotiationClientSettings settings) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

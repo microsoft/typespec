@@ -14,8 +14,6 @@ namespace Encode.Bytes._ResponseBody
     {
         protected ResponseBody() => throw null;
 
-        internal ResponseBody(ClientPipeline pipeline, Uri endpoint) => throw null;
-
         public ClientPipeline Pipeline => throw null;
 
         public virtual ClientResult Default(RequestOptions options) => throw null;

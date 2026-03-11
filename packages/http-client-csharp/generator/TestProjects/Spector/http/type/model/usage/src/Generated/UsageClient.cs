@@ -13,14 +13,12 @@ namespace _Type.Model.Usage
 {
     public partial class UsageClient
     {
-        public UsageClient() : this(new Uri("http://localhost:3000"), new UsageClientOptions()) => throw null;
+        public UsageClient() => throw null;
 
-        internal UsageClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, UsageClientOptions options) => throw null;
-
-        public UsageClient(Uri endpoint, UsageClientOptions options) : this(null, endpoint, options) => throw null;
+        public UsageClient(Uri endpoint, UsageClientOptions options) => throw null;
 
         [Experimental("SCME0002")]
-        public UsageClient(UsageClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
+        public UsageClient(UsageClientSettings settings) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
