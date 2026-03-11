@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -348,6 +349,53 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
                 new SimpleModel("foo", 123),
                 new[] { "red", "green", "blue" });
             var response = await new XmlClient(host, null).GetModelWithEncodedNamesValueClient()
+                .PutAsync(model);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task GetModelWithEnum() => Test(async (host) =>
+        {
+            var response = await new XmlClient(host, null).GetModelWithEnumValueClient().GetAsync();
+
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+
+            var model = response.Value;
+            Assert.NotNull(model);
+            Assert.AreEqual(Status.Success, model.Status);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithEnum() => Test(async (host) =>
+        {
+            var model = new ModelWithEnum(Status.Success);
+            var response = await new XmlClient(host, null).GetModelWithEnumValueClient()
+                .PutAsync(model);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task GetModelWithDatetime() => Test(async (host) =>
+        {
+            var response = await new XmlClient(host, null).GetModelWithDatetimeValueClient().GetAsync();
+
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+
+            var model = response.Value;
+            Assert.NotNull(model);
+            Assert.AreEqual(DateTimeOffset.Parse("2022-08-26T18:38:00Z"), model.Rfc3339);
+            Assert.AreEqual(DateTimeOffset.Parse("Fri, 26 Aug 2022 14:38:00 GMT"), model.Rfc7231);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithDatetime() => Test(async (host) =>
+        {
+            var model = new ModelWithDatetime(
+                DateTimeOffset.Parse("2022-08-26T18:38:00Z"),
+                DateTimeOffset.Parse("Fri, 26 Aug 2022 14:38:00 GMT"));
+            var response = await new XmlClient(host, null).GetModelWithDatetimeValueClient()
                 .PutAsync(model);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
