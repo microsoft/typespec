@@ -29,7 +29,7 @@
 #
 # Source: githubnext/agentics/workflows/issue-triage.md@346204513ecfa08b81566450d7d599556807389f
 #
-# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"937c3f847d9037c9be40e3851882b69b2d9d5da6af0fe8edd36a5b9923463695","compiler_version":"v0.57.2","strict":true}
+# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"e8f92fca0ba8c7c26ae4d31cb42d38344432f98c9b498307d4c1dae4c35c091b","compiler_version":"v0.57.2","strict":true}
 
 name: "Agentic Triage"
 "on":
@@ -344,7 +344,7 @@ jobs:
           mkdir -p /tmp/gh-aw/safeoutputs
           mkdir -p /tmp/gh-aw/mcp-logs/safeoutputs
           cat > /opt/gh-aw/safeoutputs/config.json << 'GH_AW_SAFE_OUTPUTS_CONFIG_EOF'
-          {"add_comment":{"max":1},"add_labels":{"max":5},"mentions":{"enabled":true},"missing_data":{},"missing_tool":{},"noop":{"max":1}}
+          {"add_comment":{"max":1},"add_labels":{"max":5},"missing_data":{},"missing_tool":{},"noop":{"max":1}}
           GH_AW_SAFE_OUTPUTS_CONFIG_EOF
           cat > /opt/gh-aw/safeoutputs/tools.json << 'GH_AW_SAFE_OUTPUTS_TOOLS_EOF'
           [
