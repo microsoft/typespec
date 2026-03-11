@@ -29,7 +29,7 @@
 #
 # Source: githubnext/agentics/workflows/issue-triage.md@346204513ecfa08b81566450d7d599556807389f
 #
-# gh-aw-metadata: {"schema_version":"v1","frontmatter_hash":"b75d431c77820732367af536321d1f67b43235012f9f4dee773da653dcab7428","compiler_version":"v0.50.1"}
+# gh-aw-metadata: {"schema_version":"v1","frontmatter_hash":"e6012f0e4160bd3a54ae620ce20c4da86beb1bdf7e33c058f276348910e5ee44","compiler_version":"v0.50.1"}
 
 name: "Agentic Triage"
 "on":
