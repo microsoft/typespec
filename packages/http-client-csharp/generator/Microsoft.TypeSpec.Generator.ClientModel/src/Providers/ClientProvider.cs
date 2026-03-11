@@ -37,6 +37,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string TokenProviderFieldName = "_tokenProvider";
         private const string TokenCredentialFieldName = "_tokenCredential";
         private const string EndpointFieldName = "_endpoint";
+        private const string CredentialParamName = "credential";
+        private const string SettingsParamName = "settings";
         private const string ClientSuffix = "Client";
         private readonly FormattableString _publicCtorDescription;
         private readonly InputClient _inputClient;
@@ -620,7 +622,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Add non-auth required parameters from the SAME parameter list (requiredParameters)
                 // to ensure the initializer references the same objects as the constructor signature.
                 string? authParamName = authFields != null
-                    ? (authFields.AuthField.Name != TokenProviderFieldName ? "credential" : authFields.AuthField.AsParameter.Name)
+                    ? (authFields.AuthField.Name != TokenProviderFieldName ? CredentialParamName : authFields.AuthField.AsParameter.Name)
                     : null;
                 foreach (var p in requiredParameters)
                 {
@@ -664,7 +666,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 yield break;
             }
 
-            var settingsParam = new ParameterProvider("settings", $"The settings for {Name}.", ClientSettings.Type);
+            var settingsParam = new ParameterProvider(SettingsParamName, $"The settings for {Name}.", ClientSettings.Type);
             var experimentalAttr = new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ClientSettingsProvider.ClientSettingsDiagnosticId)]);
 
             // Build the arguments for the this(...) internal constructor initializer:
@@ -811,7 +813,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var authParameter = authField.AsParameter;
                 if (authField.Name != TokenProviderFieldName)
                 {
-                    authParameter.Update(name: "credential");
+                    authParameter.Update(name: CredentialParamName);
                 }
                 requiredParameters.Add(authParameter);
             }
@@ -940,7 +942,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (authFields is ApiKeyFields keyFields)
             {
                 // ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader, prefix?)
-                var credParam = requiredParameters.FirstOrDefault(p => p.Name == "credential");
+                var credParam = requiredParameters.FirstOrDefault(p => p.Name == CredentialParamName);
                 if (credParam != null)
                 {
                     ValueExpression? keyPrefixExpression = keyFields.AuthorizationApiKeyPrefixField != null ? (ValueExpression)keyFields.AuthorizationApiKeyPrefixField : null;
@@ -953,7 +955,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // The param name is derived from the field name: _tokenProvider → tokenProvider, _tokenCredential → credential
                 var credParam = requiredParameters.FirstOrDefault(p =>
                     p.Name == TokenProviderFieldName.ToVariableName() ||
-                    p.Name == "credential");
+                    p.Name == CredentialParamName);
                 if (credParam != null)
                 {
                     return This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(credParam, oauth2Fields.AuthorizationScopesField);
