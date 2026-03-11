@@ -15,12 +15,14 @@ namespace Versioning.ReturnTypeChangedFrom
     {
         protected ReturnTypeChangedFromClient() => throw null;
 
-        public ReturnTypeChangedFromClient(Uri endpoint) => throw null;
+        public ReturnTypeChangedFromClient(Uri endpoint) : this(endpoint, new ReturnTypeChangedFromClientOptions()) => throw null;
 
-        public ReturnTypeChangedFromClient(Uri endpoint, ReturnTypeChangedFromClientOptions options) => throw null;
+        internal ReturnTypeChangedFromClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ReturnTypeChangedFromClientOptions options) => throw null;
+
+        public ReturnTypeChangedFromClient(Uri endpoint, ReturnTypeChangedFromClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public ReturnTypeChangedFromClient(ReturnTypeChangedFromClientSettings settings) => throw null;
+        public ReturnTypeChangedFromClient(ReturnTypeChangedFromClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

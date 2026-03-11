@@ -9,21 +9,29 @@ using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Usage
 {
+    /// <summary></summary>
     [Experimental("SCME0002")]
     public partial class UsageClientSettings : ClientSettings
     {
-        public Uri Endpoint
-        {
-            get => throw null;
-            set => throw null;
-        }
+        /// <summary> Gets or sets the Endpoint. </summary>
+        public Uri Endpoint { get; set; }
 
-        public UsageClientOptions Options
-        {
-            get => throw null;
-            set => throw null;
-        }
+        /// <summary> Gets or sets the Options. </summary>
+        public UsageClientOptions Options { get; set; }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        /// <summary> Binds configuration values from the given section. </summary>
+        /// <param name="section"> The configuration section. </param>
+        protected override void BindCore(IConfigurationSection section)
+        {
+            if (Uri.TryCreate(section["Endpoint"], UriKind.Absolute, out Uri endpoint))
+            {
+                Endpoint = endpoint;
+            }
+            IConfigurationSection optionsSection = section.GetSection("Options");
+            if (optionsSection.Exists())
+            {
+                Options = new UsageClientOptions(optionsSection);
+            }
+        }
     }
 }

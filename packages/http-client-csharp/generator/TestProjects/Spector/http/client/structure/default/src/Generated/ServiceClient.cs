@@ -17,12 +17,14 @@ namespace Client.Structure.Service
     {
         protected ServiceClient() => throw null;
 
-        public ServiceClient(Uri endpoint, ClientType client) => throw null;
+        public ServiceClient(Uri endpoint, ClientType client) : this(endpoint, client, new ServiceClientOptions()) => throw null;
 
-        public ServiceClient(Uri endpoint, ClientType client, ServiceClientOptions options) => throw null;
+        internal ServiceClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ClientType client, ServiceClientOptions options) => throw null;
+
+        public ServiceClient(Uri endpoint, ClientType client, ServiceClientOptions options) : this(null, endpoint, client, options) => throw null;
 
         [Experimental("SCME0002")]
-        public ServiceClient(ServiceClientSettings settings) => throw null;
+        public ServiceClient(ServiceClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

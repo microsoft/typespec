@@ -15,12 +15,14 @@ namespace Server.Versions.Versioned
     {
         protected VersionedClient() => throw null;
 
-        public VersionedClient(Uri endpoint) => throw null;
+        public VersionedClient(Uri endpoint) : this(endpoint, new VersionedClientOptions()) => throw null;
 
-        public VersionedClient(Uri endpoint, VersionedClientOptions options) => throw null;
+        internal VersionedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, VersionedClientOptions options) => throw null;
+
+        public VersionedClient(Uri endpoint, VersionedClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public VersionedClient(VersionedClientSettings settings) => throw null;
+        public VersionedClient(VersionedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

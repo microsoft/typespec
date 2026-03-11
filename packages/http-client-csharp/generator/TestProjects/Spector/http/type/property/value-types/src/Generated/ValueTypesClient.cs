@@ -10,12 +10,14 @@ namespace _Type.Property.ValueTypes
 {
     public partial class ValueTypesClient
     {
-        public ValueTypesClient() => throw null;
+        public ValueTypesClient() : this(new Uri("http://localhost:3000"), new ValueTypesClientOptions()) => throw null;
 
-        public ValueTypesClient(Uri endpoint, ValueTypesClientOptions options) => throw null;
+        internal ValueTypesClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ValueTypesClientOptions options) => throw null;
+
+        public ValueTypesClient(Uri endpoint, ValueTypesClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public ValueTypesClient(ValueTypesClientSettings settings) => throw null;
+        public ValueTypesClient(ValueTypesClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

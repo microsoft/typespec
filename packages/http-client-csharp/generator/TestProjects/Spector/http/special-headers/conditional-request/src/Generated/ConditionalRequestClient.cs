@@ -13,12 +13,14 @@ namespace SpecialHeaders.ConditionalRequest
 {
     public partial class ConditionalRequestClient
     {
-        public ConditionalRequestClient() => throw null;
+        public ConditionalRequestClient() : this(new Uri("http://localhost:3000"), new ConditionalRequestClientOptions()) => throw null;
 
-        public ConditionalRequestClient(Uri endpoint, ConditionalRequestClientOptions options) => throw null;
+        internal ConditionalRequestClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ConditionalRequestClientOptions options) => throw null;
+
+        public ConditionalRequestClient(Uri endpoint, ConditionalRequestClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public ConditionalRequestClient(ConditionalRequestClientSettings settings) => throw null;
+        public ConditionalRequestClient(ConditionalRequestClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

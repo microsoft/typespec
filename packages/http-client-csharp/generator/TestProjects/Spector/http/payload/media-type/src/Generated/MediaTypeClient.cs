@@ -11,12 +11,14 @@ namespace Payload.MediaType
 {
     public partial class MediaTypeClient
     {
-        public MediaTypeClient() => throw null;
+        public MediaTypeClient() : this(new Uri("http://localhost:3000"), new MediaTypeClientOptions()) => throw null;
 
-        public MediaTypeClient(Uri endpoint, MediaTypeClientOptions options) => throw null;
+        internal MediaTypeClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MediaTypeClientOptions options) => throw null;
+
+        public MediaTypeClient(Uri endpoint, MediaTypeClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public MediaTypeClient(MediaTypeClientSettings settings) => throw null;
+        public MediaTypeClient(MediaTypeClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

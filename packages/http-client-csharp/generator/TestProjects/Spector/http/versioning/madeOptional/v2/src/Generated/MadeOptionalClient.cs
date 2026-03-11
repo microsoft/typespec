@@ -15,12 +15,14 @@ namespace Versioning.MadeOptional
     {
         protected MadeOptionalClient() => throw null;
 
-        public MadeOptionalClient(Uri endpoint) => throw null;
+        public MadeOptionalClient(Uri endpoint) : this(endpoint, new MadeOptionalClientOptions()) => throw null;
 
-        public MadeOptionalClient(Uri endpoint, MadeOptionalClientOptions options) => throw null;
+        internal MadeOptionalClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MadeOptionalClientOptions options) => throw null;
+
+        public MadeOptionalClient(Uri endpoint, MadeOptionalClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public MadeOptionalClient(MadeOptionalClientSettings settings) => throw null;
+        public MadeOptionalClient(MadeOptionalClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -12,12 +12,14 @@ namespace SpecialWords
 {
     public partial class SpecialWordsClient
     {
-        public SpecialWordsClient() => throw null;
+        public SpecialWordsClient() : this(new Uri("http://localhost:3000"), new SpecialWordsClientOptions()) => throw null;
 
-        public SpecialWordsClient(Uri endpoint, SpecialWordsClientOptions options) => throw null;
+        internal SpecialWordsClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SpecialWordsClientOptions options) => throw null;
+
+        public SpecialWordsClient(Uri endpoint, SpecialWordsClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public SpecialWordsClient(SpecialWordsClientSettings settings) => throw null;
+        public SpecialWordsClient(SpecialWordsClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -10,12 +10,14 @@ namespace _Type._Array
 {
     public partial class ArrayClient
     {
-        public ArrayClient() => throw null;
+        public ArrayClient() : this(new Uri("http://localhost:3000"), new ArrayClientOptions()) => throw null;
 
-        public ArrayClient(Uri endpoint, ArrayClientOptions options) => throw null;
+        internal ArrayClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ArrayClientOptions options) => throw null;
+
+        public ArrayClient(Uri endpoint, ArrayClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public ArrayClient(ArrayClientSettings settings) => throw null;
+        public ArrayClient(ArrayClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

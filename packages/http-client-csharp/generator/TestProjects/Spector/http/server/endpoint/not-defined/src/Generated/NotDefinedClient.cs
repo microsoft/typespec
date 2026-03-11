@@ -15,12 +15,14 @@ namespace Server.Endpoint.NotDefined
     {
         protected NotDefinedClient() => throw null;
 
-        public NotDefinedClient(Uri endpoint) => throw null;
+        public NotDefinedClient(Uri endpoint) : this(endpoint, new NotDefinedClientOptions()) => throw null;
 
-        public NotDefinedClient(Uri endpoint, NotDefinedClientOptions options) => throw null;
+        internal NotDefinedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NotDefinedClientOptions options) => throw null;
+
+        public NotDefinedClient(Uri endpoint, NotDefinedClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public NotDefinedClient(NotDefinedClientSettings settings) => throw null;
+        public NotDefinedClient(NotDefinedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

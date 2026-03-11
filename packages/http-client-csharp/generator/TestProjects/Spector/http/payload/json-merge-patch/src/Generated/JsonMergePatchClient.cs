@@ -13,12 +13,14 @@ namespace Payload.JsonMergePatch
 {
     public partial class JsonMergePatchClient
     {
-        public JsonMergePatchClient() => throw null;
+        public JsonMergePatchClient() : this(new Uri("http://localhost:3000"), new JsonMergePatchClientOptions()) => throw null;
 
-        public JsonMergePatchClient(Uri endpoint, JsonMergePatchClientOptions options) => throw null;
+        internal JsonMergePatchClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, JsonMergePatchClientOptions options) => throw null;
+
+        public JsonMergePatchClient(Uri endpoint, JsonMergePatchClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public JsonMergePatchClient(JsonMergePatchClientSettings settings) => throw null;
+        public JsonMergePatchClient(JsonMergePatchClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

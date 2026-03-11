@@ -14,12 +14,14 @@ namespace Parameters.BodyOptionality
 {
     public partial class BodyOptionalityClient
     {
-        public BodyOptionalityClient() => throw null;
+        public BodyOptionalityClient() : this(new Uri("http://localhost:3000"), new BodyOptionalityClientOptions()) => throw null;
 
-        public BodyOptionalityClient(Uri endpoint, BodyOptionalityClientOptions options) => throw null;
+        internal BodyOptionalityClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, BodyOptionalityClientOptions options) => throw null;
+
+        public BodyOptionalityClient(Uri endpoint, BodyOptionalityClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public BodyOptionalityClient(BodyOptionalityClientSettings settings) => throw null;
+        public BodyOptionalityClient(BodyOptionalityClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -15,12 +15,14 @@ namespace Versioning.RenamedFrom
     {
         protected RenamedFromClient() => throw null;
 
-        public RenamedFromClient(Uri endpoint) => throw null;
+        public RenamedFromClient(Uri endpoint) : this(endpoint, new RenamedFromClientOptions()) => throw null;
 
-        public RenamedFromClient(Uri endpoint, RenamedFromClientOptions options) => throw null;
+        internal RenamedFromClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, RenamedFromClientOptions options) => throw null;
+
+        public RenamedFromClient(Uri endpoint, RenamedFromClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public RenamedFromClient(RenamedFromClientSettings settings) => throw null;
+        public RenamedFromClient(RenamedFromClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

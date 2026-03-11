@@ -11,12 +11,14 @@ namespace Payload.MultiPart
 {
     public partial class MultiPartClient
     {
-        public MultiPartClient() => throw null;
+        public MultiPartClient() : this(new Uri("http://localhost:3000"), new MultiPartClientOptions()) => throw null;
 
-        public MultiPartClient(Uri endpoint, MultiPartClientOptions options) => throw null;
+        internal MultiPartClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MultiPartClientOptions options) => throw null;
+
+        public MultiPartClient(Uri endpoint, MultiPartClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public MultiPartClient(MultiPartClientSettings settings) => throw null;
+        public MultiPartClient(MultiPartClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

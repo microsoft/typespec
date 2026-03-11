@@ -5,24 +5,64 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using Parameters.CollectionFormat._Header;
 using Parameters.CollectionFormat._Query;
 
 namespace Parameters.CollectionFormat
 {
+    /// <summary> Test for collectionFormat. </summary>
     public partial class CollectionFormatClient
     {
-        public CollectionFormatClient() => throw null;
+        private readonly Uri _endpoint;
+        private Query _cachedQuery;
+        private Header _cachedHeader;
 
-        public CollectionFormatClient(Uri endpoint, CollectionFormatClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of CollectionFormatClient. </summary>
+        public CollectionFormatClient() : this(new Uri("http://localhost:3000"), new CollectionFormatClientOptions())
+        {
+        }
 
+        /// <summary> Initializes a new instance of CollectionFormatClient. </summary>
+        /// <param name="authenticationPolicy"> The authentication policy to use for pipeline creation. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        internal CollectionFormatClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, CollectionFormatClientOptions options)
+        {
+            options ??= new CollectionFormatClientOptions();
+
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(CollectionFormatClient).Assembly) }, Array.Empty<PipelinePolicy>());
+        }
+
+        /// <summary> Initializes a new instance of CollectionFormatClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public CollectionFormatClient(Uri endpoint, CollectionFormatClientOptions options) : this(null, endpoint, options)
+        {
+        }
+
+        /// <summary> Initializes a new instance of CollectionFormatClient from settings. </summary>
+        /// <param name="settings"> The settings for CollectionFormatClient. </param>
         [Experimental("SCME0002")]
-        public CollectionFormatClient(CollectionFormatClientSettings settings) => throw null;
+        public CollectionFormatClient(CollectionFormatClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options)
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual Query GetQueryClient() => throw null;
+        /// <summary> Initializes a new instance of Query. </summary>
+        public virtual Query GetQueryClient()
+        {
+            return Volatile.Read(ref _cachedQuery) ?? Interlocked.CompareExchange(ref _cachedQuery, new Query(Pipeline, _endpoint), null) ?? _cachedQuery;
+        }
 
-        public virtual Header GetHeaderClient() => throw null;
+        /// <summary> Initializes a new instance of Header. </summary>
+        public virtual Header GetHeaderClient()
+        {
+            return Volatile.Read(ref _cachedHeader) ?? Interlocked.CompareExchange(ref _cachedHeader, new Header(Pipeline, _endpoint), null) ?? _cachedHeader;
+        }
     }
 }

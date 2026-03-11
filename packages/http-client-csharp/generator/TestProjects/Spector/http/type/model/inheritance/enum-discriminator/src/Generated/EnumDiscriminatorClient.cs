@@ -13,12 +13,14 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     public partial class EnumDiscriminatorClient
     {
-        public EnumDiscriminatorClient() => throw null;
+        public EnumDiscriminatorClient() : this(new Uri("http://localhost:3000"), new EnumDiscriminatorClientOptions()) => throw null;
 
-        public EnumDiscriminatorClient(Uri endpoint, EnumDiscriminatorClientOptions options) => throw null;
+        internal EnumDiscriminatorClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, EnumDiscriminatorClientOptions options) => throw null;
+
+        public EnumDiscriminatorClient(Uri endpoint, EnumDiscriminatorClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public EnumDiscriminatorClient(EnumDiscriminatorClientSettings settings) => throw null;
+        public EnumDiscriminatorClient(EnumDiscriminatorClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

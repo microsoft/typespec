@@ -10,12 +10,14 @@ namespace _Type.Property.Optional
 {
     public partial class OptionalClient
     {
-        public OptionalClient() => throw null;
+        public OptionalClient() : this(new Uri("http://localhost:3000"), new OptionalClientOptions()) => throw null;
 
-        public OptionalClient(Uri endpoint, OptionalClientOptions options) => throw null;
+        internal OptionalClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, OptionalClientOptions options) => throw null;
+
+        public OptionalClient(Uri endpoint, OptionalClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public OptionalClient(OptionalClientSettings settings) => throw null;
+        public OptionalClient(OptionalClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

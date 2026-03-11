@@ -10,12 +10,14 @@ namespace _Type.Union
 {
     public partial class UnionClient
     {
-        public UnionClient() => throw null;
+        public UnionClient() : this(new Uri("http://localhost:3000"), new UnionClientOptions()) => throw null;
 
-        public UnionClient(Uri endpoint, UnionClientOptions options) => throw null;
+        internal UnionClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, UnionClientOptions options) => throw null;
+
+        public UnionClient(Uri endpoint, UnionClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public UnionClient(UnionClientSettings settings) => throw null;
+        public UnionClient(UnionClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

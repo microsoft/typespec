@@ -2,50 +2,300 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Parameters.CollectionFormat;
 
 namespace Parameters.CollectionFormat._Query
 {
+    /// <summary> The Query sub-client. </summary>
     public partial class Query
     {
-        protected Query() => throw null;
+        private readonly Uri _endpoint;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of Query for mocking. </summary>
+        protected Query()
+        {
+        }
 
-        public virtual ClientResult Multi(IEnumerable<string> colors, RequestOptions options) => throw null;
+        /// <summary> Initializes a new instance of Query. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal Query(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual Task<ClientResult> MultiAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult Multi(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Multi
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Multi(IEnumerable<string> colors, RequestOptions options)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
 
-        public virtual Task<ClientResult> MultiAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateMultiRequest(colors, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult Ssv(IEnumerable<string> colors, RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Multi
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> MultiAsync(IEnumerable<string> colors, RequestOptions options)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
 
-        public virtual Task<ClientResult> SsvAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
+            using PipelineMessage message = CreateMultiRequest(colors, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult Ssv(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Multi. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Multi(IEnumerable<string> colors, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
 
-        public virtual Task<ClientResult> SsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+            return Multi(colors, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual ClientResult Pipes(IEnumerable<string> colors, RequestOptions options) => throw null;
+        /// <summary> Multi. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> MultiAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
 
-        public virtual Task<ClientResult> PipesAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
+            return await MultiAsync(colors, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
 
-        public virtual ClientResult Pipes(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Ssv
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Ssv(IEnumerable<string> colors, RequestOptions options)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
 
-        public virtual Task<ClientResult> PipesAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateSsvRequest(colors, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult Csv(IEnumerable<string> colors, RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Ssv
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SsvAsync(IEnumerable<string> colors, RequestOptions options)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
 
-        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
+            using PipelineMessage message = CreateSsvRequest(colors, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult Csv(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Ssv. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Ssv(IEnumerable<string> colors, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
 
-        public virtual Task<ClientResult> CsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
+            return Ssv(colors, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Ssv. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
+
+            return await SsvAsync(colors, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Pipes
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Pipes(IEnumerable<string> colors, RequestOptions options)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
+
+            using PipelineMessage message = CreatePipesRequest(colors, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Pipes
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> PipesAsync(IEnumerable<string> colors, RequestOptions options)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
+
+            using PipelineMessage message = CreatePipesRequest(colors, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Pipes. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Pipes(IEnumerable<string> colors, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
+
+            return Pipes(colors, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Pipes. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> PipesAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
+
+            return await PipesAsync(colors, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Csv
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Csv(IEnumerable<string> colors, RequestOptions options)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
+
+            using PipelineMessage message = CreateCsvRequest(colors, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Csv
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> CsvAsync(IEnumerable<string> colors, RequestOptions options)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
+
+            using PipelineMessage message = CreateCsvRequest(colors, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Csv. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Csv(IEnumerable<string> colors, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
+
+            return Csv(colors, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Csv. </summary>
+        /// <param name="colors"> Possible values for colors are [blue,red,green]. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="colors"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> CsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(colors, nameof(colors));
+
+            return await CsvAsync(colors, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
     }
 }

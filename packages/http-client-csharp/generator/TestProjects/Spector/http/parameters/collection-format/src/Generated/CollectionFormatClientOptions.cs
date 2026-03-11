@@ -8,11 +8,23 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.CollectionFormat
 {
+    /// <summary> Client options for <see cref="CollectionFormatClient"/>. </summary>
     public partial class CollectionFormatClientOptions : ClientPipelineOptions
     {
-        public CollectionFormatClientOptions() => throw null;
+        /// <summary> Initializes a new instance of CollectionFormatClientOptions. </summary>
+        public CollectionFormatClientOptions()
+        {
+        }
 
+        /// <summary> Initializes a new instance of CollectionFormatClientOptions from configuration. </summary>
+        /// <param name="section"> The configuration section. </param>
         [Experimental("SCME0002")]
-        internal CollectionFormatClientOptions(IConfigurationSection section) : base(section) => throw null;
+        internal CollectionFormatClientOptions(IConfigurationSection section) : base(section)
+        {
+            if (section is null || !section.Exists())
+            {
+                return;
+            }
+        }
     }
 }
