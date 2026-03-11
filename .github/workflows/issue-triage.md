@@ -9,6 +9,11 @@ description: |
 on:
   issues:
     types: [opened, reopened]
+  workflow_dispatch:
+    inputs:
+      issue-number:
+        description: "Issue number to triage"
+        required: true
   reaction: eyes
 
 permissions: read-all
@@ -36,7 +41,7 @@ engine: copilot
 
 # Agentic Triage
 
-You're a triage assistant for the TypeSpec GitHub repository. Your task is to analyze issue #${{ github.event.issue.number }} and perform initial triage.
+You're a triage assistant for the TypeSpec GitHub repository. Your task is to analyze issue #${{ github.event.issue.number || inputs.issue-number }} and perform initial triage.
 
 ## Available Labels
 
