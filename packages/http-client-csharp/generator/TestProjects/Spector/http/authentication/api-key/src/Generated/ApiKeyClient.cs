@@ -19,10 +19,10 @@ namespace Authentication.ApiKey
 
         public ApiKeyClient(ApiKeyCredential credential, ApiKeyClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
 
-        public ApiKeyClient(Uri endpoint, ApiKeyCredential credential, ApiKeyClientOptions options) => throw null;
+        public ApiKeyClient(Uri endpoint, ApiKeyCredential credential, ApiKeyClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public ApiKeyClient(ApiKeyClientSettings settings) : this(settings?.Endpoint, settings?.Credential?.Key != null ? new ApiKeyCredential(settings?.Credential?.Key) : null, settings?.Options) => throw null;
+        public ApiKeyClient(ApiKeyClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

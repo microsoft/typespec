@@ -553,22 +553,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var primaryConstructors = new List<ConstructorProvider>();
             var secondaryConstructors = new List<ConstructorProvider>();
 
+            bool hasAnyAuth = _apiKeyAuthFields != null || _oauth2Fields != null;
+
+            // The internal implementation constructor takes AuthenticationPolicy? as first parameter.
+            // It is shared across all auth types - add it once.
+            if (hasAnyAuth || _apiKeyAuthFields == null && _oauth2Fields == null)
+            {
+                // Always add the single internal implementation constructor
+                var authPolicyParam = new ParameterProvider(
+                    "authenticationPolicy",
+                    $"The authentication policy to use for pipeline creation.",
+                    new CSharpType(typeof(AuthenticationPolicy), isNullable: true));
+
+                var requiredNonAuthParams = GetRequiredParameters(null);
+                ParameterProvider[] internalConstructorParameters = [authPolicyParam, _endpointParameter, .. requiredNonAuthParams, ClientOptionsParameter];
+
+                // Use the first available auth fields to determine pipeline auth type
+                AuthFields? firstAuthFields = _apiKeyAuthFields as AuthFields ?? _oauth2Fields;
+                var internalConstructor = new ConstructorProvider(
+                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
+                    BuildPrimaryConstructorBody(internalConstructorParameters, firstAuthFields, authPolicyParam, ClientOptions, ClientOptionsParameter),
+                    this);
+                primaryConstructors.Add(internalConstructor);
+            }
+
             // if there is key auth
             if (_apiKeyAuthFields != null)
             {
-                AppendConstructors(_apiKeyAuthFields, primaryConstructors, secondaryConstructors);
+                AppendPublicConstructors(_apiKeyAuthFields, primaryConstructors, secondaryConstructors);
             }
             // if there is oauth2 auth
             if (_oauth2Fields != null)
             {
-                AppendConstructors(_oauth2Fields, primaryConstructors, secondaryConstructors);
+                AppendPublicConstructors(_oauth2Fields, primaryConstructors, secondaryConstructors);
             }
 
             bool onlyContainsUnsupportedAuth = _inputAuth != null && _apiKeyAuthFields == null && _oauth2Fields == null;
             // if there is no auth
             if (_apiKeyAuthFields == null && _oauth2Fields == null)
             {
-                AppendConstructors(null, primaryConstructors, secondaryConstructors, onlyContainsUnsupportedAuth);
+                AppendPublicConstructors(null, primaryConstructors, secondaryConstructors, onlyContainsUnsupportedAuth);
             }
 
             var shouldIncludeMockingConstructor = !onlyContainsUnsupportedAuth && secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
@@ -579,28 +603,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? [ConstructorProviderHelper.BuildMockingConstructor(this), .. secondaryConstructors, .. primaryConstructors, .. settingsConstructors]
                 : [.. secondaryConstructors, .. primaryConstructors, .. settingsConstructors];
 
-            void AppendConstructors(
+            void AppendPublicConstructors(
                 AuthFields? authFields,
                 List<ConstructorProvider> primaryConstructors,
                 List<ConstructorProvider> secondaryConstructors,
                 bool onlyContainsUnsupportedAuth = false)
             {
-                // The internal implementation constructor takes AuthenticationPolicy? as first parameter.
-                var authPolicyParam = new ParameterProvider(
-                    "authenticationPolicy",
-                    $"The authentication policy to use for pipeline creation.",
-                    new CSharpType(typeof(AuthenticationPolicy), isNullable: true));
-
                 // Non-auth required parameters (all required non-endpoint params except auth credential)
                 var requiredNonAuthParams = GetRequiredParameters(null);
-                ParameterProvider[] internalConstructorParameters = [authPolicyParam, _endpointParameter, .. requiredNonAuthParams, ClientOptionsParameter];
-
-                // Internal constructor is the sole implementation constructor
-                var internalConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
-                    BuildPrimaryConstructorBody(internalConstructorParameters, authFields, authPolicyParam, ClientOptions, ClientOptionsParameter),
-                    this);
-                primaryConstructors.Add(internalConstructor);
 
                 // Public constructor with credential parameter — delegates to the internal constructor.
                 var requiredParameters = GetRequiredParameters(authFields?.AuthField);

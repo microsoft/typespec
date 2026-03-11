@@ -373,10 +373,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var implementationConstructors = constructors.Where(
                 c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal).ToArray();
 
-            // for no auth or one auth case, this should be 1
-            // for both auth case, this should be 2
-            // for only unsupported auth case, this should be 1 (still has internal implementation ctor)
-            int expectedImplCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+            // There is always exactly 1 internal implementation constructor, regardless of auth type count.
+            // All public credential constructors are pass-throughs to this single implementation constructor.
+            int expectedImplCtorCount = 1;
             Assert.AreEqual(expectedImplCtorCount, implementationConstructors.Length);
 
             for (int i = 0; i < implementationConstructors.Length; i++)

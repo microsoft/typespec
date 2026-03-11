@@ -23,12 +23,12 @@ namespace Authentication.Union
 
         public UnionClient(AuthenticationTokenProvider tokenProvider, UnionClientOptions options) : this(new Uri("http://localhost:3000"), tokenProvider, options) => throw null;
 
-        public UnionClient(Uri endpoint, ApiKeyCredential credential, UnionClientOptions options) => throw null;
+        public UnionClient(Uri endpoint, ApiKeyCredential credential, UnionClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options) => throw null;
 
-        public UnionClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, UnionClientOptions options) => throw null;
+        public UnionClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, UnionClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public UnionClient(UnionClientSettings settings) : this(settings?.Endpoint, settings?.CredentialProvider as AuthenticationTokenProvider, settings?.Options) => throw null;
+        public UnionClient(UnionClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
