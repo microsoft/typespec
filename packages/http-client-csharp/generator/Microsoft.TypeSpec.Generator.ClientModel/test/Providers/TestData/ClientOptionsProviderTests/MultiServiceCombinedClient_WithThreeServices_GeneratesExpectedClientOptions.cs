@@ -41,12 +41,16 @@ namespace Sample
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
         internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
+            ServiceComputeApiVersion = "2024-07-01";
             ServiceKeyVaultApiVersion = "7.5";
             ServiceStorageApiVersion = "2024-01-01";
-            ServiceComputeApiVersion = "2024-07-01";
             if (((section is null) || !section.Exists()))
             {
                 return;
+            }
+            if ((section["ServiceComputeApiVersion"] is string serviceComputeApiVersion))
+            {
+                this.ServiceComputeApiVersion = serviceComputeApiVersion;
             }
             if ((section["ServiceKeyVaultApiVersion"] is string serviceKeyVaultApiVersion))
             {
@@ -55,10 +59,6 @@ namespace Sample
             if ((section["ServiceStorageApiVersion"] is string serviceStorageApiVersion))
             {
                 this.ServiceStorageApiVersion = serviceStorageApiVersion;
-            }
-            if ((section["ServiceComputeApiVersion"] is string serviceComputeApiVersion))
-            {
-                this.ServiceComputeApiVersion = serviceComputeApiVersion;
             }
         }
 

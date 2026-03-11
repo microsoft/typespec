@@ -54,6 +54,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>Gets non-endpoint, non-auth required parameters that have settings properties.</summary>
         internal IReadOnlyList<ParameterProvider> OtherRequiredParams { get; }
 
+        protected override FormattableString BuildDescription()
+            => $"Settings for the {_clientProvider.Name} client, extending <see cref=\"ClientSettings\"/>.";
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override string BuildName() => $"{_clientProvider.Name}Settings";

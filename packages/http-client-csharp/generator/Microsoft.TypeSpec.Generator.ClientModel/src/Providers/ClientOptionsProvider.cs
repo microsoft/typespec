@@ -306,7 +306,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var body = new List<MethodBodyStatement>();
             if (LatestVersionsFields != null && VersionProperties != null)
             {
-                foreach (var (_, serviceVersionEnum) in LatestVersionsFields)
+                foreach (var (_, serviceVersionEnum) in LatestVersionsFields.OrderBy(kvp => kvp.Key.Name))
                 {
                     if (VersionProperties.TryGetValue(serviceVersionEnum, out var versionProperty))
                     {
@@ -325,7 +325,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Bind version properties from configuration (after guard, default already set before guard)
             if (LatestVersionsFields != null && VersionProperties != null)
             {
-                foreach (var (_, serviceVersionEnum) in LatestVersionsFields)
+                foreach (var (_, serviceVersionEnum) in LatestVersionsFields.OrderBy(kvp => kvp.Key.Name))
                 {
                     if (VersionProperties.TryGetValue(serviceVersionEnum, out var versionProperty))
                     {
