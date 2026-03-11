@@ -94,15 +94,48 @@ Only use labels defined in that file.
 
    Skip this step entirely for feature requests and documentation issues.
 
-7. Add an issue comment with your analysis:
-   - Start with "🎯 Issue Triage"
-   - Provide a brief summary of the issue
-   - For bug reports, include a **Reproduction** section:
-     - If a playground link was found, include it as a clickable link: `[Playground Link](url)`
-     - If TypeSpec code blocks were found, note that reproduction code is present in the issue
-     - If neither was found, flag it: "⚠️ No reproduction provided — a minimal repro would help diagnose this issue"
-   - Mention any relevant details that might help the team understand the issue better
-   - Include any debugging strategies if applicable
-   - If appropriate, break the issue down into sub-tasks and write a checklist
-   - Use collapsed-by-default sections in the GitHub markdown to keep the comment tidy. Collapse all sections except the short main summary at the top.
-   - Do NOT include any text about agentic workflows, how to install them, or any self-promotional content about the tooling used to generate this comment. Do NOT mention that this triage was performed by an AI, bot, or agent.
+7. Add an issue comment with your analysis using this structure:
+
+   ```
+   🎯 **Issue Triage**
+
+   <one or two sentence summary of the issue>
+
+   **Category**: Bug / Feature Request / Docs / Question
+   **Area**: `<area-label>` (or "Unable to determine")
+
+   <!-- For bugs only. Show reproduction status at top level: -->
+   <!-- If playground link found: -->
+   🔗 [Playground Reproduction](url)
+   <!-- If code block found but no playground link: -->
+   ✅ Reproduction code provided in the issue.
+   <!-- If no repro at all: -->
+   ⚠️ No reproduction provided. A minimal repro would help diagnose this issue.
+
+   <details>
+   <summary>🔍 Analysis</summary>
+
+   - relevant technical details
+   - affected components
+   - potential root cause if apparent
+   - related issues if found (link to them)
+
+   </details>
+
+   <!-- Only if there are actionable next steps -->
+   <details>
+   <summary>📝 Suggested next steps</summary>
+
+   - [ ] step 1
+   - [ ] step 2
+
+   </details>
+   ```
+
+   Rules for the comment:
+   - Keep the top-level summary OUTSIDE any collapsed section so it's always visible
+   - Collapse everything else inside `<details>` sections
+   - Be concise — avoid filler phrases and unnecessary verbosity
+   - Skip the "Reproduction" section entirely for feature requests and docs issues
+   - Skip "Suggested next steps" if there's nothing actionable to suggest
+   - Do NOT include any text about agentic workflows, how to install them, or any self-promotional content. Do NOT mention AI, bots, or agents.
