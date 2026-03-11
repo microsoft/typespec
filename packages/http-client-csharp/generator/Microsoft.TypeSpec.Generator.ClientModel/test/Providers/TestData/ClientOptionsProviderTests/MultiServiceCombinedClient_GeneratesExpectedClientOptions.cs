@@ -39,6 +39,14 @@ namespace Sample
             {
                 return;
             }
+            if ((section["ServiceAApiVersion"] is string serviceAApiVersion))
+            {
+                this.ServiceAApiVersion = serviceAApiVersion;
+            }
+            if ((section["ServiceBApiVersion"] is string serviceBApiVersion))
+            {
+                this.ServiceBApiVersion = serviceBApiVersion;
+            }
         }
 
         internal string ServiceAApiVersion { get; }

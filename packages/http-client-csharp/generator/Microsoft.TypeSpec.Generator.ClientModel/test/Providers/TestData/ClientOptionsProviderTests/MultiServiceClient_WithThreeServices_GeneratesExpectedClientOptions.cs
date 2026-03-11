@@ -48,6 +48,18 @@ namespace Sample
             {
                 return;
             }
+            if ((section["ServiceKeyVaultApiVersion"] is string serviceKeyVaultApiVersion))
+            {
+                this.ServiceKeyVaultApiVersion = serviceKeyVaultApiVersion;
+            }
+            if ((section["ServiceStorageApiVersion"] is string serviceStorageApiVersion))
+            {
+                this.ServiceStorageApiVersion = serviceStorageApiVersion;
+            }
+            if ((section["ServiceComputeApiVersion"] is string serviceComputeApiVersion))
+            {
+                this.ServiceComputeApiVersion = serviceComputeApiVersion;
+            }
         }
 
         internal string ServiceComputeApiVersion { get; }

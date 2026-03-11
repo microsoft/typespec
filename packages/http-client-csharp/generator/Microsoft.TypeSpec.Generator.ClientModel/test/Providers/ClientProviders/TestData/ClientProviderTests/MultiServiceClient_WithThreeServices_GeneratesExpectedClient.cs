@@ -30,11 +30,8 @@ namespace Sample
         {
         }
 
-        public TestClient(global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options)
+        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options)
         {
-            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
-            global::Sample.Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
-
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
@@ -43,6 +40,10 @@ namespace Sample
             _serviceComputeApiVersion = options.ServiceComputeApiVersion;
             _serviceKeyVaultApiVersion = options.ServiceKeyVaultApiVersion;
             _serviceStorageApiVersion = options.ServiceStorageApiVersion;
+        }
+
+        public TestClient(global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options) : this(null, endpoint, subscriptionId0, options)
+        {
         }
 
         public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
