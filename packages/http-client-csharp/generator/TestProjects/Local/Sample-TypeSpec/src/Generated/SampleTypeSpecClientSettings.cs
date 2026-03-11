@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> Represents the settings used to configure a <see cref="SampleTypeSpecClient"/> that can be loaded from an <see cref="IConfigurationSection"/>. </summary>
     [Experimental("SCME0002")]
     public partial class SampleTypeSpecClientSettings : ClientSettings
     {

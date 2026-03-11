@@ -8,23 +8,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.BodyOptionality
 {
-    /// <summary> Client options for <see cref="BodyOptionalityClient"/>. </summary>
     public partial class BodyOptionalityClientOptions : ClientPipelineOptions
     {
-        /// <summary> Initializes a new instance of BodyOptionalityClientOptions. </summary>
-        public BodyOptionalityClientOptions()
-        {
-        }
+        public BodyOptionalityClientOptions() => throw null;
 
-        /// <summary> Initializes a new instance of BodyOptionalityClientOptions from configuration. </summary>
-        /// <param name="section"> The configuration section. </param>
         [Experimental("SCME0002")]
-        internal BodyOptionalityClientOptions(IConfigurationSection section) : base(section)
-        {
-            if (section is null || !section.Exists())
-            {
-                return;
-            }
-        }
+        internal BodyOptionalityClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

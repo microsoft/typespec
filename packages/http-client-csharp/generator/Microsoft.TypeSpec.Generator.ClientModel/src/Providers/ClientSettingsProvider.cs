@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal IReadOnlyList<ParameterProvider> OtherRequiredParams { get; }
 
         protected override FormattableString BuildDescription()
-            => $"Settings for the {_clientProvider.Name} client, extending <see cref=\"ClientSettings\"/>.";
+            => $"Represents the settings used to configure a <see cref=\"{_clientProvider.Name}\"/> that can be loaded from an <see cref=\"IConfigurationSection\"/>.";
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
