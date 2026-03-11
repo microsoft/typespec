@@ -697,7 +697,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var settingsConstructor = new ConstructorProvider(
                 new ConstructorSignature(
                     Type,
-                    $"Initializes a new instance of {Name} from settings.",
+                    $"Initializes a new instance of {Name} from a <see cref=\"{ClientSettings.Type.Name}\"/>.",
                     MethodSignatureModifiers.Public,
                     [settingsParam],
                     attributes: [experimentalAttr],

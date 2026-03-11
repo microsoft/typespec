@@ -92,7 +92,7 @@ namespace SampleTypeSpec
             _apiVersion = options.Version;
         }
 
-        /// <summary> Initializes a new instance of SampleTypeSpecClient from settings. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClient from a <see cref="SampleTypeSpecClientSettings"/>. </summary>
         /// <param name="settings"> The settings for SampleTypeSpecClient. </param>
         [Experimental("SCME0002")]
         public SampleTypeSpecClient(SampleTypeSpecClientSettings settings) : this(settings?.SampleTypeSpecUrl, settings?.CredentialProvider as AuthenticationTokenProvider, settings?.Options)

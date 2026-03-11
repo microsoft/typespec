@@ -45,7 +45,7 @@ namespace Parameters.BodyOptionality
         {
         }
 
-        /// <summary> Initializes a new instance of BodyOptionalityClient from settings. </summary>
+        /// <summary> Initializes a new instance of BodyOptionalityClient from a <see cref="BodyOptionalityClientSettings"/>. </summary>
         /// <param name="settings"> The settings for BodyOptionalityClient. </param>
         [Experimental("SCME0002")]
         public BodyOptionalityClient(BodyOptionalityClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options)
