@@ -89,18 +89,13 @@ Only use labels defined in that file.
    - HTML anchor tags: `<a href="https://typespec.io/playground?...">...</a>`
    - Plain URLs in the text
 
-   **TypeSpec code blocks**: Look for fenced code blocks with language tags `typespec` or `tsp`. Also check unlabeled/unmarked code blocks that contain TypeSpec keywords such as `import`, `model`, `op`, `namespace`, `using`, `interface`, `enum`, `union`, `scalar`, or decorators starting with `@`.
+   **TypeSpec code**: Look for TypeSpec reproduction code anywhere in the issue — it may be inside fenced code blocks (tagged as `typespec`, `tsp`, or unlabeled) OR it may be plain text in the issue body (not wrapped in any code block at all). Recognize TypeSpec code by keywords like `import`, `model`, `op`, `namespace`, `using`, `interface`, `enum`, `union`, `scalar`, or decorators starting with `@`.
 
    **Ignore non-TypeSpec code blocks**: Skip blocks tagged as `yaml`, `json`, `python`, `js`, `ts`, `typescript`, `csharp`, `bash`, `shell`, `xml`, `html`, etc. — unless they are clearly the reproduction input for a converter bug (e.g., OpenAPI JSON for an `openapi3:converter` issue).
 
-   **Clean up the reproduction code**: If you found repro code, prepare a cleaned-up version:
-   - Remove unnecessary comments, extra whitespace, or unrelated code
-   - Add missing `import` or `using` statements if they are clearly needed
-   - Keep it minimal — only the code needed to demonstrate the issue
-   - Do NOT change the semantics of the reproduction
-   - Do NOT add backtick characters or any markdown formatting inside the code itself — the code must be valid TypeSpec
+   **Extract the reproduction code verbatim**: Copy the TypeSpec code exactly as the user wrote it. Do not modify the code. Do not add or remove any characters. Do not add backticks, markdown formatting, or escaping to the code content. The only change you should make is minor cleanup: removing trailing whitespace or blank lines at the start/end.
 
-   **Construct a playground link**: If the issue has reproduction TypeSpec code (either found or cleaned up) but no playground link, construct one using this URL format:
+   **Construct a playground link**: If the issue has reproduction TypeSpec code but no playground link, construct one using this URL format:
    `https://typespec.io/playground?c={encoded}` where `{encoded}` is the repro code URL-encoded (percent-encoded). Use `web-fetch` to verify the playground link works by fetching it.
 
    Skip this step entirely for feature requests and documentation issues.
@@ -117,9 +112,8 @@ Only use labels defined in that file.
 
    **Reproduction block** (bugs only, skip for feature requests and docs):
    - If a playground link was found or constructed, show it: `🔗 [Playground Reproduction](url)`
-   - If repro code exists but no playground link could be made: `✅ Reproduction code provided in the issue.`
    - If no repro code was found at all: `⚠️ No reproduction provided. A minimal repro would help diagnose this issue.`
-   - If repro code was found, ALWAYS include it in a collapsed section using a `<details>` tag with summary `📋 Reproduction code`. Inside, put the cleaned-up code in a fenced code block with the `typespec` language tag. The code inside the block must be plain TypeSpec — do NOT add backtick characters, markdown formatting, or any escaping inside the code itself.
+   - If repro code was found, include it in a collapsed section using a `<details>` tag with summary `📋 Reproduction code`. Inside, put the code in a fenced code block with the `typespec` language tag. The code inside MUST be the verbatim TypeSpec code from the issue — do NOT add backtick characters, markdown syntax, or any escaping inside the code content itself. Only the surrounding fenced code block markers should use backticks.
 
    **Analysis section**: A collapsed `<details>` tag with summary `🔍 Analysis` containing:
    - Relevant technical details
