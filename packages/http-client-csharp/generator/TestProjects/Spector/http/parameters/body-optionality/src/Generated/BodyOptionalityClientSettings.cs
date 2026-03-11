@@ -9,21 +9,29 @@ using Microsoft.Extensions.Configuration;
 
 namespace Parameters.BodyOptionality
 {
+    /// <summary></summary>
     [Experimental("SCME0002")]
     public partial class BodyOptionalityClientSettings : ClientSettings
     {
-        public Uri Endpoint
-        {
-            get => throw null;
-            set => throw null;
-        }
+        /// <summary> Gets or sets the Endpoint. </summary>
+        public Uri Endpoint { get; set; }
 
-        public BodyOptionalityClientOptions Options
-        {
-            get => throw null;
-            set => throw null;
-        }
+        /// <summary> Gets or sets the Options. </summary>
+        public BodyOptionalityClientOptions Options { get; set; }
 
-        protected override void BindCore(IConfigurationSection section) => throw null;
+        /// <summary> Binds configuration values from the given section. </summary>
+        /// <param name="section"> The configuration section. </param>
+        protected override void BindCore(IConfigurationSection section)
+        {
+            if (Uri.TryCreate(section["Endpoint"], UriKind.Absolute, out Uri endpoint))
+            {
+                Endpoint = endpoint;
+            }
+            IConfigurationSection optionsSection = section.GetSection("Options");
+            if (optionsSection.Exists())
+            {
+                Options = new BodyOptionalityClientOptions(optionsSection);
+            }
+        }
     }
 }

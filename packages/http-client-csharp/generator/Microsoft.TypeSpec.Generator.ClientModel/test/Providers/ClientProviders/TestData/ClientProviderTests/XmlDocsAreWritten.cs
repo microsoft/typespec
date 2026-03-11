@@ -37,6 +37,9 @@ namespace Sample
         /// <param name="options"> The options for configuring the client. </param>
         internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string queryParam, global::Sample.TestClientOptions options)
         {
+            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
+            global::Sample.Argument.AssertNotNullOrEmpty(queryParam, nameof(queryParam));
+
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;

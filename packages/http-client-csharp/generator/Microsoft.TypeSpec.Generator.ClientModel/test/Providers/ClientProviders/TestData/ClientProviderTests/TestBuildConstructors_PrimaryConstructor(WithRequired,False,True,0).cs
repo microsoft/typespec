@@ -1,3 +1,5 @@
+global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
+
 options ??= new global::Sample.TestClientOptions();
 
 _endpoint = endpoint;

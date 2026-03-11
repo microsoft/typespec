@@ -836,6 +836,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return [MethodBodyStatement.Empty];
             }
+
+            // Add parameter validation assertions.
+            // Since the implementation constructor is internal, the framework's automatic validation
+            // (which only applies to public methods) won't add these. We add them explicitly because
+            // this is the sole implementation constructor and public constructors are pass-throughs.
+            List<MethodBodyStatement> body = [];
+            bool hasValidation = false;
+            foreach (var p in primaryConstructorParameters)
+            {
+                if (p.Validation != ParameterValidationType.None)
+                {
+                    body.Add(ArgumentSnippets.ValidateParameter(p));
+                    hasValidation = true;
+                }
+            }
+            if (hasValidation)
+            {
+                body.Add(MethodBodyStatement.EmptyLine);
+            }
+
             AssignmentExpression endpointAssignment;
             if (_endpointParameter.Type.Equals(typeof(string)))
             {
@@ -850,11 +870,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 endpointAssignment = EndpointField.Assign(_endpointParameter);
             }
-            List<MethodBodyStatement> body = [
-                clientOptionsParameter.Assign(clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
-                MethodBodyStatement.EmptyLine,
-                endpointAssignment.Terminate()
-            ];
+            body.Add(clientOptionsParameter.Assign(clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate());
+            body.Add(MethodBodyStatement.EmptyLine);
+            body.Add(endpointAssignment.Terminate());
 
             // add other parameter assignments to their corresponding fields
             foreach (var p in primaryConstructorParameters)

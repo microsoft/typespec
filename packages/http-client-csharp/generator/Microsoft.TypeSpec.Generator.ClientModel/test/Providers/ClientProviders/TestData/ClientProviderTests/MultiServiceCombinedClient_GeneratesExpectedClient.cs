@@ -26,6 +26,8 @@ namespace Sample
 
         internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Sample.TestClientOptions options)
         {
+            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
+
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
