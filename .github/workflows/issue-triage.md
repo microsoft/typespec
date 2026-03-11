@@ -92,11 +92,18 @@ Only use labels defined in that file.
 
    **Ignore non-TypeSpec code blocks**: Skip blocks tagged as `yaml`, `json`, `python`, `js`, `ts`, `typescript`, `csharp`, `bash`, `shell`, `xml`, `html`, etc. — unless they are clearly the reproduction input for a converter bug (e.g., OpenAPI JSON for an `openapi3:converter` issue).
 
+   **Clean up the reproduction code**: If you found repro code, prepare a cleaned-up version:
+   - Ensure it is properly formatted in a ` ```typespec ` fenced code block
+   - Remove unnecessary comments, extra whitespace, or unrelated code
+   - Add missing `import` or `using` statements if they are clearly needed
+   - Keep it minimal — only the code needed to demonstrate the issue
+   - Do NOT change the semantics of the reproduction
+
    Skip this step entirely for feature requests and documentation issues.
 
 7. Add an issue comment with your analysis using this structure:
 
-   ```
+   ````
    🎯 **Issue Triage**
 
    <one or two sentence summary of the issue>
@@ -107,14 +114,22 @@ Only use labels defined in that file.
    <!-- For bugs only. Show reproduction status at top level: -->
    <!-- If playground link found: -->
    🔗 [Playground Reproduction](url)
-   <!-- If code block found but no playground link: -->
-   ✅ Reproduction code provided in the issue.
    <!-- If no repro at all: -->
    ⚠️ No reproduction provided. A minimal repro would help diagnose this issue.
 
+   <!-- For bugs with repro code (from code blocks or decoded playground links), -->
+   <!-- always include a cleaned-up version in a fenced code block: -->
+   <details>
+   <summary>📋 Reproduction code</summary>
+
+   ```typespec
+   // cleaned-up reproduction code here
+   ````
+
+   </details>
+
    <details>
    <summary>🔍 Analysis</summary>
-
    - relevant technical details
    - affected components
    - potential root cause if apparent
@@ -125,7 +140,6 @@ Only use labels defined in that file.
    <!-- Only if there are actionable next steps -->
    <details>
    <summary>📝 Suggested next steps</summary>
-
    - [ ] step 1
    - [ ] step 2
 
