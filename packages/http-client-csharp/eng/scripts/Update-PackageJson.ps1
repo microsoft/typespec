@@ -74,6 +74,25 @@ function Get-PackageDependencyVersion {
     }
 }
 
+# Function to get the latest GA (non-prerelease) version of a package
+function Get-LatestGAVersion {
+    param(
+        [string]$PackageName
+    )
+    
+    Write-Host "Getting latest GA version for $PackageName..."
+    $result = & npm view $PackageName dist-tags.latest 2>&1
+    
+    if ($LASTEXITCODE -eq 0 -and $result) {
+        $latestVersion = $result.Trim()
+        Write-Host "Found latest GA version for ${PackageName}: $latestVersion"
+        return $latestVersion
+    } else {
+        Write-Warning "Could not determine latest GA version for $PackageName"
+        return $null
+    }
+}
+
 # Resolve paths
 $PackageJsonPath = Resolve-Path $PackageJsonPath
 
@@ -128,12 +147,19 @@ try {
             Write-Warning "Version $tcgcVersion not found for $dependency"
             
             # Use the version from tcgc's @azure-tools/typespec-azure-core dependency as fallback
-            if ($fallbackVersion) {
-                Write-Host "Using fallback version $fallbackVersion for all injected dependencies"
+            if ($fallbackVersion -and (Test-PackageVersion -PackageName $dependency -Version $fallbackVersion)) {
+                Write-Host "Using fallback version $fallbackVersion for $dependency"
                 $versionToUse = $fallbackVersion
             } else {
-                Write-Error "Could not determine a valid version for $dependency (no fallback available)"
-                exit 1
+                # Final fallback: use the latest GA version of the package
+                $latestGA = Get-LatestGAVersion -PackageName $dependency
+                if ($latestGA) {
+                    Write-Host "Using latest GA version $latestGA for $dependency"
+                    $versionToUse = $latestGA
+                } else {
+                    Write-Error "Could not determine a valid version for $dependency (no fallback available)"
+                    exit 1
+                }
             }
         }
         
