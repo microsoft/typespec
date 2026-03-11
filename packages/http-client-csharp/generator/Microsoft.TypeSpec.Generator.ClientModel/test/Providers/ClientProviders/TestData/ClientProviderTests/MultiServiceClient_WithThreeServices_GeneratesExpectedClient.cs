@@ -42,7 +42,7 @@ namespace Sample
             _serviceStorageApiVersion = options.ServiceStorageApiVersion;
         }
 
-        public TestClient(global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options) : this(null, endpoint, subscriptionId0, options)
+        public TestClient(global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options) : this(null, endpoint, subscriptionId, options)
         {
         }
 

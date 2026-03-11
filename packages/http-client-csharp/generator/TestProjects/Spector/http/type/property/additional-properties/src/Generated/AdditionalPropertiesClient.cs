@@ -12,10 +12,12 @@ namespace _Type.Property.AdditionalProperties
     {
         public AdditionalPropertiesClient() : this(new Uri("http://localhost:3000"), new AdditionalPropertiesClientOptions()) => throw null;
 
-        public AdditionalPropertiesClient(Uri endpoint, AdditionalPropertiesClientOptions options) => throw null;
+        internal AdditionalPropertiesClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, AdditionalPropertiesClientOptions options) => throw null;
+
+        public AdditionalPropertiesClient(Uri endpoint, AdditionalPropertiesClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public AdditionalPropertiesClient(AdditionalPropertiesClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public AdditionalPropertiesClient(AdditionalPropertiesClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

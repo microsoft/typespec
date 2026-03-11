@@ -14,10 +14,12 @@ namespace Parameters.CollectionFormat
     {
         public CollectionFormatClient() : this(new Uri("http://localhost:3000"), new CollectionFormatClientOptions()) => throw null;
 
-        public CollectionFormatClient(Uri endpoint, CollectionFormatClientOptions options) => throw null;
+        internal CollectionFormatClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, CollectionFormatClientOptions options) => throw null;
+
+        public CollectionFormatClient(Uri endpoint, CollectionFormatClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public CollectionFormatClient(CollectionFormatClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public CollectionFormatClient(CollectionFormatClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -609,9 +609,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 List<ConstructorProvider> secondaryConstructors,
                 bool onlyContainsUnsupportedAuth = false)
             {
-                // Non-auth required parameters (all required non-endpoint params except auth credential)
-                var requiredNonAuthParams = GetRequiredParameters(null);
-
                 // Public constructor with credential parameter — delegates to the internal constructor.
                 var requiredParameters = GetRequiredParameters(authFields?.AuthField);
                 ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter];
@@ -620,8 +617,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Build the auth policy expression for the this() initializer
                 ValueExpression authPolicyArg = BuildAuthPolicyArgument(authFields, requiredParameters);
                 var initializerArgs = new List<ValueExpression> { authPolicyArg, _endpointParameter };
-                foreach (var p in requiredNonAuthParams)
-                    initializerArgs.Add(p);
+                // Add non-auth required parameters from the SAME parameter list (requiredParameters)
+                // to ensure the initializer references the same objects as the constructor signature.
+                string? authParamName = authFields != null
+                    ? (authFields.AuthField.Name != TokenProviderFieldName ? "credential" : authFields.AuthField.AsParameter.Name)
+                    : null;
+                foreach (var p in requiredParameters)
+                {
+                    if (authParamName == null || p.Name != authParamName)
+                        initializerArgs.Add(p);
+                }
                 initializerArgs.Add(ClientOptionsParameter!);
 
                 var primaryConstructor = new ConstructorProvider(

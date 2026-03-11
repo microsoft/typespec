@@ -12,10 +12,12 @@ namespace Payload.Xml
     {
         public XmlClient() : this(new Uri("http://localhost:3000"), new XmlClientOptions()) => throw null;
 
-        public XmlClient(Uri endpoint, XmlClientOptions options) => throw null;
+        internal XmlClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, XmlClientOptions options) => throw null;
+
+        public XmlClient(Uri endpoint, XmlClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public XmlClient(XmlClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public XmlClient(XmlClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

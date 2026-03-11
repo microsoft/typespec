@@ -15,10 +15,12 @@ namespace Encode.Duration
     {
         public DurationClient() : this(new Uri("http://localhost:3000"), new DurationClientOptions()) => throw null;
 
-        public DurationClient(Uri endpoint, DurationClientOptions options) => throw null;
+        internal DurationClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, DurationClientOptions options) => throw null;
+
+        public DurationClient(Uri endpoint, DurationClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public DurationClient(DurationClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public DurationClient(DurationClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

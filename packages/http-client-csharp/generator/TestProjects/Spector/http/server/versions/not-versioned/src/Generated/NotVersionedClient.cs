@@ -17,10 +17,12 @@ namespace Server.Versions.NotVersioned
 
         public NotVersionedClient(Uri endpoint) : this(endpoint, new NotVersionedClientOptions()) => throw null;
 
-        public NotVersionedClient(Uri endpoint, NotVersionedClientOptions options) => throw null;
+        internal NotVersionedClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, NotVersionedClientOptions options) => throw null;
+
+        public NotVersionedClient(Uri endpoint, NotVersionedClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public NotVersionedClient(NotVersionedClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public NotVersionedClient(NotVersionedClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

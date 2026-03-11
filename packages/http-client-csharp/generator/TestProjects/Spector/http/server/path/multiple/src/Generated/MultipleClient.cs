@@ -17,10 +17,12 @@ namespace Server.Path.Multiple
 
         public MultipleClient(Uri endpoint) : this(endpoint, new MultipleClientOptions()) => throw null;
 
-        public MultipleClient(Uri endpoint, MultipleClientOptions options) => throw null;
+        internal MultipleClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MultipleClientOptions options) => throw null;
+
+        public MultipleClient(Uri endpoint, MultipleClientOptions options) : this(null, endpoint, options) => throw null;
 
         [Experimental("SCME0002")]
-        public MultipleClient(MultipleClientSettings settings) : this(settings?.Endpoint, settings?.Options) => throw null;
+        public MultipleClient(MultipleClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

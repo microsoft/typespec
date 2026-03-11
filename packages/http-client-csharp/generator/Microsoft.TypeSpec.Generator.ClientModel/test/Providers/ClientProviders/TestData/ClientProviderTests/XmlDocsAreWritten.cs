@@ -50,7 +50,7 @@ namespace Sample
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="queryParam"/> is null. </exception>
         /// <exception cref="global::System.ArgumentException"> <paramref name="queryParam"/> is an empty string, and was expected to be non-empty. </exception>
-        public TestClient(global::System.Uri endpoint, string queryParam, global::Sample.TestClientOptions options) : this(null, endpoint, queryParam0, options)
+        public TestClient(global::System.Uri endpoint, string queryParam, global::Sample.TestClientOptions options) : this(null, endpoint, queryParam, options)
         {
         }
 

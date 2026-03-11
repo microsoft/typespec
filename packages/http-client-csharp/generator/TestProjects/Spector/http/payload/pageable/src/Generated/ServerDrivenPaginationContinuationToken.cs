@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -12,6 +13,8 @@ namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
     public partial class ServerDrivenPaginationContinuationToken
     {
         protected ServerDrivenPaginationContinuationToken() => throw null;
+
+        internal ServerDrivenPaginationContinuationToken(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
