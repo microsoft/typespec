@@ -61,8 +61,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var properties = settingsProvider!.Properties;
             // Should have Endpoint and Options properties
-            var endpointProp = properties.FirstOrDefault(p => p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
-            Assert.IsNotNull(endpointProp, "Settings should have an endpoint property");
+            var endpointProp = properties.FirstOrDefault(p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
+            Assert.IsNotNull(endpointProp, "Settings should have an Endpoint property of type Uri?");
 
             var optionsProp = properties.FirstOrDefault(p => p.Name == "Options");
             Assert.IsNotNull(optionsProp, "Settings should have an Options property");
@@ -78,8 +78,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Settings provider should exist but without endpoint-related properties
             Assert.IsNotNull(settingsProvider);
 
-            var endpointProp = settingsProvider!.Properties.FirstOrDefault(p => p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
-            Assert.IsNull(endpointProp, "Settings should not have an endpoint property when no endpoint parameter exists");
+            var endpointProp = settingsProvider!.Properties.FirstOrDefault(p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
+            Assert.IsNull(endpointProp, "Settings should not have an Endpoint property when no endpoint parameter exists");
         }
 
         [Test]
