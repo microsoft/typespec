@@ -61,14 +61,14 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
         @Post("/priority")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<String>> setPriority(@HostParam("endpoint") String endpoint,
+        Mono<Response<Priority>> setPriority(@HostParam("endpoint") String endpoint,
             @QueryParam("priority") Priority priority, @HeaderParam("Accept") String accept, Context context);
 
         @Headers({ "Content-Type: application/json" })
         @Post("/priority")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<String> setPrioritySync(@HostParam("endpoint") String endpoint,
+        Response<Priority> setPrioritySync(@HostParam("endpoint") String endpoint,
             @QueryParam("priority") Priority priority, @HeaderParam("Accept") String accept, Context context);
     }
 
@@ -79,10 +79,10 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return simple string along with {@link Response} on successful completion of {@link Mono}.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<String>> setPriorityWithResponseAsync(Priority priority) {
+    private Mono<Response<Priority>> setPriorityWithResponseAsync(Priority priority) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
                 new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
@@ -90,7 +90,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
         if (priority == null) {
             return Mono.error(new IllegalArgumentException("Parameter priority is required and cannot be null."));
         }
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.setPriority(this.client.getEndpoint(), priority, accept, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
@@ -103,10 +103,10 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return simple string on successful completion of {@link Mono}.
+     * @return the response body on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<String> setPriorityAsync(Priority priority) {
+    private Mono<Priority> setPriorityAsync(Priority priority) {
         return setPriorityWithResponseAsync(priority).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
@@ -118,10 +118,10 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return simple string along with {@link Response}.
+     * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<String> setPriorityWithResponse(Priority priority, Context context) {
+    public Response<Priority> setPriorityWithResponse(Priority priority, Context context) {
         if (this.client.getEndpoint() == null) {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException(
@@ -131,7 +131,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter priority is required and cannot be null."));
         }
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return service.setPrioritySync(this.client.getEndpoint(), priority, accept, context);
     }
 
@@ -142,10 +142,10 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return simple string.
+     * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setPriority(Priority priority) {
+    public Priority setPriority(Priority priority) {
         return setPriorityWithResponse(priority, Context.NONE).getValue();
     }
 
