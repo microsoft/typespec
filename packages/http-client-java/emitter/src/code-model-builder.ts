@@ -2010,6 +2010,11 @@ export class CodeModelBuilder {
       requestBodyIsFile = Boolean(unknownRequestBody);
     }
 
+    // TODO: hack for a common definition error of enum/union as body without content-type
+    if (!requestBodyIsFile && sdkBody.contentTypes.length === 1 && sdkBody.contentTypes[0] === "text/plain" && sdkType.kind === "enum") {
+      op.requests![0].protocol.http!.mediaTypes = ["application/json"];
+    }
+
     let schema: Schema;
     if (requestBodyIsFile) {
       // binary/file
@@ -2312,6 +2317,11 @@ export class CodeModelBuilder {
           },
         },
       });
+
+      // TODO: hack for a common definition error of enum/union as body without content-type
+      if (!responseBodyIsFile && sdkResponse.contentTypes && sdkResponse.contentTypes.length === 1 && sdkResponse.contentTypes[0] === "text/plain" && sdkType.kind === "enum") {
+        response.protocol.http!.mediaTypes = ["application/json"];
+      }
     } else {
       // not binary nor schema, usually NoContent
       response = new Response({
