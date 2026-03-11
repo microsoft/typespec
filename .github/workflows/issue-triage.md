@@ -62,10 +62,15 @@ Only use labels defined in that file.
 
 2. Gather additional context about the issue:
    - Fetch any comments on the issue using the `get_issue_comments` tool
-   - Find similar issues if needed using the `search_issues` tool
-   - List the issues to see other open issues in the repository using the `list_issues` tool
 
-3. Analyze the issue content, considering:
+3. **Duplicate detection**: Search for existing issues that may cover the same problem.
+   - Extract 2-3 distinct keyword queries from the issue title and body (e.g., key error messages, feature names, affected components).
+   - Use `search_issues` with each query, scoped to this repo. Include both open and closed issues.
+   - For each candidate match, compare the core problem described — not just surface keywords. Two issues are duplicates only if they describe the **same root cause or request**, not merely the same topic area.
+   - If you find a likely duplicate (open or recently closed), note its number and title. Prefer open issues as the canonical duplicate.
+   - If no strong match is found, move on — do not force a duplicate match.
+
+4. Analyze the issue content, considering:
    - The issue title and description
    - The type of issue (bug report, feature request, question, etc.)
    - Technical areas mentioned (packages, emitters, libraries, tools)
@@ -73,16 +78,15 @@ Only use labels defined in that file.
    - User impact
    - Components affected
 
-4. Select appropriate labels based on the labels defined in `eng/common/config/labels.ts`:
+5. Select appropriate labels based on the labels defined in `eng/common/config/labels.ts`:
    - Pick ONE area label that best matches the issue. If the issue spans multiple areas, pick the most relevant one. If no area label is clearly applicable, do not add one.
    - Pick ONE issue kind label (`bug`, `feature`, or `docs`) if the type is clear.
-   - Search for similar issues, and if you find a closely matching OPEN issue, consider using a "duplicate" label.
    - Only use labels that are defined in the labels configuration file.
    - It's okay to not add any labels if none are clearly applicable.
 
-5. Apply the selected labels using the `add_labels` tool. If no labels are clearly applicable, do not apply any.
+6. Apply the selected labels using the `add_labels` tool. If no labels are clearly applicable, do not apply any.
 
-6. For bug reports, extract reproduction information from the issue body and comments:
+7. For bug reports, extract reproduction information from the issue body and comments:
 
    **Playground links**: Search for URLs matching `https://typespec.io/playground?...`. These may appear as:
    - Markdown links: `[text](https://typespec.io/playground?...)`
@@ -104,7 +108,7 @@ Only use labels defined in that file.
 
    Skip this step entirely for feature requests and documentation issues.
 
-7. Add an issue comment with your analysis. The comment MUST follow this exact structure:
+8. Add an issue comment with your analysis. The comment MUST follow this exact structure:
 
    **Line 1**: `🎯 **Issue Triage**`
 
@@ -113,6 +117,11 @@ Only use labels defined in that file.
    **Line 4**: `**Category**: Bug` (or Feature Request / Docs / Question)
 
    **Line 5**: `**Area**: \`<area-label>\`` (or "Unable to determine")
+
+   **Duplicate block** (only if a likely duplicate was found in step 3):
+   - `🔁 **Possible duplicate of #<number>** — <one-sentence explanation of why it matches>`
+   - If the duplicate is closed/resolved, add: `(closed)`
+   - If multiple strong candidates exist, list up to 3.
 
    **Reproduction block** (bugs only, skip for feature requests and docs):
    - If a playground link was found or constructed, show it: `🔗 [Playground Reproduction](url)`
