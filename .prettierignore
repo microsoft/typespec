@@ -12,7 +12,7 @@
 pnpm-lock.yaml
 
 # Agentic workflow lock file
-.lock.yml
+**/*.lock.yml
 
 # Emu spec file, formatting is wrong
 packages/spec/src/spec.emu.html
