@@ -133,8 +133,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var param in OtherRequiredParams)
             {
                 var propName = param.Name.ToIdentifierName();
-                // For string types: if (section[propName] is string val) PropName = val;
-                if (param.Type.IsFrameworkType && param.Type.FrameworkType == typeof(string))
+                if (!param.Type.IsFrameworkType)
+                {
+                    continue;
+                }
+
+                var frameworkType = param.Type.FrameworkType;
+
+                // For string types: if (!string.IsNullOrEmpty(val)) PropName = val;
+                if (frameworkType == typeof(string))
                 {
                     var valVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), param.Name.ToVariableName());
                     body.Add(Declare(valVar, new IndexerExpression(sectionParam, Literal(propName))));
@@ -142,7 +149,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ifStatement.Add(This.Property(propName).Assign(valVar).Terminate());
                     body.Add(ifStatement);
                 }
-                // Other types are skipped in BindCore (users can customize via partial class)
+                // For bool: if (bool.TryParse(section[name], out bool val)) PropName = val;
+                else if (frameworkType == typeof(bool))
+                {
+                    AppendTryParseBinding(body, sectionParam, propName, param, typeof(bool));
+                }
+                // For int: if (int.TryParse(section[name], out int val)) PropName = val;
+                else if (frameworkType == typeof(int))
+                {
+                    AppendTryParseBinding(body, sectionParam, propName, param, typeof(int));
+                }
+                // For TimeSpan: if (TimeSpan.TryParse(section[name], out TimeSpan val)) PropName = val;
+                else if (frameworkType == typeof(TimeSpan))
+                {
+                    AppendTryParseBinding(body, sectionParam, propName, param, typeof(TimeSpan));
+                }
             }
 
             if (_clientProvider.ClientOptions != null)
@@ -170,6 +191,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
 
             return [bindCoreMethod];
+        }
+
+        /// <summary>
+        /// Appends a TryParse-based binding statement: if (Type.TryParse(section[name], out Type val)) PropName = val;
+        /// </summary>
+        private static void AppendTryParseBinding(
+            List<MethodBodyStatement> body,
+            ParameterProvider sectionParam,
+            string propName,
+            ParameterProvider param,
+            Type parseType)
+        {
+            var outDecl = new DeclarationExpression(parseType, param.Name.ToVariableName(), out var parsedVar, isOut: true);
+            var ifStatement = new IfStatement(Static(parseType).Invoke("TryParse",
+                new ValueExpression[]
+                {
+                    new IndexerExpression(sectionParam, Literal(propName)),
+                    outDecl
+                }));
+            ifStatement.Add(This.Property(propName).Assign(parsedVar).Terminate());
+            body.Add(ifStatement);
         }
     }
 }
