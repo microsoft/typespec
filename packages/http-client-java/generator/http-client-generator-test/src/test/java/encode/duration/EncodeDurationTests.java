@@ -57,12 +57,11 @@ public class EncodeDurationTests {
 
         queryClient.int32MillisecondsLargerUnit(Duration.ofMinutes(3));
 
-//        TODO: floatMilliseconds/float64Milliseconds send 35625.0 instead of 35625 as query param
-//        queryClient.floatMilliseconds(MILLIS35625);
-//
-//        queryClient.floatMillisecondsLargerUnit(Duration.ofMinutes(3).plusSeconds(30));
-//
-//        queryClient.float64Milliseconds(MILLIS35625);
+        queryClient.floatMilliseconds(MILLIS35625);
+
+        queryClient.floatMillisecondsLargerUnit(Duration.ofMinutes(3).plusSeconds(30));
+
+        queryClient.float64Milliseconds(MILLIS35625);
 
         queryClient.int32MillisecondsArray(Arrays.asList(MILLIS36000, Duration.ofMillis(47000)));
     }
@@ -89,12 +88,11 @@ public class EncodeDurationTests {
 
         headerClient.int32MillisecondsLargerUnit(Duration.ofMinutes(3));
 
-//        TODO: floatMilliseconds/float64Milliseconds send 35625.0 instead of 35625 as header value
-//        headerClient.floatMilliseconds(MILLIS35625);
-//
-//        headerClient.floatMillisecondsLargerUnit(Duration.ofMinutes(3).plusSeconds(30));
-//
-//        headerClient.float64Milliseconds(MILLIS35625);
+        headerClient.floatMilliseconds(MILLIS35625);
+
+        headerClient.floatMillisecondsLargerUnit(Duration.ofMinutes(3).plusSeconds(30));
+
+        headerClient.float64Milliseconds(MILLIS35625);
 
         headerClient.int32MillisecondsArray(Arrays.asList(MILLIS36000, Duration.ofMillis(47000)));
     }
