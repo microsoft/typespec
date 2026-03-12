@@ -253,6 +253,7 @@ interface Functions {
 interface Priorities {
   @post
   setPriority(@query priority: Priority): {
+    @header("Content-Type") contentType: "application/json";
     @body body: Priority;
   };
 }
