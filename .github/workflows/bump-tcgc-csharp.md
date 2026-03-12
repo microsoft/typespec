@@ -1,14 +1,34 @@
 ---
+name: Bump TCGC in http-client-csharp
+description: |
+  Checks daily for new stable releases of @azure-tools/typespec-client-generator-core
+  and opens a PR to upgrade the http-client-csharp emitter when one is found.
+
 on:
   schedule: daily
-permissions:
-  contents: read
+  workflow_dispatch:
+
+permissions: read-all
+
+network:
+  allowed:
+  - defaults
+  - node
+
 tools:
   github:
-    toolsets: [pull-requests, issues]
-  bash: ["npm", "node", "jq", "cat", "grep"]
+    toolsets: [default]
+  edit:
+  bash: true
+
+timeout-minutes: 30
+
 safe-outputs:
-  create-pull-request: {}
+  create-pull-request:
+    draft: true
+    title-prefix: "[tcgc-bump] "
+    labels: [dependencies]
+    protected-files: fallback-to-issue
 ---
 
 # Automatic TCGC Version Bump for http-client-csharp
