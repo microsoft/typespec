@@ -3,6 +3,9 @@
 
 package payload.xml;
 
+import io.clientcore.core.http.models.HttpResponseException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -147,5 +150,40 @@ public final class XmlTests {
         Assertions.assertEquals("foo", model.getModelData().getName());
         Assertions.assertEquals(123, model.getModelData().getAge());
         Assertions.assertEquals(List.of("red", "green", "blue"), model.getColors());
+    }
+
+    @Test
+    public void testModelWithEnum() {
+        ModelWithEnumValueClient client = new XmlClientBuilder().buildModelWithEnumValueClient();
+
+        client.put(new ModelWithEnum(Status.SUCCESS));
+
+        ModelWithEnum model = client.get();
+        Assertions.assertEquals(Status.SUCCESS, model.getStatus());
+    }
+
+    @Test
+    public void testModelWithDatetime() {
+        ModelWithDatetimeValueClient client = new XmlClientBuilder().buildModelWithDatetimeValueClient();
+
+        OffsetDateTime rfc3339 = OffsetDateTime.of(2022, 8, 26, 18, 38, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime rfc7231 = OffsetDateTime.of(2022, 8, 26, 14, 38, 0, 0, ZoneOffset.UTC);
+
+        // UndefinedParserError: No parser and no file path given, couldn't infer a parser
+//        client.put(new ModelWithDatetime(rfc3339, rfc7231));
+
+        ModelWithDatetime model = client.get();
+        Assertions.assertEquals(rfc3339, model.getRfc3339());
+        Assertions.assertEquals(rfc7231, model.getRfc7231());
+    }
+
+    @Test
+    public void testXmlErrorValue() {
+        XmlErrorValueClient client = new XmlClientBuilder().buildXmlErrorValueClient();
+
+        HttpResponseException exception = Assertions.assertThrows(HttpResponseException.class, client::get);
+        XmlErrorBody errorBody = (XmlErrorBody) exception.getValue();
+        Assertions.assertEquals("Something went wrong", errorBody.getMessage());
+        Assertions.assertEquals(400, errorBody.getCode());
     }
 }
