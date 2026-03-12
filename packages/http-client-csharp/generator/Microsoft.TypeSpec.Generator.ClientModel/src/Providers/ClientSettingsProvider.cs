@@ -134,13 +134,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var propName = param.Name.ToIdentifierName();
 
-                // Handle non-framework types (extensible enums)
+                // Handle non-framework types (enums)
                 if (!param.Type.IsFrameworkType)
                 {
-                    // Extensible enum: if (section["Name"] is string val) { Name = new TypeName(val); }
                     if (param.Type.IsEnum)
                     {
-                        AppendEnumBinding(body, sectionParam, propName, param);
+                        if (param.Type.IsStruct)
+                        {
+                            // Extensible enum (readonly struct): if (section["Name"] is string val) { Name = new TypeName(val); }
+                            AppendEnumBinding(body, sectionParam, propName, param);
+                        }
+                        else
+                        {
+                            // Fixed enum: if (Enum.TryParse<TypeName>(section["Name"], out TypeName val)) { Name = val; }
+                            AppendFixedEnumBinding(body, sectionParam, propName, param);
+                        }
                     }
                     continue;
                 }
@@ -315,6 +323,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 decl);
             var ifStatement = new IfStatement(isPattern);
             ifStatement.Add(This.Property(propName).Assign(New.Instance(param.Type, declVar)).Terminate());
+            body.Add(ifStatement);
+        }
+
+        /// <summary>
+        /// Appends a fixed enum binding: if (Enum.TryParse(section[name], out TypeName val)) { PropName = val; }
+        /// </summary>
+        private static void AppendFixedEnumBinding(
+            List<MethodBodyStatement> body,
+            ParameterProvider sectionParam,
+            string propName,
+            ParameterProvider param)
+        {
+            var outDecl = new DeclarationExpression(param.Type, param.Name.ToVariableName(), out var parsedVar, isOut: true);
+            var ifStatement = new IfStatement(Static(typeof(Enum)).Invoke("TryParse",
+                new ValueExpression[]
+                {
+                    new IndexerExpression(sectionParam, Literal(propName)),
+                    outDecl
+                }));
+            ifStatement.Add(This.Property(propName).Assign(parsedVar).Terminate());
             body.Add(ifStatement);
         }
     }

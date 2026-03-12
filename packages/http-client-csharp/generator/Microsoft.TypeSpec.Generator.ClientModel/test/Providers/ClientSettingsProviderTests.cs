@@ -388,6 +388,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void TestBindCoreMethod_WithFixedEnumParam()
+        {
+            var enumType = InputFactory.StringEnum(
+                "ClientMode",
+                [("Default", "default"), ("MultiClient", "multi-client")],
+                isExtensible: false);
+
+            MockHelpers.LoadMockGenerator(inputEnums: () => [enumType]);
+
+            var inputParameters = new InputParameter[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.MethodParameter(
+                    "mode",
+                    enumType,
+                    isRequired: true,
+                    scope: InputParameterScope.Client)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("Enum.TryParse"), "BindCore should use Enum.TryParse for fixed enum parameter binding");
+            Assert.IsTrue(bodyString.Contains("Mode"), "BindCore should assign to Mode property");
+            Assert.IsFalse(bodyString.Contains("new ClientMode"), "BindCore should NOT use new for fixed enum binding");
+        }
+
+        [Test]
         public void TestBindCoreMethod_WithTimeSpanParam()
         {
             var inputParameters = new InputParameter[]
