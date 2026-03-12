@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.34
+
+### Bug Fixes
+
+- [#9953](https://github.com/microsoft/typespec/pull/9953) Fix response type of putExtensibleStringValue to include explicit content-type header
+
+
 ## 0.1.0-alpha.33
 
 ### Features
