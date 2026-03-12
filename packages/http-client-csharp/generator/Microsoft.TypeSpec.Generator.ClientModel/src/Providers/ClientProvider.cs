@@ -593,7 +593,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 AuthFields? firstAuthFields = _apiKeyAuthFields as AuthFields ?? _oauth2Fields;
                 var internalConstructor = new ConstructorProvider(
                     new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
-                    BuildPrimaryConstructorBody(internalConstructorParameters, firstAuthFields, authPolicyParam, ClientOptions, ClientOptionsParameter),
+                    BuildPrimaryConstructorBody(internalConstructorParameters, firstAuthFields, authPolicyParam, ClientOptions, ClientOptionsParameter, addExplicitValidation: true),
                     this);
                 primaryConstructors.Add(internalConstructor);
             }
@@ -851,30 +851,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return param;
         }
 
-        private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters, AuthFields? authFields, ParameterProvider? authPolicyParam, ClientOptionsProvider? clientOptionsProvider, ParameterProvider? clientOptionsParameter)
+        private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters, AuthFields? authFields, ParameterProvider? authPolicyParam, ClientOptionsProvider? clientOptionsProvider, ParameterProvider? clientOptionsParameter, bool addExplicitValidation = false)
         {
             if (clientOptionsProvider is null || clientOptionsParameter is null)
             {
                 return [MethodBodyStatement.Empty];
             }
 
-            // Add parameter validation assertions.
-            // Since the implementation constructor is internal, the framework's automatic validation
-            // (which only applies to public methods) won't add these. We add them explicitly because
-            // this is the sole implementation constructor and public constructors are pass-throughs.
             List<MethodBodyStatement> body = [];
-            bool hasValidation = false;
-            foreach (var p in primaryConstructorParameters)
+            // Add parameter validation assertions explicitly only for internal constructors.
+            // The framework's automatic validation only applies to public methods, so internal
+            // implementation constructors need explicit validation since they contain the body.
+            if (addExplicitValidation)
             {
-                if (p.Validation != ParameterValidationType.None)
+                bool hasValidation = false;
+                foreach (var p in primaryConstructorParameters)
                 {
-                    body.Add(ArgumentSnippets.ValidateParameter(p));
-                    hasValidation = true;
+                    if (p.Validation != ParameterValidationType.None)
+                    {
+                        body.Add(ArgumentSnippets.ValidateParameter(p));
+                        hasValidation = true;
+                    }
                 }
-            }
-            if (hasValidation)
-            {
-                body.Add(MethodBodyStatement.EmptyLine);
+                if (hasValidation)
+                {
+                    body.Add(MethodBodyStatement.EmptyLine);
+                }
             }
 
             AssignmentExpression endpointAssignment;

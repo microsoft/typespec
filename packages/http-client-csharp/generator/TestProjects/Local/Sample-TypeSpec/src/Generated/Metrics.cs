@@ -55,9 +55,6 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(endpoint, nameof(endpoint));
             Argument.AssertNotNullOrEmpty(metricsNamespace, nameof(metricsNamespace));
 
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNullOrEmpty(metricsNamespace, nameof(metricsNamespace));
-
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
