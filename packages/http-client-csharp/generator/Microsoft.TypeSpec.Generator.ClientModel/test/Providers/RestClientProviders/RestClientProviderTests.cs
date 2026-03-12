@@ -625,6 +625,82 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public void TestBuildCreateRequestMethodWithQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.QueryParameter("copyid", InputPrimitiveType.String, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "abortCopyFromUrl",
+                parameters: parameters,
+                path: "?comp=copy",
+                httpMethod: "PUT");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithSlashQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.QueryParameter("copyid", InputPrimitiveType.String, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "abortCopyFromUrl",
+                parameters: parameters,
+                path: "/?comp=copy",
+                httpMethod: "PUT");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithMixedPathAndQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.PathParameter("p1", InputPrimitiveType.String, isRequired: true),
+                InputFactory.QueryParameter("optionalParam", new InputNullableType(InputPrimitiveType.String), isRequired: false),
+            ];
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: parameters,
+                path: "/items/{p1}?comp=copy&restype=container",
+                httpMethod: "PUT");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void TestBuildCreateRequestMethodWithPaging(bool acceptIsConstant)

@@ -1,5 +1,12 @@
 # Change Log - @typespec/json-schema
 
+## 1.10.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
 ## 1.9.0
 
 ### Bug Fixes

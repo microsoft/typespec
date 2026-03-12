@@ -1,32 +1,23 @@
-import type { Model, Union } from "@typespec/compiler";
-import {
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-  type BasicTestRunner,
-} from "@typespec/compiler/testing";
-import { assert, beforeEach, describe, expect, it } from "vitest";
+import type { Model } from "@typespec/compiler";
+import { expectDiagnosticEmpty, expectDiagnostics, t } from "@typespec/compiler/testing";
+import { describe, expect, it } from "vitest";
 import { getContentType, isEventData, isEvents } from "../src/decorators.js";
 import { unsafe_getEventDefinitions as getEventDefinitions } from "../src/experimental/index.js";
-import { createEventsTestRunner } from "./test-host.js";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createEventsTestRunner();
-});
+import { Tester } from "./test-host.js";
 
 describe("@events", () => {
   it("marks the union as containing event definitions", async () => {
-    const { MixedEvents } = await runner.compile(`@test @events union MixedEvents {}`);
+    const { MixedEvents, program } = await Tester.compile(
+      t.code`@events union ${t.union("MixedEvents")} {}`,
+    );
 
-    expect(isEvents(runner.program, MixedEvents as Union)).toBe(true);
+    expect(isEvents(program, MixedEvents)).toBe(true);
   });
 
   it("can contain multiple event definitions", async () => {
-    const { MixedEvents, JsonEvent, StringEvent } = await runner.compile(
-      `
-@test
-model StringEvent {
+    const { MixedEvents, JsonEvent, StringEvent, program } = await Tester.compile(
+      t.code`
+model ${t.model("StringEvent")} {
   payload: {
     @Events.contentType("text/plain")
     @Events.data
@@ -34,8 +25,7 @@ model StringEvent {
   };
 }
 
-@test
-model JsonEvent {
+model ${t.model("JsonEvent")} {
   @Events.data
   @Events.contentType("application/json")
   payload: {
@@ -44,9 +34,8 @@ model JsonEvent {
   };
 }
 
-@test
 @events
-union MixedEvents {
+union ${t.union("MixedEvents")} {
   @Events.contentType("application/json")
   stringEvent: StringEvent,
 
@@ -58,14 +47,10 @@ union MixedEvents {
       `,
     );
 
-    assert(MixedEvents.kind === "Union");
-    assert(JsonEvent.kind === "Model");
-    assert(StringEvent.kind === "Model");
-
     const variants = Array.from(MixedEvents.variants.values());
 
-    expect(isEvents(runner.program, MixedEvents)).toBe(true);
-    const [eventDefinitions, diagnostics] = getEventDefinitions(runner.program, MixedEvents);
+    expect(isEvents(program, MixedEvents)).toBe(true);
+    const [eventDefinitions, diagnostics] = getEventDefinitions(program, MixedEvents);
     expectDiagnosticEmpty(diagnostics);
 
     expect(eventDefinitions.length).toBe(3);
@@ -101,14 +86,15 @@ union MixedEvents {
 
 describe("@data", () => {
   it("marks a model property as being the event payload", async () => {
-    const { Event } = await runner.compile(`@test model Event { @data foo: string }`);
-    assert(Event.kind === "Model");
+    const { Event, program } = await Tester.compile(
+      t.code`model ${t.model("Event")} { @data foo: string }`,
+    );
 
-    expect(isEventData(runner.program, Event.properties.get("foo")!)).toBe(true);
+    expect(isEventData(program, Event.properties.get("foo")!)).toBe(true);
   });
 
   it("can be applied directly only once in an event model", async () => {
-    const diagnostics = await runner.diagnose(
+    const diagnostics = await Tester.diagnose(
       `
 model SampleEvent {
   @data
@@ -131,7 +117,7 @@ union SampleEvents {
   });
 
   it("cannot be applied directly more than once in an event model", async () => {
-    const diagnostics = await runner.diagnose(
+    const diagnostics = await Tester.diagnose(
       `
 model SampleEvent {
   @data
@@ -155,7 +141,7 @@ union SampleEvents {
   });
 
   it("cannot be applied indirectly more than once in an event model", async () => {
-    const diagnostics = await runner.diagnose(
+    const diagnostics = await Tester.diagnose(
       `
 model Foo {
   @data
@@ -181,7 +167,7 @@ union SampleEvents {
   });
 
   it("cannot be applied in a Record", async () => {
-    const diagnostics = await runner.diagnose(
+    const diagnostics = await Tester.diagnose(
       `
 model Foo {
   @data
@@ -206,7 +192,7 @@ union SampleEvents {
   });
 
   it("cannot be applied in an Array", async () => {
-    const diagnostics = await runner.diagnose(
+    const diagnostics = await Tester.diagnose(
       `
 model Foo {
   @data
@@ -231,7 +217,7 @@ union SampleEvents {
   });
 
   it("detects multiple event payloads nested in tuples", async () => {
-    const diagnostics = await runner.diagnose(
+    const diagnostics = await Tester.diagnose(
       `
 model Foo {
   @data
@@ -265,41 +251,34 @@ union SampleEvents {
 
 describe("@contentType", () => {
   it("can set the top-level event's content-type", async () => {
-    const { MixedEvents, TargetEvent } = await runner.compile(
-      `
+    const { stringEvent, program } = await Tester.compile(
+      t.code`
 model StringEvent {
   @Events.contentType("text/plain")
   @Events.data
   payload: string;
 }
 
-@test
 @events
 union MixedEvents {
-  @test("TargetEvent")
   @Events.contentType("application/json")
-  stringEvent: StringEvent,
+  ${t.unionVariant("stringEvent")}: StringEvent,
 }
       `,
     );
 
-    assert(MixedEvents.kind === "Union");
-    assert(TargetEvent.kind === "UnionVariant");
-
-    expect(getContentType(runner.program, TargetEvent)).toBe("application/json");
+    expect(getContentType(program, stringEvent)).toBe("application/json");
   });
 
   it("can set the event payload's content-type", async () => {
-    const { MixedEvents, EventPayload } = await runner.compile(
-      `
+    const { payload, program } = await Tester.compile(
+      t.code`
 model StringEvent {
-  @test("EventPayload")
   @Events.contentType("text/plain")
   @Events.data
-  payload: string;
+  ${t.modelProperty("payload")}: string;
 }
 
-@test
 @events
 union MixedEvents {
   @Events.contentType("application/json")
@@ -308,22 +287,17 @@ union MixedEvents {
       `,
     );
 
-    assert(MixedEvents.kind === "Union");
-    assert(EventPayload.kind === "ModelProperty");
-
-    expect(getContentType(runner.program, EventPayload)).toBe("text/plain");
+    expect(getContentType(program, payload)).toBe("text/plain");
   });
 
   it("cannot be set on a non-payload property", async () => {
-    const diagnostics = await runner.diagnose(
+    const diagnostics = await Tester.diagnose(
       `
 model StringEvent {
-  @test("EventPayload")
   @Events.contentType("text/plain")
   payload: string;
 }
 
-@test
 @events
 union MixedEvents {
   stringEvent: StringEvent,

@@ -122,6 +122,10 @@ public class ModelTestCaseUtil {
             return RANDOM.nextLong() & Long.MAX_VALUE;
         } else if (type.asNullable() == ClassType.DURATION_DOUBLE) {
             return Math.abs(RANDOM.nextDouble() * 10);
+        } else if (type.asNullable() == ClassType.DURATION_MILLISECONDS_LONG) {
+            return RANDOM.nextLong() & Long.MAX_VALUE;
+        } else if (type.asNullable() == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            return Math.abs(RANDOM.nextDouble() * 10000);
         } else if (type == ClassType.UUID) {
             return UUID.randomUUID().toString();
         } else if (type == ClassType.URL) {

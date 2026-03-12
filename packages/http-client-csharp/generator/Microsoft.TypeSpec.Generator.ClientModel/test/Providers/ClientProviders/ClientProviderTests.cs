@@ -957,6 +957,116 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(cachingField, "Parent should have caching field for subclient with InitializedBy.Individually | Parent");
         }
 
+        [Test]
+        public void TestBuildMethods_ForParent_InitializedByBoth_WithSubClientParams_HasParameterizedAccessor()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClientParam = InputFactory.PathParameter("resourceId", InputPrimitiveType.String, scope: InputParameterScope.Client);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [subClientParam],
+                initializedBy: InputClientInitializedBy.Individually | InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should have a factory method for the subclient
+            var factoryMethod = parentProvider.Methods.FirstOrDefault(
+                m => m.Signature?.Name == "GetSubClient" || m.Signature?.Name == "GetSubClientClient");
+            Assert.IsNotNull(factoryMethod, "Parent should have factory method for subclient with parameters");
+
+            // The accessor method should include the subclient's extra parameters
+            Assert.IsNotNull(factoryMethod!.Signature, "Factory method should have a signature");
+            Assert.AreEqual(1, factoryMethod.Signature!.Parameters.Count,
+                "Accessor method should include subclient parameters not present on parent");
+            Assert.AreEqual("resourceId", factoryMethod.Signature.Parameters[0].Name,
+                "Accessor method parameter should be the subclient's extra parameter");
+        }
+
+        [Test]
+        public void TestBuildFields_ForParent_InitializedByBoth_WithSubClientParams_NoCachingField()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClientParam = InputFactory.PathParameter("resourceId", InputPrimitiveType.String, scope: InputParameterScope.Client);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [subClientParam],
+                initializedBy: InputClientInitializedBy.Individually | InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should NOT have a caching field for the subclient when the accessor requires parameters,
+            // since caching is not appropriate when different parameter values produce different client instances.
+            var cachingField = parentProvider.Fields.FirstOrDefault(f => f.Name == "_cachedSubClient");
+            Assert.IsNull(cachingField, "Parent should not have caching field for subclient that has subclient-specific parameters in its accessor");
+        }
+
+        [Test]
+        public void TestBuildMethods_ForParent_InitializedByParentOnly_WithSubClientParams_HasParameterizedAccessor()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClientParam = InputFactory.PathParameter("resourceId", InputPrimitiveType.String, scope: InputParameterScope.Client);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [subClientParam],
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should have a factory method for the subclient
+            var factoryMethod = parentProvider.Methods.FirstOrDefault(
+                m => m.Signature?.Name == "GetSubClient" || m.Signature?.Name == "GetSubClientClient");
+            Assert.IsNotNull(factoryMethod, "Parent should have factory method for subclient with parameters");
+
+            // The accessor method should include the subclient's extra parameters
+            Assert.IsNotNull(factoryMethod!.Signature, "Factory method should have a signature");
+            Assert.AreEqual(1, factoryMethod.Signature!.Parameters.Count,
+                "Accessor method should include subclient parameters not present on parent");
+            Assert.AreEqual("resourceId", factoryMethod.Signature.Parameters[0].Name,
+                "Accessor method parameter should be the subclient's extra parameter");
+        }
+
+        [Test]
+        public void TestBuildFields_ForParent_InitializedByParentOnly_WithSubClientParams_NoCachingField()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClientParam = InputFactory.PathParameter("resourceId", InputPrimitiveType.String, scope: InputParameterScope.Client);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [subClientParam],
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should NOT have a caching field for the subclient when the accessor requires parameters,
+            // since caching is not appropriate when different parameter values produce different client instances.
+            var cachingField = parentProvider.Fields.FirstOrDefault(f => f.Name == "_cachedSubClient");
+            Assert.IsNull(cachingField, "Parent should not have caching field for subclient that has subclient-specific parameters in its accessor");
+        }
+
         private void ValidatePrimaryConstructor(
             ConstructorProvider primaryPublicConstructor,
             List<InputParameter> inputParameters,
@@ -1175,6 +1285,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum")).Count());
             //two methods need to have the query parameter as an string
             Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.IsFrameworkType && p.Type.FrameworkType == typeof(string))).Count());
+        }
+
+        // Validates that when generateConvenienceMethod is false (i.e. @convenientAPI(false)),
+        [Test]
+        public void ValidateEnumQueryParamWithoutConvenienceMethod()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var enumType = InputFactory.StringEnum(
+                "InputEnum",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true);
+            var inputClient = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod(
+                        "test",
+                        InputFactory.Operation(
+                            "Operation",
+                            parameters:
+                            [
+                                InputFactory.QueryParameter(
+                                    "queryParam",
+                                    enumType,
+                                    isRequired: true)
+                            ],
+                            generateConvenienceMethod: false),
+                        parameters:
+                        [
+                            InputFactory.MethodParameter(
+                                "queryParam",
+                                enumType,
+                                isRequired: true,
+                                location: InputRequestLocation.Query)
+                        ])
+                ]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+            var methods = clientProvider!.Methods;
+
+            // only protocol methods (sync + async), no convenience methods
+            Assert.AreEqual(2, methods.Count);
+            Assert.IsTrue(methods.All(m => m is ScmMethodProvider));
+
+            Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(
+                p => p.Name == "queryParam" && p.Type.IsFrameworkType && p.Type.FrameworkType == typeof(string))).Count());
+
+            Assert.AreEqual(0, methods.Where(m => m.Signature.Parameters.Any(
+                p => p.Name == "queryParam" && p.Type.Name == "InputEnum")).Count());
+
+            var enumProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType);
+            Assert.IsNotNull(enumProvider);
         }
 
         [TestCase(true)]
