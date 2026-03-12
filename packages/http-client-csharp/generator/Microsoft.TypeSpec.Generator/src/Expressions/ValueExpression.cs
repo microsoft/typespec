@@ -126,6 +126,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         public ScopedApi<bool> Is(ValueExpression other) => new BinaryOperatorExpression("is", this, other).As<bool>();
 
+        public ScopedApi<bool> IsNot(ValueExpression other) => new BinaryOperatorExpression("is not", this, other).As<bool>();
+
         public UnaryOperatorExpression Increment() => new UnaryOperatorExpression("++", this, true);
 
         public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);

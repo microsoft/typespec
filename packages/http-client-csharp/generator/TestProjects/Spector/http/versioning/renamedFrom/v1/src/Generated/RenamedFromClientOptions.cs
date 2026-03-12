@@ -3,6 +3,8 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Versioning.RenamedFrom
 {
@@ -11,6 +13,9 @@ namespace Versioning.RenamedFrom
         private const ServiceVersion LatestVersion = ServiceVersion.V1;
 
         public RenamedFromClientOptions(ServiceVersion version = LatestVersion) => throw null;
+
+        [Experimental("SCME0002")]
+        internal RenamedFromClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion
         {

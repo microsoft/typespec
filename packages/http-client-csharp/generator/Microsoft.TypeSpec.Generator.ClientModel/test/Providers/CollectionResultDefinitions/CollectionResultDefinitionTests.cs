@@ -165,9 +165,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
             var file = writer.Write();
-            
+
             // Verify the generated code includes empty string check
-            Assert.IsTrue(file.Content.Contains("string.IsNullOrEmpty"), 
+            Assert.IsTrue(file.Content.Contains("string.IsNullOrEmpty"),
                 "Generated code should check for empty strings in continuation tokens");
         }
 
@@ -199,9 +199,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
             var file = writer.Write();
-            
+
             // Verify the generated code handles URI types correctly (null check is sufficient for Uri type)
-            Assert.IsTrue(file.Content.Contains("if ((nextPageUri == null))"), 
+            Assert.IsTrue(file.Content.Contains("if ((nextPageUri == null))"),
                 "Generated code should check for null URI");
         }
 

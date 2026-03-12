@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Server.Versions.NotVersioned
 {
     public partial class NotVersionedClientOptions : ClientPipelineOptions
     {
+        public NotVersionedClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal NotVersionedClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

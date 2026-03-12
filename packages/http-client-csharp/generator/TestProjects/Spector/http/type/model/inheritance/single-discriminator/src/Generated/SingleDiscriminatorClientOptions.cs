@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
     public partial class SingleDiscriminatorClientOptions : ClientPipelineOptions
     {
+        public SingleDiscriminatorClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal SingleDiscriminatorClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }
