@@ -65,8 +65,8 @@ public final class ExtensibleStringsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> putExtensibleStringValue(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("text/plain") BinaryData body, RequestOptions requestOptions, Context context);
+            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
         @Put("/special-words/extensible-strings/string")
         @ExpectedResponses({ 200 })
@@ -75,8 +75,8 @@ public final class ExtensibleStringsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> putExtensibleStringValueSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("text/plain") BinaryData body, RequestOptions requestOptions, Context context);
+            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -85,7 +85,7 @@ public final class ExtensibleStringsImpl {
      * 
      * <pre>
      * {@code
-     * String
+     * String(and/as/assert/async/await/break/class/constructor/continue/def/del/elif/else/except/exec/finally/for/from/global/if/import/in/is/lambda/not/or/pass/raise/return/try/while/with/yield)
      * }
      * </pre>
      * 
@@ -93,23 +93,24 @@ public final class ExtensibleStringsImpl {
      * 
      * <pre>
      * {@code
-     * String
+     * String(and/as/assert/async/await/break/class/constructor/continue/def/del/elif/else/except/exec/finally/for/from/global/if/import/in/is/lambda/not/or/pass/raise/return/try/while/with/yield)
      * }
      * </pre>
      * 
-     * @param accept The accept parameter.
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return verify enum member names that are special words using extensible enum (union) along with {@link Response}
+     * on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> putExtensibleStringValueWithResponseAsync(String accept, BinaryData body,
+    public Mono<Response<BinaryData>> putExtensibleStringValueWithResponseAsync(BinaryData body,
         RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
+        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.putExtensibleStringValue(this.client.getEndpoint(), contentType,
             accept, body, requestOptions, context));
     }
@@ -120,7 +121,7 @@ public final class ExtensibleStringsImpl {
      * 
      * <pre>
      * {@code
-     * String
+     * String(and/as/assert/async/await/break/class/constructor/continue/def/del/elif/else/except/exec/finally/for/from/global/if/import/in/is/lambda/not/or/pass/raise/return/try/while/with/yield)
      * }
      * </pre>
      * 
@@ -128,23 +129,23 @@ public final class ExtensibleStringsImpl {
      * 
      * <pre>
      * {@code
-     * String
+     * String(and/as/assert/async/await/break/class/constructor/continue/def/del/elif/else/except/exec/finally/for/from/global/if/import/in/is/lambda/not/or/pass/raise/return/try/while/with/yield)
      * }
      * </pre>
      * 
-     * @param accept The accept parameter.
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return verify enum member names that are special words using extensible enum (union) along with
+     * {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> putExtensibleStringValueWithResponse(String accept, BinaryData body,
-        RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+    public Response<BinaryData> putExtensibleStringValueWithResponse(BinaryData body, RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        final String accept = "application/json";
         return service.putExtensibleStringValueSync(this.client.getEndpoint(), contentType, accept, body,
             requestOptions, Context.NONE);
     }
