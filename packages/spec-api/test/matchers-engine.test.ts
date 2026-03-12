@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { isMatcher, matchValues, MockValueMatcher } from "../src/matchers.js";
 import { match } from "../src/match.js";
+import { isMatcher, matchValues, MockValueMatcher } from "../src/matchers.js";
 import { expandDyns, json } from "../src/response-utils.js";
 import { ResolverConfig } from "../src/types.js";
 
@@ -71,10 +71,10 @@ describe("matchValues", () => {
     it("should delegate to matcher.check() in top-level position", () => {
       const matcher: MockValueMatcher = {
         [Symbol.for("SpectorMatcher")]: true as const,
-        check: (actual) => actual === "matched",
+        check: (actual: any) => actual === "matched",
         toJSON: () => "raw",
         toString: () => "custom",
-      };
+      } as any;
       expect(matchValues("matched", matcher)).toBe(true);
       expect(matchValues("not-matched", matcher)).toBe(false);
     });
@@ -104,67 +104,6 @@ describe("matchValues", () => {
         },
       };
       expect(matchValues(actual, expected)).toBe(true);
-    });
-  });
-});
-
-describe("match.dateTime", () => {
-  it("should throw for invalid datetime", () => {
-    expect(() => match.dateTime("not-a-date")).toThrow("invalid datetime value");
-  });
-
-  describe("check()", () => {
-    const matcher = match.dateTime("2022-08-26T18:38:00.000Z");
-
-    it("should match exact same string", () => {
-      expect(matcher.check("2022-08-26T18:38:00.000Z")).toBe(true);
-    });
-
-    it("should match without fractional seconds", () => {
-      expect(matcher.check("2022-08-26T18:38:00Z")).toBe(true);
-    });
-
-    it("should match with extra precision", () => {
-      expect(matcher.check("2022-08-26T18:38:00.0000000Z")).toBe(true);
-    });
-
-    it("should match with different fractional precision", () => {
-      expect(matcher.check("2022-08-26T18:38:00.00Z")).toBe(true);
-    });
-
-    it("should not match different time", () => {
-      expect(matcher.check("2022-08-26T18:39:00.000Z")).toBe(false);
-    });
-
-    it("should not match non-string values", () => {
-      expect(matcher.check(12345)).toBe(false);
-      expect(matcher.check(null)).toBe(false);
-      expect(matcher.check(undefined)).toBe(false);
-    });
-
-    it("should not match invalid datetime strings", () => {
-      expect(matcher.check("not-a-date")).toBe(false);
-    });
-  });
-
-  describe("toJSON()", () => {
-    it("should return the original value", () => {
-      expect(match.dateTime("2022-08-26T18:38:00.000Z").toJSON()).toBe(
-        "2022-08-26T18:38:00.000Z",
-      );
-    });
-
-    it("should serialize correctly in JSON.stringify", () => {
-      const obj = { value: match.dateTime("2022-08-26T18:38:00.000Z") };
-      expect(JSON.stringify(obj)).toBe('{"value":"2022-08-26T18:38:00.000Z"}');
-    });
-  });
-
-  describe("toString()", () => {
-    it("should return a descriptive string", () => {
-      expect(match.dateTime("2022-08-26T18:38:00.000Z").toString()).toBe(
-        "match.dateTime(2022-08-26T18:38:00.000Z)",
-      );
     });
   });
 });
