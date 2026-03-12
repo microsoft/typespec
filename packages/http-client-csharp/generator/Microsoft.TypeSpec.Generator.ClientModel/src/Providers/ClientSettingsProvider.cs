@@ -134,10 +134,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var propName = param.Name.ToIdentifierName();
 
-                // Handle non-framework types (custom struct/enum)
+                // Handle non-framework types (extensible enums)
                 if (!param.Type.IsFrameworkType)
                 {
-                    // Custom struct/enum (extensible): if (section["Name"] is string val) { Name = new TypeName(val); }
+                    // Extensible enum: if (section["Name"] is string val) { Name = new TypeName(val); }
                     if (param.Type.IsEnum)
                     {
                         AppendEnumBinding(body, sectionParam, propName, param);
