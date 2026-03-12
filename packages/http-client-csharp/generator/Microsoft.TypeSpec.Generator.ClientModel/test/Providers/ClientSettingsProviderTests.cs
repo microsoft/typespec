@@ -500,6 +500,99 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void TestBindCoreMethod_WithLongParam()
+        {
+            var inputParameters = new InputParameter[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.MethodParameter(
+                    "maxSize",
+                    InputPrimitiveType.Int64,
+                    isRequired: true,
+                    scope: InputParameterScope.Client)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("long.TryParse"), "BindCore should use long.TryParse for long parameter binding");
+            Assert.IsTrue(bodyString.Contains("MaxSize"), "BindCore should assign to MaxSize property");
+        }
+
+        [Test]
+        public void TestBindCoreMethod_WithFloatParam()
+        {
+            var inputParameters = new InputParameter[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.MethodParameter(
+                    "temperature",
+                    InputPrimitiveType.Float32,
+                    isRequired: true,
+                    scope: InputParameterScope.Client)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("float.TryParse"), "BindCore should use float.TryParse for float parameter binding");
+            Assert.IsTrue(bodyString.Contains("Temperature"), "BindCore should assign to Temperature property");
+        }
+
+        [Test]
+        public void TestBindCoreMethod_WithDoubleParam()
+        {
+            var inputParameters = new InputParameter[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.MethodParameter(
+                    "precision",
+                    InputPrimitiveType.Float64,
+                    isRequired: true,
+                    scope: InputParameterScope.Client)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("double.TryParse"), "BindCore should use double.TryParse for double parameter binding");
+            Assert.IsTrue(bodyString.Contains("Precision"), "BindCore should assign to Precision property");
+        }
+
+        [Test]
         public void TestExperimentalAttribute()
         {
             var client = InputFactory.Client("TestClient");

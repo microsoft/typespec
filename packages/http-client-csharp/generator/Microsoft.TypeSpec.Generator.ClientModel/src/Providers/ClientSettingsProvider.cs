@@ -197,6 +197,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int));
             }
+            else if (frameworkType == typeof(long))
+            {
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(long));
+            }
+            else if (frameworkType == typeof(float))
+            {
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(float));
+            }
+            else if (frameworkType == typeof(double))
+            {
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(double));
+            }
             else if (frameworkType == typeof(TimeSpan))
             {
                 AppendTryParseBinding(body, sectionParam, propName, varName, typeof(TimeSpan));
@@ -204,6 +216,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else if (frameworkType == typeof(Uri))
             {
                 AppendUriTryCreateBinding(body, sectionParam, propName, varName);
+            }
+            else
+            {
+                AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
             }
         }
 
@@ -285,24 +301,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // IConfigurationSection listSection = section.GetSection("PropName");
-            var sectionVar = new VariableExpression(IConfigurationSectionType, varName + "Section");
+            var sectionVar = new VariableExpression(IConfigurationSectionType, (propName + "Section").ToVariableName());
             body.Add(Declare(sectionVar, sectionParam.Invoke("GetSection", Literal(propName))));
 
             // if (listSection.Exists())
             var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
 
             // listSection.GetChildren().Where(c => c.Value is not null).Select(c => c.Value!).ToList()
-            var cDecl = new CodeWriterDeclaration("c");
-            var cVar = new VariableExpression(IConfigurationSectionType, cDecl);
+            var cVar = new VariableExpression(IConfigurationSectionType, "c");
             var whereCondition = new BinaryOperatorExpression("is not", cVar.Property("Value"), Null);
-            var whereLambda = new FuncExpression([cDecl], whereCondition);
+            var whereLambda = new FuncExpression([cVar.Declaration], whereCondition);
             var whereResult = sectionVar.Invoke("GetChildren")
                 .Invoke("Where", [whereLambda], null, false, extensionType: typeof(Enumerable));
 
-            var c2Decl = new CodeWriterDeclaration("c");
-            var c2Var = new VariableExpression(IConfigurationSectionType, c2Decl);
+            var c2Var = new VariableExpression(IConfigurationSectionType, "c");
             var selectBody = new UnaryOperatorExpression("!", c2Var.Property("Value"), true);
-            var selectLambda = new FuncExpression([c2Decl], selectBody);
+            var selectLambda = new FuncExpression([c2Var.Declaration], selectBody);
             var selectResult = whereResult
                 .Invoke("Select", [selectLambda], null, false, extensionType: typeof(Enumerable));
 
@@ -322,11 +336,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string varName,
             CSharpType type)
         {
-            var decl = new DeclarationExpression(typeof(string), varName, out var declVar);
-            var isPattern = new BinaryOperatorExpression("is",
-                new IndexerExpression(sectionParam, Literal(propName)),
-                decl);
-            var ifStatement = new IfStatement(isPattern);
+            var decl = Declare(varName, new CSharpType(typeof(string)), out var declVar);
+            var ifStatement = new IfStatement(new IndexerExpression(sectionParam, Literal(propName)).Is(decl));
             ifStatement.Add(This.Property(propName).Assign(New.Instance(type, declVar)).Terminate());
             body.Add(ifStatement);
         }
@@ -364,7 +375,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CSharpType type)
         {
             // IConfigurationSection {name}Section = section.GetSection("PropName");
-            var sectionVar = new VariableExpression(IConfigurationSectionType, varName + "Section");
+            var sectionVar = new VariableExpression(IConfigurationSectionType, (propName + "Section").ToVariableName());
             body.Add(Declare(sectionVar, sectionParam.Invoke("GetSection", Literal(propName))));
 
             // if ({name}Section.Exists()) { PropName = new TypeName({name}Section); }
