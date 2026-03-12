@@ -24,11 +24,12 @@ npm view @azure-tools/typespec-client-generator-core versions --json \
   | node -e "
     const versions = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
     const stable = versions.filter(v => !/-/.test(v));
+    if (stable.length === 0) { console.error('No stable versions found'); process.exit(1); }
     console.log(stable[stable.length - 1]);
   "
 ```
 
-Save the result as `LATEST_STABLE`.
+Save the result as `LATEST_STABLE`. If no stable version is found, stop — there is nothing to do.
 
 ## Step 2 — Read the current version from package.json
 
@@ -44,7 +45,7 @@ If `LATEST_STABLE` is newer than `CURRENT_VERSION`, continue to Step 4.
 
 ## Step 4 — Perform the TCGC upgrade
 
-Follow the instructions in `.github/prompts/upgrade-tcgc.instructions.md` to upgrade the `http-client-csharp` emitter to the `LATEST_STABLE` version. Specifically, invoke:
+Follow the instructions in `.github/prompts/upgrade-tcgc.instructions.md` to upgrade the `http-client-csharp` emitter to the `LATEST_STABLE` version. Run the upgrade command, replacing `<LATEST_STABLE>` with the actual version number from Step 1:
 
 ```
 tcgc upgrade http-client-csharp <LATEST_STABLE>
