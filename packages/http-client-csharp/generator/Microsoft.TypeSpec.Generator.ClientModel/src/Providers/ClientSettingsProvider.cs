@@ -307,7 +307,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // listSection.GetChildren().Where(c => c.Value is not null).Select(c => c.Value!).ToList()
             var cWhereVar = new VariableExpression(IConfigurationSectionType, "c");
-            var whereCondition = new BinaryOperatorExpression("is not", cWhereVar.Property("Value"), Null);
+            var whereCondition = Not(cWhereVar.Property("Value").Is(Null));
             var whereLambda = new FuncExpression([cWhereVar.Declaration], whereCondition);
             var whereResult = sectionVar.Invoke("GetChildren")
                 .Invoke("Where", [whereLambda], null, false, extensionType: typeof(Enumerable));
