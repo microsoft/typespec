@@ -20,7 +20,7 @@ function createQueryServerTests(
       uri,
       method: "get",
       request: {
-        query: { value: match.dateTime(value) },
+        query: { value: match.dateTime[format](value) },
       },
       response: {
         status: 204,
@@ -79,7 +79,7 @@ function createPropertyServerTests(
   format: "rfc7231" | "rfc3339" | undefined,
 ) {
   if (format) {
-    const matcherBody = { value: match.dateTime(value) };
+    const matcherBody = { value: match.dateTime[format](value) };
     return passOnSuccess({
       uri,
       method: "post",
@@ -141,7 +141,7 @@ function createHeaderServerTests(
       uri,
       method: "get",
       request: {
-        headers: { value: match.dateTime(value) },
+        headers: { value: match.dateTime[format](value) },
       },
       response: {
         status: 204,
