@@ -39,6 +39,10 @@ namespace SampleTypeSpec
             {
                 return;
             }
+            if (section["Version"] is string version)
+            {
+                Version = version;
+            }
         }
 
         /// <summary> Gets the Version. </summary>

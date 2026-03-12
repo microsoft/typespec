@@ -47,6 +47,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
 
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;

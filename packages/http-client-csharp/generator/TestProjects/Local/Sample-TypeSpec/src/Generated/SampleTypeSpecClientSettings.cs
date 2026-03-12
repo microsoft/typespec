@@ -26,10 +26,9 @@ namespace SampleTypeSpec
         /// <param name="section"> The configuration section. </param>
         protected override void BindCore(IConfigurationSection section)
         {
-            string endpoint = section["SampleTypeSpecUrl"];
-            if (!string.IsNullOrEmpty(endpoint))
+            if (Uri.TryCreate(section["SampleTypeSpecUrl"], UriKind.Absolute, out Uri sampleTypeSpecUrl))
             {
-                SampleTypeSpecUrl = new Uri(endpoint);
+                SampleTypeSpecUrl = sampleTypeSpecUrl;
             }
             IConfigurationSection optionsSection = section.GetSection("Options");
             if (optionsSection.Exists())
