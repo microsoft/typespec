@@ -1,3 +1,4 @@
+import { isMatcher } from "./matchers.js";
 import { MockBody, MockMultipartBody, Resolver, ResolverConfig } from "./types.js";
 
 /**
@@ -17,6 +18,9 @@ function createResolver(content: unknown): Resolver {
     serialize: (config: ResolverConfig) => {
       const expanded = expandDyns(content, config);
       return JSON.stringify(expanded);
+    },
+    resolve: (config: ResolverConfig) => {
+      return expandDyns(content, config);
     },
   };
 }
@@ -95,6 +99,9 @@ export function expandDyns<T>(value: T, config: ResolverConfig): T {
   } else if (Array.isArray(value)) {
     return value.map((v) => expandDyns(v, config)) as any;
   } else if (typeof value === "object" && value !== null) {
+    if (isMatcher(value)) {
+      return value as any;
+    }
     const obj = value as Record<string, unknown>;
     return Object.fromEntries(
       Object.entries(obj).map(([key, v]) => [key, expandDyns(v, config)]),

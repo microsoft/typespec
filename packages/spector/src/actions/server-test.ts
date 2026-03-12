@@ -1,11 +1,11 @@
 import {
   expandDyns,
+  matchValues,
   MockApiDefinition,
   MockBody,
   ResolverConfig,
   ValidationError,
 } from "@typespec/spec-api";
-import deepEqual from "deep-equal";
 import micromatch from "micromatch";
 import { inspect } from "node:util";
 import pc from "picocolors";
@@ -79,28 +79,34 @@ class ServerTestsGenerator {
   async #validateBody(response: Response, body: MockBody) {
     if (Buffer.isBuffer(body.rawContent)) {
       const responseData = Buffer.from(await response.arrayBuffer());
-      if (!deepEqual(responseData, body.rawContent)) {
+      if (!matchValues(responseData, body.rawContent)) {
         throw new ValidationError(`Raw body mismatch`, body.rawContent, responseData);
       }
     } else {
       const responseData = await response.text();
-      const raw =
-        typeof body.rawContent === "string"
-          ? body.rawContent
-          : body.rawContent?.serialize(this.resolverConfig);
       switch (body.contentType) {
         case "application/xml":
-        case "text/plain":
-          if (body.rawContent !== responseData) {
+        case "text/plain": {
+          const raw =
+            typeof body.rawContent === "string"
+              ? body.rawContent
+              : body.rawContent?.serialize(this.resolverConfig);
+          if (raw !== responseData) {
             throw new ValidationError("Response data mismatch", raw, responseData);
           }
           break;
-        case "application/json":
-          const expected = JSON.parse(raw as any);
+        }
+        case "application/json": {
+          const expected =
+            typeof body.rawContent === "string"
+              ? JSON.parse(body.rawContent)
+              : body.rawContent?.resolve(this.resolverConfig);
           const actual = JSON.parse(responseData);
-          if (!deepEqual(actual, expected, { strict: true })) {
+          if (!matchValues(actual, expected)) {
             throw new ValidationError("Response data mismatch", expected, actual);
           }
+          break;
+        }
       }
     }
   }

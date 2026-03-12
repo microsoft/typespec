@@ -1,6 +1,7 @@
 import deepEqual from "deep-equal";
 import * as prettier from "prettier";
 import { parseString } from "xml2js";
+import { matchValues } from "./matchers.js";
 import { CollectionFormat, RequestExt } from "./types.js";
 import { ValidationError } from "./validation-error.js";
 
@@ -37,7 +38,7 @@ export const validateBodyEquals = (
     return;
   }
 
-  if (!deepEqual(request.body, expectedBody, { strict: true })) {
+  if (!matchValues(request.body, expectedBody)) {
     throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.body);
   }
 };
@@ -85,7 +86,7 @@ export const validateCoercedDateBodyEquals = (
     return;
   }
 
-  if (!deepEqual(coerceDate(request.body), expectedBody, { strict: true })) {
+  if (!matchValues(coerceDate(request.body), expectedBody)) {
     throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.body);
   }
 };

@@ -1,6 +1,7 @@
 import {
   CollectionFormat,
   json,
+  match,
   MockRequest,
   passOnSuccess,
   ScenarioMockApi,
@@ -89,6 +90,22 @@ function createPropertyServerTests(
   format: "rfc7231" | "rfc3339" | undefined,
   value: any,
 ) {
+  if (format) {
+    const matcherBody = { value: match.dateTime(data.value) };
+    return passOnSuccess({
+      uri,
+      method: "post",
+      request: {
+        body: json(matcherBody),
+      },
+      response: {
+        status: 200,
+        body: json(matcherBody),
+      },
+      kind: "MockApiDefinition",
+    });
+  }
+
   return passOnSuccess({
     uri,
     method: "post",
@@ -97,20 +114,6 @@ function createPropertyServerTests(
     },
     response: {
       status: 200,
-    },
-    handler: (req: MockRequest) => {
-      if (format) {
-        validateValueFormat(req.body["value"], format);
-        if (Date.parse(req.body["value"]) !== Date.parse(value)) {
-          throw new ValidationError(`Wrong value`, value, req.body["value"]);
-        }
-      } else {
-        req.expect.coercedBodyEquals({ value: value });
-      }
-      return {
-        status: 200,
-        body: json({ value: value }),
-      };
     },
     kind: "MockApiDefinition",
   });

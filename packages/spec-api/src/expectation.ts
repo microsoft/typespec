@@ -1,4 +1,4 @@
-import deepEqual from "deep-equal";
+import { matchValues } from "./matchers.js";
 import {
   validateBodyEmpty,
   validateBodyEquals,
@@ -89,7 +89,7 @@ export class RequestExpectation {
    * @param expected Expected value
    */
   public deepEqual(actual: unknown, expected: unknown, message = "Values not deep equal"): void {
-    if (!deepEqual(actual, expected, { strict: true })) {
+    if (!matchValues(actual, expected)) {
       throw new ValidationError(message, expected, actual);
     }
   }

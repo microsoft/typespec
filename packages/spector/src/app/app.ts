@@ -105,19 +105,32 @@ function validateBody(
     if (Buffer.isBuffer(body.rawContent)) {
       req.expect.rawBodyEquals(body.rawContent);
     } else {
-      const raw =
-        typeof body.rawContent === "string" ? body.rawContent : body.rawContent?.serialize(config);
       switch (body.contentType) {
-        case "application/json":
-          req.expect.coercedBodyEquals(JSON.parse(raw as any));
+        case "application/json": {
+          const expected =
+            typeof body.rawContent === "string"
+              ? JSON.parse(body.rawContent)
+              : body.rawContent?.resolve(config);
+          req.expect.coercedBodyEquals(expected);
           break;
-        case "application/xml":
+        }
+        case "application/xml": {
+          const raw =
+            typeof body.rawContent === "string"
+              ? body.rawContent
+              : body.rawContent?.serialize(config);
           req.expect.xmlBodyEquals(
             (raw as any).replace(`<?xml version='1.0' encoding='UTF-8'?>`, ""),
           );
           break;
-        default:
+        }
+        default: {
+          const raw =
+            typeof body.rawContent === "string"
+              ? body.rawContent
+              : body.rawContent?.serialize(config);
           req.expect.rawBodyEquals(raw);
+        }
       }
     }
   }
