@@ -27,7 +27,7 @@ safe-outputs:
   create-pull-request:
     draft: true
     title-prefix: "[tcgc-bump] "
-    labels: [dependencies]
+    labels: [dependencies, "emitter:client:csharp"]
     protected-files: fallback-to-issue
 ---
 
@@ -53,7 +53,7 @@ Save the result as `LATEST_STABLE`. If no stable version is found, stop — ther
 
 ## Step 2 — Check for existing open PRs
 
-Before proceeding, search for any **open** pull requests in this repository whose title contains `Bump TCGC to <LATEST_STABLE>` (substituting the actual version). If such a PR already exists, **stop here** — no new pull request should be created.
+Before proceeding, search for any **open** pull requests in this repository whose title contains `Bump TCGC to <LATEST_STABLE>` (substituting the actual version) **and** that have the `emitter:client:csharp` label. If such a PR already exists, **stop here** — no new pull request should be created.
 
 ## Step 3 — Read the current version from package.json
 
@@ -94,7 +94,7 @@ Open a pull request with:
 - **Title**: `Bump TCGC to <LATEST_STABLE> in http-client-csharp`
 - **Branch name**: `auto/bump-tcgc-csharp-<LATEST_STABLE>`
 - **Description**: Include what version was bumped from and to, a link to the TCGC changelog, and a summary of any related dependency changes.
-- **Labels**: `dependencies`
+- **Labels**: `dependencies`, `emitter:client:csharp`
 
 The TCGC changelog can be found at:
 `https://github.com/Azure/typespec-azure/blob/main/packages/typespec-client-generator-core/CHANGELOG.md`
