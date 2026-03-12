@@ -81,7 +81,11 @@ class ServerTestsGenerator {
       const responseData = Buffer.from(await response.arrayBuffer());
       const result = matchValues(responseData, body.rawContent);
       if (!result.pass) {
-        throw new ValidationError(`Raw body mismatch: ${result.message}`, body.rawContent, responseData);
+        throw new ValidationError(
+          `Raw body mismatch: ${result.message}`,
+          body.rawContent,
+          responseData,
+        );
       }
     } else {
       const responseData = await response.text();
@@ -105,7 +109,11 @@ class ServerTestsGenerator {
           const actual = JSON.parse(responseData);
           const result = matchValues(actual, expected);
           if (!result.pass) {
-            throw new ValidationError(`Response data mismatch: ${result.message}`, expected, actual);
+            throw new ValidationError(
+              `Response data mismatch: ${result.message}`,
+              expected,
+              actual,
+            );
           }
           break;
         }

@@ -1,4 +1,4 @@
-import { type MockValueMatcher, type MatchResult, ok, err, MatcherSymbol } from "./matchers.js";
+import { err, MatcherSymbol, type MatchResult, type MockValueMatcher, ok } from "./matchers.js";
 
 const rfc3339Pattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/i;
 const rfc7231Pattern =

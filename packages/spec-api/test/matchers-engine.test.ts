@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { match } from "../src/match.js";
-import { isMatcher, matchValues, ok, err, type MatchResult, MockValueMatcher } from "../src/matchers.js";
+import {
+  err,
+  isMatcher,
+  type MatchResult,
+  matchValues,
+  MockValueMatcher,
+  ok,
+} from "../src/matchers.js";
 import { expandDyns, json } from "../src/response-utils.js";
 import { ResolverConfig } from "../src/types.js";
 

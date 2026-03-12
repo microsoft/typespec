@@ -132,7 +132,9 @@ export function matchValues(actual: unknown, expected: unknown, path: string = "
     if (expectedKeys.length !== actualKeys.length) {
       const missing = expectedKeys.filter((k) => !(k in actualObj));
       const extra = actualKeys.filter((k) => !(k in expectedObj));
-      const parts: string[] = [`Key count mismatch: expected ${expectedKeys.length} but got ${actualKeys.length}`];
+      const parts: string[] = [
+        `Key count mismatch: expected ${expectedKeys.length} but got ${actualKeys.length}`,
+      ];
       if (missing.length > 0) parts.push(`missing: [${missing.join(", ")}]`);
       if (extra.length > 0) parts.push(`extra: [${extra.join(", ")}]`);
       return pathErr(parts.join(". "), path);
