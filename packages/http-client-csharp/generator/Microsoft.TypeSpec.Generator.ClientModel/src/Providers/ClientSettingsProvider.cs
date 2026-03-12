@@ -150,6 +150,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             AppendFixedEnumBinding(body, sectionParam, propName, param);
                         }
                     }
+                    else
+                    {
+                        // Complex object: section.GetSection(name) + .Exists() + new Type(section)
+                        AppendComplexObjectBinding(body, sectionParam, propName, param);
+                    }
                     continue;
                 }
 
@@ -344,6 +349,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }));
             ifStatement.Add(This.Property(propName).Assign(parsedVar).Terminate());
             body.Add(ifStatement);
+        }
+
+        /// <summary>
+        /// Appends a complex object binding: IConfigurationSection s = section.GetSection(name);
+        /// if (s.Exists()) { PropName = new TypeName(s); }
+        /// </summary>
+        private static void AppendComplexObjectBinding(
+            List<MethodBodyStatement> body,
+            ParameterProvider sectionParam,
+            string propName,
+            ParameterProvider param)
+        {
+            // IConfigurationSection {name}Section = section.GetSection("PropName");
+            var sectionVar = new VariableExpression(IConfigurationSectionType, param.Name.ToVariableName() + "Section");
+            body.Add(Declare(sectionVar, sectionParam.Invoke("GetSection", Literal(propName))));
+
+            // if ({name}Section.Exists()) { PropName = new TypeName({name}Section); }
+            var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
+            ifExistsStatement.Add(This.Property(propName).Assign(New.Instance(param.Type, sectionVar)).Terminate());
+            body.Add(ifExistsStatement);
         }
     }
 }

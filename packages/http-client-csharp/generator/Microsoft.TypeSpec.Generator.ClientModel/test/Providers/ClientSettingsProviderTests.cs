@@ -458,6 +458,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void TestBindCoreMethod_WithComplexObjectParam()
+        {
+            var complexModel = InputFactory.Model(
+                "CustomOptions",
+                properties: new[]
+                {
+                    InputFactory.Property("setting1", InputPrimitiveType.String, isRequired: true, wireName: "setting1"),
+                    InputFactory.Property("setting2", InputPrimitiveType.Int32, isRequired: false, wireName: "setting2")
+                });
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [complexModel]);
+
+            var inputParameters = new InputParameter[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.MethodParameter(
+                    "customOptions",
+                    complexModel,
+                    isRequired: true,
+                    scope: InputParameterScope.Client)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("GetSection"), "BindCore should use GetSection for complex object binding");
+            Assert.IsTrue(bodyString.Contains("Exists"), "BindCore should check Exists for complex object binding");
+            Assert.IsTrue(bodyString.Contains("new"), "BindCore should create new instance for complex object binding");
+            Assert.IsTrue(bodyString.Contains("CustomOptions"), "BindCore should reference the CustomOptions type");
+        }
+
+        [Test]
         public void TestExperimentalAttribute()
         {
             var client = InputFactory.Client("TestClient");
