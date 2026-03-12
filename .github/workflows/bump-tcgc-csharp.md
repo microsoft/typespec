@@ -51,25 +51,25 @@ npm view @azure-tools/typespec-client-generator-core versions --json \
 
 Save the result as `LATEST_STABLE`. If no stable version is found, stop — there is nothing to do.
 
-## Step 2 — Read the current version from package.json
+## Step 2 — Check for existing open PRs
+
+Before proceeding, search for any **open** pull requests in this repository whose title contains `Bump TCGC to <LATEST_STABLE>` (substituting the actual version). If such a PR already exists, **stop here** — no new pull request should be created.
+
+## Step 3 — Read the current version from package.json
 
 Read the file `packages/http-client-csharp/package.json` and extract the exact version listed under `devDependencies["@azure-tools/typespec-client-generator-core"]`.
 
 Save the result as `CURRENT_VERSION`.
 
-## Step 3 — Compare versions
+## Step 4 — Compare versions
 
 If `LATEST_STABLE` equals `CURRENT_VERSION`, **stop here** — there is nothing to do and **no pull request should be created**.
 
-If `LATEST_STABLE` is newer than `CURRENT_VERSION`, continue to Step 4.
+If `LATEST_STABLE` is newer than `CURRENT_VERSION`, continue to Step 5.
 
-## Step 4 — Perform the TCGC upgrade
+## Step 5 — Perform the TCGC upgrade
 
-Follow the instructions in `.github/prompts/upgrade-tcgc.instructions.md` to upgrade the `http-client-csharp` emitter to the `LATEST_STABLE` version. Run the upgrade command, replacing `<LATEST_STABLE>` with the actual version number from Step 1:
-
-```
-tcgc upgrade http-client-csharp <LATEST_STABLE>
-```
+Follow the step-by-step instructions in `.github/prompts/upgrade-tcgc.instructions.md` to upgrade the `http-client-csharp` emitter to `LATEST_STABLE`. That file is a Copilot prompt — read it and execute the migration phases it describes (package upgrade, build, fix breaking changes, regenerate tests) for the emitter located at `packages/http-client-csharp` with the target version `LATEST_STABLE`.
 
 This will:
 
@@ -87,7 +87,7 @@ This will:
 - Use exact versions for dev packages (no tilde ranges).
 - Do not modify any files outside `packages/http-client-csharp/` unless the upgrade instructions specifically require it (such as regenerating the sample service under `docs/samples/client/csharp/`).
 
-## Step 5 — Create a pull request
+## Step 6 — Create a pull request
 
 Open a pull request with:
 
