@@ -22,12 +22,13 @@ export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Pro
   const filename = createTempPath(".yaml", name);
   const yamlStr = jsyaml.dump(codemodel);
   await writeFile(filename, yamlStr);
+  const devRoot = os.platform() === "win32" ? "C:/dev" : "/workspaces";
   await writeFile(
-    joinPaths("C:/dev/typespec/packages/http-client-python", "alpha", "output.yaml"),
+    joinPaths(devRoot, "typespec/packages/http-client-python", "alpha", "output.yaml"),
     yamlStr,
   );
   await writeFile(
-    joinPaths("C:/dev/typespec/packages/http-client-python", "alpha", "output copy.yaml"),
+    joinPaths(devRoot, "typespec/packages/http-client-python", "alpha", "output copy.yaml"),
     yamlStr,
   );
   return filename;

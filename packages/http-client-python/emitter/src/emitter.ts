@@ -225,15 +225,20 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       execSync(command);
 
       // Write command to alpha/command.txt for debugging/profiling purposes
+      const devRoot = os.platform() === "win32" ? "C:/dev" : "/workspaces";
+      const devBase = `${devRoot}/typespec/packages/http-client-python`;
       const commandFlagsRecorded = Object.entries(commandArgs)
         .map(([key, value]) => {
           if (key === "tsp-file") {
-            return `--${key}=C:/dev/typespec/packages/http-client-python/alpha/output.yaml`;
+            return `--${key}=${devBase}/alpha/output.yaml`;
           }
           return `--${key}=${value}`;
         })
         .join(" ");
-      const commandRecorded = `Copy-Item "C:/dev/typespec/packages/http-client-python/alpha/output copy.yaml" -Destination "C:/dev/typespec/packages/http-client-python/alpha/output.yaml" ; ${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlagsRecorded} --debug=true`;
+      const copyCmd = os.platform() === "win32"
+        ? `Copy-Item "${devBase}/alpha/output copy.yaml" -Destination "${devBase}/alpha/output.yaml"`
+        : `cp "${devBase}/alpha/output copy.yaml" "${devBase}/alpha/output.yaml"`;
+      const commandRecorded = `${copyCmd} ; ${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlagsRecorded} --debug=true`;
       fs.writeFileSync(path.join(root, "alpha", "command.txt"), commandRecorded);
 
       const blackExcludeDirs = [
