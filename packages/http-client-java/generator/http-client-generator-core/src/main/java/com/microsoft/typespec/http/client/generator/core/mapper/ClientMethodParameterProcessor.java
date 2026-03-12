@@ -14,7 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Param
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,7 +28,7 @@ final class ClientMethodParameterProcessor {
         final List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
         final List<ParametersTuple> parametersTuples = new ArrayList<>();
         final List<String> requiredNullableParameterExpressions = new ArrayList<>();
-        final Map<String, String> validateParameterExpressions = new HashMap<>();
+        final Map<String, String> validateParameterExpressions = new LinkedHashMap<>();
         final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
 
         final ParametersTransformationProcessor transformationProcessor

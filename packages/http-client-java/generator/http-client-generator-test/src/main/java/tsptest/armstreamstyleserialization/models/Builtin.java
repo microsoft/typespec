@@ -122,6 +122,21 @@ public final class Builtin implements JsonSerializable<Builtin> {
      */
     private BinaryData unknown;
 
+    /*
+     * The unknownDict property.
+     */
+    private Map<String, BinaryData> unknownDict;
+
+    /*
+     * The unknownArray property.
+     */
+    private List<BinaryData> unknownArray;
+
+    /*
+     * The unknownDictArray property.
+     */
+    private List<Map<String, BinaryData>> unknownDictArray;
+
     /**
      * Creates an instance of Builtin class.
      */
@@ -509,6 +524,66 @@ public final class Builtin implements JsonSerializable<Builtin> {
     }
 
     /**
+     * Get the unknownDict property: The unknownDict property.
+     * 
+     * @return the unknownDict value.
+     */
+    public Map<String, BinaryData> unknownDict() {
+        return this.unknownDict;
+    }
+
+    /**
+     * Set the unknownDict property: The unknownDict property.
+     * 
+     * @param unknownDict the unknownDict value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withUnknownDict(Map<String, BinaryData> unknownDict) {
+        this.unknownDict = unknownDict;
+        return this;
+    }
+
+    /**
+     * Get the unknownArray property: The unknownArray property.
+     * 
+     * @return the unknownArray value.
+     */
+    public List<BinaryData> unknownArray() {
+        return this.unknownArray;
+    }
+
+    /**
+     * Set the unknownArray property: The unknownArray property.
+     * 
+     * @param unknownArray the unknownArray value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withUnknownArray(List<BinaryData> unknownArray) {
+        this.unknownArray = unknownArray;
+        return this;
+    }
+
+    /**
+     * Get the unknownDictArray property: The unknownDictArray property.
+     * 
+     * @return the unknownDictArray value.
+     */
+    public List<Map<String, BinaryData>> unknownDictArray() {
+        return this.unknownDictArray;
+    }
+
+    /**
+     * Set the unknownDictArray property: The unknownDictArray property.
+     * 
+     * @param unknownDictArray the unknownDictArray value to set.
+     * @return the Builtin object itself.
+     */
+    public Builtin withUnknownDictArray(List<Map<String, BinaryData>> unknownDictArray) {
+        this.unknownDictArray = unknownDictArray;
+        return this;
+    }
+
+    /**
      * Validates the instance.
      * 
      * @throws IllegalArgumentException thrown if the instance is not valid.
@@ -565,6 +640,18 @@ public final class Builtin implements JsonSerializable<Builtin> {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Missing required property unknown in model Builtin"));
         }
+        if (unknownDict() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Missing required property unknownDict in model Builtin"));
+        }
+        if (unknownArray() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Missing required property unknownArray in model Builtin"));
+        }
+        if (unknownDictArray() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Missing required property unknownDictArray in model Builtin"));
+        }
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(Builtin.class);
@@ -597,6 +684,28 @@ public final class Builtin implements JsonSerializable<Builtin> {
         jsonWriter.writeStringField("uuid", this.uuid);
         jsonWriter.writeFieldName("unknown");
         this.unknown.writeTo(jsonWriter);
+        jsonWriter.writeMapField("unknownDict", this.unknownDict, (writer, element) -> {
+            if (element == null) {
+                writer.writeNull();
+            } else {
+                element.writeTo(writer);
+            }
+        });
+        jsonWriter.writeArrayField("unknownArray", this.unknownArray, (writer, element) -> {
+            if (element == null) {
+                writer.writeNull();
+            } else {
+                element.writeTo(writer);
+            }
+        });
+        jsonWriter.writeArrayField("unknownDictArray", this.unknownDictArray,
+            (writer, element) -> writer.writeMap(element, (writer1, element1) -> {
+                if (element1 == null) {
+                    writer1.writeNull();
+                } else {
+                    element1.writeTo(writer1);
+                }
+            }));
         return jsonWriter.writeEndObject();
     }
 
@@ -663,6 +772,19 @@ public final class Builtin implements JsonSerializable<Builtin> {
                 } else if ("unknown".equals(fieldName)) {
                     deserializedBuiltin.unknown
                         = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));
+                } else if ("unknownDict".equals(fieldName)) {
+                    Map<String, BinaryData> unknownDict = reader.readMap(reader1 -> reader1
+                        .getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
+                    deserializedBuiltin.unknownDict = unknownDict;
+                } else if ("unknownArray".equals(fieldName)) {
+                    List<BinaryData> unknownArray = reader.readArray(reader1 -> reader1
+                        .getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
+                    deserializedBuiltin.unknownArray = unknownArray;
+                } else if ("unknownDictArray".equals(fieldName)) {
+                    List<Map<String, BinaryData>> unknownDictArray
+                        = reader.readArray(reader1 -> reader1.readMap(reader2 -> reader2
+                            .getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()))));
+                    deserializedBuiltin.unknownDictArray = unknownDictArray;
                 } else {
                     reader.skipChildren();
                 }

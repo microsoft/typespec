@@ -83,7 +83,11 @@ def test_list_without_continuation(client: PageableClient):
     assert_result(result)
 
 
-# # after https://github.com/microsoft/typespec/pull/9455 released, we could enable this test again
-# def test_xml_pagination_list_with_next_link(client: PageableClient):
-#     result = list(client.xml_pagination.list_with_next_link())
-#     assert_result(result)
+def test_xml_pagination_list_with_continuation(client: PageableClient):
+    result = list(client.xml_pagination.list_with_continuation())
+    assert_result(result)
+
+
+def test_xml_pagination_list_with_next_link(client: PageableClient):
+    result = list(client.xml_pagination.list_with_next_link())
+    assert_result(result)

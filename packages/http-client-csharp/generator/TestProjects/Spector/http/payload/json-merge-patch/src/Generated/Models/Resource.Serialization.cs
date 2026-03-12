@@ -13,6 +13,20 @@ namespace Payload.JsonMergePatch
     {
         internal Resource() => throw null;
 
+        protected virtual Resource PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<Resource>.Write(ModelReaderWriterOptions options) => throw null;
+
+        Resource IPersistableModel<Resource>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<Resource>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(Resource resource) => throw null;
+
+        public static explicit operator Resource(ClientResult result) => throw null;
+
         void IJsonModel<Resource>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -20,19 +34,5 @@ namespace Payload.JsonMergePatch
         Resource IJsonModel<Resource>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Resource JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<Resource>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        Resource IPersistableModel<Resource>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual Resource PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<Resource>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Resource resource) => throw null;
-
-        public static explicit operator Resource(ClientResult result) => throw null;
     }
 }

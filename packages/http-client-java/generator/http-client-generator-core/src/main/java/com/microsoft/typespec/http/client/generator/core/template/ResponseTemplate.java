@@ -9,7 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -28,7 +28,7 @@ public class ResponseTemplate implements IJavaTemplate<ClientResponse, JavaFile>
     public final void write(ClientResponse response, JavaFile javaFile) {
         JavaSettings settings = JavaSettings.getInstance();
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         imports.add(ClassType.HTTP_REQUEST.getFullName());
         imports.add(ClassType.HTTP_HEADERS.getFullName());
         IType restResponseType = GenericType.restResponse(response.getHeadersType(), response.getBodyType());

@@ -250,6 +250,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void CanUpdateImplements()
+        {
+            var typeProvider = new TestTypeProvider(name: "OriginalName");
+            Assert.AreEqual(0, typeProvider.Implements.Count);
+
+            // Update with new implements
+            var implements = new List<CSharpType>
+            {
+                new CSharpType(typeof(IDisposable)),
+                new CSharpType(typeof(IEquatable<string>))
+            };
+            typeProvider.Update(implements: implements);
+
+            Assert.IsNotNull(typeProvider.Implements);
+            Assert.AreEqual(2, typeProvider.Implements.Count);
+            Assert.AreEqual(new CSharpType(typeof(IDisposable)), typeProvider.Implements[0]);
+            Assert.AreEqual(new CSharpType(typeof(IEquatable<string>)), typeProvider.Implements[1]);
+
+            // Reset and validate
+            typeProvider.Reset();
+            Assert.AreEqual(0, typeProvider.Implements.Count);
+
+            // Re-add the implements
+            typeProvider.Update(implements: [new CSharpType(typeof(IDisposable))]);
+
+            Assert.AreEqual(1, typeProvider.Implements.Count);
+            Assert.AreEqual(new CSharpType(typeof(IDisposable)), typeProvider.Implements[0]);
+        }
+
+        [Test]
         public async Task TestCanCustomizeTypeWithChangedName()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

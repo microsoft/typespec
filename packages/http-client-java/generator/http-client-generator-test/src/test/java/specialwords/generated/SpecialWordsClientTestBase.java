@@ -13,6 +13,7 @@ import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
 import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
+import specialwords.ExtensibleStringsClient;
 import specialwords.ModelPropertiesClient;
 import specialwords.ModelsClient;
 import specialwords.OperationsClient;
@@ -27,6 +28,8 @@ class SpecialWordsClientTestBase extends TestProxyTestBase {
     protected OperationsClient operationsClient;
 
     protected ParametersClient parametersClient;
+
+    protected ExtensibleStringsClient extensibleStringsClient;
 
     @Override
     protected void beforeTest() {
@@ -65,6 +68,15 @@ class SpecialWordsClientTestBase extends TestProxyTestBase {
             parametersClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         parametersClient = parametersClientbuilder.buildParametersClient();
+
+        SpecialWordsClientBuilder extensibleStringsClientbuilder = new SpecialWordsClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            extensibleStringsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        extensibleStringsClient = extensibleStringsClientbuilder.buildExtensibleStringsClient();
 
     }
 }

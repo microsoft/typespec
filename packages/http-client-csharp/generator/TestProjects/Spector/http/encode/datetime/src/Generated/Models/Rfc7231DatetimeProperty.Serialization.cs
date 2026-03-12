@@ -13,6 +13,20 @@ namespace Encode.Datetime
     {
         internal Rfc7231DatetimeProperty() => throw null;
 
+        protected virtual Rfc7231DatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<Rfc7231DatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        Rfc7231DatetimeProperty IPersistableModel<Rfc7231DatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<Rfc7231DatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(Rfc7231DatetimeProperty rfc7231DatetimeProperty) => throw null;
+
+        public static explicit operator Rfc7231DatetimeProperty(ClientResult result) => throw null;
+
         void IJsonModel<Rfc7231DatetimeProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -20,19 +34,5 @@ namespace Encode.Datetime
         Rfc7231DatetimeProperty IJsonModel<Rfc7231DatetimeProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Rfc7231DatetimeProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<Rfc7231DatetimeProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        Rfc7231DatetimeProperty IPersistableModel<Rfc7231DatetimeProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual Rfc7231DatetimeProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<Rfc7231DatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Rfc7231DatetimeProperty rfc7231DatetimeProperty) => throw null;
-
-        public static explicit operator Rfc7231DatetimeProperty(ClientResult result) => throw null;
     }
 }

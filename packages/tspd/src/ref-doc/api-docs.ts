@@ -18,7 +18,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
 
   const app = await Application.bootstrapWithPlugins({
     entryPoints: [joinPaths(libraryPath, "src/index.ts")],
-    tsconfig: joinPaths(libraryPath, "tsconfig.json"),
+    tsconfig: joinPaths(libraryPath, "tsconfig.build.json"),
     entryPointStrategy: "resolve",
   });
 

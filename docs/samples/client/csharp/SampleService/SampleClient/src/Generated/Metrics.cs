@@ -14,6 +14,7 @@ namespace SampleTypeSpec
     public partial class Metrics
     {
         private readonly Uri _endpoint;
+        private readonly string _metricsNamespace;
 
         /// <summary> Initializes a new instance of Metrics for mocking. </summary>
         protected Metrics()
@@ -23,10 +24,39 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of Metrics. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal Metrics(ClientPipeline pipeline, Uri endpoint)
+        /// <param name="metricsNamespace"></param>
+        internal Metrics(ClientPipeline pipeline, Uri endpoint, string metricsNamespace)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
+            _metricsNamespace = metricsNamespace;
+        }
+
+        /// <summary> Initializes a new instance of Metrics. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="metricsNamespace"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="metricsNamespace"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
+        public Metrics(Uri endpoint, string metricsNamespace) : this(endpoint, metricsNamespace, new SampleTypeSpecClientOptions())
+        {
+        }
+
+        /// <summary> Initializes a new instance of Metrics. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="metricsNamespace"></param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="metricsNamespace"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
+        public Metrics(Uri endpoint, string metricsNamespace, SampleTypeSpecClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            Argument.AssertNotNullOrEmpty(metricsNamespace, nameof(metricsNamespace));
+
+            options ??= new SampleTypeSpecClientOptions();
+
+            _endpoint = endpoint;
+            _metricsNamespace = metricsNamespace;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly) }, Array.Empty<PipelinePolicy>());
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -103,7 +133,7 @@ namespace SampleTypeSpec
             try
             {
                 System.Console.WriteLine("Entering method GetWidgetMetrics.");
-                ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
                 return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
             }
             catch (Exception ex)
@@ -126,7 +156,7 @@ namespace SampleTypeSpec
             try
             {
                 System.Console.WriteLine("Entering method GetWidgetMetricsAsync.");
-                ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
                 return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
             }
             catch (Exception ex)

@@ -55,12 +55,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal override ConstructorProvider[] BuildConstructors()
         {
-            return [.. _generatedTypeProvider.Constructors, .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
+            return [.. FilterCustomizedConstructors(_generatedTypeProvider.Constructors), .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
         }
 
         protected internal override MethodProvider[] BuildMethods()
         {
-            return [.. _generatedTypeProvider.Methods, .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
+            return [.. FilterCustomizedMethods(_generatedTypeProvider.Methods), .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
         }
 
         protected internal override PropertyProvider[] BuildProperties()
@@ -133,6 +133,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 customProperty.InputProperty = specProperty;
             }
 
+            // Filter out generated properties that have been customized to avoid duplicates.
+            // This is needed because EnsureBuilt caches members without applying customization
+            // filtering, so _generatedTypeProvider.Properties may contain unfiltered results.
+            var filteredGeneratedProperties = FilterCustomizedProperties(generatedProperties);
+
             if (_specProperties.Count > 0)
             {
                 // Input properties will only contain this types properties, i.e. it won't include base type properties.
@@ -140,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var nonSpecProperties = new List<PropertyProvider>();
 
                 // Process all properties in single pass, categorizing them
-                foreach (var prop in generatedProperties)
+                foreach (var prop in filteredGeneratedProperties)
                 {
                     if (prop.InputProperty != null)
                     {
@@ -186,7 +191,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // For other types, there is no canonical order, so we can just return generated followed by custom properties.
-            return [..generatedProperties, ..customProperties];
+            return [..filteredGeneratedProperties, ..customProperties];
         }
 
         protected internal override FieldProvider[] BuildFields()
@@ -251,7 +256,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Order is not important for fields, so we can just return generated followed by custom fields
-            return [..generatedFields, ..customFields];
+            return [..FilterCustomizedFields(generatedFields), ..customFields];
         }
 
         private bool TryGetSpecProperty(

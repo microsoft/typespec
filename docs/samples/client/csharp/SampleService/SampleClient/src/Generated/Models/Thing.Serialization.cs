@@ -18,6 +18,64 @@ namespace SampleTypeSpec
         {
         }
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Thing PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeThing(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(Thing)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Thing thing)
+        {
+            if (thing == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Thing"/> from. </param>
+        public static explicit operator Thing(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeThing(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<Thing>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -72,12 +130,12 @@ namespace SampleTypeSpec
             if (Optional.IsDefined(OptionalLiteralString))
             {
                 writer.WritePropertyName("optionalLiteralString"u8);
-                writer.WriteStringValue(OptionalLiteralString);
+                writer.WriteStringValue(OptionalLiteralString.Value.ToString());
             }
             if (Optional.IsDefined(RequiredNullableLiteralString))
             {
                 writer.WritePropertyName("requiredNullableLiteralString"u8);
-                writer.WriteStringValue(RequiredNullableLiteralString);
+                writer.WriteStringValue(RequiredNullableLiteralString.Value.ToString());
             }
             else
             {
@@ -86,12 +144,12 @@ namespace SampleTypeSpec
             if (Optional.IsDefined(OptionalLiteralInt))
             {
                 writer.WritePropertyName("optionalLiteralInt"u8);
-                writer.WriteNumberValue(OptionalLiteralInt.Value);
+                writer.WriteNumberValue(OptionalLiteralInt.Value.ToSerialInt32());
             }
             if (Optional.IsDefined(OptionalLiteralFloat))
             {
                 writer.WritePropertyName("optionalLiteralFloat"u8);
-                writer.WriteNumberValue(OptionalLiteralFloat.Value);
+                writer.WriteNumberValue(OptionalLiteralFloat.Value.ToSerialSingle());
             }
             if (Optional.IsDefined(OptionalLiteralBool))
             {
@@ -176,10 +234,10 @@ namespace SampleTypeSpec
             int requiredLiteralInt = default;
             float requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
-            string optionalLiteralString = default;
-            string requiredNullableLiteralString = default;
-            int? optionalLiteralInt = default;
-            float? optionalLiteralFloat = default;
+            ThingOptionalLiteralString? optionalLiteralString = default;
+            ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default;
+            ThingOptionalLiteralInt? optionalLiteralInt = default;
+            ThingOptionalLiteralFloat? optionalLiteralFloat = default;
             bool? optionalLiteralBool = default;
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
@@ -240,7 +298,11 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("optionalLiteralString"u8))
                 {
-                    optionalLiteralString = prop.Value.GetString();
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredNullableLiteralString"u8))
@@ -250,7 +312,7 @@ namespace SampleTypeSpec
                         requiredNullableLiteralString = null;
                         continue;
                     }
-                    requiredNullableLiteralString = prop.Value.GetString();
+                    requiredNullableLiteralString = new ThingRequiredNullableLiteralString1(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralInt"u8))
@@ -259,7 +321,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    optionalLiteralInt = prop.Value.GetInt32();
+                    optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralFloat"u8))
@@ -268,7 +330,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    optionalLiteralFloat = prop.Value.GetSingle();
+                    optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralBool"u8))
@@ -343,64 +405,6 @@ namespace SampleTypeSpec
                 requiredNullableList,
                 propertyWithSpecialDocs,
                 additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(Thing)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Thing PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
-                    {
-                        return DeserializeThing(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(Thing thing)
-        {
-            if (thing == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Thing"/> from. </param>
-        public static explicit operator Thing(ClientResult result)
-        {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeThing(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

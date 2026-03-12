@@ -16,7 +16,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.WellKnownMethodNa
 import com.microsoft.typespec.http.client.generator.mgmt.util.TypeConversionUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,11 +34,9 @@ public class FluentMethodGroupMapper extends MethodGroupMapper {
 
     @Override
     protected List<IType> supportedInterfaces(OperationGroup operationGroup, List<ClientMethod> clientMethods) {
-        if (!JavaSettings.getInstance().isFluentLite()) {
-            return findSupportedInterfaces(operationGroup, clientMethods);
-        } else {
-            return Collections.emptyList();
-        }
+        return !JavaSettings.getInstance().isFluentLite()
+            ? findSupportedInterfaces(operationGroup, clientMethods)
+            : List.of();
     }
 
     List<IType> findSupportedInterfaces(OperationGroup operationGroup, List<ClientMethod> clientMethods) {

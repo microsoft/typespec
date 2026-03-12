@@ -13,6 +13,20 @@ namespace Encode._Array
     {
         internal PipeDelimitedArrayProperty() => throw null;
 
+        protected virtual PipeDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<PipeDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
+
+        PipeDelimitedArrayProperty IPersistableModel<PipeDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<PipeDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(PipeDelimitedArrayProperty pipeDelimitedArrayProperty) => throw null;
+
+        public static explicit operator PipeDelimitedArrayProperty(ClientResult result) => throw null;
+
         void IJsonModel<PipeDelimitedArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -20,19 +34,5 @@ namespace Encode._Array
         PipeDelimitedArrayProperty IJsonModel<PipeDelimitedArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual PipeDelimitedArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<PipeDelimitedArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        PipeDelimitedArrayProperty IPersistableModel<PipeDelimitedArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual PipeDelimitedArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<PipeDelimitedArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(PipeDelimitedArrayProperty pipeDelimitedArrayProperty) => throw null;
-
-        public static explicit operator PipeDelimitedArrayProperty(ClientResult result) => throw null;
     }
 }

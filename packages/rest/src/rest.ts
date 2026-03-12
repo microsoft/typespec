@@ -5,6 +5,7 @@ import {
   Interface,
   Model,
   ModelProperty,
+  Namespace,
   Operation,
   Program,
   Scalar,
@@ -32,6 +33,7 @@ import {
 } from "@typespec/http/experimental";
 import {
   ActionDecorator,
+  ActionSeparatorDecorator,
   AutoRouteDecorator,
   CollectionActionDecorator,
   ListsResourceDecorator,
@@ -273,23 +275,77 @@ const actionSeparatorKey = createStateSymbol("actionSeparator");
  * `@actionSeparator` defines the separator string that is used to precede the action name
  *  in auto-generated actions.
  *
- * `@actionSeparator` can only be applied to model properties, operation parameters, or operations.
+ * `@actionSeparator` can only be applied to operations, interfaces, or namespaces.
  */
-export function $actionSeparator(
+export const $actionSeparator: ActionSeparatorDecorator = (
   context: DecoratorContext,
-  entity: Model | ModelProperty | Operation,
+  entity: Operation | Interface | Namespace,
   separator: "/" | ":" | "/:",
-) {
+) => {
   context.program.stateMap(actionSeparatorKey).set(entity, separator);
-}
+};
 
 /**
  * @param program the TypeSpec program
  * @param entity the target entity
- * @returns the action separator string
+ * @returns the action separator string, checking the hierarchy: operation -> interface -> namespace
  */
 export function getActionSeparator(program: Program, entity: Type): string | undefined {
-  return program.stateMap(actionSeparatorKey).get(entity);
+  const stateMap = program.stateMap(actionSeparatorKey);
+
+  // First, check if the entity itself has an action separator
+  const directSeparator = stateMap.get(entity);
+  if (directSeparator !== undefined) {
+    return directSeparator;
+  }
+
+  // If entity is an operation, check its interface, then namespace
+  if (entity.kind === "Operation") {
+    // Check the interface
+    if (entity.interface) {
+      const interfaceSeparator = stateMap.get(entity.interface);
+      if (interfaceSeparator !== undefined) {
+        return interfaceSeparator;
+      }
+
+      // Check the namespace of the interface
+      if (entity.interface.namespace) {
+        return getNamespaceActionSeparator(program, entity.interface.namespace);
+      }
+    }
+
+    // Check the namespace directly if no interface
+    if (entity.namespace) {
+      return getNamespaceActionSeparator(program, entity.namespace);
+    }
+  }
+
+  // If entity is an interface, check its namespace
+  if (entity.kind === "Interface" && entity.namespace) {
+    return getNamespaceActionSeparator(program, entity.namespace);
+  }
+
+  return undefined;
+}
+
+/**
+ * Helper function to recursively check namespace hierarchy for action separator
+ */
+function getNamespaceActionSeparator(program: Program, namespace: Namespace): string | undefined {
+  const stateMap = program.stateMap(actionSeparatorKey);
+
+  // Check current namespace
+  const separator = stateMap.get(namespace);
+  if (separator !== undefined) {
+    return separator;
+  }
+
+  // Check parent namespace recursively
+  if (namespace.namespace) {
+    return getNamespaceActionSeparator(program, namespace.namespace);
+  }
+
+  return undefined;
 }
 
 /**

@@ -20,7 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -53,7 +53,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
             = samePackageAsBuilder ? JavaVisibility.PackagePrivate : JavaVisibility.Public;
         ClientBuilder rootClientBuilder = ServiceAsyncClientTemplate.getClientBuilder(syncClient);
 
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         if (wrapServiceClient) {
             serviceClient.addImportsTo(imports, true, false, settings);
             imports.add(serviceClient.getPackage() + "." + serviceClient.getClassName());
@@ -207,7 +207,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
     }
 
     private void writeConvenienceMethods(List<ConvenienceMethod> convenienceMethods, JavaClass classBlock) {
-        Set<GenericType> typeReferenceStaticClasses = new HashSet<>();
+        Set<GenericType> typeReferenceStaticClasses = new LinkedHashSet<>();
 
         convenienceMethods.forEach(
             m -> Templates.getConvenienceSyncMethodTemplate().write(m, classBlock, typeReferenceStaticClasses));

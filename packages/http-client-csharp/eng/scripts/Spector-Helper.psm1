@@ -1,11 +1,13 @@
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 
 $failingSpecs = @(
-  Join-Path 'http' 'payload' 'xml'
   Join-Path 'http' 'type' 'model' 'flatten'
   Join-Path 'http' 'type' 'model' 'templated'
+  Join-Path 'http' 'type' 'file'
   Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
   Join-Path 'http' 'streaming' 'jsonl'
+  Join-Path 'http' 'type' 'union' 'discriminated' # pending design
+  Join-Path 'http' 'authentication' 'noauth' 'union' # pending design
 )
 
 $azureAllowSpecs = @(

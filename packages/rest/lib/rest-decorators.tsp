@@ -38,10 +38,14 @@ extern dec segmentOf(target: Operation, type: Model);
 /**
  * Defines the separator string that is inserted before the action name in auto-generated routes for actions.
  *
+ * When applied to a namespace, the separator applies to all action operations in that namespace and its sub-namespaces.
+ * When applied to an interface, the separator applies to all action operations in that interface and overrides any namespace-level separator.
+ * When applied to an operation, the separator applies only to that operation and overrides any interface or namespace-level separator.
+ *
  * @param seperator Seperator seperating the action segment from the rest of the url
  */
 extern dec actionSeparator(
-  target: Model | ModelProperty | Operation,
+  target: Operation | Interface | Namespace,
   seperator: valueof "/" | ":" | "/:"
 );
 

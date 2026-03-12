@@ -5,12 +5,7 @@ import { describe, it } from "vitest";
 import micromatch from "micromatch";
 
 import { formatDiagnostic, resolvePath } from "@typespec/compiler";
-import {
-  TypeSpecTestLibrary,
-  createTestHost,
-  findTestPackageRoot,
-  resolveVirtualPath,
-} from "@typespec/compiler/testing";
+import { createTester, findTestPackageRoot } from "@typespec/compiler/testing";
 import { readdirSync, statSync } from "fs";
 import { mkdir, readFile, readdir, rm, stat, writeFile } from "fs/promises";
 import { ProtobufEmitterOptions } from "../src/lib.js";
@@ -21,19 +16,9 @@ const SCENARIOS_DIRECTORY = resolvePath(pkgRoot, "test/scenarios");
 const shouldRecord = process.env.RECORD === "true";
 const patternsToRun = process.env.RUN_SCENARIOS?.split(",") ?? ["*"];
 
-const TypeSpecProtobufTestLibrary: TypeSpecTestLibrary = {
-  name: "@typespec/protobuf",
-  packageRoot: await findTestPackageRoot(import.meta.url),
-  files: [
-    { realDir: "", pattern: "package.json", virtualPath: "./node_modules/@typespec/protobuf" },
-    {
-      realDir: "dist/src",
-      pattern: "*.js",
-      virtualPath: "./node_modules/@typespec/protobuf/dist/src",
-    },
-    { realDir: "lib/", pattern: "*.tsp", virtualPath: "./node_modules/@typespec/protobuf/lib" },
-  ],
-};
+const ProtobufTester = createTester(resolvePath(pkgRoot), {
+  libraries: ["@typespec/protobuf"],
+});
 
 describe("protobuf scenarios", function () {
   const scenarios = readdirSync(SCENARIOS_DIRECTORY)
@@ -144,31 +129,21 @@ async function doEmit(
   files: Record<string, string>,
   options: ProtobufEmitterOptions,
 ): Promise<EmitResult> {
-  const baseOutputPath = resolveVirtualPath("test-output/");
+  const emitterTester = ProtobufTester.emit(
+    "@typespec/protobuf",
+    options as Record<string, unknown>,
+  );
+  const [result, diagnostics] = await emitterTester.compileAndDiagnose(files);
 
-  const host = await createTestHost({
-    libraries: [TypeSpecProtobufTestLibrary],
-  });
-
-  for (const [fileName, content] of Object.entries(files)) {
-    host.addTypeSpecFile(fileName, content);
+  // The EmitterTester strips the emitter output dir prefix, but the expected files
+  // include the emitter package name prefix (e.g., "@typespec/protobuf/main.proto")
+  const prefixedOutputs: Record<string, string> = {};
+  for (const [name, value] of Object.entries(result.outputs)) {
+    prefixedOutputs[`@typespec/protobuf/${name}`] = value;
   }
 
-  const [, diagnostics] = await host.compileAndDiagnose("main.tsp", {
-    outputDir: baseOutputPath,
-    noEmit: false,
-    emit: ["@typespec/protobuf"],
-    options: {
-      "@typespec/protobuf": options as Record<string, unknown>,
-    },
-  });
-
   return {
-    files: Object.fromEntries(
-      [...host.fs.entries()]
-        .filter(([name]) => name.startsWith(baseOutputPath))
-        .map(([name, value]) => [name.replace(baseOutputPath, ""), value]),
-    ),
+    files: prefixedOutputs,
     diagnostics: diagnostics.map((x) => formatDiagnostic(x)),
   };
 }

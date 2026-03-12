@@ -1204,6 +1204,301 @@ interface Widgets {
   );
 });
 
+it("Handles MergePatchUpdate with enum type in different namespace", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+enum WidgetColor {
+  Red,
+  Blue,
+  Green
+}
+
+model Widget {
+  id: string;
+  weight: int32;
+  color: WidgetColor;
+}
+
+@route("/widgets")
+@tag("Widgets")
+interface Widgets {
+  /** Update a widget */
+  @patch update(@path id: string, @body body: MergePatchUpdate<Widget>): Widget;
+}
+    `,
+    [
+      [
+        "WidgetMergePatchUpdate.cs",
+        [
+          "namespace TypeSpec.Http {",
+          "using Microsoft.Contoso;",
+          "public string Id { get; set; }",
+          "public int? Weight { get; set; }",
+          "public WidgetColor? Color { get; set; }",
+        ],
+      ],
+    ],
+  );
+});
+
+it("Handles MergePatchUpdate with properties from multiple different sub-namespaces", async () => {
+  // This test verifies that ALL cross-namespace using directives are emitted when
+  // multiple enum properties come from different namespaces (tests the removed AddedScope
+  // single-import limitation in checkOrAddNamespaceToScope).
+  await compileAndValidateMultiple(
+    tester,
+    `
+namespace Colors {
+  enum WidgetColor { Red, Blue, Green }
+}
+
+namespace Sizes {
+  enum WidgetSize { Small, Medium, Large }
+}
+
+model Widget {
+  id: string;
+  color: Colors.WidgetColor;
+  size: Sizes.WidgetSize;
+}
+
+@route("/widgets")
+@tag("Widgets")
+interface Widgets {
+  /** Update a widget */
+  @patch update(@path id: string, @body body: MergePatchUpdate<Widget>): Widget;
+}
+    `,
+    [
+      [
+        "WidgetMergePatchUpdate.cs",
+        [
+          "namespace TypeSpec.Http {",
+          "using Microsoft.Contoso.Colors;",
+          "using Microsoft.Contoso.Sizes;",
+          "public string Id { get; set; }",
+          "public WidgetColor? Color { get; set; }",
+          "public WidgetSize? Size { get; set; }",
+        ],
+      ],
+    ],
+  );
+});
+
+it("Handles model with enum property from a sub-namespace", async () => {
+  // This test verifies that a regular (non-MergePatch) model whose property references
+  // an enum from a different namespace gets the correct using directive.
+  await compileAndValidateMultiple(
+    tester,
+    `
+namespace Colors {
+  enum WidgetColor { Red, Blue, Green }
+}
+
+model Widget {
+  id: string;
+  color: Colors.WidgetColor;
+}
+
+@get op getWidget(): Widget;
+    `,
+    [
+      [
+        "Widget.cs",
+        [
+          "namespace Microsoft.Contoso {",
+          "using Microsoft.Contoso.Colors;",
+          "public string Id { get; set; }",
+          "public WidgetColor Color { get; set; }",
+        ],
+      ],
+    ],
+  );
+});
+
+it("Handles MergePatchUpdate with optional enum from different namespace", async () => {
+  // Optional enums from different namespaces appear as nullable types (WidgetColor?)
+  // and must still get the correct using directive.
+  await compileAndValidateMultiple(
+    tester,
+    `
+enum WidgetColor {
+  Red,
+  Blue,
+  Green
+}
+
+model Widget {
+  id: string;
+  color?: WidgetColor;
+}
+
+@route("/widgets")
+@tag("Widgets")
+interface Widgets {
+  /** Update a widget */
+  @patch update(@path id: string, @body body: MergePatchUpdate<Widget>): Widget;
+}
+    `,
+    [
+      [
+        "WidgetMergePatchUpdate.cs",
+        [
+          "namespace TypeSpec.Http {",
+          "using Microsoft.Contoso;",
+          "public string Id { get; set; }",
+          "public WidgetColor? Color { get; set; }",
+        ],
+      ],
+    ],
+  );
+});
+
+it("Handles MergePatchUpdate with string-enum union property from different namespace", async () => {
+  // String-enum unions (e.g. union Color { "red", "blue" }) also use createEnumContext
+  // and should get the correct using directive when in a different namespace.
+  // Note: string-enum unions are MergePatch-transformed, so the property type becomes
+  // WidgetColorMergePatchUpdate (a new union in TypeSpec.Http), but the using directive
+  // for the original union's namespace is still needed for the union's definition file.
+  await compileAndValidateMultiple(
+    tester,
+    `
+namespace Colors {
+  union WidgetColor { Red: "red", Blue: "blue", Green: "green" }
+}
+
+model Widget {
+  id: string;
+  color: Colors.WidgetColor;
+}
+
+@route("/widgets")
+@tag("Widgets")
+interface Widgets {
+  /** Update a widget */
+  @patch update(@path id: string, @body body: MergePatchUpdate<Widget>): Widget;
+}
+    `,
+    [
+      [
+        "WidgetMergePatchUpdate.cs",
+        [
+          "namespace TypeSpec.Http {",
+          "using Microsoft.Contoso.Colors;",
+          "public string Id { get; set; }",
+        ],
+      ],
+    ],
+  );
+});
+
+it("Handles MergePatchUpdate with array of models from different namespace", async () => {
+  // Arrays of model types from different namespaces are also MergePatch-transformed,
+  // creating e.g. TagMergePatchUpdateReplaceOnly[] in TypeSpec.Http.
+  // The using directive for the original model's namespace should still be present.
+  await compileAndValidateMultiple(
+    tester,
+    `
+namespace Tags {
+  model Tag { name: string; value: string; }
+}
+
+model Widget {
+  id: string;
+  tags: Tags.Tag[];
+}
+
+@route("/widgets")
+@tag("Widgets")
+interface Widgets {
+  /** Update a widget */
+  @patch update(@path id: string, @body body: MergePatchUpdate<Widget>): Widget;
+}
+    `,
+    [
+      [
+        "WidgetMergePatchUpdate.cs",
+        [
+          "namespace TypeSpec.Http {",
+          "using Microsoft.Contoso.Tags;",
+          "public string Id { get; set; }",
+        ],
+      ],
+    ],
+  );
+});
+
+it("Emits using for base class namespace and separate property namespace (regression: AddedScope cap)", async () => {
+  // With the old AddedScope guard, checkOrAddNamespaceToScope returned false after adding
+  // the first dynamic namespace import, forcing subsequent ones to be fully-qualified.
+  // This test verifies that a model inheriting from a base class in one sub-namespace and
+  // having a property from a second sub-namespace gets BOTH using directives.
+  await compileAndValidateMultiple(
+    tester,
+    `
+namespace Models {
+  model ParentWidget { id: string; }
+}
+
+namespace Colors {
+  enum WidgetColor { Red, Blue, Green }
+}
+
+model Widget extends Models.ParentWidget {
+  color: Colors.WidgetColor;
+}
+
+@get op getWidget(): Widget;
+    `,
+    [
+      [
+        "Widget.cs",
+        [
+          "namespace Microsoft.Contoso {",
+          "using Microsoft.Contoso.Models;",
+          "using Microsoft.Contoso.Colors;",
+          "public WidgetColor Color { get; set; }",
+          ": ParentWidget",
+        ],
+      ],
+    ],
+  );
+});
+
+it("Emits only one using directive when multiple properties share the same external namespace", async () => {
+  // Verifies that the import deduplication (imports.has(ns)) prevents duplicate
+  // using directives when more than one property references the same external namespace.
+  await compileAndValidateMultiple(
+    tester,
+    `
+namespace Colors {
+  enum WidgetColor { Red, Blue, Green }
+  enum BorderColor { Black, White }
+}
+
+model Widget {
+  id: string;
+  color: Colors.WidgetColor;
+  borderColor: Colors.BorderColor;
+}
+
+@get op getWidget(): Widget;
+    `,
+    [
+      [
+        "Widget.cs",
+        [
+          "namespace Microsoft.Contoso {",
+          "using Microsoft.Contoso.Colors;",
+          "public WidgetColor Color { get; set; }",
+          "public BorderColor BorderColor { get; set; }",
+        ],
+      ],
+    ],
+  );
+});
+
 it("Handles user-defined model templates", async () => {
   await compileAndValidateMultiple(
     tester,
@@ -1242,6 +1537,23 @@ it("Handles user-defined model templates", async () => {
       ],
       ["ResponsePageToy.cs", ["public partial class ResponsePageToy"]],
     ],
+  );
+});
+
+it("Handles template operations in interfaces without crashing", async () => {
+  // Regression test: interfaces with template operations should not crash with
+  // "Encountered type TemplateParameter which we don't know how to emit."
+  // Template operations (e.g. getItem<T>(): T) should be skipped during emission.
+  await compileAndValidateMultiple(
+    tester,
+    `
+       interface MyOps {
+         @get list(): string;
+         @get getItem<T>(): T;
+       }
+    `,
+    [["IMyOps.cs", ["interface IMyOps", "Task<string> ListAsync( );"]]],
+    [["IMyOps.cs", ["GetItemAsync"]]],
   );
 });
 
@@ -2020,6 +2332,53 @@ model FileAttachmentMultipartRequest {
     ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
     `,
     [["ContosoOperationsController.cs", ["return NoContent()"]]],
+  );
+});
+
+it("Produces Accepted result for 202 response with body", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+    model AcceptedResponse {
+      @statusCode statusCode: 202;
+      jobId: string;
+    }
+
+    @post
+    op startJob(): AcceptedResponse;
+    `,
+    [["ContosoOperationsController.cs", ["return Accepted(result)"]]],
+  );
+});
+
+it("Produces Accepted result for 202 response without body", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+    model AcceptedNoBodyResponse {
+      @statusCode statusCode: 202;
+    }
+
+    @post
+    op startJob(): AcceptedNoBodyResponse;
+    `,
+    [["ContosoOperationsController.cs", ["return Accepted()"]]],
+  );
+});
+
+it("Produces StatusCode result for 201 response with body", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+    model CreatedResponse {
+      @statusCode statusCode: 201;
+      id: string;
+    }
+
+    @post
+    op createResource(): CreatedResponse;
+    `,
+    [["ContosoOperationsController.cs", ["return StatusCode(201, result)"]]],
   );
 });
 

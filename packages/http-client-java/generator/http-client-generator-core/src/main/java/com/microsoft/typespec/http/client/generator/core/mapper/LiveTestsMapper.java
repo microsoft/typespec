@@ -14,7 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.XmsExampleWrapper;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -47,7 +47,7 @@ public class LiveTestsMapper implements IMapper<TestModel, List<LiveTests>> {
                     .filter(scenarioStep -> scenarioStep.getType() == TestScenarioStepType.REST_CALL
                         && scenarioStep.getExampleFile() != null)
                     .map((Function<ScenarioStep, LiveTestStep>) scenarioStep -> {
-                        Map<String, Object> example = new HashMap<>();
+                        Map<String, Object> example = new LinkedHashMap<>();
                         example.put("parameters", scenarioStep.getRequestParameters());
                         XmsExampleWrapper exampleWrapper = new XmsExampleWrapper(example, scenarioStep.getOperationId(),
                             scenarioStep.getExampleName());

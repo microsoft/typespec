@@ -6,6 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using Payload.Pageable._PageSize;
 using Payload.Pageable._ServerDrivenPagination;
+using Payload.Pageable._XmlPagination;
 
 namespace Payload.Pageable
 {
@@ -20,5 +21,7 @@ namespace Payload.Pageable
         public virtual ServerDrivenPagination GetServerDrivenPaginationClient() => throw null;
 
         public virtual PageSize GetPageSizeClient() => throw null;
+
+        public virtual XmlPagination GetXmlPaginationClient() => throw null;
     }
 }

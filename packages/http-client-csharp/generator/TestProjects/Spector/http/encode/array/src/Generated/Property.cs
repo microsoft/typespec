@@ -47,5 +47,69 @@ namespace Encode._Array._Property
         public virtual ClientResult<NewlineDelimitedArrayProperty> NewlineDelimited(NewlineDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<NewlineDelimitedArrayProperty>> NewlineDelimitedAsync(NewlineDelimitedArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult EnumCommaDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> EnumCommaDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult<CommaDelimitedEnumArrayProperty> EnumCommaDelimited(CommaDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult<CommaDelimitedEnumArrayProperty>> EnumCommaDelimitedAsync(CommaDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult EnumSpaceDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> EnumSpaceDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult<SpaceDelimitedEnumArrayProperty> EnumSpaceDelimited(SpaceDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult<SpaceDelimitedEnumArrayProperty>> EnumSpaceDelimitedAsync(SpaceDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult EnumPipeDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> EnumPipeDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult<PipeDelimitedEnumArrayProperty> EnumPipeDelimited(PipeDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult<PipeDelimitedEnumArrayProperty>> EnumPipeDelimitedAsync(PipeDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult EnumNewlineDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> EnumNewlineDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult<NewlineDelimitedEnumArrayProperty> EnumNewlineDelimited(NewlineDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult<NewlineDelimitedEnumArrayProperty>> EnumNewlineDelimitedAsync(NewlineDelimitedEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult ExtensibleEnumCommaDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> ExtensibleEnumCommaDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult<CommaDelimitedExtensibleEnumArrayProperty> ExtensibleEnumCommaDelimited(CommaDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult<CommaDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumCommaDelimitedAsync(CommaDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult ExtensibleEnumSpaceDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> ExtensibleEnumSpaceDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult<SpaceDelimitedExtensibleEnumArrayProperty> ExtensibleEnumSpaceDelimited(SpaceDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult<SpaceDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumSpaceDelimitedAsync(SpaceDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult ExtensibleEnumPipeDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> ExtensibleEnumPipeDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult<PipeDelimitedExtensibleEnumArrayProperty> ExtensibleEnumPipeDelimited(PipeDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult<PipeDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumPipeDelimitedAsync(PipeDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult ExtensibleEnumNewlineDelimited(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> ExtensibleEnumNewlineDelimitedAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult<NewlineDelimitedExtensibleEnumArrayProperty> ExtensibleEnumNewlineDelimited(NewlineDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult<NewlineDelimitedExtensibleEnumArrayProperty>> ExtensibleEnumNewlineDelimitedAsync(NewlineDelimitedExtensibleEnumArrayProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -218,6 +218,48 @@ public final class XmlClientImpl {
     }
 
     /**
+     * The ModelWithEnumValuesImpl object to access its operations.
+     */
+    private final ModelWithEnumValuesImpl modelWithEnumValues;
+
+    /**
+     * Gets the ModelWithEnumValuesImpl object to access its operations.
+     * 
+     * @return the ModelWithEnumValuesImpl object.
+     */
+    public ModelWithEnumValuesImpl getModelWithEnumValues() {
+        return this.modelWithEnumValues;
+    }
+
+    /**
+     * The ModelWithDatetimeValuesImpl object to access its operations.
+     */
+    private final ModelWithDatetimeValuesImpl modelWithDatetimeValues;
+
+    /**
+     * Gets the ModelWithDatetimeValuesImpl object to access its operations.
+     * 
+     * @return the ModelWithDatetimeValuesImpl object.
+     */
+    public ModelWithDatetimeValuesImpl getModelWithDatetimeValues() {
+        return this.modelWithDatetimeValues;
+    }
+
+    /**
+     * The XmlErrorValuesImpl object to access its operations.
+     */
+    private final XmlErrorValuesImpl xmlErrorValues;
+
+    /**
+     * Gets the XmlErrorValuesImpl object to access its operations.
+     * 
+     * @return the XmlErrorValuesImpl object.
+     */
+    public XmlErrorValuesImpl getXmlErrorValues() {
+        return this.xmlErrorValues;
+    }
+
+    /**
      * Initializes an instance of XmlClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -240,5 +282,8 @@ public final class XmlClientImpl {
         this.modelWithTextValues = new ModelWithTextValuesImpl(this);
         this.modelWithDictionaryValues = new ModelWithDictionaryValuesImpl(this);
         this.modelWithEncodedNamesValues = new ModelWithEncodedNamesValuesImpl(this);
+        this.modelWithEnumValues = new ModelWithEnumValuesImpl(this);
+        this.modelWithDatetimeValues = new ModelWithDatetimeValuesImpl(this);
+        this.xmlErrorValues = new XmlErrorValuesImpl(this);
     }
 }

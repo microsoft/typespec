@@ -1325,9 +1325,144 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var (_, serialization) = CreateModelAndSerialization(inputModel);
             var deserializeMethod = serialization.BuildDeserializationMethod();
             var methodBody = deserializeMethod.BodyStatements!.ToDisplayString();
-            
-            Assert.IsTrue(methodBody.Contains($".Split('{expectedDelimiter}')") || methodBody.Contains($".Split(\"{expectedDelimiter}\")"), 
+
+            Assert.IsTrue(methodBody.Contains($".Split('{expectedDelimiter}')") || methodBody.Contains($".Split(\"{expectedDelimiter}\")"),
                 $"Expected deserialization to use Split with delimiter '{expectedDelimiter}', but got: {methodBody}");
+        }
+
+        [Test]
+        public void TestBuildToBinaryContentMethod_DualFormatModel_MethodGenerated()
+        {
+            // Create a model that supports both JSON and XML
+            var inputModel = InputFactory.Model("DualFormatModel", usage: InputModelTypeUsage.Json | InputModelTypeUsage.Xml);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // Verify the ToBinaryContent method is generated
+            var toBinaryContentMethod = serialization.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "ToBinaryContent" &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            Assert.IsNotNull(toBinaryContentMethod, "ToBinaryContent method should be generated for dual-format models");
+            Assert.AreEqual(1, toBinaryContentMethod!.Signature.Parameters.Count);
+            Assert.AreEqual("format", toBinaryContentMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual(typeof(string), toBinaryContentMethod.Signature.Parameters[0].Type.FrameworkType);
+        }
+
+        [Test]
+        public void TestBuildToBinaryContentMethod_JsonOnlyModel_MethodNotGenerated()
+        {
+            // Create a model that supports only JSON
+            var inputModel = InputFactory.Model("JsonOnlyModel", usage: InputModelTypeUsage.Json);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // Verify the ToBinaryContent method is NOT generated
+            var toBinaryContentMethod = serialization.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "ToBinaryContent" &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            Assert.IsNull(toBinaryContentMethod, "ToBinaryContent method should not be generated for JSON-only models");
+        }
+
+        [Test]
+        public void TestBuildToBinaryContentMethod_XmlOnlyModel_MethodNotGenerated()
+        {
+            // Create a model that supports only XML
+            var inputModel = InputFactory.Model("XmlOnlyModel", usage: InputModelTypeUsage.Xml);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // Verify the ToBinaryContent method is NOT generated
+            var toBinaryContentMethod = serialization.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "ToBinaryContent" &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            Assert.IsNull(toBinaryContentMethod, "ToBinaryContent method should not be generated for XML-only models");
+        }
+
+        [Test]
+        public void TestDeserializationOfByteArrayPropertyUsesGetBytesFromBase64()
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", InputPrimitiveType.Base64)]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
+                    ? new CSharpType(typeof(byte[]))
+                    : null!,
+                createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetBytesFromBase64(\"D\")"),
+                $"byte[] property with Base64 format should use GetBytesFromBase64(\"D\"). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void TestDeserializationOfBase64UrlByteArrayPropertyUsesGetBytesFromBase64()
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", InputPrimitiveType.Base64Url)]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
+                    ? new CSharpType(typeof(byte[]))
+                    : null!,
+                createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetBytesFromBase64(\"U\")"),
+                $"byte[] property with Base64Url format should use GetBytesFromBase64(\"U\"). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void TestDeserializationOfNonBase64ByteArrayPropertyUsesGetRawText()
+        {
+            var bytesNoEncoding = new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes");
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", bytesNoEncoding)]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
+                    ? new CSharpType(typeof(byte[]))
+                    : null!,
+                createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetRawText"),
+                $"byte[] property with no encoding should use GetRawText() fallback. Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("ToArray"),
+                $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
         }
     }
 }

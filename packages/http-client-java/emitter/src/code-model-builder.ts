@@ -313,6 +313,13 @@ export class CodeModelBuilder {
     this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, sdkContextOptions);
     this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
+    // metadata
+    if (this.sdkContext.sdkPackage.metadata.apiVersions) {
+      this.codeModel.apiVersionMap = Object.fromEntries(
+        this.sdkContext.sdkPackage.metadata.apiVersions,
+      );
+    }
+
     // license
     if (this.sdkContext.sdkPackage.licenseInfo) {
       this.codeModel.info.license = new License(this.sdkContext.sdkPackage.licenseInfo.name, {
@@ -1706,7 +1713,7 @@ export class CodeModelBuilder {
     name: string,
     description: string | undefined = undefined,
   ): GroupSchema {
-    // the "GroupSchema" is simliar to "ObjectSchema", but the process is different
+    // the "GroupSchema" is similar to "ObjectSchema", but the process is different
 
     if (type && this.schemaCache.has(type)) {
       return this.schemaCache.get(type) as GroupSchema;
@@ -1879,6 +1886,8 @@ export class CodeModelBuilder {
 
         // group schema
 
+        // TODO: double check this suppression
+        // eslint-disable-next-line no-useless-assignment
         let coreNamespace = this.namespace;
         if (this.isAzureV1()) {
           coreNamespace = "com.azure.core.http";
@@ -1982,19 +1991,49 @@ export class CodeModelBuilder {
     // set contentTypes to mediaTypes
     op.requests![0].protocol.http!.mediaTypes = sdkBody.contentTypes;
 
-    const unknownRequestBody =
-      op.requests![0].protocol.http!.mediaTypes &&
-      op.requests![0].protocol.http!.mediaTypes.length > 0 &&
-      !isKnownContentType(op.requests![0].protocol.http!.mediaTypes);
-
     const sdkType: SdkType = sdkBody.type;
 
+    let requestBodyIsFile: boolean = false;
+    if (
+      sdkType &&
+      sdkType.kind === "model" &&
+      sdkType.serializationOptions.binary &&
+      sdkType.serializationOptions.binary.isFile
+    ) {
+      // check for File
+      requestBodyIsFile = true;
+    } else if (sdkType && sdkType.kind === "bytes") {
+      // check for bytes + unknown content-type
+      const mediaTypes = op.requests![0].protocol.http!.mediaTypes;
+      const unknownRequestBody =
+        mediaTypes && mediaTypes.length > 0 && !isKnownContentType(mediaTypes);
+      requestBodyIsFile = Boolean(unknownRequestBody);
+    }
+
     let schema: Schema;
-    if (unknownRequestBody && sdkType.kind === "bytes") {
-      // if it's unknown request body, handle binary request body
+    if (requestBodyIsFile) {
+      // binary/file
       schema = this.processBinarySchema(sdkType);
     } else {
-      schema = this.processSchema(getNonNullSdkType(sdkType), sdkBody.name);
+      if (
+        !requestBodyIsFile &&
+        sdkBody.contentTypes.length === 1 &&
+        sdkBody.contentTypes[0] === "text/plain" &&
+        sdkType.kind === "enum"
+      ) {
+        // handle a common definition error of string based scalar type as body, without content-type
+        reportDiagnostic(this.program, {
+          code: "type-not-supported-on-text-plain",
+          format: {
+            operationName: op.language.default.name,
+            payloadKind: "request body",
+          },
+          target: sdkMethod.__raw ?? NoTarget,
+        });
+        schema = this.stringSchema;
+      } else {
+        schema = this.processSchema(getNonNullSdkType(sdkType), sdkBody.name);
+      }
     }
 
     const parameterName = sdkBody.name;
@@ -2058,6 +2097,11 @@ export class CodeModelBuilder {
 
         if (jsonMergePatch) {
           // skip model flatten, if "application/merge-patch+json"
+          reportDiagnostic(this.program, {
+            code: "spread-json-merge-patch-payload-not-supported",
+            target: sdkMethod.__raw ?? NoTarget,
+          });
+
           if (sdkType.isGeneratedName) {
             schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
           }
@@ -2189,10 +2233,8 @@ export class CodeModelBuilder {
     // TODO: what to do if more than 1 response?
     // It happens when the response type is Union, on one status code.
     // let response: Response;
-    let headers: Array<HttpHeader> | undefined = undefined;
+    const headers: Array<HttpHeader> = [];
 
-    // headers
-    headers = [];
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.name);
@@ -2226,7 +2268,7 @@ export class CodeModelBuilder {
     const bodyType: SdkType | undefined = sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
 
-    let responseIsFile: boolean = false;
+    let responseBodyIsFile: boolean = false;
     if (
       bodyType &&
       bodyType.kind === "model" &&
@@ -2234,18 +2276,18 @@ export class CodeModelBuilder {
       bodyType.serializationOptions.binary.isFile
     ) {
       // check for File
-      responseIsFile = true;
+      responseBodyIsFile = true;
     } else if (bodyType && bodyType.kind === "bytes") {
       // check for bytes + unknown content-type
       const unknownResponseBody =
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length > 0 &&
         !isKnownContentType(sdkResponse.contentTypes);
-      responseIsFile = Boolean(unknownResponseBody);
+      responseBodyIsFile = Boolean(unknownResponseBody);
     }
 
     let response: Response;
-    if (responseIsFile) {
+    if (responseBodyIsFile) {
       // binary/file
       response = new BinaryResponse({
         protocol: {
@@ -2264,13 +2306,32 @@ export class CodeModelBuilder {
         },
       });
     } else if (bodyType) {
-      // schema (usually JSON)
-      let schema: Schema | undefined = undefined;
       if (longRunning) {
         // LRO uses the LroMetadata for poll/final result, not the response of activation request
+        // hence the schema below is not tracked for convenience API
         trackConvenienceApi = false;
       }
-      if (!schema) {
+
+      // schema (usually JSON)
+      let schema: Schema | undefined;
+      if (
+        !responseBodyIsFile &&
+        sdkResponse.contentTypes &&
+        sdkResponse.contentTypes.length === 1 &&
+        sdkResponse.contentTypes[0] === "text/plain" &&
+        bodyType?.kind === "enum"
+      ) {
+        // handle a common definition error of string based scalar type as body, without content-type
+        reportDiagnostic(this.program, {
+          code: "type-not-supported-on-text-plain",
+          format: {
+            operationName: op.language.default.name,
+            payloadKind: "response body",
+          },
+          target: NoTarget,
+        });
+        schema = this.stringSchema;
+      } else {
         schema = this.processSchema(bodyType, op.language.default.name + "Response");
       }
       response = new SchemaResponse(schema, {
@@ -2637,6 +2698,11 @@ export class CodeModelBuilder {
       // java name
       schema.language.java = schema.language.java ?? new Language();
       schema.language.java.name = getExternalJavaClassName(type);
+
+      // add external to usage
+      this.trackSchemaUsage(schema, {
+        usage: [SchemaContext.External],
+      });
     }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
@@ -2978,7 +3044,7 @@ export class CodeModelBuilder {
     return this.codeModel.schemas.add(unionSchema);
   }
 
-  private processBinarySchema(type: SdkBuiltInType): BinarySchema {
+  private processBinarySchema(type: SdkType): BinarySchema {
     return this.codeModel.schemas.add(
       new BinarySchema(type.doc ?? "", {
         summary: type.summary,
@@ -3013,14 +3079,14 @@ export class CodeModelBuilder {
       case "Enum":
         return pascalCase(type.name);
       case "Model":
-        if (isArrayModelType(this.program, type)) {
+        if (isArrayModelType(type)) {
           ++option.depth;
           if (option.depth === 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "List";
           } else {
             return "ListOf" + this.getUnionVariantName(type.indexer.value, option);
           }
-        } else if (isRecordModelType(this.program, type)) {
+        } else if (isRecordModelType(type)) {
           ++option.depth;
           if (option.depth === 1) {
             return this.getUnionVariantName(type.indexer.value, option) + "Map";

@@ -608,4 +608,91 @@ namespace FormData {
       ): NoContentResponse;
     }
   }
+
+  @route("/file")
+  namespace File {
+    model FileWithRequiredFilename extends TypeSpec.Http.File<"image/png"> {
+      filename: string;
+    }
+
+    @scenario
+    @scenarioDoc("""
+      Test File type in multipart form data with specific content type.
+      Expected request:
+      ```
+      POST /multipart/form-data/file/specific-content-type HTTP/1.1
+      Content-Type: multipart/form-data; boundary=abcde12345
+      
+      --abcde12345
+      Content-Disposition: form-data; name="file"; filename="image.png"
+      Content-Type: image/png
+      
+      {…file content of image.png…}
+      --abcde12345--
+      ```
+      """)
+    @post
+    @route("/specific-content-type")
+    op uploadFileSpecificContentType(
+      @header contentType: "multipart/form-data",
+      @multipartBody body: {
+        file: HttpPart<TypeSpec.Http.File<"image/png">>;
+      },
+    ): NoContentResponse;
+
+    @scenario
+    @scenarioDoc("""
+      Test File type in multipart form data with required filename.
+      Expected request:
+      ```
+      POST /multipart/form-data/file/required-filename HTTP/1.1
+      Content-Type: multipart/form-data; boundary=abcde12345
+      
+      --abcde12345
+      Content-Disposition: form-data; name="file"; filename="image.png"
+      Content-Type: image/png
+      
+      {…file content of image.png…}
+      --abcde12345--
+      ```
+      """)
+    @post
+    @route("/required-filename")
+    op uploadFileRequiredFilename(
+      @header contentType: "multipart/form-data",
+      @multipartBody body: {
+        file: HttpPart<FileWithRequiredFilename>;
+      },
+    ): NoContentResponse;
+
+    @scenario
+    @scenarioDoc("""
+      Test multiple File instances in multipart form data.
+      Expected request:
+      ```
+      POST /multipart/form-data/file/file-array HTTP/1.1
+      Content-Type: multipart/form-data; boundary=abcde12345
+      
+      --abcde12345
+      Content-Disposition: form-data; name="files"; filename="image1.png"
+      Content-Type: image/png
+      
+      {…file content of image.png…}
+      --abcde12345
+      Content-Disposition: form-data; name="files"; filename="image2.png"
+      Content-Type: image/png
+      
+      {…file content of image.png…}
+      --abcde12345--
+      ```
+      """)
+    @post
+    @route("/file-array")
+    op uploadFileArray(
+      @header contentType: "multipart/form-data",
+      @multipartBody body: {
+        files: HttpPart<TypeSpec.Http.File<"image/png">>[];
+      },
+    ): NoContentResponse;
+  }
 }

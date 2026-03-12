@@ -217,6 +217,14 @@ namespace Microsoft.TypeSpec.Generator
                         suppression.RestoreStatement.Write(this);
                     }
                 }
+                else if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial)
+                    || method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
+                {
+                    using (WriteMethodDeclarationNoScope(method.Signature))
+                    {
+                        WriteRawLine(";");
+                    }
+                }
             }
         }
 
@@ -786,6 +794,11 @@ namespace Microsoft.TypeSpec.Generator
 
         public IDisposable WriteMethodDeclarationNoScope(MethodSignatureBase methodBase, params string[] disabledWarnings)
         {
+            if (methodBase.NonDocumentComment is { } comment)
+            {
+                WriteLine($"// {comment}");
+            }
+
             foreach (var attribute in methodBase.Attributes)
             {
                 attribute.Write(this);
@@ -800,11 +813,13 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("private ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("protected ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("internal ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+                .AppendRawIf("static ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Static))
+                .AppendRawIf("partial ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
 
             if (methodBase is MethodSignature method)
             {
                 AppendRawIf("virtual ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Virtual))
+                    .AppendRawIf("abstract ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
                     .AppendRawIf("override ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Override))
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));

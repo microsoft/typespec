@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     NextTokenField = field;
                 }
 
-                if (field.AsParameter.Name == pageSize)
+                if (string.Equals(field.AsParameter.Name, pageSize, StringComparison.OrdinalIgnoreCase))
                 {
                     PageSizeField = field;
                 }
@@ -344,7 +344,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             {
                                 Return(Static(typeof(ContinuationToken))
                                 .Invoke("FromBytes", BinaryDataSnippets.FromString(
-                                    nextPageVariable.Property("AbsoluteUri"))))
+                                    new TernaryConditionalExpression(
+                                        nextPageVariable.Property(nameof(Uri.IsAbsoluteUri)),
+                                        nextPageVariable.Property(nameof(Uri.AbsoluteUri)),
+                                        nextPageVariable.Property(nameof(Uri.OriginalString))))))
                             },
                             Return(Null))
                         : new IfElseStatement(new IfStatement(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageVariable)))
@@ -501,7 +504,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             YieldBreak()
                         },
-                        nextPage.Assign(New.Instance<Uri>(nextPageString)).Terminate()
+                        nextPage.Assign(New.Instance<Uri>(nextPageString, FrameworkEnumValue(UriKind.RelativeOrAbsolute))).Terminate()
                     ];
                 case InputResponseLocation.Header:
                     return
@@ -511,7 +514,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                                 {
                                         nextPage.Type.Equals(typeof(Uri)) ?
-                                            nextPage.Assign(New.Instance<Uri>(nextLinkHeader!)).Terminate() :
+                                            nextPage.Assign(New.Instance<Uri>(nextLinkHeader!, FrameworkEnumValue(UriKind.RelativeOrAbsolute))).Terminate() :
                                             nextPage.Assign(nextLinkHeader!).Terminate(),
                                 },
                                 YieldBreak())

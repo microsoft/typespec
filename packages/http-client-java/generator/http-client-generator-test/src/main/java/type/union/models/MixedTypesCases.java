@@ -133,8 +133,13 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
         this.intProperty.writeTo(jsonWriter);
         jsonWriter.writeFieldName("boolean");
         this.booleanProperty.writeTo(jsonWriter);
-        jsonWriter.writeArrayField("array", this.array,
-            (writer, element) -> writer.writeUntyped(element == null ? null : element.toObject(Object.class)));
+        jsonWriter.writeArrayField("array", this.array, (writer, element) -> {
+            if (element == null) {
+                writer.writeNull();
+            } else {
+                element.writeTo(writer);
+            }
+        });
         return jsonWriter.writeEndObject();
     }
 

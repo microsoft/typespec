@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using System.Xml;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -23,7 +23,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public sealed class ModelSerializationExtensionsDefinition : TypeProvider
+    public sealed partial class ModelSerializationExtensionsDefinition : TypeProvider
     {
         public const string WireOptionsFieldName = "WireOptions";
         public const string JsonDocumentOptionsFieldName = "JsonDocumentOptions";
@@ -64,6 +64,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 initializationValue: New.Instance(typeof(JsonDocumentOptions),
                     new Dictionary<ValueExpression, ValueExpression> { [Identifier("MaxDepth")] = Int(256) }),
                 enclosingType: this);
+            _xmlWriterSettingsField = new FieldProvider(
+                modifiers: FieldModifiers.Internal | FieldModifiers.Static | FieldModifiers.ReadOnly,
+                type: typeof(XmlWriterSettings),
+                name: XmlWriterSettingsFieldName,
+                initializationValue: New.Instance(typeof(XmlWriterSettings),
+                    new Dictionary<ValueExpression, ValueExpression>
+                    {
+                        [Identifier("Encoding")] = New.Instance<UTF8Encoding>(False)
+                    }),
+                enclosingType: this);
+
+            _xmlReaderSettingsField = new FieldProvider(
+                modifiers: FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly,
+                type: typeof(XmlReaderSettings),
+                name: XmlReaderSettingsFieldName,
+                initializationValue: New.Instance(typeof(XmlReaderSettings),
+                    new Dictionary<ValueExpression, ValueExpression>
+                    {
+                        [Identifier("DtdProcessing")] = new MemberExpression(typeof(DtdProcessing), nameof(DtdProcessing.Prohibit)),
+                        [Identifier("XmlResolver")] = Null,
+                        [Identifier("MaxCharactersInDocument")] = Literal(30_000_000),
+                        [Identifier("IgnoreProcessingInstructions")] = True,
+                        [Identifier("IgnoreComments")] = True
+                    }),
+                enclosingType: this);
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
@@ -80,7 +105,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            return [WireOptionsField, _jsonDocumentOptionsField];
+            return [WireOptionsField, _jsonDocumentOptionsField, .. BuildXmlFields()];
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -158,7 +183,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteObjectValueMethodGeneric(),
                 BuildWriteObjectValueMethodProvider(),
                 BuildGetUtf8BytesMethodProvider(),
-                .. BuildDynamicModelHelpers()
+                .. BuildDynamicModelHelpers(),
+                .. BuildXmlExtensionMethods()
             ];
         }
 

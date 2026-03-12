@@ -1,28 +1,18 @@
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { navigateProgram } from "../src/core/semantic-walker.js";
-import {
-  TestHost,
-  createTestHost,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../src/testing/index.js";
+import { Tester } from "./tester.js";
 
 describe("compiler: suppress", () => {
-  let host: TestHost;
-
-  beforeEach(async () => {
-    host = await createTestHost();
-  });
-
   async function run(typespec: string) {
-    host.addTypeSpecFile("main.tsp", typespec);
+    const { program } = await Tester.compile(typespec, {
+      compilerOptions: { nostdlib: true },
+    });
 
-    await host.compile("main.tsp", { nostdlib: true });
-
-    navigateProgram(host.program, {
+    navigateProgram(program, {
       model: (model) => {
         if (model.name === "") {
-          host.program.reportDiagnostic({
+          program.reportDiagnostic({
             severity: "warning",
             code: "no-inline-model",
             message: "Inline models are not recommended",
@@ -32,7 +22,7 @@ describe("compiler: suppress", () => {
       },
       modelProperty: (prop) => {
         if (prop.name === "id") {
-          host.program.reportDiagnostic({
+          program.reportDiagnostic({
             severity: "error",
             code: "no-id-property",
             message: "Id properties on models are forbidden",
@@ -42,7 +32,7 @@ describe("compiler: suppress", () => {
       },
     });
 
-    return host.program.diagnostics;
+    return program.diagnostics;
   }
 
   it("emit warning diagnostics when there is no suppression", async () => {

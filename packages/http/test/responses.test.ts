@@ -140,6 +140,22 @@ it("supports any casing for string literal 'Content-Type' header properties.", a
   deepStrictEqual(routes[2].responses[0].responses[0].body?.contentTypes, ["application/json"]);
 });
 
+it("treats content-type as a header for HEAD responses", async () => {
+  const [routes, diagnostics] = await getOperationsWithServiceNamespace(
+    `
+      @head
+      op head(): { @header "content-type": "text/plain" };
+    `,
+  );
+
+  expectDiagnosticEmpty(diagnostics);
+  strictEqual(routes.length, 1);
+  const response = routes[0].responses[0].responses[0];
+  strictEqual(response.body, undefined);
+  ok(response.headers);
+  deepStrictEqual(Object.keys(response.headers), ["content-type"]);
+});
+
 // Regression test for https://github.com/microsoft/typespec/issues/328
 it("empty response model becomes body if it has children", async () => {
   const [routes, diagnostics] = await getOperationsWithServiceNamespace(

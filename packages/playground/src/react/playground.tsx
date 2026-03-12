@@ -16,17 +16,17 @@ import {
 import { CompletionItemTag } from "vscode-languageserver";
 import { resolveVirtualPath } from "../browser-host.js";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
-import { getMonacoRange } from "../services.js";
+import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../services.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
 import { debugGlobals, printDebugInfo } from "./debug.js";
 import { DefaultFooter } from "./default-footer.js";
+import { EditorPanel } from "./editor-panel/editor-panel.js";
 import { useMonacoModel, type OnMountData } from "./editor.js";
 import { OutputView } from "./output-view/output-view.js";
 import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";
 import type { CompilationState, FileOutputViewer, ProgramViewer } from "./types.js";
-import { TypeSpecEditor } from "./typespec-editor.js";
 import { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";
 
 // Re-export the PlaygroundState type for convenience
@@ -224,12 +224,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
       }));
 
+      // Update code action provider with current diagnostics (for codefix support).
+      updateDiagnosticsForCodeFixes(typespecCompiler, state.program.diagnostics);
+
       // Set the program on the window.
       debugGlobals().program = state.program;
       debugGlobals().$$ = $(state.program);
 
       editor.setModelMarkers(typespecModel, "owner", markers ?? []);
     } else {
+      updateDiagnosticsForCodeFixes(typespecCompiler, []);
       editor.setModelMarkers(typespecModel, "owner", []);
     }
   }, [host, selectedEmitter, compilerOptions, typespecModel]);
@@ -333,26 +337,31 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           <Pane>
             <SplitPane initialSizes={["50%", "50%"]}>
               <Pane className={style["edit-pane"]}>
-                <EditorCommandBar
+                <EditorPanel
                   host={host}
-                  selectedEmitter={selectedEmitter}
-                  onSelectedEmitterChange={onSelectedEmitterChange}
-                  compilerOptions={compilerOptions}
-                  onCompilerOptionsChange={onCompilerOptionsChange}
-                  samples={props.samples}
-                  selectedSampleName={selectedSampleName}
-                  onSelectedSampleNameChange={onSelectedSampleNameChange}
-                  saveCode={saveCode}
-                  formatCode={formatCode}
-                  fileBug={props.onFileBug ? fileBug : undefined}
-                  commandBarButtons={props.commandBarButtons}
-                  documentationUrl={props.links?.documentationUrl}
-                />
-                <TypeSpecEditor
                   model={typespecModel}
                   actions={typespecEditorActions}
-                  options={props.editorOptions}
+                  editorOptions={props.editorOptions}
                   onMount={onTypeSpecEditorMount}
+                  selectedEmitter={selectedEmitter}
+                  compilerOptions={compilerOptions}
+                  onCompilerOptionsChange={onCompilerOptionsChange}
+                  onSelectedEmitterChange={onSelectedEmitterChange}
+                  commandBar={
+                    <EditorCommandBar
+                      host={host}
+                      selectedEmitter={selectedEmitter}
+                      onSelectedEmitterChange={onSelectedEmitterChange}
+                      samples={props.samples}
+                      selectedSampleName={selectedSampleName}
+                      onSelectedSampleNameChange={onSelectedSampleNameChange}
+                      saveCode={saveCode}
+                      formatCode={formatCode}
+                      fileBug={props.onFileBug ? fileBug : undefined}
+                      commandBarButtons={props.commandBarButtons}
+                      documentationUrl={props.links?.documentationUrl}
+                    />
+                  }
                 />
               </Pane>
               <Pane>

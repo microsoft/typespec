@@ -18,9 +18,17 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import encode.array.implementation.PropertiesImpl;
 import encode.array.models.CommaDelimitedArrayProperty;
+import encode.array.models.CommaDelimitedEnumArrayProperty;
+import encode.array.models.CommaDelimitedExtensibleEnumArrayProperty;
 import encode.array.models.NewlineDelimitedArrayProperty;
+import encode.array.models.NewlineDelimitedEnumArrayProperty;
+import encode.array.models.NewlineDelimitedExtensibleEnumArrayProperty;
 import encode.array.models.PipeDelimitedArrayProperty;
+import encode.array.models.PipeDelimitedEnumArrayProperty;
+import encode.array.models.PipeDelimitedExtensibleEnumArrayProperty;
 import encode.array.models.SpaceDelimitedArrayProperty;
+import encode.array.models.SpaceDelimitedEnumArrayProperty;
+import encode.array.models.SpaceDelimitedExtensibleEnumArrayProperty;
 import reactor.core.publisher.Mono;
 
 /**
@@ -202,6 +210,330 @@ public final class ArrayAsyncClient {
     }
 
     /**
+     * The enumCommaDelimited operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> enumCommaDelimitedWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.enumCommaDelimitedWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * The enumSpaceDelimited operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> enumSpaceDelimitedWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.enumSpaceDelimitedWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * The enumPipeDelimited operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> enumPipeDelimitedWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.enumPipeDelimitedWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * The enumNewlineDelimited operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> enumNewlineDelimitedWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.enumNewlineDelimitedWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * The extensibleEnumCommaDelimited operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> extensibleEnumCommaDelimitedWithResponse(BinaryData body,
+        RequestOptions requestOptions) {
+        return this.serviceClient.extensibleEnumCommaDelimitedWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * The extensibleEnumSpaceDelimited operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> extensibleEnumSpaceDelimitedWithResponse(BinaryData body,
+        RequestOptions requestOptions) {
+        return this.serviceClient.extensibleEnumSpaceDelimitedWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * The extensibleEnumPipeDelimited operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> extensibleEnumPipeDelimitedWithResponse(BinaryData body,
+        RequestOptions requestOptions) {
+        return this.serviceClient.extensibleEnumPipeDelimitedWithResponseAsync(body, requestOptions);
+    }
+
+    /**
+     * The extensibleEnumNewlineDelimited operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         String(blue/red/green) (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> extensibleEnumNewlineDelimitedWithResponse(BinaryData body,
+        RequestOptions requestOptions) {
+        return this.serviceClient.extensibleEnumNewlineDelimitedWithResponseAsync(body, requestOptions);
+    }
+
+    /**
      * The commaDelimited operation.
      * 
      * @param body The body parameter.
@@ -283,5 +615,181 @@ public final class ArrayAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return newlineDelimitedWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(NewlineDelimitedArrayProperty.class));
+    }
+
+    /**
+     * The enumCommaDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<CommaDelimitedEnumArrayProperty> enumCommaDelimited(CommaDelimitedEnumArrayProperty body) {
+        // Generated convenience method for enumCommaDelimitedWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return enumCommaDelimitedWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(CommaDelimitedEnumArrayProperty.class));
+    }
+
+    /**
+     * The enumSpaceDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<SpaceDelimitedEnumArrayProperty> enumSpaceDelimited(SpaceDelimitedEnumArrayProperty body) {
+        // Generated convenience method for enumSpaceDelimitedWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return enumSpaceDelimitedWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(SpaceDelimitedEnumArrayProperty.class));
+    }
+
+    /**
+     * The enumPipeDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<PipeDelimitedEnumArrayProperty> enumPipeDelimited(PipeDelimitedEnumArrayProperty body) {
+        // Generated convenience method for enumPipeDelimitedWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return enumPipeDelimitedWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(PipeDelimitedEnumArrayProperty.class));
+    }
+
+    /**
+     * The enumNewlineDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<NewlineDelimitedEnumArrayProperty> enumNewlineDelimited(NewlineDelimitedEnumArrayProperty body) {
+        // Generated convenience method for enumNewlineDelimitedWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return enumNewlineDelimitedWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(NewlineDelimitedEnumArrayProperty.class));
+    }
+
+    /**
+     * The extensibleEnumCommaDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<CommaDelimitedExtensibleEnumArrayProperty>
+        extensibleEnumCommaDelimited(CommaDelimitedExtensibleEnumArrayProperty body) {
+        // Generated convenience method for extensibleEnumCommaDelimitedWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return extensibleEnumCommaDelimitedWithResponse(BinaryData.fromObject(body), requestOptions)
+            .flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(CommaDelimitedExtensibleEnumArrayProperty.class));
+    }
+
+    /**
+     * The extensibleEnumSpaceDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<SpaceDelimitedExtensibleEnumArrayProperty>
+        extensibleEnumSpaceDelimited(SpaceDelimitedExtensibleEnumArrayProperty body) {
+        // Generated convenience method for extensibleEnumSpaceDelimitedWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return extensibleEnumSpaceDelimitedWithResponse(BinaryData.fromObject(body), requestOptions)
+            .flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(SpaceDelimitedExtensibleEnumArrayProperty.class));
+    }
+
+    /**
+     * The extensibleEnumPipeDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<PipeDelimitedExtensibleEnumArrayProperty>
+        extensibleEnumPipeDelimited(PipeDelimitedExtensibleEnumArrayProperty body) {
+        // Generated convenience method for extensibleEnumPipeDelimitedWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return extensibleEnumPipeDelimitedWithResponse(BinaryData.fromObject(body), requestOptions)
+            .flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(PipeDelimitedExtensibleEnumArrayProperty.class));
+    }
+
+    /**
+     * The extensibleEnumNewlineDelimited operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<NewlineDelimitedExtensibleEnumArrayProperty>
+        extensibleEnumNewlineDelimited(NewlineDelimitedExtensibleEnumArrayProperty body) {
+        // Generated convenience method for extensibleEnumNewlineDelimitedWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return extensibleEnumNewlineDelimitedWithResponse(BinaryData.fromObject(body), requestOptions)
+            .flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(NewlineDelimitedExtensibleEnumArrayProperty.class));
     }
 }

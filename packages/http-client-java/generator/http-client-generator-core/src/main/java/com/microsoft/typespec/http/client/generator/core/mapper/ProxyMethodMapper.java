@@ -23,7 +23,6 @@ import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,9 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     private static final List<IType> RETURN_VALUE_WIRE_TYPE_OPTIONS
         = Arrays.asList(ClassType.BASE_64_URL, ClassType.DATE_TIME_RFC_1123, PrimitiveType.DURATION_LONG,
             PrimitiveType.DURATION_DOUBLE, ClassType.DURATION_LONG, ClassType.DURATION_DOUBLE,
-            PrimitiveType.UNIX_TIME_LONG, ClassType.UNIX_TIME_LONG, ClassType.UNIX_TIME_DATE_TIME);
+            PrimitiveType.DURATION_MILLISECONDS_LONG, PrimitiveType.DURATION_MILLISECONDS_DOUBLE,
+            ClassType.DURATION_MILLISECONDS_LONG, ClassType.DURATION_MILLISECONDS_DOUBLE, PrimitiveType.UNIX_TIME_LONG,
+            ClassType.UNIX_TIME_LONG, ClassType.UNIX_TIME_DATE_TIME);
     private static final ProxyMethodMapper INSTANCE = new ProxyMethodMapper();
 
     private final Logger logger = new PluginLogger(Javagen.getPluginInstance(), ProxyMethodMapper.class);
@@ -210,7 +211,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         expectedStatusCodes.forEach(mergedExceptionTypeMapping::remove);
 
         // Convert the exception type mapping into what code generation uses elsewhere.
-        final Map<ClassType, List<Integer>> processedMapping = new HashMap<>();
+        final Map<ClassType, List<Integer>> processedMapping = new LinkedHashMap<>();
         for (Map.Entry<Integer, ClassType> kvp : mergedExceptionTypeMapping.entrySet()) {
             processedMapping.compute(kvp.getValue(), (errorType, statuses) -> {
                 if (statuses == null) {
@@ -524,7 +525,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         private SwaggerExceptionDefinitions() {
             defaultExceptionType = null;
-            exceptionTypeMapping = new HashMap<>();
+            exceptionTypeMapping = new LinkedHashMap<>();
         }
 
         ClassType getDefaultExceptionType() {
