@@ -344,6 +344,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(bodyString.Contains("GetSection"), "BindCore should use GetSection for list parameter binding");
             Assert.IsTrue(bodyString.Contains("GetChildren"), "BindCore should use GetChildren for list parameter binding");
             Assert.IsTrue(bodyString.Contains("Where"), "BindCore should use Where to filter null values");
+            Assert.IsTrue(bodyString.Contains("is not null"), "BindCore should use 'is not null' pattern in Where filter");
             Assert.IsTrue(bodyString.Contains("Select"), "BindCore should use Select to extract values");
             Assert.IsTrue(bodyString.Contains("ToList"), "BindCore should use ToList to materialize the list");
         }
