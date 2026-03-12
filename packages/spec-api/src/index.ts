@@ -1,4 +1,5 @@
-export { isMatcher, match, matchValues, type MockValueMatcher } from "./matchers.js";
+export { isMatcher, matchValues, type MockValueMatcher } from "./matchers.js";
+export { match } from "./match.js";
 export { MockRequest } from "./mock-request.js";
 export {
   BODY_EMPTY_ERROR_MESSAGE,

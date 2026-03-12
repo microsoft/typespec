@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { isMatcher, matchValues, match, MockValueMatcher } from "../src/matchers.js";
+import { isMatcher, matchValues, MockValueMatcher } from "../src/matchers.js";
+import { match } from "../src/match.js";
 import { expandDyns, json } from "../src/response-utils.js";
 import { ResolverConfig } from "../src/types.js";
 
