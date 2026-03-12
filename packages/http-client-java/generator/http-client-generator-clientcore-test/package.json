@@ -14,7 +14,7 @@
   "dependencies": {
     "@typespec/spector": "0.1.0-alpha.24",
     "@typespec/spec-api": "0.1.0-alpha.13",
-    "@typespec/http-specs": "0.1.0-alpha.33",
+    "@typespec/http-specs": "0.1.0-alpha.34",
     "@typespec/json-schema": "1.10.0",
     "@typespec/http-client-java": "file:../../typespec-http-client-java-0.7.0.tgz",
     "@typespec/http-client-java-tests": "file:"
