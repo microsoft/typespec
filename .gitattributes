@@ -17,3 +17,5 @@ docs/spec.html               merge=binary linguist-generated=true
 
 # Allow comments in JSON in GitHub rendering
 *.json                       linguist-language=JSON-with-Comments
+
+.github/workflows/*.lock.yml linguist-generated=true merge=ours
