@@ -283,6 +283,142 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void TestBindCoreMethod_WithUriParam()
+        {
+            var inputParameters = new InputParameter[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.MethodParameter(
+                    "redirectUri",
+                    InputPrimitiveType.Url,
+                    isRequired: true,
+                    scope: InputParameterScope.Client)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("Uri.TryCreate"), "BindCore should use Uri.TryCreate for Uri parameter binding");
+            Assert.IsTrue(bodyString.Contains("UriKind.Absolute"), "BindCore should use UriKind.Absolute");
+            Assert.IsTrue(bodyString.Contains("RedirectUri"), "BindCore should assign to RedirectUri property");
+        }
+
+        [Test]
+        public void TestBindCoreMethod_WithStringListParam()
+        {
+            var inputParameters = new InputParameter[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.MethodParameter(
+                    "allowedTenants",
+                    InputFactory.Array(InputPrimitiveType.String),
+                    isRequired: true,
+                    scope: InputParameterScope.Client)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("GetSection"), "BindCore should use GetSection for list parameter binding");
+            Assert.IsTrue(bodyString.Contains("GetChildren"), "BindCore should use GetChildren for list parameter binding");
+            Assert.IsTrue(bodyString.Contains("Where"), "BindCore should use Where to filter null values");
+            Assert.IsTrue(bodyString.Contains("Select"), "BindCore should use Select to extract values");
+            Assert.IsTrue(bodyString.Contains("ToList"), "BindCore should use ToList to materialize the list");
+        }
+
+        [Test]
+        public void TestBindCoreMethod_WithEnumParam()
+        {
+            var enumType = InputFactory.StringEnum(
+                "AppAudience",
+                [("Public", "public"), ("Private", "private")],
+                isExtensible: true);
+
+            MockHelpers.LoadMockGenerator(inputEnums: () => [enumType]);
+
+            var inputParameters = new InputParameter[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.MethodParameter(
+                    "audience",
+                    enumType,
+                    isRequired: true,
+                    scope: InputParameterScope.Client)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("is string"), "BindCore should use 'is string' pattern for enum parameter binding");
+            Assert.IsTrue(bodyString.Contains("new"), "BindCore should create new enum instance");
+            Assert.IsTrue(bodyString.Contains("Audience"), "BindCore should assign to Audience property");
+        }
+
+        [Test]
+        public void TestBindCoreMethod_WithTimeSpanParam()
+        {
+            var inputParameters = new InputParameter[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.MethodParameter(
+                    "networkTimeout",
+                    InputPrimitiveType.PlainTime,
+                    isRequired: true,
+                    scope: InputParameterScope.Client)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("TimeSpan.TryParse"), "BindCore should use TimeSpan.TryParse for TimeSpan parameter binding");
+            Assert.IsTrue(bodyString.Contains("NetworkTimeout"), "BindCore should assign to NetworkTimeout property");
+        }
+
+        [Test]
         public void TestExperimentalAttribute()
         {
             var client = InputFactory.Client("TestClient");

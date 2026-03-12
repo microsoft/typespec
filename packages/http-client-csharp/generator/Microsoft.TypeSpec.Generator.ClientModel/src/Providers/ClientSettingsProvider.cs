@@ -133,8 +133,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var param in OtherRequiredParams)
             {
                 var propName = param.Name.ToIdentifierName();
+
+                // Handle non-framework types (custom struct/enum)
                 if (!param.Type.IsFrameworkType)
                 {
+                    // Custom struct/enum (extensible): if (section["Name"] is string val) { Name = new TypeName(val); }
+                    if (param.Type.IsEnum)
+                    {
+                        AppendEnumBinding(body, sectionParam, propName, param);
+                    }
+                    continue;
+                }
+
+                // Handle collection types (string[]/List<string>)
+                if (param.Type.IsList)
+                {
+                    AppendStringListBinding(body, sectionParam, propName, param);
                     continue;
                 }
 
@@ -163,6 +177,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 else if (frameworkType == typeof(TimeSpan))
                 {
                     AppendTryParseBinding(body, sectionParam, propName, param, typeof(TimeSpan));
+                }
+                // For Uri: if (Uri.TryCreate(section[name], UriKind.Absolute, out Uri val)) PropName = val;
+                else if (frameworkType == typeof(Uri))
+                {
+                    AppendUriTryCreateBinding(body, sectionParam, propName, param);
                 }
             }
 
@@ -211,6 +230,91 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     outDecl
                 }));
             ifStatement.Add(This.Property(propName).Assign(parsedVar).Terminate());
+            body.Add(ifStatement);
+        }
+
+        /// <summary>
+        /// Appends a Uri.TryCreate binding: if (Uri.TryCreate(section[name], UriKind.Absolute, out Uri val)) PropName = val;
+        /// </summary>
+        private static void AppendUriTryCreateBinding(
+            List<MethodBodyStatement> body,
+            ParameterProvider sectionParam,
+            string propName,
+            ParameterProvider param)
+        {
+            var outUriDecl = new DeclarationExpression(typeof(Uri), param.Name.ToVariableName(), out var uriVar, isOut: true);
+            var ifStatement = new IfStatement(Static(typeof(Uri)).Invoke("TryCreate",
+                new ValueExpression[]
+                {
+                    new IndexerExpression(sectionParam, Literal(propName)),
+                    new MemberExpression(typeof(UriKind), nameof(UriKind.Absolute)),
+                    outUriDecl
+                }));
+            ifStatement.Add(This.Property(propName).Assign(uriVar).Terminate());
+            body.Add(ifStatement);
+        }
+
+        /// <summary>
+        /// Appends a string list binding: IConfigurationSection s = section.GetSection(name);
+        /// if (s.Exists()) { PropName = s.GetChildren().Where(c => c.Value is not null).Select(c => c.Value!).ToList(); }
+        /// </summary>
+        private static void AppendStringListBinding(
+            List<MethodBodyStatement> body,
+            ParameterProvider sectionParam,
+            string propName,
+            ParameterProvider param)
+        {
+            // Only handle List<string> for now
+            if (param.Type.Arguments.Count == 0 ||
+                !param.Type.Arguments[0].IsFrameworkType ||
+                param.Type.Arguments[0].FrameworkType != typeof(string))
+            {
+                return;
+            }
+
+            // IConfigurationSection listSection = section.GetSection("PropName");
+            var sectionVar = new VariableExpression(IConfigurationSectionType, param.Name.ToVariableName() + "Section");
+            body.Add(Declare(sectionVar, sectionParam.Invoke("GetSection", Literal(propName))));
+
+            // if (listSection.Exists())
+            var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
+
+            // listSection.GetChildren().Where(c => c.Value is not null).Select(c => c.Value!).ToList()
+            var cDecl = new CodeWriterDeclaration("c");
+            var cVar = new VariableExpression(IConfigurationSectionType, cDecl);
+            var whereCondition = new BinaryOperatorExpression("is not", cVar.Property("Value"), Null);
+            var whereLambda = new FuncExpression([cDecl], whereCondition);
+            var whereResult = sectionVar.Invoke("GetChildren")
+                .Invoke("Where", [whereLambda], null, false, extensionType: typeof(Enumerable));
+
+            var c2Decl = new CodeWriterDeclaration("c");
+            var c2Var = new VariableExpression(IConfigurationSectionType, c2Decl);
+            var selectBody = new UnaryOperatorExpression("!", c2Var.Property("Value"), true);
+            var selectLambda = new FuncExpression([c2Decl], selectBody);
+            var selectResult = whereResult
+                .Invoke("Select", [selectLambda], null, false, extensionType: typeof(Enumerable));
+
+            var toListResult = selectResult.ToList();
+
+            ifExistsStatement.Add(This.Property(propName).Assign(toListResult).Terminate());
+            body.Add(ifExistsStatement);
+        }
+
+        /// <summary>
+        /// Appends an extensible enum binding: if (section[name] is string val) { PropName = new TypeName(val); }
+        /// </summary>
+        private static void AppendEnumBinding(
+            List<MethodBodyStatement> body,
+            ParameterProvider sectionParam,
+            string propName,
+            ParameterProvider param)
+        {
+            var decl = new DeclarationExpression(typeof(string), param.Name.ToVariableName(), out var declVar);
+            var isPattern = new BinaryOperatorExpression("is",
+                new IndexerExpression(sectionParam, Literal(propName)),
+                decl);
+            var ifStatement = new IfStatement(isPattern);
+            ifStatement.Add(This.Property(propName).Assign(New.Instance(param.Type, declVar)).Terminate());
             body.Add(ifStatement);
         }
     }
