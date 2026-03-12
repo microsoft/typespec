@@ -341,7 +341,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Build a set of version property names for O(1) lookup
             var versionPropertyNames = VersionProperties?.Values.Select(vp => vp.Name).ToHashSet();
 
-            // Bind non-version properties from configuration
+            // Bind non-version properties from configuration using type-aware binding
             foreach (var property in Properties)
             {
                 if (versionPropertyNames?.Contains(property.Name) == true)
@@ -349,14 +349,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // string? propValue = section["PropertyName"];
-                var propValueVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), $"{property.Name.ToVariableName()}FromConfig");
-                body.Add(Declare(propValueVar, new IndexerExpression(sectionParam, Literal(property.Name))));
-
-                // if (!string.IsNullOrEmpty(propValue)) { Property = propValue; }
-                var ifProp = new IfStatement(Not(StringSnippets.IsNullOrEmpty(propValueVar.As<string>())));
-                ifProp.Add(This.Property(property.Name).Assign(propValueVar).Terminate());
-                body.Add(ifProp);
+                ClientSettingsProvider.AppendBindingForProperty(
+                    body,
+                    sectionParam,
+                    property.Name,
+                    property.Name.ToVariableName(),
+                    property.Type);
             }
 
             return new ConstructorProvider(

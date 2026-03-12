@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => [inputModel],
                 createSerializationsCore: (inputType, typeProvider) =>
-                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
             if (isRootInput)
             {
                 generator.Object.TypeFactory.RootInputModels.Add(inputModel);
@@ -1145,7 +1145,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => [inputModel, innerModel],
                 createSerializationsCore: (inputType, typeProvider) =>
-                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
 
             generator.Object.TypeFactory.RootInputModels.Add(inputModel);
             generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
@@ -1183,7 +1183,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => [inputModel, innerModel],
                 createSerializationsCore: (inputType, typeProvider) =>
-                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
 
             generator.Object.TypeFactory.RootInputModels.Add(inputModel);
             generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
@@ -1220,7 +1220,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => [inputModel, valueModel],
                 createSerializationsCore: (inputType, typeProvider) =>
-                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
 
             generator.Object.TypeFactory.RootInputModels.Add(inputModel);
             generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
@@ -1250,9 +1250,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var (model, serialization) = CreateModelAndSerialization(inputModel);
 
             // The serialization type name should match the model provider name
-            Assert.AreEqual(model.Name, serialization.Name, 
+            Assert.AreEqual(model.Name, serialization.Name,
                 "Serialization type name should match ModelProvider name");
-            
+
             // The deserialization method should also use the model provider name
             var deserializationMethod = serialization.BuildDeserializationMethod();
             Assert.IsNotNull(deserializationMethod);
@@ -1269,29 +1269,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Enum.TryParse<ArrayKnownEncoding>(encoding, ignoreCase: true, out var arrayEncoding);
             var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
             var arrayProperty = new InputModelProperty(
-                "TestArray", 
+                "TestArray",
                 "Test array property summary",
-                "Test array property", 
-                arrayType, 
-                true, 
-                false, 
-                null, 
-                false, 
-                "testArray", 
-                false, 
-                false, 
-                null, 
+                "Test array property",
+                arrayType,
+                true,
+                false,
+                null,
+                false,
+                "testArray",
+                false,
+                false,
+                null,
                 new(json: new("testArray")),
                 arrayEncoding);
-                
+
             var properties = new List<InputModelProperty> { arrayProperty };
             var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
             var writeMethod = serialization.BuildJsonModelWriteCoreMethod();
             var methodBody = writeMethod.BodyStatements!.ToDisplayString();
-            
-            Assert.IsTrue(methodBody.Contains($"string.Join(\"{expectedDelimiter}\", TestArray)"), 
+
+            Assert.IsTrue(methodBody.Contains($"string.Join(\"{expectedDelimiter}\", TestArray)"),
                 $"Expected serialization to use string.Join with delimiter '{expectedDelimiter}', but got: {methodBody}");
         }
 
@@ -1304,21 +1304,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Enum.TryParse<ArrayKnownEncoding>(encoding, ignoreCase: true, out var arrayEncoding);
             var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
             var arrayProperty = new InputModelProperty(
-                "TestArray", 
+                "TestArray",
                 "Test array property summary",
-                "Test array property", 
-                arrayType, 
-                true, 
-                false, 
-                null, 
-                false, 
-                "testArray", 
-                false, 
-                false, 
-                null, 
+                "Test array property",
+                arrayType,
+                true,
+                false,
+                null,
+                false,
+                "testArray",
+                false,
+                false,
+                null,
                 new(json: new("testArray")),
                 arrayEncoding);
-                
+
             var properties = new List<InputModelProperty> { arrayProperty };
             var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
 

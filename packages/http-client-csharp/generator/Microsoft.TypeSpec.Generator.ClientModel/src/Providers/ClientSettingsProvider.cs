@@ -117,98 +117,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (EndpointPropertyName != null)
             {
-                // if (Uri.TryCreate(section["EndpointPropertyName"], UriKind.Absolute, out Uri varName)) { EndpointProperty = varName; }
-                var outUriDecl = new DeclarationExpression(typeof(Uri), EndpointPropertyName.ToVariableName(), out var uriVar, isOut: true);
-                var ifStatement = new IfStatement(Static(typeof(Uri)).Invoke("TryCreate",
-                    new ValueExpression[]
-                    {
-                        new IndexerExpression(sectionParam, Literal(EndpointPropertyName)),
-                        new MemberExpression(typeof(UriKind), nameof(UriKind.Absolute)),
-                        outUriDecl
-                    }));
-                ifStatement.Add(This.Property(EndpointPropertyName).Assign(uriVar).Terminate());
-                body.Add(ifStatement);
+                AppendUriTryCreateBinding(body, sectionParam, EndpointPropertyName, EndpointPropertyName.ToVariableName());
             }
 
             foreach (var param in OtherRequiredParams)
             {
                 var propName = param.Name.ToIdentifierName();
-
-                // Handle non-framework types (enums)
-                if (!param.Type.IsFrameworkType)
-                {
-                    if (param.Type.IsEnum)
-                    {
-                        if (param.Type.IsStruct)
-                        {
-                            // Extensible enum (readonly struct): if (section["Name"] is string val) { Name = new TypeName(val); }
-                            AppendEnumBinding(body, sectionParam, propName, param);
-                        }
-                        else
-                        {
-                            // Fixed enum: if (Enum.TryParse<TypeName>(section["Name"], out TypeName val)) { Name = val; }
-                            AppendFixedEnumBinding(body, sectionParam, propName, param);
-                        }
-                    }
-                    else
-                    {
-                        // Complex object: section.GetSection(name) + .Exists() + new Type(section)
-                        AppendComplexObjectBinding(body, sectionParam, propName, param);
-                    }
-                    continue;
-                }
-
-                // Handle collection types (string[]/List<string>)
-                if (param.Type.IsList)
-                {
-                    AppendStringListBinding(body, sectionParam, propName, param);
-                    continue;
-                }
-
-                var frameworkType = param.Type.FrameworkType;
-
-                // For string types: if (!string.IsNullOrEmpty(val)) PropName = val;
-                if (frameworkType == typeof(string))
-                {
-                    var valVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), param.Name.ToVariableName());
-                    body.Add(Declare(valVar, new IndexerExpression(sectionParam, Literal(propName))));
-                    var ifStatement = new IfStatement(Not(StringSnippets.IsNullOrEmpty(valVar.As<string>())));
-                    ifStatement.Add(This.Property(propName).Assign(valVar).Terminate());
-                    body.Add(ifStatement);
-                }
-                // For bool: if (bool.TryParse(section[name], out bool val)) PropName = val;
-                else if (frameworkType == typeof(bool))
-                {
-                    AppendTryParseBinding(body, sectionParam, propName, param, typeof(bool));
-                }
-                // For int: if (int.TryParse(section[name], out int val)) PropName = val;
-                else if (frameworkType == typeof(int))
-                {
-                    AppendTryParseBinding(body, sectionParam, propName, param, typeof(int));
-                }
-                // For TimeSpan: if (TimeSpan.TryParse(section[name], out TimeSpan val)) PropName = val;
-                else if (frameworkType == typeof(TimeSpan))
-                {
-                    AppendTryParseBinding(body, sectionParam, propName, param, typeof(TimeSpan));
-                }
-                // For Uri: if (Uri.TryCreate(section[name], UriKind.Absolute, out Uri val)) PropName = val;
-                else if (frameworkType == typeof(Uri))
-                {
-                    AppendUriTryCreateBinding(body, sectionParam, propName, param);
-                }
+                AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
             }
 
             if (_clientProvider.ClientOptions != null)
             {
-                // IConfigurationSection optionsSection = section.GetSection("Options");
-                var optionsSectionVar = new VariableExpression(IConfigurationSectionType, "optionsSection");
-                body.Add(Declare(optionsSectionVar, sectionParam.Invoke("GetSection", Literal("Options"))));
-
-                // if (optionsSection.Exists()) { Options = new ClientOptions(optionsSection); }
-                var ifOptionsStatement = new IfStatement(optionsSectionVar.Invoke("Exists"));
-                ifOptionsStatement.Add(This.Property("Options").Assign(
-                    New.Instance(_clientProvider.ClientOptions.Type, optionsSectionVar)).Terminate());
-                body.Add(ifOptionsStatement);
+                AppendComplexObjectBinding(body, sectionParam, "Options", "options", _clientProvider.ClientOptions.Type);
             }
 
             var bindCoreMethod = new MethodProvider(
@@ -226,16 +146,94 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Appends a TryParse-based binding statement: if (Type.TryParse(section[name], out Type val)) PropName = val;
+        /// Dispatches to the appropriate binding method based on the property type.
         /// </summary>
-        private static void AppendTryParseBinding(
+        internal static void AppendBindingForProperty(
             List<MethodBodyStatement> body,
             ParameterProvider sectionParam,
             string propName,
-            ParameterProvider param,
+            string varName,
+            CSharpType type)
+        {
+            // Handle non-framework types (enums, complex objects)
+            if (!type.IsFrameworkType)
+            {
+                if (type.IsEnum)
+                {
+                    if (type.IsStruct)
+                    {
+                        AppendEnumBinding(body, sectionParam, propName, varName, type);
+                    }
+                    else
+                    {
+                        AppendFixedEnumBinding(body, sectionParam, propName, varName, type);
+                    }
+                }
+                else
+                {
+                    AppendComplexObjectBinding(body, sectionParam, propName, varName, type);
+                }
+                return;
+            }
+
+            // Handle collection types (string[]/List<string>)
+            if (type.IsList)
+            {
+                AppendStringListBinding(body, sectionParam, propName, varName, type);
+                return;
+            }
+
+            var frameworkType = type.FrameworkType;
+
+            if (frameworkType == typeof(string))
+            {
+                AppendStringBinding(body, sectionParam, propName, varName);
+            }
+            else if (frameworkType == typeof(bool))
+            {
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(bool));
+            }
+            else if (frameworkType == typeof(int))
+            {
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(int));
+            }
+            else if (frameworkType == typeof(TimeSpan))
+            {
+                AppendTryParseBinding(body, sectionParam, propName, varName, typeof(TimeSpan));
+            }
+            else if (frameworkType == typeof(Uri))
+            {
+                AppendUriTryCreateBinding(body, sectionParam, propName, varName);
+            }
+        }
+
+        /// <summary>
+        /// Appends a string binding: string? val = section[name]; if (!string.IsNullOrEmpty(val)) PropName = val;
+        /// </summary>
+        internal static void AppendStringBinding(
+            List<MethodBodyStatement> body,
+            ParameterProvider sectionParam,
+            string propName,
+            string varName)
+        {
+            var valVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), varName);
+            body.Add(Declare(valVar, new IndexerExpression(sectionParam, Literal(propName))));
+            var ifStatement = new IfStatement(Not(StringSnippets.IsNullOrEmpty(valVar.As<string>())));
+            ifStatement.Add(This.Property(propName).Assign(valVar).Terminate());
+            body.Add(ifStatement);
+        }
+
+        /// <summary>
+        /// Appends a TryParse-based binding statement: if (Type.TryParse(section[name], out Type val)) PropName = val;
+        /// </summary>
+        internal static void AppendTryParseBinding(
+            List<MethodBodyStatement> body,
+            ParameterProvider sectionParam,
+            string propName,
+            string varName,
             Type parseType)
         {
-            var outDecl = new DeclarationExpression(parseType, param.Name.ToVariableName(), out var parsedVar, isOut: true);
+            var outDecl = new DeclarationExpression(parseType, varName, out var parsedVar, isOut: true);
             var ifStatement = new IfStatement(Static(parseType).Invoke("TryParse",
                 new ValueExpression[]
                 {
@@ -249,13 +247,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>
         /// Appends a Uri.TryCreate binding: if (Uri.TryCreate(section[name], UriKind.Absolute, out Uri val)) PropName = val;
         /// </summary>
-        private static void AppendUriTryCreateBinding(
+        internal static void AppendUriTryCreateBinding(
             List<MethodBodyStatement> body,
             ParameterProvider sectionParam,
             string propName,
-            ParameterProvider param)
+            string varName)
         {
-            var outUriDecl = new DeclarationExpression(typeof(Uri), param.Name.ToVariableName(), out var uriVar, isOut: true);
+            var outUriDecl = new DeclarationExpression(typeof(Uri), varName, out var uriVar, isOut: true);
             var ifStatement = new IfStatement(Static(typeof(Uri)).Invoke("TryCreate",
                 new ValueExpression[]
                 {
@@ -271,22 +269,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Appends a string list binding: IConfigurationSection s = section.GetSection(name);
         /// if (s.Exists()) { PropName = s.GetChildren().Where(c => c.Value is not null).Select(c => c.Value!).ToList(); }
         /// </summary>
-        private static void AppendStringListBinding(
+        internal static void AppendStringListBinding(
             List<MethodBodyStatement> body,
             ParameterProvider sectionParam,
             string propName,
-            ParameterProvider param)
+            string varName,
+            CSharpType type)
         {
             // Only handle List<string> for now
-            if (param.Type.Arguments.Count == 0 ||
-                !param.Type.Arguments[0].IsFrameworkType ||
-                param.Type.Arguments[0].FrameworkType != typeof(string))
+            if (type.Arguments.Count == 0 ||
+                !type.Arguments[0].IsFrameworkType ||
+                type.Arguments[0].FrameworkType != typeof(string))
             {
                 return;
             }
 
             // IConfigurationSection listSection = section.GetSection("PropName");
-            var sectionVar = new VariableExpression(IConfigurationSectionType, param.Name.ToVariableName() + "Section");
+            var sectionVar = new VariableExpression(IConfigurationSectionType, varName + "Section");
             body.Add(Declare(sectionVar, sectionParam.Invoke("GetSection", Literal(propName))));
 
             // if (listSection.Exists())
@@ -316,31 +315,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>
         /// Appends an extensible enum binding: if (section[name] is string val) { PropName = new TypeName(val); }
         /// </summary>
-        private static void AppendEnumBinding(
+        internal static void AppendEnumBinding(
             List<MethodBodyStatement> body,
             ParameterProvider sectionParam,
             string propName,
-            ParameterProvider param)
+            string varName,
+            CSharpType type)
         {
-            var decl = new DeclarationExpression(typeof(string), param.Name.ToVariableName(), out var declVar);
+            var decl = new DeclarationExpression(typeof(string), varName, out var declVar);
             var isPattern = new BinaryOperatorExpression("is",
                 new IndexerExpression(sectionParam, Literal(propName)),
                 decl);
             var ifStatement = new IfStatement(isPattern);
-            ifStatement.Add(This.Property(propName).Assign(New.Instance(param.Type, declVar)).Terminate());
+            ifStatement.Add(This.Property(propName).Assign(New.Instance(type, declVar)).Terminate());
             body.Add(ifStatement);
         }
 
         /// <summary>
         /// Appends a fixed enum binding: if (Enum.TryParse(section[name], out TypeName val)) { PropName = val; }
         /// </summary>
-        private static void AppendFixedEnumBinding(
+        internal static void AppendFixedEnumBinding(
             List<MethodBodyStatement> body,
             ParameterProvider sectionParam,
             string propName,
-            ParameterProvider param)
+            string varName,
+            CSharpType type)
         {
-            var outDecl = new DeclarationExpression(param.Type, param.Name.ToVariableName(), out var parsedVar, isOut: true);
+            var outDecl = new DeclarationExpression(type, varName, out var parsedVar, isOut: true);
             var ifStatement = new IfStatement(Static(typeof(Enum)).Invoke("TryParse",
                 new ValueExpression[]
                 {
@@ -355,19 +356,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Appends a complex object binding: IConfigurationSection s = section.GetSection(name);
         /// if (s.Exists()) { PropName = new TypeName(s); }
         /// </summary>
-        private static void AppendComplexObjectBinding(
+        internal static void AppendComplexObjectBinding(
             List<MethodBodyStatement> body,
             ParameterProvider sectionParam,
             string propName,
-            ParameterProvider param)
+            string varName,
+            CSharpType type)
         {
             // IConfigurationSection {name}Section = section.GetSection("PropName");
-            var sectionVar = new VariableExpression(IConfigurationSectionType, param.Name.ToVariableName() + "Section");
+            var sectionVar = new VariableExpression(IConfigurationSectionType, varName + "Section");
             body.Add(Declare(sectionVar, sectionParam.Invoke("GetSection", Literal(propName))));
 
             // if ({name}Section.Exists()) { PropName = new TypeName({name}Section); }
             var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
-            ifExistsStatement.Add(This.Property(propName).Assign(New.Instance(param.Type, sectionVar)).Terminate());
+            ifExistsStatement.Add(This.Property(propName).Assign(New.Instance(type, sectionVar)).Terminate());
             body.Add(ifExistsStatement);
         }
     }

@@ -531,7 +531,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Client.RestClient.GetCreateNextLinkRequestMethod(Operation).Signature.Name;
             return ClientField.Invoke(
                     createNextLinkRequestMethodName,
-                    [nextPageUri, ..RequestFields])
+                    [nextPageUri, .. RequestFields])
                 .As<PipelineMessage>();
         }
 

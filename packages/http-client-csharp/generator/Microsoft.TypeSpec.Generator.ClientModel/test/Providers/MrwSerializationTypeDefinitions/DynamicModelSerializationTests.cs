@@ -1318,7 +1318,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel, "Derived model should be marked as dynamic because base is dynamic");
             Assert.IsFalse(model.HasDynamicProperties, "Derived model should not have dynamic properties when neither it nor base have dynamic property types");
-            
+
             var serialization = model.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(serialization);
 
@@ -1367,12 +1367,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel, baseDynamicModel]);
-            
+
             // Validate base model has dynamic properties and propagators
             var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
             Assert.IsNotNull(baseModelProvider);
             Assert.IsTrue(baseModelProvider!.HasDynamicProperties, "Base model should have dynamic properties");
-            
+
             var baseSerialization = baseModelProvider.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(baseSerialization);
             var baseMethods = baseSerialization!.Methods;
@@ -1384,7 +1384,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(derivedModelProvider);
             Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be marked as dynamic because base is dynamic");
             Assert.IsFalse(derivedModelProvider.HasDynamicProperties, "Derived model should not have dynamic properties when it has no dynamic property types of its own");
-            
+
             var derivedSerialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(derivedSerialization);
 
@@ -1423,7 +1423,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dynamicDerivedModel]);
-            
+
             // Verify base model is NOT dynamic
             var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
             Assert.IsNotNull(baseModelProvider);
@@ -1479,7 +1479,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be dynamic");
             Assert.IsTrue(derivedModelProvider.Constructors.Count > 0);
 
-var serialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
+            var serialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(serialization);
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
