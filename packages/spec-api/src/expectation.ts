@@ -89,8 +89,9 @@ export class RequestExpectation {
    * @param expected Expected value
    */
   public deepEqual(actual: unknown, expected: unknown, message = "Values not deep equal"): void {
-    if (!matchValues(actual, expected)) {
-      throw new ValidationError(message, expected, actual);
+    const result = matchValues(actual, expected);
+    if (!result.pass) {
+      throw new ValidationError(`${message}: ${result.message}`, expected, actual);
     }
   }
 

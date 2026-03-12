@@ -1,5 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { match } from "../../src/match.js";
+import { type MatchResult } from "../../src/matchers.js";
+
+function expectPass(result: MatchResult) {
+  expect(result).toEqual({ pass: true });
+}
+
+function expectFail(result: MatchResult, messagePattern?: string | RegExp) {
+  expect(result.pass).toBe(false);
+  if (!result.pass && messagePattern) {
+    if (typeof messagePattern === "string") {
+      expect(result.message).toContain(messagePattern);
+    } else {
+      expect(result.message).toMatch(messagePattern);
+    }
+  }
+}
 
 describe("match.dateTime.rfc3339()", () => {
   it("should throw for invalid datetime", () => {
@@ -14,64 +30,64 @@ describe("match.dateTime.rfc3339()", () => {
     const matcher = match.dateTime.rfc3339("2022-08-26T18:38:00.000Z");
 
     it("should match exact same string", () => {
-      expect(matcher.check("2022-08-26T18:38:00.000Z")).toBe(true);
+      expectPass(matcher.check("2022-08-26T18:38:00.000Z"));
     });
 
     it("should match without fractional seconds", () => {
-      expect(matcher.check("2022-08-26T18:38:00Z")).toBe(true);
+      expectPass(matcher.check("2022-08-26T18:38:00Z"));
     });
 
     it("should match with extra precision", () => {
-      expect(matcher.check("2022-08-26T18:38:00.0000000Z")).toBe(true);
+      expectPass(matcher.check("2022-08-26T18:38:00.0000000Z"));
     });
 
     it("should match with 1 fractional digit", () => {
-      expect(matcher.check("2022-08-26T18:38:00.0Z")).toBe(true);
+      expectPass(matcher.check("2022-08-26T18:38:00.0Z"));
     });
 
     it("should match with 2 fractional digits", () => {
-      expect(matcher.check("2022-08-26T18:38:00.00Z")).toBe(true);
+      expectPass(matcher.check("2022-08-26T18:38:00.00Z"));
     });
 
     it("should match with +00:00 offset instead of Z", () => {
-      expect(matcher.check("2022-08-26T18:38:00.000+00:00")).toBe(true);
+      expectPass(matcher.check("2022-08-26T18:38:00.000+00:00"));
     });
 
     it("should match equivalent time in a different timezone offset", () => {
-      expect(matcher.check("2022-08-26T14:38:00.000-04:00")).toBe(true);
+      expectPass(matcher.check("2022-08-26T14:38:00.000-04:00"));
     });
 
     it("should reject RFC 7231 format even if same point in time", () => {
-      expect(matcher.check("Fri, 26 Aug 2022 18:38:00 GMT")).toBe(false);
+      expectFail(matcher.check("Fri, 26 Aug 2022 18:38:00 GMT"), "rfc3339 format");
     });
 
     it("should not match different time", () => {
-      expect(matcher.check("2022-08-26T18:39:00.000Z")).toBe(false);
+      expectFail(matcher.check("2022-08-26T18:39:00.000Z"), "timestamps differ");
     });
 
     it("should not match off by one second", () => {
-      expect(matcher.check("2022-08-26T18:38:01.000Z")).toBe(false);
+      expectFail(matcher.check("2022-08-26T18:38:01.000Z"), "timestamps differ");
     });
 
     it("should not match different date same time", () => {
-      expect(matcher.check("2022-08-27T18:38:00.000Z")).toBe(false);
+      expectFail(matcher.check("2022-08-27T18:38:00.000Z"), "timestamps differ");
     });
 
     it("should not match non-string values", () => {
-      expect(matcher.check(12345)).toBe(false);
-      expect(matcher.check(null)).toBe(false);
-      expect(matcher.check(undefined)).toBe(false);
-      expect(matcher.check(true)).toBe(false);
-      expect(matcher.check({})).toBe(false);
-      expect(matcher.check([])).toBe(false);
+      expectFail(matcher.check(12345), "expected a string but got number");
+      expectFail(matcher.check(null), "expected a string but got object");
+      expectFail(matcher.check(undefined), "expected a string but got undefined");
+      expectFail(matcher.check(true), "expected a string but got boolean");
+      expectFail(matcher.check({}), "expected a string but got object");
+      expectFail(matcher.check([]), "expected a string but got object");
     });
 
     it("should not match empty string", () => {
-      expect(matcher.check("")).toBe(false);
+      expectFail(matcher.check(""), "rfc3339 format");
     });
 
     it("should not match invalid datetime strings", () => {
-      expect(matcher.check("not-a-date")).toBe(false);
+      expectFail(matcher.check("not-a-date"), "rfc3339 format");
     });
   });
 
@@ -79,19 +95,19 @@ describe("match.dateTime.rfc3339()", () => {
     const matcher = match.dateTime.rfc3339("2022-08-26T18:38:00.123Z");
 
     it("should match exact milliseconds", () => {
-      expect(matcher.check("2022-08-26T18:38:00.123Z")).toBe(true);
+      expectPass(matcher.check("2022-08-26T18:38:00.123Z"));
     });
 
     it("should match with trailing zeros", () => {
-      expect(matcher.check("2022-08-26T18:38:00.1230000Z")).toBe(true);
+      expectPass(matcher.check("2022-08-26T18:38:00.1230000Z"));
     });
 
     it("should not match truncated milliseconds", () => {
-      expect(matcher.check("2022-08-26T18:38:00Z")).toBe(false);
+      expectFail(matcher.check("2022-08-26T18:38:00Z"), "timestamps differ");
     });
 
     it("should not match different milliseconds", () => {
-      expect(matcher.check("2022-08-26T18:38:00.124Z")).toBe(false);
+      expectFail(matcher.check("2022-08-26T18:38:00.124Z"), "timestamps differ");
     });
   });
 
@@ -99,11 +115,11 @@ describe("match.dateTime.rfc3339()", () => {
     const matcher = match.dateTime.rfc3339("2022-08-26T00:00:00.000Z");
 
     it("should match midnight", () => {
-      expect(matcher.check("2022-08-26T00:00:00Z")).toBe(true);
+      expectPass(matcher.check("2022-08-26T00:00:00Z"));
     });
 
     it("should match midnight with offset expressing previous day", () => {
-      expect(matcher.check("2022-08-25T20:00:00-04:00")).toBe(true);
+      expectPass(matcher.check("2022-08-25T20:00:00-04:00"));
     });
   });
 
@@ -138,20 +154,20 @@ describe("match.dateTime.rfc7231()", () => {
     const matcher = match.dateTime.rfc7231("Fri, 26 Aug 2022 14:38:00 GMT");
 
     it("should match exact same string", () => {
-      expect(matcher.check("Fri, 26 Aug 2022 14:38:00 GMT")).toBe(true);
+      expectPass(matcher.check("Fri, 26 Aug 2022 14:38:00 GMT"));
     });
 
     it("should reject RFC 3339 format even if same point in time", () => {
-      expect(matcher.check("2022-08-26T14:38:00.000Z")).toBe(false);
+      expectFail(matcher.check("2022-08-26T14:38:00.000Z"), "rfc7231 format");
     });
 
     it("should not match different time", () => {
-      expect(matcher.check("Fri, 26 Aug 2022 14:39:00 GMT")).toBe(false);
+      expectFail(matcher.check("Fri, 26 Aug 2022 14:39:00 GMT"), "timestamps differ");
     });
 
     it("should not match non-string values", () => {
-      expect(matcher.check(12345)).toBe(false);
-      expect(matcher.check(null)).toBe(false);
+      expectFail(matcher.check(12345), "expected a string but got number");
+      expectFail(matcher.check(null), "expected a string but got object");
     });
   });
 

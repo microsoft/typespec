@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { match } from "../src/match.js";
-import { isMatcher, matchValues, MockValueMatcher } from "../src/matchers.js";
+import { isMatcher, matchValues, ok, err, type MatchResult, MockValueMatcher } from "../src/matchers.js";
 import { expandDyns, json } from "../src/response-utils.js";
 import { ResolverConfig } from "../src/types.js";
 
@@ -19,51 +19,96 @@ describe("isMatcher", () => {
   });
 });
 
+function expectPass(result: MatchResult) {
+  expect(result).toEqual({ pass: true });
+}
+
+function expectFail(result: MatchResult, messagePattern?: string | RegExp) {
+  expect(result.pass).toBe(false);
+  if (!result.pass && messagePattern) {
+    if (typeof messagePattern === "string") {
+      expect(result.message).toContain(messagePattern);
+    } else {
+      expect(result.message).toMatch(messagePattern);
+    }
+  }
+}
+
 describe("matchValues", () => {
   describe("plain values (same as deepEqual)", () => {
     it("should match identical primitives", () => {
-      expect(matchValues("hello", "hello")).toBe(true);
-      expect(matchValues(42, 42)).toBe(true);
-      expect(matchValues(true, true)).toBe(true);
-      expect(matchValues(null, null)).toBe(true);
+      expectPass(matchValues("hello", "hello"));
+      expectPass(matchValues(42, 42));
+      expectPass(matchValues(true, true));
+      expectPass(matchValues(null, null));
     });
 
     it("should not match different primitives", () => {
-      expect(matchValues("hello", "world")).toBe(false);
-      expect(matchValues(42, 43)).toBe(false);
-      expect(matchValues(true, false)).toBe(false);
-      expect(matchValues(null, undefined)).toBe(false);
+      expectFail(matchValues("hello", "world"));
+      expectFail(matchValues(42, 43));
+      expectFail(matchValues(true, false));
+      expectFail(matchValues(null, undefined));
     });
 
     it("should not match different types", () => {
-      expect(matchValues("42", 42)).toBe(false);
-      expect(matchValues(0, false)).toBe(false);
-      expect(matchValues("", null)).toBe(false);
+      expectFail(matchValues("42", 42), "Type mismatch");
+      expectFail(matchValues(0, false), "Type mismatch");
+      expectFail(matchValues("", null));
     });
 
     it("should match identical objects", () => {
-      expect(matchValues({ a: 1, b: "two" }, { a: 1, b: "two" })).toBe(true);
+      expectPass(matchValues({ a: 1, b: "two" }, { a: 1, b: "two" }));
     });
 
     it("should not match objects with different keys", () => {
-      expect(matchValues({ a: 1 }, { a: 1, b: 2 })).toBe(false);
-      expect(matchValues({ a: 1, b: 2 }, { a: 1 })).toBe(false);
+      expectFail(matchValues({ a: 1 }, { a: 1, b: 2 }), "Key count mismatch");
+      expectFail(matchValues({ a: 1, b: 2 }, { a: 1 }), "Key count mismatch");
     });
 
     it("should match identical arrays", () => {
-      expect(matchValues([1, 2, 3], [1, 2, 3])).toBe(true);
+      expectPass(matchValues([1, 2, 3], [1, 2, 3]));
     });
 
     it("should not match arrays of different lengths", () => {
-      expect(matchValues([1, 2], [1, 2, 3])).toBe(false);
+      expectFail(matchValues([1, 2], [1, 2, 3]), "Array length mismatch");
     });
 
     it("should match nested objects", () => {
-      expect(matchValues({ a: { b: [1, 2] } }, { a: { b: [1, 2] } })).toBe(true);
+      expectPass(matchValues({ a: { b: [1, 2] } }, { a: { b: [1, 2] } }));
     });
 
     it("should not match nested objects with differences", () => {
-      expect(matchValues({ a: { b: [1, 2] } }, { a: { b: [1, 3] } })).toBe(false);
+      expectFail(matchValues({ a: { b: [1, 2] } }, { a: { b: [1, 3] } }));
+    });
+  });
+
+  describe("error messages include path", () => {
+    it("should include path for nested object mismatch", () => {
+      const result = matchValues({ a: { b: "wrong" } }, { a: { b: "right" } });
+      expectFail(result, "at $.a.b:");
+    });
+
+    it("should include path for array element mismatch", () => {
+      const result = matchValues([1, 2, "wrong"], [1, 2, "right"]);
+      expectFail(result, "at $[2]:");
+    });
+
+    it("should include path for deeply nested mismatch", () => {
+      const result = matchValues(
+        { data: { items: [{ name: "wrong" }] } },
+        { data: { items: [{ name: "right" }] } },
+      );
+      expectFail(result, "at $.data.items[0].name:");
+    });
+
+    it("should report missing keys", () => {
+      const result = matchValues({ a: 1 }, { a: 1, b: 2 });
+      expectFail(result, "missing: [b]");
+    });
+
+    it("should report extra keys", () => {
+      const result = matchValues({ a: 1, b: 2 }, { a: 1 });
+      expectFail(result, "extra: [b]");
     });
   });
 
@@ -71,12 +116,13 @@ describe("matchValues", () => {
     it("should delegate to matcher.check() in top-level position", () => {
       const matcher: MockValueMatcher = {
         [Symbol.for("SpectorMatcher")]: true as const,
-        check: (actual: any) => actual === "matched",
+        check: (actual: any) =>
+          actual === "matched" ? ok() : err(`expected "matched" but got "${actual}"`),
         toJSON: () => "raw",
         toString: () => "custom",
       } as any;
-      expect(matchValues("matched", matcher)).toBe(true);
-      expect(matchValues("not-matched", matcher)).toBe(false);
+      expectPass(matchValues("matched", matcher));
+      expectFail(matchValues("not-matched", matcher));
     });
 
     it("should handle matchers nested in objects", () => {
@@ -84,12 +130,12 @@ describe("matchValues", () => {
         name: "test",
         timestamp: match.dateTime.rfc3339("2022-08-26T18:38:00.000Z"),
       };
-      expect(matchValues({ name: "test", timestamp: "2022-08-26T18:38:00Z" }, expected)).toBe(true);
+      expectPass(matchValues({ name: "test", timestamp: "2022-08-26T18:38:00Z" }, expected));
     });
 
     it("should handle matchers nested in arrays", () => {
       const expected = [match.dateTime.rfc3339("2022-08-26T18:38:00.000Z"), "plain"];
-      expect(matchValues(["2022-08-26T18:38:00Z", "plain"], expected)).toBe(true);
+      expectPass(matchValues(["2022-08-26T18:38:00Z", "plain"], expected));
     });
 
     it("should handle deeply nested matchers", () => {
@@ -103,7 +149,17 @@ describe("matchValues", () => {
           items: [{ created: "2022-08-26T18:38:00.0000000Z", name: "item1" }],
         },
       };
-      expect(matchValues(actual, expected)).toBe(true);
+      expectPass(matchValues(actual, expected));
+    });
+
+    it("should include path in matcher failure message", () => {
+      const expected = {
+        data: { timestamp: match.dateTime.rfc3339("2022-08-26T18:38:00.000Z") },
+      };
+      const actual = { data: { timestamp: "not-rfc3339" } };
+      const result = matchValues(actual, expected);
+      expectFail(result, "at $.data.timestamp:");
+      expectFail(result, "rfc3339 format");
     });
   });
 });

@@ -38,8 +38,13 @@ export const validateBodyEquals = (
     return;
   }
 
-  if (!matchValues(request.body, expectedBody)) {
-    throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.body);
+  const result = matchValues(request.body, expectedBody);
+  if (!result.pass) {
+    throw new ValidationError(
+      `${BODY_NOT_EQUAL_ERROR_MESSAGE}: ${result.message}`,
+      expectedBody,
+      request.body,
+    );
   }
 };
 
@@ -86,8 +91,13 @@ export const validateCoercedDateBodyEquals = (
     return;
   }
 
-  if (!matchValues(coerceDate(request.body), expectedBody)) {
-    throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.body);
+  const result = matchValues(coerceDate(request.body), expectedBody);
+  if (!result.pass) {
+    throw new ValidationError(
+      `${BODY_NOT_EQUAL_ERROR_MESSAGE}: ${result.message}`,
+      expectedBody,
+      request.body,
+    );
   }
 };
 

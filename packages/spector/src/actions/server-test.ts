@@ -79,8 +79,9 @@ class ServerTestsGenerator {
   async #validateBody(response: Response, body: MockBody) {
     if (Buffer.isBuffer(body.rawContent)) {
       const responseData = Buffer.from(await response.arrayBuffer());
-      if (!matchValues(responseData, body.rawContent)) {
-        throw new ValidationError(`Raw body mismatch`, body.rawContent, responseData);
+      const result = matchValues(responseData, body.rawContent);
+      if (!result.pass) {
+        throw new ValidationError(`Raw body mismatch: ${result.message}`, body.rawContent, responseData);
       }
     } else {
       const responseData = await response.text();
@@ -102,8 +103,9 @@ class ServerTestsGenerator {
               ? JSON.parse(body.rawContent)
               : body.rawContent?.resolve(this.resolverConfig);
           const actual = JSON.parse(responseData);
-          if (!matchValues(actual, expected)) {
-            throw new ValidationError("Response data mismatch", expected, actual);
+          const result = matchValues(actual, expected);
+          if (!result.pass) {
+            throw new ValidationError(`Response data mismatch: ${result.message}`, expected, actual);
           }
           break;
         }

@@ -1,4 +1,4 @@
-export { isMatcher, matchValues, type MockValueMatcher } from "./matchers.js";
+export { isMatcher, matchValues, ok, err, type MatchResult, type MockValueMatcher } from "./matchers.js";
 export { match } from "./match.js";
 export { MockRequest } from "./mock-request.js";
 export {

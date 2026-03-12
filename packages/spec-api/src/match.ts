@@ -1,4 +1,4 @@
-import { type MockValueMatcher, MatcherSymbol } from "./matchers.js";
+import { type MockValueMatcher, type MatchResult, ok, err, MatcherSymbol } from "./matchers.js";
 
 const rfc3339Pattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/i;
 const rfc7231Pattern =
@@ -7,6 +7,7 @@ const rfc7231Pattern =
 function createDateTimeMatcher(
   value: string,
   label: string,
+  formatName: string,
   formatPattern: RegExp,
 ): MockValueMatcher<string> {
   const expectedMs = Date.parse(value);
@@ -15,18 +16,27 @@ function createDateTimeMatcher(
   }
   return {
     [MatcherSymbol]: true,
-    check(actual: unknown): boolean {
+    check(actual: unknown): MatchResult {
       if (typeof actual !== "string") {
-        return false;
+        return err(
+          `${label}: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
+        );
       }
       if (!formatPattern.test(actual)) {
-        return false;
+        return err(`${label}: expected ${formatName} format but got "${actual}"`);
       }
       const actualMs = Date.parse(actual);
       if (isNaN(actualMs)) {
-        return false;
+        return err(
+          `${label}: value "${actual}" matches ${formatName} format but is not a valid date`,
+        );
       }
-      return actualMs === expectedMs;
+      if (actualMs !== expectedMs) {
+        return err(
+          `${label}: timestamps differ — expected ${new Date(expectedMs).toISOString()} but got ${new Date(actualMs).toISOString()}`,
+        );
+      }
+      return ok();
     },
     toJSON(): string {
       return value;
@@ -54,10 +64,10 @@ export const match = {
    */
   dateTime: {
     rfc3339(value: string): MockValueMatcher<string> {
-      return createDateTimeMatcher(value, "match.dateTime.rfc3339", rfc3339Pattern);
+      return createDateTimeMatcher(value, "match.dateTime.rfc3339", "rfc3339", rfc3339Pattern);
     },
     rfc7231(value: string): MockValueMatcher<string> {
-      return createDateTimeMatcher(value, "match.dateTime.rfc7231", rfc7231Pattern);
+      return createDateTimeMatcher(value, "match.dateTime.rfc7231", "rfc7231", rfc7231Pattern);
     },
   },
 };
