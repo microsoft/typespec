@@ -239,7 +239,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         ? `Copy-Item "${devBase}/alpha/output copy.yaml" -Destination "${devBase}/alpha/output.yaml"`
         : `cp "${devBase}/alpha/output copy.yaml" "${devBase}/alpha/output.yaml"`;
       const commandRecorded = `${copyCmd} ; ${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlagsRecorded} --debug=true`;
-      fs.writeFileSync(path.join(root, "alpha", "command.txt"), commandRecorded);
+      fs.writeFileSync(path.join(root, "alpha", "command.txt"), commandRecorded + "\n" + "tsp compile alpha/client.tsp --emit @azure-tools/typespec-client-generator-core");
 
       const blackExcludeDirs = [
         "__pycache__/",
