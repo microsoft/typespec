@@ -1,11 +1,4 @@
-import {
-  CollectionFormat,
-  json,
-  match,
-  MockRequest,
-  passOnSuccess,
-  ScenarioMockApi,
-} from "@typespec/spec-api";
+import { json, match, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -13,36 +6,15 @@ function createQueryServerTests(
   uri: string,
   value: any,
   format: "rfc7231" | "rfc3339" | undefined,
-  collectionFormat?: CollectionFormat,
 ) {
-  if (format) {
-    return passOnSuccess({
-      uri,
-      method: "get",
-      request: {
-        query: { value: match.dateTime[format](value) },
-      },
-      response: {
-        status: 204,
-      },
-      kind: "MockApiDefinition",
-    });
-  }
-
   return passOnSuccess({
     uri,
     method: "get",
     request: {
-      query: { value },
+      query: { value: format ? match.dateTime[format](value) : value },
     },
     response: {
       status: 204,
-    },
-    handler(req: MockRequest) {
-      req.expect.containsQueryParam("value", value, collectionFormat);
-      return {
-        status: 204,
-      };
     },
     kind: "MockApiDefinition",
   });
@@ -71,37 +43,22 @@ Scenarios.Encode_Datetime_Query_unixTimestampArray = createQueryServerTests(
   "/encode/datetime/query/unix-timestamp-array",
   [1686566864, 1686734256].join(","),
   undefined,
-  "csv",
 );
 function createPropertyServerTests(
   uri: string,
   value: any,
   format: "rfc7231" | "rfc3339" | undefined,
 ) {
-  if (format) {
-    const matcherBody = { value: match.dateTime[format](value) };
-    return passOnSuccess({
-      uri,
-      method: "post",
-      request: {
-        body: json(matcherBody),
-      },
-      response: {
-        status: 200,
-        body: json(matcherBody),
-      },
-      kind: "MockApiDefinition",
-    });
-  }
-
+  const matcherBody = { value: format ? match.dateTime[format](value) : value };
   return passOnSuccess({
     uri,
     method: "post",
     request: {
-      body: json({ value }),
+      body: json(matcherBody),
     },
     response: {
       status: 200,
+      body: json(matcherBody),
     },
     kind: "MockApiDefinition",
   });
@@ -136,34 +93,15 @@ function createHeaderServerTests(
   value: any,
   format: "rfc7231" | "rfc3339" | undefined,
 ) {
-  if (format) {
-    return passOnSuccess({
-      uri,
-      method: "get",
-      request: {
-        headers: { value: match.dateTime[format](value) },
-      },
-      response: {
-        status: 204,
-      },
-      kind: "MockApiDefinition",
-    });
-  }
-
+  const matcherHeaders = { value: format ? match.dateTime[format](value) : value };
   return passOnSuccess({
     uri,
     method: "get",
     request: {
-      headers: { value },
+      headers: matcherHeaders,
     },
     response: {
       status: 204,
-    },
-    handler(req: MockRequest) {
-      req.expect.containsHeader("value", String(value));
-      return {
-        status: 204,
-      };
     },
     kind: "MockApiDefinition",
   });
