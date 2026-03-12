@@ -232,8 +232,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string propName,
             string varName)
         {
-            var valVar = new VariableExpression(new CSharpType(typeof(string), isNullable: true), varName);
-            body.Add(Declare(valVar, new IndexerExpression(sectionParam, Literal(propName))));
+            body.Add(Declare(varName, new CSharpType(typeof(string), isNullable: true), new IndexerExpression(sectionParam, Literal(propName)), out var valVar));
             var ifStatement = new IfStatement(Not(StringSnippets.IsNullOrEmpty(valVar.As<string>())));
             ifStatement.Add(This.Property(propName).Assign(valVar).Terminate());
             body.Add(ifStatement);
@@ -301,22 +300,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // IConfigurationSection listSection = section.GetSection("PropName");
-            var sectionVar = new VariableExpression(IConfigurationSectionType, (propName + "Section").ToVariableName());
-            body.Add(Declare(sectionVar, sectionParam.Invoke("GetSection", Literal(propName))));
+            body.Add(Declare((propName + "Section").ToVariableName(), IConfigurationSectionType, sectionParam.Invoke("GetSection", Literal(propName)), out var sectionVar));
 
             // if (listSection.Exists())
             var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
 
             // listSection.GetChildren().Where(c => c.Value is not null).Select(c => c.Value!).ToList()
-            var cVar = new VariableExpression(IConfigurationSectionType, "c");
-            var whereCondition = new BinaryOperatorExpression("is not", cVar.Property("Value"), Null);
-            var whereLambda = new FuncExpression([cVar.Declaration], whereCondition);
+            var cWhereVar = new VariableExpression(IConfigurationSectionType, "c");
+            var whereCondition = new BinaryOperatorExpression("is not", cWhereVar.Property("Value"), Null);
+            var whereLambda = new FuncExpression([cWhereVar.Declaration], whereCondition);
             var whereResult = sectionVar.Invoke("GetChildren")
                 .Invoke("Where", [whereLambda], null, false, extensionType: typeof(Enumerable));
 
-            var c2Var = new VariableExpression(IConfigurationSectionType, "c");
-            var selectBody = new UnaryOperatorExpression("!", c2Var.Property("Value"), true);
-            var selectLambda = new FuncExpression([c2Var.Declaration], selectBody);
+            var cSelectVar = new VariableExpression(IConfigurationSectionType, "c");
+            var selectBody = new UnaryOperatorExpression("!", cSelectVar.Property("Value"), true);
+            var selectLambda = new FuncExpression([cSelectVar.Declaration], selectBody);
             var selectResult = whereResult
                 .Invoke("Select", [selectLambda], null, false, extensionType: typeof(Enumerable));
 
@@ -375,8 +373,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CSharpType type)
         {
             // IConfigurationSection {name}Section = section.GetSection("PropName");
-            var sectionVar = new VariableExpression(IConfigurationSectionType, (propName + "Section").ToVariableName());
-            body.Add(Declare(sectionVar, sectionParam.Invoke("GetSection", Literal(propName))));
+            body.Add(Declare((propName + "Section").ToVariableName(), IConfigurationSectionType, sectionParam.Invoke("GetSection", Literal(propName)), out var sectionVar));
 
             // if ({name}Section.Exists()) { PropName = new TypeName({name}Section); }
             var ifExistsStatement = new IfStatement(sectionVar.Invoke("Exists"));
