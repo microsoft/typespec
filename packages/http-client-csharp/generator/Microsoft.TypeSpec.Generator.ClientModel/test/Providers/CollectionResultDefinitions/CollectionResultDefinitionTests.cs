@@ -230,12 +230,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual("getCats", operation.OriginalName);
             Assert.AreEqual("listCats", operation.Name);
 
+            // The service method name "getCats" is independent from the operation name which was mutated to "listCats"
             var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
             var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
 
-            // The CollectionResult name should use the original name "getCats", not the mutated name "listCats"
+            // The CollectionResult name should use the original operation name "getCats", not the mutated name "listCats"
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
             Assert.IsNotNull(collectionResultDefinition);
