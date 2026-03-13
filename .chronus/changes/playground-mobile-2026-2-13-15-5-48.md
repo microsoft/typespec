@@ -7,5 +7,5 @@ packages:
 
 Make UI more mobile friendly. 
   - Add a new switch to toggle between TypeSpec and output panels
-  - Command bar hide less important tools behind `...`
+  - Command bar hides less important tools behind `...`
   - [API] Update custom toolbar to take a menu item instead of generic react node.
