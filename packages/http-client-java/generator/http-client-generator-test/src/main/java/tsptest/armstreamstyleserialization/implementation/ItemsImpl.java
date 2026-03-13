@@ -32,6 +32,14 @@ public final class ItemsImpl implements Items {
         return this.serviceClient().list(context);
     }
 
+    public PagedIterable<Result> summary() {
+        return this.serviceClient().summary();
+    }
+
+    public PagedIterable<Result> summary(Context context) {
+        return this.serviceClient().summary(context);
+    }
+
     private ItemsClient serviceClient() {
         return this.innerClient;
     }
