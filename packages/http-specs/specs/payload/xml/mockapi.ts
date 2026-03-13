@@ -307,7 +307,7 @@ Scenarios.Payload_Xml_ComplexArrayValue_get = Payload_Xml_ComplexArrayModel.get;
 Scenarios.Payload_Xml_ComplexArrayValue_put = Payload_Xml_ComplexArrayModel.put;
 
 const Payload_Xml_ComplexArrayModelMultipleItems = createServerTests(
-  "/payload/xml/complexArrayModel",
+  "/payload/xml/complexArrayModelMultipleItems",
   complexArrayModelMultipleItems,
 );
 Scenarios.Payload_Xml_ComplexArrayMultipleItemsValue_get =
@@ -316,7 +316,7 @@ Scenarios.Payload_Xml_ComplexArrayMultipleItemsValue_put =
   Payload_Xml_ComplexArrayModelMultipleItems.put;
 
 const Payload_Xml_ComplexArrayModelNoItems = createServerTests(
-  "/payload/xml/complexArrayModel",
+  "/payload/xml/complexArrayModelNoItems",
   complexArrayModelNoItems,
 );
 Scenarios.Payload_Xml_ComplexArrayNoItemsValue_get = Payload_Xml_ComplexArrayModelNoItems.get;

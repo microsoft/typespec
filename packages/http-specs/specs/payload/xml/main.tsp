@@ -420,7 +420,7 @@ interface ComplexArrayValue
     > {}
 
 @doc("Operations for the ComplexArrayModel type with multiple items.")
-@route("/complexArrayModel")
+@route("/complexArrayModelMultipleItems")
 interface ComplexArrayMultipleItemsValue
   extends XmlOperations<
       ComplexArrayModel,
@@ -437,7 +437,7 @@ interface ComplexArrayMultipleItemsValue
     > {}
 
 @doc("Operations for the ComplexArrayModel type with no items (empty array).")
-@route("/complexArrayModel")
+@route("/complexArrayModelNoItems")
 interface ComplexArrayNoItemsValue
   extends XmlOperations<
       ComplexArrayModel,
