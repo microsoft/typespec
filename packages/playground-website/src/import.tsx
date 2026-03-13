@@ -23,7 +23,7 @@ import {
   useMonacoModel,
   usePlaygroundContext,
 } from "@typespec/playground/react";
-import { ReactNode, useState } from "react";
+import { type FunctionComponent, type ReactNode, useState } from "react";
 import { parse } from "yaml";
 import style from "./import.module.css";
 
@@ -50,18 +50,48 @@ export const ImportToolbarButton = () => {
         </MenuPopover>
       </Menu>
 
-      <Dialog open={open !== undefined} onOpenChange={(event, data) => setOpen(undefined)}>
-        <DialogSurface>
-          <DialogBody>
-            <DialogTitle>Settings</DialogTitle>
-            <DialogContent>
-              {open === "openapi3" && <ImportOpenAPI3 onImport={() => setOpen(undefined)} />}
-              {open === "tsp" && <ImportTsp onImport={() => setOpen(undefined)} />}
-            </DialogContent>
-          </DialogBody>
-        </DialogSurface>
-      </Dialog>
+      <ImportDialog open={open} onClose={() => setOpen(undefined)} />
     </>
+  );
+};
+
+export const ImportMenuItem = () => {
+  const [open, setOpen] = useState<"openapi3" | "tsp" | undefined>();
+
+  return (
+    <>
+      <Menu openOnHover={false}>
+        <MenuTrigger disableButtonEnhancement>
+          <MenuItem icon={<ArrowUploadFilled />}>Import</MenuItem>
+        </MenuTrigger>
+        <MenuPopover>
+          <MenuList>
+            <MenuItem onClick={() => setOpen("tsp")}>Remote TypeSpec</MenuItem>
+            <MenuItem onClick={() => setOpen("openapi3")}>From OpenAPI 3 spec</MenuItem>
+          </MenuList>
+        </MenuPopover>
+      </Menu>
+      <ImportDialog open={open} onClose={() => setOpen(undefined)} />
+    </>
+  );
+};
+
+const ImportDialog: FunctionComponent<{
+  open: "openapi3" | "tsp" | undefined;
+  onClose: () => void;
+}> = ({ open, onClose }) => {
+  return (
+    <Dialog open={open !== undefined} onOpenChange={() => onClose()}>
+      <DialogSurface>
+        <DialogBody>
+          <DialogTitle>Settings</DialogTitle>
+          <DialogContent>
+            {open === "openapi3" && <ImportOpenAPI3 onImport={onClose} />}
+            {open === "tsp" && <ImportTsp onImport={onClose} />}
+          </DialogContent>
+        </DialogBody>
+      </DialogSurface>
+    </Dialog>
   );
 };
 

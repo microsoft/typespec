@@ -64,6 +64,9 @@ export interface PlaygroundProps {
   /** Additional buttons to show up in the command bar */
   commandBarButtons?: ReactNode;
 
+  /** Menu items version of commandBarButtons for use in mobile overflow menu */
+  commandBarMenuItems?: ReactNode;
+
   /** Playground links */
   links?: PlaygroundLinks;
 
@@ -344,6 +347,23 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     }
   }, [isMobile]);
 
+  const commandBar = (
+    <EditorCommandBar
+      host={host}
+      selectedEmitter={selectedEmitter}
+      onSelectedEmitterChange={onSelectedEmitterChange}
+      samples={props.samples}
+      selectedSampleName={selectedSampleName}
+      onSelectedSampleNameChange={onSelectedSampleNameChange}
+      saveCode={saveCode}
+      formatCode={formatCode}
+      fileBug={props.onFileBug ? fileBug : undefined}
+      commandBarButtons={props.commandBarButtons}
+      commandBarMenuItems={props.commandBarMenuItems}
+      documentationUrl={props.links?.documentationUrl}
+    />
+  );
+
   const editorPanel = (
     <EditorPanel
       host={host}
@@ -355,21 +375,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       compilerOptions={compilerOptions}
       onCompilerOptionsChange={onCompilerOptionsChange}
       onSelectedEmitterChange={onSelectedEmitterChange}
-      commandBar={
-        <EditorCommandBar
-          host={host}
-          selectedEmitter={selectedEmitter}
-          onSelectedEmitterChange={onSelectedEmitterChange}
-          samples={props.samples}
-          selectedSampleName={selectedSampleName}
-          onSelectedSampleNameChange={onSelectedSampleNameChange}
-          saveCode={saveCode}
-          formatCode={formatCode}
-          fileBug={props.onFileBug ? fileBug : undefined}
-          commandBarButtons={props.commandBarButtons}
-          documentationUrl={props.links?.documentationUrl}
-        />
-      }
+      commandBar={isMobile ? undefined : commandBar}
     />
   );
 
@@ -401,7 +407,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   return (
     <PlaygroundContextProvider value={playgroundContext}>
       <div className={style["layout"]}>
-        {isMobile && <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />}
+        {isMobile && (
+          <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} actions={commandBar} />
+        )}
         <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
           <Pane>{mainContent}</Pane>
           <Pane minSize={30}>
