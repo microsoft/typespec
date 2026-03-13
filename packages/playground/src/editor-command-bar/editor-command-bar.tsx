@@ -53,12 +53,8 @@ export interface CommandBarItem {
   readonly toolbarItem?: ReactNode;
   /** Custom menu element for mobile overflow menu. Overrides default and children-based rendering. */
   readonly menuItem?: ReactNode;
-  /** Renders a divider after this item in the mobile overflow menu. */
-  readonly overflowDivider?: boolean;
-  /** Renders a flex spacer before this item on the desktop toolbar. */
-  readonly toolbarSpacer?: boolean;
-  /** Renders a divider before this item on the desktop toolbar. */
-  readonly toolbarDivider?: boolean;
+  /** Alignment group on the desktop toolbar. Defaults to "left". */
+  readonly align?: "left" | "right";
 }
 
 export interface EditorCommandBarProps {
@@ -142,7 +138,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
     result.push({
       id: "emitter",
       label: "Emitter",
-      toolbarSpacer: true,
+      align: "right",
       toolbarItem: (
         <EmitterDropdown
           emitters={emitters}
@@ -156,7 +152,6 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
         icon: emitter === selectedEmitter ? <Checkmark16Regular /> : undefined,
         onClick: () => onSelectedEmitterChange(emitter),
       })),
-      overflowDivider: true,
     });
 
     if (documentationUrl) {
@@ -165,7 +160,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
         label: "Documentation",
         icon: <BookOpen16Regular />,
         onClick: () => window.open(documentationUrl, "_blank"),
-        toolbarSpacer: true,
+        align: "right",
         toolbarItem: (
           <label>
             <Link href={documentationUrl} target="_blank">
@@ -176,10 +171,8 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
       });
     }
 
-    if (externalItems && externalItems.length > 0) {
-      const [first, ...rest] = externalItems;
-      result.push({ ...first, toolbarDivider: first.toolbarDivider ?? true });
-      result.push(...rest);
+    if (externalItems) {
+      result.push(...externalItems);
     }
 
     if (fileBug) {
@@ -208,6 +201,10 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
 
   const pinnedItems = items.filter((i) => i.pinned);
   const overflowItems = items.filter((i) => !i.pinned);
+  const leftItems = items.filter((i) => (i.align ?? "left") === "left");
+  const rightItems = items.filter((i) => i.align === "right");
+  const leftOverflow = overflowItems.filter((i) => (i.align ?? "left") === "left");
+  const rightOverflow = overflowItems.filter((i) => i.align === "right");
 
   return (
     <div className={style["bar"]}>
@@ -232,11 +229,12 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
                   </MenuTrigger>
                   <MenuPopover>
                     <MenuList>
-                      {overflowItems.map((item) => (
-                        <Fragment key={item.id}>
-                          <MenuItemRenderer item={item} />
-                          {item.overflowDivider && <MenuDivider />}
-                        </Fragment>
+                      {leftOverflow.map((item) => (
+                        <MenuItemRenderer key={item.id} item={item} />
+                      ))}
+                      {leftOverflow.length > 0 && rightOverflow.length > 0 && <MenuDivider />}
+                      {rightOverflow.map((item) => (
+                        <MenuItemRenderer key={item.id} item={item} />
                       ))}
                     </MenuList>
                   </MenuPopover>
@@ -245,13 +243,15 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
             )}
           </>
         ) : (
-          items.map((item) => (
-            <Fragment key={item.id}>
-              {item.toolbarSpacer && <div className={style["spacer"]} />}
-              {item.toolbarDivider && <div className={style["divider"]} />}
-              <ToolbarItemRenderer item={item} />
-            </Fragment>
-          ))
+          <>
+            {leftItems.map((item) => (
+              <ToolbarItemRenderer key={item.id} item={item} />
+            ))}
+            {rightItems.length > 0 && <div className={style["divider"]} />}
+            {rightItems.map((item) => (
+              <ToolbarItemRenderer key={item.id} item={item} />
+            ))}
+          </>
         )}
       </Toolbar>
       {isMobile && samples && (
