@@ -150,19 +150,12 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
           onSelectedEmitterChange={onSelectedEmitterChange}
         />
       ),
-      menuItem: (
-        <>
-          {emitters.map((emitter) => (
-            <MenuItem
-              key={emitter}
-              icon={emitter === selectedEmitter ? <Checkmark16Regular /> : undefined}
-              onClick={() => onSelectedEmitterChange(emitter)}
-            >
-              {emitter}
-            </MenuItem>
-          ))}
-        </>
-      ),
+      children: emitters.map((emitter) => ({
+        id: `emitter-${emitter}`,
+        label: emitter,
+        icon: emitter === selectedEmitter ? <Checkmark16Regular /> : undefined,
+        onClick: () => onSelectedEmitterChange(emitter),
+      })),
       overflowDivider: true,
     });
 
