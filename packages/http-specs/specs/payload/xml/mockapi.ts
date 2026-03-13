@@ -303,21 +303,21 @@ const Payload_Xml_ComplexArrayModel = createServerTests(
   "/payload/xml/complexArrayModel",
   complexArrayModel,
 );
-Scenarios.Payload_Xml_ComplexArrayModelValue_get = Payload_Xml_ComplexArrayModel.get;
-Scenarios.Payload_Xml_ComplexArrayModelValue_put = Payload_Xml_ComplexArrayModel.put;
+Scenarios.Payload_Xml_ComplexArrayValue_get = Payload_Xml_ComplexArrayModel.get;
+Scenarios.Payload_Xml_ComplexArrayValue_put = Payload_Xml_ComplexArrayModel.put;
 
 const Payload_Xml_ComplexArrayModelMultipleItems = createServerTests(
   "/payload/xml/complexArrayModel",
   complexArrayModelMultipleItems,
 );
-Scenarios.Payload_Xml_ComplexArrayModelMultipleItemsValue_get =
+Scenarios.Payload_Xml_ComplexArrayMultipleItemsValue_get =
   Payload_Xml_ComplexArrayModelMultipleItems.get;
-Scenarios.Payload_Xml_ComplexArrayModelMultipleItemsValue_put =
+Scenarios.Payload_Xml_ComplexArrayMultipleItemsValue_put =
   Payload_Xml_ComplexArrayModelMultipleItems.put;
 
 const Payload_Xml_ComplexArrayModelNoItems = createServerTests(
   "/payload/xml/complexArrayModel",
   complexArrayModelNoItems,
 );
-Scenarios.Payload_Xml_ComplexArrayModelNoItemsValue_get = Payload_Xml_ComplexArrayModelNoItems.get;
-Scenarios.Payload_Xml_ComplexArrayModelNoItemsValue_put = Payload_Xml_ComplexArrayModelNoItems.put;
+Scenarios.Payload_Xml_ComplexArrayNoItemsValue_get = Payload_Xml_ComplexArrayModelNoItems.get;
+Scenarios.Payload_Xml_ComplexArrayNoItemsValue_put = Payload_Xml_ComplexArrayModelNoItems.put;
