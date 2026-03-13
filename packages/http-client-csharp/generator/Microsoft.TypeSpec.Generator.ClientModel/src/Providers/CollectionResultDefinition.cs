@@ -182,7 +182,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => Client.Type.Namespace;
 
         protected override string BuildName()
-            => $"{Client.Type.Name}{Operation.Name.ToIdentifierName()}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
+        {
+            var operationName = Operation.Name.ToIdentifierName();
+            // Check if there is another paging operation in the same client whose name would produce a collision.
+            // If so, use the OriginalName to differentiate.
+            if (HasPagingOperationNameCollision(operationName))
+            {
+                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
+            }
+            return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
+        }
+
+        private bool HasPagingOperationNameCollision(string operationName)
+        {
+            var pagingMethods = Client.InputClient.Methods.OfType<InputPagingServiceMethod>();
+            int count = 0;
+            foreach (var method in pagingMethods)
+            {
+                if (method.Operation.Name.ToIdentifierName() == operationName)
+                {
+                    count++;
+                    if (count > 1)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;

@@ -42,6 +42,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string ClientSuffix = "Client";
         private readonly FormattableString _publicCtorDescription;
         private readonly InputClient _inputClient;
+        internal InputClient InputClient => _inputClient;
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
         /// <summary>
