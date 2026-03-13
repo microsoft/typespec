@@ -155,9 +155,7 @@ export const complexArrayModelMultipleItems = `
 </ComplexArrayModel>
 `;
 
-export const complexArrayModelNoItems = `
-<ComplexArrayModel />
-`;
+export const complexArrayModelNoItems = `<ComplexArrayModel />`;
 
 // Some clients serialize UTC datetimes without trailing zero milliseconds. Both
 // "2022-08-26T18:38:00.000Z" and "2022-08-26T18:38:00Z" are valid RFC3339 representations
@@ -167,6 +165,7 @@ const modelWithDatetimeNoMs = `
   <rfc3339>2022-08-26T18:38:00Z</rfc3339>
   <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
 </ModelWithDatetime>
+`;
 
 function createServerTests(uri: string, data?: any) {
   return {
