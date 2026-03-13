@@ -76,8 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string Name { get; internal set; }
 
         /// <summary>
-        /// Gets the original name of the operation as defined in the TypeSpec before any mutations (e.g., renaming by <c>CleanOperationNames</c>).
-        /// This value is set once at construction and is never modified by <see cref="Update"/>.
+        /// Gets the original name of the operation as defined in the TypeSpec before any mutations.
         /// </summary>
         public string OriginalName { get; internal set; }
         public string? ResourceName { get; internal set; }
