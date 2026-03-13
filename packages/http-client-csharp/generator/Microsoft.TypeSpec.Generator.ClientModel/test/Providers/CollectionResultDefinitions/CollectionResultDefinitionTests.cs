@@ -236,7 +236,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 .Where(t => t is CollectionResultDefinition)
                 .ToList();
 
-            // Should have 4 CollectionResult types (2 sync + 2 async) and they should all have unique names
+            // Should have 8 CollectionResult types (2 ops × 2 sync/async × 2 typed/untyped) and they should all have unique names
+            Assert.AreEqual(8, collectionResults.Count,
+                $"Expected 8 CollectionResult types but found {collectionResults.Count}");
             var collectionResultNames = collectionResults.Select(t => t.Name).ToList();
             Assert.AreEqual(collectionResultNames.Distinct().Count(), collectionResultNames.Count,
                 $"CollectionResult names should be unique but found duplicates: {string.Join(", ", collectionResultNames)}");
