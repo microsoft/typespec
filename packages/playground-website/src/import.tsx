@@ -23,34 +23,25 @@ import style from "./import.module.css";
 
 type ImportType = "openapi3" | "tsp";
 
-/** Creates a CommandBarItem for the Import action with sub-menu items. */
-export function createImportCommandBarItem(): CommandBarItem {
-  const openRef: { current?: (type: ImportType) => void } = { current: undefined };
+/** Hook that creates a CommandBarItem for the Import action with sub-menu items. */
+export function useImportCommandBarItem(): CommandBarItem {
+  const [open, setOpen] = useState<ImportType>();
 
   return {
     id: "import",
     label: "Import",
     icon: <ArrowUploadFilled />,
     children: [
-      { id: "import-tsp", label: "Remote TypeSpec", onClick: () => openRef.current?.("tsp") },
+      { id: "import-tsp", label: "Remote TypeSpec", onClick: () => setOpen("tsp") },
       {
         id: "import-openapi3",
         label: "From OpenAPI 3 spec",
-        onClick: () => openRef.current?.("openapi3"),
+        onClick: () => setOpen("openapi3"),
       },
     ],
-    content: <ImportDialogContent openRef={openRef} />,
+    content: <ImportDialog open={open} onClose={() => setOpen(undefined)} />,
   };
 }
-
-const ImportDialogContent: FunctionComponent<{
-  openRef: { current?: (type: ImportType) => void };
-}> = ({ openRef }) => {
-  const [open, setOpen] = useState<ImportType | undefined>();
-  openRef.current = setOpen;
-
-  return <ImportDialog open={open} onClose={() => setOpen(undefined)} />;
-};
 
 const ImportDialog: FunctionComponent<{
   open: "openapi3" | "tsp" | undefined;
