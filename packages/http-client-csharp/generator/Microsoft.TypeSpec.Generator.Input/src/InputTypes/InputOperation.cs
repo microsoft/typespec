@@ -32,7 +32,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? ns)
         {
             Name = name;
-            OriginalName = name;
             ResourceName = resourceName;
             Summary = summary;
             Doc = doc;
@@ -78,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// <summary>
         /// Gets the original name of the operation as defined in the TypeSpec before any mutations.
         /// </summary>
-        public string OriginalName { get; internal set; }
+        public string OriginalName { get; internal set; } = string.Empty;
         public string? ResourceName { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
