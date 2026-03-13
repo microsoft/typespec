@@ -405,7 +405,7 @@ interface XmlErrorValue {
   } | XmlError;
 }
 
-@doc("Operations for the ComplexArrayModel type.")
+@doc("Operations for the ComplexArrayModel type with a single item.")
 @route("/complexArrayModel")
 interface ComplexArrayValue
   extends XmlOperations<
@@ -416,5 +416,32 @@ interface ComplexArrayValue
             <Id>123abc</Id>
           </ComplexModel>
         </ComplexArrayModel>
+        """
+    > {}
+
+@doc("Operations for the ComplexArrayModel type with multiple items.")
+@route("/complexArrayModel")
+interface ComplexArrayMultipleItemsValue
+  extends XmlOperations<
+      ComplexArrayModel,
+      """
+        <ComplexArrayModel>
+          <ComplexModel>
+            <Id>123abc</Id>
+          </ComplexModel>
+          <ComplexModel>
+            <Id>123abc</Id>
+          </ComplexModel>
+        </ComplexArrayModel>
+        """
+    > {}
+
+@doc("Operations for the ComplexArrayModel type with no items (empty array).")
+@route("/complexArrayModel")
+interface ComplexArrayNoItemsValue
+  extends XmlOperations<
+      ComplexArrayModel,
+      """
+        <ComplexArrayModel />
         """
     > {}
