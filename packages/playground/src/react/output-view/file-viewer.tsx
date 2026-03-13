@@ -17,7 +17,10 @@ const FileViewerComponent = ({
   const [filename, setFilename] = useState<string>("");
   const [content, setContent] = useState<string>("");
 
-  const hasDirectories = useMemo(() => outputFiles.some((f) => f.includes("/")), [outputFiles]);
+  const showFileTree = useMemo(
+    () => outputFiles.some((f) => f.includes("/")) || outputFiles.length >= 3,
+    [outputFiles],
+  );
 
   const loadOutputFile = useCallback(
     async (path: string) => {
@@ -53,7 +56,7 @@ const FileViewerComponent = ({
     return <>No files emitted.</>;
   }
 
-  if (hasDirectories) {
+  if (showFileTree) {
     return (
       <div className={style["file-viewer"]}>
         <SplitPane initialSizes={["220px", undefined]}>
