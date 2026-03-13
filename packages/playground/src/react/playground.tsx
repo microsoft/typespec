@@ -15,7 +15,7 @@ import {
 } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
 import { resolveVirtualPath } from "../browser-host.js";
-import { EditorCommandBar, type CommandBarItem } from "../editor-command-bar/editor-command-bar.js";
+import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../services.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
@@ -26,6 +26,7 @@ import { useMonacoModel, type OnMountData } from "./editor.js";
 import { OutputView } from "./output-view/output-view.js";
 import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";
+import type { CommandBarItem } from "./responsive-command-bar/index.js";
 import type { CompilationState, FileOutputViewer, ProgramViewer } from "./types.js";
 import { useIsMobile } from "./use-mobile.js";
 import { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";

@@ -1,61 +1,19 @@
-import {
-  Link,
-  Menu,
-  MenuDivider,
-  MenuItem,
-  MenuList,
-  MenuPopover,
-  MenuTrigger,
-  Toolbar,
-  ToolbarButton,
-  Tooltip,
-} from "@fluentui/react-components";
+import { Link } from "@fluentui/react-components";
 import {
   BookOpen16Regular,
   Broom16Filled,
   Bug16Regular,
   Checkmark16Regular,
   DocumentBulletList24Regular,
-  MoreHorizontal24Filled,
   Save16Regular,
 } from "@fluentui/react-icons";
-import {
-  Fragment,
-  useCallback,
-  useMemo,
-  useState,
-  type FunctionComponent,
-  type ReactNode,
-} from "react";
+import { useCallback, useMemo, useState, type FunctionComponent } from "react";
 import { EmitterDropdown } from "../react/emitter-dropdown.js";
+import type { CommandBarItem } from "../react/responsive-command-bar/index.js";
+import { ResponsiveCommandBar } from "../react/responsive-command-bar/index.js";
 import { SamplesDrawerOverlay, SamplesDrawerTrigger } from "../react/samples-drawer/index.js";
 import { useIsMobile } from "../react/use-mobile.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
-import style from "./editor-command-bar.module.css";
-
-/** Defines a single item in the editor command bar. */
-export interface CommandBarItem {
-  /** Unique identifier for the item. */
-  readonly id: string;
-  /** Display label used for tooltip (desktop) and menu text (mobile). */
-  readonly label: string;
-  /** Icon element. */
-  readonly icon?: ReactNode;
-  /** Click handler for simple items. */
-  readonly onClick?: () => void;
-  /** If true, always visible as an icon button. If false (default), goes to overflow menu on mobile. */
-  readonly pinned?: boolean;
-  /** Sub-items rendered as a dropdown (desktop) or nested submenu (mobile). */
-  readonly children?: readonly CommandBarItem[];
-  /** Additional content rendered alongside this item (e.g., dialogs triggered by children). */
-  readonly content?: ReactNode;
-  /** Custom toolbar element for desktop rendering. Overrides default and children-based rendering. */
-  readonly toolbarItem?: ReactNode;
-  /** Custom menu element for mobile overflow menu. Overrides default and children-based rendering. */
-  readonly menuItem?: ReactNode;
-  /** Alignment group on the desktop toolbar. Defaults to "left". */
-  readonly align?: "left" | "right";
-}
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
@@ -199,61 +157,9 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
     handleFileBug,
   ]);
 
-  const pinnedItems = items.filter((i) => i.pinned);
-  const overflowItems = items.filter((i) => !i.pinned);
-  const leftItems = items.filter((i) => (i.align ?? "left") === "left");
-  const rightItems = items.filter((i) => i.align === "right");
-  const leftOverflow = overflowItems.filter((i) => (i.align ?? "left") === "left");
-  const rightOverflow = overflowItems.filter((i) => i.align === "right");
-
   return (
-    <div className={style["bar"]}>
-      <Toolbar>
-        {isMobile ? (
-          <>
-            {pinnedItems.map((item) => (
-              <ToolbarItemRenderer key={item.id} item={item} />
-            ))}
-            {overflowItems.length > 0 && (
-              <>
-                <div className={style["divider"]} />
-                <Menu>
-                  <MenuTrigger disableButtonEnhancement>
-                    <Tooltip content="More actions" relationship="description" withArrow>
-                      <ToolbarButton
-                        aria-label="More actions"
-                        icon={<MoreHorizontal24Filled />}
-                        appearance="subtle"
-                      />
-                    </Tooltip>
-                  </MenuTrigger>
-                  <MenuPopover>
-                    <MenuList>
-                      {leftOverflow.map((item) => (
-                        <MenuItemRenderer key={item.id} item={item} />
-                      ))}
-                      {leftOverflow.length > 0 && rightOverflow.length > 0 && <MenuDivider />}
-                      {rightOverflow.map((item) => (
-                        <MenuItemRenderer key={item.id} item={item} />
-                      ))}
-                    </MenuList>
-                  </MenuPopover>
-                </Menu>
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            {leftItems.map((item) => (
-              <ToolbarItemRenderer key={item.id} item={item} />
-            ))}
-            {rightItems.length > 0 && <div className={style["divider"]} />}
-            {rightItems.map((item) => (
-              <ToolbarItemRenderer key={item.id} item={item} />
-            ))}
-          </>
-        )}
-      </Toolbar>
+    <>
+      <ResponsiveCommandBar items={items} isMobile={isMobile} />
       {isMobile && samples && (
         <SamplesDrawerOverlay
           samples={samples}
@@ -262,67 +168,6 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
           onOpenChange={setSamplesDrawerOpen}
         />
       )}
-      {items.map((item) => item.content && <Fragment key={item.id}>{item.content}</Fragment>)}
-    </div>
-  );
-};
-
-const ToolbarItemRenderer: FunctionComponent<{ item: CommandBarItem }> = ({ item }) => {
-  if (item.toolbarItem) return <>{item.toolbarItem}</>;
-  if (item.children) {
-    return (
-      <Menu>
-        <MenuTrigger disableButtonEnhancement>
-          <Tooltip content={item.label} relationship="description" withArrow>
-            <ToolbarButton appearance="subtle" aria-label={item.label} icon={item.icon as any} />
-          </Tooltip>
-        </MenuTrigger>
-        <MenuPopover>
-          <MenuList>
-            {item.children.map((child) => (
-              <MenuItem key={child.id} icon={child.icon as any} onClick={child.onClick as any}>
-                {child.label}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </MenuPopover>
-      </Menu>
-    );
-  }
-  return (
-    <Tooltip content={item.label} relationship="description" withArrow>
-      <ToolbarButton
-        aria-label={item.label}
-        icon={item.icon as any}
-        onClick={item.onClick as any}
-      />
-    </Tooltip>
-  );
-};
-
-const MenuItemRenderer: FunctionComponent<{ item: CommandBarItem }> = ({ item }) => {
-  if (item.menuItem) return <>{item.menuItem}</>;
-  if (item.children) {
-    return (
-      <Menu openOnHover={false}>
-        <MenuTrigger disableButtonEnhancement>
-          <MenuItem icon={item.icon as any}>{item.label}</MenuItem>
-        </MenuTrigger>
-        <MenuPopover>
-          <MenuList>
-            {item.children.map((child) => (
-              <MenuItem key={child.id} icon={child.icon as any} onClick={child.onClick as any}>
-                {child.label}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </MenuPopover>
-      </Menu>
-    );
-  }
-  return (
-    <MenuItem icon={item.icon as any} onClick={item.onClick as any}>
-      {item.label}
-    </MenuItem>
+    </>
   );
 };
