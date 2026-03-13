@@ -47,10 +47,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UpdatePetAsAnimal(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdatePetAsAnimal.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdatePetAsAnimalRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateUpdatePetAsAnimalRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdatePetAsAnimal: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdatePetAsAnimal.");
+            }
         }
 
         /// <summary>
@@ -68,10 +81,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> UpdatePetAsAnimalAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdatePetAsAnimalAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdatePetAsAnimalRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateUpdatePetAsAnimalRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdatePetAsAnimalAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdatePetAsAnimalAsync.");
+            }
         }
 
         /// <summary> Update a pet as an animal. </summary>
@@ -81,10 +107,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Animal> UpdatePetAsAnimal(Animal animal, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(animal, nameof(animal));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdatePetAsAnimal.");
+                Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+                ClientResult result = UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdatePetAsAnimal: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdatePetAsAnimal.");
+            }
         }
 
         /// <summary> Update a pet as an animal. </summary>
@@ -94,10 +133,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Animal>> UpdatePetAsAnimalAsync(Animal animal, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(animal, nameof(animal));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdatePetAsAnimalAsync.");
+                Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = await UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+                ClientResult result = await UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdatePetAsAnimalAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdatePetAsAnimalAsync.");
+            }
         }
 
         /// <summary>
@@ -115,10 +167,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult UpdateDogAsAnimal(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateDogAsAnimal.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdateDogAsAnimalRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateUpdateDogAsAnimalRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateDogAsAnimal: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateDogAsAnimal.");
+            }
         }
 
         /// <summary>
@@ -136,10 +201,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> UpdateDogAsAnimalAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateDogAsAnimalAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateUpdateDogAsAnimalRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateUpdateDogAsAnimalRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateDogAsAnimalAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateDogAsAnimalAsync.");
+            }
         }
 
         /// <summary> Update a dog as an animal. </summary>
@@ -149,10 +227,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Animal> UpdateDogAsAnimal(Animal animal, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(animal, nameof(animal));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateDogAsAnimal.");
+                Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+                ClientResult result = UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateDogAsAnimal: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateDogAsAnimal.");
+            }
         }
 
         /// <summary> Update a dog as an animal. </summary>
@@ -162,10 +253,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Animal>> UpdateDogAsAnimalAsync(Animal animal, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(animal, nameof(animal));
+            try
+            {
+                System.Console.WriteLine("Entering method UpdateDogAsAnimalAsync.");
+                Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = await UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+                ClientResult result = await UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method UpdateDogAsAnimalAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method UpdateDogAsAnimalAsync.");
+            }
         }
     }
 }
