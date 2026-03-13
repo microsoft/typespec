@@ -205,6 +205,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 "Generated code should check for null URI");
         }
 
+        [Test]
+        public void TestCollectionResultNameUsesOriginalNameAfterMutation()
+        {
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var parameter = InputFactory.QueryParameter("myToken", InputPrimitiveType.String, isRequired: true);
+            var pagingMetadata = InputFactory.ContinuationTokenPagingMetadata(parameter, ["cats"], ["nextPage"], InputResponseLocation.Body);
+            var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
+            var nextCatProperty = InputFactory.Property("nextPage", InputPrimitiveType.String);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [catsProperty, nextCatProperty]));
+            var operation = InputFactory.Operation("getCats", parameters: [parameter], responses: [response]);
+
+            // Mutate the operation name after creation
+            operation.Update(name: "listCats");
+
+            // OriginalName should still be the original name
+            Assert.AreEqual("getCats", operation.OriginalName);
+            Assert.AreEqual("listCats", operation.Name);
+
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
+
+            // The CollectionResult name should use the original name "getCats", not the mutated name "listCats"
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
+            Assert.IsNotNull(collectionResultDefinition);
+        }
+
         internal static void CreatePagingOperation(InputResponseLocation responseLocation, bool isNested = false)
         {
             var inputModel = InputFactory.Model("cat", properties:

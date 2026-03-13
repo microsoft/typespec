@@ -182,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => Client.Type.Namespace;
 
         protected override string BuildName()
-            => $"{Client.Type.Name}{Operation.Name.ToIdentifierName()}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
+            => $"{Client.Type.Name}{Operation.OriginalName.ToIdentifierName()}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;

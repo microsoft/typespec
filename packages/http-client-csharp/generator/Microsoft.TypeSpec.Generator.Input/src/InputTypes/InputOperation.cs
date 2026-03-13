@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? ns)
         {
             Name = name;
+            OriginalName = name;
             ResourceName = resourceName;
             Summary = summary;
             Doc = doc;
@@ -73,6 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         { }
 
         public string Name { get; internal set; }
+        public string OriginalName { get; internal set; }
         public string? ResourceName { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
