@@ -141,14 +141,6 @@ export const complexArrayModel = `
   <ComplexModel>
     <Id>123abc</Id>
   </ComplexModel>
-</ComplexArrayModel>
-`;
-
-export const complexArrayModelMultipleItems = `
-<ComplexArrayModel>
-  <ComplexModel>
-    <Id>123abc</Id>
-  </ComplexModel>
   <ComplexModel>
     <Id>123abc</Id>
   </ComplexModel>
@@ -345,15 +337,6 @@ const Payload_Xml_ComplexArrayModel = createServerTests(
 );
 Scenarios.Payload_Xml_ComplexArrayValue_get = Payload_Xml_ComplexArrayModel.get;
 Scenarios.Payload_Xml_ComplexArrayValue_put = Payload_Xml_ComplexArrayModel.put;
-
-const Payload_Xml_ComplexArrayModelMultipleItems = createServerTests(
-  "/payload/xml/complexArrayModelMultipleItems",
-  complexArrayModelMultipleItems,
-);
-Scenarios.Payload_Xml_ComplexArrayMultipleItemsValue_get =
-  Payload_Xml_ComplexArrayModelMultipleItems.get;
-Scenarios.Payload_Xml_ComplexArrayMultipleItemsValue_put =
-  Payload_Xml_ComplexArrayModelMultipleItems.put;
 
 const Payload_Xml_ComplexArrayModelNoItems = createServerTests(
   "/payload/xml/complexArrayModelNoItems",

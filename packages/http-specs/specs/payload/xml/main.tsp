@@ -415,20 +415,6 @@ interface ComplexArrayValue
           <ComplexModel>
             <Id>123abc</Id>
           </ComplexModel>
-        </ComplexArrayModel>
-        """
-    > {}
-
-@doc("Operations for the ComplexArrayModel type with multiple items.")
-@route("/complexArrayModelMultipleItems")
-interface ComplexArrayMultipleItemsValue
-  extends XmlOperations<
-      ComplexArrayModel,
-      """
-        <ComplexArrayModel>
-          <ComplexModel>
-            <Id>123abc</Id>
-          </ComplexModel>
           <ComplexModel>
             <Id>123abc</Id>
           </ComplexModel>

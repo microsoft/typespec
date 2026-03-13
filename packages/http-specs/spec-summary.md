@@ -2995,6 +2995,60 @@ Expected response body:
 </PetListResult>
 ```
 
+### Payload_Xml_ComplexArrayNoItemsValue_get
+
+- Endpoint: `get /payload/xml/complexArrayModelNoItems`
+
+Expected response body:
+
+```xml
+<ComplexArrayModel />
+```
+
+### Payload_Xml_ComplexArrayNoItemsValue_put
+
+- Endpoint: `put /payload/xml/complexArrayModelNoItems`
+
+Expected request body:
+
+```xml
+<ComplexArrayModel />
+```
+
+### Payload_Xml_ComplexArrayValue_get
+
+- Endpoint: `get /payload/xml/complexArrayModel`
+
+Expected response body:
+
+```xml
+<ComplexArrayModel>
+  <ComplexModel>
+    <Id>123abc</Id>
+  </ComplexModel>
+  <ComplexModel>
+    <Id>123abc</Id>
+  </ComplexModel>
+</ComplexArrayModel>
+```
+
+### Payload_Xml_ComplexArrayValue_put
+
+- Endpoint: `put /payload/xml/complexArrayModel`
+
+Expected request body:
+
+```xml
+<ComplexArrayModel>
+  <ComplexModel>
+    <Id>123abc</Id>
+  </ComplexModel>
+  <ComplexModel>
+    <Id>123abc</Id>
+  </ComplexModel>
+</ComplexArrayModel>
+```
+
 ### Payload_Xml_ModelWithArrayOfModelValue_get
 
 - Endpoint: `get /payload/xml/modelWithArrayOfModel`
