@@ -10,7 +10,7 @@ import {
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import "@typespec/playground/styles.css";
 import samples from "../samples/dist/samples.js";
-import { ImportMenuItem, ImportToolbarButton } from "./import.js";
+import { createImportCommandBarItem } from "./import.js";
 import "./style.css";
 
 registerMonacoDefaultWorkersForVite();
@@ -52,8 +52,7 @@ await renderReactPlayground({
     useShim: true,
   },
   footer: <PlaygroundFooter />,
-  commandBarButtons: <ImportToolbarButton />,
-  commandBarMenuItems: <ImportMenuItem />,
+  commandBarItems: [createImportCommandBarItem()],
   onFileBug: () => {
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
     const url = `https://github.com/microsoft/typespec/issues/new?body=${bodyPayload}`;

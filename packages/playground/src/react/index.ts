@@ -1,3 +1,4 @@
+export type { CommandBarItem } from "../editor-command-bar/editor-command-bar.js";
 export { usePlaygroundContext } from "./context/index.js";
 export { DiagnosticList } from "./diagnostic-list/diagnostic-list.js";
 export type { DiagnosticListProps } from "./diagnostic-list/diagnostic-list.js";

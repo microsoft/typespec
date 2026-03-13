@@ -19,21 +19,55 @@ import {
   MoreHorizontal24Filled,
   Save16Regular,
 } from "@fluentui/react-icons";
-import { useCallback, useMemo, useState, type FunctionComponent, type ReactNode } from "react";
+import {
+  Fragment,
+  useCallback,
+  useMemo,
+  useState,
+  type FunctionComponent,
+  type ReactNode,
+} from "react";
 import { EmitterDropdown } from "../react/emitter-dropdown.js";
 import { SamplesDrawerOverlay, SamplesDrawerTrigger } from "../react/samples-drawer/index.js";
 import { useIsMobile } from "../react/use-mobile.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import style from "./editor-command-bar.module.css";
 
+/** Defines a single item in the editor command bar. */
+export interface CommandBarItem {
+  /** Unique identifier for the item. */
+  readonly id: string;
+  /** Display label used for tooltip (desktop) and menu text (mobile). */
+  readonly label: string;
+  /** Icon element. */
+  readonly icon?: ReactNode;
+  /** Click handler for simple items. */
+  readonly onClick?: () => void;
+  /** If true, always visible as an icon button. If false (default), goes to overflow menu on mobile. */
+  readonly pinned?: boolean;
+  /** Sub-items rendered as a dropdown (desktop) or nested submenu (mobile). */
+  readonly children?: readonly CommandBarItem[];
+  /** Additional content rendered alongside this item (e.g., dialogs triggered by children). */
+  readonly content?: ReactNode;
+  /** Custom toolbar element for desktop rendering. Overrides default and children-based rendering. */
+  readonly toolbarItem?: ReactNode;
+  /** Custom menu element for mobile overflow menu. Overrides default and children-based rendering. */
+  readonly menuItem?: ReactNode;
+  /** Renders a divider after this item in the mobile overflow menu. */
+  readonly overflowDivider?: boolean;
+  /** Renders a flex spacer before this item on the desktop toolbar. */
+  readonly toolbarSpacer?: boolean;
+  /** Renders a divider before this item on the desktop toolbar. */
+  readonly toolbarDivider?: boolean;
+}
+
 export interface EditorCommandBarProps {
   documentationUrl?: string;
   saveCode: () => Promise<void> | void;
   formatCode: () => Promise<void> | void;
   fileBug?: () => Promise<void> | void;
-  commandBarButtons?: ReactNode;
-  /** Menu items version of commandBarButtons for use in mobile overflow menu */
-  commandBarMenuItems?: ReactNode;
+  /** Additional items provided by the consumer. */
+  commandBarItems?: readonly CommandBarItem[];
   host: BrowserHost;
   selectedEmitter: string;
   onSelectedEmitterChange: (emitter: string) => void;
@@ -42,21 +76,23 @@ export interface EditorCommandBarProps {
   selectedSampleName: string;
   onSelectedSampleNameChange: (sampleName: string) => void;
 }
-export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
-  documentationUrl,
-  saveCode,
-  formatCode,
-  fileBug,
-  host,
-  selectedEmitter,
-  onSelectedEmitterChange,
-  samples,
-  selectedSampleName,
-  onSelectedSampleNameChange,
-  commandBarButtons,
-  commandBarMenuItems,
-}) => {
+
+export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props) => {
+  const {
+    documentationUrl,
+    saveCode,
+    formatCode,
+    fileBug,
+    host,
+    selectedEmitter,
+    onSelectedEmitterChange,
+    samples,
+    onSelectedSampleNameChange,
+    commandBarItems: externalItems,
+  } = props;
+
   const isMobile = useIsMobile();
+  const [samplesDrawerOpen, setSamplesDrawerOpen] = useState(false);
 
   const emitters = useMemo(
     () =>
@@ -66,183 +102,234 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
     [host.libraries],
   );
 
-  if (isMobile) {
-    return (
-      <MobileCommandBar
-        documentationUrl={documentationUrl}
-        saveCode={saveCode}
-        formatCode={formatCode}
-        fileBug={fileBug}
-        emitters={emitters}
-        selectedEmitter={selectedEmitter}
-        onSelectedEmitterChange={onSelectedEmitterChange}
-        samples={samples}
-        onSelectedSampleNameChange={onSelectedSampleNameChange}
-        commandBarMenuItems={commandBarMenuItems}
-      />
-    );
-  }
-
-  const documentation = documentationUrl ? (
-    <label>
-      <Link href={documentationUrl} target="_blank">
-        Docs
-      </Link>
-    </label>
-  ) : undefined;
-
-  return (
-    <div className={style["bar"]}>
-      <Toolbar>
-        <Tooltip content="Save" relationship="description" withArrow>
-          <ToolbarButton aria-label="Save" icon={<Save16Regular />} onClick={saveCode as any} />
-        </Tooltip>
-        <Tooltip content="Format" relationship="description" withArrow>
-          <ToolbarButton aria-label="Format" icon={<Broom16Filled />} onClick={formatCode as any} />
-        </Tooltip>
-        {samples && (
-          <>
-            <SamplesDrawerTrigger
-              samples={samples}
-              onSelectedSampleNameChange={onSelectedSampleNameChange}
-            />
-            <div className={style["spacer"]}></div>
-          </>
-        )}
-        <EmitterDropdown
-          emitters={emitters}
-          onSelectedEmitterChange={onSelectedEmitterChange}
-          selectedEmitter={selectedEmitter}
-        />
-
-        {documentation && (
-          <>
-            <div className={style["spacer"]}></div>
-            {documentation}
-          </>
-        )}
-        <div className={style["divider"]}></div>
-        {commandBarButtons}
-        {fileBug && <FileBugButton onClick={fileBug} />}
-      </Toolbar>
-    </div>
-  );
-};
-
-interface MobileCommandBarProps {
-  documentationUrl?: string;
-  saveCode: () => Promise<void> | void;
-  formatCode: () => Promise<void> | void;
-  fileBug?: () => Promise<void> | void;
-  emitters: string[];
-  selectedEmitter: string;
-  onSelectedEmitterChange: (emitter: string) => void;
-  samples?: Record<string, PlaygroundSample>;
-  onSelectedSampleNameChange: (sampleName: string) => void;
-  commandBarMenuItems?: ReactNode;
-}
-
-const MobileCommandBar: FunctionComponent<MobileCommandBarProps> = ({
-  documentationUrl,
-  saveCode,
-  formatCode,
-  fileBug,
-  emitters,
-  selectedEmitter,
-  onSelectedEmitterChange,
-  samples,
-  onSelectedSampleNameChange,
-  commandBarMenuItems,
-}) => {
-  const [samplesOpen, setSamplesOpen] = useState(false);
-
   const handleFileBug = useCallback(() => {
     if (fileBug) void fileBug();
   }, [fileBug]);
 
+  const items = useMemo<CommandBarItem[]>(() => {
+    const result: CommandBarItem[] = [
+      {
+        id: "save",
+        label: "Save",
+        icon: <Save16Regular />,
+        onClick: saveCode as () => void,
+        pinned: true,
+      },
+      {
+        id: "format",
+        label: "Format",
+        icon: <Broom16Filled />,
+        onClick: formatCode as () => void,
+        pinned: true,
+      },
+    ];
+
+    if (samples) {
+      result.push({
+        id: "samples",
+        label: "Browse Samples",
+        icon: <DocumentBulletList24Regular />,
+        onClick: () => setSamplesDrawerOpen(true),
+        toolbarItem: (
+          <SamplesDrawerTrigger
+            samples={samples}
+            onSelectedSampleNameChange={onSelectedSampleNameChange}
+          />
+        ),
+      });
+    }
+
+    result.push({
+      id: "emitter",
+      label: "Emitter",
+      toolbarSpacer: true,
+      toolbarItem: (
+        <EmitterDropdown
+          emitters={emitters}
+          selectedEmitter={selectedEmitter}
+          onSelectedEmitterChange={onSelectedEmitterChange}
+        />
+      ),
+      menuItem: (
+        <>
+          {emitters.map((emitter) => (
+            <MenuItem
+              key={emitter}
+              icon={emitter === selectedEmitter ? <Checkmark16Regular /> : undefined}
+              onClick={() => onSelectedEmitterChange(emitter)}
+            >
+              {emitter}
+            </MenuItem>
+          ))}
+        </>
+      ),
+      overflowDivider: true,
+    });
+
+    if (documentationUrl) {
+      result.push({
+        id: "docs",
+        label: "Documentation",
+        icon: <BookOpen16Regular />,
+        onClick: () => window.open(documentationUrl, "_blank"),
+        toolbarSpacer: true,
+        toolbarItem: (
+          <label>
+            <Link href={documentationUrl} target="_blank">
+              Docs
+            </Link>
+          </label>
+        ),
+      });
+    }
+
+    if (externalItems && externalItems.length > 0) {
+      const [first, ...rest] = externalItems;
+      result.push({ ...first, toolbarDivider: first.toolbarDivider ?? true });
+      result.push(...rest);
+    }
+
+    if (fileBug) {
+      result.push({
+        id: "file-bug",
+        label: "File Bug",
+        icon: <Bug16Regular />,
+        onClick: handleFileBug,
+      });
+    }
+
+    return result;
+  }, [
+    saveCode,
+    formatCode,
+    samples,
+    onSelectedSampleNameChange,
+    emitters,
+    selectedEmitter,
+    onSelectedEmitterChange,
+    documentationUrl,
+    externalItems,
+    fileBug,
+    handleFileBug,
+  ]);
+
+  const pinnedItems = items.filter((i) => i.pinned);
+  const overflowItems = items.filter((i) => !i.pinned);
+
   return (
     <div className={style["bar"]}>
       <Toolbar>
-        <Tooltip content="Save" relationship="description" withArrow>
-          <ToolbarButton aria-label="Save" icon={<Save16Regular />} onClick={saveCode as any} />
-        </Tooltip>
-        <Tooltip content="Format" relationship="description" withArrow>
-          <ToolbarButton aria-label="Format" icon={<Broom16Filled />} onClick={formatCode as any} />
-        </Tooltip>
-        <div className={style["divider"]}></div>
-        <Menu>
-          <MenuTrigger disableButtonEnhancement>
-            <Tooltip content="More actions" relationship="description" withArrow>
-              <ToolbarButton
-                aria-label="More actions"
-                icon={<MoreHorizontal24Filled />}
-                appearance="subtle"
-              />
-            </Tooltip>
-          </MenuTrigger>
-          <MenuPopover>
-            <MenuList>
-              {emitters.map((emitter) => (
-                <MenuItem
-                  key={emitter}
-                  icon={emitter === selectedEmitter ? <Checkmark16Regular /> : undefined}
-                  onClick={() => onSelectedEmitterChange(emitter)}
-                >
-                  {emitter}
-                </MenuItem>
-              ))}
-              <MenuDivider />
-              {samples && (
-                <MenuItem
-                  icon={<DocumentBulletList24Regular />}
-                  onClick={() => setSamplesOpen(true)}
-                >
-                  Browse Samples
-                </MenuItem>
-              )}
-              {commandBarMenuItems}
-              {fileBug && (
-                <MenuItem icon={<Bug16Regular />} onClick={handleFileBug}>
-                  File Bug
-                </MenuItem>
-              )}
-              {documentationUrl && (
-                <MenuItem
-                  icon={<BookOpen16Regular />}
-                  onClick={() => window.open(documentationUrl, "_blank")}
-                >
-                  Documentation
-                </MenuItem>
-              )}
-            </MenuList>
-          </MenuPopover>
-        </Menu>
+        {isMobile ? (
+          <>
+            {pinnedItems.map((item) => (
+              <ToolbarItemRenderer key={item.id} item={item} />
+            ))}
+            {overflowItems.length > 0 && (
+              <>
+                <div className={style["divider"]} />
+                <Menu>
+                  <MenuTrigger disableButtonEnhancement>
+                    <Tooltip content="More actions" relationship="description" withArrow>
+                      <ToolbarButton
+                        aria-label="More actions"
+                        icon={<MoreHorizontal24Filled />}
+                        appearance="subtle"
+                      />
+                    </Tooltip>
+                  </MenuTrigger>
+                  <MenuPopover>
+                    <MenuList>
+                      {overflowItems.map((item) => (
+                        <Fragment key={item.id}>
+                          <MenuItemRenderer item={item} />
+                          {item.overflowDivider && <MenuDivider />}
+                        </Fragment>
+                      ))}
+                    </MenuList>
+                  </MenuPopover>
+                </Menu>
+              </>
+            )}
+          </>
+        ) : (
+          items.map((item) => (
+            <Fragment key={item.id}>
+              {item.toolbarSpacer && <div className={style["spacer"]} />}
+              {item.toolbarDivider && <div className={style["divider"]} />}
+              <ToolbarItemRenderer item={item} />
+            </Fragment>
+          ))
+        )}
       </Toolbar>
-
-      {samples && (
+      {isMobile && samples && (
         <SamplesDrawerOverlay
           samples={samples}
           onSelectedSampleNameChange={onSelectedSampleNameChange}
-          open={samplesOpen}
-          onOpenChange={setSamplesOpen}
+          open={samplesDrawerOpen}
+          onOpenChange={setSamplesDrawerOpen}
         />
       )}
+      {items.map((item) => item.content && <Fragment key={item.id}>{item.content}</Fragment>)}
     </div>
   );
 };
 
-interface FileBugButtonProps {
-  onClick: () => Promise<void> | void;
-}
-const FileBugButton: FunctionComponent<FileBugButtonProps> = ({ onClick }) => {
+const ToolbarItemRenderer: FunctionComponent<{ item: CommandBarItem }> = ({ item }) => {
+  if (item.toolbarItem) return <>{item.toolbarItem}</>;
+  if (item.children) {
+    return (
+      <Menu>
+        <MenuTrigger disableButtonEnhancement>
+          <Tooltip content={item.label} relationship="description" withArrow>
+            <ToolbarButton appearance="subtle" aria-label={item.label} icon={item.icon as any} />
+          </Tooltip>
+        </MenuTrigger>
+        <MenuPopover>
+          <MenuList>
+            {item.children.map((child) => (
+              <MenuItem key={child.id} icon={child.icon as any} onClick={child.onClick as any}>
+                {child.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </MenuPopover>
+      </Menu>
+    );
+  }
   return (
-    <Tooltip content="File Bug Report" relationship="description" withArrow>
+    <Tooltip content={item.label} relationship="description" withArrow>
       <ToolbarButton
-        appearance="subtle"
-        aria-label="File Bug Report"
-        icon={<Bug16Regular />}
-        onClick={onClick as any}
-      ></ToolbarButton>
+        aria-label={item.label}
+        icon={item.icon as any}
+        onClick={item.onClick as any}
+      />
     </Tooltip>
+  );
+};
+
+const MenuItemRenderer: FunctionComponent<{ item: CommandBarItem }> = ({ item }) => {
+  if (item.menuItem) return <>{item.menuItem}</>;
+  if (item.children) {
+    return (
+      <Menu openOnHover={false}>
+        <MenuTrigger disableButtonEnhancement>
+          <MenuItem icon={item.icon as any}>{item.label}</MenuItem>
+        </MenuTrigger>
+        <MenuPopover>
+          <MenuList>
+            {item.children.map((child) => (
+              <MenuItem key={child.id} icon={child.icon as any} onClick={child.onClick as any}>
+                {child.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </MenuPopover>
+      </Menu>
+    );
+  }
+  return (
+    <MenuItem icon={item.icon as any} onClick={item.onClick as any}>
+      {item.label}
+    </MenuItem>
   );
 };

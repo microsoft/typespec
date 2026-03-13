@@ -1,6 +1,6 @@
 import versions from "@site/playground-versions.json";
 import { useTheme } from "@typespec/astro-utils/utils/theme-react";
-import { ImportToolbarButton, TypeSpecPlaygroundConfig } from "@typespec/playground-website";
+import { createImportCommandBarItem, TypeSpecPlaygroundConfig } from "@typespec/playground-website";
 import {
   Footer,
   FooterVersionItem,
@@ -40,7 +40,7 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
       footer={<PlaygroundFooter versionData={versionData} />}
       fallback={<LoadingSpinner message="Loading libraries..." />}
       onFileBug={fileBugToGithub}
-      commandBarButtons={<ImportToolbarButton />}
+      commandBarItems={[createImportCommandBarItem()]}
     />
   );
 };

@@ -1,2 +1,2 @@
 export { TypeSpecPlaygroundConfig } from "./config.js";
-export { ImportToolbarButton } from "./import.js";
+export { createImportCommandBarItem } from "./import.js";

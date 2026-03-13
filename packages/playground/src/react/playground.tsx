@@ -15,7 +15,7 @@ import {
 } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
 import { resolveVirtualPath } from "../browser-host.js";
-import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
+import { EditorCommandBar, type CommandBarItem } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../services.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
@@ -61,11 +61,8 @@ export interface PlaygroundProps {
 
   onFileBug?: () => void;
 
-  /** Additional buttons to show up in the command bar */
-  commandBarButtons?: ReactNode;
-
-  /** Menu items version of commandBarButtons for use in mobile overflow menu */
-  commandBarMenuItems?: ReactNode;
+  /** Additional items to show in the command bar. */
+  commandBarItems?: CommandBarItem[];
 
   /** Playground links */
   links?: PlaygroundLinks;
@@ -358,8 +355,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       saveCode={saveCode}
       formatCode={formatCode}
       fileBug={props.onFileBug ? fileBug : undefined}
-      commandBarButtons={props.commandBarButtons}
-      commandBarMenuItems={props.commandBarMenuItems}
+      commandBarItems={props.commandBarItems}
       documentationUrl={props.links?.documentationUrl}
     />
   );
