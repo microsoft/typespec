@@ -136,6 +136,29 @@ export const modelWithDatetime = `
 </ModelWithDatetime>
 `;
 
+export const complexArrayModel = `
+<ComplexArrayModel>
+  <ComplexModel>
+    <Id>123abc</Id>
+  </ComplexModel>
+</ComplexArrayModel>
+`;
+
+export const complexArrayModelMultipleItems = `
+<ComplexArrayModel>
+  <ComplexModel>
+    <Id>123abc</Id>
+  </ComplexModel>
+  <ComplexModel>
+    <Id>123abc</Id>
+  </ComplexModel>
+</ComplexArrayModel>
+`;
+
+export const complexArrayModelNoItems = `
+<ComplexArrayModel />
+`;
+
 function createServerTests(uri: string, data?: any) {
   return {
     get: passOnSuccess({
@@ -275,3 +298,26 @@ Scenarios.Payload_Xml_XmlErrorValue_get = passOnCode(400, {
   },
   kind: "MockApiDefinition",
 });
+
+const Payload_Xml_ComplexArrayModel = createServerTests(
+  "/payload/xml/complexArrayModel",
+  complexArrayModel,
+);
+Scenarios.Payload_Xml_ComplexArrayModelValue_get = Payload_Xml_ComplexArrayModel.get;
+Scenarios.Payload_Xml_ComplexArrayModelValue_put = Payload_Xml_ComplexArrayModel.put;
+
+const Payload_Xml_ComplexArrayModelMultipleItems = createServerTests(
+  "/payload/xml/complexArrayModel",
+  complexArrayModelMultipleItems,
+);
+Scenarios.Payload_Xml_ComplexArrayModelMultipleItemsValue_get =
+  Payload_Xml_ComplexArrayModelMultipleItems.get;
+Scenarios.Payload_Xml_ComplexArrayModelMultipleItemsValue_put =
+  Payload_Xml_ComplexArrayModelMultipleItems.put;
+
+const Payload_Xml_ComplexArrayModelNoItems = createServerTests(
+  "/payload/xml/complexArrayModel",
+  complexArrayModelNoItems,
+);
+Scenarios.Payload_Xml_ComplexArrayModelNoItemsValue_get = Payload_Xml_ComplexArrayModelNoItems.get;
+Scenarios.Payload_Xml_ComplexArrayModelNoItemsValue_put = Payload_Xml_ComplexArrayModelNoItems.put;

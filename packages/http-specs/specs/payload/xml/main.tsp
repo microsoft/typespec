@@ -126,6 +126,21 @@ model XmlErrorBody {
   code: int32;
 }
 
+@doc("The complex model.")
+@name("ComplexModel")
+model ComplexModel {
+  @doc("The unique ID for the complex model.")
+  @name("Id")
+  id: string;
+}
+
+@doc("Contains an array of complex models with XML unwrapped representation.")
+model ComplexArrayModel {
+  @doc("The array of complex models.")
+  @unwrapped
+  items: Array<ComplexModel>;
+}
+
 @doc("Template for XML operations")
 interface XmlOperations<TModel, TDoc extends valueof string> {
   @scenario
@@ -389,3 +404,17 @@ interface XmlErrorValue {
     @body body: SimpleModel;
   } | XmlError;
 }
+
+@doc("Operations for the ComplexArrayModel type.")
+@route("/complexArrayModel")
+interface ComplexArrayValue
+  extends XmlOperations<
+      ComplexArrayModel,
+      """
+        <ComplexArrayModel>
+          <ComplexModel>
+            <Id>123abc</Id>
+          </ComplexModel>
+        </ComplexArrayModel>
+        """
+    > {}
