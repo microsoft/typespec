@@ -264,6 +264,15 @@ interface Items {
   @get
   @list
   list(): ListResult & ArmLroLocationHeader;
+
+  @get
+  @list
+  @route("summary")
+  summary(): ListResultSummary;
+}
+
+model ListResultSummary extends ListResult {
+  summary?: string;
 }
 
 model ListResult {
