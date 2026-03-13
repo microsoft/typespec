@@ -32,7 +32,7 @@ export const ViewToggle: FunctionComponent<ViewToggleProps> = ({
         className={style["view-toggle-tabs"]}
       >
         <Tab value="editor" className={style["view-toggle-tab"]}>
-          Editor
+          TSP
         </Tab>
         <Tab value="both" className={style["view-toggle-tab"]}>
           Both
