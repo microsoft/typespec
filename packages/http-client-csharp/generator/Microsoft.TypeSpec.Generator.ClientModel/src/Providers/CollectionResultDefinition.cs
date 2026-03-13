@@ -188,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // If so, use the OriginalName to differentiate.
             if (HasPagingOperationNameCollision())
             {
-                operationName = Operation.OriginalName.ToIdentifierName();
+                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
             }
             return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
         }
