@@ -31,6 +31,7 @@ export function useImportCommandBarItem(): CommandBarItem {
     id: "import",
     label: "Import",
     icon: <ArrowUploadFilled />,
+    align: "right",
     children: [
       { id: "import-tsp", label: "Remote TypeSpec", onClick: () => setOpen("tsp") },
       {

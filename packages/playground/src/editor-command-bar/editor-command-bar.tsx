@@ -1,6 +1,4 @@
-import { Link } from "@fluentui/react-components";
 import {
-  BookOpen16Regular,
   Broom16Filled,
   Bug16Regular,
   Checkmark16Regular,
@@ -16,7 +14,6 @@ import { useIsMobile } from "../react/use-mobile.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
 
 export interface EditorCommandBarProps {
-  documentationUrl?: string;
   saveCode: () => Promise<void> | void;
   formatCode: () => Promise<void> | void;
   fileBug?: () => Promise<void> | void;
@@ -33,7 +30,6 @@ export interface EditorCommandBarProps {
 
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props) => {
   const {
-    documentationUrl,
     saveCode,
     formatCode,
     fileBug,
@@ -96,7 +92,6 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
     result.push({
       id: "emitter",
       label: "Emitter",
-      align: "right",
       toolbarItem: (
         <EmitterDropdown
           emitters={emitters}
@@ -112,23 +107,6 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
       })),
     });
 
-    if (documentationUrl) {
-      result.push({
-        id: "docs",
-        label: "Documentation",
-        icon: <BookOpen16Regular />,
-        onClick: () => window.open(documentationUrl, "_blank"),
-        align: "right",
-        toolbarItem: (
-          <label>
-            <Link href={documentationUrl} target="_blank">
-              Docs
-            </Link>
-          </label>
-        ),
-      });
-    }
-
     if (externalItems) {
       result.push(...externalItems);
     }
@@ -137,6 +115,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
       result.push({
         id: "file-bug",
         label: "File Bug",
+        align: "right",
         icon: <Bug16Regular />,
         onClick: handleFileBug,
       });
@@ -151,7 +130,6 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props
     emitters,
     selectedEmitter,
     onSelectedEmitterChange,
-    documentationUrl,
     externalItems,
     fileBug,
     handleFileBug,
