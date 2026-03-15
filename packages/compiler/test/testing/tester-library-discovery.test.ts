@@ -1,4 +1,4 @@
-import { it } from "vitest";
+import { expect, it } from "vitest";
 import { CompilerHost } from "../../src/core/types.js";
 import { createTestFileSystem, mockFile } from "../../src/testing/fs.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";
@@ -49,4 +49,15 @@ it("subpath typespec export get added to the test host", async () => {
     libraries: ["mylib"],
   });
   await Tester.compile(`import "mylib/subpath";`);
+});
+
+it("throws a clear error when base does not contain a package.json", async () => {
+  const fs = mkFs({});
+  const Tester = createTester(resolveVirtualPath("not-a-library-root"), {
+    host: fs,
+    libraries: [],
+  });
+  await expect(Tester.compile(``)).rejects.toThrowError(
+    /createTester failed to read.*package\.json.*first argument to createTester must be the library root/,
+  );
 });
