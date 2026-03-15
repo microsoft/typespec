@@ -271,6 +271,7 @@ interface Items {
   summary(): ListResultSummary;
 }
 
+// model does not contain `@pageItems` property, but inherit them from parent
 model ListResultSummary extends ListResult {
   summary?: string;
 }
