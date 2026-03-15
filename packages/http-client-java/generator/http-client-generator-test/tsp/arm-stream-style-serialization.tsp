@@ -269,6 +269,15 @@ interface Items {
   @list
   @route("summary")
   summary(): ListResultSummary;
+
+  @get
+  @list
+  @route("list2")
+  list2(): ListResult2;
+
+  @get
+  @route("summary2")
+  summary2(): ListResultSummary2;
 }
 
 // model does not contain `@pageItems` property, but inherit them from parent
@@ -282,6 +291,19 @@ model ListResult {
 
   @nextLink
   nextLink?: string;
+}
+
+// This paged model need to be public (instead of in "implementation" package), as its child ListResultSummary2 is public
+model ListResult2 {
+  @pageItems
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+model ListResultSummary2 extends ListResult2 {
+  summary?: string;
 }
 
 model Result {
