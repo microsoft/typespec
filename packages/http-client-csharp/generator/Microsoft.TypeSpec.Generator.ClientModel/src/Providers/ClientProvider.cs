@@ -321,9 +321,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal bool HasAccessorOnlyParameters(InputClient parentInputClient)
         {
-            var parentParamNames = parentInputClient.Parameters
-                .Select(p => p.Name)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            // Include paramAlias values in the set of parent parameter names, since a sub-client parameter that matches a parent's paramAlias should not be considered an accessor-only parameter.
+            var parentParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in parentInputClient.Parameters)
+            {
+                parentParamNames.Add(p.Name);
+                if (p is InputMethodParameter { ParamAlias: string alias })
+                {
+                    parentParamNames.Add(alias);
+                }
+            }
 
             return _inputClient.Parameters
                 .Where(p => !p.IsApiVersion && !(p is InputEndpointParameter ep && ep.IsEndpoint))
@@ -1081,9 +1088,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 // Identify subclient-specific parameters by comparing with the parent's input parameters.
                 // Parameters present on both parent and subclient are shared (sourced from parent fields/properties).
-                var parentInputParamNames = _inputClient.Parameters
-                    .Select(p => p.Name)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                // Also include paramAlias values in the parent parameter names, since a sub-client parameter that matches a parent's paramAlias should not be considered subclient-specific.
+                var parentInputParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var p in _inputClient.Parameters)
+                {
+                    parentInputParamNames.Add(p.Name);
+                    if (p is InputMethodParameter { ParamAlias: string alias })
+                    {
+                        parentInputParamNames.Add(alias);
+                    }
+                }
+
                 var subClientSpecificParamNames = subClient._inputClient.Parameters
                     .Where(p => !parentInputParamNames.Contains(p.Name))
                     .Select(p => p.Name)

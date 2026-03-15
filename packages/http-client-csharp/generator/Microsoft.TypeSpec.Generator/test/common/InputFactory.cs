@@ -469,7 +469,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? doc = null,
             string? serializedName = null,
             InputRequestLocation location = InputRequestLocation.Body,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            string? paramAlias = null)
         {
             return new InputMethodParameter(
                 name: name,
@@ -483,7 +484,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 scope: scope,
                 access: null,
                 location: location,
-                serializedName: serializedName ?? name);
+                serializedName: serializedName ?? name)
+            {
+                ParamAlias = paramAlias
+            };
         }
 
         // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]

@@ -62,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? defaultContentType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             string? location = null;
+            string? paramAlias = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -80,7 +81,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("contentTypes", options, ref contentTypes)
                     || reader.TryReadComplexType("defaultContentType", options, ref defaultContentType)
                     || reader.TryReadString("location", ref location)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadString("paramAlias", ref paramAlias);
 
                 if (!isKnownProperty)
                 {
@@ -107,6 +109,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
             Enum.TryParse<InputRequestLocation>(location, ignoreCase: true, out var requestLocation);
             parameter.Location = requestLocation;
+            parameter.ParamAlias = paramAlias;
 
             return parameter;
         }

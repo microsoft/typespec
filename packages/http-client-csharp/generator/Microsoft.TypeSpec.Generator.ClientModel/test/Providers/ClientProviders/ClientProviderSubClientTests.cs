@@ -79,6 +79,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("/// <summary> The Test sub-client. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
         }
 
+        [Test]
+        public void HasAccessorOnlyParameters_ReturnsFalse_WhenSubClientParamMatchesParentAlias()
+        {
+            // Parent has parameter "blobName" with paramAlias "name"
+            // Subclient has parameter "name"
+            // The alias should make it recognized as a shared parameter, not subclient-specific
+            var parentClient = InputFactory.Client(
+                "ParentClient",
+                parameters: [InputFactory.MethodParameter("blobName", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, paramAlias: "name")]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [InputFactory.MethodParameter("name", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client)]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [parentClient]);
+
+            var subClientProvider = new ClientProvider(subClient);
+            Assert.IsFalse(subClientProvider.HasAccessorOnlyParameters(parentClient));
+        }
+
+        [Test]
+        public void HasAccessorOnlyParameters_ReturnsTrue_WhenSubClientParamDoesNotMatchParentAlias()
+        {
+            // Parent has parameter "blobName" with paramAlias "name"
+            // Subclient has parameter "color" — not matching either parent name or alias
+            var parentClient = InputFactory.Client(
+                "ParentClient",
+                parameters: [InputFactory.MethodParameter("blobName", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, paramAlias: "name")]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [InputFactory.MethodParameter("color", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client)]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [parentClient]);
+
+            var subClientProvider = new ClientProvider(subClient);
+            Assert.IsTrue(subClientProvider.HasAccessorOnlyParameters(parentClient));
+        }
+
         private class MockClientProvider : ClientProvider
         {
             private readonly string[] _expectedSubClientFactoryMethodNames;
