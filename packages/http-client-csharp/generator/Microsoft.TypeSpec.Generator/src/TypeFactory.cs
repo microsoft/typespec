@@ -51,7 +51,12 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             type = CreateCSharpTypeCore(inputType);
-            TypeCache.Add(inputType, type);
+            // Use indexer instead of Add() to handle re-entrant calls.
+            // Self-referencing models (e.g. QueryFilter with "and: QueryFilter[]")
+            // cause CreateCSharpTypeCore to recursively call CreateCSharpType for the
+            // same InputType before the outer call completes. The inner call adds the
+            // key first; the outer call then overwrites with the same value harmlessly.
+            TypeCache[inputType] = type;
             return type;
         }
 
