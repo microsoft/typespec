@@ -82,7 +82,14 @@ namespace SampleTypeSpec
 
             _endpoint = endpoint;
             _metricsNamespace = metricsNamespace;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+            if (authenticationPolicy != null)
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+            }
+            else
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly) }, Array.Empty<PipelinePolicy>());
+            }
         }
 
         /// <summary> Initializes a new instance of Metrics. </summary>

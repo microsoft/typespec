@@ -973,9 +973,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression perRetryPolicies;
             if (authPolicyParam != null)
             {
-                // Internal implementation constructor: use the authenticationPolicy parameter directly
-                perRetryPoliciesList.Add(authPolicyParam);
-                perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
+                // Internal implementation constructor: generate a runtime null check for the auth policy.
+                // No-auth clients pass null, so we must guard against adding null to the policies array.
+                var pipelinePolicyType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType;
+                var perRetryWithoutAuth = New.Array(pipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
+                var perRetryWithAuth = New.Array(pipelinePolicyType, isInline: true, [.. perRetryPoliciesList, authPolicyParam]);
+
+                body.Add(new IfElseStatement(
+                    authPolicyParam.NotEqual(Null),
+                    PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryWithAuth)).Terminate(),
+                    PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryWithoutAuth)).Terminate()));
             }
             else
             {
@@ -994,9 +1001,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
                         break;
                 }
-            }
 
-            body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryPolicies)).Terminate());
+                body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryPolicies)).Terminate());
+            }
 
             foreach (var f in Fields)
             {
