@@ -281,7 +281,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             ]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            InputClient subClient = InputFactory.Client("custom", parent: inputClient);
+            InputClient subClient = InputFactory.Client("custom", parent: inputClient, initializedBy: InputClientInitializedBy.Parent);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -309,7 +309,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             ]);
             var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            InputClient subClient = InputFactory.Client("dog", methods: [], parameters: [], parent: inputClient);
+            InputClient subClient = InputFactory.Client("dog", methods: [], parameters: [], parent: inputClient, initializedBy: InputClientInitializedBy.Parent);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
