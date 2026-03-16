@@ -755,10 +755,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void TestBuildConstructors_ForSubClient_InitializedByIndividually_HasPublicConstructors()
         {
-            var parentClient = InputFactory.Client("ParentClient");
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParameter]);
             var subClient = InputFactory.Client(
                 "SubClient",
                 parent: parentClient,
+                parameters: [endpointParameter],
                 initializedBy: InputClientInitializedBy.Individually);
 
             MockHelpers.LoadMockGenerator(
@@ -776,23 +783,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
             Assert.IsTrue(publicConstructors.Count > 0, "SubClient with InitializedBy.Individually should have public constructors");
 
-            // primary constructor should set the pipeline, options, and endpoint
+            // Primary public constructor should have auth credential param and chain to internal via this(...)
             var primaryConstructor = publicConstructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null);
-            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor");
-            StringAssert.Contains(
-                "options ??= new global::Sample.ParentClientOptions();",
-                primaryConstructor!.BodyStatements!.ToDisplayString(),
-                "Primary constructor should null coalesce options parameter");
-            StringAssert.Contains(
-                "Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.SubClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());",
-                primaryConstructor.BodyStatements!.ToDisplayString(),
-                "Primary constructor should set the Pipeline property");
+                c => c.Signature?.Parameters.Any(p => p.Name == "options") == true && c.Signature?.Initializer != null);
+            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor with initializer");
 
-            // Should NOT have internal constructor since InitializedBy does not include Parent
-            var internalConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
-            Assert.IsNull(internalConstructor, "SubClient with InitializedBy.Individually (without Parent) should not have internal constructor");
+            // Should have a credential parameter (from the mock api key auth)
+            Assert.IsTrue(primaryConstructor!.Signature.Parameters.Any(p => p.Name == "credential"),
+                "SubClient with InitializedBy.Individually should have credential parameter in public constructor");
+
+            // Should have internal AuthenticationPolicy constructor
+            var internalConstructors = constructors.Where(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal).ToList();
+            Assert.IsTrue(internalConstructors.Count > 0, "SubClient with InitializedBy.Individually should have internal constructor");
+            var authPolicyConstructor = internalConstructors.FirstOrDefault(
+                c => c.Signature?.Parameters.Any(p => p.Type.Name == nameof(AuthenticationPolicy)) == true);
+            Assert.IsNotNull(authPolicyConstructor, "SubClient with InitializedBy.Individually should have internal AuthenticationPolicy constructor");
+
+            // Should have a Settings constructor
+            Assert.IsNotNull(clientProvider.ClientSettings, "SubClient with InitializedBy.Individually should have ClientSettings");
+            var settingsConstructor = publicConstructors.FirstOrDefault(
+                c => c.Signature?.Parameters.Count == 1 && c.Signature.Parameters[0].Name == "settings");
+            Assert.IsNotNull(settingsConstructor, "SubClient with InitializedBy.Individually should have Settings constructor");
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -835,10 +847,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void TestBuildConstructors_ForSubClient_InitializedByBoth_HasBothConstructors()
         {
-            var parentClient = InputFactory.Client("ParentClient");
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParameter]);
             var subClient = InputFactory.Client(
                 "SubClient",
                 parent: parentClient,
+                parameters: [endpointParameter],
                 initializedBy: InputClientInitializedBy.Individually | InputClientInitializedBy.Parent);
 
             MockHelpers.LoadMockGenerator(
@@ -856,23 +875,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
             Assert.IsTrue(publicConstructors.Count > 0, "SubClient with InitializedBy.Individually | Parent should have public constructors");
 
-            // primary constructor should set the pipeline, options, and endpoint
+            // Primary public constructor should have auth credential param and chain to internal via this(...)
             var primaryConstructor = publicConstructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null);
-            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor");
-            StringAssert.Contains(
-                "options ??= new global::Sample.ParentClientOptions();",
-                primaryConstructor!.BodyStatements!.ToDisplayString(),
-                "Primary constructor should null coalesce options parameter");
-            StringAssert.Contains(
-                "Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.SubClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());",
-                primaryConstructor.BodyStatements!.ToDisplayString(),
-                "Primary constructor should set the Pipeline property");
+                c => c.Signature?.Parameters.Any(p => p.Name == "options") == true && c.Signature?.Initializer != null);
+            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor with initializer");
 
-            // Should also have internal constructor
-            var internalConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
-            Assert.IsNotNull(internalConstructor, "SubClient with InitializedBy.Individually | Parent should have internal constructor");
+            // Should also have internal constructors (sub-client internal + AuthenticationPolicy internal)
+            var internalConstructors = constructors.Where(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal).ToList();
+            Assert.IsTrue(internalConstructors.Count > 0, "SubClient with InitializedBy.Individually | Parent should have internal constructor");
+
+            // Should have a Settings constructor
+            Assert.IsNotNull(clientProvider.ClientSettings, "SubClient with InitializedBy.Individually | Parent should have ClientSettings");
+            var settingsConstructor = publicConstructors.FirstOrDefault(
+                c => c.Signature?.Parameters.Count == 1 && c.Signature.Parameters[0].Name == "settings");
+            Assert.IsNotNull(settingsConstructor, "SubClient with InitializedBy.Individually | Parent should have Settings constructor");
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);

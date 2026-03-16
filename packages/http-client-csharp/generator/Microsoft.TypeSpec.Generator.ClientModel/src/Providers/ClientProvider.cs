@@ -105,7 +105,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
-            ClientSettings = ClientOptions != null ? new ClientSettingsProvider(_inputClient, this) : null;
+            // Create ClientSettings for any client that can be independently constructed:
+            // root clients (Parent is null) and sub-clients with InitializedBy.Individually.
+            bool canBeIndividuallyInitialized = _inputClient.Parent != null &&
+                (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
+            ClientSettings = (ClientOptions != null || canBeIndividuallyInitialized)
+                ? new ClientSettingsProvider(_inputClient, this)
+                : null;
             IsMultiServiceClient = _inputClient.IsMultiServiceClient;
 
             var apiKey = _inputAuth?.ApiKey;
@@ -132,8 +138,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         this,
                         initializationValue: Literal(apiKey.Prefix)) :
                     null;
-                // skip auth fields for sub-clients
-                _apiKeyAuthFields = ClientOptions is null ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
+                // Enable auth fields for root clients and individually-initialized sub-clients
+                _apiKeyAuthFields = (ClientOptions is null && !canBeIndividuallyInitialized) ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
             }
 
             var tokenAuth = _inputAuth?.OAuth2;
@@ -157,8 +163,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 var tokenCredentialScopesField = BuildTokenCredentialScopesField(tokenAuth, tokenCredentialType);
 
-                // skip auth fields for sub-clients
-                _oauth2Fields = ClientOptions is null ? null : new(tokenCredentialField, tokenCredentialScopesField);
+                // Enable auth fields for root clients and individually-initialized sub-clients
+                _oauth2Fields = (ClientOptions is null && !canBeIndividuallyInitialized) ? null : new(tokenCredentialField, tokenCredentialScopesField);
             }
             EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
@@ -299,14 +305,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 PipelineProperty.AsParameter
             };
 
-            if (_apiKeyAuthFields != null)
-            {
-                subClientParameters.Add(_apiKeyAuthFields.AuthField.AsParameter);
-            }
-            if (_oauth2Fields != null)
-            {
-                subClientParameters.Add(_oauth2Fields.AuthField.AsParameter);
-            }
+            // Auth credentials are NOT included here — the parent passes its authenticated
+            // pipeline, so the sub-client doesn't need separate credential parameters.
             subClientParameters.Add(_endpointParameter);
             subClientParameters.AddRange(ClientParameters);
 
@@ -383,6 +383,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
         public ClientOptionsProvider? ClientOptions { get; }
         public ClientSettingsProvider? ClientSettings { get; }
+
+        /// <summary>
+        /// Gets the effective <see cref="ClientOptionsProvider"/> — the client's own options for root clients,
+        /// or the root client's options for individually-initialized sub-clients.
+        /// </summary>
+        internal ClientOptionsProvider? EffectiveClientOptions => ClientOptions ?? GetRootClient()?.ClientOptions;
 
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
@@ -685,6 +691,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 yield break;
             }
 
+            // Only publicly constructible clients should get the Settings constructor.
+            // Internal clients (e.g., those made internal via custom code) cannot be
+            // constructed by consumers, so a public Settings constructor is not useful.
+            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            {
+                yield break;
+            }
+
             var settingsParam = new ParameterProvider(SettingsParamName, $"The settings for {Name}.", ClientSettings.Type);
             var experimentalAttr = new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ClientSettingsProvider.ClientSettingsDiagnosticId)]);
 
@@ -732,64 +746,114 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private void AppendSubClientPublicConstructors(List<ConstructorProvider> constructors)
         {
             // For sub-clients that can be initialized individually, we need to create public constructors
-            // similar to the root client constructors but adapted for sub-client needs
+            // with the same auth pattern as the root client.
             var primaryConstructors = new List<ConstructorProvider>();
             var secondaryConstructors = new List<ConstructorProvider>();
 
-            // if there is key auth
+            var rootClient = GetRootClient();
+            var clientOptionsParameter = rootClient?.ClientOptionsParameter;
+            var clientOptionsProvider = rootClient?.ClientOptions;
+
+            if (clientOptionsParameter == null || clientOptionsProvider == null)
+            {
+                return;
+            }
+
+            // Add the internal AuthenticationPolicy constructor first — public constructors chain to it.
+            var authPolicyParam = new ParameterProvider(
+                "authenticationPolicy",
+                $"The authentication policy to use for pipeline creation.",
+                new CSharpType(typeof(AuthenticationPolicy), isNullable: true));
+
+            var requiredNonAuthParams = GetRequiredParameters(null);
+            ParameterProvider[] internalConstructorParameters = [authPolicyParam, _endpointParameter, .. requiredNonAuthParams, clientOptionsParameter];
+
+            var internalConstructor = new ConstructorProvider(
+                new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
+                BuildPrimaryConstructorBody(internalConstructorParameters, null, authPolicyParam, clientOptionsProvider, clientOptionsParameter, addExplicitValidation: true),
+                this);
+            primaryConstructors.Add(internalConstructor);
+
+            // Add public constructors with auth — same pattern as root client
             if (_apiKeyAuthFields != null)
             {
                 AppendSubClientPublicConstructorsForAuth(_apiKeyAuthFields, primaryConstructors, secondaryConstructors);
             }
-            // if there is oauth2 auth
             if (_oauth2Fields != null)
             {
                 AppendSubClientPublicConstructorsForAuth(_oauth2Fields, primaryConstructors, secondaryConstructors);
             }
 
-            // if there is no auth
+            bool onlyContainsUnsupportedAuth = _inputAuth != null && _apiKeyAuthFields == null && _oauth2Fields == null;
             if (_apiKeyAuthFields == null && _oauth2Fields == null)
             {
-                AppendSubClientPublicConstructorsForAuth(null, primaryConstructors, secondaryConstructors);
+                AppendSubClientPublicConstructorsForAuth(null, primaryConstructors, secondaryConstructors, onlyContainsUnsupportedAuth);
+            }
+
+            var shouldIncludeMockingConstructor = !onlyContainsUnsupportedAuth && secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
+            if (shouldIncludeMockingConstructor)
+            {
+                // Add a mocking constructor only if all secondary constructors require parameters
+                // (This is already handled by BuildConstructors for the overall constructor list,
+                // but we need to account for it when the mocking constructor comes from the sub-client path)
             }
 
             constructors.AddRange(secondaryConstructors);
             constructors.AddRange(primaryConstructors);
 
+            // Add Settings constructor for individually-initialized sub-clients
+            foreach (var settingsConstructor in BuildSettingsConstructors())
+            {
+                constructors.Add(settingsConstructor);
+            }
+
             void AppendSubClientPublicConstructorsForAuth(
                 AuthFields? authFields,
                 List<ConstructorProvider> primaryConstructors,
-                List<ConstructorProvider> secondaryConstructors)
+                List<ConstructorProvider> secondaryConstructors,
+                bool onlyContainsUnsupportedAuth = false)
             {
-                // For a sub-client with individual initialization, we need:
-                // - endpoint parameter
-                // - auth parameter (if auth exists)
-                // - client options parameter (we need to get this from the root client)
-                var rootClient = GetRootClient();
-                var clientOptionsParameter = rootClient?.ClientOptionsParameter;
-                var clientOptionsProvider = rootClient?.ClientOptions;
-                if (clientOptionsParameter == null || clientOptionsProvider == null)
-                {
-                    // Cannot create public constructor without client options
-                    return;
-                }
-
+                // Public constructor with credential parameter — delegates to the internal constructor via this(...).
                 var requiredParameters = GetRequiredParameters(authFields?.AuthField);
                 ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, clientOptionsParameter];
-                var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
-                    BuildPrimaryConstructorBody(primaryConstructorParameters, authFields, null, clientOptionsProvider, clientOptionsParameter),
-                    this);
+                var constructorModifier = onlyContainsUnsupportedAuth ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
 
+                // Build the auth policy expression for the this() initializer
+                ValueExpression authPolicyArg = BuildAuthPolicyArgument(authFields, requiredParameters);
+                var initializerArgs = new List<ValueExpression> { authPolicyArg, _endpointParameter };
+                string? authParamName = authFields != null
+                    ? (authFields.AuthField.Name != TokenProviderFieldName ? CredentialParamName : authFields.AuthField.AsParameter.Name)
+                    : null;
+                foreach (var p in requiredParameters)
+                {
+                    if (authParamName == null || p.Name != authParamName)
+                        initializerArgs.Add(p);
+                }
+                initializerArgs.Add(clientOptionsParameter!);
+
+                var primaryConstructor = new ConstructorProvider(
+                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters,
+                        initializer: new ConstructorInitializer(false, initializerArgs)),
+                    MethodBodyStatement.Empty,
+                    this);
                 primaryConstructors.Add(primaryConstructor);
 
                 // If the endpoint parameter contains an initialization value, it is not required.
                 ParameterProvider[] secondaryConstructorParameters = _endpointParameter.InitializationValue is null
                     ? [_endpointParameter, .. requiredParameters]
                     : [.. requiredParameters];
-                var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters, MethodSignatureModifiers.Public);
+                var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters, constructorModifier);
 
                 secondaryConstructors.Add(secondaryConstructor);
+
+                // When endpoint has a default value and there are required parameters,
+                // add an additional constructor that accepts required parameters + options.
+                if (_endpointParameter.InitializationValue is not null && requiredParameters.Count > 0)
+                {
+                    ParameterProvider[] simplifiedConstructorWithOptionsParameters = [.. requiredParameters, clientOptionsParameter];
+                    var simplifiedConstructorWithOptions = BuildSecondaryConstructor(simplifiedConstructorWithOptionsParameters, primaryConstructorParameters, constructorModifier);
+                    secondaryConstructors.Add(simplifiedConstructorWithOptions);
+                }
             }
         }
 
@@ -916,7 +980,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ValueExpression perRetryPolicies;
-            if (authPolicyParam != null && authFields != null)
+            if (authPolicyParam != null)
             {
                 // Internal implementation constructor: use the authenticationPolicy parameter directly
                 perRetryPoliciesList.Add(authPolicyParam);
