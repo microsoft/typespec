@@ -90,7 +90,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
         if (priority == null) {
             return Mono.error(new IllegalArgumentException("Parameter priority is required and cannot be null."));
         }
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.setPriority(this.client.getEndpoint(), priority, accept, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
@@ -131,7 +131,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter priority is required and cannot be null."));
         }
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return service.setPrioritySync(this.client.getEndpoint(), priority, accept, context);
     }
 

@@ -32,12 +32,10 @@ namespace SampleTypeSpec
             }
         };
         private readonly string _apiVersion;
-        private readonly string _metricsNamespace;
         private AnimalOperations _cachedAnimalOperations;
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
         private PlantOperations _cachedPlantOperations;
-        private Metrics _cachedMetrics;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -46,41 +44,33 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="metricsNamespace"></param>
         /// <param name="credential"> A credential used to authenticate to the service. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="credential"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public SampleTypeSpecClient(Uri endpoint, string metricsNamespace, ApiKeyCredential credential) : this(endpoint, metricsNamespace, credential, new SampleTypeSpecClientOptions())
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential) : this(endpoint, credential, new SampleTypeSpecClientOptions())
         {
         }
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="metricsNamespace"></param>
         /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="tokenProvider"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public SampleTypeSpecClient(Uri endpoint, string metricsNamespace, AuthenticationTokenProvider tokenProvider) : this(endpoint, metricsNamespace, tokenProvider, new SampleTypeSpecClientOptions())
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="tokenProvider"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, AuthenticationTokenProvider tokenProvider) : this(endpoint, tokenProvider, new SampleTypeSpecClientOptions())
         {
         }
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="metricsNamespace"></param>
         /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="credential"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public SampleTypeSpecClient(Uri endpoint, string metricsNamespace, ApiKeyCredential credential, SampleTypeSpecClientOptions options)
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNullOrEmpty(metricsNamespace, nameof(metricsNamespace));
             Argument.AssertNotNull(credential, nameof(credential));
 
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            _metricsNamespace = metricsNamespace;
             _keyCredential = credential;
             Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
             _apiVersion = options.Version;
@@ -88,21 +78,17 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="metricsNamespace"></param>
         /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/>, <paramref name="metricsNamespace"/> or <paramref name="tokenProvider"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="metricsNamespace"/> is an empty string, and was expected to be non-empty. </exception>
-        public SampleTypeSpecClient(Uri endpoint, string metricsNamespace, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options)
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="tokenProvider"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNullOrEmpty(metricsNamespace, nameof(metricsNamespace));
             Argument.AssertNotNull(tokenProvider, nameof(tokenProvider));
 
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            _metricsNamespace = metricsNamespace;
             _tokenProvider = tokenProvider;
             Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), new BearerTokenPolicy(_tokenProvider, _flows) }, Array.Empty<PipelinePolicy>());
             _apiVersion = options.Version;
@@ -3328,9 +3314,13 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Initializes a new instance of Metrics. </summary>
-        public virtual Metrics GetMetricsClient()
+        /// <param name="metricsNamespace"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="metricsNamespace"/> is null. </exception>
+        public virtual Metrics GetMetricsClient(string metricsNamespace)
         {
-            return Volatile.Read(ref _cachedMetrics) ?? Interlocked.CompareExchange(ref _cachedMetrics, new Metrics(Pipeline, _endpoint, _metricsNamespace), null) ?? _cachedMetrics;
+            Argument.AssertNotNull(metricsNamespace, nameof(metricsNamespace));
+
+            return new Metrics(Pipeline, _endpoint, metricsNamespace);
         }
     }
 }

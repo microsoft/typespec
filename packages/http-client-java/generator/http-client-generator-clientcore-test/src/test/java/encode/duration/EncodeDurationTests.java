@@ -10,9 +10,11 @@ import encode.duration.property.FloatMillisecondsDurationProperty;
 import encode.duration.property.FloatMillisecondsLargerUnitDurationProperty;
 import encode.duration.property.FloatSecondsDurationArrayProperty;
 import encode.duration.property.FloatSecondsDurationProperty;
+import encode.duration.property.FloatSecondsLargerUnitDurationProperty;
 import encode.duration.property.Int32MillisecondsDurationProperty;
 import encode.duration.property.Int32MillisecondsLargerUnitDurationProperty;
 import encode.duration.property.Int32SecondsDurationProperty;
+import encode.duration.property.Int32SecondsLargerUnitDurationProperty;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +45,11 @@ public class EncodeDurationTests {
 
         queryClient.int32Seconds(SECOND36);
 
+        queryClient.int32SecondsLargerUnit(Duration.ofMinutes(2));
+
 //        queryClient.iso8601(DAY40);
+
+        queryClient.floatSecondsLargerUnit(Duration.ofMinutes(2).plusSeconds(30));
 
         queryClient.int32SecondsArray(Arrays.asList(SECOND36, Duration.ofSeconds(47)));
 
@@ -71,9 +77,13 @@ public class EncodeDurationTests {
 
         headerClient.int32Seconds(SECOND36);
 
+        headerClient.int32SecondsLargerUnit(Duration.ofMinutes(2));
+
 //        headerClient.iso8601(DAY40);
 
 //        headerClient.iso8601Array(Arrays.asList(DAY40, Duration.ofDays(50)));
+
+        headerClient.floatSecondsLargerUnit(Duration.ofMinutes(2).plusSeconds(30));
 
         headerClient.int32Milliseconds(MILLIS36000);
 
@@ -101,6 +111,16 @@ public class EncodeDurationTests {
 
         Assertions.assertEquals(SECOND36,
             propertyClient.int32Seconds(new Int32SecondsDurationProperty(SECOND36)).getValue());
+
+        Assertions.assertEquals(Duration.ofMinutes(2),
+            propertyClient.int32SecondsLargerUnit(new Int32SecondsLargerUnitDurationProperty(Duration.ofMinutes(2)))
+                .getValue());
+
+        Assertions.assertEquals(Duration.ofMinutes(2).plusSeconds(30),
+            propertyClient
+                .floatSecondsLargerUnit(
+                    new FloatSecondsLargerUnitDurationProperty(Duration.ofMinutes(2).plusSeconds(30)))
+                .getValue());
 
 //        propertyClient.iso8601(new ISO8601DurationProperty(DAY40));
 

@@ -24,7 +24,7 @@ namespace Sample
         {
         }
 
-        public TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options)
+        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Sample.TestClientOptions options)
         {
             global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
 
@@ -34,6 +34,10 @@ namespace Sample
             Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             _serviceAApiVersion = options.ServiceAApiVersion;
             _serviceBApiVersion = options.ServiceBApiVersion;
+        }
+
+        public TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)
+        {
         }
 
         public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }

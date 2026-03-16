@@ -639,7 +639,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool generateConvenienceMethod = true,
             string? ns = null)
         {
-            return new InputOperation(
+            var operation = new InputOperation(
                 name,
                 null,
                 "",
@@ -658,6 +658,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 generateConvenienceMethod,
                 name,
                 ns);
+            operation.OriginalName = name;
+            return operation;
         }
 
         public static InputPagingServiceMetadata NextLinkPagingMetadata(

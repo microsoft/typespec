@@ -88,7 +88,6 @@ export function createTypeSpecLibrary<
       if (!emitterOptionValidator && lib.emitter?.options) {
         emitterOptionValidator = createJSONSchemaValidator<E>(lib.emitter.options, {
           coerceTypes: true,
-          useDefaults: true,
         });
       }
       return emitterOptionValidator;
