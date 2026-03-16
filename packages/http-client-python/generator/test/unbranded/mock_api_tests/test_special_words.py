@@ -7,6 +7,7 @@ import pytest
 from specialwords import SpecialWordsClient
 from specialwords.models import models
 from specialwords.modelproperties import models as model_properties_models
+from specialwords.extensiblestrings import models as extensible_strings_models
 
 
 @pytest.fixture
@@ -58,3 +59,8 @@ def test_model_properties_dict_methods(client: SpecialWordsClient):
 
 def test_model_properties_with_list(client: SpecialWordsClient):
     client.model_properties.with_list(model_properties_models.ModelWithList(list="ok"))
+
+
+def test_extensible_strings(client: SpecialWordsClient):
+    for enum_value in extensible_strings_models.ExtensibleString:
+        assert enum_value == client.extensible_strings.put_extensible_string_value(body=enum_value)
