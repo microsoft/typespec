@@ -975,21 +975,18 @@ Store:
 </TabItem>
 </Tabs>
 
-
 ## 5. Attributes
 
-### 5.1 — XML attributes and element name override
+### 5.1 — Serializing a property as an XML attribute
 
-`@Xml.attribute` serializes a property as an XML attribute instead of a child element. `@Xml.name` overrides the XML element name.
+`@Xml.attribute` serializes a property as an XML attribute instead of a child element.
 
 ```tsp
 model Book {
   @Xml.attribute
   id: integer;
 
-  @Xml.name("xml-title")
   title: string;
-
   author: string;
 }
 ```
@@ -999,7 +996,7 @@ model Book {
 
 ```xml
 <Book id="0">
-  <xml-title>The Great Gatsby</xml-title>
+  <title>The Great Gatsby</title>
   <author>F. Scott Fitzgerald</author>
 </Book>
 ```
@@ -1017,8 +1014,72 @@ Book:
         attribute: true
     title:
       type: string
+    author:
+      type: string
+```
+
+</TabItem>
+</Tabs>
+
+### 5.2 — Renaming an XML attribute
+
+`@Xml.name` or `@encodedName` on an `@Xml.attribute` property changes the attribute name in the XML output.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+model Book {
+  @Xml.attribute
+  @Xml.name("xml-id")
+  id: integer;
+
+  title: string;
+  author: string;
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+model Book {
+  @Xml.attribute
+  @encodedName("application/xml", "xml-id")
+  id: integer;
+
+  title: string;
+  author: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Book xml-id="0">
+  <title>The Great Gatsby</title>
+  <author>F. Scott Fitzgerald</author>
+</Book>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: object
+  properties:
+    id:
+      type: integer
       xml:
-        name: "xml-title"
+        attribute: true
+        name: "xml-id"
+    title:
+      type: string
     author:
       type: string
 ```
