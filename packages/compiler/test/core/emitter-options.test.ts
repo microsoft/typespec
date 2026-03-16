@@ -20,6 +20,22 @@ const fakeEmitter = createTypeSpecLibrary({
   },
 });
 
+const fakeEmitterWithDefaults = createTypeSpecLibrary({
+  name: "fake-emitter-defaults",
+  diagnostics: {},
+  emitter: {
+    options: {
+      type: "object",
+      properties: {
+        "target-name": { type: "string", nullable: true, default: "defaultTarget" },
+        "max-files": { type: "number", nullable: true, default: 10 },
+        verbose: { type: "boolean", nullable: true, default: false },
+      },
+      additionalProperties: false,
+    },
+  },
+});
+
 describe("compiler: emitter options", () => {
   async function runWithEmitterOptions(
     options: Record<string, unknown>,
@@ -125,6 +141,66 @@ describe("compiler: emitter options", () => {
         code: "path-unix-style",
         message: `Path should use unix style separators. Use "/" instead of "\\".`,
       });
+    });
+  });
+
+  describe("schema defaults", () => {
+    async function runWithDefaultsEmitter(
+      options: Record<string, unknown>,
+    ): Promise<[EmitContext | undefined, readonly Diagnostic[]]> {
+      let emitContext: EmitContext | undefined;
+      const diagnostics = await Tester.files({
+        "node_modules/fake-emitter-defaults/package.json": JSON.stringify({
+          main: "index.js",
+        }),
+        "node_modules/fake-emitter-defaults/index.js": mockFile.js({
+          $lib: fakeEmitterWithDefaults,
+          $onEmit: (ctx: EmitContext) => {
+            emitContext = ctx;
+          },
+        }),
+      }).diagnose("", {
+        compilerOptions: {
+          emit: ["fake-emitter-defaults"],
+          options: {
+            "fake-emitter-defaults": options,
+          },
+        },
+      });
+      return [emitContext, diagnostics];
+    }
+
+    it("applies default values from schema when options are not provided", async () => {
+      const [context, diagnostics] = await runWithDefaultsEmitter({});
+      expectDiagnosticEmpty(diagnostics);
+      ok(context, "Emit context should have been set.");
+      strictEqual(context.options["target-name"], "defaultTarget");
+      strictEqual(context.options["max-files"], 10);
+      strictEqual(context.options["verbose"], false);
+    });
+
+    it("user-provided values override defaults", async () => {
+      const [context, diagnostics] = await runWithDefaultsEmitter({
+        "target-name": "custom",
+        "max-files": 20,
+        verbose: true,
+      });
+      expectDiagnosticEmpty(diagnostics);
+      ok(context, "Emit context should have been set.");
+      strictEqual(context.options["target-name"], "custom");
+      strictEqual(context.options["max-files"], 20);
+      strictEqual(context.options["verbose"], true);
+    });
+
+    it("applies defaults only for missing options", async () => {
+      const [context, diagnostics] = await runWithDefaultsEmitter({
+        "target-name": "custom",
+      });
+      expectDiagnosticEmpty(diagnostics);
+      ok(context, "Emit context should have been set.");
+      strictEqual(context.options["target-name"], "custom");
+      strictEqual(context.options["max-files"], 10);
+      strictEqual(context.options["verbose"], false);
     });
   });
 });
