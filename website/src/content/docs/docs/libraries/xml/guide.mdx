@@ -2,9 +2,11 @@
 title: Guide
 ---
 
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
 ## Default encoding of scalars
 
-As in Json we have some [default handling](https://typespec.io/docs/libraries/http/encoding#bytes) of the common scalars like `utcDateTime`
+As in JSON, there is some [default handling](https://typespec.io/docs/libraries/http/encoding#bytes) of the common scalars like `utcDateTime`:
 
 | Scalar Type      | Default Encoding  | Encoding name                           |
 | ---------------- | ----------------- | --------------------------------------- |
@@ -15,40 +17,31 @@ As in Json we have some [default handling](https://typespec.io/docs/libraries/ht
 | `duration`       | `xs:duration`     | `TypeSpec.Xml.Encoding.xmlDuration`     |
 | `bytes`          | `xs:base64Binary` | `TypeSpec.Xml.Encoding.xmlBase64Binary` |
 
-## Examples
+## 1. Array of primitive types
 
-### 1. Array of primitive types
+### 1.1 — Unwrapped primitive array
 
-<table>
-<tr>
-  <td>TypeSpec</td>
-  <td>Xml</td>
-  <td>OpenAPI3</td>
-</tr>
-<!-- ---------------------------------------------------  SCENARIO 1.1  ----------------------------------------------------------- -->
-<tr>
-<td>
+Each element is serialized using the property name as its XML element name. `@Xml.unwrapped` prevents wrapping in a container element.
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
 model Pet {
   @Xml.unwrapped
   tags: string[];
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<XmlPet>
+<Pet>
   <tags>abc</tags>
   <tags>def</tags>
-</XmlPet>
+</Pet>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Pet:
@@ -60,39 +53,36 @@ Pet:
         type: string
         xml:
           name: tags
-  xml:
-    name: "XmlPet"
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- --------------------------------------------------  SCENARIO 1.2 ------------------------------------------------------------ -->
-<tr>
-<td>
+### 1.2 — Wrapped primitive array with custom wrapper name
+
+Without `@Xml.unwrapped`, the array is wrapped in a container element. `@encodedName` on the property customizes the wrapper element name.
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
 model Pet {
   @encodedName("application/xml", "ItemsTags")
   tags: string[];
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<XmlPet>
+<Pet>
   <ItemsTags>
     <string>abc</string>
     <string>def</string>
   </ItemsTags>
-</XmlPet>
+</Pet>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Pet:
@@ -107,40 +97,37 @@ Pet:
         type: string
         xml:
           name: string
-  xml:
-    name: "XmlPet"
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- ----------------------------------------------------  SCENARIO 1.3 ---------------------------------------------------------- -->
-<tr>
-<td>
+### 1.3 — Unwrapped primitive array with custom item name
+
+Using `@encodedName` on a named scalar controls the element name of each item.
 
 ```tsp
 @encodedName("application/xml", "ItemsName")
 scalar tag extends string;
 
-@encodedName("application/xml", "XmlPet")
 model Pet {
   @Xml.unwrapped
   tags: tag[];
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<XmlPet>
+<Pet>
   <ItemsName>abc</ItemsName>
   <ItemsName>def</ItemsName>
-</XmlPet>
+</Pet>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Pet:
@@ -152,42 +139,39 @@ Pet:
         type: string
         xml:
           name: tags
-  xml:
-    name: "XmlPet"
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- ----------------------------------------------------  SCENARIO 1.4 ---------------------------------------------------------- -->
-<tr>
-<td>
+### 1.4 — Wrapped primitive array with custom wrapper and item names
+
+Both the wrapper element and each item element have custom names via `@encodedName`.
 
 ```tsp
 @encodedName("application/xml", "ItemsName")
 scalar tag extends string;
 
-@encodedName("application/xml", "XmlPet")
 model Pet {
   @encodedName("application/xml", "ItemsTags")
   tags: tag[];
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<XmlPet>
+<Pet>
   <ItemsTags>
     <ItemsName>abc</ItemsName>
     <ItemsName>def</ItemsName>
   </ItemsTags>
-</XmlPet>
+</Pet>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Pet:
@@ -202,30 +186,18 @@ Pet:
         type: string
         xml:
           name: ItemsName
-  xml:
-    name: "XmlPet"
 ```
 
-</td>
-</tr>
-<!-- -------------------------------------------------------------------------------------------------------------- -->
+</TabItem>
+</Tabs>
 
-</table>
+## 2. Complex array types
 
-### 2. Complex array types
+### 2.1 — Unwrapped array of models
 
-<table>
-<tr>
-  <td>TypeSpec</td>
-  <td>Xml</td>
-  <td>OpenAPI3</td>
-</tr>
-<!-- ---------------------------------------------------  SCENARIO 2.1  ----------------------------------------------------------- -->
-<tr>
-<td>
+Each model item uses its model's XML name (`XmlTag`) when the array is unwrapped.
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
 model Pet {
   @Xml.unwrapped
   tags: Tag[];
@@ -237,19 +209,19 @@ model Tag {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<XmlPet>
+<Pet>
   <XmlTag>
     <name>string</name>
   </XmlTag>
-</XmlPet>
+</Pet>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Tag:
@@ -269,19 +241,16 @@ Pet:
           - $ref: "#/definitions/Tag"
         xml:
           name: tags
-  xml:
-    name: "XmlPet"
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- --------------------------------------------------  SCENARIO 2.2 ------------------------------------------------------------ -->
-<tr>
-<td>
+### 2.2 — Wrapped array of models (default)
+
+Without `@Xml.unwrapped`, the array is wrapped in a container element named after the property.
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
 model Pet {
   tags: Tag[];
 }
@@ -292,19 +261,21 @@ model Tag {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<XmlPet>
-  <XmlTag>
-    <name>string</name>
-  </XmlTag>
-</XmlPet>
+<Pet>
+  <tags>
+    <XmlTag>
+      <name>string</name>
+    </XmlTag>
+  </tags>
+</Pet>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Tag:
@@ -326,19 +297,16 @@ Pet:
           name: XmlTag
       xml:
         wrapped: true
-  xml:
-    name: XmlPet
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- ----------------------------------------------------  SCENARIO 2.3 ---------------------------------------------------------- -->
-<tr>
-<td>
+### 2.3 — Unwrapped array of models with custom item name
+
+Using `@encodedName` on the property overrides each item's element name, taking precedence over the model's XML name.
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
 model Pet {
   @encodedName("application/xml", "ItemsTag")
   @Xml.unwrapped
@@ -351,19 +319,19 @@ model Tag {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<XmlPet>
+<Pet>
   <ItemsTag>
     <name>string</name>
   </ItemsTag>
-</XmlPet>
+</Pet>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Tag:
@@ -383,19 +351,16 @@ Pet:
           - $ref: "#/definitions/Tag"
         xml:
           name: ItemsTag
-  xml:
-    name: "XmlPet"
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- ----------------------------------------------------  SCENARIO 2.4 ---------------------------------------------------------- -->
-<tr>
-<td>
+### 2.4 — Wrapped array of models with custom wrapper name
+
+The wrapper element has a custom name via `@encodedName`; items use the model's XML name.
 
 ```tsp
-@encodedName("application/xml", "XmlPet")
 model Pet {
   @encodedName("application/xml", "ItemsTags")
   tags: Tag[];
@@ -407,21 +372,21 @@ model Tag {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<XmlPet>
+<Pet>
   <ItemsTags>
     <XmlTag>
       <name>string</name>
     </XmlTag>
   </ItemsTags>
-</XmlPet>
+</Pet>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Tag:
@@ -444,28 +409,16 @@ Pet:
           - $ref: "#/definitions/Tag"
         xml:
           name: XmlTag
-  xml:
-    name: "XmlPet"
 ```
 
-</td>
-</tr>
-<!-- -------------------------------------------------------------------------------------------------------------- -->
+</TabItem>
+</Tabs>
 
-</table>
+## 3. Nested models
 
-### 3. Nested models
+### 3.1 — Basic nested model
 
-<table>
-<tr>
-  
-  <td>TypeSpec</td>
-  <td>Xml</td>
-  <td>OpenAPI3</td>
-</tr>
-<!-- ---------------------------------------------------  SCENARIO 3.1  ----------------------------------------------------------- -->
-<tr>
-<td>
+A property referencing another model is serialized as a nested XML element using the property name.
 
 ```tsp
 model Book {
@@ -477,8 +430,8 @@ model Author {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
 <Book>
@@ -488,8 +441,8 @@ model Author {
 </Book>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Book:
@@ -504,12 +457,12 @@ Author:
       type: string
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- ---------------------------------------------------  SCENARIO 3.2  ----------------------------------------------------------- -->
-<tr>
-<td>
+### 3.2 — Nested model with custom XML name on the model
+
+When the referenced model has `@encodedName`, the property name still takes precedence for the XML element name.
 
 ```tsp
 model Book {
@@ -522,8 +475,8 @@ model Author {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
 <Book>
@@ -533,8 +486,8 @@ model Author {
 </Book>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Book:
@@ -554,12 +507,12 @@ Author:
     name: "XmlAuthor"
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- ---------------------------------------------------  SCENARIO 3.3  ----------------------------------------------------------- -->
-<tr>
-<td>
+### 3.3 — Nested model with custom XML name on the property
+
+Using `@encodedName` on the property overrides the element name for the nested model.
 
 ```tsp
 model Book {
@@ -572,8 +525,8 @@ model Author {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
 <Book>
@@ -583,8 +536,8 @@ model Author {
 </Book>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Book:
@@ -602,25 +555,14 @@ Author:
       type: string
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- -------------------------------------------------------------------------------------------------------------- -->
+## 4. Attributes
 
-</table>
+### 4.1 — XML attributes and element name override
 
-### 4. Attributes
-
-<table>
-<tr>
-  
-  <td>TypeSpec</td>
-  <td>Xml</td>
-  <td>OpenAPI3</td>
-</tr>
-<!-- ---------------------------------------------------  SCENARIO 4.1  ----------------------------------------------------------- -->
-<tr>
-<td>
+`@Xml.attribute` serializes a property as an XML attribute instead of a child element. `@Xml.name` overrides the XML element name.
 
 ```tsp
 model Book {
@@ -634,8 +576,8 @@ model Book {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
 <Book id="0">
@@ -644,8 +586,8 @@ model Book {
 </Book>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Book:
@@ -663,25 +605,14 @@ Book:
       type: string
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- -------------------------------------------------------------------------------------------------------------- -->
+## 5. Namespace and prefix (inline form)
 
-</table>
+### 5.1 — Namespace on the model
 
-### 5. Namespace and prefix (inline form)
-
-<table>
-<tr>
-  
-  <td>TypeSpec</td>
-  <td>Xml</td>
-  <td>OpenAPI3</td>
-</tr>
-<!-- ---------------------------------------------------  SCENARIO 5.1  ----------------------------------------------------------- -->
-<tr>
-<td>
+`@Xml.ns` on a model adds a namespace prefix and declaration to the root element.
 
 ```tsp
 @Xml.ns("http://example.com/schema", "smp")
@@ -692,8 +623,8 @@ model Book {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
 <smp:Book xmlns:smp="http://example.com/schema">
@@ -703,8 +634,8 @@ model Book {
 </smp:Book>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Book:
@@ -721,12 +652,12 @@ Book:
     namespace: "http://example.com/schema"
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- ---------------------------------------------------  SCENARIO 5.2  ----------------------------------------------------------- -->
-<tr>
-<td>
+### 5.2 — Namespace on individual properties
+
+Properties can declare their own namespace with `@Xml.ns`, which may differ from the model's namespace.
 
 ```tsp
 @Xml.ns("http://example.com/schema", "smp")
@@ -741,19 +672,19 @@ model Book {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<smp:Book xmlns:smp="http://example.com/schema" xmlns:sn2="http://example.com/ns2">
+<smp:Book xmlns:smp="http://example.com/schema" xmlns:ns2="http://example.com/ns2">
   <id>0</id>
   <smp:title>string</smp:title>
   <ns2:author>string</ns2:author>
 </smp:Book>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Book:
@@ -763,7 +694,7 @@ Book:
       type: integer
     title:
       type: string
-       xml:
+      xml:
         prefix: "smp"
         namespace: "http://example.com/schema"
     author:
@@ -776,25 +707,14 @@ Book:
     namespace: "http://example.com/schema"
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- -------------------------------------------------------------------------------------------------------------- -->
+## 6. Namespace and prefix (normalized form)
 
-</table>
+### 6.1 — Using an `@Xml.nsDeclarations` enum
 
-### 6. Namespace and prefix (normalized form)
-
-<table>
-<tr>
-  
-  <td>TypeSpec</td>
-  <td>Xml</td>
-  <td>OpenAPI3</td>
-</tr>
-<!-- ---------------------------------------------------  SCENARIO 6.1  ----------------------------------------------------------- -->
-<tr>
-<td>
+Declare namespaces in an enum to avoid repeating URIs. Reference enum members with `@Xml.ns`.
 
 ```tsp
 @Xml.nsDeclarations
@@ -810,8 +730,8 @@ model Book {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
 <smp:Book xmlns:smp="http://example.com/schema">
@@ -821,8 +741,8 @@ model Book {
 </smp:Book>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Book:
@@ -843,12 +763,12 @@ Namespaces:
     - http://example.com/schema
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- ---------------------------------------------------  SCENARIO 6.2  ----------------------------------------------------------- -->
-<tr>
-<td>
+### 6.2 — Multiple namespaces via enum
+
+Multiple namespace declarations can be defined in a single enum and referenced on individual properties.
 
 ```tsp
 @Xml.nsDeclarations
@@ -869,19 +789,19 @@ model Book {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
-<smp:Book xmlns:smp="http://example.com/schema" xmlns:sn2="http://example.com/ns2">
+<smp:Book xmlns:smp="http://example.com/schema" xmlns:ns2="http://example.com/ns2">
   <id>0</id>
   <smp:title>string</smp:title>
   <ns2:author>string</ns2:author>
 </smp:Book>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
 Book:
@@ -891,7 +811,7 @@ Book:
       type: integer
     title:
       type: string
-       xml:
+      xml:
         prefix: "smp"
         namespace: "http://example.com/schema"
     author:
@@ -909,25 +829,14 @@ Namespaces:
     - http://example.com/ns2
 ```
 
-</td>
-</tr>
+</TabItem>
+</Tabs>
 
-<!-- -------------------------------------------------------------------------------------------------------------- -->
+## 7. Property setting the text of the node
 
-</table>
+### 7.1 — Text content with attributes
 
-### 6. Property setting the text of the node
-
-<table>
-<tr>
-  
-  <td>TypeSpec</td>
-  <td>Xml</td>
-  <td>OpenAPI3</td>
-</tr>
-<!-- ---------------------------------------------------  SCENARIO 6.1  ----------------------------------------------------------- -->
-<tr>
-<td>
+`@Xml.unwrapped` on a scalar property makes it the text content of the parent element. Combined with `@Xml.attribute`, you can model elements that have both attributes and inline text.
 
 ```tsp
 model BlobName {
@@ -936,20 +845,20 @@ model BlobName {
 }
 ```
 
-</td>
-<td>
+<Tabs>
+<TabItem label="XML">
 
 ```xml
 <BlobName language="abc">
   ...content...
-</smp:Book>
+</BlobName>
 ```
 
-</td>
-<td>
+</TabItem>
+<TabItem label="OpenAPI3">
 
 ```yaml
-Book:
+BlobName:
   type: object
   properties:
     language:
@@ -960,9 +869,5 @@ Book:
       type: string
 ```
 
-</td>
-</tr>
-
-<!-- -------------------------------------------------------------------------------------------------------------- -->
-
-</table>
+</TabItem>
+</Tabs>
