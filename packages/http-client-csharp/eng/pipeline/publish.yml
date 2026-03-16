@@ -152,6 +152,10 @@ extends:
                   npm install -g @azure-tools/typespec-client-generator-cli@latest
                 displayName: Install tsp-client
 
+              - pwsh: |
+                  npm install -g semver
+                displayName: Install semver
+
               - task: PowerShell@2
                 displayName: Update package.json with injected dependencies
                 inputs:

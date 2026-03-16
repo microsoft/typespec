@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Payload.Xml
 {
     public partial class XmlClientOptions : ClientPipelineOptions
     {
+        public XmlClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal XmlClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

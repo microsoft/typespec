@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Parameters.Spread
 {
     public partial class SpreadClientOptions : ClientPipelineOptions
     {
+        public SpreadClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal SpreadClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

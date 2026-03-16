@@ -34,15 +34,19 @@ export function getServiceApiVersions(
 ): Version[] | InconsistentVersions {
   // TODO: use client.apiVersions
 
+  const rawServices: Namespace | Namespace[] | undefined =
+    client.__raw.services ?? (client.__raw as any).service;
+  const serviceList = Array.isArray(rawServices) ? rawServices : rawServices ? [rawServices] : [];
+
   let apiVersions: Version[] | InconsistentVersions;
   // TCGC 0.63+ supports multiple api-version in a single client
-  if (Array.isArray(client.__raw.service)) {
+  if (serviceList.length > 1) {
     // here, we treat a versioned client with multiple service as client of mixed versions
     apiVersions = isSdkClientVersioned(client)
       ? InconsistentVersions.MixedVersions
       : InconsistentVersions.NotVersioned;
-  } else {
-    const serviceNamespace = client.__raw.service;
+  } else if (serviceList.length === 1) {
+    const serviceNamespace = serviceList[0];
     const versionedNamespace: Namespace | undefined = findVersionedNamespace(
       program,
       serviceNamespace,
@@ -54,6 +58,8 @@ export function getServiceApiVersions(
     } else {
       apiVersions = InconsistentVersions.NotVersioned;
     }
+  } else {
+    apiVersions = InconsistentVersions.NotVersioned;
   }
   return apiVersions;
 }
