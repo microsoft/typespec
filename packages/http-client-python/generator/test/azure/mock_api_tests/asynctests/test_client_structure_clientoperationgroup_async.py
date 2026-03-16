@@ -14,10 +14,10 @@ async def test_first_client_operations():
 
     await client.one()
 
-    await client.group3.two()
-    await client.group3.three()
+    await client.two()
+    await client.three()
 
-    await client.group4.four()
+    await client.four()
 
 
 @pytest.mark.asyncio
@@ -26,4 +26,4 @@ async def test_second_client_operations():
 
     await client.five()
 
-    await client.group5.six()
+    await client.six()
