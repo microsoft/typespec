@@ -26,7 +26,7 @@ export async function resolveBlogImagePath(
 
     // Find the post that matches either the slug or redirect_slug
     const post = posts.find(
-      (post) => post.data.slug === slug || post.data.redirect_slug === slug || post.slug === slug,
+      (post) => post.data.slug === slug || post.data.redirect_slug === slug || post.id === slug,
     );
 
     if (post) {

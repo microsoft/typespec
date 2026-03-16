@@ -34,13 +34,13 @@ export default defineConfig(({ mode }) => {
   );
 
   config.plugins!.push(
-    nodePolyfills({
-      include: [],
-      globals: {
-        Buffer: true,
-        process: "dev",
-      },
-    }),
+    // nodePolyfills({
+    //   include: [],
+    //   globals: {
+    //     Buffer: true,
+    //     process: "dev",
+    //   },
+    // }),
   );
 
   const prNumber = getPrNumber();
