@@ -1450,10 +1450,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<InputParameter> GetAllClientParameters()
         {
-            // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters
+            // Collect the names of parameters already declared on this client (e.g. from @clientInitialization).
+            var clientParamNames = _inputClient.Parameters
+                .Select(p => p.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters.
+            // When @paramAlias is used (via @clientInitialization), an operation parameter (e.g. "notebookName") may map
+            // to a client parameter (e.g. "notebook") via MethodParameterSegments or ParamAlias. Exclude such operation
+            // parameters since the client parameter supersedes them.
             var parameters = _inputClient.Parameters.Concat(
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
-                    .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
+                    .Where(p => p.Scope == InputParameterScope.Client)
+                    .Where(p => !IsSupersededByClientParameter(p, clientParamNames)))
+                .DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
 
             foreach (var subClient in _subClients.Value)
             {
@@ -1463,6 +1473,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return parameters;
+        }
+
+        /// <summary>
+        /// Determines whether an operation parameter is superseded by an existing client parameter.
+        /// This occurs when @paramAlias is used with @clientInitialization: the operation parameter
+        /// (e.g. "notebookName") maps to a client parameter (e.g. "notebook") and should not appear
+        /// as a separate constructor parameter.
+        /// </summary>
+        private static bool IsSupersededByClientParameter(InputParameter operationParam, HashSet<string> clientParamNames)
+        {
+            // Check via MethodParameterSegments: if the operation parameter's first segment references
+            // a client parameter, the operation parameter is superseded.
+            if (operationParam.MethodParameterSegments is { Count: > 0 } segments &&
+                clientParamNames.Contains(segments[0].Name))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private FieldProvider BuildTokenCredentialScopesField(InputOAuth2Auth oauth2Auth, CSharpType tokenCredentialType)
