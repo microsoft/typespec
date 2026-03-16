@@ -37,8 +37,8 @@ model Book {
 ```xml
 <Book>
   <id>0</id>
-  <title>string</title>
-  <author>string</author>
+  <title>The Great Gatsby</title>
+  <author>F. Scott Fitzgerald</author>
 </Book>
 ```
 
@@ -101,8 +101,8 @@ model Book {
 ```xml
 <Book>
   <id>0</id>
-  <book-title>string</book-title>
-  <author>string</author>
+  <book-title>The Great Gatsby</book-title>
+  <author>F. Scott Fitzgerald</author>
 </Book>
 ```
 
@@ -163,8 +163,8 @@ model Book {
 ```xml
 <XmlBook>
   <id>0</id>
-  <title>string</title>
-  <author>string</author>
+  <title>Les Miserables</title>
+  <author>Victor Hugo</author>
 </XmlBook>
 ```
 
@@ -206,8 +206,8 @@ model Book {
 ```xml
 <Book>
   <tags>
-    <string>abc</string>
-    <string>def</string>
+    <string>fiction</string>
+    <string>classic</string>
   </tags>
 </Book>
 ```
@@ -248,8 +248,8 @@ model Book {
 
 ```xml
 <Book>
-  <tags>abc</tags>
-  <tags>def</tags>
+  <tags>fiction</tags>
+  <tags>classic</tags>
 </Book>
 ```
 
@@ -304,8 +304,8 @@ model Book {
 ```xml
 <Book>
   <ItemsTags>
-    <string>abc</string>
-    <string>def</string>
+    <string>fiction</string>
+    <string>classic</string>
   </ItemsTags>
 </Book>
 ```
@@ -365,8 +365,8 @@ model Book {
 
 ```xml
 <Book>
-  <tag>abc</tag>
-  <tag>def</tag>
+  <tag>fiction</tag>
+  <tag>classic</tag>
 </Book>
 ```
 
@@ -427,8 +427,8 @@ model Book {
 ```xml
 <Book>
   <ItemsTags>
-    <ItemName>abc</ItemName>
-    <ItemName>def</ItemName>
+    <ItemName>fiction</ItemName>
+    <ItemName>classic</ItemName>
   </ItemsTags>
 </Book>
 ```
@@ -454,116 +454,21 @@ Book:
 </TabItem>
 </Tabs>
 
-## 3. Complex array types
+## 3. Array of complex types
 
-### 3.1 — Unwrapped array of models
+### 3.1 — Wrapped array of models (default)
 
-Each model item uses its model's XML name (`XmlBook`) when the array is unwrapped.
-
-<Tabs>
-<TabItem label="Using @Xml.name">
-
-```tsp
-model Store {
-  @Xml.unwrapped
-  books: Book[];
-}
-
-@Xml.name("XmlBook")
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-<TabItem label="Using @encodedName">
-
-```tsp
-model Store {
-  @Xml.unwrapped
-  books: Book[];
-}
-
-@encodedName("application/xml", "XmlBook")
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-</Tabs>
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Store>
-  <XmlBook>
-    <title>string</title>
-  </XmlBook>
-</Store>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    title:
-      type: "string"
-  xml:
-    name: "XmlBook"
-Store:
-  type: "object"
-  properties:
-    books:
-      type: "array"
-      items:
-        allOf:
-          - $ref: "#/definitions/Book"
-        xml:
-          name: books
-```
-
-</TabItem>
-</Tabs>
-
-### 3.2 — Wrapped array of models (default)
-
-Without `@Xml.unwrapped`, the array is wrapped in a container element named after the property.
-
-<Tabs>
-<TabItem label="Using @Xml.name">
+By default, an array of models is wrapped in a container element named after the property. Each item uses the model name as its element name.
 
 ```tsp
 model Store {
   books: Book[];
 }
 
-@Xml.name("XmlBook")
 model Book {
   title: string;
 }
 ```
-
-</TabItem>
-<TabItem label="Using @encodedName">
-
-```tsp
-model Store {
-  books: Book[];
-}
-
-@encodedName("application/xml", "XmlBook")
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-</Tabs>
 
 <Tabs>
 <TabItem label="XML">
@@ -571,9 +476,12 @@ model Book {
 ```xml
 <Store>
   <books>
-    <XmlBook>
-      <title>string</title>
-    </XmlBook>
+    <Book>
+      <title>The Great Gatsby</title>
+    </Book>
+    <Book>
+      <title>Les Miserables</title>
+    </Book>
   </books>
 </Store>
 ```
@@ -587,40 +495,234 @@ Book:
   properties:
     title:
       type: "string"
-  xml:
-    name: "XmlBook"
 Store:
-  type: object
+  type: "object"
   properties:
     books:
-      type: array
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Book"
+      xml:
+        wrapped: true
+```
+
+</TabItem>
+</Tabs>
+
+### 3.2 — Unwrapped array of models
+
+`@Xml.unwrapped` removes the wrapper element. Each item uses the property name as its element name.
+
+```tsp
+model Store {
+  @Xml.unwrapped
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Store>
+  <books>
+    <title>The Great Gatsby</title>
+  </books>
+  <books>
+    <title>Les Miserables</title>
+  </books>
+</Store>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    title:
+      type: "string"
+Store:
+  type: "object"
+  properties:
+    books:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Book"
+```
+
+</TabItem>
+</Tabs>
+
+### 3.3 — Wrapped array of models with custom wrapper name
+
+`@Xml.name` or `@encodedName` on the property customizes the wrapper element name.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+model Store {
+  @Xml.name("AllBooks")
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+model Store {
+  @encodedName("application/xml", "AllBooks")
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Store>
+  <AllBooks>
+    <Book>
+      <title>The Great Gatsby</title>
+    </Book>
+    <Book>
+      <title>Les Miserables</title>
+    </Book>
+  </AllBooks>
+</Store>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    title:
+      type: "string"
+Store:
+  type: "object"
+  properties:
+    books:
+      type: "array"
+      xml:
+        name: "AllBooks"
+        wrapped: true
+      items:
+        $ref: "#/components/schemas/Book"
+```
+
+</TabItem>
+</Tabs>
+
+### 3.4 — Unwrapped array of models with custom item name
+
+`@Xml.name` or `@encodedName` on the property overrides each item's element name when the array is unwrapped.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+model Store {
+  @Xml.name("BookItem")
+  @Xml.unwrapped
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+model Store {
+  @encodedName("application/xml", "BookItem")
+  @Xml.unwrapped
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Store>
+  <BookItem>
+    <title>The Great Gatsby</title>
+  </BookItem>
+  <BookItem>
+    <title>Les Miserables</title>
+  </BookItem>
+</Store>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    title:
+      type: "string"
+Store:
+  type: "object"
+  properties:
+    books:
+      type: "array"
       items:
         allOf:
           - $ref: "#/components/schemas/Book"
         xml:
-          name: XmlBook
-      xml:
-        wrapped: true
+          name: BookItem
 ```
 
 </TabItem>
 </Tabs>
 
-### 3.3 — Unwrapped array of models with custom item name
+### 3.5 — Wrapped array of models with custom wrapper and item names
 
-Using `@Xml.name` or `@encodedName` on the property overrides each item's element name, taking precedence over the model's XML name.
+Both the wrapper element and each item element have custom names.
 
 <Tabs>
 <TabItem label="Using @Xml.name">
 
 ```tsp
 model Store {
-  @Xml.name("ItemBook")
-  @Xml.unwrapped
+  @Xml.name("AllBooks")
   books: Book[];
 }
 
-@Xml.name("XmlBook")
+@Xml.name("BookItem")
 model Book {
   title: string;
 }
@@ -631,12 +733,11 @@ model Book {
 
 ```tsp
 model Store {
-  @encodedName("application/xml", "ItemBook")
-  @Xml.unwrapped
+  @encodedName("application/xml", "AllBooks")
   books: Book[];
 }
 
-@encodedName("application/xml", "XmlBook")
+@encodedName("application/xml", "BookItem")
 model Book {
   title: string;
 }
@@ -650,9 +751,14 @@ model Book {
 
 ```xml
 <Store>
-  <ItemBook>
-    <title>string</title>
-  </ItemBook>
+  <AllBooks>
+    <BookItem>
+      <title>The Great Gatsby</title>
+    </BookItem>
+    <BookItem>
+      <title>Les Miserables</title>
+    </BookItem>
+  </AllBooks>
 </Store>
 ```
 
@@ -666,96 +772,20 @@ Book:
     title:
       type: "string"
   xml:
-    name: "XmlBook"
-Store:
-  type: "object"
-  properties:
-    books:
-      type: "array"
-      items:
-        allOf:
-          - $ref: "#/definitions/Book"
-        xml:
-          name: ItemBook
-```
-
-</TabItem>
-</Tabs>
-
-### 3.4 — Wrapped array of models with custom wrapper name
-
-The wrapper element has a custom name via `@Xml.name` or `@encodedName`; items use the model's XML name.
-
-<Tabs>
-<TabItem label="Using @Xml.name">
-
-```tsp
-model Store {
-  @Xml.name("ItemsBooks")
-  books: Book[];
-}
-
-@Xml.name("XmlBook")
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-<TabItem label="Using @encodedName">
-
-```tsp
-model Store {
-  @encodedName("application/xml", "ItemsBooks")
-  books: Book[];
-}
-
-@encodedName("application/xml", "XmlBook")
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-</Tabs>
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Store>
-  <ItemsBooks>
-    <XmlBook>
-      <title>string</title>
-    </XmlBook>
-  </ItemsBooks>
-</Store>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    title:
-      type: "string"
-  xml:
-    name: "XmlBook"
+    name: "BookItem"
 Store:
   type: "object"
   properties:
     books:
       type: "array"
       xml:
-        name: "ItemsBooks"
+        name: "AllBooks"
         wrapped: true
       items:
         allOf:
-          - $ref: "#/definitions/Book"
+          - $ref: "#/components/schemas/Book"
         xml:
-          name: XmlBook
+          name: BookItem
 ```
 
 </TabItem>
@@ -783,7 +813,7 @@ model Author {
 ```xml
 <Book>
   <author>
-    <name>string</name>
+    <name>F. Scott Fitzgerald</name>
   </author>
 </Book>
 ```
@@ -848,7 +878,7 @@ model Author {
 ```xml
 <Book>
   <author>
-    <name>string</name>
+    <name>F. Scott Fitzgerald</name>
   </author>
 </Book>
 ```
@@ -918,7 +948,7 @@ model Author {
 ```xml
 <Book>
   <xml-author>
-    <name>string</name>
+    <name>F. Scott Fitzgerald</name>
   </xml-author>
 </Book>
 ```
@@ -968,8 +998,8 @@ model Book {
 
 ```xml
 <Book id="0">
-  <xml-title>string</xml-title>
-  <author>string</author>
+  <xml-title>The Great Gatsby</xml-title>
+  <author>F. Scott Fitzgerald</author>
 </Book>
 ```
 
@@ -1016,8 +1046,8 @@ model Book {
 ```xml
 <smp:Book xmlns:smp="http://example.com/schema">
   <id>0</id>
-  <title>string</title>
-  <author>string</author>
+  <title>The Great Gatsby</title>
+  <author>F. Scott Fitzgerald</author>
 </smp:Book>
 ```
 
@@ -1065,8 +1095,8 @@ model Book {
 ```xml
 <smp:Book xmlns:smp="http://example.com/schema" xmlns:ns2="http://example.com/ns2">
   <id>0</id>
-  <smp:title>string</smp:title>
-  <ns2:author>string</ns2:author>
+  <smp:title>The Great Gatsby</smp:title>
+  <ns2:author>F. Scott Fitzgerald</ns2:author>
 </smp:Book>
 ```
 
@@ -1123,8 +1153,8 @@ model Book {
 ```xml
 <smp:Book xmlns:smp="http://example.com/schema">
   <id>0</id>
-  <title>string</title>
-  <author>string</author>
+  <title>Les Miserables</title>
+  <author>Victor Hugo</author>
 </smp:Book>
 ```
 
@@ -1182,8 +1212,8 @@ model Book {
 ```xml
 <smp:Book xmlns:smp="http://example.com/schema" xmlns:ns2="http://example.com/ns2">
   <id>0</id>
-  <smp:title>string</smp:title>
-  <ns2:author>string</ns2:author>
+  <smp:title>Les Miserables</smp:title>
+  <ns2:author>Victor Hugo</ns2:author>
 </smp:Book>
 ```
 
