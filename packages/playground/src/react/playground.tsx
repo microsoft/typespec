@@ -65,9 +65,6 @@ export interface PlaygroundProps {
   /** Additional items to show in the command bar. */
   commandBarItems?: CommandBarItem[];
 
-  /** Playground links */
-  links?: PlaygroundLinks;
-
   /** Custom viewers to view the typespec program */
   viewers?: ProgramViewer[];
 
@@ -94,11 +91,6 @@ export interface PlaygroundSaveData extends PlaygroundState {
 
   /** Emitter name. */
   emitter: string;
-}
-
-export interface PlaygroundLinks {
-  /** Link to documentation */
-  documentationUrl?: string;
 }
 
 /**
@@ -357,7 +349,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       formatCode={formatCode}
       fileBug={props.onFileBug ? fileBug : undefined}
       commandBarItems={props.commandBarItems}
-      documentationUrl={props.links?.documentationUrl}
     />
   );
 
