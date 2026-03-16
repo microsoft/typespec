@@ -190,7 +190,7 @@ Book:
 
 ## 2. Nested models
 
-### 4.1 — Basic nested model
+### 2.1 — Basic nested model
 
 A property referencing another model is serialized as a nested XML element using the property name.
 
@@ -234,7 +234,7 @@ Author:
 </TabItem>
 </Tabs>
 
-### 4.2 — Nested model with custom XML name on the model
+### 2.2 — Nested model with custom XML name on the model
 
 When the referenced model has `@Xml.name` or `@encodedName`, the property name still takes precedence for the XML element name.
 
@@ -304,7 +304,7 @@ Author:
 </TabItem>
 </Tabs>
 
-### 4.3 — Nested model with custom XML name on the property
+### 2.3 — Nested model with custom XML name on the property
 
 Using `@Xml.name` or `@encodedName` on the property overrides the element name for the nested model.
 
@@ -374,7 +374,7 @@ Author:
 
 ## 3. Array of primitive types
 
-### 4.1 — Wrapped primitive array (default)
+### 3.1 — Wrapped primitive array (default)
 
 By default, an array property is wrapped in a container element named after the property. Each item uses the scalar type name as its element name.
 
@@ -416,7 +416,7 @@ Book:
 </TabItem>
 </Tabs>
 
-### 4.2 — Unwrapped primitive array
+### 3.2 — Unwrapped primitive array
 
 `@Xml.unwrapped` removes the wrapper element. Each item is serialized using the property name as its XML element name.
 
@@ -455,7 +455,7 @@ Book:
 </TabItem>
 </Tabs>
 
-### 4.3 — Wrapped primitive array with custom wrapper name
+### 3.3 — Wrapped primitive array with custom wrapper name
 
 Without `@Xml.unwrapped`, the array is wrapped in a container element. `@Xml.name` or `@encodedName` on the property customizes the wrapper element name.
 
@@ -515,7 +515,7 @@ Book:
 </TabItem>
 </Tabs>
 
-### 4.4 — Unwrapped primitive array with custom item name
+### 3.4 — Unwrapped primitive array with custom item name
 
 `@Xml.name` or `@encodedName` on the property controls the element name of each item when the array is unwrapped.
 
@@ -572,7 +572,7 @@ Book:
 </TabItem>
 </Tabs>
 
-### 4.5 — Wrapped primitive array with custom wrapper and item names
+### 3.5 — Wrapped primitive array with custom wrapper and item names
 
 Both the wrapper element and each item element have custom names via `@Xml.name` or `@encodedName`.
 
