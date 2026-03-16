@@ -151,7 +151,8 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
                 .stream()
                 .noneMatch(s -> (s instanceof ObjectSchema)
                     && !isPagedModel(((ObjectSchema) s))
-                    && (compositeType.getUsage() != null && compositeType.getUsage().contains(SchemaContext.PUBLIC)));
+                    && (((ObjectSchema) s).getUsage() != null
+                        && ((ObjectSchema) s).getUsage().contains(SchemaContext.PUBLIC)));
         }
         return ret;
     }
