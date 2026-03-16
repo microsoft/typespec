@@ -188,610 +188,7 @@ Book:
 </TabItem>
 </Tabs>
 
-## 2. Array of primitive types
-
-### 2.1 — Wrapped primitive array (default)
-
-By default, an array property is wrapped in a container element named after the property. Each item uses the scalar type name as its element name.
-
-```tsp
-model Book {
-  tags: string[];
-}
-```
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Book>
-  <tags>
-    <string>fiction</string>
-    <string>classic</string>
-  </tags>
-</Book>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    tags:
-      type: "array"
-      xml:
-        wrapped: true
-      items:
-        type: string
-        xml:
-          name: string
-```
-
-</TabItem>
-</Tabs>
-
-### 2.2 — Unwrapped primitive array
-
-`@Xml.unwrapped` removes the wrapper element. Each item is serialized using the property name as its XML element name.
-
-```tsp
-model Book {
-  @Xml.unwrapped
-  tags: string[];
-}
-```
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Book>
-  <tags>fiction</tags>
-  <tags>classic</tags>
-</Book>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    tags:
-      type: "array"
-      items:
-        type: string
-        xml:
-          name: tags
-```
-
-</TabItem>
-</Tabs>
-
-### 2.3 — Wrapped primitive array with custom wrapper name
-
-Without `@Xml.unwrapped`, the array is wrapped in a container element. `@Xml.name` or `@encodedName` on the property customizes the wrapper element name.
-
-<Tabs>
-<TabItem label="Using @Xml.name">
-
-```tsp
-model Book {
-  @Xml.name("ItemsTags")
-  tags: string[];
-}
-```
-
-</TabItem>
-<TabItem label="Using @encodedName">
-
-```tsp
-model Book {
-  @encodedName("application/xml", "ItemsTags")
-  tags: string[];
-}
-```
-
-</TabItem>
-</Tabs>
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Book>
-  <ItemsTags>
-    <string>fiction</string>
-    <string>classic</string>
-  </ItemsTags>
-</Book>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    tags:
-      type: "array"
-      xml:
-        name: "ItemsTags"
-        wrapped: true
-      items:
-        type: string
-        xml:
-          name: string
-```
-
-</TabItem>
-</Tabs>
-
-### 2.4 — Unwrapped primitive array with custom item name
-
-`@Xml.name` or `@encodedName` on the property controls the element name of each item when the array is unwrapped.
-
-<Tabs>
-<TabItem label="Using @Xml.name">
-
-```tsp
-model Book {
-  @Xml.name("tag")
-  @Xml.unwrapped
-  tags: string[];
-}
-```
-
-</TabItem>
-<TabItem label="Using @encodedName">
-
-```tsp
-model Book {
-  @encodedName("application/xml", "tag")
-  @Xml.unwrapped
-  tags: string[];
-}
-```
-
-</TabItem>
-</Tabs>
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Book>
-  <tag>fiction</tag>
-  <tag>classic</tag>
-</Book>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    tags:
-      type: "array"
-      items:
-        type: string
-        xml:
-          name: tag
-```
-
-</TabItem>
-</Tabs>
-
-### 2.5 — Wrapped primitive array with custom wrapper and item names
-
-Both the wrapper element and each item element have custom names via `@Xml.name` or `@encodedName`.
-
-<Tabs>
-<TabItem label="Using @Xml.name">
-
-```tsp
-@Xml.name("ItemName")
-scalar tag extends string;
-
-model Book {
-  @Xml.name("ItemsTags")
-  tags: tag[];
-}
-```
-
-</TabItem>
-<TabItem label="Using @encodedName">
-
-```tsp
-@encodedName("application/xml", "ItemName")
-scalar tag extends string;
-
-model Book {
-  @encodedName("application/xml", "ItemsTags")
-  tags: tag[];
-}
-```
-
-</TabItem>
-</Tabs>
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Book>
-  <ItemsTags>
-    <ItemName>fiction</ItemName>
-    <ItemName>classic</ItemName>
-  </ItemsTags>
-</Book>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    tags:
-      type: "array"
-      xml:
-        name: "ItemsTags"
-        wrapped: true
-      items:
-        type: string
-        xml:
-          name: ItemName
-```
-
-</TabItem>
-</Tabs>
-
-## 3. Array of complex types
-
-### 3.1 — Wrapped array of models (default)
-
-By default, an array of models is wrapped in a container element named after the property. Each item uses the model name as its element name.
-
-```tsp
-model Store {
-  books: Book[];
-}
-
-model Book {
-  title: string;
-}
-```
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Store>
-  <books>
-    <Book>
-      <title>The Great Gatsby</title>
-    </Book>
-    <Book>
-      <title>Les Miserables</title>
-    </Book>
-  </books>
-</Store>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    title:
-      type: "string"
-Store:
-  type: "object"
-  properties:
-    books:
-      type: "array"
-      items:
-        $ref: "#/components/schemas/Book"
-      xml:
-        wrapped: true
-```
-
-</TabItem>
-</Tabs>
-
-### 3.2 — Unwrapped array of models
-
-`@Xml.unwrapped` removes the wrapper element. Each item uses the property name as its element name.
-
-```tsp
-model Store {
-  @Xml.unwrapped
-  books: Book[];
-}
-
-model Book {
-  title: string;
-}
-```
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Store>
-  <books>
-    <title>The Great Gatsby</title>
-  </books>
-  <books>
-    <title>Les Miserables</title>
-  </books>
-</Store>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    title:
-      type: "string"
-Store:
-  type: "object"
-  properties:
-    books:
-      type: "array"
-      items:
-        $ref: "#/components/schemas/Book"
-```
-
-</TabItem>
-</Tabs>
-
-### 3.3 — Wrapped array of models with custom wrapper name
-
-`@Xml.name` or `@encodedName` on the property customizes the wrapper element name.
-
-<Tabs>
-<TabItem label="Using @Xml.name">
-
-```tsp
-model Store {
-  @Xml.name("AllBooks")
-  books: Book[];
-}
-
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-<TabItem label="Using @encodedName">
-
-```tsp
-model Store {
-  @encodedName("application/xml", "AllBooks")
-  books: Book[];
-}
-
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-</Tabs>
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Store>
-  <AllBooks>
-    <Book>
-      <title>The Great Gatsby</title>
-    </Book>
-    <Book>
-      <title>Les Miserables</title>
-    </Book>
-  </AllBooks>
-</Store>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    title:
-      type: "string"
-Store:
-  type: "object"
-  properties:
-    books:
-      type: "array"
-      xml:
-        name: "AllBooks"
-        wrapped: true
-      items:
-        $ref: "#/components/schemas/Book"
-```
-
-</TabItem>
-</Tabs>
-
-### 3.4 — Unwrapped array of models with custom item name
-
-`@Xml.name` or `@encodedName` on the property overrides each item's element name when the array is unwrapped.
-
-<Tabs>
-<TabItem label="Using @Xml.name">
-
-```tsp
-model Store {
-  @Xml.name("BookItem")
-  @Xml.unwrapped
-  books: Book[];
-}
-
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-<TabItem label="Using @encodedName">
-
-```tsp
-model Store {
-  @encodedName("application/xml", "BookItem")
-  @Xml.unwrapped
-  books: Book[];
-}
-
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-</Tabs>
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Store>
-  <BookItem>
-    <title>The Great Gatsby</title>
-  </BookItem>
-  <BookItem>
-    <title>Les Miserables</title>
-  </BookItem>
-</Store>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    title:
-      type: "string"
-Store:
-  type: "object"
-  properties:
-    books:
-      type: "array"
-      items:
-        allOf:
-          - $ref: "#/components/schemas/Book"
-        xml:
-          name: BookItem
-```
-
-</TabItem>
-</Tabs>
-
-### 3.5 — Wrapped array of models with custom wrapper and item names
-
-Both the wrapper element and each item element have custom names.
-
-<Tabs>
-<TabItem label="Using @Xml.name">
-
-```tsp
-model Store {
-  @Xml.name("AllBooks")
-  books: Book[];
-}
-
-@Xml.name("BookItem")
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-<TabItem label="Using @encodedName">
-
-```tsp
-model Store {
-  @encodedName("application/xml", "AllBooks")
-  books: Book[];
-}
-
-@encodedName("application/xml", "BookItem")
-model Book {
-  title: string;
-}
-```
-
-</TabItem>
-</Tabs>
-
-<Tabs>
-<TabItem label="XML">
-
-```xml
-<Store>
-  <AllBooks>
-    <BookItem>
-      <title>The Great Gatsby</title>
-    </BookItem>
-    <BookItem>
-      <title>Les Miserables</title>
-    </BookItem>
-  </AllBooks>
-</Store>
-```
-
-</TabItem>
-<TabItem label="OpenAPI3">
-
-```yaml
-Book:
-  type: "object"
-  properties:
-    title:
-      type: "string"
-  xml:
-    name: "BookItem"
-Store:
-  type: "object"
-  properties:
-    books:
-      type: "array"
-      xml:
-        name: "AllBooks"
-        wrapped: true
-      items:
-        allOf:
-          - $ref: "#/components/schemas/Book"
-        xml:
-          name: BookItem
-```
-
-</TabItem>
-</Tabs>
-
-## 4. Nested models
+## 2. Nested models
 
 ### 4.1 — Basic nested model
 
@@ -974,6 +371,610 @@ Author:
 
 </TabItem>
 </Tabs>
+
+## 3. Array of primitive types
+
+### 4.1 — Wrapped primitive array (default)
+
+By default, an array property is wrapped in a container element named after the property. Each item uses the scalar type name as its element name.
+
+```tsp
+model Book {
+  tags: string[];
+}
+```
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Book>
+  <tags>
+    <string>fiction</string>
+    <string>classic</string>
+  </tags>
+</Book>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    tags:
+      type: "array"
+      xml:
+        wrapped: true
+      items:
+        type: string
+        xml:
+          name: string
+```
+
+</TabItem>
+</Tabs>
+
+### 4.2 — Unwrapped primitive array
+
+`@Xml.unwrapped` removes the wrapper element. Each item is serialized using the property name as its XML element name.
+
+```tsp
+model Book {
+  @Xml.unwrapped
+  tags: string[];
+}
+```
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Book>
+  <tags>fiction</tags>
+  <tags>classic</tags>
+</Book>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    tags:
+      type: "array"
+      items:
+        type: string
+        xml:
+          name: tags
+```
+
+</TabItem>
+</Tabs>
+
+### 4.3 — Wrapped primitive array with custom wrapper name
+
+Without `@Xml.unwrapped`, the array is wrapped in a container element. `@Xml.name` or `@encodedName` on the property customizes the wrapper element name.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+model Book {
+  @Xml.name("ItemsTags")
+  tags: string[];
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+model Book {
+  @encodedName("application/xml", "ItemsTags")
+  tags: string[];
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Book>
+  <ItemsTags>
+    <string>fiction</string>
+    <string>classic</string>
+  </ItemsTags>
+</Book>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    tags:
+      type: "array"
+      xml:
+        name: "ItemsTags"
+        wrapped: true
+      items:
+        type: string
+        xml:
+          name: string
+```
+
+</TabItem>
+</Tabs>
+
+### 4.4 — Unwrapped primitive array with custom item name
+
+`@Xml.name` or `@encodedName` on the property controls the element name of each item when the array is unwrapped.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+model Book {
+  @Xml.name("tag")
+  @Xml.unwrapped
+  tags: string[];
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+model Book {
+  @encodedName("application/xml", "tag")
+  @Xml.unwrapped
+  tags: string[];
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Book>
+  <tag>fiction</tag>
+  <tag>classic</tag>
+</Book>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    tags:
+      type: "array"
+      items:
+        type: string
+        xml:
+          name: tag
+```
+
+</TabItem>
+</Tabs>
+
+### 4.5 — Wrapped primitive array with custom wrapper and item names
+
+Both the wrapper element and each item element have custom names via `@Xml.name` or `@encodedName`.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+@Xml.name("ItemName")
+scalar tag extends string;
+
+model Book {
+  @Xml.name("ItemsTags")
+  tags: tag[];
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+@encodedName("application/xml", "ItemName")
+scalar tag extends string;
+
+model Book {
+  @encodedName("application/xml", "ItemsTags")
+  tags: tag[];
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Book>
+  <ItemsTags>
+    <ItemName>fiction</ItemName>
+    <ItemName>classic</ItemName>
+  </ItemsTags>
+</Book>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    tags:
+      type: "array"
+      xml:
+        name: "ItemsTags"
+        wrapped: true
+      items:
+        type: string
+        xml:
+          name: ItemName
+```
+
+</TabItem>
+</Tabs>
+
+## 4. Array of complex types
+
+### 4.1 — Wrapped array of models (default)
+
+By default, an array of models is wrapped in a container element named after the property. Each item uses the model name as its element name.
+
+```tsp
+model Store {
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Store>
+  <books>
+    <Book>
+      <title>The Great Gatsby</title>
+    </Book>
+    <Book>
+      <title>Les Miserables</title>
+    </Book>
+  </books>
+</Store>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    title:
+      type: "string"
+Store:
+  type: "object"
+  properties:
+    books:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Book"
+      xml:
+        wrapped: true
+```
+
+</TabItem>
+</Tabs>
+
+### 4.2 — Unwrapped array of models
+
+`@Xml.unwrapped` removes the wrapper element. Each item uses the property name as its element name.
+
+```tsp
+model Store {
+  @Xml.unwrapped
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Store>
+  <books>
+    <title>The Great Gatsby</title>
+  </books>
+  <books>
+    <title>Les Miserables</title>
+  </books>
+</Store>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    title:
+      type: "string"
+Store:
+  type: "object"
+  properties:
+    books:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Book"
+```
+
+</TabItem>
+</Tabs>
+
+### 4.3 — Wrapped array of models with custom wrapper name
+
+`@Xml.name` or `@encodedName` on the property customizes the wrapper element name.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+model Store {
+  @Xml.name("AllBooks")
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+model Store {
+  @encodedName("application/xml", "AllBooks")
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Store>
+  <AllBooks>
+    <Book>
+      <title>The Great Gatsby</title>
+    </Book>
+    <Book>
+      <title>Les Miserables</title>
+    </Book>
+  </AllBooks>
+</Store>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    title:
+      type: "string"
+Store:
+  type: "object"
+  properties:
+    books:
+      type: "array"
+      xml:
+        name: "AllBooks"
+        wrapped: true
+      items:
+        $ref: "#/components/schemas/Book"
+```
+
+</TabItem>
+</Tabs>
+
+### 4.4 — Unwrapped array of models with custom item name
+
+`@Xml.name` or `@encodedName` on the property overrides each item's element name when the array is unwrapped.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+model Store {
+  @Xml.name("BookItem")
+  @Xml.unwrapped
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+model Store {
+  @encodedName("application/xml", "BookItem")
+  @Xml.unwrapped
+  books: Book[];
+}
+
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Store>
+  <BookItem>
+    <title>The Great Gatsby</title>
+  </BookItem>
+  <BookItem>
+    <title>Les Miserables</title>
+  </BookItem>
+</Store>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    title:
+      type: "string"
+Store:
+  type: "object"
+  properties:
+    books:
+      type: "array"
+      items:
+        allOf:
+          - $ref: "#/components/schemas/Book"
+        xml:
+          name: BookItem
+```
+
+</TabItem>
+</Tabs>
+
+### 4.5 — Wrapped array of models with custom wrapper and item names
+
+Both the wrapper element and each item element have custom names.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+model Store {
+  @Xml.name("AllBooks")
+  books: Book[];
+}
+
+@Xml.name("BookItem")
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+model Store {
+  @encodedName("application/xml", "AllBooks")
+  books: Book[];
+}
+
+@encodedName("application/xml", "BookItem")
+model Book {
+  title: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Store>
+  <AllBooks>
+    <BookItem>
+      <title>The Great Gatsby</title>
+    </BookItem>
+    <BookItem>
+      <title>Les Miserables</title>
+    </BookItem>
+  </AllBooks>
+</Store>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: "object"
+  properties:
+    title:
+      type: "string"
+  xml:
+    name: "BookItem"
+Store:
+  type: "object"
+  properties:
+    books:
+      type: "array"
+      xml:
+        name: "AllBooks"
+        wrapped: true
+      items:
+        allOf:
+          - $ref: "#/components/schemas/Book"
+        xml:
+          name: BookItem
+```
+
+</TabItem>
+</Tabs>
+
 
 ## 5. Attributes
 
