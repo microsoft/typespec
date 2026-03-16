@@ -48,9 +48,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         private const string OnlyUnsupportedAuthCategory = "WithOnlyUnsupportedAuth";
         private const string TestClientName = "TestClient";
         private static readonly InputClient _testClient = InputFactory.Client(TestClientName);
-        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient);
-        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient);
-        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient, initializedBy: InputClientInitializedBy.Parent);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -1236,7 +1236,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 parentClient = InputFactory.Client("parent");
             }
 
-            var client = InputFactory.Client(TestClientName, parent: parentClient);
+            var client = InputFactory.Client(TestClientName, parent: parentClient, initializedBy: isSubClient ? InputClientInitializedBy.Parent : InputClientInitializedBy.Individually);
             var clientProvider = new ClientProvider(client);
             Assert.IsNotNull(clientProvider);
 
@@ -1589,6 +1589,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var subClient = InputFactory.Client(
                 "SubClient",
                 parent: rootClient,
+                initializedBy: InputClientInitializedBy.Parent,
                 parameters:
                 [
                     InputFactory.PathParameter("apiVersion", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, isApiVersion: true),
@@ -3344,8 +3345,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 scope: InputParameterScope.Client);
 
             var client = InputFactory.Client(TestClientName, parameters: [subscriptionIdParameter, apiVersionParameter], isMultiServiceClient: true);
-            var serviceAClient = InputFactory.Client("ServiceA", clientNamespace: "Sample.ServiceA", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
-            var serviceBClient = InputFactory.Client("ServiceB", clientNamespace: "Sample.ServiceB", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var serviceAClient = InputFactory.Client("ServiceA", clientNamespace: "Sample.ServiceA", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var serviceBClient = InputFactory.Client("ServiceB", clientNamespace: "Sample.ServiceB", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
 
             MockHelpers.LoadMockGenerator(
                 apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
@@ -3404,9 +3405,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 scope: InputParameterScope.Client);
 
             var client = InputFactory.Client(TestClientName, parameters: [subscriptionIdParameter, apiVersionParameter], isMultiServiceClient: true);
-            var keyVaultClient = InputFactory.Client("KeyVault", clientNamespace: "Sample.KeyVault", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
-            var storageClient = InputFactory.Client("Storage", clientNamespace: "Sample.Storage", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
-            var computeClient = InputFactory.Client("Compute", clientNamespace: "Sample.Compute", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var keyVaultClient = InputFactory.Client("KeyVault", clientNamespace: "Sample.KeyVault", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var storageClient = InputFactory.Client("Storage", clientNamespace: "Sample.Storage", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var computeClient = InputFactory.Client("Compute", clientNamespace: "Sample.Compute", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
 
             MockHelpers.LoadMockGenerator(
                 apiVersions: () => [.. keyVaultVersions, .. storageVersions, .. computeVersions],

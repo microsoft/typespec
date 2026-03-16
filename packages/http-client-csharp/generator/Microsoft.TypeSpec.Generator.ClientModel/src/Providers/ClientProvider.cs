@@ -105,11 +105,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
-            // Create ClientSettings for any client that can be independently constructed:
-            // root clients (Parent is null) and sub-clients with InitializedBy.Individually.
-            bool canBeIndividuallyInitialized = _inputClient.Parent != null &&
-                (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
-            ClientSettings = (ClientOptions != null || canBeIndividuallyInitialized)
+            bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
+            ClientSettings = isIndividuallyInitialized
                 ? new ClientSettingsProvider(_inputClient, this)
                 : null;
             IsMultiServiceClient = _inputClient.IsMultiServiceClient;
@@ -138,8 +135,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         this,
                         initializationValue: Literal(apiKey.Prefix)) :
                     null;
-                // Enable auth fields for root clients and individually-initialized sub-clients
-                _apiKeyAuthFields = (ClientOptions is null && !canBeIndividuallyInitialized) ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
+                _apiKeyAuthFields = isIndividuallyInitialized ? new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField) : null;
             }
 
             var tokenAuth = _inputAuth?.OAuth2;
@@ -163,8 +159,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 var tokenCredentialScopesField = BuildTokenCredentialScopesField(tokenAuth, tokenCredentialType);
 
-                // Enable auth fields for root clients and individually-initialized sub-clients
-                _oauth2Fields = (ClientOptions is null && !canBeIndividuallyInitialized) ? null : new(tokenCredentialField, tokenCredentialScopesField);
+                _oauth2Fields = isIndividuallyInitialized ? new(tokenCredentialField, tokenCredentialScopesField) : null;
             }
             EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
@@ -652,7 +647,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 foreach (var p in requiredParameters)
                 {
                     if (authParamName == null || p.Name != authParamName)
+                    {
                         initializerArgs.Add(p);
+                    }
                 }
                 initializerArgs.Add(ClientOptionsParameter!);
 
@@ -790,14 +787,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 AppendSubClientPublicConstructorsForAuth(null, primaryConstructors, secondaryConstructors, onlyContainsUnsupportedAuth);
             }
 
-            var shouldIncludeMockingConstructor = !onlyContainsUnsupportedAuth && secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
-            if (shouldIncludeMockingConstructor)
-            {
-                // Add a mocking constructor only if all secondary constructors require parameters
-                // (This is already handled by BuildConstructors for the overall constructor list,
-                // but we need to account for it when the mocking constructor comes from the sub-client path)
-            }
-
             constructors.AddRange(secondaryConstructors);
             constructors.AddRange(primaryConstructors);
 
@@ -827,7 +816,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 foreach (var p in requiredParameters)
                 {
                     if (authParamName == null || p.Name != authParamName)
+                    {
                         initializerArgs.Add(p);
+                    }
                 }
                 initializerArgs.Add(clientOptionsParameter!);
 
