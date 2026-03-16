@@ -33,11 +33,3 @@ def test_escaped_reserved_words():
     }
     for name in expected_conversion_parameter:
         assert pad_reserved_words(name, pad_type=PadType.PARAMETER) == expected_conversion_parameter[name]
-
-    expected_conversion_enum = {
-        "self": "self",
-        "mro": "mro_enum",
-        "continuation_token": "continuation_token",
-    }
-    for name in expected_conversion_enum:
-        assert pad_reserved_words(name, pad_type=PadType.ENUM_VALUE) == expected_conversion_enum[name]

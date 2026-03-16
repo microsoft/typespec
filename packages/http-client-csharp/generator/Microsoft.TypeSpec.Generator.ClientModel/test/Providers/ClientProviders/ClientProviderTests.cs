@@ -160,31 +160,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             if (_hasKeyAuth)
             {
-                // key auth should have the following fields: AuthorizationHeader, _keyCredential
+                // key auth should have the AuthorizationHeader const field; _keyCredential is no longer stored
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
                 });
+                // _keyCredential field is no longer on the client (auth handled via AuthenticationPolicy parameter)
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_keyCredential"));
             }
             if (_hasOAuth2)
             {
-                // oauth2 auth should have the following fields: _flows, _tokenProvider
+                // oauth2 auth should have the _flows field; _tokenProvider is no longer stored
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenProvider"),
+                    new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
                 });
+                // _tokenProvider field is no longer on the client (auth handled via AuthenticationPolicy parameter)
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_tokenProvider"));
             }
 
             if (_hasOAuth2WithOtherCredType)
             {
-                // if another cred type other than the SCM type is used, then the client should default to the following fields: _scopes, _tokenCredential
+                // if another cred type other than the SCM type is used, then the client should default to the following fields: _scopes (no _tokenCredential)
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
                 });
+                // _tokenCredential field is no longer on the client (auth handled via AuthenticationPolicy parameter)
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_tokenCredential"));
             }
 
             if (_hasOnlyUnsupportedAuth)
@@ -206,12 +209,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             Assert.IsNotNull(clientProvider);
 
-            // oauth2 auth should have the following fields: _flows, _tokenProvider
+            // oauth2 auth should have the _flows field; _tokenProvider is no longer stored on the client
             AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
             {
-                new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenProvider"),
-                new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
+                new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
             });
+            Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_tokenProvider"), "_tokenProvider should not be present - auth handled via AuthenticationPolicy parameter");
 
             // validate the field initialization
             var testName = TestContext.CurrentContext.Test.Name;
@@ -298,29 +301,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             if (_hasKeyAuth)
             {
-                // key auth should have the following fields: AuthorizationHeader, _keyCredential
+                // key auth should have AuthorizationHeader const field; _keyCredential is no longer stored
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
                 });
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_keyCredential"));
             }
             if (_hasOAuth2)
             {
-                // oauth2 auth should have the following fields: _flows, _tokenProvider
+                // oauth2 auth should have _flows field; _tokenProvider is no longer stored
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(AuthenticationTokenProvider)), "_tokenProvider"),
+                    new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(Dictionary<string, object>[])), "_flows"),
                 });
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_tokenProvider"));
             }
             if (_hasOAuth2WithOtherCredType)
             {
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
                 });
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name == "_tokenCredential"));
             }
         }
 
@@ -366,26 +369,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var constructors = clientProvider.Constructors;
 
-            var primaryPublicConstructors = constructors.Where(
-                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
+            // The implementation constructors are now INTERNAL (taking AuthenticationPolicy? as first param)
+            var implementationConstructors = constructors.Where(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal).ToArray();
 
-            // for no auth or one auth case, this should be 1
-            // for both auth case, this should be 2
-            // for only unsupported auth case, this should be 0
-            int expectedPrimaryCtorCount;
-            if (_hasOnlyUnsupportedAuth)
-            {
-                expectedPrimaryCtorCount = 0;
-            }
-            else
-            {
-                expectedPrimaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
-            }
-            Assert.AreEqual(expectedPrimaryCtorCount, primaryPublicConstructors.Length);
+            // There is always exactly 1 internal implementation constructor, regardless of auth type count.
+            // All public credential constructors are pass-throughs to this single implementation constructor.
+            int expectedImplCtorCount = 1;
+            Assert.AreEqual(expectedImplCtorCount, implementationConstructors.Length);
 
-            for (int i = 0; i < primaryPublicConstructors.Length; i++)
+            for (int i = 0; i < implementationConstructors.Length; i++)
             {
-                ValidatePrimaryConstructor(primaryPublicConstructors[i], inputParameters, i);
+                ValidatePrimaryConstructor(implementationConstructors[i], inputParameters, i);
             }
         }
 
@@ -404,10 +399,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var constructors = clientProvider.Constructors;
 
-            var primaryPublicConstructors = constructors.Where(
-                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
+            var implementationConstructors = constructors.Where(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal).ToArray();
             var secondaryPublicConstructors = constructors.Where(
-                c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
+                c => c.Signature?.Initializer != null &&
+                     c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
+                     !IsSettingsConstructor(c) &&
+                     !IsPrimaryPassThroughConstructor(c)).ToArray();
+            var primaryPassThroughConstructors = constructors.Where(IsPrimaryPassThroughConstructor).ToArray();
 
             // Check if endpoint has a default value
             var endpointParam = inputParameters.FirstOrDefault(p => p is InputEndpointParameter ep && ep.IsEndpoint);
@@ -447,7 +446,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(expectedSecondaryCtorCount, secondaryPublicConstructors.Length);
             foreach (var secondaryPublicConstructor in secondaryPublicConstructors)
             {
-                ValidateSecondaryConstructor(primaryPublicConstructors, secondaryPublicConstructor, inputParameters);
+                ValidateSecondaryConstructor(primaryPassThroughConstructors, secondaryPublicConstructor, inputParameters);
             }
         }
 
@@ -543,14 +542,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var constructors = clientProvider.Constructors;
 
-            // Get all public constructors with an initializer (secondary constructors)
+            // Get secondary constructors (not primary pass-through, not settings constructor)
             var secondaryPublicConstructors = constructors.Where(
-                c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
+                c => c.Signature?.Initializer != null &&
+                     c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
+                     !IsSettingsConstructor(c) &&
+                     !IsPrimaryPassThroughConstructor(c)).ToList();
 
             // We should have 2 secondary constructors per auth type:
             // 1. Client(credential) - simple with just auth
             // 2. Client(credential, options) - simplified with auth + options
             Assert.AreEqual(2, secondaryPublicConstructors.Count);
+
+            // Verify the settings constructor also exists
+            var settingsConstructor = constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNotNull(settingsConstructor, "Expected a settings constructor");
 
             // Verify the simple constructor exists (just auth)
             var simpleConstructor = secondaryPublicConstructors.FirstOrDefault(c => c.Signature.Parameters.Count == 1);
@@ -580,6 +586,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var optionsArg = initializerArgs[2];
             // Verify it's not a NewInstanceExpression (which would indicate a default value is being used)
             Assert.IsFalse(optionsArg is NewInstanceExpression, "Options argument should be the parameter itself, not a new instance");
+        }
+
+        [TestCase(Category = KeyAuthCategory)]
+        [TestCase(Category = OAuth2Category)]
+        public void TestBuildConstructors_SettingsConstructor()
+        {
+            var inputParameters = new List<InputParameter>
+            {
+                InputFactory.EndpointParameter(
+                    KnownParameters.Endpoint.Name,
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+            var settingsConstructor = constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNotNull(settingsConstructor, "Expected a settings constructor");
+
+            // Validate it's public
+            Assert.AreEqual(MethodSignatureModifiers.Public, settingsConstructor!.Signature.Modifiers);
+
+            // Validate it has exactly 1 parameter: settings
+            Assert.AreEqual(1, settingsConstructor.Signature.Parameters.Count);
+            Assert.AreEqual("settings", settingsConstructor.Signature.Parameters[0].Name);
+
+            // Validate it's a pass-through (body is empty)
+            Assert.AreEqual(MethodBodyStatement.Empty, settingsConstructor.BodyStatements);
+
+            // Validate it has a this(...) initializer
+            var initializer = settingsConstructor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsFalse(initializer!.IsBase, "Settings constructor should use this() initializer, not base()");
+        }
+
+        [Test]
+        public void TestBuildConstructors_NoSettingsConstructor_WhenNoEndpoint()
+        {
+            // No endpoint parameter — settings constructor should not be generated
+            var client = InputFactory.Client(TestClientName);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+            var settingsConstructor = constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNull(settingsConstructor, "Settings constructor should not be generated when there is no endpoint");
         }
 
         [Test]
@@ -899,6 +957,116 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(cachingField, "Parent should have caching field for subclient with InitializedBy.Individually | Parent");
         }
 
+        [Test]
+        public void TestBuildMethods_ForParent_InitializedByBoth_WithSubClientParams_HasParameterizedAccessor()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClientParam = InputFactory.PathParameter("resourceId", InputPrimitiveType.String, scope: InputParameterScope.Client);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [subClientParam],
+                initializedBy: InputClientInitializedBy.Individually | InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should have a factory method for the subclient
+            var factoryMethod = parentProvider.Methods.FirstOrDefault(
+                m => m.Signature?.Name == "GetSubClient" || m.Signature?.Name == "GetSubClientClient");
+            Assert.IsNotNull(factoryMethod, "Parent should have factory method for subclient with parameters");
+
+            // The accessor method should include the subclient's extra parameters
+            Assert.IsNotNull(factoryMethod!.Signature, "Factory method should have a signature");
+            Assert.AreEqual(1, factoryMethod.Signature!.Parameters.Count,
+                "Accessor method should include subclient parameters not present on parent");
+            Assert.AreEqual("resourceId", factoryMethod.Signature.Parameters[0].Name,
+                "Accessor method parameter should be the subclient's extra parameter");
+        }
+
+        [Test]
+        public void TestBuildFields_ForParent_InitializedByBoth_WithSubClientParams_NoCachingField()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClientParam = InputFactory.PathParameter("resourceId", InputPrimitiveType.String, scope: InputParameterScope.Client);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [subClientParam],
+                initializedBy: InputClientInitializedBy.Individually | InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should NOT have a caching field for the subclient when the accessor requires parameters,
+            // since caching is not appropriate when different parameter values produce different client instances.
+            var cachingField = parentProvider.Fields.FirstOrDefault(f => f.Name == "_cachedSubClient");
+            Assert.IsNull(cachingField, "Parent should not have caching field for subclient that has subclient-specific parameters in its accessor");
+        }
+
+        [Test]
+        public void TestBuildMethods_ForParent_InitializedByParentOnly_WithSubClientParams_HasParameterizedAccessor()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClientParam = InputFactory.PathParameter("resourceId", InputPrimitiveType.String, scope: InputParameterScope.Client);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [subClientParam],
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should have a factory method for the subclient
+            var factoryMethod = parentProvider.Methods.FirstOrDefault(
+                m => m.Signature?.Name == "GetSubClient" || m.Signature?.Name == "GetSubClientClient");
+            Assert.IsNotNull(factoryMethod, "Parent should have factory method for subclient with parameters");
+
+            // The accessor method should include the subclient's extra parameters
+            Assert.IsNotNull(factoryMethod!.Signature, "Factory method should have a signature");
+            Assert.AreEqual(1, factoryMethod.Signature!.Parameters.Count,
+                "Accessor method should include subclient parameters not present on parent");
+            Assert.AreEqual("resourceId", factoryMethod.Signature.Parameters[0].Name,
+                "Accessor method parameter should be the subclient's extra parameter");
+        }
+
+        [Test]
+        public void TestBuildFields_ForParent_InitializedByParentOnly_WithSubClientParams_NoCachingField()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClientParam = InputFactory.PathParameter("resourceId", InputPrimitiveType.String, scope: InputParameterScope.Client);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [subClientParam],
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should NOT have a caching field for the subclient when the accessor requires parameters,
+            // since caching is not appropriate when different parameter values produce different client instances.
+            var cachingField = parentProvider.Fields.FirstOrDefault(f => f.Name == "_cachedSubClient");
+            Assert.IsNull(cachingField, "Parent should not have caching field for subclient that has subclient-specific parameters in its accessor");
+        }
+
         private void ValidatePrimaryConstructor(
             ConstructorProvider primaryPublicConstructor,
             List<InputParameter> inputParameters,
@@ -907,15 +1075,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [CallerFilePath] string filePath = "")
         {
             var primaryCtorParams = primaryPublicConstructor?.Signature?.Parameters;
-            // in no auth case, the ctor only have two parameters: endpoint and options
-            // in other cases, the ctor should have three parameters: endpoint, credential, options
-            // specifically, in both auth cases, we should have two ctors corresponding to each credential type as the second parameter
-            var expectedPrimaryCtorParamCount = !_hasKeyAuth && !_hasOAuth2 ? 2 : 3;
+            // The internal implementation constructor always has 3 parameters: authenticationPolicy, endpoint, options
+            var expectedPrimaryCtorParamCount = 3;
 
             Assert.AreEqual(expectedPrimaryCtorParamCount, primaryCtorParams?.Count);
 
-            // the first should be endpoint
-            var endpointParam = primaryCtorParams?[0];
+            // the first should be authenticationPolicy (AuthenticationPolicy?)
+            var authPolicyParam = primaryCtorParams?[0];
+            Assert.AreEqual("authenticationPolicy", authPolicyParam?.Name);
+            Assert.IsTrue(authPolicyParam?.Type.Equals(new CSharpType(typeof(AuthenticationPolicy), isNullable: true)));
+
+            // the second should be endpoint
+            var endpointParam = primaryCtorParams?[1];
             Assert.AreEqual(KnownParameters.Endpoint.Name, endpointParam?.Name);
 
             if (endpointParam?.DefaultValue != null)
@@ -929,25 +1100,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // the last parameter should be the options
             var optionsParam = primaryCtorParams?[^1];
             Assert.AreEqual("options", optionsParam?.Name);
-
-            if (_hasSupportedAuth)
-            {
-                // when there is any auth, the second should be auth parameter
-                var authParam = primaryCtorParams?[1];
-                Assert.IsNotNull(authParam);
-                if (authParam?.Type.Equals(typeof(ApiKeyCredential)) == true)
-                {
-                    Assert.AreEqual("credential", authParam.Name);
-                }
-                else if (authParam?.Type.Equals(typeof(AuthenticationTokenProvider)) == true)
-                {
-                    Assert.AreEqual("tokenProvider", authParam.Name);
-                }
-                else
-                {
-                    Assert.Fail("Unexpected auth parameter");
-                }
-            }
 
             // validate the body of the primary ctor
             var caseName = TestContext.CurrentContext.Test.Properties.Get("caseName");
@@ -1020,6 +1172,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsTrue(primaryConstructors.Any(pc => pc.Signature.Parameters.Count == initializer?.Arguments.Count));
         }
 
+        private static bool IsSettingsConstructor(ConstructorProvider c) =>
+            c.Signature?.Initializer != null &&
+            c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
+            c.Signature.Parameters.Any(p => p.Name == "settings");
+
+        /// <summary>
+        /// Identifies the public primary pass-through constructor (calls the internal implementation constructor).
+        /// It is the public constructor that has both an endpoint parameter AND an options parameter.
+        /// Secondary constructors never have both endpoint and options (they have a subset).
+        /// </summary>
+        private static bool IsPrimaryPassThroughConstructor(ConstructorProvider c) =>
+            c.Signature?.Initializer != null &&
+            c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
+            !IsSettingsConstructor(c) &&
+            c.Signature.Parameters.Any(p => p.Name == KnownParameters.Endpoint.Name) &&
+            c.Signature.Parameters.Any(p => p.Name == "options");
+
         [TestCaseSource(nameof(EndpointParamInitializationValueTestCases))]
         public void EndpointInitializationValue(InputParameter endpointParameter, ValueExpression? expectedValue)
         {
@@ -1029,7 +1198,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             // find the endpoint parameter from the primary constructor
             var primaryConstructor = clientProvider.Constructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             var endpoint = primaryConstructor?.Signature?.Parameters?.FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
 
             Assert.IsNotNull(endpoint);
@@ -1116,6 +1285,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum")).Count());
             //two methods need to have the query parameter as an string
             Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.IsFrameworkType && p.Type.FrameworkType == typeof(string))).Count());
+        }
+
+        // Validates that when generateConvenienceMethod is false (i.e. @convenientAPI(false)),
+        [Test]
+        public void ValidateEnumQueryParamWithoutConvenienceMethod()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var enumType = InputFactory.StringEnum(
+                "InputEnum",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true);
+            var inputClient = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod(
+                        "test",
+                        InputFactory.Operation(
+                            "Operation",
+                            parameters:
+                            [
+                                InputFactory.QueryParameter(
+                                    "queryParam",
+                                    enumType,
+                                    isRequired: true)
+                            ],
+                            generateConvenienceMethod: false),
+                        parameters:
+                        [
+                            InputFactory.MethodParameter(
+                                "queryParam",
+                                enumType,
+                                isRequired: true,
+                                location: InputRequestLocation.Query)
+                        ])
+                ]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+            var methods = clientProvider!.Methods;
+
+            // only protocol methods (sync + async), no convenience methods
+            Assert.AreEqual(2, methods.Count);
+            Assert.IsTrue(methods.All(m => m is ScmMethodProvider));
+
+            Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(
+                p => p.Name == "queryParam" && p.Type.IsFrameworkType && p.Type.FrameworkType == typeof(string))).Count());
+
+            Assert.AreEqual(0, methods.Where(m => m.Signature.Parameters.Any(
+                p => p.Name == "queryParam" && p.Type.Name == "InputEnum")).Count());
+
+            var enumProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType);
+            Assert.IsNotNull(enumProvider);
         }
 
         [TestCase(true)]
@@ -1291,7 +1515,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             /* verify the apiVersion assignment in constructor body */
             var primaryConstructor = clientProvider.Constructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(primaryConstructor);
             var bodyStatements = primaryConstructor?.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(bodyStatements);
@@ -1328,7 +1552,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             /* verify the apiVersion assignment in constructor body */
             var primaryConstructor = clientProvider.Constructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(primaryConstructor);
             var bodyStatements = primaryConstructor?.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(bodyStatements);
@@ -1502,7 +1726,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     isEndpoint: true)]);
             var clientProvider = new ClientProvider(client);
             var constructor = clientProvider.Constructors.FirstOrDefault(
-                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
 
             StringAssert.Contains("_endpoint = endpoint;", constructor?.BodyStatements?.ToDisplayString());
         }
@@ -1523,7 +1747,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     isEndpoint: true)]);
             var clientProvider = new ClientProvider(client);
             var constructor = clientProvider.Constructors.FirstOrDefault(
-                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
 
             StringAssert.Contains($"_endpoint = new global::System.Uri($\"{serverTemplate}\");", constructor?.BodyStatements?.ToDisplayString());
         }
@@ -3597,7 +3821,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     isEndpoint: true)]);
             var clientProvider = new ClientProvider(client);
             var constructor = clientProvider.Constructors.FirstOrDefault(
-                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
 
             Assert.IsNotNull(constructor);
             // Should not throw and should contain the Uri assignment
@@ -3631,7 +3855,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 ]);
             var clientProvider = new ClientProvider(client);
             var constructor = clientProvider.Constructors.FirstOrDefault(
-                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
 
             Assert.IsNotNull(constructor);
             // Should not throw - case-insensitive lookup should find parameters
@@ -3672,7 +3896,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 ]);
             var clientProvider = new ClientProvider(client);
             var constructor = clientProvider.Constructors.FirstOrDefault(
-                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
 
             Assert.IsNotNull(constructor);
             var bodyText = constructor!.BodyStatements!.ToDisplayString();

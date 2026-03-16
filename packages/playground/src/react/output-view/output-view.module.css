@@ -18,6 +18,17 @@
   min-height: 0;
 }
 
+.file-viewer-content-with-breadcrumb {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.file-viewer-content-with-breadcrumb .file-viewer-content {
+  flex: 1;
+  min-height: 0;
+}
+
 .type-graph-viewer {
   height: 100%;
   overflow-y: auto;

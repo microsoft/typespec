@@ -13044,6 +13044,52 @@
                   {
                     "$id": "866",
                     "kind": "path",
+                    "name": "metricsNamespace",
+                    "serializedName": "metricsNamespace",
+                    "type": {
+                      "$id": "867",
+                      "kind": "string",
+                      "name": "string",
+                      "crossLanguageDefinitionId": "TypeSpec.string",
+                      "decorators": []
+                    },
+                    "isApiVersion": false,
+                    "explode": false,
+                    "style": "simple",
+                    "allowReserved": false,
+                    "skipUrlEncoding": false,
+                    "optional": false,
+                    "scope": "Client",
+                    "decorators": [],
+                    "readOnly": false,
+                    "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.getWidgetMetrics.metricsNamespace",
+                    "methodParameterSegments": [
+                      {
+                        "$id": "868",
+                        "kind": "method",
+                        "name": "metricsNamespace",
+                        "serializedName": "metricsNamespace",
+                        "type": {
+                          "$id": "869",
+                          "kind": "string",
+                          "name": "string",
+                          "crossLanguageDefinitionId": "TypeSpec.string",
+                          "decorators": []
+                        },
+                        "location": "",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "SampleTypeSpec.MetricsClientParams.metricsNamespace",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
+                  },
+                  {
+                    "$id": "870",
+                    "kind": "path",
                     "name": "day",
                     "serializedName": "day",
                     "type": {
@@ -13061,7 +13107,7 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.getWidgetMetrics.day",
                     "methodParameterSegments": [
                       {
-                        "$id": "867",
+                        "$id": "871",
                         "kind": "method",
                         "name": "day",
                         "serializedName": "day",
@@ -13080,7 +13126,7 @@
                     ]
                   },
                   {
-                    "$id": "868",
+                    "$id": "872",
                     "kind": "header",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -13096,7 +13142,7 @@
                     "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.getWidgetMetrics.accept",
                     "methodParameterSegments": [
                       {
-                        "$id": "869",
+                        "$id": "873",
                         "kind": "method",
                         "name": "accept",
                         "serializedName": "Accept",
@@ -13132,7 +13178,7 @@
                 ],
                 "httpMethod": "GET",
                 "uri": "{sampleTypeSpecUrl}",
-                "path": "/metrics/widgets/daysOfWeek/{day}",
+                "path": "/metrics/{metricsNamespace}/widgets/daysOfWeek/{day}",
                 "bufferResponse": true,
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
@@ -13142,10 +13188,10 @@
               },
               "parameters": [
                 {
-                  "$ref": "867"
+                  "$ref": "871"
                 },
                 {
-                  "$ref": "869"
+                  "$ref": "873"
                 }
               ],
               "response": {
@@ -13161,12 +13207,12 @@
           ],
           "parameters": [
             {
-              "$id": "870",
+              "$id": "874",
               "kind": "endpoint",
               "name": "sampleTypeSpecUrl",
               "serializedName": "sampleTypeSpecUrl",
               "type": {
-                "$id": "871",
+                "$id": "875",
                 "kind": "url",
                 "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -13179,6 +13225,9 @@
               "skipUrlEncoding": false,
               "readOnly": false,
               "crossLanguageDefinitionId": "SampleTypeSpec.Metrics.sampleTypeSpecUrl"
+            },
+            {
+              "$ref": "868"
             }
           ],
           "initializedBy": 3,

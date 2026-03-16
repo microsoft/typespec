@@ -64,10 +64,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
-                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+                : MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual;
             if (_shouldOverrideMethods)
             {
-                modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
+                modifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Override;
             }
 
             // void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
@@ -761,13 +761,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (!hasHook)
                 {
+                    bool isPreInitialized = prop.IsRequired && !prop.PropertyType.IsNullable;
                     deserializationStatement = CreateXmlDeserializePropertyAssignment(
                         childElement,
                         prop.PropertyType,
                         prop.DeserializationExp,
                         prop.XmlWireInfo,
                         prop.SerializationFormat,
-                        namespaces);
+                        namespaces,
+                        isPreInitialized);
                 }
 
                 // Build condition: check localName and optionally namespace
@@ -849,11 +851,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             VariableExpression propertyExpression,
             XmlSerialization xmlWireInfo,
             SerializationFormat serializationFormat,
-            Dictionary<string, XmlNamespaceInfo>? namespaces = null)
+            Dictionary<string, XmlNamespaceInfo>? namespaces = null,
+            bool isPreInitialized = false)
         {
             if (propertyType.IsList || propertyType.IsArray)
             {
-                return CreateXmlDeserializeListAssignment(childElement, propertyType, propertyExpression, xmlWireInfo, serializationFormat, namespaces);
+                return CreateXmlDeserializeListAssignment(childElement, propertyType, propertyExpression, xmlWireInfo, serializationFormat, namespaces, isPreInitialized);
             }
 
             if (propertyType.IsDictionary)
@@ -871,20 +874,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             VariableExpression listExpression,
             XmlSerialization xmlWireInfo,
             SerializationFormat serializationFormat,
-            Dictionary<string, XmlNamespaceInfo>? namespaces = null)
+            Dictionary<string, XmlNamespaceInfo>? namespaces = null,
+            bool isPreInitialized = false)
         {
             var elementType = listType.ElementType;
             if (xmlWireInfo.Unwrapped == true)
             {
-                return new MethodBodyStatements(
-                [
-                    new IfStatement(listExpression.Equal(Null))
+                var statements = new List<MethodBodyStatement>();
+                if (!isPreInitialized)
+                {
+                    statements.Add(new IfStatement(listExpression.Equal(Null))
                     {
                         listExpression.Assign(New.List(elementType)).Terminate(),
-                    },
-                    DeserializeXmlValue(childElement, elementType, serializationFormat, out var itemValue),
-                    listExpression.Invoke("Add", itemValue).Terminate()
-                ]);
+                    });
+                }
+                statements.Add(DeserializeXmlValue(childElement, elementType, serializationFormat, out var itemValue));
+                statements.Add(listExpression.Invoke("Add", itemValue).Terminate());
+                return new MethodBodyStatements([.. statements]);
             }
             else
             {

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "type": "module",
   "main": "dist/src/index.js",
   "license": "MIT",
@@ -40,8 +40,6 @@
     "@typespec/http": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/tspd": "workspace:^",
-    "eslint": "^9.39.2",
-    "prettier": "~3.8.0",
     "typescript": "~5.9.3",
     "vitest": "^4.0.18"
   },

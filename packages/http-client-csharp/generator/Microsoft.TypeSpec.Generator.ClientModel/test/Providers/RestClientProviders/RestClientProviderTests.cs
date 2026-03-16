@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Tests.Common;
-using NUnit.Framework;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Tests.Common;
+using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientProviders
 {
@@ -533,7 +533,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             try
             {
-                var methods  = restClientProvider.Methods;
+                var methods = restClientProvider.Methods;
             }
             catch (InvalidOperationException e)
             {
@@ -612,6 +612,82 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "sampleOp",
                 parameters: parameters,
                 uri: "/{someOtherName}/{p2}/{p3}");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.QueryParameter("copyid", InputPrimitiveType.String, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "abortCopyFromUrl",
+                parameters: parameters,
+                path: "?comp=copy",
+                httpMethod: "PUT");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithSlashQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.QueryParameter("copyid", InputPrimitiveType.String, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "abortCopyFromUrl",
+                parameters: parameters,
+                path: "/?comp=copy",
+                httpMethod: "PUT");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithMixedPathAndQueryInPath()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.PathParameter("p1", InputPrimitiveType.String, isRequired: true),
+                InputFactory.QueryParameter("optionalParam", new InputNullableType(InputPrimitiveType.String), isRequired: false),
+            ];
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: parameters,
+                path: "/items/{p1}?comp=copy&restype=container",
+                httpMethod: "PUT");
 
             var client = InputFactory.Client(
                 "TestClient",
