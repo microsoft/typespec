@@ -112,10 +112,9 @@ function Test-TcgcCompatibility {
     $tcgcRange = ($tcgcRange | Out-String).Trim()
     Write-Host "  Requires tcgc: $tcgcRange"
     
-    $jsCode = "try{console.log(require('semver').satisfies('$TcgcVersion','$tcgcRange'))}catch(e){console.log('error')}"
-    $semverResult = (& node -e $jsCode 2>&1 | Out-String).Trim()
+    $semverResult = & npx semver -r $tcgcRange $TcgcVersion 2>&1
     
-    if ($semverResult -eq 'true') {
+    if ($LASTEXITCODE -eq 0 -and $semverResult) {
         Write-Host "  ✓ Compatible"
         return $true
     } else {
