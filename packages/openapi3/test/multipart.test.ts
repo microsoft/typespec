@@ -104,9 +104,9 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     );
     const op = res.paths["/"].post;
     // The union should be referenced as a $ref (not inlined), and should be available in components
-    expect(
-      op.requestBody.content["multipart/form-data"].schema.properties.attachment.$ref,
-    ).toEqual("#/components/schemas/BinaryOrJson");
+    expect(op.requestBody.content["multipart/form-data"].schema.properties.attachment.$ref).toEqual(
+      "#/components/schemas/BinaryOrJson",
+    );
     const schema = res.components.schemas.BinaryOrJson;
     expect(schema).toBeDefined();
     // The schema should use anyOf with 2 variants
