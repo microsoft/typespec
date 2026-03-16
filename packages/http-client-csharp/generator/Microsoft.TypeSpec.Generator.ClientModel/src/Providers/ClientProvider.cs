@@ -1456,8 +1456,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters.
-            // When @paramAlias is used (via @clientInitialization), an operation parameter (e.g. "notebookName") may map
-            // to a client parameter (e.g. "notebook") via MethodParameterSegments or ParamAlias. Exclude such operation
+            // When @paramAlias is used (via @clientInitialization), an operation parameter may map
+            // to a client parameter via MethodParameterSegments. Exclude such operation
             // parameters since the client parameter supersedes them.
             var parameters = _inputClient.Parameters.Concat(
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
@@ -1477,14 +1477,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// Determines whether an operation parameter is superseded by an existing client parameter.
-        /// This occurs when @paramAlias is used with @clientInitialization: the operation parameter
-        /// (e.g. "notebookName") maps to a client parameter (e.g. "notebook") and should not appear
+        /// This occurs when @paramAlias is used with @clientInitialization and should not appear
         /// as a separate constructor parameter.
         /// </summary>
         private static bool IsSupersededByClientParameter(InputParameter operationParam, HashSet<string> clientParamNames)
         {
-            // Check via MethodParameterSegments: if the operation parameter's first segment references
-            // a client parameter, the operation parameter is superseded.
             if (operationParam.MethodParameterSegments is { Count: > 0 } segments &&
                 clientParamNames.Contains(segments[0].Name))
             {
