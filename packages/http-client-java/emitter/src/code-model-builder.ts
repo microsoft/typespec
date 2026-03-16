@@ -1886,9 +1886,7 @@ export class CodeModelBuilder {
 
         // group schema
 
-        // TODO: double check this suppression
-        // eslint-disable-next-line no-useless-assignment
-        let coreNamespace = this.namespace;
+        let coreNamespace;
         if (this.isAzureV1()) {
           coreNamespace = "com.azure.core.http";
         } else {
