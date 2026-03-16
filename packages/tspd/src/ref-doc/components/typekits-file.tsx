@@ -20,12 +20,15 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName: strin
     ? `${packageName}/experimental/typekit`
     : `${packageName}/typekit`;
 
-  // Build import statements for code blocks
-  const registrationImport =
-    typekit.isExperimental && !isCompilerPackage ? `import "${typekitImportPath}";\n` : "";
-  const typekitImport = `import { $ } from "@typespec/compiler/typekit";`;
+  // Build import statements for code blocks - compiler package shows only typekit import,
+  // non-compiler experimental packages show both registration and typekit imports
+  const importStatements = isCompilerPackage
+    ? `import { $ } from "@typespec/compiler/typekit";`
+    : typekit.isExperimental
+      ? `import "${typekitImportPath}";\nimport { $ } from "@typespec/compiler/typekit";`
+      : `import { $ } from "@typespec/compiler/typekit";`;
 
-  // Build explanation text
+  // Build explanation text for experimental non-compiler packages
   const sideEffectsExplanation =
     typekit.isExperimental && !isCompilerPackage
       ? "\n\nThe first import registers the typekit extensions. This import only needs to exist once in your compilation as only its side effects are important."
@@ -50,30 +53,14 @@ export function createTypekitDocs(typekit: TypekitCollection, packageName: strin
         `}
           </>
         )}
-        {!isCompilerPackage && (
-          <>
-            {code`
+        {code`
         
         To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
         
         \`\`\`ts
-        ${registrationImport}${typekitImport}
+        ${importStatements}
         \`\`\`${sideEffectsExplanation}
         `}
-          </>
-        )}
-        {isCompilerPackage && (
-          <>
-            {code`
-        
-        To use these typekits in your TypeSpec emitter or tool, you need to import the typekit module:
-        
-        \`\`\`ts
-        ${typekitImport}
-        \`\`\`
-        `}
-          </>
-        )}
         <md.Section>
           <For each={Object.values(typekit.namespaces)}>
             {(x) => <TypekitSection typekit={x} />}
