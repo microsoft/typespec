@@ -17,9 +17,180 @@ As in JSON, there is some [default handling](https://typespec.io/docs/libraries/
 | `duration`       | `xs:duration`     | `TypeSpec.Xml.Encoding.xmlDuration`     |
 | `bytes`          | `xs:base64Binary` | `TypeSpec.Xml.Encoding.xmlBase64Binary` |
 
-## 1. Array of primitive types
+## 1. Basic properties
 
-### 1.1 — Unwrapped primitive array
+### 1.1 — Simple model with scalar properties
+
+Properties of scalar types are serialized as child XML elements by default.
+
+```tsp
+model Book {
+  id: integer;
+  title: string;
+  author: string;
+}
+```
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Book>
+  <id>0</id>
+  <title>string</title>
+  <author>string</author>
+</Book>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: object
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+    author:
+      type: string
+```
+
+</TabItem>
+</Tabs>
+
+### 1.2 — Renaming a property for XML
+
+`@encodedName("application/xml", ...)` or `@Xml.name(...)` changes how a property name appears in the XML output without affecting the TypeSpec model name.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+model Book {
+  id: integer;
+
+  @Xml.name("book-title")
+  title: string;
+
+  author: string;
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+model Book {
+  id: integer;
+
+  @encodedName("application/xml", "book-title")
+  title: string;
+
+  author: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<Book>
+  <id>0</id>
+  <book-title>string</book-title>
+  <author>string</author>
+</Book>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: object
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+      xml:
+        name: "book-title"
+    author:
+      type: string
+```
+
+</TabItem>
+</Tabs>
+
+### 1.3 — Renaming the model for XML
+
+`@encodedName("application/xml", ...)` or `@Xml.name(...)` on a model changes the root element name in the XML output.
+
+<Tabs>
+<TabItem label="Using @Xml.name">
+
+```tsp
+@Xml.name("XmlBook")
+model Book {
+  id: integer;
+  title: string;
+  author: string;
+}
+```
+
+</TabItem>
+<TabItem label="Using @encodedName">
+
+```tsp
+@encodedName("application/xml", "XmlBook")
+model Book {
+  id: integer;
+  title: string;
+  author: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="XML">
+
+```xml
+<XmlBook>
+  <id>0</id>
+  <title>string</title>
+  <author>string</author>
+</XmlBook>
+```
+
+</TabItem>
+<TabItem label="OpenAPI3">
+
+```yaml
+Book:
+  type: object
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+    author:
+      type: string
+  xml:
+    name: "XmlBook"
+```
+
+</TabItem>
+</Tabs>
+
+## 2. Array of primitive types
+
+### 2.1 — Unwrapped primitive array
 
 Each element is serialized using the property name as its XML element name. `@Xml.unwrapped` prevents wrapping in a container element.
 
@@ -58,7 +229,7 @@ Pet:
 </TabItem>
 </Tabs>
 
-### 1.2 — Wrapped primitive array with custom wrapper name
+### 2.2 — Wrapped primitive array with custom wrapper name
 
 Without `@Xml.unwrapped`, the array is wrapped in a container element. `@encodedName` on the property customizes the wrapper element name.
 
@@ -102,7 +273,7 @@ Pet:
 </TabItem>
 </Tabs>
 
-### 1.3 — Unwrapped primitive array with custom item name
+### 2.3 — Unwrapped primitive array with custom item name
 
 Using `@encodedName` on a named scalar controls the element name of each item.
 
@@ -144,7 +315,7 @@ Pet:
 </TabItem>
 </Tabs>
 
-### 1.4 — Wrapped primitive array with custom wrapper and item names
+### 2.4 — Wrapped primitive array with custom wrapper and item names
 
 Both the wrapper element and each item element have custom names via `@encodedName`.
 
@@ -191,9 +362,9 @@ Pet:
 </TabItem>
 </Tabs>
 
-## 2. Complex array types
+## 3. Complex array types
 
-### 2.1 — Unwrapped array of models
+### 3.1 — Unwrapped array of models
 
 Each model item uses its model's XML name (`XmlTag`) when the array is unwrapped.
 
@@ -246,7 +417,7 @@ Pet:
 </TabItem>
 </Tabs>
 
-### 2.2 — Wrapped array of models (default)
+### 3.2 — Wrapped array of models (default)
 
 Without `@Xml.unwrapped`, the array is wrapped in a container element named after the property.
 
@@ -302,7 +473,7 @@ Pet:
 </TabItem>
 </Tabs>
 
-### 2.3 — Unwrapped array of models with custom item name
+### 3.3 — Unwrapped array of models with custom item name
 
 Using `@encodedName` on the property overrides each item's element name, taking precedence over the model's XML name.
 
@@ -356,7 +527,7 @@ Pet:
 </TabItem>
 </Tabs>
 
-### 2.4 — Wrapped array of models with custom wrapper name
+### 3.4 — Wrapped array of models with custom wrapper name
 
 The wrapper element has a custom name via `@encodedName`; items use the model's XML name.
 
@@ -414,9 +585,9 @@ Pet:
 </TabItem>
 </Tabs>
 
-## 3. Nested models
+## 4. Nested models
 
-### 3.1 — Basic nested model
+### 4.1 — Basic nested model
 
 A property referencing another model is serialized as a nested XML element using the property name.
 
@@ -460,7 +631,7 @@ Author:
 </TabItem>
 </Tabs>
 
-### 3.2 — Nested model with custom XML name on the model
+### 4.2 — Nested model with custom XML name on the model
 
 When the referenced model has `@encodedName`, the property name still takes precedence for the XML element name.
 
@@ -510,7 +681,7 @@ Author:
 </TabItem>
 </Tabs>
 
-### 3.3 — Nested model with custom XML name on the property
+### 4.3 — Nested model with custom XML name on the property
 
 Using `@encodedName` on the property overrides the element name for the nested model.
 
@@ -558,9 +729,9 @@ Author:
 </TabItem>
 </Tabs>
 
-## 4. Attributes
+## 5. Attributes
 
-### 4.1 — XML attributes and element name override
+### 5.1 — XML attributes and element name override
 
 `@Xml.attribute` serializes a property as an XML attribute instead of a child element. `@Xml.name` overrides the XML element name.
 
@@ -608,9 +779,9 @@ Book:
 </TabItem>
 </Tabs>
 
-## 5. Namespace and prefix (inline form)
+## 6. Namespace and prefix (inline form)
 
-### 5.1 — Namespace on the model
+### 6.1 — Namespace on the model
 
 `@Xml.ns` on a model adds a namespace prefix and declaration to the root element.
 
@@ -655,7 +826,7 @@ Book:
 </TabItem>
 </Tabs>
 
-### 5.2 — Namespace on individual properties
+### 6.2 — Namespace on individual properties
 
 Properties can declare their own namespace with `@Xml.ns`, which may differ from the model's namespace.
 
@@ -710,9 +881,9 @@ Book:
 </TabItem>
 </Tabs>
 
-## 6. Namespace and prefix (normalized form)
+## 7. Namespace and prefix (normalized form)
 
-### 6.1 — Using an `@Xml.nsDeclarations` enum
+### 7.1 — Using an `@Xml.nsDeclarations` enum
 
 Declare namespaces in an enum to avoid repeating URIs. Reference enum members with `@Xml.ns`.
 
@@ -766,7 +937,7 @@ Namespaces:
 </TabItem>
 </Tabs>
 
-### 6.2 — Multiple namespaces via enum
+### 7.2 — Multiple namespaces via enum
 
 Multiple namespace declarations can be defined in a single enum and referenced on individual properties.
 
@@ -832,9 +1003,9 @@ Namespaces:
 </TabItem>
 </Tabs>
 
-## 7. Property setting the text of the node
+## 8. Property setting the text of the node
 
-### 7.1 — Text content with attributes
+### 8.1 — Text content with attributes
 
 `@Xml.unwrapped` on a scalar property makes it the text content of the parent element. Combined with `@Xml.attribute`, you can model elements that have both attributes and inline text.
 
