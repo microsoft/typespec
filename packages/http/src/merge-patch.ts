@@ -393,7 +393,14 @@ function createMergePatchMutator(
           }
 
           clone.decorators = clone.decorators.filter((d) => d.decorator !== $applyMergePatch);
-          setMediaTypeHint(program, clone, "application/merge-patch+json");
+          // We have to set the media type in a decorator, not just by calling `setMediaTypeHint`, in order for it to be
+          // preserved on further mutation.
+          clone.decorators.push({
+            decorator: function (ctx: DecoratorContext, target: Model) {
+              setMediaTypeHint(ctx.program, target, "application/merge-patch+json");
+            },
+            args: [],
+          });
           ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(clone, model);
           rename(ctx.program, clone, nameTemplate);
         },
