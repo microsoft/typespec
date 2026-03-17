@@ -1879,8 +1879,8 @@ importers:
         specifier: workspace:^
         version: link:../internal-build-utils
       ecmarkup:
-        specifier: ~24.0.0
-        version: 24.0.0
+        specifier: ~23.0.2
+        version: 23.0.2
 
   packages/spec-api:
     dependencies:
@@ -8293,9 +8293,9 @@ packages:
   ecmarkdown@8.1.0:
     resolution: {integrity: sha512-dx6cM6RFjzAXkWr2KQRikED4gy70NFQ0vTI4XUQM/LWcjUYRJUbGdd7nd++trXi5az1JSe49TeeCIVMKDXOtcQ==}
 
-  ecmarkup@24.0.0:
-    resolution: {integrity: sha512-JsP1UEgWTpUU7r6aHlcDYDQN0KINY8dCdiq7ZdRBOH9GvL3R0uBZuZaLvBO4aTc2qQMHhk1EKVi6MmtyU0MZzQ==}
-    engines: {node: '>= 24'}
+  ecmarkup@23.0.2:
+    resolution: {integrity: sha512-hnCtidy6d8o3TJcT64PTSRFwH+lgQXtr8F8eyImDaygzbh38OZWILqIphYTpDMd0wwoBai8nG5oB+QFms6eLGA==}
+    engines: {node: '>= 18'}
     hasBin: true
 
   editions@6.22.0:
@@ -21067,7 +21067,7 @@ snapshots:
     dependencies:
       escape-html: 1.0.3
 
-  ecmarkup@24.0.0:
+  ecmarkup@23.0.2:
     dependencies:
       chalk: 4.1.2
       command-line-args: 5.2.1
