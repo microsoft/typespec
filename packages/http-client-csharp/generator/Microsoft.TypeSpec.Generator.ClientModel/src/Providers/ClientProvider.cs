@@ -332,9 +332,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Checks whether a parameter is the target of a @paramAlias on a specific parent parameter.
-        /// This is a precise check — it only matches when a parent parameter's ParamAlias directly
-        /// references this parameter's name, not when an unrelated parameter happens to share the name.
+        /// Checks whether a parameter is the target of a paramAlias on another parameter.
         /// </summary>
         private static bool IsParameterAliasedByParent(InputParameter param, IReadOnlyList<InputParameter> parentParameters)
         {
