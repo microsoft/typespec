@@ -196,10 +196,10 @@ A property referencing another model is serialized as a nested XML element using
 
 ```tsp
 model Book {
-  author: Author;
+  author: Person;
 }
 
-model Author {
+model Person {
   name: string;
 }
 ```
@@ -223,8 +223,8 @@ Book:
   type: object
   properties:
     author:
-      $ref: "#/components/schemas/Author"
-Author:
+      $ref: "#/components/schemas/Person"
+Person:
   type: object
   properties:
     name:
@@ -243,11 +243,11 @@ When the referenced model has `@Xml.name` or `@encodedName`, the property name s
 
 ```tsp
 model Book {
-  author: Author;
+  author: Person;
 }
 
-@Xml.name("XmlAuthor")
-model Author {
+@Xml.name("XmlPerson")
+model Person {
   name: string;
 }
 ```
@@ -257,11 +257,11 @@ model Author {
 
 ```tsp
 model Book {
-  author: Author;
+  author: Person;
 }
 
-@encodedName("application/xml", "XmlAuthor")
-model Author {
+@encodedName("application/xml", "XmlPerson")
+model Person {
   name: string;
 }
 ```
@@ -289,16 +289,16 @@ Book:
   properties:
     author:
       allOf:
-        - $ref: "#/components/schemas/Author"
+        - $ref: "#/components/schemas/Person"
       xml:
-        name: "author" # Here we have to redefine this name otherwise in OpenAPI semantic the `XmlAuthor` name would be used
-Author:
+        name: "author" # Here we have to redefine this name otherwise in OpenAPI semantic the `XmlPerson` name would be used
+Person:
   type: object
   properties:
     name:
       type: string
   xml:
-    name: "XmlAuthor"
+    name: "XmlPerson"
 ```
 
 </TabItem>
@@ -314,10 +314,10 @@ Using `@Xml.name` or `@encodedName` on the property overrides the element name f
 ```tsp
 model Book {
   @Xml.name("xml-author")
-  author: Author;
+  author: Person;
 }
 
-model Author {
+model Person {
   name: string;
 }
 ```
@@ -328,10 +328,10 @@ model Author {
 ```tsp
 model Book {
   @encodedName("application/xml", "xml-author")
-  author: Author;
+  author: Person;
 }
 
-model Author {
+model Person {
   name: string;
 }
 ```
@@ -359,10 +359,10 @@ Book:
   properties:
     author:
       allOf:
-        - $ref: "#/components/schemas/Author"
+        - $ref: "#/components/schemas/Person"
       xml:
         name: "xml-author"
-Author:
+Person:
   type: object
   properties:
     name:
