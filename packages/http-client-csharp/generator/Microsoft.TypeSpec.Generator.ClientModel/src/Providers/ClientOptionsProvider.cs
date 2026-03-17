@@ -258,10 +258,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 FormattableString versionParamDescription = $"The service version";
                 if (_inputClient.IsMultiServiceClient)
                 {
-                    versionParameterName = ClientHelper.BuildNameForService(
-                        serviceVersionEnum.Name,
-                        ServicePrefix,
-                        VersionSuffix).ToVariableName();
+                    versionParameterName = serviceVersionEnum.Name.ToVariableName();
                     versionParamDescription = $"The {serviceVersionEnum.Name} service version";
                 }
 

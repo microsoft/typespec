@@ -714,6 +714,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void MultiServiceClient_SameLastSegment_ProducesUniqueVersionEnums()
+        {
+            // Regression test: when two services have different full namespaces but the same last
+            // segment, the generated service version enums should still have distinct names.
+            List<string> serviceOneVersions = ["1.0", "2.0"];
+            List<string> serviceTwoVersions = ["3.0", "4.0"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            // Different full namespaces, same last segment ("Tests")
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceOne.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceTwo.Tests");
+
+            var client = InputFactory.Client("TestClient", isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            var clientOptionsProvider = clientProvider?.ClientOptions;
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            // Validate nested service version enums have unique names
+            var nestedTypes = clientOptionsProvider!.NestedTypes;
+            Assert.AreEqual(2, nestedTypes.Count);
+            Assert.AreNotEqual(nestedTypes[0].Name, nestedTypes[1].Name);
+            CollectionAssert.AllItemsAreUnique(nestedTypes.Select(t => t.Name).ToList());
+        }
+
+        [Test]
         public void TestConfigurationSectionConstructorBody_WithBoolProperty()
         {
             var boolParam = InputFactory.MethodParameter(

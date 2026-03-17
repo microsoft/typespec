@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -38,7 +39,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var serviceNamespace = _inputEnum.Namespace;
                 if (!string.IsNullOrEmpty(serviceNamespace))
                 {
-                    return ClientHelper.BuildNameForService(serviceNamespace, ServicePrefix, VersionSuffix);
+                    // Use the full namespace to guarantee uniqueness when services
+                    // have different namespaces but the same last segment.
+                    return $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}";
                 }
             }
 
