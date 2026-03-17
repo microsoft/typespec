@@ -3821,6 +3821,77 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("_serviceAApiVersion", fieldUpperCase!.Name);
         }
 
+        [Test]
+        public void GetApiVersionFieldForService_MultiService_SameNamespace_ProducesUniqueFields()
+        {
+            // Regression test: when two services share the same namespace, the namespace-based
+            // name generation produces duplicates. The fix falls back to enum names.
+            List<string> serviceOneVersions = ["1.0", "2.0"];
+            List<string> serviceTwoVersions = ["3.0", "4.0"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            // Both enums share the same namespace, which would produce duplicate field names
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceOneOperation = InputFactory.Operation(
+                "ServiceOneOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+
+            var serviceTwoOperation = InputFactory.Operation(
+                "ServiceTwoOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceOneMethod", serviceOneOperation),
+                    InputFactory.BasicServiceMethod("ServiceTwoMethod", serviceTwoOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // This should not crash — previously it threw due to duplicate field names
+            Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
+
+            // The fields should have unique names derived from enum names
+            var fieldOne = clientProvider!.GetApiVersionFieldForService("Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+            Assert.IsNotNull(fieldOne);
+
+            // Verify we have two distinct api version fields
+            var apiVersionFields = clientProvider.Fields.Where(f => f.Name.Contains("ApiVersion", StringComparison.OrdinalIgnoreCase)).ToList();
+            Assert.AreEqual(2, apiVersionFields.Count);
+            Assert.AreNotEqual(apiVersionFields[0].Name, apiVersionFields[1].Name);
+        }
+
         [TestCase("{endpoint}")]
         [TestCase("{Endpoint}")]
         [TestCase("{ENDPOINT}")]

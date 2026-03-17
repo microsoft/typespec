@@ -131,13 +131,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
+            // Compute version property names for each enum
+            var entries = new List<(InputEnumType InputEnum, EnumProvider EnumProvider, string Name)>(_serviceVersionsEnums.Count);
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
                 var versionPropertyName = _inputClient.IsMultiServiceClient
                     ? ClientHelper.BuildNameForService(inputEnum.Namespace, ServicePrefix, ApiVersionSuffix)
                     : VersionSuffix;
+                entries.Add((inputEnum, enumProvider, versionPropertyName));
+            }
 
+            // When namespace-based names collide for multi-service clients, fall back to using the enum name
+            if (_inputClient.IsMultiServiceClient)
+            {
+                var duplicateNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var seenNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var (_, _, name) in entries)
+                {
+                    if (!seenNames.Add(name))
+                    {
+                        duplicateNames.Add(name);
+                    }
+                }
+
+                if (duplicateNames.Count > 0)
+                {
+                    for (int i = 0; i < entries.Count; i++)
+                    {
+                        var entry = entries[i];
+                        if (duplicateNames.Contains(entry.Name))
+                        {
+                            entries[i] = (entry.InputEnum, entry.EnumProvider,
+                                ClientHelper.BuildNameForService(entry.InputEnum.Name, ServicePrefix, ApiVersionSuffix));
+                        }
+                    }
+                }
+            }
+
+            var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
+            foreach (var (_, enumProvider, versionPropertyName) in entries)
+            {
                 var versionProperty = new PropertyProvider(
                     null,
                     MethodSignatureModifiers.Internal,
