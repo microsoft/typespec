@@ -645,12 +645,12 @@ interface ModelWithEnumValue
 
 /** Contains datetime properties with different encodings. */
 model ModelWithDatetime {
-  @encode(DateTimeKnownEncoding.rfc3339)
   /** DateTime value with rfc3339 encoding. */
+  @encode(DateTimeKnownEncoding.rfc3339)
   rfc3339: utcDateTime;
 
-  @encode(DateTimeKnownEncoding.rfc7231)
   /** DateTime value with rfc7231 encoding. */
+  @encode(DateTimeKnownEncoding.rfc7231)
   rfc7231: utcDateTime;
 }
 
