@@ -1451,13 +1451,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<InputParameter> GetAllClientParameters()
         {
             // Collect the names of parameters already declared on this client (e.g. from @clientInitialization).
-            var clientParamNames = _inputClient.Parameters
-                .Select(p => p.Name)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            // Also include paramAlias values so that operation parameters matching an alias are recognized as superseded.
+            var clientParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in _inputClient.Parameters)
+            {
+                clientParamNames.Add(p.Name);
+                if (p is InputMethodParameter { ParamAlias: string alias })
+                {
+                    clientParamNames.Add(alias);
+                }
+            }
 
             // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters.
             // When @paramAlias is used (via @clientInitialization), an operation parameter may map
-            // to a client parameter via MethodParameterSegments. Exclude such operation
+            // to a client parameter via MethodParameterSegments or ParamAlias. Exclude such operation
             // parameters since the client parameter supersedes them.
             var parameters = _inputClient.Parameters.Concat(
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
@@ -1482,6 +1489,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private static bool IsSupersededByClientParameter(InputParameter operationParam, HashSet<string> clientParamNames)
         {
+            if (clientParamNames.Contains(operationParam.Name))
+            {
+                return true;
+            }
+
             if (operationParam.MethodParameterSegments is { Count: > 0 } segments &&
                 clientParamNames.Contains(segments[0].Name))
             {
