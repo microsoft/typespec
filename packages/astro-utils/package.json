@@ -19,7 +19,7 @@
     "index.ts"
   ],
   "scripts": {
-    "build": "astro check && tsc -p ./tsconfig.build.json",
+    "build": "node -e \"if(process.env.TYPESPEC_SKIP_WEBSITE_BUILD==='true'){console.log('Skipping astro-utils build');process.exit(0)}else{process.exit(1)}\" || (astro check && tsc -p ./tsconfig.build.json)",
     "watch": "tsc -p ./tsconfig.build.json --watch"
   },
   "devDependencies": {
