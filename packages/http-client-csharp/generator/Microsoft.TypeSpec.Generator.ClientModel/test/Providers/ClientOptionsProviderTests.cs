@@ -751,7 +751,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Validate nested service version enums have unique names
             var nestedTypes = clientOptionsProvider!.NestedTypes;
             Assert.AreEqual(2, nestedTypes.Count);
-            Assert.AreNotEqual(nestedTypes[0].Name, nestedTypes[1].Name);
             CollectionAssert.AllItemsAreUnique(nestedTypes.Select(t => t.Name).ToList());
         }
 
