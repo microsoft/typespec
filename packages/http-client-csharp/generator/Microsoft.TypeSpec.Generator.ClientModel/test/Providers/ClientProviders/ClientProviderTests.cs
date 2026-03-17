@@ -4032,6 +4032,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var blobFields = clientProvider.Fields.Where(f => f.Name == "_blobName").ToList();
             Assert.AreEqual(1, blobFields.Count);
         }
+
+        [Test]
+        public void TestParamAlias_MethodParametersSkipAliasedClientParam()
+        {
+            // When a client parameter "blob" is aliased to "blobName" via @paramAlias,
+            // the generated operation method should NOT have "blobName" as a method parameter
+            // since it's already on the client.
+            var clientParam = InputFactory.MethodParameter(
+                "blob",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                paramAlias: "blobName");
+
+            var operationParam = InputFactory.PathParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operation = InputFactory.Operation("Upload", parameters: [operationParam]);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Upload", operation)],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                        scope: InputParameterScope.Client,
+                        isEndpoint: true),
+                    clientParam]);
+
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // Get the generated operation methods (excluding subclient accessors and constructors)
+            var operationMethods = clientProvider.Methods
+                .Where(m => m.Signature?.Name == "Upload" || m.Signature?.Name == "UploadAsync")
+                .ToList();
+
+            Assert.IsTrue(operationMethods.Count > 0, "Should have Upload methods");
+
+            foreach (var method in operationMethods)
+            {
+                var paramNames = method.Signature!.Parameters.Select(p => p.Name).ToList();
+                Assert.IsFalse(paramNames.Contains("blobName"),
+                    $"Method '{method.Signature.Name}' should not have 'blobName' parameter since it's an aliased client parameter. " +
+                    $"Params: [{string.Join(", ", paramNames)}]");
+                Assert.IsFalse(paramNames.Contains("blob"),
+                    $"Method '{method.Signature.Name}' should not have 'blob' parameter since it's a client parameter. " +
+                    $"Params: [{string.Join(", ", paramNames)}]");
+            }
+        }
     }
 }
 
