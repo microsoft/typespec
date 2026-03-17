@@ -1,6 +1,7 @@
 import { docsLoader } from "@astrojs/starlight/loaders";
 import { docsSchema } from "@astrojs/starlight/schema";
 import { llmstxtSchema } from "@typespec/astro-utils/llmstxt/schema";
+import { glob } from "astro/loaders";
 import { defineCollection } from "astro:content";
 import {z} from "astro/zod";
 
@@ -27,8 +28,7 @@ export const collections = {
     }),
   }),
   blog: defineCollection({
-    type: "content",
-    // Type-check frontmatter using a schema
+    loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/blog" }),
     schema: z.object({
       slug: z.string().optional(),
       redirect_slug: z.string().optional(),
