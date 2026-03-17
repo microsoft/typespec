@@ -435,7 +435,7 @@ export function isErrorModel(program: Program, target: Type): boolean {
 
 // -- @mediaTypeHint decorator --------------
 
-const [_getMediaTypeHint, setMediaTypeHint] = useStateMap<MediaTypeHintable, string>(
+const [_getMediaTypeHint, _setMediaTypeHint] = useStateMap<MediaTypeHintable, string>(
   createStateSymbol("mediaTypeHint"),
 );
 
@@ -461,8 +461,39 @@ export const $mediaTypeHint: MediaTypeHintDecorator = (
     });
   }
 
-  setMediaTypeHint(context.program, target, mediaType);
+  _setMediaTypeHint(context.program, target, mediaType);
 };
+
+/**
+ * Sets the default media type hint for the given target type.
+ *
+ * This value is a hint _ONLY_. Emitters are not required to use it, but may use it to get the default media type
+ * associated with a TypeSpec type.
+ *
+ * If a type already has a default media type hint set, this function will override it with the new value.
+ *
+ * WARNING: this function _will throw an error_ if the provided media type string is not recognized as a valid
+ * MIME type.
+ *
+ * @param program - the Program containing the target
+ * @param target - the target to set the MIME type hint for
+ * @param mediaType - the default media type hint to set for the target
+ * @throws if the provided media type string is not recognized as a valid MIME type
+ */
+export function setMediaTypeHint(
+  program: Program,
+  target: MediaTypeHintable,
+  mediaType: string,
+): void {
+  const mimeTypeObj = parseMimeType(mediaType);
+
+  compilerAssert(
+    mimeTypeObj !== undefined,
+    `Invalid MIME type '${mediaType}' provided to setMediaTypeHint`,
+  );
+
+  _setMediaTypeHint(program, target, mediaType);
+}
 
 /**
  * Get the default media type hint for the given target type.
