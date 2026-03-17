@@ -3678,12 +3678,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // Should return the matching field for ServiceA
             var fieldA = clientProvider!.GetApiVersionFieldForService("Sample.ServiceA");
             Assert.IsNotNull(fieldA);
-            Assert.AreEqual("_serviceAApiVersion", fieldA!.Name);
+            Assert.AreEqual("_sampleServiceAApiVersion", fieldA!.Name);
 
             // Should return the matching field for ServiceB
             var fieldB = clientProvider.GetApiVersionFieldForService("Sample.ServiceB");
             Assert.IsNotNull(fieldB);
-            Assert.AreEqual("_serviceBApiVersion", fieldB!.Name);
+            Assert.AreEqual("_sampleServiceBApiVersion", fieldB!.Name);
         }
 
         [Test]
@@ -3814,35 +3814,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // Should match case-insensitively
             var fieldLowerCase = clientProvider!.GetApiVersionFieldForService("sample.serviceA");
             Assert.IsNotNull(fieldLowerCase);
-            Assert.AreEqual("_serviceAApiVersion", fieldLowerCase!.Name);
+            Assert.AreEqual("_sampleServiceAApiVersion", fieldLowerCase!.Name);
 
             var fieldUpperCase = clientProvider.GetApiVersionFieldForService("SAMPLE.SERVICEa");
             Assert.IsNotNull(fieldUpperCase);
-            Assert.AreEqual("_serviceAApiVersion", fieldUpperCase!.Name);
+            Assert.AreEqual("_sampleServiceAApiVersion", fieldUpperCase!.Name);
         }
 
         [Test]
-        public void GetApiVersionFieldForService_MultiService_SameNamespace_ProducesUniqueFields()
+        public void GetApiVersionFieldForService_MultiService_SameLastSegment_ProducesUniqueFields()
         {
-            // Regression test: when two services share the same namespace, the namespace-based
-            // name generation produces duplicates. The fix falls back to enum names.
+            // Regression test: when two services have different full namespaces but the same last
+            // segment, using only the last segment would produce duplicate field names. The fix
+            // uses the full namespace to guarantee uniqueness.
             List<string> serviceOneVersions = ["1.0", "2.0"];
             List<string> serviceTwoVersions = ["3.0", "4.0"];
 
             var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
             var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
 
-            // Both enums share the same namespace, which would produce duplicate field names
+            // Different full namespaces, same last segment ("Tests") — would collide with last-segment-only naming
             var serviceOneEnum = InputFactory.StringEnum(
                 "ServiceOneVersions",
                 serviceOneEnumValues,
                 usage: InputModelTypeUsage.ApiVersionEnum,
-                clientNamespace: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+                clientNamespace: "Azure.ServiceOne.Tests");
             var serviceTwoEnum = InputFactory.StringEnum(
                 "ServiceTwoVersions",
                 serviceTwoEnumValues,
                 usage: InputModelTypeUsage.ApiVersionEnum,
-                clientNamespace: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+                clientNamespace: "Azure.ServiceTwo.Tests");
 
             InputParameter apiVersionParameter = InputFactory.QueryParameter(
                 "apiVersion",
@@ -3854,12 +3855,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var serviceOneOperation = InputFactory.Operation(
                 "ServiceOneOperation",
                 parameters: [apiVersionParameter],
-                ns: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+                ns: "Azure.ServiceOne.Tests");
 
             var serviceTwoOperation = InputFactory.Operation(
                 "ServiceTwoOperation",
                 parameters: [apiVersionParameter],
-                ns: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+                ns: "Azure.ServiceTwo.Tests");
 
             var client = InputFactory.Client(
                 TestClientName,
@@ -3882,7 +3883,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // This should not crash — previously it threw due to duplicate field names
             Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
 
-            // Verify we have two distinct api version fields with names derived from enum names
+            // Verify we have two distinct api version fields using the full namespace
             var apiVersionFields = clientProvider!.Fields
                 .Where(f => f.Name.Contains("ApiVersion", StringComparison.OrdinalIgnoreCase))
                 .OrderBy(f => f.Name)
@@ -3890,9 +3891,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(2, apiVersionFields.Count);
             Assert.AreNotEqual(apiVersionFields[0].Name, apiVersionFields[1].Name);
 
-            // Verify the field names use enum-name-based naming (since namespace-based names would collide)
-            Assert.AreEqual("_serviceOneVersionsApiVersion", apiVersionFields[0].Name);
-            Assert.AreEqual("_serviceTwoVersionsApiVersion", apiVersionFields[1].Name);
+            // Full namespace produces unique names: "Azure.ServiceOne.Tests" → "AzureServiceOneTests"
+            Assert.AreEqual("_azureServiceOneTestsApiVersion", apiVersionFields[0].Name);
+            Assert.AreEqual("_azureServiceTwoTestsApiVersion", apiVersionFields[1].Name);
         }
 
         [TestCase("{endpoint}")]

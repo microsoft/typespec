@@ -17,19 +17,19 @@ namespace Sample
 
         public TestClientOptions(global::Sample.TestClientOptions.ServiceKeyVaultVersion serviceKeyVaultVersion = LatestServiceKeyVaultVersion, global::Sample.TestClientOptions.ServiceStorageVersion serviceStorageVersion = LatestServiceStorageVersion, global::Sample.TestClientOptions.ServiceComputeVersion serviceComputeVersion = LatestServiceComputeVersion)
         {
-            ServiceKeyVaultApiVersion = serviceKeyVaultVersion switch
+            SampleKeyVaultApiVersion = serviceKeyVaultVersion switch
             {
                 global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_4 => "7.4",
                 global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_5 => "7.5",
                 _ => throw new global::System.NotSupportedException()
             };
-            ServiceStorageApiVersion = serviceStorageVersion switch
+            SampleStorageApiVersion = serviceStorageVersion switch
             {
                 global::Sample.TestClientOptions.ServiceStorageVersion.V2023_01_01 => "2023-01-01",
                 global::Sample.TestClientOptions.ServiceStorageVersion.V2024_01_01 => "2024-01-01",
                 _ => throw new global::System.NotSupportedException()
             };
-            ServiceComputeApiVersion = serviceComputeVersion switch
+            SampleComputeApiVersion = serviceComputeVersion switch
             {
                 global::Sample.TestClientOptions.ServiceComputeVersion.V2023_07_01 => "2023-07-01",
                 global::Sample.TestClientOptions.ServiceComputeVersion.V2024_03_01 => "2024-03-01",
@@ -41,32 +41,32 @@ namespace Sample
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
         internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
-            ServiceComputeApiVersion = "2024-07-01";
-            ServiceKeyVaultApiVersion = "7.5";
-            ServiceStorageApiVersion = "2024-01-01";
+            SampleComputeApiVersion = "2024-07-01";
+            SampleKeyVaultApiVersion = "7.5";
+            SampleStorageApiVersion = "2024-01-01";
             if (((section is null) || !section.Exists()))
             {
                 return;
             }
-            if ((section["ServiceComputeApiVersion"] is string serviceComputeApiVersion))
+            if ((section["SampleComputeApiVersion"] is string sampleComputeApiVersion))
             {
-                this.ServiceComputeApiVersion = serviceComputeApiVersion;
+                this.SampleComputeApiVersion = sampleComputeApiVersion;
             }
-            if ((section["ServiceKeyVaultApiVersion"] is string serviceKeyVaultApiVersion))
+            if ((section["SampleKeyVaultApiVersion"] is string sampleKeyVaultApiVersion))
             {
-                this.ServiceKeyVaultApiVersion = serviceKeyVaultApiVersion;
+                this.SampleKeyVaultApiVersion = sampleKeyVaultApiVersion;
             }
-            if ((section["ServiceStorageApiVersion"] is string serviceStorageApiVersion))
+            if ((section["SampleStorageApiVersion"] is string sampleStorageApiVersion))
             {
-                this.ServiceStorageApiVersion = serviceStorageApiVersion;
+                this.SampleStorageApiVersion = sampleStorageApiVersion;
             }
         }
 
-        internal string ServiceComputeApiVersion { get; }
+        internal string SampleComputeApiVersion { get; }
 
-        internal string ServiceKeyVaultApiVersion { get; }
+        internal string SampleKeyVaultApiVersion { get; }
 
-        internal string ServiceStorageApiVersion { get; }
+        internal string SampleStorageApiVersion { get; }
 
         public enum ServiceComputeVersion
         {
