@@ -1275,8 +1275,8 @@ importers:
   packages/openapi3:
     dependencies:
       '@scalar/json-magic':
-        specifier: ^0.12.3
-        version: 0.12.3
+        specifier: ^0.11.5
+        version: 0.11.7
       '@scalar/openapi-parser':
         specifier: ^0.25.3
         version: 0.25.3
@@ -5744,9 +5744,17 @@ packages:
       '@types/node':
         optional: true
 
+  '@scalar/helpers@0.2.18':
+    resolution: {integrity: sha512-w1d4tpNEVZ293oB2BAgLrS0kVPUtG3eByNmOCJA5eK9vcT4D3cmsGtWjUaaqit0BQCsBFHK51rasGvSWnApYTw==}
+    engines: {node: '>=20'}
+
   '@scalar/helpers@0.4.1':
     resolution: {integrity: sha512-XfyYqSUA597wfzS8lmMY1xvYv4si2WytuoBWj7JDpx3E/lVq7YEsticXF/Q30ttFVRBfgQErg8MQI6b6IkZr2Q==}
     engines: {node: '>=22'}
+
+  '@scalar/json-magic@0.11.7':
+    resolution: {integrity: sha512-GVz9E0vXu+ecypkdn0biK1gbQVkK4QTTX1Hq3eMgxlLQC91wwiqWfCqwfhuX0LRu+Z5OmYhLhufDJEEh56rVgA==}
+    engines: {node: '>=20'}
 
   '@scalar/json-magic@0.12.3':
     resolution: {integrity: sha512-SX4LbdCk/0JLP4t4oz1nzqfMzHsG9gY1jSgKB7Q2BsQHJ4V1zapQ+aFrMmbjaCrz8hueGG/3UCtgyWBNuGmT9g==}
@@ -17776,7 +17784,15 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.5.0
 
+  '@scalar/helpers@0.2.18': {}
+
   '@scalar/helpers@0.4.1': {}
+
+  '@scalar/json-magic@0.11.7':
+    dependencies:
+      '@scalar/helpers': 0.2.18
+      pathe: 2.0.3
+      yaml: 2.8.2
 
   '@scalar/json-magic@0.12.3':
     dependencies:
