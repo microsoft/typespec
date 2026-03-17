@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Tests.Common;
-using NUnit.Framework;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Tests.Common;
+using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientProviders
 {
@@ -533,7 +533,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             try
             {
-                var methods  = restClientProvider.Methods;
+                var methods = restClientProvider.Methods;
             }
             catch (InvalidOperationException e)
             {

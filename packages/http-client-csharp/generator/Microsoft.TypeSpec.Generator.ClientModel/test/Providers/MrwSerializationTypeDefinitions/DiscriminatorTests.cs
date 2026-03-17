@@ -139,7 +139,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var serialization = unknownModel!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             var deserializeMethod = serialization!.Methods.FirstOrDefault(m => m.Signature.Name == "DeserializeUnknownPet");
-            foreach(var property in _baseModel.Properties)
+            foreach (var property in _baseModel.Properties)
             {
                 Assert.IsNotNull(
                     deserializeMethod!.BodyStatements!.ToDisplayString().Contains($"if (property.NameEquals(\"{property.Name}\"u8))"),

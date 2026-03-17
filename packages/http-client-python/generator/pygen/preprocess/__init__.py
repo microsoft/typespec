@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 """The preprocessing autorest plugin."""
+
 import copy
 from typing import Callable, Any, Optional
 
@@ -266,8 +267,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
-                name = self.pad_reserved_words(type["name"], pad_type, type)
-                type["name"] = name[0].upper() + name[1:]
+                if type["type"] != "enumvalue":
+                    name = self.pad_reserved_words(type["name"], pad_type, type)
+                    type["name"] = name[0].upper() + name[1:]
                 type["description"] = update_description(type.get("description", ""), type["name"])
                 type["snakeCaseName"] = to_snake_case(type["name"])
             if type.get("values"):

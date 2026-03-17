@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,13 +13,20 @@ namespace Authentication.ApiKey
 {
     public partial class ApiKeyClient
     {
+        private const string AuthorizationHeader = "x-ms-api-key";
+
         protected ApiKeyClient() => throw null;
 
         public ApiKeyClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new ApiKeyClientOptions()) => throw null;
 
         public ApiKeyClient(ApiKeyCredential credential, ApiKeyClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
 
-        public ApiKeyClient(Uri endpoint, ApiKeyCredential credential, ApiKeyClientOptions options) => throw null;
+        internal ApiKeyClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ApiKeyClientOptions options) => throw null;
+
+        public ApiKeyClient(Uri endpoint, ApiKeyCredential credential, ApiKeyClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public ApiKeyClient(ApiKeyClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

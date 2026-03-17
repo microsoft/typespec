@@ -1,5 +1,12 @@
 # Changelog - @typespec/mutator-framework
 
+## 0.16.1
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
 ## 0.16.0
 
 ### Bump dependencies

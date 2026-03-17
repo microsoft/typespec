@@ -15,11 +15,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
     public class ClientProviderSubClientTests
     {
         private static readonly InputClient _testClient = InputFactory.Client("TestClient");
-        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient);
-        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient);
-        private static readonly InputClient _catClient = InputFactory.Client("cat", doc: "CatClient description", parent: _animalClient);
-        private static readonly InputClient _hawkClient = InputFactory.Client("hawkClient", doc: "HawkClient description", parent: _animalClient);
-        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _catClient = InputFactory.Client("cat", doc: "CatClient description", parent: _animalClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _hawkClient = InputFactory.Client("hawkClient", doc: "HawkClient description", parent: _animalClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient, initializedBy: InputClientInitializedBy.Parent);
 
         [SetUp]
         public void SetUp()

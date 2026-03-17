@@ -698,13 +698,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (protocolParam.InputParameter?.MethodParameterSegments is { Count: > 1 } && nonBodyProperties?.ContainsKey(protocolParam.Name) != true)
                 {
                     // The MethodParameterSegments represents a path (e.g., ['Params', 'foo'] means params.foo)
-                     var rootParameterName = protocolParam.InputParameter.MethodParameterSegments[0].Name;
-                     if (!convenienceParamsMap.TryGetValue(rootParameterName, out var convenienceParam) ||
-                         // Body parameters are handled separately
-                         convenienceParam.Location == ParameterLocation.Body)
-                     {
-                         continue;
-                     }
+                    var rootParameterName = protocolParam.InputParameter.MethodParameterSegments[0].Name;
+                    if (!convenienceParamsMap.TryGetValue(rootParameterName, out var convenienceParam) ||
+                        // Body parameters are handled separately
+                        convenienceParam.Location == ParameterLocation.Body)
+                    {
+                        continue;
+                    }
 
                     // Navigate through the property path
                     var propertySegments = protocolParam.InputParameter.MethodParameterSegments
