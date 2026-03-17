@@ -2,6 +2,7 @@
 -e ../../
 azure-mgmt-core==1.6.0
 
+# === common azure dependencies across repos ===
 # only for azure
 -e ./generated/azure-client-generator-core-access
 -e ./generated/azure-client-generator-core-api-version-header
@@ -39,7 +40,6 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-resource-manager-resources
 -e ./generated/azure-resource-manager-method-subscription-id
 -e ./generated/azure-resource-manager-multi-service
--e ./generated/azure-resource-manager-multi-service-older-versions
 -e ./generated/azure-resource-manager-multi-service-shared-models
 -e ./generated/azure-versioning-previewversion
 -e ./generated/client-namespace
@@ -55,8 +55,9 @@ azure-mgmt-core==1.6.0
 -e ./generated/resiliency-srv-driven1
 -e ./generated/resiliency-srv-driven2
 -e ./generated/service-multi-service
+# === end common azure dependencies across repos ===
 
-# common test case
+# === common test dependencies across repos ===
 -e ./generated/authentication-api-key
 -e ./generated/authentication-http-custom
 -e ./generated/authentication-noauth-union
@@ -121,3 +122,4 @@ azure-mgmt-core==1.6.0
 -e ./generated/versioning-renamedfrom
 -e ./generated/versioning-returntypechangedfrom
 -e ./generated/versioning-typechangedfrom
+# === end common test dependencies across repos ===

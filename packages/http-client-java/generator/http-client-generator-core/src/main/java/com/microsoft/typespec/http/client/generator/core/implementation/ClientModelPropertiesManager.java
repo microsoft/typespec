@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -291,9 +290,8 @@ public final class ClientModelPropertiesManager {
                 + "Add additional possible XmlReader name variables to resolve this issue.");
         }
 
-        this.xmlNamespaceToConstantMapping = model.getXmlName() == null
-            ? Collections.emptyMap()
-            : ClientModelUtil.xmlNamespaceToConstantMapping(model);
+        this.xmlNamespaceToConstantMapping
+            = model.getXmlName() == null ? Map.of() : ClientModelUtil.xmlNamespaceToConstantMapping(model);
     }
 
     private static void superPropertyConsumer(ClientModelProperty property,

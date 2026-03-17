@@ -141,6 +141,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task XmlDeserializationMethodHandlesOptionalUnwrappedListProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "colors",
+                    InputFactory.Array(InputPrimitiveType.String),
+                    isRequired: false,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("colors", unwrapped: true)))]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel]);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "TestXmlModel");
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider,
+                name => name == "DeserializeTestXmlModel"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task XmlDeserializationMethodHandlesWrappedListProperty()
         {
             var inputModel = InputFactory.Model(
@@ -237,6 +263,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             Assert.IsTrue(methodBody.Contains("child.GetBytesFromBase64(\"D\")"),
                 $"Bytes property should use child.GetBytesFromBase64(\"D\") with Base64 format. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void XmlDeserializationHandlesUriProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("endpoint")))]);
+
+            var modelProvider = new ModelProvider(inputModel);
+            var mrwProvider = modelProvider.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(mrwProvider);
+            var xmlDeserializationMethod = mrwProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "DeserializeTestXmlModel" &&
+                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(XElement))));
+
+            Assert.IsNotNull(xmlDeserializationMethod);
+            var methodBody = xmlDeserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("new global::System.Uri("),
+                $"Uri property should use new Uri() constructor for deserialization. Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("global::System.UriKind.RelativeOrAbsolute"),
+                $"Uri property should specify UriKind.RelativeOrAbsolute. Actual:\n{methodBody}");
         }
 
         [Test]

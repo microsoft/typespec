@@ -110,7 +110,7 @@ namespace Sample.Models
                     {
                         continue;
                     }
-                    prop1 = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new global::System.Uri(prop.Value.GetString());
+                    prop1 = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new global::System.Uri(prop.Value.GetString(), global::System.UriKind.RelativeOrAbsolute);
                     continue;
                 }
                 if ((options.Format != "W"))

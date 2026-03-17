@@ -117,6 +117,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // Validates that when a custom XML deserialization hook has a ModelReaderWriterOptions parameter,
+        // the generated code passes the options to the hook.
+        [Test]
+        public async Task CanCustomizeDeserializationMethodWithOptions()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("Prop1", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop1"))),
+                    InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String), serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop2")))
+                ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider!,
+                name => name == "DeserializeMockInputModel"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         // Validates that a custom deserialization hook can be used to customize attribute property deserialization.
         [Test]
         public async Task CanCustomizeAttributeDeserializationMethod()
@@ -184,6 +213,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 [
                     InputFactory.Property("Id", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("id", attribute: true))),
                     InputFactory.Property("Name", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("name")))
+                ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider!,
+                name => name == "XmlModelWriteCore"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Validates that a nullable DateTimeOffset property customized via custom code
+        // correctly accesses .Value when serializing to XML.
+        [Test]
+        public async Task CanSerializeCustomizedNullableDateTimeOffset()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("Timestamp", new InputDateTimeType(DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String), isRequired: true, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("timestamp")))
                 ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel],

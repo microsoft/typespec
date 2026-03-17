@@ -7,7 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.PomMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,7 +35,7 @@ public class AzureVNextPomMapper extends PomMapper {
         pom.setServiceName(project.getServiceName());
         pom.setServiceDescription(project.getServiceDescriptionForPom());
 
-        Set<String> addedDependencyPrefixes = new HashSet<>();
+        Set<String> addedDependencyPrefixes = new LinkedHashSet<>();
         List<String> dependencyIdentifiers = new ArrayList<>();
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.CLIENTCORE, false);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_CORE_V2,

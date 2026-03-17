@@ -293,6 +293,43 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public async Task SerializationProviderConstructorIsFilteredWhenMatchingCustomCode()
+        {
+            // Create a type provider with a serialization provider
+            var typeProvider = new TestTypeProvider();
+            var serializationProvider = new TestSerializationTypeProvider();
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(serializationProvider.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                Snippet.Throw(Snippet.Null), serializationProvider);
+            serializationProvider.ConstructorProviders = [constructor];
+            typeProvider.Update(serializations: [serializationProvider], reset: true);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Reset to reinitialize CustomCodeView now that the mock generator is set up
+            serializationProvider.Update(reset: true);
+
+            // Build all types (simulating CSharpGen.ExecuteAsync) — EnsureBuilt bypasses
+            // customization filtering so the constructor is preserved.
+            foreach (var type in generator.Object.OutputLibrary.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            // Verify serialization provider constructor is present after EnsureBuilt
+            Assert.IsNotNull(serializationProvider.CustomCodeView, "CustomCodeView should not be null");
+            Assert.AreEqual(1, serializationProvider.Constructors.Count, "Serialization provider should have 1 constructor before filtering");
+
+            // Apply filtering through the real pipeline
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            // The constructor should be filtered out because it matches custom code
+            Assert.AreEqual(0, serializationProvider.Constructors.Count, "Serialization provider constructor should be filtered when matching custom code");
+        }
+
+        [Test]
         public async Task MatchingPropertyIsFilteredAfterVisitorMutation()
         {
             var typeProvider = new TestTypeProvider();
@@ -465,6 +502,18 @@ namespace Microsoft.TypeSpec.Generator.Tests
             protected override string BuildName() => "TestName";
             protected override string BuildNamespace() => "Test";
             protected internal override MethodProvider[] BuildMethods() => MethodProviders;
+        }
+
+        /// <summary>
+        /// A TypeProvider subclass that simulates a serialization provider with configurable constructors.
+        /// </summary>
+        private class TestSerializationTypeProvider : TypeProvider
+        {
+            public ConstructorProvider[] ConstructorProviders { get; set; } = [];
+            protected override string BuildRelativeFilePath() => $"{Name}.cs";
+            protected override string BuildName() => "TestSerializationProvider";
+            protected override string BuildNamespace() => "Test";
+            protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
         }
     }
 }

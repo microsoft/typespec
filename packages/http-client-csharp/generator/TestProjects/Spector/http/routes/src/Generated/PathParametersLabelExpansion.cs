@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
 using Routes._PathParameters.LabelExpansion.Explode;
 using Routes._PathParameters.LabelExpansion.Standard;
@@ -11,6 +12,8 @@ namespace Routes._PathParameters.LabelExpansion
     public partial class PathParametersLabelExpansion
     {
         protected PathParametersLabelExpansion() => throw null;
+
+        internal PathParametersLabelExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

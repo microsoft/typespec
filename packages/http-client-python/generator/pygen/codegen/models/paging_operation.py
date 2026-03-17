@@ -150,11 +150,11 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 f"{self.code_model.core_library}.{default_paging_submodule}",
                 "AsyncItemPaged",
                 ImportType.SDKCORE,
-                TypingSection.CONDITIONAL,
+                TypingSection.REGULAR,
             )
         else:
             file_import.add_submodule_import(
-                f"{self.code_model.core_library}.paging", "ItemPaged", ImportType.SDKCORE, TypingSection.CONDITIONAL
+                f"{self.code_model.core_library}.paging", "ItemPaged", ImportType.SDKCORE, TypingSection.REGULAR
             )
         if (
             self.next_request_builder

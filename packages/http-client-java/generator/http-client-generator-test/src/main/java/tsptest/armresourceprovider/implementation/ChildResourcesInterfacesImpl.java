@@ -31,12 +31,8 @@ public final class ChildResourcesInterfacesImpl implements ChildResourcesInterfa
         String childResourceName, Context context) {
         Response<ChildResourceInner> inner = this.serviceClient()
             .getWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new ChildResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new ChildResourceImpl(inner.getValue(), this.manager()));
     }
 
     public ChildResource get(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {

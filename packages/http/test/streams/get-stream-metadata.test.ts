@@ -1,42 +1,19 @@
-import { Model, Program } from "@typespec/compiler";
-import {
-  createTestHost,
-  createTestWrapper,
-  expectDiagnosticEmpty,
-  type BasicTestRunner,
-} from "@typespec/compiler/testing";
-import { StreamsTestLibrary } from "@typespec/streams/testing";
-import { assert, beforeEach, describe, expect, it } from "vitest";
+import { expectDiagnosticEmpty, t } from "@typespec/compiler/testing";
+import { describe, expect, it } from "vitest";
 import { getStreamMetadata } from "../../src/experimental/index.js";
 import { getAllHttpServices } from "../../src/operations.js";
-import { HttpTestLibrary } from "../../src/testing/index.js";
-import { HttpService } from "../../src/types.js";
+import { StreamsTester } from "./tester.js";
 
-let runner: BasicTestRunner;
-let getHttpServiceWithProgram: (
-  code: string,
-) => Promise<{ service: HttpService; Thing: Model; program: Program }>;
+async function getHttpServiceWithProgram(code: string) {
+  const { Thing, program } = await StreamsTester.compile(t.code`
+    model ${t.model("Thing")} { id: string }
+    ${code}
+  `);
+  const [services, diagnostics] = getAllHttpServices(program);
 
-beforeEach(async () => {
-  const host = await createTestHost({
-    libraries: [StreamsTestLibrary, HttpTestLibrary],
-  });
-  runner = createTestWrapper(host, {
-    autoImports: [`@typespec/http/streams`, "@typespec/streams"],
-    autoUsings: ["TypeSpec.Http", "TypeSpec.Http.Streams", "TypeSpec.Streams"],
-  });
-  getHttpServiceWithProgram = async (code) => {
-    const { Thing } = await runner.compile(`
-      @test model Thing { id: string }
-      ${code}
-    `);
-    assert(Thing.kind === "Model");
-    const [services, diagnostics] = getAllHttpServices(runner.program);
-
-    expectDiagnosticEmpty(diagnostics);
-    return { service: services[0], Thing, program: runner.program };
-  };
-});
+  expectDiagnosticEmpty(diagnostics);
+  return { service: services[0], Thing, program };
+}
 
 describe("Operation Responses", () => {
   it("can get stream metadata from HttpStream", async () => {

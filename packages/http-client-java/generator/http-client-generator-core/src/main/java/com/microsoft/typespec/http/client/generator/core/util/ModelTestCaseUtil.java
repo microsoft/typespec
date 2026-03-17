@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -123,6 +122,10 @@ public class ModelTestCaseUtil {
             return RANDOM.nextLong() & Long.MAX_VALUE;
         } else if (type.asNullable() == ClassType.DURATION_DOUBLE) {
             return Math.abs(RANDOM.nextDouble() * 10);
+        } else if (type.asNullable() == ClassType.DURATION_MILLISECONDS_LONG) {
+            return RANDOM.nextLong() & Long.MAX_VALUE;
+        } else if (type.asNullable() == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            return Math.abs(RANDOM.nextDouble() * 10000);
         } else if (type == ClassType.UUID) {
             return UUID.randomUUID().toString();
         } else if (type == ClassType.URL) {
@@ -232,7 +235,7 @@ public class ModelTestCaseUtil {
             if (modelNeedsFlatten) {
                 serializedNames = ClientModelUtil.splitFlattenedSerializedName(serializedName);
             } else {
-                serializedNames = Collections.singletonList(serializedName);
+                serializedNames = List.of(serializedName);
             }
             addToJsonObject(jsonObject, serializedNames, value);
         }

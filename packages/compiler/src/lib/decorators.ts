@@ -1216,9 +1216,18 @@ export const $overload: OverloadDecorator = (
 };
 
 function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
-  return op1.interface || op2.interface
-    ? op1.interface === op2.interface
-    : op1.namespace === op2.namespace;
+  if (op1.interface || op2.interface) {
+    return (
+      op1.interface === op2.interface ||
+      // Handle mutated/cloned types (e.g., in versioned namespaces) where operations
+      // may reference different clones of the same interface by comparing AST nodes.
+      (op1.interface?.node !== undefined && op1.interface?.node === op2.interface?.node)
+    );
+  }
+  return (
+    op1.namespace === op2.namespace ||
+    (op1.namespace?.node !== undefined && op1.namespace?.node === op2.namespace?.node)
+  );
 }
 
 export {

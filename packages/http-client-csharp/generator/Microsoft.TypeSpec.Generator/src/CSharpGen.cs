@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 
@@ -67,16 +68,7 @@ namespace Microsoft.TypeSpec.Generator
                 visitor.VisitLibrary(output);
             }
 
-            foreach (var typeProvider in output.TypeProviders)
-            {
-                // Update the type with the potentially modified members, filtering out customized members
-                // after the visitors have been applied so that the filtering is done against the final version.
-                typeProvider.Update(
-                    typeProvider.FilterCustomizedMethods(typeProvider.Methods),
-                    typeProvider.FilterCustomizedConstructors(typeProvider.Constructors),
-                    typeProvider.FilterCustomizedProperties(typeProvider.Properties),
-                    typeProvider.FilterCustomizedFields(typeProvider.Fields));
-            }
+            FilterAllCustomizedMembers(output);
 
             LoggingHelpers.LogElapsedTime("All visitors have been applied");
 
@@ -127,6 +119,29 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
+        }
+
+        internal static void FilterAllCustomizedMembers(OutputLibrary output)
+        {
+            foreach (var typeProvider in output.TypeProviders)
+            {
+                // Update the type with the potentially modified members, filtering out customized members
+                // after the visitors have been applied so that the filtering is done against the final version.
+                FilterCustomizedMembers(typeProvider);
+                foreach (var serializationProvider in typeProvider.SerializationProviders)
+                {
+                    FilterCustomizedMembers(serializationProvider);
+                }
+            }
+        }
+
+        private static void FilterCustomizedMembers(TypeProvider typeProvider)
+        {
+            typeProvider.Update(
+                typeProvider.FilterCustomizedMethods(typeProvider.Methods),
+                typeProvider.FilterCustomizedConstructors(typeProvider.Constructors),
+                typeProvider.FilterCustomizedProperties(typeProvider.Properties),
+                typeProvider.FilterCustomizedFields(typeProvider.Fields));
         }
 
         /// <summary>

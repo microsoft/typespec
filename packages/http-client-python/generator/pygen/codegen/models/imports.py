@@ -23,9 +23,8 @@ class ImportType(str, Enum):
 
 
 class TypingSection(str, Enum):
-    REGULAR = "regular"  # this import is always a typing import
-    CONDITIONAL = "conditional"  # is a typing import when we're dealing with files that py2 will use, else regular
-    TYPING = "typing"  # never a typing import
+    REGULAR = "regular"  # this import is always a regular import
+    TYPING = "typing"  # this import goes under TYPE_CHECKING
 
 
 class MsrestImportType(Enum):

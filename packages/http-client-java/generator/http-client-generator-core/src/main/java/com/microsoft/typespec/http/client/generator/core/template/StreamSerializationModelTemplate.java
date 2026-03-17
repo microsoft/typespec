@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -1185,7 +1183,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     = (property, fromSuper) -> handleJsonPropertyDeserialization(property, whileBlock, ifBlockReference,
                         fromSuper, false);
 
-                Map<String, ClientModelProperty> modelPropertyMap = new HashMap<>();
+                Map<String, ClientModelProperty> modelPropertyMap = new LinkedHashMap<>();
                 for (ClientModelProperty parentProperty : ClientModelUtil.getParentProperties(model)) {
                     modelPropertyMap.put(parentProperty.getName(), parentProperty);
                 }
@@ -2508,16 +2506,50 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         private void generateXmlDeserializationLogic(JavaBlock deserializationBlock, ClientModelProperty property,
             boolean fromSuper) {
             IType wireType = property.getWireType();
+            IType clientType = property.getClientType();
 
             // Attempt to determine whether the wire type is simple deserialization.
             // This is primitives, boxed primitives, a small set of string based models, and other ClientModels.
             String simpleDeserialization
                 = getSimpleXmlDeserialization(wireType, property.getXmlName(), null, null, false);
             if (simpleDeserialization != null) {
-                if (propertiesManager.hasConstructorArguments()) {
-                    deserializationBlock.line(property.getName() + " = " + simpleDeserialization + ";");
+                boolean convertToClientType = (clientType != wireType)
+                    && (includePropertyInConstructor(property, settings)
+                        || (fromSuper && !ClientModelUtil.readOnlyNotInCtor(model, property, settings)));
+                BiConsumer<String, JavaBlock> simpleDeserializationConsumer = (logic, block) -> {
+                    if (!propertiesManager.hasConstructorArguments()) {
+                        handleSettingDeserializedValue(deserializationBlock, property, logic, fromSuper);
+                    } else {
+                        deserializationBlock.line(property.getName() + " = " + logic + ";");
+                    }
+                };
+
+                if (convertToClientType) {
+                    // If the wire type is nullable don't attempt to call the convert to client type until it's known
+                    // that
+                    // a value was deserialized. This protects against cases such as UnixTimeLong where the wire type is
+                    // Long and the client type of OffsetDateTime. This is converted using Instant.ofEpochMilli(long)
+                    // which
+                    // would result in a null if the Long is null, which is already guarded using
+                    // reader.readNullable(nonNullReader -> Instant.ofEpochMillis(nonNullReader.readLong())) but this
+                    // itself
+                    // returns null which would have been passed to OffsetDateTime.ofInstant(Instant, ZoneId) which
+                    // would
+                    // have thrown a NullPointerException.
+                    if (wireType.isNullable()) {
+                        // Check if the property is required, if so use a holder name as there will be an existing
+                        // holder
+                        // variable for the value that will be used in the constructor.
+                        String holderName = property.getName() + "Holder";
+                        deserializationBlock.line(wireType + " " + holderName + " = " + simpleDeserialization + ";");
+                        deserializationBlock.ifBlock(holderName + " != null", ifBlock -> simpleDeserializationConsumer
+                            .accept(wireType.convertToClientType(holderName), ifBlock));
+                    } else {
+                        simpleDeserializationConsumer.accept(wireType.convertToClientType(simpleDeserialization),
+                            deserializationBlock);
+                    }
                 } else {
-                    handleSettingDeserializedValue(deserializationBlock, property, simpleDeserialization, fromSuper);
+                    simpleDeserializationConsumer.accept(simpleDeserialization, deserializationBlock);
                 }
             } else if (wireType instanceof IterableType) {
                 IType elementType = ((IterableType) wireType).getElementType();
@@ -2636,7 +2668,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             getClientModelPropertiesInJsonTree(JsonFlattenedPropertiesTree tree) {
             if (tree.getProperty() != null) {
                 // Terminal node only contains a property.
-                return Collections.singletonList(tree.getProperty());
+                return List.of(tree.getProperty());
             } else {
                 List<ClientModelPropertyWithMetadata> treeProperties = new ArrayList<>();
                 for (JsonFlattenedPropertiesTree childNode : tree.getChildrenNodes().values()) {

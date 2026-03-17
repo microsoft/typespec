@@ -2,9 +2,11 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
+using Payload.MultiPart._FormData.File;
 using Payload.MultiPart._FormData.HttpParts;
 
 namespace Payload.MultiPart._FormData
@@ -12,6 +14,8 @@ namespace Payload.MultiPart._FormData
     public partial class FormData
     {
         protected FormData() => throw null;
+
+        internal FormData(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -52,5 +56,7 @@ namespace Payload.MultiPart._FormData
         public virtual Task<ClientResult> AnonymousModelAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         public virtual FormDataHttpParts GetFormDataHttpPartsClient() => throw null;
+
+        public virtual FormDataFile GetFormDataFileClient() => throw null;
     }
 }

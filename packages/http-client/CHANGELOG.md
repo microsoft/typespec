@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-client
 
+## 0.15.1
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
 ## 0.15.0
 
 ### Bump dependencies

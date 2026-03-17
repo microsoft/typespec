@@ -1,5 +1,24 @@
 # Change Log - @typespec/http
 
+## 1.10.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9935](https://github.com/microsoft/typespec/pull/9935) Do not join routes starting with `?` or `:` with `/`(e.g. `@route("?pet=cat)` would result in `/?pet=cat`)
+- [#9887](https://github.com/microsoft/typespec/pull/9887) Remove `patch-implicit-optional` warning.
+
+
+## 1.9.1
+
+### Bug Fixes
+
+- [API] Fix `Content-Type` header will not be dropped in the response headers of `HttpOperationResponseContent` for `HEAD` requests.
+
+
 ## 1.9.0
 
 Version Bump only.

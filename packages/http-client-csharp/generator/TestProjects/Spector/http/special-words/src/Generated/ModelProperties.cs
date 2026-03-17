@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -12,6 +13,8 @@ namespace SpecialWords._ModelProperties
     public partial class ModelProperties
     {
         protected ModelProperties() => throw null;
+
+        internal ModelProperties(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -30,5 +33,13 @@ namespace SpecialWords._ModelProperties
         public virtual ClientResult DictMethods(DictMethods body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> DictMethodsAsync(DictMethods body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithList(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> WithListAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult WithList(ModelWithList body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithListAsync(ModelWithList body, CancellationToken cancellationToken = default) => throw null;
     }
 }

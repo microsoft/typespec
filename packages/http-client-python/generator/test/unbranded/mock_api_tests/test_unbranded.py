@@ -54,11 +54,12 @@ def test_sensitive_word():
     check_folder = (Path(os.path.dirname(__file__)) / "../generated").resolve()
     assert [] == check_sensitive_word(check_folder, "azure")
     # after update spector, it shall also equal to []
-    assert sorted(
-        [
-            "authentication-oauth2",
-            "authentication-noauth-union",
-            "authentication-union",
-            "setuppy-authentication-union",
-        ]
-    ) == sorted(check_sensitive_word(check_folder, "microsoft"))
+    expected = [
+        "authentication-oauth2",
+        "authentication-noauth-union",
+        "authentication-union",
+        "setuppy-authentication-union",
+    ]
+    if (check_folder / "generation-subdir").exists():
+        expected.append("generation-subdir")
+    assert sorted(expected) == sorted(check_sensitive_word(check_folder, "microsoft"))

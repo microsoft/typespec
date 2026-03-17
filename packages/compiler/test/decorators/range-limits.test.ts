@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   getMaxItems,
   getMaxLength,
@@ -11,82 +11,69 @@ import {
   getMinValueForScalar,
 } from "../../src/core/intrinsic-type-state.js";
 import { Numeric } from "../../src/core/numeric.js";
-import { Model, ScalarValue } from "../../src/core/types.js";
-import {
-  BasicTestRunner,
-  createTestRunner,
-  expectDiagnostics,
-  t,
-} from "../../src/testing/index.js";
+import { ScalarValue } from "../../src/core/types.js";
+import { expectDiagnostics, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: range limiting decorators", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createTestRunner();
-  });
-
   it("applies @minimum and @maximum decorators", async () => {
-    const { A, B } = (await runner.compile(
-      `
-      @test model A { @minValue(15) foo: int32; @maxValue(55) boo: float32; }
-      @test model B { @maxValue(20) bar: int64; @minValue(23) car: float64; }
-      `,
-    )) as { A: Model; B: Model };
+    const { A, B, program } = await Tester.compile(t.code`
+      model ${t.model("A")} { @minValue(15) foo: int32; @maxValue(55) boo: float32; }
+      model ${t.model("B")} { @maxValue(20) bar: int64; @minValue(23) car: float64; }
+    `);
 
-    strictEqual(getMinValue(runner.program, A.properties.get("foo")!), 15);
-    strictEqual(getMaxValue(runner.program, A.properties.get("boo")!), 55);
-    strictEqual(getMaxValue(runner.program, B.properties.get("bar")!), 20);
-    strictEqual(getMinValue(runner.program, B.properties.get("car")!), 23);
+    strictEqual(getMinValue(program, A.properties.get("foo")!), 15);
+    strictEqual(getMaxValue(program, A.properties.get("boo")!), 55);
+    strictEqual(getMaxValue(program, B.properties.get("bar")!), 20);
+    strictEqual(getMinValue(program, B.properties.get("car")!), 23);
   });
 
   describe("@minValue, @maxValue", () => {
     it("applies on ints", async () => {
-      const { Foo } = (await runner.compile(`
-        @test model Foo {
+      const { Foo, program } = await Tester.compile(t.code`
+        model ${t.model("Foo")} {
           @minValue(2)
           @maxValue(10)
           floor: int32;
         }
-      `)) as { Foo: Model };
+      `);
       const floorProp = Foo.properties.get("floor")!;
 
-      strictEqual(getMinValue(runner.program, floorProp), 2);
-      strictEqual(getMaxValue(runner.program, floorProp), 10);
+      strictEqual(getMinValue(program, floorProp), 2);
+      strictEqual(getMaxValue(program, floorProp), 10);
     });
 
     it("applies on float", async () => {
-      const { Foo } = (await runner.compile(`
-        @test model Foo {
+      const { Foo, program } = await Tester.compile(t.code`
+        model ${t.model("Foo")} {
           @minValue(2.5)
           @maxValue(32.9)
           percent: float64;
         }
-      `)) as { Foo: Model };
+      `);
       const percentProp = Foo.properties.get("percent")!;
 
-      strictEqual(getMinValue(runner.program, percentProp), 2.5);
-      strictEqual(getMaxValue(runner.program, percentProp), 32.9);
+      strictEqual(getMinValue(program, percentProp), 2.5);
+      strictEqual(getMaxValue(program, percentProp), 32.9);
     });
 
     it("applies on nullable numeric", async () => {
-      const { Foo } = (await runner.compile(`
-        @test model Foo {
+      const { Foo, program } = await Tester.compile(t.code`
+        model ${t.model("Foo")} {
           @minValue(2.5)
           @maxValue(32.9)
           percent: float64 | null;
         }
-      `)) as { Foo: Model };
+      `);
       const percentProp = Foo.properties.get("percent")!;
 
-      strictEqual(getMinValue(runner.program, percentProp), 2.5);
-      strictEqual(getMaxValue(runner.program, percentProp), 32.9);
+      strictEqual(getMinValue(program, percentProp), 2.5);
+      strictEqual(getMaxValue(program, percentProp), 32.9);
     });
 
     it("emit diagnostic if @minValue used on non numeric type", async () => {
-      const diagnostics = await runner.diagnose(`
-      @test model Foo {
+      const diagnostics = await Tester.diagnose(`
+      model Foo {
         @minValue(2)
         name: string;
       }
@@ -98,8 +85,8 @@ describe("compiler: range limiting decorators", () => {
     });
 
     it("emit diagnostic if @maxValue used on non numeric type", async () => {
-      const diagnostics = await runner.diagnose(`
-      @test model Foo {
+      const diagnostics = await Tester.diagnose(`
+      model Foo {
         @maxValue(2)
         name: string;
       }
@@ -111,8 +98,8 @@ describe("compiler: range limiting decorators", () => {
     });
 
     it("emit diagnostic if @minValue is more than @maxValue", async () => {
-      const diagnostics = await runner.diagnose(`
-      @test model Foo {
+      const diagnostics = await Tester.diagnose(`
+      model Foo {
         @minValue(3)
         @maxValue(2)
         name: int32;
@@ -233,36 +220,36 @@ describe("compiler: range limiting decorators", () => {
 
   describe("@minLength, @maxLength", () => {
     it("applies @minLength and @maxLength decorators on strings", async () => {
-      const { Foo } = (await runner.compile(`
-        @test model Foo {
+      const { Foo, program } = await Tester.compile(t.code`
+        model ${t.model("Foo")} {
           @minLength(2)
           @maxLength(10)
           name: string;
         }
-      `)) as { Foo: Model };
+      `);
       const nameProp = Foo.properties.get("name")!;
 
-      strictEqual(getMinLength(runner.program, nameProp), 2);
-      strictEqual(getMaxLength(runner.program, nameProp), 10);
+      strictEqual(getMinLength(program, nameProp), 2);
+      strictEqual(getMaxLength(program, nameProp), 10);
     });
 
     it("applies @minLength and @maxLength decorators on nullable strings", async () => {
-      const { Foo } = (await runner.compile(`
-        @test model Foo {
+      const { Foo, program } = await Tester.compile(t.code`
+        model ${t.model("Foo")} {
           @minLength(2)
           @maxLength(10)
           name: string | null;
         }
-      `)) as { Foo: Model };
+      `);
       const nameProp = Foo.properties.get("name")!;
 
-      strictEqual(getMinLength(runner.program, nameProp), 2);
-      strictEqual(getMaxLength(runner.program, nameProp), 10);
+      strictEqual(getMinLength(program, nameProp), 2);
+      strictEqual(getMaxLength(program, nameProp), 10);
     });
 
     it("emit diagnostic if @minLength used on non string", async () => {
-      const diagnostics = await runner.diagnose(`
-      @test model Foo {
+      const diagnostics = await Tester.diagnose(`
+      model Foo {
         @minLength(2)
         name: int32;
       }
@@ -274,8 +261,8 @@ describe("compiler: range limiting decorators", () => {
     });
 
     it("emit diagnostic if @maxLength used on non string", async () => {
-      const diagnostics = await runner.diagnose(`
-      @test model Foo {
+      const diagnostics = await Tester.diagnose(`
+      model Foo {
         @maxLength(2)
         name: int32;
       }
@@ -287,8 +274,8 @@ describe("compiler: range limiting decorators", () => {
     });
 
     it("emit diagnostic if @minLength is more than @maxLength", async () => {
-      const diagnostics = await runner.diagnose(`
-      @test model Foo {
+      const diagnostics = await Tester.diagnose(`
+      model Foo {
         @minLength(3)
         @maxLength(2)
         name: string;
@@ -303,36 +290,36 @@ describe("compiler: range limiting decorators", () => {
 
   describe("@minItems, @maxItems", () => {
     it("applies @minItems and @maxItems decorators on arrays", async () => {
-      const { Foo } = (await runner.compile(`
-        @test model Foo {
+      const { Foo, program } = await Tester.compile(t.code`
+        model ${t.model("Foo")} {
           @minItems(2)
           @maxItems(10)
           items: int32[];
         }
-      `)) as { Foo: Model };
+      `);
       const itemsProp = Foo.properties.get("items")!;
 
-      strictEqual(getMinItems(runner.program, itemsProp), 2);
-      strictEqual(getMaxItems(runner.program, itemsProp), 10);
+      strictEqual(getMinItems(program, itemsProp), 2);
+      strictEqual(getMaxItems(program, itemsProp), 10);
     });
 
     it("applies @minItems and @maxItems decorators on nullable arrays", async () => {
-      const { Foo } = (await runner.compile(`
-        @test model Foo {
+      const { Foo, program } = await Tester.compile(t.code`
+        model ${t.model("Foo")} {
           @minItems(2)
           @maxItems(10)
           items: int32[] | null;
         }
-      `)) as { Foo: Model };
+      `);
       const itemsProp = Foo.properties.get("items")!;
 
-      strictEqual(getMinItems(runner.program, itemsProp), 2);
-      strictEqual(getMaxItems(runner.program, itemsProp), 10);
+      strictEqual(getMinItems(program, itemsProp), 2);
+      strictEqual(getMaxItems(program, itemsProp), 10);
     });
 
     it("emit diagnostic if @minItems used on non array", async () => {
-      const diagnostics = await runner.diagnose(`
-      @test model Foo {
+      const diagnostics = await Tester.diagnose(`
+      model Foo {
         @minItems(2)
         items: int32;
       }
@@ -344,8 +331,8 @@ describe("compiler: range limiting decorators", () => {
     });
 
     it("emit diagnostic if @maxItems used on non array", async () => {
-      const diagnostics = await runner.diagnose(`
-      @test model Foo {
+      const diagnostics = await Tester.diagnose(`
+      model Foo {
         @maxItems(2)
         items: int32;
       }
@@ -357,8 +344,8 @@ describe("compiler: range limiting decorators", () => {
     });
 
     it("emit diagnostic if @minItems is more than @maxItems", async () => {
-      const diagnostics = await runner.diagnose(`
-      @test model Foo {
+      const diagnostics = await Tester.diagnose(`
+      model Foo {
         @minItems(3)
         @maxItems(2)
         items: string[];

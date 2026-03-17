@@ -25,8 +25,7 @@ import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -62,7 +61,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 if (settings.isAzureV1() && !settings.isDataPlaneClient()) {
                     return result;
                 } else {
-                    usages = new HashSet<>(usages);
+                    usages = new LinkedHashSet<>(usages);
                     usages.add(ImplementationDetails.Usage.EXTERNAL);
                 }
             }
@@ -86,11 +85,11 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 = compositeType.getDiscriminator() != null || compositeType.getDiscriminatorValue() != null;
             builder.polymorphic(isPolymorphic);
 
-            HashSet<String> modelImports = new HashSet<>();
+            Set<String> modelImports = new LinkedHashSet<>();
 
             String parentModelName = null;
             boolean hasAdditionalProperties = false;
-            List<ObjectSchema> parentsNeedFlatten = Collections.emptyList();
+            List<ObjectSchema> parentsNeedFlatten = List.of();
             if (compositeType.getParents() != null && compositeType.getParents().getImmediate() != null) {
                 hasAdditionalProperties
                     = compositeType.getParents().getImmediate().stream().anyMatch(s -> s instanceof DictionarySchema);
@@ -552,7 +551,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 propertyNames.add(PROPERTY_NAME_ADDITIONAL_PROPERTIES);
             }
 
-            Set<String> referencePropertyNames = new HashSet<>();
+            Set<String> referencePropertyNames = new LinkedHashSet<>();
             // properties from the target model
             for (ClientModelProperty property1 : targetModel.getProperties()) {
                 if (!property1.getClientFlatten() && !property1.isAdditionalProperties()) {

@@ -1,7 +1,7 @@
 -r ../dev_requirements.txt
 -e ../../
 
-# common test case
+# === common test dependencies across repos ===
 -e ./generated/authentication-api-key
 -e ./generated/authentication-http-custom
 -e ./generated/authentication-noauth-union
@@ -66,3 +66,4 @@
 -e ./generated/versioning-renamedfrom
 -e ./generated/versioning-returntypechangedfrom
 -e ./generated/versioning-typechangedfrom
+# === end common test dependencies across repos ===

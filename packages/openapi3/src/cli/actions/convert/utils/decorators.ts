@@ -250,6 +250,30 @@ export function getDecoratorsForSchema(
 
   decorators.push(...getExtensions(schemaWithoutRef));
 
+  // Handle readOnly and writeOnly properties
+  // These are mutually exclusive - if both are present, emit a warning and ignore both
+  const readOnly = schemaWithoutRef.readOnly;
+  const writeOnly = schemaWithoutRef.writeOnly;
+
+  if (readOnly && writeOnly) {
+    // Both readOnly and writeOnly are present - this is invalid
+    context?.logger.warn(
+      `Property has both readOnly and writeOnly set to true, which is invalid. Both will be ignored.`,
+    );
+  } else if (readOnly) {
+    // readOnly: true maps to @visibility(Lifecycle.Read)
+    decorators.push({
+      name: "visibility",
+      args: [createTSValue("Lifecycle.Read")],
+    });
+  } else if (writeOnly) {
+    // writeOnly: true maps to @visibility(Lifecycle.Create)
+    decorators.push({
+      name: "visibility",
+      args: [createTSValue("Lifecycle.Create")],
+    });
+  }
+
   // Handle x-ms-list-page-items extension with @pageItems decorator
   // This must be after getExtensions to ensure both decorators are present
   const xmsListPageItems = (schema as any)["x-ms-list-page-items"];
@@ -284,6 +308,22 @@ export function getDecoratorsForSchema(
     effectiveType = Array.isArray(schemaWithoutRef.type)
       ? schemaWithoutRef.type.find((t) => t !== "null")
       : schemaWithoutRef.type;
+  }
+
+  // If effectiveType is still undefined, infer it from anyOf/oneOf members.
+  // This handles schemas like `{ anyOf: [{ type: "array", ... }, { type: "null" }], minItems: 2 }`
+  // where constraints live on the outer schema but the type is only in the union members.
+  if (!effectiveType) {
+    const unionMembers = schemaWithoutRef.anyOf || schemaWithoutRef.oneOf;
+    if (unionMembers) {
+      const nonNullMembers = unionMembers.filter((m) => !("$ref" in m) && m.type !== "null");
+      if (nonNullMembers.length === 1 && !("$ref" in nonNullMembers[0])) {
+        const memberType = nonNullMembers[0].type;
+        effectiveType = Array.isArray(memberType)
+          ? memberType.find((t) => t !== "null")
+          : memberType;
+      }
+    }
   }
 
   // Handle x-ms-duration extension with @encode decorator

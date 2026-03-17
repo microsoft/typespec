@@ -182,7 +182,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => Client.Type.Namespace;
 
         protected override string BuildName()
-            => $"{Client.Type.Name}{Operation.Name.ToIdentifierName()}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
+        {
+            var operationName = Operation.Name.ToIdentifierName();
+            // Check if there is another paging operation in the same client whose name would produce a collision.
+            // If so, use the OriginalName to differentiate.
+            if (HasPagingOperationNameCollision(operationName))
+            {
+                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
+            }
+            return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
+        }
+
+        private bool HasPagingOperationNameCollision(string operationName)
+        {
+            var pagingMethods = Client.InputClient.Methods.OfType<InputPagingServiceMethod>();
+            int count = 0;
+            foreach (var method in pagingMethods)
+            {
+                if (method.Operation.Name.ToIdentifierName() == operationName)
+                {
+                    count++;
+                    if (count > 1)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
@@ -344,7 +371,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             {
                                 Return(Static(typeof(ContinuationToken))
                                 .Invoke("FromBytes", BinaryDataSnippets.FromString(
-                                    nextPageVariable.Property("AbsoluteUri"))))
+                                    new TernaryConditionalExpression(
+                                        nextPageVariable.Property(nameof(Uri.IsAbsoluteUri)),
+                                        nextPageVariable.Property(nameof(Uri.AbsoluteUri)),
+                                        nextPageVariable.Property(nameof(Uri.OriginalString))))))
                             },
                             Return(Null))
                         : new IfElseStatement(new IfStatement(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageVariable)))
@@ -501,7 +531,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             YieldBreak()
                         },
-                        nextPage.Assign(New.Instance<Uri>(nextPageString)).Terminate()
+                        nextPage.Assign(New.Instance<Uri>(nextPageString, FrameworkEnumValue(UriKind.RelativeOrAbsolute))).Terminate()
                     ];
                 case InputResponseLocation.Header:
                     return
@@ -511,7 +541,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                                 {
                                         nextPage.Type.Equals(typeof(Uri)) ?
-                                            nextPage.Assign(New.Instance<Uri>(nextLinkHeader!)).Terminate() :
+                                            nextPage.Assign(New.Instance<Uri>(nextLinkHeader!, FrameworkEnumValue(UriKind.RelativeOrAbsolute))).Terminate() :
                                             nextPage.Assign(nextLinkHeader!).Terminate(),
                                 },
                                 YieldBreak())
@@ -528,7 +558,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Client.RestClient.GetCreateNextLinkRequestMethod(Operation).Signature.Name;
             return ClientField.Invoke(
                     createNextLinkRequestMethodName,
-                    [nextPageUri, ..RequestFields])
+                    [nextPageUri, .. RequestFields])
                 .As<PipelineMessage>();
         }
 
