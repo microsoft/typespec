@@ -1,5 +1,4 @@
 import deepEqual from "deep-equal";
-import * as prettier from "prettier";
 import { parseString } from "xml2js";
 import { CollectionFormat, RequestExt } from "./types.js";
 import { ValidationError } from "./validation-error.js";
@@ -66,11 +65,7 @@ export const validateXmlBodyEquals = (request: RequestExt, expectedBody: string)
   });
 
   if (!deepEqual(actualParsedBody, expectedParsedBody, { strict: true })) {
-    throw new ValidationError(
-      BODY_NOT_EQUAL_ERROR_MESSAGE,
-      prettier.format(expectedBody),
-      prettier.format(request.body),
-    );
+    throw new ValidationError(BODY_NOT_EQUAL_ERROR_MESSAGE, expectedBody, request.rawBody);
   }
 };
 

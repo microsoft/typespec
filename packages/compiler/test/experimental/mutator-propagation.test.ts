@@ -1,28 +1,17 @@
 // TODO: find better name for file
-import { beforeEach, expect, it } from "vitest";
+import { expect, it } from "vitest";
 import { mutateSubgraph, Mutator } from "../../src/experimental/mutators.js";
-import { getTypeName, Model } from "../../src/index.js";
-import { createTestHost } from "../../src/testing/test-host.js";
-import { createTestWrapper } from "../../src/testing/test-utils.js";
-import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
-
-let host: TestHost;
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  host = await createTestHost();
-  runner = createTestWrapper(host);
-});
+import { getTypeName } from "../../src/index.js";
+import { t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 it("works", async () => {
-  const code = `
-      @test model A {
+  const { A, program } = await Tester.compile(t.code`
+      model ${t.model("A")} {
         b: B;
       }
       model B {}
-    `;
-
-  const { A } = (await runner.compile(code)) as { A: Model };
+    `);
   const mutator: Mutator = {
     name: "test",
     Model: {
@@ -30,6 +19,6 @@ it("works", async () => {
       mutate: (_model, clone) => {},
     },
   };
-  const { realm } = mutateSubgraph(runner.program, [mutator], A);
+  const { realm } = mutateSubgraph(program, [mutator], A);
   expect([...realm!.types].map((x) => getTypeName(x))).toEqual(["A", "A.b", "B"]);
 });

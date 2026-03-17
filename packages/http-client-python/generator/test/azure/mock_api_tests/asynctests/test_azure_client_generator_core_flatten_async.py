@@ -6,10 +6,13 @@
 import pytest
 from specs.azure.clientgenerator.core.flattenproperty.aio import FlattenPropertyClient
 from specs.azure.clientgenerator.core.flattenproperty.models import (
-    FlattenModel,
-    ChildModel,
-    NestedFlattenModel,
     ChildFlattenModel,
+    ChildModel,
+    FlattenModel,
+    FlattenUnknownModel,
+    NestedFlattenModel,
+    Solution,
+    SolutionProperties,
 )
 
 
@@ -44,6 +47,25 @@ async def test_put_nested_flatten_model(client: FlattenPropertyClient):
         name="test",
         properties=ChildFlattenModel(summary="test", properties=ChildModel(age=1, description="foo")),
     )
+
+
+@pytest.mark.asyncio
+async def test_put_flatten_unknown_model(client: FlattenPropertyClient):
+    result = await client.put_flatten_unknown_model(FlattenUnknownModel(name="foo"))
+    assert result.name == "test"
+    assert result.properties == {"key1": "value1", "key2": "value2"}
+
+
+@pytest.mark.asyncio
+async def test_put_flatten_read_only_model(client: FlattenPropertyClient):
+    result = await client.put_flatten_read_only_model(Solution(name="foo"))
+    assert result == Solution(
+        name="foo",
+        properties=SolutionProperties(solution_id="solution1", title="Solution Title", content="Solution Content"),
+    )
+    assert result.solution_id == "solution1"
+    assert result.title == "Solution Title"
+    assert result.content == "Solution Content"
 
 
 @pytest.mark.asyncio  # ============test for compatibility ============

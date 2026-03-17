@@ -1,13 +1,8 @@
+import { ApiTester } from "#test/test-host.js";
 import { Diagnostic, Namespace, Program } from "@typespec/compiler";
-import {
-  createTestHost as coreCreateTestHost,
-  expectDiagnosticEmpty,
-} from "@typespec/compiler/testing";
-import { HttpTestLibrary } from "@typespec/http/testing";
-import { OpenAPITestLibrary } from "@typespec/openapi/testing";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import assert from "node:assert";
 import { convertOpenAPI3Document } from "../../../src/index.js";
-import { OpenAPI3TestLibrary } from "../../../src/testing/index.js";
 import {
   OpenAPI3Document,
   OpenAPI3Header,
@@ -19,9 +14,8 @@ import {
 } from "../../../src/types.js";
 
 function wrapCodeInTest(code: string): string {
-  // Find the 1st namespace declaration and decorate it
-  const serviceIndex = code.indexOf("@service");
-  return `${code.slice(0, serviceIndex)}@test\n${code.slice(serviceIndex)}`;
+  // Place a fourslash marker before the namespace identifier so we can extract it
+  return code.replace("namespace TestService", "namespace /*TestService*/TestService");
 }
 
 export interface OpenAPI3Options extends Partial<OpenAPI3Document> {
@@ -32,16 +26,8 @@ export interface OpenAPI3Options extends Partial<OpenAPI3Document> {
   parameters?: Record<string, Refable<OpenAPI3Parameter>>;
 }
 
-async function createTestHost() {
-  return coreCreateTestHost({
-    libraries: [HttpTestLibrary, OpenAPITestLibrary, OpenAPI3TestLibrary],
-  });
-}
-
 export async function validateTsp(code: string) {
-  const host = await createTestHost();
-  host.addTypeSpecFile("main.tsp", code);
-  const [, diagnostics] = await host.compileAndDiagnose("main.tsp");
+  const diagnostics = await ApiTester.diagnose(code);
   expectDiagnosticEmpty(diagnostics);
 }
 
@@ -60,20 +46,19 @@ export async function compileForOpenAPI3(props: OpenAPI3Options): Promise<{
 
   const code = await convertOpenAPI3Document(openApi3Doc);
   const testableCode = wrapCodeInTest(code);
-  const host = await createTestHost();
-  host.addTypeSpecFile("main.tsp", testableCode);
 
-  const [types, diagnostics] = await host.compileAndDiagnose("main.tsp");
-  const { TestService } = types;
+  const [result, diagnostics] = await ApiTester.compileAndDiagnose(testableCode);
+  const TestService = result.TestService;
+  const { program } = result;
 
   assert(
-    TestService?.kind === "Namespace",
-    `Expected TestService to be a namespace, instead got ${TestService?.kind}`,
+    TestService?.entityKind === "Type" && TestService?.kind === "Namespace",
+    `Expected TestService to be a namespace, instead got ${TestService?.entityKind}/${(TestService as any)?.kind}`,
   );
   return {
-    namespace: TestService,
+    namespace: TestService as Namespace,
     diagnostics,
-    program: host.program,
+    program,
   };
 }
 

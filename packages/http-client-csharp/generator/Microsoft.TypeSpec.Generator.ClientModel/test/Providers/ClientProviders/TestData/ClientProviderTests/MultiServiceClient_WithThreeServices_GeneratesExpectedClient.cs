@@ -30,7 +30,7 @@ namespace Sample
         {
         }
 
-        public TestClient(global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options)
+        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options)
         {
             global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
             global::Sample.Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
@@ -39,10 +39,21 @@ namespace Sample
 
             _endpoint = endpoint;
             _subscriptionId = subscriptionId;
-            Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            if ((authenticationPolicy != null))
+            {
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            }
+            else
+            {
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            }
             _serviceComputeApiVersion = options.ServiceComputeApiVersion;
             _serviceKeyVaultApiVersion = options.ServiceKeyVaultApiVersion;
             _serviceStorageApiVersion = options.ServiceStorageApiVersion;
+        }
+
+        public TestClient(global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options) : this(null, endpoint, subscriptionId, options)
+        {
         }
 
         public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }

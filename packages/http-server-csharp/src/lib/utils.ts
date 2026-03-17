@@ -1032,6 +1032,31 @@ export function getCSharpStatusCode(entry: HttpStatusCodesEntry): string | undef
   }
 }
 
+/**
+ * Returns the full return statement for a controller action based on the HTTP status code.
+ * Maps well-known status codes to their idiomatic ASP.NET Core ControllerBase methods,
+ * and falls back to `StatusCode(code, ...)` for all other numeric codes.
+ */
+export function getControllerReturnStatement(
+  status: HttpStatusCodesEntry,
+  hasValue: boolean,
+): string {
+  if (typeof status === "number") {
+    switch (status) {
+      case 200:
+        return hasValue ? "return Ok(result);" : "return Ok();";
+      case 202:
+        return hasValue ? "return Accepted(result);" : "return Accepted();";
+      case 204:
+        return "return NoContent();";
+      default:
+        return hasValue ? `return StatusCode(${status}, result);` : `return StatusCode(${status});`;
+    }
+  }
+  // Fallback for ranges and "*"
+  return hasValue ? "return Ok(result);" : "return Ok();";
+}
+
 export function isEmptyResponseModel(program: Program, model: Type): boolean {
   if (model.kind !== "Model") return false;
   if (model.properties.size === 0) return true;

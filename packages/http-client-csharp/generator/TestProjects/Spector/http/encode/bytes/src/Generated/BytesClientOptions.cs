@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Encode.Bytes
 {
     public partial class BytesClientOptions : ClientPipelineOptions
     {
+        public BytesClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal BytesClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

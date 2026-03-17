@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace Parameters.CollectionFormat._Header
     public partial class Header
     {
         protected Header() => throw null;
+
+        internal Header(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

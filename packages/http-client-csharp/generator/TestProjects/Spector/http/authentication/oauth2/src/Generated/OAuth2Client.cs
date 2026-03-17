@@ -5,6 +5,8 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,13 +14,28 @@ namespace Authentication.OAuth2
 {
     public partial class OAuth2Client
     {
+        /// <summary> The OAuth2 flows supported by the service. </summary>
+        private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
+        {
+            new Dictionary<string, object>
+            {
+                { GetTokenOptions.ScopesPropertyName, new string[] { "https://security.microsoft.com/.default" } },
+                { GetTokenOptions.AuthorizationUrlPropertyName, "https://login.microsoftonline.com/common/oauth2/authorize" }
+            }
+        };
+
         protected OAuth2Client() => throw null;
 
         public OAuth2Client(AuthenticationTokenProvider tokenProvider) : this(new Uri("http://localhost:3000"), tokenProvider, new OAuth2ClientOptions()) => throw null;
 
         public OAuth2Client(AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) : this(new Uri("http://localhost:3000"), tokenProvider, options) => throw null;
 
-        public OAuth2Client(Uri endpoint, AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) => throw null;
+        internal OAuth2Client(AuthenticationPolicy authenticationPolicy, Uri endpoint, OAuth2ClientOptions options) => throw null;
+
+        public OAuth2Client(Uri endpoint, AuthenticationTokenProvider tokenProvider, OAuth2ClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public OAuth2Client(OAuth2ClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
