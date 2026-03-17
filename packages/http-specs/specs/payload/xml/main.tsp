@@ -10,7 +10,9 @@ using TypeSpec.Xml;
 @scenarioService("/payload/xml")
 namespace Payload.Xml;
 
-// Shared types used across multiple scenarios
+// ────────────────────────────────────────────────────────────────────────────
+// Shared types
+// ────────────────────────────────────────────────────────────────────────────
 
 /** §1.1 — Contains fields of primitive types. */
 model SimpleModel {
@@ -50,7 +52,9 @@ interface XmlOperations<TModel, TDoc extends valueof string> {
   put(@header("content-type") contentType: "application/xml", @body input: TModel): void;
 }
 
-// --- Scenarios ---
+// ────────────────────────────────────────────────────────────────────────────
+// §1 — Primitive properties
+// ────────────────────────────────────────────────────────────────────────────
 
 /** §1.1 — Operations for the SimpleModel type. */
 @route("/simpleModel")
@@ -64,6 +68,106 @@ interface SimpleModelValue
         </SimpleModel>
         """
     > {}
+
+/** §1.2 — Contains a scalar property with a custom XML name. */
+model ModelWithRenamedProperty {
+  @name("renamedTitle")
+  title: string;
+
+  author: string;
+}
+
+/** §1.2 — Operations for the ModelWithRenamedProperty type. */
+@route("/modelWithRenamedProperty")
+interface ModelWithRenamedPropertyValue
+  extends XmlOperations<
+      ModelWithRenamedProperty,
+      """
+        <ModelWithRenamedProperty>
+          <renamedTitle>foo</renamedTitle>
+          <author>bar</author>
+        </ModelWithRenamedProperty>
+        """
+    > {}
+
+/** §1.3, §2.3 — Contains fields of the same type that have different XML representation. */
+@name("ModelWithRenamedFieldsSrc")
+model ModelWithRenamedFields {
+  @name("InputData") inputData: SimpleModel;
+  @name("OutputData") outputData: SimpleModel;
+}
+
+/** §1.3, §2.3 — Operations for the ModelWithRenamedFields type. */
+@route("/modelWithRenamedFields")
+interface ModelWithRenamedFieldsValue
+  extends XmlOperations<
+      ModelWithRenamedFields,
+      """
+        <ModelWithRenamedFieldsSrc>
+          <InputData>
+            <name>foo</name>
+            <age>123</age>
+          </InputData>
+          <OutputData>
+            <name>bar</name>
+            <age>456</age>
+          </OutputData>
+        </ModelWithRenamedFieldsSrc>
+        """
+    > {}
+
+// ────────────────────────────────────────────────────────────────────────────
+// §2 — Nested models
+// ────────────────────────────────────────────────────────────────────────────
+
+/** §2.1 — Contains a property that references another model. */
+model ModelWithNestedModel {
+  nested: SimpleModel;
+}
+
+/** §2.1 — Operations for the ModelWithNestedModel type. */
+@route("/modelWithNestedModel")
+interface ModelWithNestedModelValue
+  extends XmlOperations<
+      ModelWithNestedModel,
+      """
+        <ModelWithNestedModel>
+          <nested>
+            <name>foo</name>
+            <age>123</age>
+          </nested>
+        </ModelWithNestedModel>
+        """
+    > {}
+
+/** Author model with a custom XML name. */
+@name("XmlAuthor")
+model Author {
+  name: string;
+}
+
+/** §2.2 — Contains a property whose type has @Xml.name. The property name takes precedence. */
+model ModelWithRenamedNestedModel {
+  author: Author;
+}
+
+/** §2.2 — Operations for the ModelWithRenamedNestedModel type. */
+@route("/modelWithRenamedNestedModel")
+interface ModelWithRenamedNestedModelValue
+  extends XmlOperations<
+      ModelWithRenamedNestedModel,
+      """
+        <ModelWithRenamedNestedModel>
+          <author>
+            <name>foo</name>
+          </author>
+        </ModelWithRenamedNestedModel>
+        """
+    > {}
+
+// ────────────────────────────────────────────────────────────────────────────
+// §3 — Array of primitive types
+// ────────────────────────────────────────────────────────────────────────────
 
 /** §3.1 — Contains fields of arrays of primitive types. */
 model ModelWithSimpleArrays {
@@ -88,69 +192,6 @@ interface ModelWithSimpleArraysValue
             <int32>2</int32>
           </counts>
         </ModelWithSimpleArrays>
-        """
-    > {}
-
-/** §4.1 — Contains an array of models. */
-model ModelWithArrayOfModel {
-  items: SimpleModel[];
-}
-
-/** §4.1 — Operations for the ModelWithArrayOfModel type. */
-@route("/modelWithArrayOfModel")
-interface ModelWithArrayOfModelValue
-  extends XmlOperations<
-      ModelWithArrayOfModel,
-      """
-        <ModelWithArrayOfModel>
-          <items>
-            <SimpleModel>
-              <name>foo</name>
-              <age>123</age>
-            </SimpleModel>
-            <SimpleModel>
-              <name>bar</name>
-              <age>456</age>
-            </SimpleModel>
-          </items>
-        </ModelWithArrayOfModel>
-        """
-    > {}
-
-/** Contains an optional field. */
-model ModelWithOptionalField {
-  item: string;
-  value?: int32;
-}
-
-/** Operations for the ModelWithOptionalField type. */
-@route("/modelWithOptionalField")
-interface ModelWithOptionalFieldValue
-  extends XmlOperations<
-      ModelWithOptionalField,
-      """
-        <ModelWithOptionalField>
-          <item>widget</item>
-        </ModelWithOptionalField>
-        """
-    > {}
-
-/** §5.1 — Contains fields that are XML attributes. */
-model ModelWithAttributes {
-  @attribute id1: int32;
-  @attribute id2: string;
-  enabled: boolean;
-}
-
-/** §5.1 — Operations for the ModelWithAttributes type. */
-@route("/modelWithAttributes")
-interface ModelWithAttributesValue
-  extends XmlOperations<
-      ModelWithAttributes,
-      """
-        <ModelWithAttributes id1="123" id2="foo">
-          <enabled>true</enabled>
-        </ModelWithAttributes>
         """
     > {}
 
@@ -202,236 +243,6 @@ interface ModelWithRenamedArraysValue
         """
     > {}
 
-/** §1.3, §2.3 — Contains fields of the same type that have different XML representation. */
-@name("ModelWithRenamedFieldsSrc")
-model ModelWithRenamedFields {
-  @name("InputData") inputData: SimpleModel;
-  @name("OutputData") outputData: SimpleModel;
-}
-
-/** §1.3, §2.3 — Operations for the ModelWithRenamedFields type. */
-@route("/modelWithRenamedFields")
-interface ModelWithRenamedFieldsValue
-  extends XmlOperations<
-      ModelWithRenamedFields,
-      """
-        <ModelWithRenamedFieldsSrc>
-          <InputData>
-            <name>foo</name>
-            <age>123</age>
-          </InputData>
-          <OutputData>
-            <name>bar</name>
-            <age>456</age>
-          </OutputData>
-        </ModelWithRenamedFieldsSrc>
-        """
-    > {}
-
-/** Contains an array of models that's supposed to be sent/received as an empty XML element. */
-model ModelWithEmptyArray {
-  items: SimpleModel[];
-}
-
-/** Operations for the ModelWithEmptyArray type. */
-@route("/modelWithEmptyArray")
-interface ModelWithEmptyArrayValue
-  extends XmlOperations<
-      ModelWithEmptyArray,
-      """
-        <ModelWithEmptyArray>
-          <items />
-        </ModelWithEmptyArray>
-        """
-    > {}
-
-/** §8.1 — Contains an attribute and text. */
-model ModelWithText {
-  @attribute language: string;
-  @unwrapped content: string;
-}
-
-/** §8.1 — Operations for the ModelWithText type. */
-@route("/modelWithText")
-interface ModelWithTextValue
-  extends XmlOperations<
-      ModelWithText,
-      """
-        <ModelWithText language="foo">
-          This is some text.
-        </ModelWithText>
-        """
-    > {}
-
-/** Contains a dictionary of key value pairs. */
-model ModelWithDictionary {
-  metadata: Record<string>;
-}
-
-/** Operations for the ModelWithDictionary type. */
-@route("/modelWithDictionary")
-interface ModelWithDictionaryValue
-  extends XmlOperations<
-      ModelWithDictionary,
-      """
-        <ModelWithDictionary>
-          <metadata>
-            <Color>blue</Color>
-            <Count>123</Count>
-            <Enabled>false</Enabled>
-          </metadata>
-        </ModelWithDictionary>
-        """
-    > {}
-
-/** Uses encodedName instead of Xml.Name which is functionally equivalent. */
-@encodedName("application/xml", "ModelWithEncodedNamesSrc")
-model ModelWithEncodedNames {
-  @encodedName("application/xml", "SimpleModelData") modelData: SimpleModel;
-  @encodedName("application/xml", "PossibleColors") colors: string[];
-}
-
-/** Operations for the ModelWithEncodedNames type. */
-@route("/modelWithEncodedNames")
-interface ModelWithEncodedNamesValue
-  extends XmlOperations<
-      ModelWithEncodedNames,
-      """
-        <ModelWithEncodedNamesSrc>
-          <SimpleModelData>
-            <name>foo</name>
-            <age>123</age>
-          </SimpleModelData>
-          <PossibleColors>
-            <string>red</string>
-            <string>green</string>
-            <string>blue</string>
-          </PossibleColors>
-        </ModelWithEncodedNamesSrc>
-        """
-    > {}
-
-/** Status values for the model with enum. */
-union Status {
-  string,
-
-  /** Pending status. */
-  pending: "pending",
-
-  /** Success status. */
-  success: "success",
-
-  /** Error status. */
-  error: "error",
-}
-
-/** Contains a single property with an enum value. */
-model ModelWithEnum {
-  status: Status;
-}
-
-/** Operations for the ModelWithEnum type. */
-@route("/modelWithEnum")
-interface ModelWithEnumValue
-  extends XmlOperations<
-      ModelWithEnum,
-      """
-        <ModelWithEnum>
-          <status>success</status>
-        </ModelWithEnum>
-        """
-    > {}
-
-/** Contains datetime properties with different encodings. */
-model ModelWithDatetime {
-  @encode(DateTimeKnownEncoding.rfc3339)
-  /** DateTime value with rfc3339 encoding. */
-  rfc3339: utcDateTime;
-
-  @encode(DateTimeKnownEncoding.rfc7231)
-  /** DateTime value with rfc7231 encoding. */
-  rfc7231: utcDateTime;
-}
-
-/** Operations for the ModelWithDatetime type. */
-@route("/modelWithDatetime")
-interface ModelWithDatetimeValue
-  extends XmlOperations<
-      ModelWithDatetime,
-      """
-        <ModelWithDatetime>
-          <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
-          <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
-        </ModelWithDatetime>
-        """
-    > {}
-
-/** §1.2 — Contains a scalar property with a custom XML name. */
-model ModelWithRenamedProperty {
-  @name("renamedTitle")
-  title: string;
-
-  author: string;
-}
-
-/** §1.2 — Operations for the ModelWithRenamedProperty type. */
-@route("/modelWithRenamedProperty")
-interface ModelWithRenamedPropertyValue
-  extends XmlOperations<
-      ModelWithRenamedProperty,
-      """
-        <ModelWithRenamedProperty>
-          <renamedTitle>foo</renamedTitle>
-          <author>bar</author>
-        </ModelWithRenamedProperty>
-        """
-    > {}
-
-/** §2.1 — Contains a property that references another model. */
-model ModelWithNestedModel {
-  nested: SimpleModel;
-}
-
-/** §2.1 — Operations for the ModelWithNestedModel type. */
-@route("/modelWithNestedModel")
-interface ModelWithNestedModelValue
-  extends XmlOperations<
-      ModelWithNestedModel,
-      """
-        <ModelWithNestedModel>
-          <nested>
-            <name>foo</name>
-            <age>123</age>
-          </nested>
-        </ModelWithNestedModel>
-        """
-    > {}
-
-/** Author model with a custom XML name. */
-@name("XmlAuthor")
-model Author {
-  name: string;
-}
-
-/** §2.2 — Contains a property whose type has @Xml.name. The property name takes precedence. */
-model ModelWithRenamedNestedModel {
-  author: Author;
-}
-
-/** §2.2 — Operations for the ModelWithRenamedNestedModel type. */
-@route("/modelWithRenamedNestedModel")
-interface ModelWithRenamedNestedModelValue
-  extends XmlOperations<
-      ModelWithRenamedNestedModel,
-      """
-        <ModelWithRenamedNestedModel>
-          <author>
-            <name>foo</name>
-          </author>
-        </ModelWithRenamedNestedModel>
-        """
-    > {}
-
 /** Custom scalar with a custom XML item name. */
 @name("ItemName")
 scalar tag extends string;
@@ -454,6 +265,36 @@ interface ModelWithWrappedPrimitiveCustomItemNamesValue
             <ItemName>classic</ItemName>
           </ItemsTags>
         </ModelWithWrappedPrimitiveCustomItemNames>
+        """
+    > {}
+
+// ────────────────────────────────────────────────────────────────────────────
+// §4 — Array of complex types
+// ────────────────────────────────────────────────────────────────────────────
+
+/** §4.1 — Contains an array of models. */
+model ModelWithArrayOfModel {
+  items: SimpleModel[];
+}
+
+/** §4.1 — Operations for the ModelWithArrayOfModel type. */
+@route("/modelWithArrayOfModel")
+interface ModelWithArrayOfModelValue
+  extends XmlOperations<
+      ModelWithArrayOfModel,
+      """
+        <ModelWithArrayOfModel>
+          <items>
+            <SimpleModel>
+              <name>foo</name>
+              <age>123</age>
+            </SimpleModel>
+            <SimpleModel>
+              <name>bar</name>
+              <age>456</age>
+            </SimpleModel>
+          </items>
+        </ModelWithArrayOfModel>
         """
     > {}
 
@@ -566,6 +407,29 @@ interface ModelWithRenamedWrappedAndItemModelArrayValue
         """
     > {}
 
+// ────────────────────────────────────────────────────────────────────────────
+// §5 — Attributes
+// ────────────────────────────────────────────────────────────────────────────
+
+/** §5.1 — Contains fields that are XML attributes. */
+model ModelWithAttributes {
+  @attribute id1: int32;
+  @attribute id2: string;
+  enabled: boolean;
+}
+
+/** §5.1 — Operations for the ModelWithAttributes type. */
+@route("/modelWithAttributes")
+interface ModelWithAttributesValue
+  extends XmlOperations<
+      ModelWithAttributes,
+      """
+        <ModelWithAttributes id1="123" id2="foo">
+          <enabled>true</enabled>
+        </ModelWithAttributes>
+        """
+    > {}
+
 /** §5.2 — Contains a renamed XML attribute. */
 model ModelWithRenamedAttribute {
   @attribute
@@ -588,6 +452,10 @@ interface ModelWithRenamedAttributeValue
         </ModelWithRenamedAttribute>
         """
     > {}
+
+// ────────────────────────────────────────────────────────────────────────────
+// §6/§7 — Namespace and prefix
+// ────────────────────────────────────────────────────────────────────────────
 
 /** §6.1, §7.1 — Contains fields with XML namespace on the model. */
 @ns(Namespaces.smp)
@@ -632,6 +500,170 @@ interface ModelWithNamespaceOnPropertiesValue
           <smp:title>The Great Gatsby</smp:title>
           <ns2:author>F. Scott Fitzgerald</ns2:author>
         </smp:ModelWithNamespaceOnProperties>
+        """
+    > {}
+
+// ────────────────────────────────────────────────────────────────────────────
+// §8 — Text content
+// ────────────────────────────────────────────────────────────────────────────
+
+/** §8.1 — Contains an attribute and text. */
+model ModelWithText {
+  @attribute language: string;
+  @unwrapped content: string;
+}
+
+/** §8.1 — Operations for the ModelWithText type. */
+@route("/modelWithText")
+interface ModelWithTextValue
+  extends XmlOperations<
+      ModelWithText,
+      """
+        <ModelWithText language="foo">
+          This is some text.
+        </ModelWithText>
+        """
+    > {}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Additional scenarios (not in the guide)
+// ────────────────────────────────────────────────────────────────────────────
+
+/** Contains an optional field. */
+model ModelWithOptionalField {
+  item: string;
+  value?: int32;
+}
+
+/** Operations for the ModelWithOptionalField type. */
+@route("/modelWithOptionalField")
+interface ModelWithOptionalFieldValue
+  extends XmlOperations<
+      ModelWithOptionalField,
+      """
+        <ModelWithOptionalField>
+          <item>widget</item>
+        </ModelWithOptionalField>
+        """
+    > {}
+
+/** Contains an array of models that's supposed to be sent/received as an empty XML element. */
+model ModelWithEmptyArray {
+  items: SimpleModel[];
+}
+
+/** Operations for the ModelWithEmptyArray type. */
+@route("/modelWithEmptyArray")
+interface ModelWithEmptyArrayValue
+  extends XmlOperations<
+      ModelWithEmptyArray,
+      """
+        <ModelWithEmptyArray>
+          <items />
+        </ModelWithEmptyArray>
+        """
+    > {}
+
+/** Contains a dictionary of key value pairs. */
+model ModelWithDictionary {
+  metadata: Record<string>;
+}
+
+/** Operations for the ModelWithDictionary type. */
+@route("/modelWithDictionary")
+interface ModelWithDictionaryValue
+  extends XmlOperations<
+      ModelWithDictionary,
+      """
+        <ModelWithDictionary>
+          <metadata>
+            <Color>blue</Color>
+            <Count>123</Count>
+            <Enabled>false</Enabled>
+          </metadata>
+        </ModelWithDictionary>
+        """
+    > {}
+
+/** Uses encodedName instead of Xml.Name which is functionally equivalent. */
+@encodedName("application/xml", "ModelWithEncodedNamesSrc")
+model ModelWithEncodedNames {
+  @encodedName("application/xml", "SimpleModelData") modelData: SimpleModel;
+  @encodedName("application/xml", "PossibleColors") colors: string[];
+}
+
+/** Operations for the ModelWithEncodedNames type. */
+@route("/modelWithEncodedNames")
+interface ModelWithEncodedNamesValue
+  extends XmlOperations<
+      ModelWithEncodedNames,
+      """
+        <ModelWithEncodedNamesSrc>
+          <SimpleModelData>
+            <name>foo</name>
+            <age>123</age>
+          </SimpleModelData>
+          <PossibleColors>
+            <string>red</string>
+            <string>green</string>
+            <string>blue</string>
+          </PossibleColors>
+        </ModelWithEncodedNamesSrc>
+        """
+    > {}
+
+/** Status values for the model with enum. */
+union Status {
+  string,
+
+  /** Pending status. */
+  pending: "pending",
+
+  /** Success status. */
+  success: "success",
+
+  /** Error status. */
+  error: "error",
+}
+
+/** Contains a single property with an enum value. */
+model ModelWithEnum {
+  status: Status;
+}
+
+/** Operations for the ModelWithEnum type. */
+@route("/modelWithEnum")
+interface ModelWithEnumValue
+  extends XmlOperations<
+      ModelWithEnum,
+      """
+        <ModelWithEnum>
+          <status>success</status>
+        </ModelWithEnum>
+        """
+    > {}
+
+/** Contains datetime properties with different encodings. */
+model ModelWithDatetime {
+  @encode(DateTimeKnownEncoding.rfc3339)
+  /** DateTime value with rfc3339 encoding. */
+  rfc3339: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.rfc7231)
+  /** DateTime value with rfc7231 encoding. */
+  rfc7231: utcDateTime;
+}
+
+/** Operations for the ModelWithDatetime type. */
+@route("/modelWithDatetime")
+interface ModelWithDatetimeValue
+  extends XmlOperations<
+      ModelWithDatetime,
+      """
+        <ModelWithDatetime>
+          <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
+          <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+        </ModelWithDatetime>
         """
     > {}
 
