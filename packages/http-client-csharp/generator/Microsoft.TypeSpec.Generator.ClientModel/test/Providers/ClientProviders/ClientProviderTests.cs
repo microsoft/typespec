@@ -3882,14 +3882,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // This should not crash — previously it threw due to duplicate field names
             Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
 
-            // The fields should have unique names derived from enum names
-            var fieldOne = clientProvider!.GetApiVersionFieldForService("Azure.Generator.MgmtTypeSpec.MultiService.Tests");
-            Assert.IsNotNull(fieldOne);
-
-            // Verify we have two distinct api version fields
-            var apiVersionFields = clientProvider.Fields.Where(f => f.Name.Contains("ApiVersion", StringComparison.OrdinalIgnoreCase)).ToList();
+            // Verify we have two distinct api version fields with names derived from enum names
+            var apiVersionFields = clientProvider!.Fields
+                .Where(f => f.Name.Contains("ApiVersion", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(f => f.Name)
+                .ToList();
             Assert.AreEqual(2, apiVersionFields.Count);
             Assert.AreNotEqual(apiVersionFields[0].Name, apiVersionFields[1].Name);
+
+            // Verify the field names use enum-name-based naming (since namespace-based names would collide)
+            Assert.AreEqual("_serviceOneVersionsApiVersion", apiVersionFields[0].Name);
+            Assert.AreEqual("_serviceTwoVersionsApiVersion", apiVersionFields[1].Name);
         }
 
         [TestCase("{endpoint}")]
