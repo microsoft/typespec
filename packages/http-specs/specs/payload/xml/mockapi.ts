@@ -146,6 +146,115 @@ const modelWithDatetimeNoMs = `
 </ModelWithDatetime>
 `;
 
+export const modelWithRenamedProperty = `
+<ModelWithRenamedProperty>
+  <renamedTitle>foo</renamedTitle>
+  <author>bar</author>
+</ModelWithRenamedProperty>
+`;
+
+export const modelWithNestedModel = `
+<ModelWithNestedModel>
+  <nested>
+    <name>foo</name>
+    <age>123</age>
+  </nested>
+</ModelWithNestedModel>
+`;
+
+export const modelWithRenamedNestedModel = `
+<ModelWithRenamedNestedModel>
+  <author>
+    <name>foo</name>
+  </author>
+</ModelWithRenamedNestedModel>
+`;
+
+export const modelWithWrappedPrimitiveCustomItemNames = `
+<ModelWithWrappedPrimitiveCustomItemNames>
+  <ItemsTags>
+    <ItemName>fiction</ItemName>
+    <ItemName>classic</ItemName>
+  </ItemsTags>
+</ModelWithWrappedPrimitiveCustomItemNames>
+`;
+
+export const modelWithUnwrappedModelArray = `
+<ModelWithUnwrappedModelArray>
+  <items>
+    <name>foo</name>
+    <age>123</age>
+  </items>
+  <items>
+    <name>bar</name>
+    <age>456</age>
+  </items>
+</ModelWithUnwrappedModelArray>
+`;
+
+export const modelWithRenamedWrappedModelArray = `
+<ModelWithRenamedWrappedModelArray>
+  <AllItems>
+    <SimpleModel>
+      <name>foo</name>
+      <age>123</age>
+    </SimpleModel>
+    <SimpleModel>
+      <name>bar</name>
+      <age>456</age>
+    </SimpleModel>
+  </AllItems>
+</ModelWithRenamedWrappedModelArray>
+`;
+
+export const modelWithRenamedUnwrappedModelArray = `
+<ModelWithRenamedUnwrappedModelArray>
+  <ModelItem>
+    <name>foo</name>
+    <age>123</age>
+  </ModelItem>
+  <ModelItem>
+    <name>bar</name>
+    <age>456</age>
+  </ModelItem>
+</ModelWithRenamedUnwrappedModelArray>
+`;
+
+export const modelWithRenamedWrappedAndItemModelArray = `
+<ModelWithRenamedWrappedAndItemModelArray>
+  <AllBooks>
+    <XmlBook>
+      <title>The Great Gatsby</title>
+    </XmlBook>
+    <XmlBook>
+      <title>Les Miserables</title>
+    </XmlBook>
+  </AllBooks>
+</ModelWithRenamedWrappedAndItemModelArray>
+`;
+
+export const modelWithRenamedAttribute = `
+<ModelWithRenamedAttribute xml-id="123">
+  <title>The Great Gatsby</title>
+  <author>F. Scott Fitzgerald</author>
+</ModelWithRenamedAttribute>
+`;
+
+export const modelWithNamespace = `
+<smp:ModelWithNamespace xmlns:smp="http://example.com/schema">
+  <id>123</id>
+  <title>The Great Gatsby</title>
+</smp:ModelWithNamespace>
+`;
+
+export const modelWithNamespaceOnProperties = `
+<smp:ModelWithNamespaceOnProperties xmlns:smp="http://example.com/schema" xmlns:ns2="http://example.com/ns2">
+  <id>123</id>
+  <smp:title>The Great Gatsby</smp:title>
+  <ns2:author>F. Scott Fitzgerald</ns2:author>
+</smp:ModelWithNamespaceOnProperties>
+`;
+
 function createServerTests(uri: string, data?: any) {
   return {
     get: passOnSuccess({
@@ -299,6 +408,99 @@ Scenarios.Payload_Xml_ModelWithDatetimeValue_put = passOnSuccess({
   },
   kind: "MockApiDefinition",
 });
+
+const Payload_Xml_ModelWithRenamedProperty = createServerTests(
+  "/payload/xml/modelWithRenamedProperty",
+  modelWithRenamedProperty,
+);
+Scenarios.Payload_Xml_ModelWithRenamedPropertyValue_get = Payload_Xml_ModelWithRenamedProperty.get;
+Scenarios.Payload_Xml_ModelWithRenamedPropertyValue_put = Payload_Xml_ModelWithRenamedProperty.put;
+
+const Payload_Xml_ModelWithNestedModel = createServerTests(
+  "/payload/xml/modelWithNestedModel",
+  modelWithNestedModel,
+);
+Scenarios.Payload_Xml_ModelWithNestedModelValue_get = Payload_Xml_ModelWithNestedModel.get;
+Scenarios.Payload_Xml_ModelWithNestedModelValue_put = Payload_Xml_ModelWithNestedModel.put;
+
+const Payload_Xml_ModelWithRenamedNestedModel = createServerTests(
+  "/payload/xml/modelWithRenamedNestedModel",
+  modelWithRenamedNestedModel,
+);
+Scenarios.Payload_Xml_ModelWithRenamedNestedModelValue_get =
+  Payload_Xml_ModelWithRenamedNestedModel.get;
+Scenarios.Payload_Xml_ModelWithRenamedNestedModelValue_put =
+  Payload_Xml_ModelWithRenamedNestedModel.put;
+
+const Payload_Xml_ModelWithWrappedPrimitiveCustomItemNames = createServerTests(
+  "/payload/xml/modelWithWrappedPrimitiveCustomItemNames",
+  modelWithWrappedPrimitiveCustomItemNames,
+);
+Scenarios.Payload_Xml_ModelWithWrappedPrimitiveCustomItemNamesValue_get =
+  Payload_Xml_ModelWithWrappedPrimitiveCustomItemNames.get;
+Scenarios.Payload_Xml_ModelWithWrappedPrimitiveCustomItemNamesValue_put =
+  Payload_Xml_ModelWithWrappedPrimitiveCustomItemNames.put;
+
+const Payload_Xml_ModelWithUnwrappedModelArray = createServerTests(
+  "/payload/xml/modelWithUnwrappedModelArray",
+  modelWithUnwrappedModelArray,
+);
+Scenarios.Payload_Xml_ModelWithUnwrappedModelArrayValue_get =
+  Payload_Xml_ModelWithUnwrappedModelArray.get;
+Scenarios.Payload_Xml_ModelWithUnwrappedModelArrayValue_put =
+  Payload_Xml_ModelWithUnwrappedModelArray.put;
+
+const Payload_Xml_ModelWithRenamedWrappedModelArray = createServerTests(
+  "/payload/xml/modelWithRenamedWrappedModelArray",
+  modelWithRenamedWrappedModelArray,
+);
+Scenarios.Payload_Xml_ModelWithRenamedWrappedModelArrayValue_get =
+  Payload_Xml_ModelWithRenamedWrappedModelArray.get;
+Scenarios.Payload_Xml_ModelWithRenamedWrappedModelArrayValue_put =
+  Payload_Xml_ModelWithRenamedWrappedModelArray.put;
+
+const Payload_Xml_ModelWithRenamedUnwrappedModelArray = createServerTests(
+  "/payload/xml/modelWithRenamedUnwrappedModelArray",
+  modelWithRenamedUnwrappedModelArray,
+);
+Scenarios.Payload_Xml_ModelWithRenamedUnwrappedModelArrayValue_get =
+  Payload_Xml_ModelWithRenamedUnwrappedModelArray.get;
+Scenarios.Payload_Xml_ModelWithRenamedUnwrappedModelArrayValue_put =
+  Payload_Xml_ModelWithRenamedUnwrappedModelArray.put;
+
+const Payload_Xml_ModelWithRenamedWrappedAndItemModelArray = createServerTests(
+  "/payload/xml/modelWithRenamedWrappedAndItemModelArray",
+  modelWithRenamedWrappedAndItemModelArray,
+);
+Scenarios.Payload_Xml_ModelWithRenamedWrappedAndItemModelArrayValue_get =
+  Payload_Xml_ModelWithRenamedWrappedAndItemModelArray.get;
+Scenarios.Payload_Xml_ModelWithRenamedWrappedAndItemModelArrayValue_put =
+  Payload_Xml_ModelWithRenamedWrappedAndItemModelArray.put;
+
+const Payload_Xml_ModelWithRenamedAttribute = createServerTests(
+  "/payload/xml/modelWithRenamedAttribute",
+  modelWithRenamedAttribute,
+);
+Scenarios.Payload_Xml_ModelWithRenamedAttributeValue_get =
+  Payload_Xml_ModelWithRenamedAttribute.get;
+Scenarios.Payload_Xml_ModelWithRenamedAttributeValue_put =
+  Payload_Xml_ModelWithRenamedAttribute.put;
+
+const Payload_Xml_ModelWithNamespace = createServerTests(
+  "/payload/xml/modelWithNamespace",
+  modelWithNamespace,
+);
+Scenarios.Payload_Xml_ModelWithNamespaceValue_get = Payload_Xml_ModelWithNamespace.get;
+Scenarios.Payload_Xml_ModelWithNamespaceValue_put = Payload_Xml_ModelWithNamespace.put;
+
+const Payload_Xml_ModelWithNamespaceOnProperties = createServerTests(
+  "/payload/xml/modelWithNamespaceOnProperties",
+  modelWithNamespaceOnProperties,
+);
+Scenarios.Payload_Xml_ModelWithNamespaceOnPropertiesValue_get =
+  Payload_Xml_ModelWithNamespaceOnProperties.get;
+Scenarios.Payload_Xml_ModelWithNamespaceOnPropertiesValue_put =
+  Payload_Xml_ModelWithNamespaceOnProperties.put;
 
 export const xmlError = `
 <XmlErrorBody>
