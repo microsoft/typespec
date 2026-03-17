@@ -9,10 +9,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
 {
     public static class StringExtensions
     {
-        private static bool IsWordSeparator(char c) => !SyntaxFacts.IsIdentifierPartCharacter(c) || c == '_';
+        private static bool IsWordSeparator(char c, bool preserveUnderscores = false)
+            => !SyntaxFacts.IsIdentifierPartCharacter(c) || (!preserveUnderscores && c == '_');
 
         [return: NotNullIfNotNull("name")]
-        public static string ToIdentifierName(this string name, bool useCamelCase = false)
+        public static string ToIdentifierName(this string name, bool useCamelCase = false, bool preserveUnderscores = false)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -39,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
             for (; i < name.Length; i++)
             {
                 var c = name[i];
-                if (IsWordSeparator(c))
+                if (IsWordSeparator(c, preserveUnderscores))
                 {
                     upperCase = true;
                     continue;
@@ -56,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
                     upperCase = false;
                     // grow the first word length when this letter follows by two other upper case letters
                     // this happens in OSProfile, where OS is the first word
-                    if (i + 2 < name.Length && char.IsUpper(name[i + 1]) && (char.IsUpper(name[i + 2]) || IsWordSeparator(name[i + 2])))
+                    if (i + 2 < name.Length && char.IsUpper(name[i + 1]) && (char.IsUpper(name[i + 2]) || IsWordSeparator(name[i + 2], preserveUnderscores)))
                         firstWordLength++;
                     // grow the first word length when this letter follows by another upper case letter and an end of the string
                     // this happens when the string only has one word, like OS, DNS
@@ -77,6 +78,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
         }
 
         [return: NotNullIfNotNull(nameof(name))]
-        public static string ToVariableName(this string name) => name.ToIdentifierName(useCamelCase: true);
+        public static string ToVariableName(this string name, bool preserveUnderscores = false) => name.ToIdentifierName(useCamelCase: true, preserveUnderscores: preserveUnderscores);
     }
 }
