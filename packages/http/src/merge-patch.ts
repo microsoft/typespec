@@ -140,9 +140,6 @@ export function applyMergePatchTransform(
     "Expected the root of the MergePatch transform to be a Model",
   );
 
-  setMergePatchSource(ctx.program, type, input);
-  setMediaTypeHint(ctx.program, type, "application/merge-patch+json");
-
   return type;
 }
 
@@ -154,6 +151,9 @@ export const $applyMergePatch: ApplyMergePatchDecorator = (
   options: ApplyMergePatchOptions,
 ) => {
   const transformed = applyMergePatchTransform(ctx, source, nameTemplate, options);
+
+  setMergePatchSource(ctx.program, target, source);
+  setMediaTypeHint(ctx.program, target, "application/merge-patch+json");
 
   target.properties = transformed.properties;
 };
@@ -308,7 +308,10 @@ function createMergePatchMutator(
             clone.defaultValue = undefined;
           }
 
-          ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(clone, prop);
+          clone.decorators.push({
+            decorator: $mergePatchProperty,
+            args: [{ value: prop, jsValue: prop }],
+          });
         },
       },
     };
@@ -330,7 +333,20 @@ function createMergePatchMutator(
             }
           }
 
-          setMediaTypeHint(program, clone, "application/merge-patch+json");
+          if (union.name) {
+            // We have to set the media type in a decorator, not just by calling `setMediaTypeHint`, in order for it to be
+            // preserved on further mutation.
+            clone.decorators = [
+              ...clone.decorators,
+              {
+                decorator: function (ctx: DecoratorContext, target: Union) {
+                  setMediaTypeHint(ctx.program, target, "application/merge-patch+json");
+                },
+                args: [],
+              },
+            ];
+          }
+
           rename(ctx.program, clone, nameTemplate);
         },
       },
@@ -397,6 +413,7 @@ function createMergePatchMutator(
           // preserved on further mutation.
           clone.decorators.push({
             decorator: function (ctx: DecoratorContext, target: Model) {
+              setMergePatchSource(ctx.program, target, model);
               setMediaTypeHint(ctx.program, target, "application/merge-patch+json");
             },
             args: [],
