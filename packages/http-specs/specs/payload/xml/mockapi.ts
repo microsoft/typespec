@@ -1,4 +1,11 @@
-import { MockRequest, passOnCode, passOnSuccess, ScenarioMockApi, xml } from "@typespec/spec-api";
+import {
+  match,
+  MockRequest,
+  passOnCode,
+  passOnSuccess,
+  ScenarioMockApi,
+  xml,
+} from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -129,22 +136,19 @@ export const modelWithEnum = `
 </ModelWithEnum>
 `;
 
-export const modelWithDatetime = `
+export const modelWithDatetime = xml`
 <ModelWithDatetime>
-  <rfc3339>2022-08-26T18:38:00.000Z</rfc3339>
-  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+  <rfc3339>${match.dateTime.utcRfc3339("2022-08-26T18:38:00.000Z")}</rfc3339>
+  <rfc7231>${match.dateTime.rfc7231("Fri, 26 Aug 2022 14:38:00 GMT")}</rfc7231>
 </ModelWithDatetime>
 `;
 
-// Some clients serialize UTC datetimes without trailing zero milliseconds. Both
-// "2022-08-26T18:38:00.000Z" and "2022-08-26T18:38:00Z" are valid RFC3339 representations
-// of the same instant; accept either form.
-const modelWithDatetimeNoMs = `
-<ModelWithDatetime>
-  <rfc3339>2022-08-26T18:38:00Z</rfc3339>
-  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
-</ModelWithDatetime>
-`;
+const Payload_Xml_ModelWithDatetime = createServerTests(
+  "/payload/xml/modelWithDatetime",
+  modelWithDatetime,
+);
+Scenarios.Payload_Xml_ModelWithDatetimeValue_get = Payload_Xml_ModelWithDatetime.get;
+Scenarios.Payload_Xml_ModelWithDatetimeValue_put = Payload_Xml_ModelWithDatetime.put;
 
 function createServerTests(uri: string, data?: any) {
   return {
@@ -260,45 +264,6 @@ Scenarios.Payload_Xml_ModelWithEncodedNamesValue_put = Payload_Xml_ModelWithEnco
 const Payload_Xml_ModelWithEnum = createServerTests("/payload/xml/modelWithEnum", modelWithEnum);
 Scenarios.Payload_Xml_ModelWithEnumValue_get = Payload_Xml_ModelWithEnum.get;
 Scenarios.Payload_Xml_ModelWithEnumValue_put = Payload_Xml_ModelWithEnum.put;
-
-Scenarios.Payload_Xml_ModelWithDatetimeValue_get = passOnSuccess({
-  uri: "/payload/xml/modelWithDatetime",
-  method: "get",
-  request: {},
-  response: {
-    status: 200,
-    body: xml(modelWithDatetime),
-  },
-  kind: "MockApiDefinition",
-});
-
-Scenarios.Payload_Xml_ModelWithDatetimeValue_put = passOnSuccess({
-  uri: "/payload/xml/modelWithDatetime",
-  method: "put",
-  request: {
-    body: xml(modelWithDatetime),
-  },
-  handler: (req: MockRequest) => {
-    req.expect.containsHeader("content-type", "application/xml");
-    // Accept both "2022-08-26T18:38:00.000Z" and "2022-08-26T18:38:00Z" as equivalent UTC datetimes.
-    let firstError: unknown;
-    try {
-      req.expect.xmlBodyEquals(modelWithDatetime);
-    } catch (e) {
-      firstError = e;
-    }
-    if (firstError !== undefined) {
-      req.expect.xmlBodyEquals(modelWithDatetimeNoMs);
-    }
-    return {
-      status: 204,
-    };
-  },
-  response: {
-    status: 204,
-  },
-  kind: "MockApiDefinition",
-});
 
 export const xmlError = `
 <XmlErrorBody>
