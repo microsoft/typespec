@@ -186,7 +186,7 @@ describe("matchValues", () => {
       const expected = { link: resolved };
       expectFail(
         matchValues({ link: "http://localhost:4000/next-page" }, expected),
-        "match.baseUrl",
+        "match.localUrl",
       );
     });
 

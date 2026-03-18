@@ -1,6 +1,6 @@
 import {
+  createMatcher,
   err,
-  MatcherSymbol,
   type MatchResult,
   type MockValueMatcher,
   ok,
@@ -18,19 +18,36 @@ export interface ResolvableMockValueMatcher<T = unknown> extends MockValueMatche
 
 export function baseUrlMatcher(path: string): ResolvableMockValueMatcher<string> {
   return {
-    [MatcherSymbol]: true,
+    ...createMatcher({
+      check(actual: unknown): MatchResult {
+        if (typeof actual !== "string") {
+          return err(
+            `match.localUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
+          );
+        }
+        if (!actual.endsWith(path)) {
+          return err(`match.baseUrl: expected URL ending with "${path}" but got "${actual}"`);
+        }
+        return ok();
+      },
+      toJSON(): string {
+        return path;
+      },
+      toString(): string {
+        return `match.baseUrl("${path}")`;
+      },
+    }),
     resolve(config: ResolverConfig): MockValueMatcher<string> {
       const expected = config.baseUrl + path;
-      return {
-        [MatcherSymbol]: true,
+      return createMatcher({
         check(actual: unknown): MatchResult {
           if (typeof actual !== "string") {
             return err(
-              `match.localUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
+              `match.baseUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
             );
           }
           if (actual !== expected) {
-            return err(`match.localUrl: expected "${expected}" but got "${actual}"`);
+            return err(`match.baseUrl: expected "${expected}" but got "${actual}"`);
           }
           return ok();
         },
@@ -38,26 +55,9 @@ export function baseUrlMatcher(path: string): ResolvableMockValueMatcher<string>
           return expected;
         },
         toString(): string {
-          return `match.localUrl("${path}")`;
+          return `match.baseUrl("${path}")`;
         },
-      };
-    },
-    check(actual: unknown): MatchResult {
-      if (typeof actual !== "string") {
-        return err(
-          `match.localUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
-        );
-      }
-      if (!actual.endsWith(path)) {
-        return err(`match.baseUrl: expected URL ending with "${path}" but got "${actual}"`);
-      }
-      return ok();
-    },
-    toJSON(): string {
-      return path;
-    },
-    toString(): string {
-      return `match.baseUrl("${path}")`;
+      });
     },
   };
 }

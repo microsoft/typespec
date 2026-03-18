@@ -33,7 +33,7 @@ const XML_DECLARATION = `<?xml version='1.0' encoding='UTF-8'?>`;
  * The XML declaration prefix is automatically prepended.
  *
  * Can be used as a plain function or as a tagged template literal.
- * When used as a tagged template, interpolated matchers (e.g. `match.baseUrl`)
+ * When used as a tagged template, interpolated matchers (e.g. `match.localUrl`)
  * are resolved at serialization time via `expandDyns`.
  *
  * @example
@@ -42,7 +42,7 @@ const XML_DECLARATION = `<?xml version='1.0' encoding='UTF-8'?>`;
  * xml("<Root>hello</Root>")
  *
  * // Tagged template with matcher
- * xml`<Root><Link>${match.baseUrl("/next")}</Link></Root>`
+ * xml`<Root><Link>${match.localUrl("/next")}</Link></Root>`
  * ```
  *
  * @returns {MockBody} response body with application/xml content type.
@@ -94,7 +94,7 @@ export function dynItem<const T extends keyof ResolverConfig>(name: T): DynItem<
  * Tagged template for building strings with deferred resolution.
  * Interpolated values can be:
  * - `dynItem("baseUrl")` — resolved from `ResolverConfig`
- * - Matchers (e.g. `match.baseUrl(...)`) — resolved via `expandDyns`
+ * - Matchers (e.g. `match.localUrl(...)`) — resolved via `expandDyns`
  * - Other `dyn` templates — recursively resolved
  * - Plain strings/numbers — used as-is
  */
@@ -121,7 +121,7 @@ export interface ExpandDynsOptions {
 /**
  * Recursively expands all dynamic values.
  * - Dyn functions are called with the config.
- * - Resolvable matchers (e.g. `match.baseUrl`) are resolved via `resolve(config)`.
+ * - Resolvable matchers (e.g. `match.localUrl`) are resolved via `resolve(config)`.
  * - By default, matchers are resolved to their `toJSON()` plain value.
  *   Pass `{ resolveMatchers: false }` to preserve matchers for use with `matchValues`.
  */

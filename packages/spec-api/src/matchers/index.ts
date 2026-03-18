@@ -2,6 +2,7 @@ import { dateTimeMatcher } from "./datetime.js";
 import { baseUrlMatcher } from "./local-url.js";
 
 export {
+  createMatcher,
   err,
   isMatcher,
   MatcherSymbol,

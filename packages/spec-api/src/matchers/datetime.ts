@@ -1,6 +1,6 @@
 import {
+  createMatcher,
   err,
-  MatcherSymbol,
   type MatchResult,
   type MockValueMatcher,
   ok,
@@ -20,8 +20,7 @@ function createDateTimeMatcher(
   if (isNaN(expectedMs)) {
     throw new Error(`${label}: invalid datetime value: ${value}`);
   }
-  return {
-    [MatcherSymbol]: true,
+  return createMatcher({
     check(actual: unknown): MatchResult {
       if (typeof actual !== "string") {
         return err(
@@ -50,7 +49,7 @@ function createDateTimeMatcher(
     toString(): string {
       return `${label}(${value})`;
     },
-  };
+  });
 }
 
 export const dateTimeMatcher = {

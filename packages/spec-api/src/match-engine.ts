@@ -39,6 +39,15 @@ export interface MockValueMatcher<T = unknown> {
   toString(): string;
 }
 
+/** Create a MockValueMatcher with the MatcherSymbol already set. */
+export function createMatcher<T = unknown>(matcher: {
+  check(actual: unknown): MatchResult;
+  toJSON(): T;
+  toString(): string;
+}): MockValueMatcher<T> {
+  return { [MatcherSymbol]: true, ...matcher };
+}
+
 /** Type guard to check if a value is a MockValueMatcher */
 export function isMatcher(value: unknown): value is MockValueMatcher {
   return (
@@ -130,21 +139,24 @@ export function matchValues(actual: unknown, expected: unknown, path: string = "
     const expectedPresentKeys = Object.keys(expectedObj).filter(
       (k) => expectedObj[k] !== undefined,
     );
-    const expectedAbsentKeys = Object.keys(expectedObj).filter(
-      (k) => expectedObj[k] === undefined,
-    );
+    const expectedAbsentKeys = Object.keys(expectedObj).filter((k) => expectedObj[k] === undefined);
     const actualKeys = Object.keys(actualObj);
 
     // Verify keys that should be absent are not in actual
     for (const key of expectedAbsentKeys) {
       if (key in actualObj && actualObj[key] !== undefined) {
-        return pathErr(`Key "${key}" should not be present but got ${formatValue(actualObj[key])}`, path);
+        return pathErr(
+          `Key "${key}" should not be present but got ${formatValue(actualObj[key])}`,
+          path,
+        );
       }
     }
 
     if (expectedPresentKeys.length !== actualKeys.length) {
       const missing = expectedPresentKeys.filter((k) => !(k in actualObj));
-      const extra = actualKeys.filter((k) => !expectedPresentKeys.includes(k) && !expectedAbsentKeys.includes(k));
+      const extra = actualKeys.filter(
+        (k) => !expectedPresentKeys.includes(k) && !expectedAbsentKeys.includes(k),
+      );
       const parts: string[] = [
         `Key count mismatch: expected ${expectedPresentKeys.length} but got ${actualKeys.length}`,
       ];
