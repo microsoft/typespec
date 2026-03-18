@@ -146,6 +146,15 @@ const modelWithDatetimeNoMs = `
 </ModelWithDatetime>
 `;
 
+// Some clients (e.g. .NET) serialize UTC datetimes with 7 fractional digit ticks.
+// "2022-08-26T18:38:00.0000000Z" is a valid representation of the same instant; accept it too.
+const modelWithDatetimeWindowsMs = `
+<ModelWithDatetime>
+  <rfc3339>2022-08-26T18:38:00.0000000Z</rfc3339>
+  <rfc7231>Fri, 26 Aug 2022 14:38:00 GMT</rfc7231>
+</ModelWithDatetime>
+`;
+
 function createServerTests(uri: string, data?: any) {
   return {
     get: passOnSuccess({
@@ -280,7 +289,8 @@ Scenarios.Payload_Xml_ModelWithDatetimeValue_put = passOnSuccess({
   },
   handler: (req: MockRequest) => {
     req.expect.containsHeader("content-type", "application/xml");
-    // Accept both "2022-08-26T18:38:00.000Z" and "2022-08-26T18:38:00Z" as equivalent UTC datetimes.
+    // Accept "2022-08-26T18:38:00.000Z", "2022-08-26T18:38:00Z", and
+    // "2022-08-26T18:38:00.0000000Z" as equivalent UTC datetimes.
     let firstError: unknown;
     try {
       req.expect.xmlBodyEquals(modelWithDatetime);
@@ -288,7 +298,15 @@ Scenarios.Payload_Xml_ModelWithDatetimeValue_put = passOnSuccess({
       firstError = e;
     }
     if (firstError !== undefined) {
-      req.expect.xmlBodyEquals(modelWithDatetimeNoMs);
+      let secondError: unknown;
+      try {
+        req.expect.xmlBodyEquals(modelWithDatetimeNoMs);
+      } catch (e) {
+        secondError = e;
+      }
+      if (secondError !== undefined) {
+        req.expect.xmlBodyEquals(modelWithDatetimeWindowsMs);
+      }
     }
     return {
       status: 204,
