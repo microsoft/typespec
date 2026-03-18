@@ -16,6 +16,12 @@ describe("isMatcher", () => {
     expect(isMatcher(match.dateTime.rfc3339("2022-08-26T18:38:00.000Z"))).toBe(true);
   });
 
+  it("should return true for baseUrl matchers (both unresolved and resolved)", () => {
+    expect(isMatcher(match.baseUrl("/path"))).toBe(true);
+    const resolved = match.baseUrl("/path").resolve({ baseUrl: "http://localhost:3000" });
+    expect(isMatcher(resolved)).toBe(true);
+  });
+
   it("should return false for plain values", () => {
     expect(isMatcher("hello")).toBe(false);
     expect(isMatcher(42)).toBe(false);
@@ -168,6 +174,34 @@ describe("matchValues", () => {
       expectFail(result, "at $.data.timestamp:");
       expectFail(result, "rfc3339 format");
     });
+
+    it("should handle resolved baseUrl matchers", () => {
+      const resolved = match
+        .baseUrl("/next-page")
+        .resolve({ baseUrl: "http://localhost:3000" });
+      const expected = { link: resolved };
+      expectPass(matchValues({ link: "http://localhost:3000/next-page" }, expected));
+    });
+
+    it("should fail resolved baseUrl matchers on wrong value", () => {
+      const resolved = match
+        .baseUrl("/next-page")
+        .resolve({ baseUrl: "http://localhost:3000" });
+      const expected = { link: resolved };
+      expectFail(
+        matchValues({ link: "http://localhost:4000/next-page" }, expected),
+        "match.baseUrl",
+      );
+    });
+
+    it("should use loose path-suffix check for unresolved baseUrl matchers", () => {
+      const expected = { link: match.baseUrl("/next-page") };
+      expectPass(matchValues({ link: "http://localhost:3000/next-page" }, expected));
+      expectFail(
+        matchValues({ link: "http://localhost:3000/other-page" }, expected),
+        'ending with "/next-page"',
+      );
+    });
   });
 });
 
@@ -185,6 +219,25 @@ describe("integration with expandDyns", () => {
     const expanded = expandDyns(content, config);
     expect(isMatcher(expanded.items[0])).toBe(true);
   });
+
+  it("should resolve baseUrl matchers through expandDyns", () => {
+    const content = { next: match.baseUrl("/next-page") };
+    const expanded = expandDyns(content, config);
+    // After resolution, it's still a matcher but now does exact matching
+    expect(isMatcher(expanded.next)).toBe(true);
+    expect((expanded.next as any).toJSON()).toBe("http://localhost:3000/next-page");
+  });
+
+  it("should resolve baseUrl matchers while preserving other matchers", () => {
+    const content = {
+      timestamp: match.dateTime.rfc3339("2022-08-26T18:38:00.000Z"),
+      next: match.baseUrl("/next-page"),
+    };
+    const expanded = expandDyns(content, config);
+    expect(isMatcher(expanded.timestamp)).toBe(true);
+    expect(isMatcher(expanded.next)).toBe(true);
+    expect((expanded.next as any).toJSON()).toBe("http://localhost:3000/next-page");
+  });
 });
 
 describe("integration with json() Resolver", () => {
@@ -200,5 +253,18 @@ describe("integration with json() Resolver", () => {
     const body = json({ value: match.dateTime.rfc3339("2022-08-26T18:38:00.000Z") });
     const resolved = (body.rawContent as any).resolve(config) as Record<string, unknown>;
     expect(isMatcher(resolved.value)).toBe(true);
+  });
+
+  it("should serialize baseUrl matchers to their resolved value via serialize()", () => {
+    const body = json({ next: match.baseUrl("/items/page2") });
+    const raw = (body.rawContent as any).serialize(config);
+    expect(raw).toBe('{"next":"http://localhost:3000/items/page2"}');
+  });
+
+  it("should resolve baseUrl matchers via resolve()", () => {
+    const body = json({ next: match.baseUrl("/items/page2") });
+    const resolved = (body.rawContent as any).resolve(config) as Record<string, unknown>;
+    expect(isMatcher(resolved.next)).toBe(true);
+    expectPass((resolved.next as any).check("http://localhost:3000/items/page2"));
   });
 });

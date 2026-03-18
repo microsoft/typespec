@@ -25,16 +25,72 @@ function createResolver(content: unknown): Resolver {
   };
 }
 
+const XML_DECLARATION = `<?xml version='1.0' encoding='UTF-8'?>`;
+
 /**
- * Sends the provided XML string in a MockResponse body.
- * The XML declaration prefix will automatically be added to xmlString.
- * @content Object to return as XML.
+ * Sends the provided XML content in a MockResponse body.
+ * The XML declaration prefix is automatically prepended.
+ *
+ * Can be used as a plain function or as a tagged template literal.
+ * When used as a tagged template, interpolated matchers (e.g. `match.baseUrl`)
+ * are resolved at serialization time via `expandDyns`.
+ *
+ * @example
+ * ```ts
+ * // Plain string
+ * xml("<Root>hello</Root>")
+ *
+ * // Tagged template with matcher
+ * xml`<Root><Link>${match.baseUrl("/next")}</Link></Root>`
+ * ```
+ *
  * @returns {MockBody} response body with application/xml content type.
  */
-export function xml(xmlString: string): MockBody {
+export function xml(content: string): MockBody;
+export function xml(strings: TemplateStringsArray, ...values: unknown[]): MockBody;
+export function xml(
+  content: string | TemplateStringsArray,
+  ...values: unknown[]
+): MockBody {
+  // Tagged template literal: xml`...${match.baseUrl("/path")}...`
+  if (typeof content !== "string") {
+    const strings = content;
+    const hasDynamic = values.some((v) => isMatcher(v));
+
+    if (!hasDynamic) {
+      // No matchers — concatenate to a static string
+      let result = strings[0];
+      values.forEach((v, i) => {
+        result += String(v) + strings[i + 1];
+      });
+      return {
+        contentType: "application/xml",
+        rawContent: XML_DECLARATION + result,
+      };
+    }
+
+    // Has matchers — create a resolver that resolves them at serialization time
+    const resolveTemplate = (config: ResolverConfig): string => {
+      let result = strings[0];
+      values.forEach((v, i) => {
+        const expanded = expandDyns(v, config);
+        result += (isMatcher(expanded) ? String(expanded.toJSON()) : String(expanded)) + strings[i + 1];
+      });
+      return XML_DECLARATION + result;
+    };
+    return {
+      contentType: "application/xml",
+      rawContent: {
+        serialize: resolveTemplate,
+        resolve: resolveTemplate,
+      },
+    };
+  }
+
+  // Plain string
   return {
     contentType: "application/xml",
-    rawContent: `<?xml version='1.0' encoding='UTF-8'?>` + xmlString,
+    rawContent: XML_DECLARATION + content,
   };
 }
 
@@ -100,6 +156,9 @@ export function expandDyns<T>(value: T, config: ResolverConfig): T {
     return value.map((v) => expandDyns(v, config)) as any;
   } else if (typeof value === "object" && value !== null) {
     if (isMatcher(value)) {
+      if ("resolve" in value && typeof (value as any).resolve === "function") {
+        return (value as any).resolve(config) as any;
+      }
       return value as any;
     }
     const obj = value as Record<string, unknown>;
