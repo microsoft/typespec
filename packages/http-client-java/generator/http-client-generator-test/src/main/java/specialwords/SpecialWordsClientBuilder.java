@@ -44,14 +44,14 @@ import specialwords.implementation.SpecialWordsClientImpl;
     serviceClients = {
         ModelsClient.class,
         ModelPropertiesClient.class,
+        ExtensibleStringsClient.class,
         OperationsClient.class,
         ParametersClient.class,
-        ExtensibleStringsClient.class,
         ModelsAsyncClient.class,
         ModelPropertiesAsyncClient.class,
+        ExtensibleStringsAsyncClient.class,
         OperationsAsyncClient.class,
-        ParametersAsyncClient.class,
-        ExtensibleStringsAsyncClient.class })
+        ParametersAsyncClient.class })
 public final class SpecialWordsClientBuilder implements HttpTrait<SpecialWordsClientBuilder>,
     ConfigurationTrait<SpecialWordsClientBuilder>, EndpointTrait<SpecialWordsClientBuilder> {
     @Generated
@@ -295,6 +295,16 @@ public final class SpecialWordsClientBuilder implements HttpTrait<SpecialWordsCl
     }
 
     /**
+     * Builds an instance of ExtensibleStringsAsyncClient class.
+     * 
+     * @return an instance of ExtensibleStringsAsyncClient.
+     */
+    @Generated
+    public ExtensibleStringsAsyncClient buildExtensibleStringsAsyncClient() {
+        return new ExtensibleStringsAsyncClient(buildInnerClient().getExtensibleStrings());
+    }
+
+    /**
      * Builds an instance of OperationsAsyncClient class.
      * 
      * @return an instance of OperationsAsyncClient.
@@ -312,16 +322,6 @@ public final class SpecialWordsClientBuilder implements HttpTrait<SpecialWordsCl
     @Generated
     public ParametersAsyncClient buildParametersAsyncClient() {
         return new ParametersAsyncClient(buildInnerClient().getParameters());
-    }
-
-    /**
-     * Builds an instance of ExtensibleStringsAsyncClient class.
-     * 
-     * @return an instance of ExtensibleStringsAsyncClient.
-     */
-    @Generated
-    public ExtensibleStringsAsyncClient buildExtensibleStringsAsyncClient() {
-        return new ExtensibleStringsAsyncClient(buildInnerClient().getExtensibleStrings());
     }
 
     /**
@@ -345,6 +345,16 @@ public final class SpecialWordsClientBuilder implements HttpTrait<SpecialWordsCl
     }
 
     /**
+     * Builds an instance of ExtensibleStringsClient class.
+     * 
+     * @return an instance of ExtensibleStringsClient.
+     */
+    @Generated
+    public ExtensibleStringsClient buildExtensibleStringsClient() {
+        return new ExtensibleStringsClient(buildInnerClient().getExtensibleStrings());
+    }
+
+    /**
      * Builds an instance of OperationsClient class.
      * 
      * @return an instance of OperationsClient.
@@ -362,16 +372,6 @@ public final class SpecialWordsClientBuilder implements HttpTrait<SpecialWordsCl
     @Generated
     public ParametersClient buildParametersClient() {
         return new ParametersClient(buildInnerClient().getParameters());
-    }
-
-    /**
-     * Builds an instance of ExtensibleStringsClient class.
-     * 
-     * @return an instance of ExtensibleStringsClient.
-     */
-    @Generated
-    public ExtensibleStringsClient buildExtensibleStringsClient() {
-        return new ExtensibleStringsClient(buildInnerClient().getExtensibleStrings());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(SpecialWordsClientBuilder.class);

@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _Type.Property.ValueTypes
 {
@@ -11,7 +12,12 @@ namespace _Type.Property.ValueTypes
     {
         public ValueTypesClient() : this(new Uri("http://localhost:3000"), new ValueTypesClientOptions()) => throw null;
 
-        public ValueTypesClient(Uri endpoint, ValueTypesClientOptions options) => throw null;
+        internal ValueTypesClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ValueTypesClientOptions options) => throw null;
+
+        public ValueTypesClient(Uri endpoint, ValueTypesClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public ValueTypesClient(ValueTypesClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

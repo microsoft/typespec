@@ -35,9 +35,9 @@ import specialwords.implementation.SpecialWordsClientImpl;
     serviceClients = {
         ModelsClient.class,
         ModelPropertiesClient.class,
+        ExtensibleStringsClient.class,
         OperationsClient.class,
-        ParametersClient.class,
-        ExtensibleStringsClient.class })
+        ParametersClient.class })
 public final class SpecialWordsClientBuilder
     implements HttpTrait<SpecialWordsClientBuilder>, ProxyTrait<SpecialWordsClientBuilder>,
     ConfigurationTrait<SpecialWordsClientBuilder>, EndpointTrait<SpecialWordsClientBuilder> {
@@ -253,6 +253,17 @@ public final class SpecialWordsClientBuilder
     }
 
     /**
+     * Builds an instance of ExtensibleStringsClient class.
+     * 
+     * @return an instance of ExtensibleStringsClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ExtensibleStringsClient buildExtensibleStringsClient() {
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ExtensibleStringsClient(innerClient.getExtensibleStrings(), innerClient.getInstrumentation());
+    }
+
+    /**
      * Builds an instance of OperationsClient class.
      * 
      * @return an instance of OperationsClient.
@@ -272,16 +283,5 @@ public final class SpecialWordsClientBuilder
     public ParametersClient buildParametersClient() {
         SpecialWordsClientImpl innerClient = buildInnerClient();
         return new ParametersClient(innerClient.getParameters(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ExtensibleStringsClient class.
-     * 
-     * @return an instance of ExtensibleStringsClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ExtensibleStringsClient buildExtensibleStringsClient() {
-        SpecialWordsClientImpl innerClient = buildInnerClient();
-        return new ExtensibleStringsClient(innerClient.getExtensibleStrings(), innerClient.getInstrumentation());
     }
 }

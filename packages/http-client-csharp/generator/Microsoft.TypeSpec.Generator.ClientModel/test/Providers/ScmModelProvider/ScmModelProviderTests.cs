@@ -62,7 +62,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                     InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
                 ],
-                discriminatedModels: new Dictionary<string, InputModelType>() { {"cat", catModel } });
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel]);
             var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;

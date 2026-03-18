@@ -6080,6 +6080,14 @@
                                 "$ref": "203"
                               },
                               "value": {
+                                "$filter": {
+                                  "$id": "2000",
+                                  "kind": "string",
+                                  "type": {
+                                    "$ref": "209"
+                                  },
+                                  "value": "status eq 'Active'"
+                                },
                                 "description": {
                                   "$id": "471",
                                   "kind": "string",

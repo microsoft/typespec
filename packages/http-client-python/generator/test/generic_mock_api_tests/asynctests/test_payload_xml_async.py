@@ -138,6 +138,7 @@ async def test_model_with_datetime(client: XmlClient):
     result = await client.model_with_datetime_value.get()
     assert result.rfc3339 == model.rfc3339
     assert result.rfc7231 == model.rfc7231
+    await client.model_with_datetime_value.put(model)
 
 
 @pytest.mark.asyncio

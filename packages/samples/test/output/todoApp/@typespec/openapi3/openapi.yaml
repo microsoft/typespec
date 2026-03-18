@@ -487,7 +487,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/TodoLabelsMergePatchUpdateOrCreate'
           nullable: true
-      description: ''
     TodoItems.InvalidTodoItem:
       type: object
       allOf:

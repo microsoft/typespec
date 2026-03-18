@@ -283,6 +283,30 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsTrue(enumProvider!.IsExtensible);
         }
 
+        [Test]
+        public void CreateCSharpType_SelfReferencingModel_DoesNotThrow()
+        {
+            var selfRefModel = InputFactory.Model("QueryFilter");
+            var isReentrant = false;
+
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (InputType inputType) =>
+            {
+                if (inputType == selfRefModel && !isReentrant)
+                {
+                    isReentrant = true;
+                    // Simulate the re-entrant call that occurs with self-referencing models
+                    // (e.g., QueryFilter with property and: QueryFilter[]).
+                    // CreateCSharpTypeCore -> CreateModel -> BuildProperties -> CreateCSharpType(same model)
+                    CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(selfRefModel);
+                }
+                return typeof(object);
+            });
+
+            // Before the fix, this would throw ArgumentException:
+            // "An item with the same key has already been added"
+            Assert.DoesNotThrow(() => CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(selfRefModel));
+        }
+
         /// <summary>
         /// Test visitor that modifies enum namespaces to end with ".Models"
         /// </summary>

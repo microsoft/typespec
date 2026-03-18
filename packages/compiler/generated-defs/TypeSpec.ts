@@ -3,6 +3,7 @@ import type {
   DecoratorValidatorCallbacks,
   Enum,
   EnumValue,
+  FunctionContext,
   Interface,
   Model,
   ModelProperty,
@@ -1205,4 +1206,22 @@ export type TypeSpecDecorators = {
   defaultVisibility: DefaultVisibilityDecorator;
   withVisibilityFilter: WithVisibilityFilterDecorator;
   withLifecycleUpdate: WithLifecycleUpdateDecorator;
+};
+
+export type ApplyVisibilityFilterFunctionImplementation = (
+  context: FunctionContext,
+  input: Model,
+  filter: VisibilityFilter,
+  nameTemplate?: string,
+) => Model;
+
+export type ApplyLifecycleUpdateFunctionImplementation = (
+  context: FunctionContext,
+  input: Model,
+  nameTemplate?: string,
+) => Model;
+
+export type TypeSpecFunctions = {
+  applyVisibilityFilter: ApplyVisibilityFilterFunctionImplementation;
+  applyLifecycleUpdate: ApplyLifecycleUpdateFunctionImplementation;
 };
