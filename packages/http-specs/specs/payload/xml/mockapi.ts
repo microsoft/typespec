@@ -291,6 +291,13 @@ const Payload_Xml_ModelWithDatetime = createServerTests(
 Scenarios.Payload_Xml_ModelWithDatetimeValue_get = Payload_Xml_ModelWithDatetime.get;
 Scenarios.Payload_Xml_ModelWithDatetimeValue_put = Payload_Xml_ModelWithDatetime.put;
 
+export const xmlError = `
+<XmlErrorBody>
+  <message>Something went wrong</message>
+  <code>400</code>
+</XmlErrorBody>
+`;
+
 // ────────────────────────────────────────────────────────────────────────────
 // Scenario registrations
 // ────────────────────────────────────────────────────────────────────────────
@@ -518,13 +525,6 @@ Scenarios.Payload_Xml_ModelWithEncodedNamesValue_put = Payload_Xml_ModelWithEnco
 const Payload_Xml_ModelWithEnum = createServerTests("/payload/xml/modelWithEnum", modelWithEnum);
 Scenarios.Payload_Xml_ModelWithEnumValue_get = Payload_Xml_ModelWithEnum.get;
 Scenarios.Payload_Xml_ModelWithEnumValue_put = Payload_Xml_ModelWithEnum.put;
-
-export const xmlError = `
-<XmlErrorBody>
-  <message>Something went wrong</message>
-  <code>400</code>
-</XmlErrorBody>
-`;
 
 Scenarios.Payload_Xml_XmlErrorValue_get = passOnCode(400, {
   uri: "/payload/xml/error",
