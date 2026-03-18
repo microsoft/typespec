@@ -617,5 +617,178 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(settingsProvider);
             Assert.AreEqual(clientProvider.Type.Namespace, settingsProvider!.Type.Namespace);
         }
+
+        // Sub-client settings tests
+
+        [Test]
+        public void TestSubClient_IndividuallyInitialized_HasSettings()
+        {
+            var endpointParam = InputFactory.EndpointParameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParam]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [endpointParam],
+                initializedBy: InputClientInitializedBy.Individually);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider, "Individually-initialized sub-client should have ClientSettings");
+            Assert.AreEqual("SubClientSettings", settingsProvider!.Name);
+        }
+
+        [Test]
+        public void TestSubClient_ParentOnly_NoSettings()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+
+            Assert.IsNull(clientProvider.ClientSettings, "Parent-only sub-client should not have ClientSettings");
+        }
+
+        [Test]
+        public void TestSubClient_IndividuallyInitialized_HasEndpointProperty()
+        {
+            var endpointParam = InputFactory.EndpointParameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParam]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [endpointParam],
+                initializedBy: InputClientInitializedBy.Individually);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+            var endpointProp = settingsProvider!.Properties.FirstOrDefault(
+                p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
+            Assert.IsNotNull(endpointProp, "Sub-client settings should have an Endpoint property");
+        }
+
+        [Test]
+        public void TestSubClient_IndividuallyInitialized_HasOptionsFromRootClient()
+        {
+            var endpointParam = InputFactory.EndpointParameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParam]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [endpointParam],
+                initializedBy: InputClientInitializedBy.Individually);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+            var optionsProp = settingsProvider!.Properties.FirstOrDefault(p => p.Name == "Options");
+            Assert.IsNotNull(optionsProp, "Sub-client settings should have Options property from root client");
+
+            // The Options type should be the parent's ClientOptions type
+            var parentProvider = new ClientProvider(parentClient);
+            Assert.IsNotNull(parentProvider.ClientOptions);
+            Assert.AreEqual(
+                parentProvider.ClientOptions!.Type.WithNullable(true),
+                optionsProp!.Type,
+                "Sub-client settings Options type should match root client's ClientOptions type");
+        }
+
+        [Test]
+        public void TestSubClient_IndividuallyInitialized_BindCoreHasEndpointAndOptions()
+        {
+            var endpointParam = InputFactory.EndpointParameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParam]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [endpointParam],
+                initializedBy: InputClientInitializedBy.Individually);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod, "Sub-client settings should have BindCore method");
+
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("TryCreate"), "BindCore should bind the Endpoint via Uri.TryCreate");
+            Assert.IsTrue(bodyString.Contains("GetSection") && bodyString.Contains("Options"),
+                "BindCore should bind the Options section");
+        }
+
+        [Test]
+        public void TestSubClient_IndividuallyInitialized_SettingsBaseType()
+        {
+            var endpointParam = InputFactory.EndpointParameter(
+                "endpoint",
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParam]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [endpointParam],
+                initializedBy: InputClientInitializedBy.Individually);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+            Assert.AreEqual(ClientSettingsProvider.ClientSettingsType, settingsProvider!.Type.BaseType,
+                "Sub-client settings should inherit from ClientSettings");
+        }
     }
 }

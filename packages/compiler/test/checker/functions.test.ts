@@ -1687,6 +1687,17 @@ describe("function calls within template declarations", () => {
     strictEqual(receivedTypes.length, 0);
   });
 
+  it("allows passing value-constrained template parameters to valueof function parameters", async () => {
+    const diagnostics = await tester.diagnose(`
+        extern fn f(T: valueof uint32): valueof uint32;
+
+        alias Test<V extends valueof uint32> = f(V);
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 0);
+  });
+
   it("does not call a function in a decorator argument of a templated operation declaration", async () => {
     const diagnostics = await tester.diagnose(`
         extern fn f(T: unknown): unknown;

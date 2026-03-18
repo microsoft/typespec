@@ -295,6 +295,11 @@ function createHeaderFloatServerTests(uri: string, value: number) {
   return passOnSuccess({
     uri,
     method: "get",
+    request: {
+      headers: {
+        duration: String(value),
+      },
+    },
     response: {
       status: 204,
     },
