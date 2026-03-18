@@ -131,11 +131,10 @@ describe("match.baseUrl()", () => {
   describe("integration with expandDyns", () => {
     const config: ResolverConfig = { baseUrl: "http://localhost:3000" };
 
-    it("should resolve baseUrl matchers in expandDyns", () => {
+    it("should resolve baseUrl matchers to their full URL", () => {
       const content = { next: match.baseUrl("/next-page") };
       const expanded = expandDyns(content, config);
-      expect(isMatcher(expanded.next)).toBe(true);
-      expectPass((expanded.next as any).check("http://localhost:3000/next-page"));
+      expect(expanded.next).toBe("http://localhost:3000/next-page");
     });
 
     it("should resolve baseUrl matchers nested in objects", () => {
@@ -145,14 +144,14 @@ describe("match.baseUrl()", () => {
         },
       };
       const expanded = expandDyns(content, config);
-      expectPass((expanded.data.nextLink as any).check("http://localhost:3000/items/page2"));
+      expect(expanded.data.nextLink).toBe("http://localhost:3000/items/page2");
     });
 
     it("should resolve baseUrl matchers in arrays", () => {
       const content = { links: [match.baseUrl("/page1"), match.baseUrl("/page2")] };
       const expanded = expandDyns(content, config);
-      expectPass((expanded.links[0] as any).check("http://localhost:3000/page1"));
-      expectPass((expanded.links[1] as any).check("http://localhost:3000/page2"));
+      expect(expanded.links[0]).toBe("http://localhost:3000/page1");
+      expect(expanded.links[1]).toBe("http://localhost:3000/page2");
     });
 
     it("should serialize resolved matcher in JSON.stringify", () => {

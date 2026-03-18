@@ -1,6 +1,5 @@
 import {
   expandDyns,
-  isMatcher,
   MockApiDefinition,
   MockBody,
   MockMultipartBody,
@@ -151,17 +150,7 @@ function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig)
       const headers = expandDyns(apiDefinition.request.headers, config);
       Object.entries(headers).forEach(([key, value]) => {
         if (key.toLowerCase() !== "content-type") {
-          if (isMatcher(value)) {
-            const actual = req.headers[key.toLowerCase()];
-            const result = value.check(actual);
-            if (!result.pass) {
-              throw new ValidationError(
-                `Header "${key}": ${result.message}`,
-                value.toString(),
-                actual,
-              );
-            }
-          } else if (Array.isArray(value)) {
+          if (Array.isArray(value)) {
             req.expect.deepEqual(req.headers[key], value);
           } else {
             req.expect.containsHeader(key.toLowerCase(), String(value));
@@ -173,17 +162,7 @@ function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig)
     if (apiDefinition.request?.query) {
       const query = expandDyns(apiDefinition.request.query, config);
       Object.entries(query).forEach(([key, value]) => {
-        if (isMatcher(value)) {
-          const actual = req.query[key];
-          const result = value.check(actual);
-          if (!result.pass) {
-            throw new ValidationError(
-              `Query param "${key}": ${result.message}`,
-              value.toString(),
-              actual,
-            );
-          }
-        } else if (Array.isArray(value)) {
+        if (Array.isArray(value)) {
           req.expect.deepEqual(req.query[key], value);
         } else {
           req.expect.containsQueryParam(key, String(value));

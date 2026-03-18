@@ -208,35 +208,32 @@ describe("matchValues", () => {
 describe("integration with expandDyns", () => {
   const config: ResolverConfig = { baseUrl: "http://localhost:3000" };
 
-  it("should preserve matchers through expandDyns", () => {
+  it("should resolve matchers to their plain values", () => {
     const content = { value: match.dateTime.rfc3339("2022-08-26T18:38:00.000Z") };
     const expanded = expandDyns(content, config);
-    expect(isMatcher(expanded.value)).toBe(true);
+    expect(expanded.value).toBe("2022-08-26T18:38:00.000Z");
   });
 
-  it("should preserve matchers in arrays through expandDyns", () => {
+  it("should resolve matchers in arrays to their plain values", () => {
     const content = { items: [match.dateTime.rfc3339("2022-08-26T18:38:00.000Z")] };
     const expanded = expandDyns(content, config);
-    expect(isMatcher(expanded.items[0])).toBe(true);
+    expect(expanded.items[0]).toBe("2022-08-26T18:38:00.000Z");
   });
 
-  it("should resolve baseUrl matchers through expandDyns", () => {
+  it("should resolve baseUrl matchers to their full URL", () => {
     const content = { next: match.baseUrl("/next-page") };
     const expanded = expandDyns(content, config);
-    // After resolution, it's still a matcher but now does exact matching
-    expect(isMatcher(expanded.next)).toBe(true);
-    expect((expanded.next as any).toJSON()).toBe("http://localhost:3000/next-page");
+    expect(expanded.next).toBe("http://localhost:3000/next-page");
   });
 
-  it("should resolve baseUrl matchers while preserving other matchers", () => {
+  it("should resolve all matchers to their plain values", () => {
     const content = {
       timestamp: match.dateTime.rfc3339("2022-08-26T18:38:00.000Z"),
       next: match.baseUrl("/next-page"),
     };
     const expanded = expandDyns(content, config);
-    expect(isMatcher(expanded.timestamp)).toBe(true);
-    expect(isMatcher(expanded.next)).toBe(true);
-    expect((expanded.next as any).toJSON()).toBe("http://localhost:3000/next-page");
+    expect(expanded.timestamp).toBe("2022-08-26T18:38:00.000Z");
+    expect(expanded.next).toBe("http://localhost:3000/next-page");
   });
 });
 

@@ -20,7 +20,8 @@ function createResolver(content: unknown): Resolver {
       return JSON.stringify(expanded);
     },
     resolve: (config: ResolverConfig) => {
-      return expandDyns(content, config);
+      // Preserve matchers so matchValues can use them for flexible validation
+      return expandDyns(content, config, { resolveMatchers: false });
     },
   };
 }
@@ -48,17 +49,16 @@ const XML_DECLARATION = `<?xml version='1.0' encoding='UTF-8'?>`;
  */
 export function xml(content: string): MockBody;
 export function xml(strings: TemplateStringsArray, ...values: unknown[]): MockBody;
-export function xml(
-  content: string | TemplateStringsArray,
-  ...values: unknown[]
-): MockBody {
+export function xml(content: string | TemplateStringsArray, ...values: unknown[]): MockBody {
   // Tagged template literal: xml`...${match.baseUrl("/path")}...`
   if (typeof content !== "string") {
     const strings = content;
-    const hasDynamic = values.some((v) => isMatcher(v));
+    const hasDynamic = values.some(
+      (v) => isMatcher(v) || (typeof v === "object" && v !== null && "isDyn" in v),
+    );
 
     if (!hasDynamic) {
-      // No matchers — concatenate to a static string
+      // No dynamic values — concatenate to a static string
       let result = strings[0];
       values.forEach((v, i) => {
         result += String(v) + strings[i + 1];
@@ -69,20 +69,14 @@ export function xml(
       };
     }
 
-    // Has matchers — create a resolver that resolves them at serialization time
-    const resolveTemplate = (config: ResolverConfig): string => {
-      let result = strings[0];
-      values.forEach((v, i) => {
-        const expanded = expandDyns(v, config);
-        result += (isMatcher(expanded) ? String(expanded.toJSON()) : String(expanded)) + strings[i + 1];
-      });
-      return XML_DECLARATION + result;
-    };
+    // Delegate to dyn for deferred resolution
+    const template = dyn(strings, ...values);
+    const resolve = (config: ResolverConfig): string => XML_DECLARATION + template(config);
     return {
       contentType: "application/xml",
       rawContent: {
-        serialize: resolveTemplate,
-        resolve: resolveTemplate,
+        serialize: resolve,
+        resolve,
       },
     };
   }
@@ -104,10 +98,9 @@ export function multipart(
   };
 }
 
-export interface DynValue<T extends string[]> {
+export interface DynValue {
   readonly isDyn: true;
-  readonly keys: T;
-  (dict: Record<T[number], string>): string;
+  (config: ResolverConfig): string;
 }
 
 export interface DynItem<T extends keyof ResolverConfig> {
@@ -122,53 +115,73 @@ export function dynItem<const T extends keyof ResolverConfig>(name: T): DynItem<
   };
 }
 
-/** Specify that this value is dynamic and needs to be interpolated with the given keys */
-export function dyn<const T extends (keyof ResolverConfig)[]>(
-  strings: readonly string[],
-  ...keys: (DynItem<T[number]> | string)[]
-): DynValue<T> {
-  const dynKeys: T = [] as any;
-  const template = (dict: Record<T[number], string>) => {
-    const result = [strings[0]];
-    keys.forEach((key, i) => {
-      if (typeof key === "string") {
-        result.push(key);
+/**
+ * Tagged template for building strings with deferred resolution.
+ * Interpolated values can be:
+ * - `dynItem("baseUrl")` — resolved from `ResolverConfig` at call time
+ * - Matchers (e.g. `match.baseUrl(...)`) — resolved via `expandDyns` at call time
+ * - Plain strings/numbers — used as-is
+ */
+export function dyn(strings: readonly string[], ...values: unknown[]): DynValue {
+  const template = (config: ResolverConfig) => {
+    let result = strings[0];
+    values.forEach((v, i) => {
+      if (typeof v === "object" && v !== null && "isDyn" in v && (v as any).isDyn) {
+        const name = (v as DynItem<keyof ResolverConfig>).name;
+        result += String(config[name] ?? "");
       } else {
-        dynKeys.push(key.name);
-        const value = (dict as any)[key.name];
-        if (value !== undefined) {
-          result.push(value);
-        }
+        result += String(expandDyns(v, config));
       }
-      result.push(strings[i + 1]);
+      result += strings[i + 1];
     });
-    return result.join("");
+    return result;
   };
-  template.keys = dynKeys;
   template.isDyn = true as const;
   return template;
 }
 
-export function expandDyns<T>(value: T, config: ResolverConfig): T {
+export interface ExpandDynsOptions {
+  /** When true, matchers are resolved to their `toJSON()` value. Default: true. */
+  resolveMatchers?: boolean;
+}
+
+/**
+ * Recursively expands all dynamic values.
+ * - Dyn functions are called with the config.
+ * - Resolvable matchers (e.g. `match.baseUrl`) are resolved via `resolve(config)`.
+ * - By default, matchers are resolved to their `toJSON()` plain value.
+ *   Pass `{ resolveMatchers: false }` to preserve matchers for use with `matchValues`.
+ */
+export function expandDyns<T>(
+  value: T,
+  config: ResolverConfig,
+  options?: ExpandDynsOptions,
+): T {
+  const resolve = options?.resolveMatchers ?? true;
+  return _expandDyns(value, config, resolve);
+}
+
+function _expandDyns<T>(value: T, config: ResolverConfig, resolveMatchers: boolean): T {
   if (typeof value === "string") {
     return value;
   } else if (Array.isArray(value)) {
-    return value.map((v) => expandDyns(v, config)) as any;
+    return value.map((v) => _expandDyns(v, config, resolveMatchers)) as any;
   } else if (typeof value === "object" && value !== null) {
     if (isMatcher(value)) {
       if ("resolve" in value && typeof (value as any).resolve === "function") {
-        return (value as any).resolve(config) as any;
+        const resolved = (value as any).resolve(config);
+        return resolveMatchers ? (resolved.toJSON() as any) : (resolved as any);
       }
-      return value as any;
+      return resolveMatchers ? (value.toJSON() as any) : (value as any);
     }
     const obj = value as Record<string, unknown>;
     return Object.fromEntries(
-      Object.entries(obj).map(([key, v]) => [key, expandDyns(v, config)]),
+      Object.entries(obj).map(([key, v]) => [key, _expandDyns(v, config, resolveMatchers)]),
     ) as any;
   } else if (typeof value === "function") {
     if ("isDyn" in value && value.isDyn) {
-      const dynValue = value as any as DynValue<string[]>;
-      return dynValue(config as any) as any;
+      const dynValue = value as any as DynValue;
+      return dynValue(config) as any;
     } else {
       throw new Error("Invalid function value");
     }

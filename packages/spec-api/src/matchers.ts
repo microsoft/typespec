@@ -126,21 +126,34 @@ export function matchValues(actual: unknown, expected: unknown, path: string = "
     const expectedObj = expected as Record<string, unknown>;
     const actualObj = actual as Record<string, unknown>;
 
-    const expectedKeys = Object.keys(expectedObj);
+    // Keys with undefined values in expected mean "must not be present in actual"
+    const expectedPresentKeys = Object.keys(expectedObj).filter(
+      (k) => expectedObj[k] !== undefined,
+    );
+    const expectedAbsentKeys = Object.keys(expectedObj).filter(
+      (k) => expectedObj[k] === undefined,
+    );
     const actualKeys = Object.keys(actualObj);
 
-    if (expectedKeys.length !== actualKeys.length) {
-      const missing = expectedKeys.filter((k) => !(k in actualObj));
-      const extra = actualKeys.filter((k) => !(k in expectedObj));
+    // Verify keys that should be absent are not in actual
+    for (const key of expectedAbsentKeys) {
+      if (key in actualObj && actualObj[key] !== undefined) {
+        return pathErr(`Key "${key}" should not be present but got ${formatValue(actualObj[key])}`, path);
+      }
+    }
+
+    if (expectedPresentKeys.length !== actualKeys.length) {
+      const missing = expectedPresentKeys.filter((k) => !(k in actualObj));
+      const extra = actualKeys.filter((k) => !expectedPresentKeys.includes(k) && !expectedAbsentKeys.includes(k));
       const parts: string[] = [
-        `Key count mismatch: expected ${expectedKeys.length} but got ${actualKeys.length}`,
+        `Key count mismatch: expected ${expectedPresentKeys.length} but got ${actualKeys.length}`,
       ];
       if (missing.length > 0) parts.push(`missing: [${missing.join(", ")}]`);
       if (extra.length > 0) parts.push(`extra: [${extra.join(", ")}]`);
       return pathErr(parts.join(". "), path);
     }
 
-    for (const key of expectedKeys) {
+    for (const key of expectedPresentKeys) {
       if (!(key in actualObj)) {
         return pathErr(`Missing key "${key}"`, path);
       }
