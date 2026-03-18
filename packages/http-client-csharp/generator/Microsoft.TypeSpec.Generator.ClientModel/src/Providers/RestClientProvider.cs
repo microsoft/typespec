@@ -264,7 +264,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var contentParam = signature.Parameters.FirstOrDefault(p => p.Name == "content" && p.Location == ParameterLocation.Body);
                 statements.AddRange(AppendHeaderParameters(request, operation, paramMap, contentParam: contentParam));
-                statements.AddRange(GetSetContent(request, signature.Parameters));
+                statements.AddRange(GetSetContent(request, signature.Parameters, operation));
             }
 
             // Apply request options and return message
@@ -327,11 +327,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return reinjectedParamsMap;
         }
 
-        private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
+        private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters, InputOperation operation)
         {
             var contentParam = parameters.FirstOrDefault(
                 p => p.Location == ParameterLocation.Body);
-            return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
+            if (contentParam is null)
+            {
+                return [];
+            }
+
+            // If body is optional, check if content assignment is already handled
+            var hasOptionalBody = operation.Parameters.Any(p =>
+                p is InputBodyParameter bodyParam && !bodyParam.IsRequired);
+            if (hasOptionalBody)
+            {
+                // If there's a Content-Type header, the content assignment is already inside
+                // the if (content != null) block in AppendHeaderParameters
+                var hasContentTypeHeader = operation.Parameters.Any(p =>
+                    p is InputHeaderParameter h && h.IsContentType);
+                if (hasContentTypeHeader)
+                {
+                    return [];
+                }
+                // No Content-Type header but optional body - wrap content assignment in null check
+                return [new IfStatement(contentParam.NotEqual(Null)) { request.Content().Assign(contentParam).Terminate() }];
+            }
+
+            return [request.Content().Assign(contentParam).Terminate()];
         }
 
         private Dictionary<List<int>, PropertyProvider> BuildPipelineMessage20xClassifiers()
@@ -445,7 +467,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     if (hasOptionalBody)
                     {
-                        statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
+                        statement = new IfStatement(contentParam.NotEqual(Null))
+                        {
+                            statement,
+                            request.Content().Assign(contentParam).Terminate()
+                        };
                     }
                 }
 

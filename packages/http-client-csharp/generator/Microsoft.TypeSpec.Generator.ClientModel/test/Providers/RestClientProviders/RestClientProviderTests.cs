@@ -1690,6 +1690,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var expectedStatement = @"if ((content != null))
 {
     request.Headers.Set(""Content-Type"", ""application/json"");
+    request.Content = content;
 }
 ";
             var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
@@ -1742,6 +1743,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var hasIfWrappedContentType = statements!.Any(s => s.ToDisplayString().Contains(wrappedStatement));
             Assert.IsFalse(hasIfWrappedContentType,
                 $"Content-Type should NOT be wrapped in an if statement for required content, but found:\n{statementsString}");
+        }
+
+        [Test]
+        public void ContentAssignmentWrappedInNullCheckWhenBodyIsOptionalWithoutContentType()
+        {
+            // Test that when there's an optional body parameter without a Content-Type header,
+            // the content assignment is still wrapped in a null check
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: false);
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                requestMediaTypes: ["application/json"],
+                parameters: [bodyParam]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var restClient = client!.RestClient;
+            Assert.IsNotNull(restClient);
+
+            var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
+            Assert.IsNotNull(createMethod, "CreateTestOperationRequest method not found");
+
+            var statements = createMethod!.BodyStatements as MethodBodyStatements;
+            Assert.IsNotNull(statements);
+
+            var expectedStatement = @"if ((content != null))
+{
+    request.Content = content;
+}
+";
+            var statementsString = string.Join("\n", statements!.Select(s => s.ToDisplayString()));
+            Assert.IsTrue(statements!.Any(s => s.ToDisplayString() == expectedStatement),
+                $"Expected to find statement:\n{expectedStatement}\nBut got statements:\n{statementsString}");
         }
 
         [Test]
