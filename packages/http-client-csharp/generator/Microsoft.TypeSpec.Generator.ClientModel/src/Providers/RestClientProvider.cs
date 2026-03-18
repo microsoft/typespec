@@ -201,6 +201,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 paramMap[param.Name] = param;
             }
 
+            // Register client parameters under their paramAlias names so that operation parameters
+            // (which use the original name) can find the corresponding client parameter.
+            foreach (var inputParam in _inputClient.Parameters)
+            {
+                if (inputParam is InputMethodParameter { ParamAlias: string alias } &&
+                    paramMap.TryGetValue(inputParam.Name, out var aliasedParam))
+                {
+                    paramMap[alias] = aliasedParam;
+                }
+            }
+
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
             var uriBuilderType =
                 ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.ToExpression().UriBuilderType;
@@ -715,7 +726,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
-                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase));
+                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase))
+                    || _inputClient.Parameters.Any(p => p is InputMethodParameter { ParamAlias: string alias } && string.Equals(alias, paramName, StringComparison.OrdinalIgnoreCase));
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
