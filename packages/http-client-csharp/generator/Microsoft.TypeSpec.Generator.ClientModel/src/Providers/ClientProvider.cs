@@ -321,23 +321,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal bool HasAccessorOnlyParameters(InputClient parentInputClient)
         {
-            var parentParamNames = parentInputClient.Parameters
-                .Select(p => p.Name)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var parentParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in parentInputClient.Parameters)
+            {
+                parentParamNames.Add(p.Name);
+                if (p is InputMethodParameter { ParamAlias: string alias })
+                {
+                    parentParamNames.Add(alias);
+                }
+            }
 
             return _inputClient.Parameters
                 .Where(p => !p.IsApiVersion && !(p is InputEndpointParameter ep && ep.IsEndpoint))
-                .Any(p => !parentParamNames.Contains(p.Name)
-                    && !IsParameterAliasedByParent(p, parentInputClient.Parameters));
-        }
-
-        /// <summary>
-        /// Checks whether a parameter is the target of a paramAlias on another parameter.
-        /// </summary>
-        private static bool IsParameterAliasedByParent(InputParameter param, IReadOnlyList<InputParameter> parentParameters)
-        {
-            return parentParameters.Any(p => p is InputMethodParameter { ParamAlias: string alias }
-                && string.Equals(alias, param.Name, StringComparison.OrdinalIgnoreCase));
+                .Any(p => !IsSupersededByClientParameter(p, parentParamNames));
         }
 
         private Lazy<IReadOnlyList<ParameterProvider>> _clientParameters;
@@ -1091,13 +1087,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 // Identify subclient-specific parameters by comparing with the parent's input parameters.
                 // Parameters present on both parent and subclient are shared (sourced from parent fields/properties).
-                var parentInputParamNames = _inputClient.Parameters
-                    .Select(p => p.Name)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var parentInputParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var p in _inputClient.Parameters)
+                {
+                    parentInputParamNames.Add(p.Name);
+                    if (p is InputMethodParameter { ParamAlias: string alias })
+                    {
+                        parentInputParamNames.Add(alias);
+                    }
+                }
 
                 var subClientSpecificParamNames = subClient._inputClient.Parameters
-                    .Where(p => !parentInputParamNames.Contains(p.Name)
-                        && !IsParameterAliasedByParent(p, _inputClient.Parameters))
+                    .Where(p => !IsSupersededByClientParameter(p, parentInputParamNames))
                     .Select(p => p.Name)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -1448,9 +1449,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<InputParameter> GetAllClientParameters()
         {
             // Collect the names of parameters already declared on this client (e.g. from @clientInitialization).
-            var clientParamNames = _inputClient.Parameters
-                .Select(p => p.Name)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            // Include paramAlias values so that operation parameters matching an alias are recognized as superseded.
+            var clientParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in _inputClient.Parameters)
+            {
+                clientParamNames.Add(p.Name);
+                if (p is InputMethodParameter { ParamAlias: string alias })
+                {
+                    clientParamNames.Add(alias);
+                }
+            }
 
             // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters.
             // When @paramAlias is used (via @clientInitialization), an operation parameter may map
@@ -1459,7 +1467,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var parameters = _inputClient.Parameters.Concat(
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
                     .Where(p => p.Scope == InputParameterScope.Client)
-                    .Where(p => !IsSupersededByClientParameter(p, clientParamNames, _inputClient.Parameters)))
+                    .Where(p => !IsSupersededByClientParameter(p, clientParamNames)))
                 .DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
 
             foreach (var subClient in _subClients.Value)
@@ -1473,24 +1481,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Determines whether an operation parameter is superseded by an existing client parameter.
-        /// This occurs when @paramAlias is used with @clientInitialization and should not appear
-        /// as a separate constructor parameter.
+        /// Determines whether a parameter is superseded by an existing client parameter,
+        /// either by direct name match or via MethodParameterSegments.
         /// </summary>
-        private static bool IsSupersededByClientParameter(InputParameter operationParam, HashSet<string> clientParamNames, IReadOnlyList<InputParameter> clientParameters)
+        private static bool IsSupersededByClientParameter(InputParameter param, HashSet<string> clientParamNames)
         {
-            if (clientParamNames.Contains(operationParam.Name))
+            if (clientParamNames.Contains(param.Name))
             {
                 return true;
             }
 
-            if (operationParam.MethodParameterSegments is { Count: > 0 } segments &&
+            if (param.MethodParameterSegments is { Count: > 0 } segments &&
                 clientParamNames.Contains(segments[0].Name))
-            {
-                return true;
-            }
-
-            if (IsParameterAliasedByParent(operationParam, clientParameters))
             {
                 return true;
             }
