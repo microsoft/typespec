@@ -123,9 +123,7 @@ describe("compiler: operations", () => {
   });
 
   it("resolves template member metaproperty parameter types when operation is instantiated", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+    const { myGet } = await Tester.compile(t.code`
       model ResourceBase {
         id: string;
       }
@@ -139,11 +137,9 @@ describe("compiler: operations", () => {
 
       op get<R extends ResourceBase>(id: R.id::type): R;
 
-      @test op myGet is get<MyResource>;
-      `,
-    );
+      @test op ${t.op("myGet")} is get<MyResource>;
+    `);
 
-    const { myGet } = (await testHost.compile("./main.tsp")) as { myGet: Operation };
     const idParam = myGet.parameters.properties.get("id");
     ok(idParam);
     strictEqual(idParam.type.kind, "Scalar");

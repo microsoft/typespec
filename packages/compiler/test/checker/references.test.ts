@@ -802,16 +802,11 @@ describe("compiler: references", () => {
     });
 
     it("emits a diagnostic when template access is not guaranteed by the constraint", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      const diagnostics = await Tester.diagnose(`
         model Y<M extends Reflection.Model> {
           p: M.a::type;
         }
-        `,
-      );
-
-      const diagnostics = await testHost.diagnose("./main.tsp");
+      `);
 
       expectDiagnostics(diagnostics, [
         {
