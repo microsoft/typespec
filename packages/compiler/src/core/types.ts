@@ -728,13 +728,25 @@ export interface TemplateParameterAccess extends BaseType {
   kind: "TemplateParameterAccess";
   /** @internal */
   node: MemberExpressionNode;
-  /** @internal */
+  /**
+   * The base of this template parameter access, which could be another template parameter access for chained accesses like `T.id.name`.
+   *
+   * @internal
+   */
   base: TemplateParameter | TemplateParameterAccess;
-  /** @internal User-facing access path like `T.id` or `T::returnType`. */
+  /**
+   * User-facing access path like `T.id` or `T::returnType`.
+   *
+   * @internal
+   */
   path: string;
-  /** @internal Stable cache key used to reuse synthetic symbols for the same access chain. */
-  cacheKey: string;
-  /** @internal */
+  /**
+   * The type or value constraint of this template parameter access.
+   *
+   * The constraint is used to determine assignability in template declarations.
+   *
+   * @internal
+   */
   constraint?: MixedParameterConstraint;
 }
 

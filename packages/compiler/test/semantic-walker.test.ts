@@ -721,7 +721,6 @@ describe("compiler: semantic walker", () => {
         node: undefined as never,
         base: templateParameter,
         path: "T.id",
-        cacheKey: "tp:1.id",
         isFinished: true,
       };
 

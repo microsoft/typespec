@@ -537,6 +537,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   const templateParameterUsageMap = new Map<TemplateParameterDeclarationNode, boolean>();
   const templateAccessSymbolCache = new Map<string, Sym>();
+  const templateAccessCacheKeys = new WeakMap<TemplateParameterAccess, string>();
   const symbolCacheIds = new WeakMap<Sym, number>();
   let nextSymbolCacheId = 1;
 
@@ -4114,9 +4115,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       node,
       base,
       path: getTemplateAccessPath(base) + node.selector + node.id.sv,
-      cacheKey,
       constraint,
     });
+    templateAccessCacheKeys.set(type, cacheKey);
 
     const symbol = createSymbol(node, node.id.sv, SymbolFlags.LateBound);
     mutate(symbol).type = type;
@@ -4136,10 +4137,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     base: TemplateParameter | TemplateParameterAccess,
     node: MemberExpressionNode,
   ): string {
-    const baseKey =
-      base.kind === "TemplateParameterAccess"
-        ? base.cacheKey
-        : `tp:${getSymbolCacheId(base.node.symbol)}`;
+    let baseKey: string;
+    if (base.kind === "TemplateParameterAccess") {
+      const cacheKey = templateAccessCacheKeys.get(base);
+      compilerAssert(cacheKey, "Expected template access cache key");
+      baseKey = cacheKey;
+    } else {
+      baseKey = `tp:${getSymbolCacheId(base.node.symbol)}`;
+    }
     return `${baseKey}${node.selector}${node.id.sv}`;
   }
 
