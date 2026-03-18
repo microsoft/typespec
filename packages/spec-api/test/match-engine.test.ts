@@ -131,8 +131,8 @@ describe("matchValues", () => {
         [Symbol.for("SpectorMatcher")]: true as const,
         check: (actual: any) =>
           actual === "matched" ? ok() : err(`expected "matched" but got "${actual}"`),
+        serialize: () => "raw",
         toJSON: () => "raw",
-        toString: () => "custom",
       } as any;
       expectPass(matchValues("matched", matcher));
       expectFail(matchValues("not-matched", matcher));

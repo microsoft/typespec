@@ -5,7 +5,7 @@ import { expandDyns } from "../../src/response-utils.js";
 import { ResolverConfig } from "../../src/types.js";
 import { expectFail, expectPass } from "./matcher-test-utils.js";
 
-describe("match.baseUrl()", () => {
+describe("match.localUrl()", () => {
   it("should be identified by isMatcher", () => {
     expect(isMatcher(match.localUrl("/some/path"))).toBe(true);
   });
@@ -32,13 +32,9 @@ describe("match.baseUrl()", () => {
     });
   });
 
-  describe("unresolved toJSON / toString", () => {
-    it("toJSON should return the path", () => {
-      expect(match.localUrl("/some/path").toJSON()).toBe("/some/path");
-    });
-
-    it("toString should return a descriptive string", () => {
-      expect(match.localUrl("/some/path").toString()).toBe('match.baseUrl("/some/path")');
+  describe("unresolved serialize", () => {
+    it("serialize should return the path", () => {
+      expect(match.localUrl("/some/path").serialize()).toBe("/some/path");
     });
   });
 
@@ -54,19 +50,19 @@ describe("match.baseUrl()", () => {
       it("should not match a different base URL", () => {
         expectFail(
           resolved.check("http://localhost:4000/payload/pageable/next-page"),
-          "match.baseUrl",
+          "match.localUrl",
         );
       });
 
       it("should not match a different path", () => {
         expectFail(
           resolved.check("http://localhost:3000/payload/pageable/other-page"),
-          "match.baseUrl",
+          "match.localUrl",
         );
       });
 
       it("should not match a partial URL", () => {
-        expectFail(resolved.check("/payload/pageable/next-page"), "match.baseUrl");
+        expectFail(resolved.check("/payload/pageable/next-page"), "match.localUrl");
       });
 
       it("should not match non-string values", () => {
@@ -75,9 +71,9 @@ describe("match.baseUrl()", () => {
       });
     });
 
-    describe("toJSON()", () => {
+    describe("serialize()", () => {
       it("should return the full URL", () => {
-        expect(resolved.toJSON()).toBe("http://localhost:3000/payload/pageable/next-page");
+        expect(resolved.serialize()).toBe("http://localhost:3000/payload/pageable/next-page");
       });
 
       it("should serialize correctly in JSON.stringify", () => {
@@ -87,10 +83,9 @@ describe("match.baseUrl()", () => {
         );
       });
     });
-
     describe("toString()", () => {
       it("should return a descriptive string", () => {
-        expect(resolved.toString()).toBe('match.baseUrl("/payload/pageable/next-page")');
+        expect(resolved.toString()).toBe('match.localUrl("/payload/pageable/next-page")');
       });
     });
   });

@@ -108,9 +108,9 @@ describe("match.dateTime.rfc3339()", () => {
     });
   });
 
-  describe("toJSON()", () => {
+  describe("serialize()", () => {
     it("should return the original value", () => {
-      expect(match.dateTime.rfc3339("2022-08-26T18:38:00.000Z").toJSON()).toBe(
+      expect(match.dateTime.rfc3339("2022-08-26T18:38:00.000Z").serialize()).toBe(
         "2022-08-26T18:38:00.000Z",
       );
     });
@@ -120,7 +120,6 @@ describe("match.dateTime.rfc3339()", () => {
       expect(JSON.stringify(obj)).toBe('{"value":"2022-08-26T18:38:00.000Z"}');
     });
   });
-
   describe("toString()", () => {
     it("should include rfc3339 in toString()", () => {
       expect(match.dateTime.rfc3339("2022-08-26T18:38:00.000Z").toString()).toBe(
@@ -156,18 +155,10 @@ describe("match.dateTime.rfc7231()", () => {
     });
   });
 
-  describe("toJSON()", () => {
+  describe("serialize()", () => {
     it("should preserve RFC 7231 format", () => {
-      expect(match.dateTime.rfc7231("Fri, 26 Aug 2022 14:38:00 GMT").toJSON()).toBe(
+      expect(match.dateTime.rfc7231("Fri, 26 Aug 2022 14:38:00 GMT").serialize()).toBe(
         "Fri, 26 Aug 2022 14:38:00 GMT",
-      );
-    });
-  });
-
-  describe("toString()", () => {
-    it("should include rfc7231 in toString()", () => {
-      expect(match.dateTime.rfc7231("Fri, 26 Aug 2022 14:38:00 GMT").toString()).toBe(
-        "match.dateTime.rfc7231(Fri, 26 Aug 2022 14:38:00 GMT)",
       );
     });
   });

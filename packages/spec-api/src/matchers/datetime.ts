@@ -43,7 +43,7 @@ function createDateTimeMatcher(
       }
       return ok();
     },
-    toJSON(): string {
+    serialize(): string {
       return value;
     },
     toString(): string {

@@ -33,19 +33,30 @@ export interface MockValueMatcher<T = unknown> {
   readonly [MatcherSymbol]: true;
   /** Check whether the actual value matches the expectation */
   check(actual: unknown): MatchResult;
-  /** The raw value to use when serializing (e.g., in JSON.stringify) */
+  /** The raw value to use when serializing */
+  serialize(): T;
+  /** @internal Delegates to serialize() for JSON.stringify compatibility */
   toJSON(): T;
-  /** Human-readable description for error messages */
+  /** Human-readable description for debugging */
   toString(): string;
 }
 
 /** Create a MockValueMatcher with the MatcherSymbol already set. */
 export function createMatcher<T = unknown>(matcher: {
   check(actual: unknown): MatchResult;
-  toJSON(): T;
-  toString(): string;
+  serialize(): T;
+  toString?: () => string;
 }): MockValueMatcher<T> {
-  return { [MatcherSymbol]: true, ...matcher };
+  return {
+    [MatcherSymbol]: true,
+    ...matcher,
+    toJSON() {
+      return matcher.serialize();
+    },
+    toString() {
+      return matcher.toString?.() ?? String(matcher.serialize());
+    },
+  };
 }
 
 /** Type guard to check if a value is a MockValueMatcher */

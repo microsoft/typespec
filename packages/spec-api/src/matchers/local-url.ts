@@ -26,15 +26,15 @@ export function baseUrlMatcher(path: string): ResolvableMockValueMatcher<string>
           );
         }
         if (!actual.endsWith(path)) {
-          return err(`match.baseUrl: expected URL ending with "${path}" but got "${actual}"`);
+          return err(`match.localUrl: expected URL ending with "${path}" but got "${actual}"`);
         }
         return ok();
       },
-      toJSON(): string {
+      serialize(): string {
         return path;
       },
       toString(): string {
-        return `match.baseUrl("${path}")`;
+        return `match.localUrl("${path}")`;
       },
     }),
     resolve(config: ResolverConfig): MockValueMatcher<string> {
@@ -43,19 +43,19 @@ export function baseUrlMatcher(path: string): ResolvableMockValueMatcher<string>
         check(actual: unknown): MatchResult {
           if (typeof actual !== "string") {
             return err(
-              `match.baseUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
+              `match.localUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
             );
           }
           if (actual !== expected) {
-            return err(`match.baseUrl: expected "${expected}" but got "${actual}"`);
+            return err(`match.localUrl: expected "${expected}" but got "${actual}"`);
           }
           return ok();
         },
-        toJSON(): string {
+        serialize(): string {
           return expected;
         },
         toString(): string {
-          return `match.baseUrl("${path}")`;
+          return `match.localUrl("${path}")`;
         },
       });
     },
