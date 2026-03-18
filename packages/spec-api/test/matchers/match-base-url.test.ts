@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { match } from "../../src/match.js";
-import { isMatcher, type MatchResult } from "../../src/matchers.js";
+import { isMatcher, type MatchResult } from "../../src/match-engine.js";
+import { match } from "../../src/matchers/index.js";
 import { expandDyns } from "../../src/response-utils.js";
 import { ResolverConfig } from "../../src/types.js";
 

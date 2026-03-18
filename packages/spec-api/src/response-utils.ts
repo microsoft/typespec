@@ -1,4 +1,4 @@
-import { isMatcher } from "./matchers.js";
+import { isMatcher } from "./match-engine.js";
 import { MockBody, MockMultipartBody, Resolver, ResolverConfig } from "./types.js";
 
 /**

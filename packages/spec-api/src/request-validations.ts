@@ -1,6 +1,6 @@
 import deepEqual from "deep-equal";
 import { parseString } from "xml2js";
-import { matchValues } from "./matchers.js";
+import { matchValues } from "./match-engine.js";
 import { CollectionFormat, RequestExt } from "./types.js";
 import { ValidationError } from "./validation-error.js";
 

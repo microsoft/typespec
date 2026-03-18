@@ -1,5 +1,5 @@
-export { match, type ResolvableMockValueMatcher } from "./match.js";
-export { isMatcher, matchValues, type MatchResult, type MockValueMatcher } from "./matchers.js";
+export { match, type ResolvableMockValueMatcher } from "./matchers/index.js";
+export { isMatcher, matchValues, type MatchResult, type MockValueMatcher } from "./matchers/index.js";
 export { MockRequest } from "./mock-request.js";
 export {
   BODY_EMPTY_ERROR_MESSAGE,

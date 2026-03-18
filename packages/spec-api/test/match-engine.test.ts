@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { match } from "../src/match.js";
 import {
   err,
   isMatcher,
@@ -7,7 +6,8 @@ import {
   matchValues,
   MockValueMatcher,
   ok,
-} from "../src/matchers.js";
+} from "../src/match-engine.js";
+import { match } from "../src/matchers/index.js";
 import { expandDyns, json } from "../src/response-utils.js";
 import { ResolverConfig } from "../src/types.js";
 
@@ -176,17 +176,13 @@ describe("matchValues", () => {
     });
 
     it("should handle resolved baseUrl matchers", () => {
-      const resolved = match
-        .baseUrl("/next-page")
-        .resolve({ baseUrl: "http://localhost:3000" });
+      const resolved = match.baseUrl("/next-page").resolve({ baseUrl: "http://localhost:3000" });
       const expected = { link: resolved };
       expectPass(matchValues({ link: "http://localhost:3000/next-page" }, expected));
     });
 
     it("should fail resolved baseUrl matchers on wrong value", () => {
-      const resolved = match
-        .baseUrl("/next-page")
-        .resolve({ baseUrl: "http://localhost:3000" });
+      const resolved = match.baseUrl("/next-page").resolve({ baseUrl: "http://localhost:3000" });
       const expected = { link: resolved };
       expectFail(
         matchValues({ link: "http://localhost:4000/next-page" }, expected),

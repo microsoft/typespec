@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { match } from "../../src/match.js";
-import { type MatchResult } from "../../src/matchers.js";
+import { type MatchResult } from "../../src/match-engine.js";
+import { match } from "../../src/matchers/index.js";
 
 function expectPass(result: MatchResult) {
   expect(result).toEqual({ pass: true });
