@@ -10,7 +10,6 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -134,8 +133,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
+                // For multi-service clients, use the full namespace to guarantee uniqueness
+                // (the last segment alone can collide when services share a namespace).
                 var versionPropertyName = _inputClient.IsMultiServiceClient
-                    ? ClientHelper.BuildNameForService(inputEnum.Namespace, ServicePrefix, ApiVersionSuffix)
+                    ? $"{inputEnum.Namespace.ToIdentifierName()}{ApiVersionSuffix}"
                     : VersionSuffix;
 
                 var versionProperty = new PropertyProvider(
@@ -256,10 +257,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 FormattableString versionParamDescription = $"The service version";
                 if (_inputClient.IsMultiServiceClient)
                 {
-                    versionParameterName = ClientHelper.BuildNameForService(
-                        serviceVersionEnum.Name,
-                        ServicePrefix,
-                        VersionSuffix).ToVariableName();
+                    versionParameterName = serviceVersionEnum.Name.ToVariableName();
                     versionParamDescription = $"The {serviceVersionEnum.Name} service version";
                 }
 

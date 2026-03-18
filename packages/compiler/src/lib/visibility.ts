@@ -405,12 +405,13 @@ interface VisibilityFilterMutatorCacheByNameTemplate {
   lifecycleUpdate?: Mutator;
 }
 
-export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
-  context: DecoratorContext,
-  target: Model,
+/** @internal  */
+export function applyVisibilityFilter(
+  context: { program: Program },
+  input: Model,
   _filter: GeneratedVisibilityFilter,
   nameTemplate?: string,
-) => {
+): Model {
   const filter = VisibilityFilter.fromDecoratorArgument(_filter);
 
   const mutatorCache = ((context.program as VisibilityFilterMutatorCache)[
@@ -436,27 +437,45 @@ export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
   if (!mutator) {
     mutator = createVisibilityFilterMutator(filter, {
       decoratorFn: $withVisibilityFilter,
+      decoratorName: "@withVisibilityFilter",
       nameTemplate,
     });
     mutatorCacheByVisibilityFilter.set(vfKey, mutator);
   }
 
-  setAlwaysMutate(context.program, target);
+  setAlwaysMutate(context.program, input);
 
-  const { type } = cachedMutateSubgraph(context.program, mutator, target);
+  const { type } = cachedMutateSubgraph(context.program, mutator, input);
 
-  setAlwaysMutate(context.program, target, false);
+  setAlwaysMutate(context.program, input, false);
 
-  target.properties = (type as Model).properties;
+  compilerAssert(
+    type.kind === "Model",
+    "Expected visibility filter mutator to return a Model type.",
+  );
+
+  return type;
+}
+
+export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  _filter: GeneratedVisibilityFilter,
+  nameTemplate?: string,
+) => {
+  const transformed = applyVisibilityFilter(context, target, _filter, nameTemplate);
+
+  target.properties = transformed.properties;
 };
 
 // -- @withLifecycleUpdate decorator ----------------------
 
-export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
-  context: DecoratorContext,
-  target: Model,
+/** @internal */
+export function applyLifecycleUpdate(
+  context: { program: Program },
+  input: Model,
   nameTemplate?: string,
-) => {
+): Model {
   const mutatorCache = ((context.program as VisibilityFilterMutatorCache)[
     VISIBILITY_FILTER_MUTATOR_CACHE
   ] ??= {});
@@ -487,19 +506,35 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
     mutator = createVisibilityFilterMutator(lifecycleUpdate, {
       recur: createOrUpdateMutator,
       decoratorFn: $withLifecycleUpdate,
+      decoratorName: "@withLifecycleUpdate",
       nameTemplate,
     });
 
     mutatorCacheByNameTemplate.lifecycleUpdate = mutator;
   }
 
-  setAlwaysMutate(context.program, target);
+  setAlwaysMutate(context.program, input);
 
-  const { type } = cachedMutateSubgraph(context.program, mutator, target);
+  const { type } = cachedMutateSubgraph(context.program, mutator, input);
 
-  setAlwaysMutate(context.program, target, false);
+  setAlwaysMutate(context.program, input, false);
 
-  target.properties = (type as Model).properties;
+  compilerAssert(
+    type.kind === "Model",
+    "Expected lifecycle update mutator to return a Model type.",
+  );
+
+  return type;
+}
+
+export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  nameTemplate?: string,
+) => {
+  const transformed = applyLifecycleUpdate(context, target, nameTemplate);
+
+  target.properties = transformed.properties;
 };
 
 const VISIBILITY_FILTER_MUTATOR_RESULT = Symbol.for("TypeSpec.Core.visibilityFilterMutatorResult");
@@ -545,6 +580,13 @@ interface CreateVisibilityFilterMutatorOptions {
   decoratorFn?: DecoratorFunction;
 
   /**
+   * Optionally, the fully-qualified TypeSpec decorator name corresponding to `decoratorFn`.
+   *
+   * This allows robust matching across module-boundary function identity differences.
+   */
+  decoratorName?: `@${string}`;
+
+  /**
    * Optionally, the name template to apply in the mutator.
    *
    * This is used to rename named types that are created by the mutator.
@@ -564,6 +606,19 @@ function createVisibilityFilterMutator(
   options: CreateVisibilityFilterMutatorOptions = {},
 ): Mutator {
   const visibilityClasses = VisibilityFilter.getVisibilityClasses(filter);
+  const isTypeSpecDecorator = (
+    application: DecoratorApplication,
+    decoratorName: `@${string}`,
+  ): boolean =>
+    application.definition?.name === decoratorName &&
+    application.definition.namespace.name === "TypeSpec";
+
+  const matchesDecorator = (
+    application: DecoratorApplication,
+    decoratorName: `@${string}`,
+    decoratorFn: DecoratorFunction,
+  ): boolean =>
+    isTypeSpecDecorator(application, decoratorName) || application.decorator === decoratorFn;
   const mpMutator: Mutator = {
     name: "VisibilityFilterProperty",
     ModelProperty: {
@@ -577,8 +632,10 @@ function createVisibilityFilterMutator(
         const decorators: DecoratorApplication[] = [];
 
         for (const decorator of prop.decorators) {
-          const decFn = decorator.decorator;
-          if (decFn === $visibility || decFn === $removeVisibility) {
+          if (
+            matchesDecorator(decorator, "@visibility", $visibility) ||
+            matchesDecorator(decorator, "@removeVisibility", $removeVisibility)
+          ) {
             const nextArgs = decorator.args.filter((arg) => {
               if (arg.value.entityKind !== "Value") return false;
 
@@ -597,7 +654,7 @@ function createVisibilityFilterMutator(
                 args: nextArgs,
               });
             }
-          } else if (decFn !== $invisible) {
+          } else if (!matchesDecorator(decorator, "@invisible", $invisible)) {
             decorators.push(decorator);
           }
         }
@@ -687,12 +744,18 @@ function createVisibilityFilterMutator(
 
             clone.properties.set(key, mutated.type as ModelProperty);
 
-            modified ||= (mutated.type as ModelProperty).type !== prop.type;
+            modified ||= mutated.type !== prop;
           }
         }
 
         if (options.decoratorFn) {
-          clone.decorators = clone.decorators.filter((d) => d.decorator !== options.decoratorFn);
+          clone.decorators = clone.decorators.filter(
+            (d) =>
+              !(
+                d.decorator === options.decoratorFn ||
+                (options.decoratorName && isTypeSpecDecorator(d, options.decoratorName))
+              ),
+          );
 
           modified ||= clone.decorators.length !== model.decorators.length;
         }

@@ -12,10 +12,10 @@ def test_first_client_operations():
 
     client.one()
 
-    client.group3.two()
-    client.group3.three()
+    client.two()
+    client.three()
 
-    client.group4.four()
+    client.four()
 
 
 def test_second_client_operations():
@@ -23,4 +23,4 @@ def test_second_client_operations():
 
     client.five()
 
-    client.group5.six()
+    client.six()

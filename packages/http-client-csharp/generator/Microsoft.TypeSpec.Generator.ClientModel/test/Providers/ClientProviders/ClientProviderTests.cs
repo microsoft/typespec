@@ -3678,12 +3678,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // Should return the matching field for ServiceA
             var fieldA = clientProvider!.GetApiVersionFieldForService("Sample.ServiceA");
             Assert.IsNotNull(fieldA);
-            Assert.AreEqual("_serviceAApiVersion", fieldA!.Name);
+            Assert.AreEqual("_sampleServiceAApiVersion", fieldA!.Name);
 
             // Should return the matching field for ServiceB
             var fieldB = clientProvider.GetApiVersionFieldForService("Sample.ServiceB");
             Assert.IsNotNull(fieldB);
-            Assert.AreEqual("_serviceBApiVersion", fieldB!.Name);
+            Assert.AreEqual("_sampleServiceBApiVersion", fieldB!.Name);
         }
 
         [Test]
@@ -3814,11 +3814,86 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // Should match case-insensitively
             var fieldLowerCase = clientProvider!.GetApiVersionFieldForService("sample.serviceA");
             Assert.IsNotNull(fieldLowerCase);
-            Assert.AreEqual("_serviceAApiVersion", fieldLowerCase!.Name);
+            Assert.AreEqual("_sampleServiceAApiVersion", fieldLowerCase!.Name);
 
             var fieldUpperCase = clientProvider.GetApiVersionFieldForService("SAMPLE.SERVICEa");
             Assert.IsNotNull(fieldUpperCase);
-            Assert.AreEqual("_serviceAApiVersion", fieldUpperCase!.Name);
+            Assert.AreEqual("_sampleServiceAApiVersion", fieldUpperCase!.Name);
+        }
+
+        [Test]
+        public void GetApiVersionFieldForService_MultiService_SameLastSegment_ProducesUniqueFields()
+        {
+            // Regression test: when two services have different full namespaces but the same last
+            // segment, using only the last segment would produce duplicate field names. The fix
+            // uses the full namespace to guarantee uniqueness.
+            List<string> serviceOneVersions = ["1.0", "2.0"];
+            List<string> serviceTwoVersions = ["3.0", "4.0"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            // Different full namespaces, same last segment ("Tests") — would collide with last-segment-only naming
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceOne.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceTwo.Tests");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceOneOperation = InputFactory.Operation(
+                "ServiceOneOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.ServiceOne.Tests");
+
+            var serviceTwoOperation = InputFactory.Operation(
+                "ServiceTwoOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.ServiceTwo.Tests");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceOneMethod", serviceOneOperation),
+                    InputFactory.BasicServiceMethod("ServiceTwoMethod", serviceTwoOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // This should not crash — previously it threw due to duplicate field names
+            Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
+
+            // Verify we have two distinct api version fields using the full namespace
+            var apiVersionFields = clientProvider!.Fields
+                .Where(f => f.Name.Contains("ApiVersion", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(f => f.Name)
+                .ToList();
+            Assert.AreEqual(2, apiVersionFields.Count);
+            Assert.AreNotEqual(apiVersionFields[0].Name, apiVersionFields[1].Name);
+
+            // Full namespace produces unique names: "Azure.ServiceOne.Tests" → "AzureServiceOneTests"
+            Assert.AreEqual("_azureServiceOneTestsApiVersion", apiVersionFields[0].Name);
+            Assert.AreEqual("_azureServiceTwoTestsApiVersion", apiVersionFields[1].Name);
         }
 
         [TestCase("{endpoint}")]
