@@ -177,6 +177,34 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_nestedLink = passOnSuccess([
   },
 ]);
 
+// POST-THEN-GET LINK PAGINATION
+Scenarios.Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post",
+    method: "post",
+    request: {
+      body: json({ filter: "foo eq bar" }),
+    },
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc`,
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post/nextPage",
+    method: "get",
+    request: {
+      query: { token: "abc" },
+    },
+    response: SecondResponse,
+    kind: "MockApiDefinition",
+  },
+]);
+
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseBody =
   createTests("query", "body");
 
