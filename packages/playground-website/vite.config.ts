@@ -32,8 +32,6 @@ export default defineConfig(({ mode }) => {
     }) as any,
   );
 
-  config.plugins!.push();
-
   const prNumber = getPrNumber();
   if (prNumber) {
     config.define = {
