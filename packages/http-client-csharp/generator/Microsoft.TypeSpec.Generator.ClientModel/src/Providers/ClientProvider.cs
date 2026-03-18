@@ -194,6 +194,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _additionalClientFields = new(BuildAdditionalClientFields);
             _subClientInternalConstructorParams = new(GetSubClientInternalConstructorParameters);
             _clientParameters = new(GetClientParameters);
+            _effectiveClientParamNames = new(() => GetEffectiveParameterNames(_inputClient.Parameters));
             _subClients = new(GetSubClients);
             _allClientParameters = GetAllClientParameters();
         }
@@ -321,20 +322,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal bool HasAccessorOnlyParameters(InputClient parentInputClient)
         {
-            var parentParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var p in parentInputClient.Parameters)
-            {
-                parentParamNames.Add(p.Name);
-                if (p is InputMethodParameter { ParamAlias: string alias })
-                {
-                    parentParamNames.Add(alias);
-                }
-            }
+            var parentParamNames = GetEffectiveParameterNames(parentInputClient.Parameters);
 
             return _inputClient.Parameters
                 .Where(p => !p.IsApiVersion && !(p is InputEndpointParameter ep && ep.IsEndpoint))
                 .Any(p => !IsSupersededByClientParameter(p, parentParamNames));
         }
+
+        /// <summary>
+        /// Builds a set of effective parameter names. When a parameter has a ParamAlias,
+        /// the alias is used instead of the parameter name.
+        /// </summary>
+        private static HashSet<string> GetEffectiveParameterNames(IReadOnlyList<InputParameter> parameters)
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in parameters)
+            {
+                if (p is InputMethodParameter { ParamAlias: string alias })
+                {
+                    names.Add(alias);
+                }
+                else
+                {
+                    names.Add(p.Name);
+                }
+            }
+            return names;
+        }
+
+        private Lazy<HashSet<string>> _effectiveClientParamNames;
 
         private Lazy<IReadOnlyList<ParameterProvider>> _clientParameters;
         internal IReadOnlyList<ParameterProvider> ClientParameters => _clientParameters.Value;
@@ -1087,18 +1103,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 // Identify subclient-specific parameters by comparing with the parent's input parameters.
                 // Parameters present on both parent and subclient are shared (sourced from parent fields/properties).
-                var parentInputParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var p in _inputClient.Parameters)
-                {
-                    parentInputParamNames.Add(p.Name);
-                    if (p is InputMethodParameter { ParamAlias: string alias })
-                    {
-                        parentInputParamNames.Add(alias);
-                    }
-                }
-
                 var subClientSpecificParamNames = subClient._inputClient.Parameters
-                    .Where(p => !IsSupersededByClientParameter(p, parentInputParamNames))
+                    .Where(p => !IsSupersededByClientParameter(p, _effectiveClientParamNames.Value))
                     .Select(p => p.Name)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -1448,17 +1454,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<InputParameter> GetAllClientParameters()
         {
-            // Collect the names of parameters already declared on this client (e.g. from @clientInitialization).
-            // Include paramAlias values so that operation parameters matching an alias are recognized as superseded.
-            var clientParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var p in _inputClient.Parameters)
-            {
-                clientParamNames.Add(p.Name);
-                if (p is InputMethodParameter { ParamAlias: string alias })
-                {
-                    clientParamNames.Add(alias);
-                }
-            }
+            var clientParamNames = _effectiveClientParamNames.Value;
 
             // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters.
             // When @paramAlias is used (via @clientInitialization), an operation parameter may map
