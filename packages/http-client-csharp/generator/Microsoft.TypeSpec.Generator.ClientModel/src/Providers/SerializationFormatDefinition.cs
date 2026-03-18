@@ -73,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var members = new EnumTypeMember[enumValues.Count];
             for (int i = 0; i < enumValues.Count; i++)
             {
-                var (name, value, description ) = enumValues[i];
+                var (name, value, description) = enumValues[i];
                 var field = new FieldProvider(
                     FieldModifiers.Public | FieldModifiers.Static,
                     EnumUnderlyingType,

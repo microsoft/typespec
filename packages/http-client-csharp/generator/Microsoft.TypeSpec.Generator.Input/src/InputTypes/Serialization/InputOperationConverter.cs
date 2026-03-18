@@ -87,6 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             operation.Name = name ?? throw new JsonException("InputOperation must have name");
+            operation.OriginalName = name;
             operation.ResourceName = resourceName;
             operation.Summary = summary;
             operation.Doc = doc;

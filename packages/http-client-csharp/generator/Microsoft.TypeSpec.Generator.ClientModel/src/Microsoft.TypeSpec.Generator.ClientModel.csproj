@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.ClientModel" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

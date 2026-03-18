@@ -60,7 +60,15 @@ export function Tree<T extends TreeNode>({
   const activateRow = useCallback(
     (row: TreeRow<TreeNode>) => {
       setFocusedIndex(row.index);
-      if (selectionMode === "none" || selectedKey === row.id) {
+      if (row.hasChildren) {
+        // Always toggle expand/collapse for parent nodes regardless of selection state.
+        // Note: the useEffect that auto-expands selectedKey only re-runs when selectedKey
+        // changes, so it won't interfere once a directory is already selected.
+        toggleExpand(row.id);
+        if (selectionMode === "single") {
+          setSelectedKey(row.id);
+        }
+      } else if (selectionMode === "none" || selectedKey === row.id) {
         toggleExpand(row.id);
       } else {
         expand(row.id);

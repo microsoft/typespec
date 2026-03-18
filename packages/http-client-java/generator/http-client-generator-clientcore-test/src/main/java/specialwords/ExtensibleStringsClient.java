@@ -9,6 +9,7 @@ import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.instrumentation.Instrumentation;
+import specialwords.extensiblestrings.ExtensibleString;
 import specialwords.implementation.ExtensibleStringsImpl;
 
 /**
@@ -36,36 +37,35 @@ public final class ExtensibleStringsClient {
     /**
      * The putExtensibleStringValue operation.
      * 
-     * @param accept The accept parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return verify enum member names that are special words using extensible enum (union) along with
+     * {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<String> putExtensibleStringValueWithResponse(String accept, String body,
+    public Response<ExtensibleString> putExtensibleStringValueWithResponse(ExtensibleString body,
         RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("SpecialWords.ExtensibleStrings.putExtensibleStringValue",
             requestContext,
-            updatedContext -> this.serviceClient.putExtensibleStringValueWithResponse(accept, body, updatedContext));
+            updatedContext -> this.serviceClient.putExtensibleStringValueWithResponse(body, updatedContext));
     }
 
     /**
      * The putExtensibleStringValue operation.
      * 
-     * @param accept The accept parameter.
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return verify enum member names that are special words using extensible enum (union).
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String putExtensibleStringValue(String accept, String body) {
-        return putExtensibleStringValueWithResponse(accept, body, RequestContext.none()).getValue();
+    public ExtensibleString putExtensibleStringValue(ExtensibleString body) {
+        return putExtensibleStringValueWithResponse(body, RequestContext.none()).getValue();
     }
 }
