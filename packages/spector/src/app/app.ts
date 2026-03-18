@@ -7,7 +7,6 @@ import {
   RequestExt,
   ResolverConfig,
   ScenarioMockApi,
-  ValidationError,
 } from "@typespec/spec-api";
 import { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
 import { Response, Router } from "express";
