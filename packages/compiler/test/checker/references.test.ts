@@ -808,12 +808,10 @@ describe("compiler: references", () => {
         }
       `);
 
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-ref",
-          message: `Model doesn't have member a`,
-        },
-      ]);
+      expectDiagnostics(diagnostics, {
+        code: "invalid-ref",
+        message: `Model doesn't have member a`,
+      });
     });
 
     it("allows spreading meta type property", async () => {

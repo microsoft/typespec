@@ -142,8 +142,8 @@ describe("compiler: operations", () => {
 
     const idParam = myGet.parameters.properties.get("id");
     ok(idParam);
-    strictEqual(idParam.type.kind, "Scalar");
-    strictEqual((idParam.type as any).name, "uuid");
+    ok(idParam.type.kind === "Scalar");
+    strictEqual(idParam.type.name, "uuid");
   });
 
   it("can reference an operation defined inside an interface", async () => {

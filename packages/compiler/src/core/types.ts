@@ -714,15 +714,25 @@ export interface TemplateParameter extends BaseType {
   default?: Type | Value | IndeterminateEntity;
 }
 
+/**
+ * This is a type you should never see in the program.
+ * If you do you might be missing a `isTemplateDeclaration` check to exclude that type.
+ * Working with template declarations is not something that is currently supported.
+ *
+ * `TemplateParameterAccess` represents a member or meta-member access rooted in a template
+ * parameter inside a template declaration, such as `T.id` or `T::returnType`.
+ *
+ * @experimental
+ */
 export interface TemplateParameterAccess extends BaseType {
   kind: "TemplateParameterAccess";
   /** @internal */
   node: MemberExpressionNode;
   /** @internal */
   base: TemplateParameter | TemplateParameterAccess;
-  /** @internal */
+  /** @internal User-facing access path like `T.id` or `T::returnType`. */
   path: string;
-  /** @internal */
+  /** @internal Stable cache key used to reuse synthetic symbols for the same access chain. */
   cacheKey: string;
   /** @internal */
   constraint?: MixedParameterConstraint;

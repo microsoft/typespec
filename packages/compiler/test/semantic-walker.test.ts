@@ -7,7 +7,7 @@ import {
   navigateType,
   navigateTypesInNamespace,
 } from "../src/core/semantic-walker.js";
-import { FunctionValue } from "../src/core/types.js";
+import { FunctionValue, TemplateParameter, TemplateParameterAccess } from "../src/core/types.js";
 import {
   Enum,
   Interface,
@@ -706,6 +706,57 @@ describe("compiler: semantic walker", () => {
 
       expect(results.functions).toHaveLength(1);
       expect(results.functions[0].name).toBe("foo");
+    });
+
+    it("emits exit events for template parameter access types", () => {
+      const templateParameter: TemplateParameter = {
+        entityKind: "Type",
+        kind: "TemplateParameter",
+        node: undefined as never,
+        isFinished: true,
+      };
+      const templateAccess: TemplateParameterAccess = {
+        entityKind: "Type",
+        kind: "TemplateParameterAccess",
+        node: undefined as never,
+        base: templateParameter,
+        path: "T.id",
+        cacheKey: "tp:1.id",
+        isFinished: true,
+      };
+
+      const events: string[] = [];
+      navigateType(
+        templateParameter,
+        {
+          templateParameter() {
+            events.push("templateParameter");
+          },
+          exitTemplateParameter() {
+            events.push("exitTemplateParameter");
+          },
+        },
+        {},
+      );
+      navigateType(
+        templateAccess,
+        {
+          templateParameterAccess() {
+            events.push("templateParameterAccess");
+          },
+          exitTemplateParameterAccess() {
+            events.push("exitTemplateParameterAccess");
+          },
+        },
+        {},
+      );
+
+      deepStrictEqual(events, [
+        "templateParameter",
+        "exitTemplateParameter",
+        "templateParameterAccess",
+        "exitTemplateParameterAccess",
+      ]);
     });
   });
 });

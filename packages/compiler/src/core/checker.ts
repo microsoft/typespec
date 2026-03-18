@@ -4520,7 +4520,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       for (const [span, typeOrValue] of spanTypeOrValues) {
         if (
           typeOrValue !== null &&
-          (!("kind" in typeOrValue) || typeOrValue.kind !== "TemplateParameter")
+          (!("kind" in typeOrValue) ||
+            (typeOrValue.kind !== "TemplateParameter" &&
+              typeOrValue.kind !== "TemplateParameterAccess"))
         ) {
           compilerAssert(typeOrValue !== null && isValue(typeOrValue), "Expected value.");
           str += stringifyValueForTemplate(typeOrValue);

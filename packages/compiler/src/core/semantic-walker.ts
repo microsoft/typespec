@@ -385,6 +385,7 @@ function navigateTemplateParameter(type: TemplateParameter, context: NavigationC
     return;
   }
   if (context.emit("templateParameter", type) === ListenerFlow.NoRecursion) return;
+  context.emit("exitTemplateParameter", type);
 }
 
 /** Emit semantic walker events for template parameter access nodes. */
@@ -396,6 +397,7 @@ function navigateTemplateParameterAccess(
     return;
   }
   if (context.emit("templateParameterAccess", type) === ListenerFlow.NoRecursion) return;
+  context.emit("exitTemplateParameterAccess", type);
 }
 
 function navigateDecoratorDeclaration(type: Decorator, context: NavigationContext) {

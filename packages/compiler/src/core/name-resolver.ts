@@ -717,10 +717,9 @@ export function createResolver(program: Program): NameResolver {
 
   function resolveMetaMemberByName(baseSym: Sym, sv: string): ResolutionResult {
     const baseNode = getSymNode(baseSym);
+    const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
 
-    const prototype = metaTypePrototypes.get(baseNode.kind);
-
-    if (!prototype) {
+    if (!prototype || isReflectionMetaProjectionSymbol(baseSym, baseNode)) {
       return failedResult(ResolutionResultFlags.NotFound);
     }
 
@@ -763,6 +762,15 @@ export function createResolver(program: Program): NameResolver {
     }
 
     return undefined;
+  }
+
+  /** Return true for TypeSpec.Reflection model symbols backed by projection metadata. */
+  function isReflectionMetaProjectionSymbol(baseSym: Sym, baseNode: Node): boolean {
+    return (
+      baseNode.kind === SyntaxKind.ModelStatement &&
+      baseSym.parent?.name === "Reflection" &&
+      baseSym.parent?.parent?.name === "TypeSpec"
+    );
   }
 
   function tableLookup(table: SymbolTable, node: IdentifierNode, resolveDecorator = false) {
