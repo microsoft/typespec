@@ -41,17 +41,17 @@ def test_structure_renamed_operation():
     client.renamed_three()
     client.renamed_five()
 
-    client.group.renamed_two()
-    client.group.renamed_four()
-    client.group.renamed_six()
+    client.renamed_two()
+    client.renamed_four()
+    client.renamed_six()
 
 
 def test_structure_two_operation_group():
     client = TwoOperationGroupClient(endpoint="http://localhost:3000", client=ClientType.TWO_OPERATION_GROUP)
-    client.group1.one()
-    client.group1.three()
-    client.group1.four()
+    client.one()
+    client.three()
+    client.four()
 
-    client.group2.two()
-    client.group2.five()
-    client.group2.six()
+    client.two()
+    client.five()
+    client.six()

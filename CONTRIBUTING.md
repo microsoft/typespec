@@ -269,6 +269,28 @@ Go to `packages/website` and run the command:
 pnpm start
 ```
 
+## Creating release notes
+
+Release notes are published at each release in `website/src/content/docs/docs/release-notes/`. They follow the pattern `release-YYYY-MM-DD.md`.
+
+Run the following command to generate the changelog:
+
+```bash
+pnpm chronus changelog --policy typespec-stable --policy typespec-preview
+```
+
+Create a new file `website/src/content/docs/docs/release-notes/release-YYYY-MM-DD.md` with this frontmatter and paste the command output below it, removing the `Dependencies` category:
+
+```markdown
+---
+title: "X.Y.0"
+releaseDate: YYYY-MM-DD
+version: "X.Y.0"
+---
+```
+
+See existing release notes for examples.
+
 # Pull request
 
 ## Trigger TypeSpec Playground Try It build

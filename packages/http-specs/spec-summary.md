@@ -2509,6 +2509,48 @@ Expected response body:
 }
 ```
 
+### Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post
+
+- Endpoint: `post /payload/pageable/server-driven-pagination/link/initial-post`
+
+Test case for initial POST request followed by GET for next pages using link pagination.
+The initial request is a POST with a filter body, and the next page is fetched using a GET request on the next link.
+
+Two requests need to be tested.
+
+1. Initial request (POST):
+   Expected route: /payload/pageable/server-driven-pagination/link/initial-post
+   Expected request body:
+
+```json
+{ "filter": "foo eq bar" }
+```
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc"
+}
+```
+
+2. Next page request (GET):
+   Expected route: /payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderNestedResponseBody
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body`
