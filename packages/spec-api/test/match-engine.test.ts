@@ -16,10 +16,8 @@ describe("isMatcher", () => {
     expect(isMatcher(match.dateTime.rfc3339("2022-08-26T18:38:00.000Z"))).toBe(true);
   });
 
-  it("should return true for baseUrl matchers (both unresolved and resolved)", () => {
+  it("should return true for localUrl matchers", () => {
     expect(isMatcher(match.localUrl("/path"))).toBe(true);
-    const resolved = match.localUrl("/path").resolve({ baseUrl: "http://localhost:3000" });
-    expect(isMatcher(resolved)).toBe(true);
   });
 
   it("should return false for plain values", () => {
@@ -175,27 +173,13 @@ describe("matchValues", () => {
       expectFail(result, "rfc3339 format");
     });
 
-    it("should handle resolved baseUrl matchers", () => {
-      const resolved = match.localUrl("/next-page").resolve({ baseUrl: "http://localhost:3000" });
-      const expected = { link: resolved };
-      expectPass(matchValues({ link: "http://localhost:3000/next-page" }, expected));
-    });
-
-    it("should fail resolved baseUrl matchers on wrong value", () => {
-      const resolved = match.localUrl("/next-page").resolve({ baseUrl: "http://localhost:3000" });
-      const expected = { link: resolved };
-      expectFail(
-        matchValues({ link: "http://localhost:4000/next-page" }, expected),
-        "match.localUrl",
-      );
-    });
-
-    it("should use loose path-suffix check for unresolved baseUrl matchers", () => {
+    it("should use localUrl matchers with config for exact URL check", () => {
+      const config: ResolverConfig = { baseUrl: "http://localhost:3000" };
       const expected = { link: match.localUrl("/next-page") };
-      expectPass(matchValues({ link: "http://localhost:3000/next-page" }, expected));
+      expectPass(matchValues({ link: "http://localhost:3000/next-page" }, expected, "$", config));
       expectFail(
-        matchValues({ link: "http://localhost:3000/other-page" }, expected),
-        'ending with "/next-page"',
+        matchValues({ link: "http://localhost:3000/other-page" }, expected, "$", config),
+        "match.localUrl",
       );
     });
   });
@@ -216,7 +200,7 @@ describe("integration with expandDyns", () => {
     expect(expanded.items[0]).toBe("2022-08-26T18:38:00.000Z");
   });
 
-  it("should resolve baseUrl matchers to their full URL", () => {
+  it("should resolve localUrl matchers to their full URL", () => {
     const content = { next: match.localUrl("/next-page") };
     const expanded = expandDyns(content, config);
     expect(expanded.next).toBe("http://localhost:3000/next-page");
@@ -248,16 +232,16 @@ describe("integration with json() Resolver", () => {
     expect(isMatcher(resolved.value)).toBe(true);
   });
 
-  it("should serialize baseUrl matchers to their resolved value via serialize()", () => {
+  it("should serialize localUrl matchers to their full URL via serialize()", () => {
     const body = json({ next: match.localUrl("/items/page2") });
     const raw = (body.rawContent as any).serialize(config);
     expect(raw).toBe('{"next":"http://localhost:3000/items/page2"}');
   });
 
-  it("should resolve baseUrl matchers via resolve()", () => {
+  it("should preserve localUrl matchers via resolve()", () => {
     const body = json({ next: match.localUrl("/items/page2") });
     const resolved = (body.rawContent as any).resolve(config) as Record<string, unknown>;
     expect(isMatcher(resolved.next)).toBe(true);
-    expectPass((resolved.next as any).check("http://localhost:3000/items/page2"));
+    expectPass((resolved.next as any).check("http://localhost:3000/items/page2", config));
   });
 });

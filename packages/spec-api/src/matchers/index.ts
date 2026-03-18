@@ -8,6 +8,7 @@ export {
   MatcherSymbol,
   matchValues,
   ok,
+  type MatcherConfig,
   type MatchResult,
   type MockValueMatcher,
 } from "../match-engine.js";

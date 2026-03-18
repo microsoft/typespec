@@ -141,11 +141,7 @@ function _expandDyns<T>(value: T, config: ResolverConfig, resolveMatchers: boole
       return (config as any)[(value as any).name] as any;
     }
     if (isMatcher(value)) {
-      if ("resolve" in value && typeof (value as any).resolve === "function") {
-        const resolved = (value as any).resolve(config);
-        return resolveMatchers ? (resolved.serialize() as any) : (resolved as any);
-      }
-      return resolveMatchers ? (value.serialize() as any) : (value as any);
+      return resolveMatchers ? (value.serialize(config) as any) : (value as any);
     }
     const obj = value as Record<string, unknown>;
     return Object.fromEntries(

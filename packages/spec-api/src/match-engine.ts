@@ -32,29 +32,53 @@ export function err(message: string): MatchResult {
 export interface MockValueMatcher<T = unknown> {
   readonly [MatcherSymbol]: true;
   /** Check whether the actual value matches the expectation */
-  check(actual: unknown): MatchResult;
+  check(actual: unknown, config?: MatcherConfig): MatchResult;
   /** The raw value to use when serializing */
-  serialize(): T;
+  serialize(config?: MatcherConfig): T;
   /** @internal Delegates to serialize() for JSON.stringify compatibility */
   toJSON(): T;
   /** Human-readable description for debugging */
   toString(): string;
 }
 
-/** Create a MockValueMatcher with the MatcherSymbol already set. */
-export function createMatcher<T = unknown>(matcher: {
+/** Configuration available to matchers at runtime */
+export interface MatcherConfig {
+  baseUrl: string;
+}
+
+const emptyConfig: MatcherConfig = { baseUrl: "" };
+
+interface MatcherImpl<T> {
   check(actual: unknown): MatchResult;
   serialize(): T;
   toString?: () => string;
-}): MockValueMatcher<T> {
+}
+
+/** Create a MockValueMatcher with the MatcherSymbol already set.
+ *  Accepts either a plain implementation object (for matchers that don't need config)
+ *  or a factory function `(config) => impl` (for matchers that do).
+ */
+export function createMatcher<T = unknown>(
+  implOrFactory: MatcherImpl<T> | ((config: MatcherConfig) => MatcherImpl<T>),
+): MockValueMatcher<T> {
+  const resolve =
+    typeof implOrFactory === "function"
+      ? (config: MatcherConfig) => implOrFactory(config)
+      : () => implOrFactory;
   return {
     [MatcherSymbol]: true,
-    ...matcher,
+    check(actual: unknown, config?: MatcherConfig): MatchResult {
+      return resolve(config ?? emptyConfig).check(actual);
+    },
+    serialize(config?: MatcherConfig): T {
+      return resolve(config ?? emptyConfig).serialize();
+    },
     toJSON() {
-      return matcher.serialize();
+      return resolve(emptyConfig).serialize();
     },
     toString() {
-      return matcher.toString?.() ?? String(matcher.serialize());
+      const impl = resolve(emptyConfig);
+      return impl.toString?.() ?? String(impl.serialize());
     },
   };
 }
@@ -89,13 +113,18 @@ function pathErr(message: string, path: string): MatchResult {
  * When a MockValueMatcher is encountered in the expected tree, delegates to matcher.check().
  * Otherwise uses strict equality semantics (same as deep-equal with strict: true).
  */
-export function matchValues(actual: unknown, expected: unknown, path: string = "$"): MatchResult {
+export function matchValues(
+  actual: unknown,
+  expected: unknown,
+  path: string = "$",
+  config: MatcherConfig = emptyConfig,
+): MatchResult {
   if (expected === actual) {
     return ok();
   }
 
   if (isMatcher(expected)) {
-    const result = expected.check(actual);
+    const result = expected.check(actual, config);
     if (!result.pass) {
       return pathErr(result.message, path);
     }
@@ -124,7 +153,7 @@ export function matchValues(actual: unknown, expected: unknown, path: string = "
       );
     }
     for (let i = 0; i < expected.length; i++) {
-      const result = matchValues(actual[i], expected[i], `${path}[${i}]`);
+      const result = matchValues(actual[i], expected[i], `${path}[${i}]`, config);
       if (!result.pass) {
         return result;
       }
@@ -180,7 +209,7 @@ export function matchValues(actual: unknown, expected: unknown, path: string = "
       if (!(key in actualObj)) {
         return pathErr(`Missing key "${key}"`, path);
       }
-      const result = matchValues(actualObj[key], expectedObj[key], `${path}.${key}`);
+      const result = matchValues(actualObj[key], expectedObj[key], `${path}.${key}`, config);
       if (!result.pass) {
         return result;
       }

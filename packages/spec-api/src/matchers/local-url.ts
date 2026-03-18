@@ -1,63 +1,24 @@
-import {
-  createMatcher,
-  err,
-  type MatchResult,
-  type MockValueMatcher,
-  ok,
-} from "../match-engine.js";
-import type { ResolverConfig } from "../types.js";
+import { createMatcher, err, type MockValueMatcher, ok } from "../match-engine.js";
 
-/**
- * A MockValueMatcher that also carries a `resolve` method.
- * Before resolution, `check()` performs a loose path-suffix validation.
- * After resolution via `expandDyns`, the returned matcher does exact equality.
- */
-export interface ResolvableMockValueMatcher<T = unknown> extends MockValueMatcher<T> {
-  resolve(config: ResolverConfig): MockValueMatcher<T>;
-}
-
-export function baseUrlMatcher(path: string): ResolvableMockValueMatcher<string> {
-  return {
-    ...createMatcher({
-      check(actual: unknown): MatchResult {
-        if (typeof actual !== "string") {
-          return err(
-            `match.localUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
-          );
-        }
-        if (!actual.endsWith(path)) {
-          return err(`match.localUrl: expected URL ending with "${path}" but got "${actual}"`);
-        }
-        return ok();
-      },
-      serialize(): string {
-        return path;
-      },
-      toString(): string {
-        return `match.localUrl("${path}")`;
-      },
-    }),
-    resolve(config: ResolverConfig): MockValueMatcher<string> {
+export function baseUrlMatcher(path: string): MockValueMatcher<string> {
+  return createMatcher((config) => ({
+    check(actual: unknown) {
+      if (typeof actual !== "string") {
+        return err(
+          `match.localUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
+        );
+      }
       const expected = config.baseUrl + path;
-      return createMatcher({
-        check(actual: unknown): MatchResult {
-          if (typeof actual !== "string") {
-            return err(
-              `match.localUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
-            );
-          }
-          if (actual !== expected) {
-            return err(`match.localUrl: expected "${expected}" but got "${actual}"`);
-          }
-          return ok();
-        },
-        serialize(): string {
-          return expected;
-        },
-        toString(): string {
-          return `match.localUrl("${path}")`;
-        },
-      });
+      if (actual !== expected) {
+        return err(`match.localUrl: expected "${expected}" but got "${actual}"`);
+      }
+      return ok();
     },
-  };
+    serialize() {
+      return config.baseUrl + path;
+    },
+    toString() {
+      return `match.localUrl("${path}")`;
+    },
+  }));
 }
