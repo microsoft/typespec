@@ -1,6 +1,6 @@
 import {
   match,
-  MockRequest,
+  type MockBody,
   passOnCode,
   passOnSuccess,
   ScenarioMockApi,
@@ -302,7 +302,12 @@ export const xmlError = `
 // Scenario registrations
 // ────────────────────────────────────────────────────────────────────────────
 
+function isMockBody(data: any): data is MockBody {
+  return typeof data === "object" && data !== null && "contentType" in data;
+}
+
 function createServerTests(uri: string, data?: any) {
+  const body = isMockBody(data) ? data : xml(data);
   return {
     get: passOnSuccess({
       uri,
@@ -310,7 +315,7 @@ function createServerTests(uri: string, data?: any) {
       request: {},
       response: {
         status: 200,
-        body: xml(data),
+        body,
       },
       kind: "MockApiDefinition",
     }),
@@ -318,14 +323,7 @@ function createServerTests(uri: string, data?: any) {
       uri,
       method: "put",
       request: {
-        body: xml(data),
-      },
-      handler: (req: MockRequest) => {
-        req.expect.containsHeader("content-type", "application/xml");
-        req.expect.xmlBodyEquals(data);
-        return {
-          status: 204,
-        };
+        body,
       },
       response: {
         status: 204,
