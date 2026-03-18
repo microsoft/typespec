@@ -581,7 +581,7 @@ export function fromMethodParameter(
     readOnly: isReadOnly(p),
     access: p.access,
     decorators: p.decorators,
-    ...(paramAlias && { paramAlias }),
+    paramAlias,
   };
 
   sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);
