@@ -1,21 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { type MatchResult } from "../../src/match-engine.js";
 import { match } from "../../src/matchers/index.js";
-
-function expectPass(result: MatchResult) {
-  expect(result).toEqual({ pass: true });
-}
-
-function expectFail(result: MatchResult, messagePattern?: string | RegExp) {
-  expect(result.pass).toBe(false);
-  if (!result.pass && messagePattern) {
-    if (typeof messagePattern === "string") {
-      expect(result.message).toContain(messagePattern);
-    } else {
-      expect(result.message).toMatch(messagePattern);
-    }
-  }
-}
+import { expectFail, expectPass } from "./matcher-test-utils.js";
 
 describe("match.dateTime.rfc3339()", () => {
   it("should throw for invalid datetime", () => {

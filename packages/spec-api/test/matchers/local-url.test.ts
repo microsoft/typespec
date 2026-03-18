@@ -1,31 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { isMatcher, type MatchResult } from "../../src/match-engine.js";
+import { isMatcher } from "../../src/match-engine.js";
 import { match } from "../../src/matchers/index.js";
 import { expandDyns } from "../../src/response-utils.js";
 import { ResolverConfig } from "../../src/types.js";
-
-function expectPass(result: MatchResult) {
-  expect(result).toEqual({ pass: true });
-}
-
-function expectFail(result: MatchResult, messagePattern?: string | RegExp) {
-  expect(result.pass).toBe(false);
-  if (!result.pass && messagePattern) {
-    if (typeof messagePattern === "string") {
-      expect(result.message).toContain(messagePattern);
-    } else {
-      expect(result.message).toMatch(messagePattern);
-    }
-  }
-}
+import { expectFail, expectPass } from "./matcher-test-utils.js";
 
 describe("match.baseUrl()", () => {
   it("should be identified by isMatcher", () => {
-    expect(isMatcher(match.baseUrl("/some/path"))).toBe(true);
+    expect(isMatcher(match.localUrl("/some/path"))).toBe(true);
   });
 
   describe("unresolved check() — loose path-suffix validation", () => {
-    const matcher = match.baseUrl("/payload/pageable/next-page");
+    const matcher = match.localUrl("/payload/pageable/next-page");
 
     it("should match any URL ending with the path", () => {
       expectPass(matcher.check("http://localhost:3000/payload/pageable/next-page"));
@@ -48,17 +34,17 @@ describe("match.baseUrl()", () => {
 
   describe("unresolved toJSON / toString", () => {
     it("toJSON should return the path", () => {
-      expect(match.baseUrl("/some/path").toJSON()).toBe("/some/path");
+      expect(match.localUrl("/some/path").toJSON()).toBe("/some/path");
     });
 
     it("toString should return a descriptive string", () => {
-      expect(match.baseUrl("/some/path").toString()).toBe('match.baseUrl("/some/path")');
+      expect(match.localUrl("/some/path").toString()).toBe('match.baseUrl("/some/path")');
     });
   });
 
   describe("resolved matcher", () => {
     const config: ResolverConfig = { baseUrl: "http://localhost:3000" };
-    const resolved = match.baseUrl("/payload/pageable/next-page").resolve(config);
+    const resolved = match.localUrl("/payload/pageable/next-page").resolve(config);
 
     describe("check()", () => {
       it("should match the exact full URL (baseUrl + path)", () => {
@@ -110,7 +96,7 @@ describe("match.baseUrl()", () => {
   });
 
   describe("resolution with different base URLs", () => {
-    const unresolved = match.baseUrl("/api/items");
+    const unresolved = match.localUrl("/api/items");
 
     it("should resolve with localhost", () => {
       const resolved = unresolved.resolve({ baseUrl: "http://localhost:3000" });
@@ -132,7 +118,7 @@ describe("match.baseUrl()", () => {
     const config: ResolverConfig = { baseUrl: "http://localhost:3000" };
 
     it("should resolve baseUrl matchers to their full URL", () => {
-      const content = { next: match.baseUrl("/next-page") };
+      const content = { next: match.localUrl("/next-page") };
       const expanded = expandDyns(content, config);
       expect(expanded.next).toBe("http://localhost:3000/next-page");
     });
@@ -140,7 +126,7 @@ describe("match.baseUrl()", () => {
     it("should resolve baseUrl matchers nested in objects", () => {
       const content = {
         data: {
-          nextLink: match.baseUrl("/items/page2"),
+          nextLink: match.localUrl("/items/page2"),
         },
       };
       const expanded = expandDyns(content, config);
@@ -148,14 +134,14 @@ describe("match.baseUrl()", () => {
     });
 
     it("should resolve baseUrl matchers in arrays", () => {
-      const content = { links: [match.baseUrl("/page1"), match.baseUrl("/page2")] };
+      const content = { links: [match.localUrl("/page1"), match.localUrl("/page2")] };
       const expanded = expandDyns(content, config);
       expect(expanded.links[0]).toBe("http://localhost:3000/page1");
       expect(expanded.links[1]).toBe("http://localhost:3000/page2");
     });
 
     it("should serialize resolved matcher in JSON.stringify", () => {
-      const content = { next: match.baseUrl("/next-page") };
+      const content = { next: match.localUrl("/next-page") };
       const expanded = expandDyns(content, config);
       expect(JSON.stringify(expanded)).toBe('{"next":"http://localhost:3000/next-page"}');
     });

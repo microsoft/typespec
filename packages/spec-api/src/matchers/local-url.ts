@@ -16,7 +16,7 @@ export interface ResolvableMockValueMatcher<T = unknown> extends MockValueMatche
   resolve(config: ResolverConfig): MockValueMatcher<T>;
 }
 
-function createBaseUrlMatcher(path: string): ResolvableMockValueMatcher<string> {
+export function baseUrlMatcher(path: string): ResolvableMockValueMatcher<string> {
   return {
     [MatcherSymbol]: true,
     resolve(config: ResolverConfig): MockValueMatcher<string> {
@@ -26,11 +26,11 @@ function createBaseUrlMatcher(path: string): ResolvableMockValueMatcher<string> 
         check(actual: unknown): MatchResult {
           if (typeof actual !== "string") {
             return err(
-              `match.baseUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
+              `match.localUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
             );
           }
           if (actual !== expected) {
-            return err(`match.baseUrl: expected "${expected}" but got "${actual}"`);
+            return err(`match.localUrl: expected "${expected}" but got "${actual}"`);
           }
           return ok();
         },
@@ -38,14 +38,14 @@ function createBaseUrlMatcher(path: string): ResolvableMockValueMatcher<string> 
           return expected;
         },
         toString(): string {
-          return `match.baseUrl("${path}")`;
+          return `match.localUrl("${path}")`;
         },
       };
     },
     check(actual: unknown): MatchResult {
       if (typeof actual !== "string") {
         return err(
-          `match.baseUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
+          `match.localUrl: expected a string but got ${typeof actual} (${JSON.stringify(actual)})`,
         );
       }
       if (!actual.endsWith(path)) {
@@ -60,8 +60,4 @@ function createBaseUrlMatcher(path: string): ResolvableMockValueMatcher<string> 
       return `match.baseUrl("${path}")`;
     },
   };
-}
-
-export function baseUrlMatcher(path: string): ResolvableMockValueMatcher<string> {
-  return createBaseUrlMatcher(path);
 }

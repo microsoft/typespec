@@ -656,7 +656,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithNextLink = passOnSuccess([
       <Name>cat</Name>
     </Pet>
   </Pets>
-  <NextLink>${match.baseUrl("/payload/pageable/xml/list-with-next-link/nextPage")}</NextLink>
+  <NextLink>${match.localUrl("/payload/pageable/xml/list-with-next-link/nextPage")}</NextLink>
 </PetListResult>
 `,
       headers: {

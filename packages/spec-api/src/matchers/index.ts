@@ -1,3 +1,6 @@
+import { dateTimeMatcher } from "./datetime.js";
+import { baseUrlMatcher } from "./local-url.js";
+
 export {
   err,
   isMatcher,
@@ -7,11 +10,7 @@ export {
   type MatchResult,
   type MockValueMatcher,
 } from "../match-engine.js";
-export { baseUrlMatcher, type ResolvableMockValueMatcher } from "./match-base-url.js";
-export { dateTimeMatcher } from "./match-datetime.js";
-
-import { baseUrlMatcher } from "./match-base-url.js";
-import { dateTimeMatcher } from "./match-datetime.js";
+export { dateTimeMatcher } from "./datetime.js";
 
 /**
  * Namespace for built-in matchers.
@@ -39,8 +38,8 @@ export const match = {
    *
    * @example
    * ```ts
-   * match.baseUrl("/payload/pageable/next-page")
+   * match.localUrl("/payload/pageable/next-page")
    * ```
    */
-  baseUrl: baseUrlMatcher,
+  localUrl: baseUrlMatcher,
 };
