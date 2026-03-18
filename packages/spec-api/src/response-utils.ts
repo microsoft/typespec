@@ -50,38 +50,13 @@ const XML_DECLARATION = `<?xml version='1.0' encoding='UTF-8'?>`;
 export function xml(content: string): MockBody;
 export function xml(strings: TemplateStringsArray, ...values: unknown[]): MockBody;
 export function xml(content: string | TemplateStringsArray, ...values: unknown[]): MockBody {
-  // Tagged template literal: xml`...${match.baseUrl("/path")}...`
   if (typeof content !== "string") {
-    const strings = content;
-    const hasDynamic = values.some(
-      (v) => isMatcher(v) || (typeof v === "object" && v !== null && "isDyn" in v),
-    );
-
-    if (!hasDynamic) {
-      // No dynamic values — concatenate to a static string
-      let result = strings[0];
-      values.forEach((v, i) => {
-        result += String(v) + strings[i + 1];
-      });
-      return {
-        contentType: "application/xml",
-        rawContent: XML_DECLARATION + result,
-      };
-    }
-
-    // Delegate to dyn for deferred resolution
-    const template = dyn(strings, ...values);
-    const resolve = (config: ResolverConfig): string => XML_DECLARATION + template(config);
     return {
       contentType: "application/xml",
-      rawContent: {
-        serialize: resolve,
-        resolve,
-      },
+      rawContent: dyn`${XML_DECLARATION}${dyn(content, ...values)}`,
     };
   }
 
-  // Plain string
   return {
     contentType: "application/xml",
     rawContent: XML_DECLARATION + content,
@@ -98,7 +73,7 @@ export function multipart(
   };
 }
 
-export interface DynValue {
+export interface DynValue extends Resolver {
   readonly isDyn: true;
   (config: ResolverConfig): string;
 }
@@ -118,25 +93,23 @@ export function dynItem<const T extends keyof ResolverConfig>(name: T): DynItem<
 /**
  * Tagged template for building strings with deferred resolution.
  * Interpolated values can be:
- * - `dynItem("baseUrl")` — resolved from `ResolverConfig` at call time
- * - Matchers (e.g. `match.baseUrl(...)`) — resolved via `expandDyns` at call time
+ * - `dynItem("baseUrl")` — resolved from `ResolverConfig`
+ * - Matchers (e.g. `match.baseUrl(...)`) — resolved via `expandDyns`
+ * - Other `dyn` templates — recursively resolved
  * - Plain strings/numbers — used as-is
  */
 export function dyn(strings: readonly string[], ...values: unknown[]): DynValue {
   const template = (config: ResolverConfig) => {
     let result = strings[0];
     values.forEach((v, i) => {
-      if (typeof v === "object" && v !== null && "isDyn" in v && (v as any).isDyn) {
-        const name = (v as DynItem<keyof ResolverConfig>).name;
-        result += String(config[name] ?? "");
-      } else {
-        result += String(expandDyns(v, config));
-      }
+      result += String(expandDyns(v, config));
       result += strings[i + 1];
     });
     return result;
   };
   template.isDyn = true as const;
+  template.serialize = template;
+  template.resolve = template;
   return template;
 }
 
@@ -152,11 +125,7 @@ export interface ExpandDynsOptions {
  * - By default, matchers are resolved to their `toJSON()` plain value.
  *   Pass `{ resolveMatchers: false }` to preserve matchers for use with `matchValues`.
  */
-export function expandDyns<T>(
-  value: T,
-  config: ResolverConfig,
-  options?: ExpandDynsOptions,
-): T {
+export function expandDyns<T>(value: T, config: ResolverConfig, options?: ExpandDynsOptions): T {
   const resolve = options?.resolveMatchers ?? true;
   return _expandDyns(value, config, resolve);
 }
@@ -167,6 +136,10 @@ function _expandDyns<T>(value: T, config: ResolverConfig, resolveMatchers: boole
   } else if (Array.isArray(value)) {
     return value.map((v) => _expandDyns(v, config, resolveMatchers)) as any;
   } else if (typeof value === "object" && value !== null) {
+    // DynItem — resolve from config
+    if ("isDyn" in value && (value as any).isDyn && "name" in value) {
+      return (config as any)[(value as any).name] as any;
+    }
     if (isMatcher(value)) {
       if ("resolve" in value && typeof (value as any).resolve === "function") {
         const resolved = (value as any).resolve(config);
