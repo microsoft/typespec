@@ -5,7 +5,7 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createQueryServerTests(
   uri: string,
   value: any,
-  format: "rfc7231" | "rfc3339" | undefined,
+  format: "rfc7231" | "rfc3339" | "utcRfc3339" | undefined,
 ) {
   return passOnSuccess({
     uri,
@@ -22,12 +22,12 @@ function createQueryServerTests(
 Scenarios.Encode_Datetime_Query_default = createQueryServerTests(
   "/encode/datetime/query/default",
   "2022-08-26T18:38:00.000Z",
-  "rfc3339",
+  "utcRfc3339",
 );
 Scenarios.Encode_Datetime_Query_rfc3339 = createQueryServerTests(
   "/encode/datetime/query/rfc3339",
   "2022-08-26T18:38:00.000Z",
-  "rfc3339",
+  "utcRfc3339",
 );
 Scenarios.Encode_Datetime_Query_rfc7231 = createQueryServerTests(
   "/encode/datetime/query/rfc7231",
@@ -47,7 +47,7 @@ Scenarios.Encode_Datetime_Query_unixTimestampArray = createQueryServerTests(
 function createPropertyServerTests(
   uri: string,
   value: any,
-  format: "rfc7231" | "rfc3339" | undefined,
+  format: "rfc7231" | "rfc3339" | "utcRfc3339" | undefined,
 ) {
   const matcherBody = { value: format ? match.dateTime[format](value) : value };
   return passOnSuccess({
@@ -66,12 +66,12 @@ function createPropertyServerTests(
 Scenarios.Encode_Datetime_Property_default = createPropertyServerTests(
   "/encode/datetime/property/default",
   "2022-08-26T18:38:00.000Z",
-  "rfc3339",
+  "utcRfc3339",
 );
 Scenarios.Encode_Datetime_Property_rfc3339 = createPropertyServerTests(
   "/encode/datetime/property/rfc3339",
   "2022-08-26T18:38:00.000Z",
-  "rfc3339",
+  "utcRfc3339",
 );
 Scenarios.Encode_Datetime_Property_rfc7231 = createPropertyServerTests(
   "/encode/datetime/property/rfc7231",
@@ -91,7 +91,7 @@ Scenarios.Encode_Datetime_Property_unixTimestampArray = createPropertyServerTest
 function createHeaderServerTests(
   uri: string,
   value: any,
-  format: "rfc7231" | "rfc3339" | undefined,
+  format: "rfc7231" | "rfc3339" | "utcRfc3339" | undefined,
 ) {
   const matcherHeaders = { value: format ? match.dateTime[format](value) : value };
   return passOnSuccess({
@@ -114,7 +114,7 @@ Scenarios.Encode_Datetime_Header_default = createHeaderServerTests(
 Scenarios.Encode_Datetime_Header_rfc3339 = createHeaderServerTests(
   "/encode/datetime/header/rfc3339",
   "2022-08-26T18:38:00.000Z",
-  "rfc3339",
+  "utcRfc3339",
 );
 Scenarios.Encode_Datetime_Header_rfc7231 = createHeaderServerTests(
   "/encode/datetime/header/rfc7231",

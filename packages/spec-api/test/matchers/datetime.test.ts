@@ -163,3 +163,70 @@ describe("match.dateTime.rfc7231()", () => {
     });
   });
 });
+
+describe("match.dateTime.utcRfc3339()", () => {
+  it("should throw for invalid datetime", () => {
+    expect(() => match.dateTime.utcRfc3339("not-a-date")).toThrow("invalid datetime value");
+  });
+
+  it("should throw for empty string", () => {
+    expect(() => match.dateTime.utcRfc3339("")).toThrow("invalid datetime value");
+  });
+
+  describe("check()", () => {
+    const matcher = match.dateTime.utcRfc3339("2022-08-26T18:38:00.000Z");
+
+    it("should match exact same string", () => {
+      expectPass(matcher.check("2022-08-26T18:38:00.000Z"));
+    });
+
+    it("should match without fractional seconds", () => {
+      expectPass(matcher.check("2022-08-26T18:38:00Z"));
+    });
+
+    it("should match with extra precision", () => {
+      expectPass(matcher.check("2022-08-26T18:38:00.0000000Z"));
+    });
+
+    it("should reject +00:00 offset even though equivalent to Z", () => {
+      expectFail(matcher.check("2022-08-26T18:38:00.000+00:00"), "utcRfc3339 format");
+    });
+
+    it("should reject timezone offset", () => {
+      expectFail(matcher.check("2022-08-26T14:38:00.000-04:00"), "utcRfc3339 format");
+    });
+
+    it("should reject positive timezone offset", () => {
+      expectFail(matcher.check("2022-08-26T20:38:00.000+02:00"), "utcRfc3339 format");
+    });
+
+    it("should reject RFC 7231 format", () => {
+      expectFail(matcher.check("Fri, 26 Aug 2022 18:38:00 GMT"), "utcRfc3339 format");
+    });
+
+    it("should not match different time", () => {
+      expectFail(matcher.check("2022-08-26T18:39:00.000Z"), "timestamps differ");
+    });
+
+    it("should not match non-string values", () => {
+      expectFail(matcher.check(12345), "expected a string but got number");
+      expectFail(matcher.check(null), "expected a string but got object");
+    });
+  });
+
+  describe("serialize()", () => {
+    it("should return the original value", () => {
+      expect(match.dateTime.utcRfc3339("2022-08-26T18:38:00.000Z").serialize()).toBe(
+        "2022-08-26T18:38:00.000Z",
+      );
+    });
+  });
+
+  describe("toString()", () => {
+    it("should include utcRfc3339 in toString()", () => {
+      expect(match.dateTime.utcRfc3339("2022-08-26T18:38:00.000Z").toString()).toBe(
+        "match.dateTime.utcRfc3339(2022-08-26T18:38:00.000Z)",
+      );
+    });
+  });
+});

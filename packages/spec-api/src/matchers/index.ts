@@ -26,6 +26,7 @@ export const match = {
    * @example
    * ```ts
    * match.dateTime.rfc3339("2022-08-26T18:38:00.000Z")
+   * match.dateTime.utcRfc3339("2022-08-26T18:38:00.000Z") // rejects offsets, only Z
    * match.dateTime.rfc7231("Fri, 26 Aug 2022 14:38:00 GMT")
    * ```
    */

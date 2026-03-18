@@ -1,6 +1,7 @@
 import { createMatcher, err, type MockValueMatcher, ok } from "../match-engine.js";
 
 const rfc3339Pattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/i;
+const utcRfc3339Pattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/i;
 const rfc7231Pattern =
   /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s\d{2}\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{4}\s\d{2}:\d{2}:\d{2}\sGMT$/i;
 
@@ -49,6 +50,15 @@ function createDateTimeMatcher(
 export const dateTimeMatcher = {
   rfc3339(value: string): MockValueMatcher<string> {
     return createDateTimeMatcher(value, "match.dateTime.rfc3339", "rfc3339", rfc3339Pattern);
+  },
+  /** Like rfc3339 but rejects timezone offsets — only Z (UTC) suffix is allowed. */
+  utcRfc3339(value: string): MockValueMatcher<string> {
+    return createDateTimeMatcher(
+      value,
+      "match.dateTime.utcRfc3339",
+      "utcRfc3339",
+      utcRfc3339Pattern,
+    );
   },
   rfc7231(value: string): MockValueMatcher<string> {
     return createDateTimeMatcher(value, "match.dateTime.rfc7231", "rfc7231", rfc7231Pattern);
