@@ -36,22 +36,25 @@ function needsSlashPrefix(fragment: string) {
   );
 }
 
-function normalizeFragment(fragment: string, trimLast = false) {
+function normalizeFragment(fragment: string) {
   if (needsSlashPrefix(fragment)) {
     // Insert the default separator
     fragment = `/${fragment}`;
   }
 
-  if (trimLast && fragment[fragment.length - 1] === "/") {
-    return fragment.slice(0, -1);
-  }
   return fragment;
 }
 
 export function joinPathSegments(rest: string[]) {
   let current = "";
-  for (const [index, segment] of rest.entries()) {
-    current += normalizeFragment(segment, index < rest.length - 1);
+  for (const segment of rest) {
+    const normalized = normalizeFragment(segment);
+    // Merge trailing and leading slashes to avoid double slashes
+    if (current.endsWith("/") && normalized.startsWith("/")) {
+      current += normalized.slice(1);
+    } else {
+      current += normalized;
+    }
   }
   return current;
 }

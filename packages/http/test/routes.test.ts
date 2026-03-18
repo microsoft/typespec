@@ -346,6 +346,25 @@ describe("http: routes", () => {
 
       deepStrictEqual(routes, [{ verb: "get", path: `/abc${sep}restype=container`, params: [] }]);
     });
+
+    it("keeps trailing / on parent route when joining with child route", async () => {
+      const routes = await getRoutesFor(
+        `
+      @route("{blobName}/")
+      interface Container {
+        @put @route("${sep}some-query=true") op foo(blobName: string): void;
+      }
+      `,
+      );
+
+      deepStrictEqual(routes, [
+        {
+          verb: "put",
+          path: `/{blobName}/${sep}some-query=true`,
+          params: ["blobName"],
+        },
+      ]);
+    });
   });
 
   describe("joinPathSegments", () => {
