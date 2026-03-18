@@ -135,9 +135,10 @@ model ComplexModel {
 }
 
 @doc("Contains an array of complex models with XML unwrapped representation.")
-model ComplexArrayModel {
+model UnwrappedArrayModel {
   @doc("The array of complex models.")
   @unwrapped
+  @name("MyModel")
   items: Array<ComplexModel>;
 }
 
@@ -405,29 +406,29 @@ interface XmlErrorValue {
   } | XmlError;
 }
 
-@doc("Operations for the ComplexArrayModel type with a single item.")
-@route("/complexArrayModel")
-interface ComplexArrayValue
+@doc("Operations for the UnwrappedArrayModel type.")
+@route("/unwrappedArrayModel")
+interface UnwrappedArrayValue
   extends XmlOperations<
-      ComplexArrayModel,
+      UnwrappedArrayModel,
       """
-        <ComplexArrayModel>
-          <ComplexModel>
+        <UnwrappedArrayModel>
+          <MyModel>
             <Id>123abc</Id>
-          </ComplexModel>
-          <ComplexModel>
+          </MyModel>
+          <MyModel>
             <Id>123abc</Id>
-          </ComplexModel>
-        </ComplexArrayModel>
+          </MyModel>
+        </UnwrappedArrayModel>
         """
     > {}
 
-@doc("Operations for the ComplexArrayModel type with no items (empty array).")
-@route("/complexArrayModelNoItems")
-interface ComplexArrayNoItemsValue
+@doc("Operations for the UnwrappedArrayModel type with no items (empty array).")
+@route("/unwrappedArrayModelNoItems")
+interface UnwrappedArrayNoItemsValue
   extends XmlOperations<
-      ComplexArrayModel,
+      UnwrappedArrayModel,
       """
-        <ComplexArrayModel />
+        <UnwrappedArrayModel />
         """
     > {}

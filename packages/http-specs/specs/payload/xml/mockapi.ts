@@ -136,18 +136,18 @@ export const modelWithDatetime = `
 </ModelWithDatetime>
 `;
 
-export const complexArrayModel = `
-<ComplexArrayModel>
-  <ComplexModel>
+export const unwrappedArrayModel = `
+<UnwrappedArrayModel>
+  <MyModel>
     <Id>123abc</Id>
-  </ComplexModel>
-  <ComplexModel>
+  </MyModel>
+  <MyModel>
     <Id>123abc</Id>
-  </ComplexModel>
-</ComplexArrayModel>
+  </MyModel>
+</UnwrappedArrayModel>
 `;
 
-export const complexArrayModelNoItems = `<ComplexArrayModel />`;
+export const unwrappedArrayOfModelNoItems = `<UnwrappedArrayModel />`;
 
 // Some clients serialize UTC datetimes without trailing zero milliseconds. Both
 // "2022-08-26T18:38:00.000Z" and "2022-08-26T18:38:00Z" are valid RFC3339 representations
@@ -331,16 +331,16 @@ Scenarios.Payload_Xml_XmlErrorValue_get = passOnCode(400, {
   kind: "MockApiDefinition",
 });
 
-const Payload_Xml_ComplexArrayModel = createServerTests(
-  "/payload/xml/complexArrayModel",
-  complexArrayModel,
+const Payload_Xml_UnwrappedArrayModel = createServerTests(
+  "/payload/xml/unwrappedArrayModel",
+  unwrappedArrayModel,
 );
-Scenarios.Payload_Xml_ComplexArrayValue_get = Payload_Xml_ComplexArrayModel.get;
-Scenarios.Payload_Xml_ComplexArrayValue_put = Payload_Xml_ComplexArrayModel.put;
+Scenarios.Payload_Xml_UnwrappedArrayValue_get = Payload_Xml_UnwrappedArrayModel.get;
+Scenarios.Payload_Xml_UnwrappedArrayValue_put = Payload_Xml_UnwrappedArrayModel.put;
 
-const Payload_Xml_ComplexArrayModelNoItems = createServerTests(
-  "/payload/xml/complexArrayModelNoItems",
-  complexArrayModelNoItems,
+const Payload_Xml_UnwrappedArrayOfModelNoItems = createServerTests(
+  "/payload/xml/unwrappedArrayOfModelNoItems",
+  unwrappedArrayOfModelNoItems,
 );
-Scenarios.Payload_Xml_ComplexArrayNoItemsValue_get = Payload_Xml_ComplexArrayModelNoItems.get;
-Scenarios.Payload_Xml_ComplexArrayNoItemsValue_put = Payload_Xml_ComplexArrayModelNoItems.put;
+Scenarios.Payload_Xml_UnwrappedArrayNoItemsValue_get = Payload_Xml_UnwrappedArrayOfModelNoItems.get;
+Scenarios.Payload_Xml_UnwrappedArrayNoItemsValue_put = Payload_Xml_UnwrappedArrayOfModelNoItems.put;
