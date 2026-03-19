@@ -105,7 +105,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
-            ClientSettings = ClientOptions != null ? new ClientSettingsProvider(_inputClient, this) : null;
+            ClientSettings = ClientOptions != null
+                && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
+                && !ClientOptions.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
+                ? new ClientSettingsProvider(_inputClient, this) : null;
             IsMultiServiceClient = _inputClient.IsMultiServiceClient;
 
             var apiKey = _inputAuth?.ApiKey;
@@ -916,7 +919,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ValueExpression perRetryPolicies;
-            if (authPolicyParam != null && authFields != null)
+            if (authPolicyParam != null)
             {
                 // Internal implementation constructor: use the authenticationPolicy parameter directly
                 perRetryPoliciesList.Add(authPolicyParam);
