@@ -29,6 +29,10 @@ export default defineConfig({
           "docs",
           current,
         )),
+        {
+          label: "🚀 Release Notes",
+          link: "/release-notes/",
+        },
         ...(await processSidebar(
           resolve(import.meta.dirname, "src/content/docs"),
           "release-notes",

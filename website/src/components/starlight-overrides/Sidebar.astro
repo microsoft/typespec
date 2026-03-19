@@ -8,20 +8,18 @@ const pathname = Astro.url.pathname;
 
 type SidebarEntry = (typeof sidebar)[number];
 
-function isReleaseNotesRoute(path: string): boolean {
-  return path.startsWith("/release-notes");
+const isReleaseNotes = pathname.startsWith("/release-notes");
+
+/** Returns true for sidebar groups that contain release notes entries. */
+function isReleaseNotesGroup(entry: SidebarEntry): boolean {
+  if (entry.type !== "group") return false;
+  return entry.entries.some(
+    (e) => e.type === "link" && e.href.startsWith("/release-notes/"),
+  );
 }
 
-function hasReleaseNotesLink(entry: SidebarEntry): boolean {
-  if (entry.type === "link") {
-    return entry.href.startsWith("/release-notes");
-  }
-  return entry.entries.some(hasReleaseNotesLink);
-}
-
-const isReleaseNotes = isReleaseNotesRoute(pathname);
 const filtered = sidebar.filter((entry) =>
-  isReleaseNotes ? hasReleaseNotesLink(entry) : !hasReleaseNotesLink(entry),
+  isReleaseNotes ? isReleaseNotesGroup(entry) : !isReleaseNotesGroup(entry),
 );
 ---
 
