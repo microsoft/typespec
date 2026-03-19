@@ -1,4 +1,4 @@
-import { isMatcher } from "./match-engine.js";
+import { isMatcher, type MockValueMatcher } from "./match-engine.js";
 import { MockBody, MockMultipartBody, Resolver, ResolverConfig } from "./types.js";
 
 /**
@@ -76,6 +76,8 @@ export function multipart(
 export interface DynValue extends Resolver {
   readonly isDyn: true;
   (config: ResolverConfig): string;
+  /** Returns all matchers embedded in this template with their serialized values. */
+  getMatchers(config: ResolverConfig): Array<{ serialized: string; matcher: MockValueMatcher }>;
 }
 
 export interface DynItem<T extends keyof ResolverConfig> {
@@ -110,7 +112,29 @@ export function dyn(strings: readonly string[], ...values: unknown[]): DynValue 
   template.isDyn = true as const;
   template.serialize = template;
   template.resolve = template;
+  template.getMatchers = (config: ResolverConfig) => {
+    const result: Array<{ serialized: string; matcher: MockValueMatcher }> = [];
+    for (const v of values) {
+      collectMatchers(v, config, result);
+    }
+    return result;
+  };
   return template;
+}
+
+function collectMatchers(
+  value: unknown,
+  config: ResolverConfig,
+  out: Array<{ serialized: string; matcher: MockValueMatcher }>,
+): void {
+  if (isMatcher(value)) {
+    out.push({ serialized: String(value.serialize(config)), matcher: value });
+  } else if (typeof value === "function" && "isDyn" in value && value.isDyn) {
+    const dynVal = value as DynValue;
+    if (dynVal.getMatchers) {
+      out.push(...dynVal.getMatchers(config));
+    }
+  }
 }
 
 export interface ExpandDynsOptions {

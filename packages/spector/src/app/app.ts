@@ -115,13 +115,12 @@ function validateBody(
           break;
         }
         case "application/xml": {
-          const raw =
-            typeof body.rawContent === "string"
-              ? body.rawContent
-              : body.rawContent?.serialize(config);
-          req.expect.xmlBodyEquals(
-            (raw as any).replace(`<?xml version='1.0' encoding='UTF-8'?>`, ""),
-          );
+          if (typeof body.rawContent === "string") {
+            const xmlStr = body.rawContent.replace(`<?xml version='1.0' encoding='UTF-8'?>`, "");
+            req.expect.xmlBodyEquals(xmlStr);
+          } else if (body.rawContent) {
+            req.expect.xmlBodyEquals(body.rawContent, config);
+          }
           break;
         }
         default: {

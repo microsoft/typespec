@@ -9,7 +9,7 @@ import {
   validateRawBodyEquals,
   validateXmlBodyEquals,
 } from "./request-validations.js";
-import { CollectionFormat, RequestExt } from "./types.js";
+import { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./types.js";
 import { ValidationError } from "./validation-error.js";
 
 /**
@@ -96,12 +96,15 @@ export class RequestExpectation {
   }
 
   /**
-   * Expect the body of the request to be semantically equivalent to the provided XML string.
-   * The XML declaration prefix will automatically be added to expectedBody.
-   * @param expectedBody expected value of request body.
+   * Expect the body of the request to be semantically equivalent to the provided XML.
+   * Accepts a plain string or a Resolver (e.g. from `xml\`...\``).
+   * When a Resolver with matchers is provided, matcher-aware comparison is used.
+   * The XML declaration prefix will automatically be added.
+   * @param expectedBody expected XML body as a string or Resolver.
+   * @param config resolver config (required when expectedBody is a Resolver).
    * @throws {ValidationError} if there is an error.
    */
-  public xmlBodyEquals(expectedBody: string): void {
-    validateXmlBodyEquals(this.originalRequest, expectedBody);
+  public xmlBodyEquals(expectedBody: string | Resolver, config?: ResolverConfig): void {
+    validateXmlBodyEquals(this.originalRequest, expectedBody, config);
   }
 }
