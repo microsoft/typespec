@@ -1,7 +1,10 @@
 export {
+  createMatcher,
+  err,
   isMatcher,
   match,
   matchValues,
+  ok,
   type MatchResult,
   type MockValueMatcher,
 } from "./matchers/index.js";
