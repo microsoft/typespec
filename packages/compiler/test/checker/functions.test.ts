@@ -91,8 +91,8 @@ describe("declaration", () => {
   it("errors if function is missing extern modifier", async () => {
     const diagnostics = await tester.diagnose(`fn testFn();`);
     expectFunctionDiagnostics(diagnostics, {
-      code: "function-extern",
-      message: "A function declaration must be prefixed with the 'extern' modifier.",
+      code: "invalid-modifier",
+      message: "Declaration of type 'function' is missing required modifier 'extern'.",
     });
   });
 
@@ -1681,6 +1681,17 @@ describe("function calls within template declarations", () => {
         extern fn f(T: unknown): valueof unknown;
 
         alias Test<T> = f(T);
+      `);
+
+    expectFunctionDiagnosticsEmpty(diagnostics);
+    strictEqual(receivedTypes.length, 0);
+  });
+
+  it("allows passing value-constrained template parameters to valueof function parameters", async () => {
+    const diagnostics = await tester.diagnose(`
+        extern fn f(T: valueof uint32): valueof uint32;
+
+        alias Test<V extends valueof uint32> = f(V);
       `);
 
     expectFunctionDiagnosticsEmpty(diagnostics);

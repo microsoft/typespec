@@ -201,7 +201,7 @@ async function processFile(file, options) {
         console.log(pc.yellow(`Skipping: ${relativePath}`));
       } else if (action === "abort") {
         console.log(pc.red("Aborting processing."));
-        throw new Error("Processing aborted by user");
+        throw new Error("Processing aborted by user", { cause: error });
       }
     }
     return { status: "failed", relativePath, errorDetails };

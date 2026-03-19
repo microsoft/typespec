@@ -2509,6 +2509,48 @@ Expected response body:
 }
 ```
 
+### Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post
+
+- Endpoint: `post /payload/pageable/server-driven-pagination/link/initial-post`
+
+Test case for initial POST request followed by GET for next pages using link pagination.
+The initial request is a POST with a filter body, and the next page is fetched using a GET request on the next link.
+
+Two requests need to be tested.
+
+1. Initial request (POST):
+   Expected route: /payload/pageable/server-driven-pagination/link/initial-post
+   Expected request body:
+
+```json
+{ "filter": "foo eq bar" }
+```
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc"
+}
+```
+
+2. Next page request (GET):
+   Expected route: /payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderNestedResponseBody
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body`
@@ -3207,6 +3249,90 @@ Expected request body:
 </ModelWithEnum>
 ```
 
+### Payload_Xml_ModelWithNamespaceOnPropertiesValue_get
+
+- Endpoint: `get /payload/xml/modelWithNamespaceOnProperties`
+
+Expected response body:
+
+```xml
+<smp:ModelWithNamespaceOnProperties xmlns:smp="http://example.com/schema" xmlns:ns2="http://example.com/ns2">
+  <id>123</id>
+  <smp:title>The Great Gatsby</smp:title>
+  <ns2:author>F. Scott Fitzgerald</ns2:author>
+</smp:ModelWithNamespaceOnProperties>
+```
+
+### Payload_Xml_ModelWithNamespaceOnPropertiesValue_put
+
+- Endpoint: `put /payload/xml/modelWithNamespaceOnProperties`
+
+Expected request body:
+
+```xml
+<smp:ModelWithNamespaceOnProperties xmlns:smp="http://example.com/schema" xmlns:ns2="http://example.com/ns2">
+  <id>123</id>
+  <smp:title>The Great Gatsby</smp:title>
+  <ns2:author>F. Scott Fitzgerald</ns2:author>
+</smp:ModelWithNamespaceOnProperties>
+```
+
+### Payload_Xml_ModelWithNamespaceValue_get
+
+- Endpoint: `get /payload/xml/modelWithNamespace`
+
+Expected response body:
+
+```xml
+<smp:ModelWithNamespace xmlns:smp="http://example.com/schema">
+  <id>123</id>
+  <title>The Great Gatsby</title>
+</smp:ModelWithNamespace>
+```
+
+### Payload_Xml_ModelWithNamespaceValue_put
+
+- Endpoint: `put /payload/xml/modelWithNamespace`
+
+Expected request body:
+
+```xml
+<smp:ModelWithNamespace xmlns:smp="http://example.com/schema">
+  <id>123</id>
+  <title>The Great Gatsby</title>
+</smp:ModelWithNamespace>
+```
+
+### Payload_Xml_ModelWithNestedModelValue_get
+
+- Endpoint: `get /payload/xml/modelWithNestedModel`
+
+Expected response body:
+
+```xml
+<ModelWithNestedModel>
+  <nested>
+    <name>foo</name>
+    <age>123</age>
+  </nested>
+</ModelWithNestedModel>
+```
+
+### Payload_Xml_ModelWithNestedModelValue_put
+
+- Endpoint: `put /payload/xml/modelWithNestedModel`
+
+Expected request body:
+
+```xml
+<ModelWithNestedModel>
+  <nested>
+    <name>foo</name>
+    <age>123</age>
+  </nested>
+</ModelWithNestedModel>
+```
+
 ### Payload_Xml_ModelWithOptionalFieldValue_get
 
 - Endpoint: `get /payload/xml/modelWithOptionalField`
@@ -3267,6 +3393,32 @@ Expected request body:
 </ModelWithRenamedArrays>
 ```
 
+### Payload_Xml_ModelWithRenamedAttributeValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedAttribute`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedAttribute xml-id="123">
+  <title>The Great Gatsby</title>
+  <author>F. Scott Fitzgerald</author>
+</ModelWithRenamedAttribute>
+```
+
+### Payload_Xml_ModelWithRenamedAttributeValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedAttribute`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedAttribute xml-id="123">
+  <title>The Great Gatsby</title>
+  <author>F. Scott Fitzgerald</author>
+</ModelWithRenamedAttribute>
+```
+
 ### Payload_Xml_ModelWithRenamedFieldsValue_get
 
 - Endpoint: `get /payload/xml/modelWithRenamedFields`
@@ -3303,6 +3455,178 @@ Expected request body:
     <age>456</age>
   </OutputData>
 </ModelWithRenamedFieldsSrc>
+```
+
+### Payload_Xml_ModelWithRenamedNestedModelValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedNestedModel`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedNestedModel>
+  <author>
+    <name>foo</name>
+  </author>
+</ModelWithRenamedNestedModel>
+```
+
+### Payload_Xml_ModelWithRenamedNestedModelValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedNestedModel`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedNestedModel>
+  <author>
+    <name>foo</name>
+  </author>
+</ModelWithRenamedNestedModel>
+```
+
+### Payload_Xml_ModelWithRenamedPropertyValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedProperty`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedProperty>
+  <renamedTitle>foo</renamedTitle>
+  <author>bar</author>
+</ModelWithRenamedProperty>
+```
+
+### Payload_Xml_ModelWithRenamedPropertyValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedProperty`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedProperty>
+  <renamedTitle>foo</renamedTitle>
+  <author>bar</author>
+</ModelWithRenamedProperty>
+```
+
+### Payload_Xml_ModelWithRenamedUnwrappedModelArrayValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedUnwrappedModelArray`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedUnwrappedModelArray>
+  <ModelItem>
+    <name>foo</name>
+    <age>123</age>
+  </ModelItem>
+  <ModelItem>
+    <name>bar</name>
+    <age>456</age>
+  </ModelItem>
+</ModelWithRenamedUnwrappedModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedUnwrappedModelArrayValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedUnwrappedModelArray`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedUnwrappedModelArray>
+  <ModelItem>
+    <name>foo</name>
+    <age>123</age>
+  </ModelItem>
+  <ModelItem>
+    <name>bar</name>
+    <age>456</age>
+  </ModelItem>
+</ModelWithRenamedUnwrappedModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedWrappedAndItemModelArrayValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedWrappedAndItemModelArray`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedWrappedAndItemModelArray>
+  <AllBooks>
+    <XmlBook>
+      <title>The Great Gatsby</title>
+    </XmlBook>
+    <XmlBook>
+      <title>Les Miserables</title>
+    </XmlBook>
+  </AllBooks>
+</ModelWithRenamedWrappedAndItemModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedWrappedAndItemModelArrayValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedWrappedAndItemModelArray`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedWrappedAndItemModelArray>
+  <AllBooks>
+    <XmlBook>
+      <title>The Great Gatsby</title>
+    </XmlBook>
+    <XmlBook>
+      <title>Les Miserables</title>
+    </XmlBook>
+  </AllBooks>
+</ModelWithRenamedWrappedAndItemModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedWrappedModelArrayValue_get
+
+- Endpoint: `get /payload/xml/modelWithRenamedWrappedModelArray`
+
+Expected response body:
+
+```xml
+<ModelWithRenamedWrappedModelArray>
+  <AllItems>
+    <SimpleModel>
+      <name>foo</name>
+      <age>123</age>
+    </SimpleModel>
+    <SimpleModel>
+      <name>bar</name>
+      <age>456</age>
+    </SimpleModel>
+  </AllItems>
+</ModelWithRenamedWrappedModelArray>
+```
+
+### Payload_Xml_ModelWithRenamedWrappedModelArrayValue_put
+
+- Endpoint: `put /payload/xml/modelWithRenamedWrappedModelArray`
+
+Expected request body:
+
+```xml
+<ModelWithRenamedWrappedModelArray>
+  <AllItems>
+    <SimpleModel>
+      <name>foo</name>
+      <age>123</age>
+    </SimpleModel>
+    <SimpleModel>
+      <name>bar</name>
+      <age>456</age>
+    </SimpleModel>
+  </AllItems>
+</ModelWithRenamedWrappedModelArray>
 ```
 
 ### Payload_Xml_ModelWithSimpleArraysValue_get
@@ -3403,6 +3727,74 @@ Expected request body:
     <int32>2</int32>
   </counts>
 </ModelWithUnwrappedArray>
+```
+
+### Payload_Xml_ModelWithUnwrappedModelArrayValue_get
+
+- Endpoint: `get /payload/xml/modelWithUnwrappedModelArray`
+
+Expected response body:
+
+```xml
+<ModelWithUnwrappedModelArray>
+  <items>
+    <name>foo</name>
+    <age>123</age>
+  </items>
+  <items>
+    <name>bar</name>
+    <age>456</age>
+  </items>
+</ModelWithUnwrappedModelArray>
+```
+
+### Payload_Xml_ModelWithUnwrappedModelArrayValue_put
+
+- Endpoint: `put /payload/xml/modelWithUnwrappedModelArray`
+
+Expected request body:
+
+```xml
+<ModelWithUnwrappedModelArray>
+  <items>
+    <name>foo</name>
+    <age>123</age>
+  </items>
+  <items>
+    <name>bar</name>
+    <age>456</age>
+  </items>
+</ModelWithUnwrappedModelArray>
+```
+
+### Payload_Xml_ModelWithWrappedPrimitiveCustomItemNamesValue_get
+
+- Endpoint: `get /payload/xml/modelWithWrappedPrimitiveCustomItemNames`
+
+Expected response body:
+
+```xml
+<ModelWithWrappedPrimitiveCustomItemNames>
+  <ItemsTags>
+    <ItemName>fiction</ItemName>
+    <ItemName>classic</ItemName>
+  </ItemsTags>
+</ModelWithWrappedPrimitiveCustomItemNames>
+```
+
+### Payload_Xml_ModelWithWrappedPrimitiveCustomItemNamesValue_put
+
+- Endpoint: `put /payload/xml/modelWithWrappedPrimitiveCustomItemNames`
+
+Expected request body:
+
+```xml
+<ModelWithWrappedPrimitiveCustomItemNames>
+  <ItemsTags>
+    <ItemName>fiction</ItemName>
+    <ItemName>classic</ItemName>
+  </ItemsTags>
+</ModelWithWrappedPrimitiveCustomItemNames>
 ```
 
 ### Payload_Xml_SimpleModelValue_get
@@ -3976,6 +4368,13 @@ Expected header parameters:
 - Endpoint: `post /special-headers/repeatability/immediateSuccess`
 
 Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
+
+### SpecialWords_ExtensibleStrings_putExtensibleStringValue
+
+- Endpoint: `put /special-words/extensible-strings/string`
+
+Verify that enum members with special word names can be sent and received properly.
+Send 'class' and expect the same value back.
 
 ### SpecialWords_ModelProperties_dictMethods
 

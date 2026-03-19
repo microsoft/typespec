@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Client.Structure.Service;
@@ -17,7 +18,12 @@ namespace Client.Structure.RenamedOperation
 
         public RenamedOperationClient(Uri endpoint, ClientType client) : this(endpoint, client, new RenamedOperationClientOptions()) => throw null;
 
-        public RenamedOperationClient(Uri endpoint, ClientType client, RenamedOperationClientOptions options) => throw null;
+        internal RenamedOperationClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, ClientType client, RenamedOperationClientOptions options) => throw null;
+
+        public RenamedOperationClient(Uri endpoint, ClientType client, RenamedOperationClientOptions options) : this(null, endpoint, client, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public RenamedOperationClient(RenamedOperationClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Client ?? default, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

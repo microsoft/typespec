@@ -1,20 +1,13 @@
 import { assert, expect, it } from "vitest";
 import { Enum, getDoc, StringLiteral, Union } from "../../src/index.js";
-import { expectDiagnostics } from "../../src/testing/expect.js";
-import { createTestHost } from "../../src/testing/test-host.js";
-import { createTestWrapper } from "../../src/testing/test-utils.js";
+import { expectDiagnostics, t } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
-import { createContextMock, getTypes } from "./utils.js";
+import { Tester } from "../tester.js";
 
 it("can create a union", async () => {
-  const {
-    context: { program },
-  } = await getTypes(
-    `
-    model Foo {}
-    `,
-    ["Foo"],
-  );
+  const { program } = await Tester.compile(t.code`
+    model ${t.model("Foo")} {}
+  `);
 
   const union = $(program).union.create({
     name: "Foo",
@@ -27,22 +20,13 @@ it("can create a union", async () => {
 });
 
 it("can create a union from array of types", async () => {
-  const {
-    Foo,
-    Bar,
-    Qux,
-    FooBar,
-    context: { program },
-  } = await getTypes(
-    `
+  const { Foo, Bar, Qux, FooBar, program } = await Tester.compile(t.code`
     @doc("docs for foo")
-    model Foo {}
-    model Bar {}
-    scalar Qux extends string;
-    alias FooBar = Foo | Bar;
-    `,
-    ["Foo", "Bar", "Qux", "FooBar"],
-  );
+    model ${t.model("Foo")} {}
+    model ${t.model("Bar")} {}
+    scalar ${t.scalar("Qux")} extends string;
+    alias ${t.type("FooBar")} = Foo | Bar;
+  `);
   const union = $(program).union.create([Foo, Bar, Qux, FooBar]);
   expect(union).toBeDefined();
 
@@ -67,32 +51,25 @@ it("can create a union from array of types", async () => {
 });
 
 it("can check if the union is extensible", async () => {
-  const {
-    Foo,
-    Bar,
-    context: { program },
-  } = await getTypes(
-    `
-    union Foo {
+  const { Foo, Bar, program } = await Tester.compile(t.code`
+    union ${t.union("Foo")} {
       string;
       "hi";
       "bye";
     }
 
-    union Bar {
+    union ${t.union("Bar")} {
       "hi";
       "bye";
     }
-    `,
-    ["Foo", "Bar"],
-  );
+  `);
 
   expect($(program).union.isExtensible(Foo as Union)).toBe(true);
   expect($(program).union.isExtensible(Bar as Union)).toBe(false);
 });
 
 it("can build unions from enums", async () => {
-  const { program } = await createContextMock();
+  const { program } = await Tester.compile("");
   const tk = $(program);
 
   const srcEnum = $(program).enum.create({
@@ -110,7 +87,7 @@ it("can build unions from enums", async () => {
 });
 
 it("can build unions from enums with custom values", async () => {
-  const { program } = await createContextMock();
+  const { program } = await Tester.compile("");
   const tk = $(program);
 
   const srcEnum = tk.enum.create({
@@ -133,20 +110,15 @@ it("can build unions from enums with custom values", async () => {
 });
 
 it("preserves documentation when copying", async () => {
-  const {
-    Foo,
-    context: { program },
-  } = await getTypes(
-    `
+  const { Foo, program } = await Tester.compile(t.code`
     @doc("enum named foo")
-    enum Foo {
+    enum ${t.enum("Foo")} {
       /**
        * doc-comment
        */
       a: 1;
-    }`,
-    ["Foo"],
-  );
+    }
+  `);
 
   const union = $(program).union.createFromEnum(Foo as Enum);
 
@@ -155,21 +127,13 @@ it("preserves documentation when copying", async () => {
 });
 
 it("can get the discriminated union type", async () => {
-  const {
-    Pet,
-    Cat,
-    Dog,
-    context: { program },
-  } = await getTypes(
-    `
-      @discriminated
-      union Pet{ cat: Cat, dog: Dog }
+  const { Pet, Cat, Dog, program } = await Tester.compile(t.code`
+    @discriminated
+    union ${t.union("Pet")}{ cat: Cat, dog: Dog }
 
-      model Cat { name: string, meow: boolean }
-      model Dog { name: string, bark: boolean }
-    `,
-    ["Pet", "Cat", "Dog"],
-  );
+    model ${t.model("Cat")} { name: string, meow: boolean }
+    model ${t.model("Dog")} { name: string, bark: boolean }
+  `);
 
   assert.ok(Pet.kind === "Union");
 
@@ -184,36 +148,29 @@ it("can get the discriminated union type", async () => {
 });
 
 it("can get diagnostics from getDiscriminatedUnion", async () => {
-  const runner = createTestWrapper(await createTestHost());
-  const [{ Pet }] = await runner.compileAndDiagnose(`
-      @test
-      @discriminated
-      union Pet{ Cat, Dog }
+  const [{ Pet, program }] = await Tester.compileAndDiagnose(t.code`
+    @discriminated
+    union ${t.union("Pet")}{ Cat, Dog }
 
-      model Cat { name: string, meow: boolean }
-      model Dog { name: string, bark: boolean }
+    model Cat { name: string, meow: boolean }
+    model Dog { name: string, bark: boolean }
   `);
 
   assert.ok(Pet.kind === "Union");
 
-  const [, diagnostics] = $(runner.program).union.getDiscriminatedUnion.withDiagnostics(Pet);
+  const [, diagnostics] = $(program).union.getDiscriminatedUnion.withDiagnostics(Pet);
   expectDiagnostics(diagnostics, {
     code: "invalid-discriminated-union-variant",
   });
 });
 
 it("can check if an entity is a union", async () => {
-  const {
-    Foo,
-    context: { program },
-  } = await getTypes(
-    `
-    union Foo {
+  const { Foo, program } = await Tester.compile(t.code`
+    union ${t.union("Foo")} {
       hi: "hello",
       bye: "goodbye"
-    }`,
-    ["Foo"],
-  );
+    }
+  `);
   const tk = $(program);
 
   expect(tk.union.is(Foo)).toBe(true);

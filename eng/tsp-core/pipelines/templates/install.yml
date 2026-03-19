@@ -2,7 +2,7 @@
 parameters:
   - name: nodeVersion
     type: string
-    default: 22.x
+    default: 24.x
 
   - name: useDotNet
     type: string
@@ -23,12 +23,6 @@ steps:
         displayName: Install .NET
         inputs:
           version: 8.0.x
-
-  - task: Cache@2
-    inputs:
-      key: 'pnpm | "$(Agent.OS)" | pnpm-lock.yaml'
-      path: ${{ parameters.pnpmStorePath }}
-    displayName: Cache pnpm store
 
   - script: npm install -g pnpm # Pnpm manage-package-manager-versions will respect packageManager field
     displayName: Install pnpm

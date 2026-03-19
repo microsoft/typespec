@@ -11,7 +11,7 @@ stages:
 
         variables:
           TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
-          TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+          TYPESPEC_SKIP_WEBSITE_BUILD: true # Disable docusaurus build
 
         strategy:
           matrix:
@@ -38,7 +38,7 @@ stages:
 
         variables:
           TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
-          TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+          TYPESPEC_SKIP_WEBSITE_BUILD: true # Disable website build
 
         strategy:
           matrix:

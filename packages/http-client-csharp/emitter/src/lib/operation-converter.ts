@@ -5,6 +5,7 @@ import {
   getClientNamespace,
   getClientOptions,
   getHttpOperationParameter,
+  getParamAlias,
   isHttpMetadata,
   SdkBodyParameter,
   SdkBuiltInKinds,
@@ -562,6 +563,8 @@ export function fromMethodParameter(
 
   const parameterType = fromSdkType(sdkContext, p.type, p, namespace);
 
+  const paramAlias = p.__raw ? getParamAlias(sdkContext, p.__raw) : undefined;
+
   retVar = {
     kind: "method",
     name: p.name,
@@ -578,6 +581,7 @@ export function fromMethodParameter(
     readOnly: isReadOnly(p),
     access: p.access,
     decorators: p.decorators,
+    paramAlias,
   };
 
   sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);

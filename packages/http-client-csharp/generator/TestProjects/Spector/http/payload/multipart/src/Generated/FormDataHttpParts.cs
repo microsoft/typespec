@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace Payload.MultiPart._FormData.HttpParts
     public partial class FormDataHttpParts
     {
         protected FormDataHttpParts() => throw null;
+
+        internal FormDataHttpParts(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

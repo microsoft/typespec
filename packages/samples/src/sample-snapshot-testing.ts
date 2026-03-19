@@ -53,8 +53,9 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
     existingSnapshots = await readFilesInDirRecursively(config.outputDir);
   });
 
-  afterAll(async function (context: Readonly<RunnerTestSuite | RunnerTestFile>) {
-    if (context.tasks.some((x) => x.mode === "skip")) {
+  // eslint-disable-next-line no-empty-pattern
+  afterAll(async function ({}, { tasks }: Readonly<RunnerTestSuite | RunnerTestFile>) {
+    if (tasks.some((x) => x.mode === "skip")) {
       return; // Not running the full test suite, so don't bother checking snapshots.
     }
 
@@ -129,7 +130,9 @@ function defineSampleSnaphotTest(
           await writeFile(snapshotPath, content);
           context.registerSnapshot(resolvePath(sample.name, relativePath));
         } catch (e) {
-          throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`);
+          throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`, {
+            cause: e,
+          });
         }
       }
     } else {
@@ -183,7 +186,7 @@ async function readFilesInDirRecursively(dir: string): Promise<string[]> {
     if (isEnoentError(e)) {
       return [];
     } else {
-      throw new Error(`Failed to read dir "${dir}"\n Error: ${e}`);
+      throw new Error(`Failed to read dir "${dir}"\n Error: ${e}`, { cause: e });
     }
   }
   const files: string[] = [];

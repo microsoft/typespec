@@ -5,6 +5,8 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +14,17 @@ namespace Authentication.Union
 {
     public partial class UnionClient
     {
+        private const string AuthorizationHeader = "x-ms-api-key";
+        /// <summary> The OAuth2 flows supported by the service. </summary>
+        private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
+        {
+            new Dictionary<string, object>
+            {
+                { GetTokenOptions.ScopesPropertyName, new string[] { "https://security.microsoft.com/.default" } },
+                { GetTokenOptions.AuthorizationUrlPropertyName, "https://login.microsoftonline.com/common/oauth2/authorize" }
+            }
+        };
+
         protected UnionClient() => throw null;
 
         public UnionClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new UnionClientOptions()) => throw null;
@@ -22,9 +35,14 @@ namespace Authentication.Union
 
         public UnionClient(AuthenticationTokenProvider tokenProvider, UnionClientOptions options) : this(new Uri("http://localhost:3000"), tokenProvider, options) => throw null;
 
-        public UnionClient(Uri endpoint, ApiKeyCredential credential, UnionClientOptions options) => throw null;
+        internal UnionClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, UnionClientOptions options) => throw null;
 
-        public UnionClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, UnionClientOptions options) => throw null;
+        public UnionClient(Uri endpoint, ApiKeyCredential credential, UnionClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options) => throw null;
+
+        public UnionClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, UnionClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public UnionClient(UnionClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -475,6 +475,38 @@ public final class EnumServiceAsyncClient {
     }
 
     /**
+     * The getWrongBody operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * String
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * String
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return simple string along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getWrongBodyWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.getWrongBodyWithResponseAsync(body, requestOptions);
+    }
+
+    /**
      * The getColor operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -1041,5 +1073,26 @@ public final class EnumServiceAsyncClient {
         return setStringEnumArrayHeaderWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The getWrongBody operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return simple string on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<String> getWrongBody(String body) {
+        // Generated convenience method for getWrongBodyWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getWrongBodyWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toString());
     }
 }

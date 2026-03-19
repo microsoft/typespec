@@ -6,9 +6,8 @@
     "skipLibCheck": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
     "lib": ["DOM", "ES2022"],
-    "types": ["vite/client", "@emotion/react"]
+    "types": ["vite/client"]
   },
   "include": ["src"]
 }

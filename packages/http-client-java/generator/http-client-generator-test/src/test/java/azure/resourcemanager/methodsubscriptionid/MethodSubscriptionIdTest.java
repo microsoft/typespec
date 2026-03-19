@@ -6,6 +6,8 @@ package azure.resourcemanager.methodsubscriptionid;
 import azure.resourcemanager.methodsubscriptionid.fluent.models.SubscriptionResource1Inner;
 import azure.resourcemanager.methodsubscriptionid.fluent.models.SubscriptionResource2Inner;
 import azure.resourcemanager.methodsubscriptionid.fluent.models.SubscriptionResourceInner;
+import azure.resourcemanager.methodsubscriptionid.models.Operation;
+import azure.resourcemanager.methodsubscriptionid.models.OperationDisplay;
 import azure.resourcemanager.methodsubscriptionid.models.ResourceGroupResource;
 import azure.resourcemanager.methodsubscriptionid.models.ResourceGroupResourceProperties;
 import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResource;
@@ -15,6 +17,8 @@ import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResource2;
 import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResource2Properties;
 import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResourceProperties;
 import com.azure.core.management.Region;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
@@ -43,6 +47,23 @@ public class MethodSubscriptionIdTest {
 
     private final MethodSubscriptionIdManager manager
         = MethodSubscriptionIdManager.authenticate(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile());
+
+    @Test
+    public void testOperationsList() {
+        List<Operation> operationList = manager.operations().list().stream().collect(Collectors.toList());
+        Assertions.assertFalse(operationList.isEmpty());
+        Assertions.assertEquals(1, operationList.size());
+        Operation operation = operationList.get(0);
+        Assertions.assertNotNull(operation);
+        Assertions.assertEquals("Azure.ResourceManager.MethodSubscriptionId/services/read", operation.name());
+        Assertions.assertFalse(operation.isDataAction());
+        OperationDisplay display = operation.display();
+        Assertions.assertNotNull(display);
+        Assertions.assertEquals("Azure.ResourceManager.MethodSubscriptionId", display.provider());
+        Assertions.assertEquals("services", display.resource());
+        Assertions.assertEquals("Lists services", display.operation());
+        Assertions.assertEquals("Lists registered services", display.description());
+    }
 
     @Test
     public void testTwoSubscriptionResourcesMethodLevelSubscriptionResource1Operations() {
