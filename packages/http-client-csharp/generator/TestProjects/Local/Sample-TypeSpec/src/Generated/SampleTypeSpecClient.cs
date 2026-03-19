@@ -1889,6 +1889,16 @@ namespace SampleTypeSpec
             return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
         }
 
+        /// <summary> Initializes a new instance of Notebooks. </summary>
+        /// <param name="notebook"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="notebook"/> is null. </exception>
+        public virtual Notebooks GetNotebooksClient(string notebook)
+        {
+            Argument.AssertNotNull(notebook, nameof(notebook));
+
+            return new Notebooks(Pipeline, _endpoint, notebook);
+        }
+
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()
         {

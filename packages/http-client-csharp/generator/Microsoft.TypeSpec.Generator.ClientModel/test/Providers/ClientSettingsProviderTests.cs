@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -42,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void TestProperties_WithEndpoint()
+        public void TestGeneratedSettings_WithStringEndpoint()
         {
             var inputParameters = new[]
             {
@@ -59,13 +60,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsNotNull(settingsProvider);
 
+            // Validate Endpoint property is string? (not Uri?)
             var properties = settingsProvider!.Properties;
-            // Should have Endpoint and Options properties
-            var endpointProp = properties.FirstOrDefault(p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
-            Assert.IsNotNull(endpointProp, "Settings should have an Endpoint property of type Uri?");
+            var endpointProp = properties.FirstOrDefault(p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(string), isNullable: true)));
+            Assert.IsNotNull(endpointProp, "Settings should have an Endpoint property of type string?");
 
             var optionsProp = properties.FirstOrDefault(p => p.Name == "Options");
             Assert.IsNotNull(optionsProp, "Settings should have an Options property");
+
+            // Validate BindCore method
+            var bindCoreMethod = settingsProvider.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod, "Settings should have a BindCore method");
+            Assert.AreEqual(
+                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override,
+                bindCoreMethod!.Signature.Modifiers);
+            Assert.AreEqual(1, bindCoreMethod.Signature.Parameters.Count);
+            Assert.AreEqual("section", bindCoreMethod.Signature.Parameters[0].Name);
+            var bodyString = bindCoreMethod.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("IsNullOrEmpty"), "BindCore should use string.IsNullOrEmpty for string endpoint binding");
+
+            // Validate full generated output
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -83,14 +100,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void TestBindCoreMethod_WithEndpoint()
+        public void TestGeneratedSettings_WithUrlEndpoint()
         {
             var inputParameters = new[]
             {
                 InputFactory.EndpointParameter(
                     "endpoint",
-                    InputPrimitiveType.String,
-                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    InputPrimitiveType.Url,
                     scope: InputParameterScope.Client,
                     isEndpoint: true)
             };
@@ -100,24 +116,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsNotNull(settingsProvider);
 
-            var methods = settingsProvider!.Methods;
-            var bindCoreMethod = methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
-            Assert.IsNotNull(bindCoreMethod, "Settings should have a BindCore method");
+            // Validate Endpoint property is Uri?
+            var properties = settingsProvider!.Properties;
+            var endpointProp = properties.FirstOrDefault(p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
+            Assert.IsNotNull(endpointProp, "Settings should have an Endpoint property of type Uri?");
 
-            // Validate it's protected override
-            Assert.AreEqual(
-                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override,
-                bindCoreMethod!.Signature.Modifiers);
+            // Validate BindCore uses Uri.TryCreate
+            var bindCoreMethod = settingsProvider.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("TryCreate"), "BindCore should use Uri.TryCreate for Uri endpoint binding");
 
-            // Validate it has section parameter
-            Assert.AreEqual(1, bindCoreMethod.Signature.Parameters.Count);
-            Assert.AreEqual("section", bindCoreMethod.Signature.Parameters[0].Name);
-
-            // Validate the body contains Uri.TryCreate for endpoint binding
-            var body = bindCoreMethod.BodyStatements;
-            Assert.IsNotNull(body);
-            var bodyString = body!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("TryCreate"), "BindCore should use Uri.TryCreate for endpoint binding");
+            // Validate full generated output
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -690,7 +703,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsNotNull(settingsProvider);
             var endpointProp = settingsProvider!.Properties.FirstOrDefault(
-                p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
+                p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(string), isNullable: true)));
             Assert.IsNotNull(endpointProp, "Sub-client settings should have an Endpoint property");
         }
 
@@ -758,7 +771,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(bindCoreMethod, "Sub-client settings should have BindCore method");
 
             var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("TryCreate"), "BindCore should bind the Endpoint via Uri.TryCreate");
+            Assert.IsTrue(bodyString.Contains("IsNullOrEmpty"), "BindCore should bind the Endpoint via string.IsNullOrEmpty for string endpoint");
             Assert.IsTrue(bodyString.Contains("GetSection") && bodyString.Contains("Options"),
                 "BindCore should bind the Options section");
         }
@@ -790,5 +803,114 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(ClientSettingsProvider.ClientSettingsType, settingsProvider!.Type.BaseType,
                 "Sub-client settings should inherit from ClientSettings");
         }
+
+        [Test]
+        public void TestGeneratedSettings_WithNamedStringEndpoint()
+        {
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "fullyQualifiedNamespace",
+                    InputPrimitiveType.String,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true,
+                    serverUrlTemplate: "https://{fullyQualifiedNamespace}")
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+            var settingsProvider = clientProvider.ClientSettings;
+
+            Assert.IsNotNull(settingsProvider);
+
+            // Validate FullyQualifiedNamespace property is string? (not Uri?)
+            var properties = settingsProvider!.Properties;
+            var endpointProp = properties.FirstOrDefault(p => p.Name == "FullyQualifiedNamespace" && p.Type.Equals(new CSharpType(typeof(string), isNullable: true)));
+            Assert.IsNotNull(endpointProp, "Settings should have a FullyQualifiedNamespace property of type string?");
+
+            // Validate full generated output
+            var writer = new TypeProviderWriter(settingsProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestSettingsConstructor_WithStringEndpoint()
+        {
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true,
+                    serverUrlTemplate: "https://{endpoint}")
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var settingsConstructor = clientProvider.Constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNotNull(settingsConstructor, "Expected a settings constructor for string endpoint");
+
+            // Validate the initializer references the settings endpoint property
+            var initializer = settingsConstructor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsFalse(initializer!.IsBase, "Settings constructor should use this() initializer");
+
+            // The initializer should have arguments for auth policy, endpoint, and options
+            Assert.IsTrue(initializer.Arguments.Count >= 3,
+                "Settings constructor initializer should have at least 3 arguments (auth, endpoint, options)");
+
+            // Validate the endpoint argument references settings?.Endpoint
+            var endpointArg = initializer.Arguments[1].ToDisplayString();
+            Assert.IsTrue(endpointArg.Contains("Endpoint"),
+                $"Endpoint argument should reference Endpoint property, got: {endpointArg}");
+
+            // Validate full generated client output
+            var writer = new TypeProviderWriter(clientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestSettingsConstructor_WithUrlEndpoint()
+        {
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var settingsConstructor = clientProvider.Constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNotNull(settingsConstructor, "Expected a settings constructor for URL endpoint");
+
+            // Validate the initializer references the settings endpoint property
+            var initializer = settingsConstructor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsFalse(initializer!.IsBase, "Settings constructor should use this() initializer");
+
+            // The initializer should have arguments for auth policy, endpoint, and options
+            Assert.IsTrue(initializer.Arguments.Count >= 3,
+                "Settings constructor initializer should have at least 3 arguments (auth, endpoint, options)");
+
+            // Validate the endpoint argument references settings?.Endpoint
+            var endpointArg = initializer.Arguments[1].ToDisplayString();
+            Assert.IsTrue(endpointArg.Contains("Endpoint"),
+                $"Endpoint argument should reference Endpoint property, got: {endpointArg}");
+
+            // Validate full generated client output
+            var writer = new TypeProviderWriter(clientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private static bool IsSettingsConstructor(ConstructorProvider c) =>
+            c.Signature?.Initializer != null &&
+            c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
+            c.Signature.Parameters.Any(p => p.Name == "settings");
     }
 }

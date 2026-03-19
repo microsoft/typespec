@@ -1,6 +1,6 @@
 import type { ImageMetadata } from "astro";
 import { getCollection } from "astro:content";
-import { join, normalize } from "path/posix";
+import { dirname, join, normalize } from "path/posix";
 
 const allImages = import.meta.glob<{ default: ImageMetadata }>(
   "../../content/blog/**/*.{png,jpg,jpeg,webp}",
@@ -26,14 +26,14 @@ export async function resolveBlogImagePath(
 
     // Find the post that matches either the slug or redirect_slug
     const post = posts.find(
-      (post) => post.data.slug === slug || post.data.redirect_slug === slug || post.slug === slug,
+      (post) => post.data.slug === slug || post.data.redirect_slug === slug || post.id === slug,
     );
 
-    if (post) {
-      // Use the collection entry's id which contains the directory name with date
-      // Collection entry id looks like: "2024-04-25-introducing/blog.md"
-      const dirWithDate = post.id.split("/")[0];
-      const path = normalize(join("../../content/blog/", dirWithDate, relativeImage));
+    if (post?.filePath) {
+      // Use the collection entry's filePath to extract the directory
+      // filePath looks like: "src/content/blog/2024-04-25-introducing/blog.md"
+      const dir = dirname(post.filePath).replace(/^.*\/content\/blog\//, "");
+      const path = normalize(join("../../content/blog/", dir, relativeImage));
       imageImporter = allImages[path];
     }
   }

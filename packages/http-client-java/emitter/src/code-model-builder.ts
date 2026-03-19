@@ -2829,13 +2829,15 @@ export class CodeModelBuilder {
     }
 
     // discriminator
-    if (type.discriminatedSubtypes && type.discriminatorProperty) {
+    if (type.discriminatorProperty) {
       objectSchema.discriminator = new Discriminator(
         this.processModelProperty(type.discriminatorProperty),
       );
-      for (const discriminatorValue in type.discriminatedSubtypes) {
-        const subType = type.discriminatedSubtypes[discriminatorValue];
-        this.processSchema(subType, subType.name);
+      if (type.discriminatedSubtypes) {
+        for (const discriminatorValue in type.discriminatedSubtypes) {
+          const subType = type.discriminatedSubtypes[discriminatorValue];
+          this.processSchema(subType, subType.name);
+        }
       }
     }
 

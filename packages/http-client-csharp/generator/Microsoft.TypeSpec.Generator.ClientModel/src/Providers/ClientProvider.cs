@@ -108,6 +108,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
             bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
             ClientSettings = isIndividuallyInitialized
+                && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
                 ? new ClientSettingsProvider(_inputClient, this)
                 : null;
             IsMultiServiceClient = _inputClient.IsMultiServiceClient;
@@ -195,6 +196,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _additionalClientFields = new(BuildAdditionalClientFields);
             _subClientInternalConstructorParams = new(GetSubClientInternalConstructorParameters);
             _clientParameters = new(GetClientParameters);
+            _effectiveClientParamNames = new(() => GetEffectiveParameterNames(_inputClient.Parameters));
             _subClients = new(GetSubClients);
             _allClientParameters = GetAllClientParameters();
         }
@@ -316,14 +318,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal bool HasAccessorOnlyParameters(InputClient parentInputClient)
         {
-            var parentParamNames = parentInputClient.Parameters
-                .Select(p => p.Name)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var parentParamNames = GetEffectiveParameterNames(parentInputClient.Parameters);
 
             return _inputClient.Parameters
                 .Where(p => !p.IsApiVersion && !(p is InputEndpointParameter ep && ep.IsEndpoint))
-                .Any(p => !parentParamNames.Contains(p.Name));
+                .Any(p => !IsSupersededByClientParameter(p, parentParamNames));
         }
+
+        /// <summary>
+        /// Builds a set of effective parameter names. When a parameter has a ParamAlias,
+        /// the alias is used instead of the parameter name.
+        /// </summary>
+        private static HashSet<string> GetEffectiveParameterNames(IReadOnlyList<InputParameter> parameters)
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in parameters)
+            {
+                if (p is InputMethodParameter { ParamAlias: string alias })
+                {
+                    names.Add(alias);
+                }
+                else
+                {
+                    names.Add(p.Name);
+                }
+            }
+            return names;
+        }
+
+        private Lazy<HashSet<string>> _effectiveClientParamNames;
 
         private Lazy<IReadOnlyList<ParameterProvider>> _clientParameters;
         internal IReadOnlyList<ParameterProvider> ClientParameters => _clientParameters.Value;
@@ -684,7 +707,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IEnumerable<ConstructorProvider> BuildSettingsConstructors()
         {
-            if (ClientSettings == null || ClientSettings.EndpointPropertyName == null)
+            if (ClientSettings == null || ClientSettings.EndpointProperty == null)
             {
                 yield break;
             }
@@ -709,8 +732,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             args.Add(Static(typeof(AuthenticationPolicy)).Invoke("Create", settingsParam));
 #pragma warning restore SCME0002
 
-            // endpoint argument - we know EndpointPropertyName is not null at this point
-            args.Add(new MemberExpression(new NullConditionalExpression(settingsParam), ClientSettings.EndpointPropertyName));
+            // endpoint argument - we know EndpointProperty is not null at this point
+            args.Add(new MemberExpression(new NullConditionalExpression(settingsParam), ClientSettings.EndpointProperty.Name));
 
             // other required parameters (non-auth, non-endpoint) in primary constructor order
             foreach (var param in ClientSettings.OtherRequiredParams)
@@ -1143,11 +1166,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 // Identify subclient-specific parameters by comparing with the parent's input parameters.
                 // Parameters present on both parent and subclient are shared (sourced from parent fields/properties).
-                var parentInputParamNames = _inputClient.Parameters
-                    .Select(p => p.Name)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
                 var subClientSpecificParamNames = subClient._inputClient.Parameters
-                    .Where(p => !parentInputParamNames.Contains(p.Name))
+                    .Where(p => !IsSupersededByClientParameter(p, _effectiveClientParamNames.Value))
                     .Select(p => p.Name)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -1497,10 +1517,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<InputParameter> GetAllClientParameters()
         {
-            // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters
+            var clientParamNames = _effectiveClientParamNames.Value;
+
+            // Get all parameters from the client and its methods, deduplicating by SerializedName to handle renamed parameters.
+            // When @paramAlias is used (via @clientInitialization), an operation parameter may map
+            // to a client parameter via MethodParameterSegments or ParamAlias. Exclude such operation
+            // parameters since the client parameter supersedes them.
             var parameters = _inputClient.Parameters.Concat(
                 _inputClient.Methods.SelectMany(m => m.Operation.Parameters)
-                    .Where(p => p.Scope == InputParameterScope.Client)).DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
+                    .Where(p => p.Scope == InputParameterScope.Client)
+                    .Where(p => !IsSupersededByClientParameter(p, clientParamNames)))
+                .DistinctBy(p => p.SerializedName ?? p.Name).ToArray();
 
             foreach (var subClient in _subClients.Value)
             {
@@ -1510,6 +1537,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return parameters;
+        }
+
+        /// <summary>
+        /// Determines whether a parameter is superseded by an existing client parameter,
+        /// either by direct name match or via MethodParameterSegments.
+        /// </summary>
+        private static bool IsSupersededByClientParameter(InputParameter param, HashSet<string> clientParamNames)
+        {
+            if (clientParamNames.Contains(param.Name))
+            {
+                return true;
+            }
+
+            if (param.MethodParameterSegments is { Count: > 0 } segments &&
+                clientParamNames.Contains(segments[0].Name))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private FieldProvider BuildTokenCredentialScopesField(InputOAuth2Auth oauth2Auth, CSharpType tokenCredentialType)

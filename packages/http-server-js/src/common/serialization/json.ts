@@ -294,6 +294,8 @@ export function transposeExpressionToJson(
       }
     case "ModelProperty":
       return transposeExpressionToJson(ctx, type.type, expr, module);
+    case "Enum":
+      return expr;
     case "Intrinsic":
       switch (type.name) {
         case "void":
@@ -537,6 +539,8 @@ export function transposeExpressionFromJson(
       }
     case "ModelProperty":
       return transposeExpressionFromJson(ctx, type.type, expr, module);
+    case "Enum":
+      return expr;
     case "Intrinsic":
       switch (type.name) {
         case "ErrorType":
@@ -558,7 +562,6 @@ export function transposeExpressionFromJson(
     case "Boolean":
       return literalToExpr(type);
     case "Interface":
-    case "Enum":
     case "EnumMember":
     case "TemplateParameter":
     case "Namespace":
