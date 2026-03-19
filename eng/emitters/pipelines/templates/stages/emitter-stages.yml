@@ -287,7 +287,7 @@ stages:
               - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
                 parameters:
                   npmrcPath: $(buildArtifactsPath)/packages/.npmrc
-                  registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/
+                  registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
 
               - ${{ each package in parameters.Packages }}:
                   - ${{ if eq(package.type, 'npm') }}:
