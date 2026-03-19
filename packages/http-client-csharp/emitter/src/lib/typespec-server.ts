@@ -2,7 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { getClientType } from "@azure-tools/typespec-client-generator-core";
-import { createDiagnosticCollector, Diagnostic, getDoc, getSummary, Value } from "@typespec/compiler";
+import {
+  createDiagnosticCollector,
+  Diagnostic,
+  getDoc,
+  getSummary,
+  Value,
+} from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
 import { CSharpEmitterContext } from "../sdk-context.js";
@@ -23,7 +29,7 @@ export function resolveServers(
 ): [TypeSpecServer[], readonly Diagnostic[]] {
   // Create a diagnostics collector for internal use
   const diagnostics = createDiagnosticCollector();
-  
+
   const result = servers.map((server) => {
     const parameters: InputEndpointParameter[] = [];
     let url: string = server.url;
@@ -104,7 +110,7 @@ export function resolveServers(
       parameters,
     };
   });
-  
+
   return diagnostics.wrap(result);
 }
 

@@ -3,6 +3,8 @@
 
 import {
   DecoratorInfo,
+  getAccessOverride,
+  isHttpMetadata,
   SdkArrayType,
   SdkBuiltInType,
   SdkConstantType,
@@ -17,11 +19,8 @@ import {
   SdkType,
   SdkUnionType,
   UsageFlags,
-  getAccessOverride,
-  isHttpMetadata,
 } from "@azure-tools/typespec-client-generator-core";
 import { createDiagnosticCollector, Diagnostic, Model, NoTarget } from "@typespec/compiler";
-import { createDiagnostic } from "./lib.js";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -40,6 +39,7 @@ import {
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
+import { createDiagnostic } from "./lib.js";
 import { isReadOnly } from "./utils.js";
 
 // we have this complicated type here to let the caller of fromSdkType could infer the real return type of this function.

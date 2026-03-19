@@ -38,7 +38,6 @@ import {
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
-import { createDiagnostic } from "./lib.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
 import { InputConstant } from "../type/input-constant.js";
@@ -72,6 +71,7 @@ import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
+import { createDiagnostic } from "./lib.js";
 import { fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
 

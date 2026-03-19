@@ -11,7 +11,6 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
-import { createDiagnostic } from "./lib.js";
 import { InputParameterScope } from "../type/input-parameter-scope.js";
 import {
   InputClient,
@@ -19,6 +18,7 @@ import {
   InputParameter,
   InputType,
 } from "../type/input-type.js";
+import { createDiagnostic } from "./lib.js";
 import {
   fromMethodParameter,
   fromSdkServiceMethod,

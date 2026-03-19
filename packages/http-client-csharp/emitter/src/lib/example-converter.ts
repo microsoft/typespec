@@ -52,7 +52,7 @@ export function fromSdkHttpExamples(
   // Create a diagnostics collector for internal use
   // Any errors in examples won't prevent the code model from being generated
   const diagnostics = createDiagnosticCollector();
-  
+
   const result = examples.map((example) => fromSdkHttpExample(example));
   return diagnostics.wrap(result);
 

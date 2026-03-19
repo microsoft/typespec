@@ -19,16 +19,16 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 /**
  * Creates the code model from the SDK context.
  * This function follows TypeSpec best practices by returning diagnostics alongside the result.
- * 
+ *
  * @example
  * ```typescript
  * import { createModel } from "@typespec/http-client-csharp";
- * 
+ *
  * const sdkContext = createCSharpEmitterContext(context, logger);
  * const [codeModel, diagnostics] = createModel(sdkContext);
  * // Process the code model and handle diagnostics
  * ```
- * 
+ *
  * @param sdkContext - The SDK context
  * @returns A tuple containing the code model and any diagnostics that were generated
  * @beta

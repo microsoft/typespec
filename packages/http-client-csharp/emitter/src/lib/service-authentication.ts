@@ -10,9 +10,9 @@ import {
 import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
-import { createDiagnostic } from "./lib.js";
 import { InputAuth } from "../type/input-auth.js";
 import { InputOAuth2Flow } from "../type/input-oauth2-auth.js";
+import { createDiagnostic } from "./lib.js";
 
 export function processServiceAuthentication(
   sdkContext: CSharpEmitterContext,
@@ -110,7 +110,9 @@ function processAuthType(
           diagnostics.add(
             createDiagnostic({
               code: "unsupported-auth",
-              format: { message: `${schemeOrApiKeyPrefix} auth method is currently not supported.` },
+              format: {
+                message: `${schemeOrApiKeyPrefix} auth method is currently not supported.`,
+              },
               target: credentialType.__raw ?? NoTarget,
             }),
           );

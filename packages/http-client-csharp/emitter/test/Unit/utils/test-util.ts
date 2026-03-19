@@ -122,10 +122,11 @@ export async function createCSharpSdkContext(
   sdkContextOptions: CreateSdkContextOptions = {},
 ): Promise<CSharpEmitterContext> {
   const createSdkContext = await getCreateSdkContext();
-  const context = await createSdkContext(program, "@typespec/http-client-csharp", sdkContextOptions);
-  const Logger = await getLogger();
-  return createCSharpEmitterContext(
-    context,
-    new Logger(program.program, LoggerLevel.INFO),
+  const context = await createSdkContext(
+    program,
+    "@typespec/http-client-csharp",
+    sdkContextOptions,
   );
+  const Logger = await getLogger();
+  return createCSharpEmitterContext(context, new Logger(program.program, LoggerLevel.INFO));
 }

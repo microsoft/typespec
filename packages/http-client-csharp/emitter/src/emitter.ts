@@ -54,11 +54,11 @@ function findProjectRoot(path: string): string | undefined {
 /**
  * Creates a code model by executing the full emission logic.
  * This function can be called by downstream emitters to generate a code model and collect diagnostics.
- * 
+ *
  * @example
  * ```typescript
  * import { emitCodeModel } from "@typespec/http-client-csharp";
- * 
+ *
  * export async function $onEmit(context: EmitContext<MyEmitterOptions>) {
  *   const updateCodeModel = (model: CodeModel, context: CSharpEmitterContext) => {
  *     // Customize the code model here
@@ -69,7 +69,7 @@ function findProjectRoot(path: string): string | undefined {
  *   context.program.reportDiagnostics(diagnostics);
  * }
  * ```
- * 
+ *
  * @param context - The emit context
  * @param updateCodeModel - Optional callback to modify the code model before emission
  * @returns A tuple containing void and any diagnostics that were generated during the emission
@@ -144,7 +144,9 @@ export async function emitCodeModel(
           debug: options.debug ?? false,
         });
         if (result.exitCode !== 0) {
-          const isValid = diagnostics.pipe(await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion));
+          const isValid = diagnostics.pipe(
+            await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion),
+          );
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) {
             throw new Error(
@@ -153,7 +155,9 @@ export async function emitCodeModel(
           }
         }
       } catch (error: any) {
-        const isValid = diagnostics.pipe(await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion));
+        const isValid = diagnostics.pipe(
+          await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion),
+        );
         // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
         if (isValid) throw new Error(error, { cause: error });
       }
@@ -224,7 +228,9 @@ export async function _validateDotNetSdk(
   const diagnostics = createDiagnosticCollector();
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    return diagnostics.wrap(diagnostics.pipe(validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion)));
+    return diagnostics.wrap(
+      diagnostics.pipe(validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion)),
+    );
   } catch (error: any) {
     if (error && "code" in error && error["code"] === "ENOENT") {
       diagnostics.add(
