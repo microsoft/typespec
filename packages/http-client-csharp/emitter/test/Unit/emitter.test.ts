@@ -1,6 +1,6 @@
 vi.resetModules();
 
-import { createDiagnosticCollector, Diagnostic, EmitContext, Program } from "@typespec/compiler";
+import { Diagnostic, EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { statSync } from "fs";
@@ -208,7 +208,7 @@ describe("emitCodeModel tests", () => {
     const context = createEmitterContext(program);
     const { emitCodeModel } = await import("../../src/emitter.js");
     const [, diagnostics] = await emitCodeModel(context);
-    
+
     // Verify that diagnostics is an array
     expect(Array.isArray(diagnostics)).toBe(true);
     // Diagnostics array should be defined (may be empty or have diagnostics)
@@ -230,7 +230,7 @@ describe("emitCodeModel tests", () => {
     const context = createEmitterContext(program);
     const { emitCodeModel } = await import("../../src/emitter.js");
     const [, diagnostics] = await emitCodeModel(context);
-    
+
     // The function should return diagnostics even if empty
     expect(diagnostics).toBeDefined();
     expect(Array.isArray(diagnostics)).toBe(true);

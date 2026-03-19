@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { Diagnostic, Program, Tracer } from "@typespec/compiler";
+import { Program, Tracer } from "@typespec/compiler";
 import { getTracer } from "./lib.js";
 import { LoggerLevel } from "./logger-level.js";
 
@@ -12,12 +12,10 @@ import { LoggerLevel } from "./logger-level.js";
 export class Logger {
   private tracer: Tracer;
   private level: LoggerLevel;
-  private program: Program;
 
   public constructor(program: Program, level: LoggerLevel) {
     this.tracer = getTracer(program);
     this.level = level;
-    this.program = program;
   }
 
   trace(level: LoggerLevel, message: string): void {
