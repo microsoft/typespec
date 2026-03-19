@@ -16,6 +16,7 @@ import {
   getReturnsDoc,
   isErrorModel,
   resolveEncodedName,
+  setMediaTypeHint,
 } from "../../src/lib/decorators.js";
 import { expectDiagnosticEmpty, expectDiagnostics, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
@@ -1426,6 +1427,28 @@ describe("compiler: built-in decorators", () => {
 
       strictEqual(getMediaTypeHint(program, A), undefined);
       strictEqual(getMediaTypeHint(program, B), "text/plain");
+    });
+
+    it("can set media type hint programmatically", async () => {
+      const { A, program } = await Tester.compile(t.code`
+        @test
+        model ${t.model("A")} {}
+      `);
+
+      strictEqual(getMediaTypeHint(program, A), undefined);
+      setMediaTypeHint(program, A, "application/merge-patch+json");
+      strictEqual(getMediaTypeHint(program, A), "application/merge-patch+json");
+    });
+
+    it("validates media type when set programmatically", async () => {
+      const { A, program } = await Tester.compile(t.code`
+        @test
+        model ${t.model("A")} {}
+      `);
+
+      expect(() => setMediaTypeHint(program, A, "not-a-mime-type")).toThrow(
+        "Invalid MIME type 'not-a-mime-type' provided to setMediaTypeHint",
+      );
     });
   });
 });

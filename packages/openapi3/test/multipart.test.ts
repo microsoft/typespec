@@ -91,6 +91,33 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       description: "My doc",
     });
   });
+
+  it("named union with bytes variant does not cause 'Duplicate type name' error", async () => {
+    const res = await openApiFor(
+      `
+    union BinaryOrJson {
+      bytes,
+      { file_id: string },
+    }
+    op upload(@header contentType: "multipart/form-data", @multipartBody body: { attachment: HttpPart<BinaryOrJson> }): void;
+    `,
+    );
+    const op = res.paths["/"].post;
+    // The union should be referenced as a $ref (not inlined), and should be available in components
+    expect(op.requestBody.content["multipart/form-data"].schema.properties.attachment.$ref).toEqual(
+      "#/components/schemas/BinaryOrJson",
+    );
+    const schema = res.components.schemas.BinaryOrJson;
+    expect(schema).toBeDefined();
+    // The schema should use anyOf with 2 variants
+    expect(schema.anyOf).toHaveLength(2);
+    // The object variant ({file_id: string}) should appear in the schema regardless of version
+    expect(schema.anyOf).toContainEqual({
+      type: "object",
+      properties: { file_id: { type: "string" } },
+      required: ["file_id"],
+    });
+  });
 });
 
 worksFor(["3.0.0"], ({ openApiFor }) => {

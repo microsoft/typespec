@@ -62,7 +62,14 @@ namespace SampleTypeSpec
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+            if (authenticationPolicy != null)
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+            }
+            else
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly) }, Array.Empty<PipelinePolicy>());
+            }
             _apiVersion = options.Version;
         }
 
@@ -1880,6 +1887,16 @@ namespace SampleTypeSpec
 
             ClientResult result = await UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> Initializes a new instance of Notebooks. </summary>
+        /// <param name="notebook"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="notebook"/> is null. </exception>
+        public virtual Notebooks GetNotebooksClient(string notebook)
+        {
+            Argument.AssertNotNull(notebook, nameof(notebook));
+
+            return new Notebooks(Pipeline, _endpoint, notebook);
         }
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
