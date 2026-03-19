@@ -8,7 +8,7 @@ export async function getStaticPaths() {
   return docs
     .filter((doc) => {
       // Exclude release notes
-      if (doc.id.includes("/release-notes/")) return false;
+      if (doc.id.startsWith("release-notes/")) return false;
       return true;
     })
     .map((doc) => ({

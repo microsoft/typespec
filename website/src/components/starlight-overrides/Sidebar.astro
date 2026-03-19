@@ -1,0 +1,34 @@
+---
+import MobileMenuFooter from "@astrojs/starlight/components/MobileMenuFooter.astro";
+import SidebarPersister from "@astrojs/starlight/components/SidebarPersister.astro";
+import SidebarSublist from "@astrojs/starlight/components/SidebarSublist.astro";
+
+const { sidebar } = Astro.locals.starlightRoute;
+const pathname = Astro.url.pathname;
+
+type SidebarEntry = (typeof sidebar)[number];
+
+function isReleaseNotesRoute(path: string): boolean {
+  return path.startsWith("/release-notes");
+}
+
+function hasReleaseNotesLink(entry: SidebarEntry): boolean {
+  if (entry.type === "link") {
+    return entry.href.startsWith("/release-notes");
+  }
+  return entry.entries.some(hasReleaseNotesLink);
+}
+
+const isReleaseNotes = isReleaseNotesRoute(pathname);
+const filtered = sidebar.filter((entry) =>
+  isReleaseNotes ? hasReleaseNotesLink(entry) : !hasReleaseNotesLink(entry),
+);
+---
+
+<SidebarPersister>
+  <SidebarSublist sublist={filtered} />
+</SidebarPersister>
+
+<div class="md:sl-hidden">
+  <MobileMenuFooter />
+</div>

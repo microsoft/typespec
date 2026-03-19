@@ -10,6 +10,7 @@ import { resolve } from "pathe";
 import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
 import current from "./src/content/current-sidebar";
+import releaseNotes from "./src/content/release-notes-sidebar";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
@@ -22,16 +23,24 @@ export default defineConfig({
     astroExpressiveCode(),
     starlight({
       title: "TypeSpec",
-      sidebar: await processSidebar(
-        resolve(import.meta.dirname, "src/content/docs"),
-        "docs",
-        current,
-      ),
+      sidebar: [
+        ...(await processSidebar(
+          resolve(import.meta.dirname, "src/content/docs"),
+          "docs",
+          current,
+        )),
+        ...(await processSidebar(
+          resolve(import.meta.dirname, "src/content/docs"),
+          "release-notes",
+          releaseNotes,
+        )),
+      ],
       favicon: "/img/favicon.svg",
       customCss: ["./src/css/custom.css"],
       components: {
         Header: "./src/components/header/header.astro",
         PageFrame: "./src/components/starlight-overrides/PageFrame.astro",
+        Sidebar: "./src/components/starlight-overrides/Sidebar.astro",
       },
       expressiveCode: false, // defined directly above
       head: [
