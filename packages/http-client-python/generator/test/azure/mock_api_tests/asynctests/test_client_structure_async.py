@@ -38,6 +38,7 @@ async def test_structure_multiclient():
     await client_b.renamed_six()
 
 
+@pytest.mark.skip(reason="will reopen the cases after upgrade `@azure-tools/typespec-client-generator-core` to 0.67.0")
 @pytest.mark.asyncio
 async def test_structure_renamed_operation():
     client = RenamedOperationClient(endpoint="http://localhost:3000", client=ClientType.RENAMED_OPERATION)
@@ -50,6 +51,7 @@ async def test_structure_renamed_operation():
     await client.renamed_six()
 
 
+@pytest.mark.skip(reason="will reopen the cases after upgrade `@azure-tools/typespec-client-generator-core` to 0.67.0")
 @pytest.mark.asyncio
 async def test_structure_two_operation_group():
     client = TwoOperationGroupClient(endpoint="http://localhost:3000", client=ClientType.TWO_OPERATION_GROUP)
