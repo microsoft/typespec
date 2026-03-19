@@ -42,8 +42,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -73,8 +72,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -104,8 +102,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -139,8 +136,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -170,8 +166,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -201,8 +196,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -234,8 +228,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -265,8 +258,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -296,8 +288,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -329,8 +320,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -360,8 +350,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -391,8 +380,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -426,8 +414,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -458,8 +445,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -490,8 +476,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -524,8 +509,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -556,8 +540,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -588,8 +571,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createCSharpSdkContext(context);
-        const [root, modelDiagnostics] = createModel(sdkContext);
-        context.program.reportDiagnostics(modelDiagnostics);
+        const [root] = createModel(sdkContext);
         const inputParamArray = root.clients[0].methods[0].operation.parameters.filter(
           (p) => p.name === "param",
         );
@@ -627,9 +609,7 @@ describe("Test Cookie Parameters", () => {
       );
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const [, modelDiagnostics] = createModel(sdkContext);
-      context.program.reportDiagnostics(modelDiagnostics);
-      const diagnostics = context.program.diagnostics;
+      const [, diagnostics] = createModel(sdkContext);
 
       const unsupportedCookie = diagnostics.find(
         (d) => d.code === "@typespec/http-client-csharp/unsupported-cookie-parameter",
@@ -672,9 +652,7 @@ describe("Endpoint parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
-    const diagnostics = context.program.diagnostics;
+    const [, diagnostics] = createModel(sdkContext);
 
     const unsupportedCookie = diagnostics.find(
       (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",
@@ -706,8 +684,7 @@ describe("Endpoint parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [codeModel, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [codeModel] = createModel(sdkContext);
     const client = codeModel.clients[0];
     ok(client);
     ok(client.parameters);
@@ -743,8 +720,7 @@ describe("Endpoint parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [codeModel, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [codeModel] = createModel(sdkContext);
     const client = codeModel.clients[0];
     ok(client);
     ok(client.parameters);
@@ -781,8 +757,7 @@ describe("Test Spread Parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     ok(root);
 
     // validate service method
@@ -825,8 +800,7 @@ describe("Test Spread Parameters", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     ok(root);
 
     // validate service method
@@ -879,9 +853,7 @@ describe("Test Operation Parameters", () => {
       );
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const [root, modelDiagnostics] = createModel(sdkContext);
-      context.program.reportDiagnostics(modelDiagnostics);
-
+      const [root] = createModel(sdkContext);
       const operation = root.clients[0].methods[0].operation;
       const queryParam = operation.parameters.find((p) => p.name === "queryParam");
 
@@ -906,9 +878,7 @@ describe("Test Operation Parameters", () => {
       );
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const [root, modelDiagnostics] = createModel(sdkContext);
-      context.program.reportDiagnostics(modelDiagnostics);
-
+      const [root] = createModel(sdkContext);
       const operation = root.clients[0].methods[0].operation;
       const pathParam = operation.parameters.find((p) => p.name === "pathParam");
 
@@ -936,9 +906,7 @@ describe("Test Operation Parameters", () => {
       );
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const [root, modelDiagnostics] = createModel(sdkContext);
-      context.program.reportDiagnostics(modelDiagnostics);
-
+      const [root] = createModel(sdkContext);
       const operation = root.clients[0].methods[0].operation;
       const headerParam = operation.parameters.find((p) => p.name === "headerParam");
 
@@ -967,9 +935,7 @@ describe("Test Operation Parameters", () => {
       );
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const [root, modelDiagnostics] = createModel(sdkContext);
-      context.program.reportDiagnostics(modelDiagnostics);
-
+      const [root] = createModel(sdkContext);
       const operation = root.clients[0].methods[0].operation;
       const contentTypeParam = operation.parameters.find((p) => p.name === "contentType");
 
@@ -1092,9 +1058,7 @@ describe("Test Operation Parameters", () => {
       );
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const [root, modelDiagnostics] = createModel(sdkContext);
-      context.program.reportDiagnostics(modelDiagnostics);
-
+      const [root] = createModel(sdkContext);
       const operation = root.clients[0].methods[0].operation;
       const bodyParam = operation.parameters.find((p) => p.name === "bodyParam");
 

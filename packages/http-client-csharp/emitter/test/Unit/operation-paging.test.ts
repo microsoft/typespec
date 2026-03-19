@@ -39,8 +39,7 @@ describe("Next link operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -94,8 +93,7 @@ describe("Next link operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -140,8 +138,7 @@ describe("Next link operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -177,8 +174,7 @@ describe("Next link operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -213,7 +209,6 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -225,13 +220,13 @@ describe("Next link operations", () => {
     strictEqual(paging.nextLink?.responseSegments.length, 1);
     strictEqual(paging.nextLink?.responseSegments[0], "next");
 
-    strictEqual(program.diagnostics.length, 1);
+    strictEqual(modelDiagnostics.length, 1);
     strictEqual(
-      program.diagnostics[0].code,
+      modelDiagnostics[0].code,
       "@typespec/http-client-csharp/unsupported-continuation-location",
     );
     strictEqual(
-      program.diagnostics[0].message,
+      modelDiagnostics[0].message,
       `Unsupported continuation location for operation ${root.clients[0].methods[0].operation.crossLanguageDefinitionId}.`,
     );
   });
@@ -261,8 +256,7 @@ describe("Continuation token operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -297,8 +291,7 @@ describe("Continuation token operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -334,8 +327,7 @@ describe("Continuation token operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -371,8 +363,7 @@ describe("Continuation token operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -409,7 +400,6 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -425,13 +415,13 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.responseLocation, ResponseLocation.None);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "nextToken");
-    strictEqual(program.diagnostics.length, 1);
+    strictEqual(modelDiagnostics.length, 1);
     strictEqual(
-      program.diagnostics[0].code,
+      modelDiagnostics[0].code,
       "@typespec/http-client-csharp/unsupported-continuation-location",
     );
     strictEqual(
-      program.diagnostics[0].message,
+      modelDiagnostics[0].message,
       `Unsupported continuation location for operation ${root.clients[0].methods[0].operation.crossLanguageDefinitionId}.`,
     );
   });
@@ -463,8 +453,7 @@ describe("PageSize parameter operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 
@@ -502,8 +491,7 @@ describe("PageSize parameter operations", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const method = root.clients[0].methods[0];
     strictEqual(method.kind, "paging");
 

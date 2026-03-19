@@ -69,8 +69,7 @@ describe("Enum value references", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const enumType = root.enums.find((e) => e.name === "TestEnum");
     ok(enumType, "TestEnum should exist in the enums list");
     strictEqual(enumType.values.length, 3, "TestEnum should have 3 values");
@@ -120,8 +119,7 @@ describe("External types", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     const testModel = root.models.find((m) => m.name === "TestModel");
     ok(testModel, "TestModel should exist");
@@ -166,8 +164,7 @@ describe("External types", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     const testModel = root.models.find((m) => m.name === "TestModel");
     ok(testModel, "TestModel should exist");

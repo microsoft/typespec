@@ -30,9 +30,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
-    const diagnostics = context.program.diagnostics;
+    const [root, diagnostics] = createModel(sdkContext);
 
     const noAuthDiagnostics = diagnostics.filter(
       (d) =>
@@ -73,9 +71,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
-    const diagnostics = context.program.diagnostics;
+    const [root, diagnostics] = createModel(sdkContext);
 
     const noAuthDiagnostics = diagnostics.filter(
       (d) =>
@@ -116,9 +112,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
-    const diagnostics = context.program.diagnostics;
+    const [root, diagnostics] = createModel(sdkContext);
 
     const noAuthDiagnostics = diagnostics.filter(
       (d) =>
@@ -157,9 +151,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
-    const diagnostics = context.program.diagnostics;
+    const [root, diagnostics] = createModel(sdkContext);
 
     const noAuthDiagnostic = diagnostics.find(
       (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
@@ -186,9 +178,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
-    const diagnostics = context.program.diagnostics;
+    const [root, diagnostics] = createModel(sdkContext);
 
     const noAuthDiagnostics = diagnostics.filter(
       (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
@@ -221,9 +211,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
-    const diagnostics = context.program.diagnostics;
+    const [root, diagnostics] = createModel(sdkContext);
 
     const noAuthDiagnostics = diagnostics.filter(
       (d) =>
@@ -255,9 +243,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
-    const diagnostics = context.program.diagnostics;
+    const [root, diagnostics] = createModel(sdkContext);
 
     // Should have no auth-related diagnostics
     const authDiagnostics = diagnostics.filter(
@@ -297,8 +283,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     ok(root.auth?.oAuth2);
     strictEqual(root.auth.oAuth2.flows.length, 1);
@@ -330,8 +315,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     ok(root.auth?.oAuth2);
     strictEqual(root.auth.oAuth2.flows.length, 1);
@@ -361,8 +345,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     ok(root.auth?.oAuth2);
     strictEqual(root.auth.oAuth2.flows.length, 1);
@@ -399,8 +382,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     ok(root.auth?.oAuth2);
     strictEqual(root.auth.oAuth2.flows.length, 2);
@@ -437,8 +419,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     ok(root.auth?.oAuth2);
     strictEqual(root.auth.oAuth2.flows.length, 1);
@@ -466,8 +447,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     ok(root.auth?.oAuth2);
     strictEqual(root.auth.oAuth2.flows.length, 1);
@@ -495,8 +475,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     // Should have both OAuth2 and API key auth
     ok(root.auth?.oAuth2);
@@ -527,8 +506,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     ok(root.auth?.oAuth2);
     strictEqual(root.auth.oAuth2.flows.length, 1);

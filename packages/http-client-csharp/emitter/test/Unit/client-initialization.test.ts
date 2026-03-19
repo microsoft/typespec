@@ -35,8 +35,7 @@ describe("ClientInitialization", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     ok(client, "Client should exist");
@@ -61,8 +60,7 @@ describe("ClientInitialization", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     // initializedBy field should exist on the client (may be undefined or have a value)
@@ -87,8 +85,7 @@ describe("ClientInitialization", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     ok(client.parameters, "Client should have parameters");
@@ -117,8 +114,7 @@ describe("ClientInitialization", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     ok("initializedBy" in client, "Parent client should have initializedBy field");

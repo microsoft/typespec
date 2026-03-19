@@ -51,8 +51,7 @@ op test(@body input: Pet): Pet;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     const petModel = models.find((m) => m.name === "Pet");
     const catModel = models.find((m) => m.name === "Cat");
@@ -136,8 +135,7 @@ op test(@body input: Pet): Pet;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [codeModel, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [codeModel] = createModel(sdkContext);
     const models = codeModel.models;
     const pet = models.find((m) => m.name === "Pet");
     assert(pet !== undefined);
@@ -231,8 +229,7 @@ op test(@body input: Pet): Pet;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [codeModel, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [codeModel] = createModel(sdkContext);
     const models = codeModel.models;
     const pet = models.find((m) => m.name === "Pet");
     assert(pet !== undefined);
@@ -353,8 +350,7 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     const extendsUnknownModel = models.find((m) => m.name === "ExtendsUnknown");
     const extendsStringModel = models.find((m) => m.name === "ExtendsString");
@@ -446,8 +442,7 @@ op op5(@body body: IsFooArray): IsFooArray;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     const isUnknownModel = models.find((m) => m.name === "IsUnknown");
     const isStringModel = models.find((m) => m.name === "IsString");
@@ -498,8 +493,7 @@ op op1(): void;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     const isEmptyModel = models.find((m) => m.name === "Empty");
     ok(isEmptyModel);
@@ -528,8 +522,7 @@ model Foo {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     const model = models.find((m) => m.name === "Foo");
     ok(model);
@@ -567,8 +560,7 @@ describe("Anonymous models should be included in library", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     ok(root);
 
     // validate service method
@@ -610,8 +602,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     const isEmptyModel = models.find((m) => m.name === "HeaderModel");
     ok(isEmptyModel);
@@ -656,8 +647,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     const isEmptyModel = models.find((m) => m.name === "HeaderModel");
     ok(isEmptyModel);
@@ -690,8 +680,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     const isEmptyModel = models.find((m) => m.name === "HeaderModel");
     ok(isEmptyModel);
@@ -718,8 +707,7 @@ op testOperation(@bodyRoot body: HeaderModel): void;
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     const isEmptyModel = models.find((m) => m.name === "HeaderModel");
     ok(isEmptyModel);
@@ -769,8 +757,7 @@ describe("typespec-client-generator-core: general decorators list", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].decorators, [
@@ -812,8 +799,7 @@ describe("Access decorator on enums", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const enums = root.enums;
 
     const colorEnum = enums.find((e) => e.name === "Color");
@@ -844,8 +830,7 @@ describe("Access decorator on enums", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const enums = root.enums;
 
     const colorEnum = enums.find((e) => e.name === "Color");
@@ -875,8 +860,7 @@ describe("Access decorator on enums", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const enums = root.enums;
 
     const statusEnum = enums.find((e) => e.name === "Status");
@@ -914,8 +898,7 @@ describe("Usage decorator on enums", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const enums = root.enums;
 
     const colorEnum = enums.find((e) => e.name === "Color");
@@ -945,8 +928,7 @@ describe("Usage decorator on enums", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const [root, modelDiagnostics] = createModel(sdkContext);
-    context.program.reportDiagnostics(modelDiagnostics);
+    const [root] = createModel(sdkContext);
     const enums = root.enums;
 
     const colorEnum = enums.find((e) => e.name === "Color");
