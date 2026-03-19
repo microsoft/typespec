@@ -39,6 +39,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .FirstOrDefault(p => p is InputEndpointParameter ep && ep.IsEndpoint) as InputEndpointParameter;
             EndpointPropertyName = inputEndpointParam?.Name.ToIdentifierName();
 
+            if (inputEndpointParam != null)
+            {
+                EndpointPropertyType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputEndpointParam.Type);
+            }
+
             // Collect non-endpoint, non-apiVersion required parameters (auth params come separately via InputClient.Auth)
             OtherRequiredParams = inputClient.Parameters
                 .Where(p => p.IsRequired && !p.IsApiVersion &&
@@ -50,6 +55,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         internal string? EndpointPropertyName { get; }
+
+        /// <summary>Gets the CSharp type of the endpoint parameter (e.g. string, Uri).</summary>
+        internal CSharpType? EndpointPropertyType { get; }
 
         /// <summary>Gets non-endpoint, non-auth required parameters that have settings properties.</summary>
         internal IReadOnlyList<ParameterProvider> OtherRequiredParams { get; }
@@ -74,12 +82,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var properties = new List<PropertyProvider>();
 
-            if (EndpointPropertyName != null)
+            if (EndpointPropertyName != null && EndpointPropertyType != null)
             {
                 properties.Add(new PropertyProvider(
                     null,
                     MethodSignatureModifiers.Public,
-                    new CSharpType(typeof(Uri), isNullable: true),
+                    EndpointPropertyType.WithNullable(true),
                     EndpointPropertyName,
                     new AutoPropertyBody(true),
                     this));
@@ -116,9 +124,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var sectionParam = new ParameterProvider("section", $"The configuration section.", IConfigurationSectionType);
             var body = new List<MethodBodyStatement>();
 
-            if (EndpointPropertyName != null)
+            if (EndpointPropertyName != null && EndpointPropertyType != null)
             {
-                AppendUriTryCreateBinding(body, sectionParam, EndpointPropertyName, EndpointPropertyName.ToVariableName());
+                AppendBindingForProperty(body, sectionParam, EndpointPropertyName, EndpointPropertyName.ToVariableName(), EndpointPropertyType);
             }
 
             foreach (var param in OtherRequiredParams)
