@@ -1711,6 +1711,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public void ContentTypeHeaderWrappedInNullCheckWhenContentTypeIsOptional()
+        {
+            var contentTypeParam = InputFactory.HeaderParameter(
+                "Content-Type",
+                InputFactory.Literal.String("application/xml"),
+                isRequired: false,
+                isContentType: true,
+                scope: InputParameterScope.Constant);
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: false);
+            var operation = InputFactory.Operation(
+                "TestOperation",
+                requestMediaTypes: ["application/xml"],
+                parameters: [contentTypeParam, bodyParam]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task PageSizeParameterCasingPreservedFromLastContractView()
         {
             var pageSizeParam = InputFactory.QueryParameter("maxSizepaging", InputPrimitiveType.Int32,
