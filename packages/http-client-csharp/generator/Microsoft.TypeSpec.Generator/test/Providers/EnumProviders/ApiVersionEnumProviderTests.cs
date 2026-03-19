@@ -178,9 +178,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.IsTrue(storageEnumType is ApiVersionEnumProvider);
             var storageProvider = (ApiVersionEnumProvider)storageEnumType;
 
-            // Verify enum names follow the multiservice naming pattern: Service{ServiceName}Version
-            Assert.AreEqual("ServiceKeyVaultVersion", keyVaultProvider.Name);
-            Assert.AreEqual("ServiceStorageVersion", storageProvider.Name);
+            // Verify enum names use the full namespace for uniqueness: {FullNamespace}Version
+            Assert.AreEqual("SampleKeyVaultVersion", keyVaultProvider.Name);
+            Assert.AreEqual("SampleStorageVersion", storageProvider.Name);
         }
 
         [Test]

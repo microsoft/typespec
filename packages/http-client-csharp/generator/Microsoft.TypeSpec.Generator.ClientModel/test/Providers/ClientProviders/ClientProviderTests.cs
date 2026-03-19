@@ -3678,12 +3678,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // Should return the matching field for ServiceA
             var fieldA = clientProvider!.GetApiVersionFieldForService("Sample.ServiceA");
             Assert.IsNotNull(fieldA);
-            Assert.AreEqual("_serviceAApiVersion", fieldA!.Name);
+            Assert.AreEqual("_sampleServiceAApiVersion", fieldA!.Name);
 
             // Should return the matching field for ServiceB
             var fieldB = clientProvider.GetApiVersionFieldForService("Sample.ServiceB");
             Assert.IsNotNull(fieldB);
-            Assert.AreEqual("_serviceBApiVersion", fieldB!.Name);
+            Assert.AreEqual("_sampleServiceBApiVersion", fieldB!.Name);
         }
 
         [Test]
@@ -3814,11 +3814,86 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // Should match case-insensitively
             var fieldLowerCase = clientProvider!.GetApiVersionFieldForService("sample.serviceA");
             Assert.IsNotNull(fieldLowerCase);
-            Assert.AreEqual("_serviceAApiVersion", fieldLowerCase!.Name);
+            Assert.AreEqual("_sampleServiceAApiVersion", fieldLowerCase!.Name);
 
             var fieldUpperCase = clientProvider.GetApiVersionFieldForService("SAMPLE.SERVICEa");
             Assert.IsNotNull(fieldUpperCase);
-            Assert.AreEqual("_serviceAApiVersion", fieldUpperCase!.Name);
+            Assert.AreEqual("_sampleServiceAApiVersion", fieldUpperCase!.Name);
+        }
+
+        [Test]
+        public void GetApiVersionFieldForService_MultiService_SameLastSegment_ProducesUniqueFields()
+        {
+            // Regression test: when two services have different full namespaces but the same last
+            // segment, using only the last segment would produce duplicate field names. The fix
+            // uses the full namespace to guarantee uniqueness.
+            List<string> serviceOneVersions = ["1.0", "2.0"];
+            List<string> serviceTwoVersions = ["3.0", "4.0"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            // Different full namespaces, same last segment ("Tests") — would collide with last-segment-only naming
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceOne.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceTwo.Tests");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceOneOperation = InputFactory.Operation(
+                "ServiceOneOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.ServiceOne.Tests");
+
+            var serviceTwoOperation = InputFactory.Operation(
+                "ServiceTwoOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.ServiceTwo.Tests");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceOneMethod", serviceOneOperation),
+                    InputFactory.BasicServiceMethod("ServiceTwoMethod", serviceTwoOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // This should not crash — previously it threw due to duplicate field names
+            Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
+
+            // Verify we have two distinct api version fields using the full namespace
+            var apiVersionFields = clientProvider!.Fields
+                .Where(f => f.Name.Contains("ApiVersion", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(f => f.Name)
+                .ToList();
+            Assert.AreEqual(2, apiVersionFields.Count);
+            Assert.AreNotEqual(apiVersionFields[0].Name, apiVersionFields[1].Name);
+
+            // Full namespace produces unique names: "Azure.ServiceOne.Tests" → "AzureServiceOneTests"
+            Assert.AreEqual("_azureServiceOneTestsApiVersion", apiVersionFields[0].Name);
+            Assert.AreEqual("_azureServiceTwoTestsApiVersion", apiVersionFields[1].Name);
         }
 
         [TestCase("{endpoint}")]
@@ -3921,6 +3996,189 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(bodyText);
             // Verify that the Uri is built according to the server template
             Assert.IsTrue(bodyText.Contains("$\"{endpoint}/{_apiVersion}/services/{_subscriptionId}\""));
+        }
+
+        [Test]
+        public void TestParamAlias_ClientConstructorDoesNotDuplicateAliasedParameter()
+        {
+            // A client parameter "blob" with paramAlias "blobName" should not produce
+            // a duplicate field when the operation also declares "blobName" as client-scoped.
+            var clientParam = InputFactory.MethodParameter(
+                "blob",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                paramAlias: "blobName");
+
+            var operationParam = InputFactory.PathParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operation = InputFactory.Operation("Upload", parameters: [operationParam]);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Upload", operation)],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                        scope: InputParameterScope.Client,
+                        isEndpoint: true),
+                    clientParam]);
+
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // Should have exactly one field for the blob/blobName parameter (not two)
+            var blobFields = clientProvider.Fields.Where(f => f.Name == "_blob" || f.Name == "_blobName").ToList();
+            Assert.AreEqual(1, blobFields.Count,
+                $"Expected 1 field but found {blobFields.Count}: {string.Join(", ", blobFields.Select(f => f.Name))}");
+            Assert.AreEqual("_blob", blobFields[0].Name);
+
+            // ClientParameters should contain only the "blob" parameter
+            var blobParams = clientProvider.ClientParameters.Where(
+                p => p.Name == "blob" || p.Name == "blobName").ToList();
+            Assert.AreEqual(1, blobParams.Count,
+                $"Expected 1 client parameter but found {blobParams.Count}: {string.Join(", ", blobParams.Select(p => p.Name))}");
+            Assert.AreEqual("blob", blobParams[0].Name);
+        }
+
+        [Test]
+        public void TestParamAlias_ClientConstructorKeepsBothWhenNoAlias()
+        {
+            // Without paramAlias, a client parameter "blob" and operation parameter "blobName"
+            // should both appear since they have different names.
+            var clientParam = InputFactory.MethodParameter(
+                "blob",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operationParam = InputFactory.PathParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operation = InputFactory.Operation("Upload", parameters: [operationParam]);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Upload", operation)],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                        scope: InputParameterScope.Client,
+                        isEndpoint: true),
+                    clientParam]);
+
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // Without alias, both fields should exist
+            var blobFields = clientProvider.Fields.Where(f => f.Name == "_blob" || f.Name == "_blobName").ToList();
+            Assert.AreEqual(2, blobFields.Count,
+                $"Expected 2 fields but found {blobFields.Count}: {string.Join(", ", blobFields.Select(f => f.Name))}");
+        }
+
+        [Test]
+        public void TestParamAlias_MatchingNamesWithoutAliasDeduplicate()
+        {
+            // When the client parameter and operation parameter share the same name,
+            // deduplication occurs by name even without paramAlias.
+            var clientParam = InputFactory.MethodParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operationParam = InputFactory.PathParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operation = InputFactory.Operation("Upload", parameters: [operationParam]);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Upload", operation)],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                        scope: InputParameterScope.Client,
+                        isEndpoint: true),
+                    clientParam]);
+
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // Same name means they get deduplicated to one field
+            var blobFields = clientProvider.Fields.Where(f => f.Name == "_blobName").ToList();
+            Assert.AreEqual(1, blobFields.Count);
+        }
+
+        [Test]
+        public void TestParamAlias_MethodParametersSkipAliasedClientParam()
+        {
+            // When a client parameter "blob" is aliased to "blobName" via @paramAlias,
+            // the generated operation method should NOT have "blobName" as a method parameter
+            // since it's already on the client.
+            var clientParam = InputFactory.MethodParameter(
+                "blob",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                paramAlias: "blobName");
+
+            var operationParam = InputFactory.PathParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operation = InputFactory.Operation("Upload", parameters: [operationParam]);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Upload", operation)],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                        scope: InputParameterScope.Client,
+                        isEndpoint: true),
+                    clientParam]);
+
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // Get the generated operation methods (excluding subclient accessors and constructors)
+            var operationMethods = clientProvider.Methods
+                .Where(m => m.Signature?.Name == "Upload" || m.Signature?.Name == "UploadAsync")
+                .ToList();
+
+            Assert.IsTrue(operationMethods.Count > 0, "Should have Upload methods");
+
+            foreach (var method in operationMethods)
+            {
+                var paramNames = method.Signature!.Parameters.Select(p => p.Name).ToList();
+                Assert.IsFalse(paramNames.Contains("blobName"),
+                    $"Method '{method.Signature.Name}' should not have 'blobName' parameter since it's an aliased client parameter. " +
+                    $"Params: [{string.Join(", ", paramNames)}]");
+                Assert.IsFalse(paramNames.Contains("blob"),
+                    $"Method '{method.Signature.Name}' should not have 'blob' parameter since it's a client parameter. " +
+                    $"Params: [{string.Join(", ", paramNames)}]");
+            }
         }
     }
 }

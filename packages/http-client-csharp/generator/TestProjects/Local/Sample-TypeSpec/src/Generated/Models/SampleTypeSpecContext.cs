@@ -19,6 +19,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(Dog))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
     [ModelReaderWriterBuildable(typeof(Friend))]
+    [ModelReaderWriterBuildable(typeof(GetNotebookResponse))]
     [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
