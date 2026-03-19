@@ -479,7 +479,7 @@ function resolveVariableInterpolationCompleteItems(
   } else if (/{[^}]*$/.test(curText)) {
     // parameters and built-in variables
     const result = [
-      ...getVariableCompletionItem(yamlDocNodes, "parameters", "Custom paramters variables"),
+      ...getVariableCompletionItem(yamlDocNodes, "parameters", "Custom parameters variables"),
       ...["cwd", "project-root"].map((value) => {
         const item: CompletionItem = {
           label: value,

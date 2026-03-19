@@ -153,7 +153,7 @@ namespace ${mock.namespace}
     public class ${mock.className} : ${mock.interfaceName}
     {
         /// <summary>
-        /// The controller constructor, using the dependency injection container to satisfy the paramters.
+        /// The controller constructor, using the dependency injection container to satisfy the parameters.
         /// </summary>
         /// <param name="initializer">The initializer class, registered with dependency injection</param>
         /// <param name="accessor">The accessor for the HttpContext, allows your implementation to 

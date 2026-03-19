@@ -646,7 +646,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const loadedType = stdTypes[name];
     compilerAssert(
       loadedType,
-      `TypeSpec std type "${name}" should have been initalized before using array syntax.`,
+      `TypeSpec std type "${name}" should have been initialized before using array syntax.`,
     );
     return loadedType as any;
   }
