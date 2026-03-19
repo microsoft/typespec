@@ -102,5 +102,23 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("filter", parameter.Name);
             Assert.AreEqual("filter", parameter.OriginalName);
         }
+
+        [Test]
+        public void ParamAliasIsSetFromFactory()
+        {
+            var parameter = InputFactory.MethodParameter("blobName", InputPrimitiveType.String, paramAlias: "name");
+
+            Assert.AreEqual("blobName", parameter.Name);
+            Assert.AreEqual("name", parameter.ParamAlias);
+        }
+
+        [Test]
+        public void ParamAliasIsNullByDefault()
+        {
+            var parameter = InputFactory.MethodParameter("blobName", InputPrimitiveType.String);
+
+            Assert.AreEqual("blobName", parameter.Name);
+            Assert.IsNull(parameter.ParamAlias);
+        }
     }
 }
