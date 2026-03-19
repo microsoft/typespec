@@ -841,9 +841,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 InputFactory.EndpointParameter(
                     "endpoint",
                     InputPrimitiveType.String,
-                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
                     scope: InputParameterScope.Client,
-                    isEndpoint: true)
+                    isEndpoint: true,
+                    serverUrlTemplate: "https://{endpoint}")
             };
             var client = InputFactory.Client("TestClient", parameters: inputParameters);
             var clientProvider = new ClientProvider(client);

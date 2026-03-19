@@ -12,17 +12,19 @@ namespace Sample
     {
         private readonly global::System.Uri _endpoint;
 
-        public TestClient() : this(new string("https://default.endpoint.io"), new global::Sample.TestClientOptions())
+        protected TestClient()
         {
         }
 
-        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, global::Sample.TestClientOptions options)
+        public TestClient(string endpoint = default) : this(endpoint, new global::Sample.TestClientOptions())
         {
-            global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
+        }
 
+        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, string endpoint = default, global::Sample.TestClientOptions options)
+        {
             options ??= new global::Sample.TestClientOptions();
 
-            _endpoint = endpoint;
+            _endpoint = new global::System.Uri($"https://{endpoint}");
             if ((authenticationPolicy != null))
             {
                 Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
@@ -33,7 +35,7 @@ namespace Sample
             }
         }
 
-        public TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)
+        public TestClient(string endpoint = default, global::Sample.TestClientOptions options) : this(null, endpoint, options)
         {
         }
 
