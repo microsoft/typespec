@@ -10,7 +10,6 @@ import { resolve } from "pathe";
 import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
 import current from "./src/content/current-sidebar";
-import releaseNotes from "./src/content/release-notes-sidebar";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
@@ -33,11 +32,10 @@ export default defineConfig({
           label: "🚀 Release Notes",
           link: "/release-notes/",
         },
-        ...(await processSidebar(
-          resolve(import.meta.dirname, "src/content/docs"),
-          "release-notes",
-          releaseNotes,
-        )),
+        {
+          label: "🚀 Release Notes",
+          autogenerate: { directory: "release-notes" },
+        },
       ],
       favicon: "/img/favicon.svg",
       customCss: ["./src/css/custom.css"],
