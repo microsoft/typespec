@@ -109,7 +109,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
             ClientSettings = isIndividuallyInitialized
                 && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
-                && (ClientOptions == null || !ClientOptions.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                 ? new ClientSettingsProvider(_inputClient, this)
                 : null;
             IsMultiServiceClient = _inputClient.IsMultiServiceClient;
