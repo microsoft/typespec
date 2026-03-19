@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Model of example for service client method (usually for Fluent Premium).
@@ -92,7 +93,13 @@ public class FluentClientMethodExample implements FluentMethodExample {
             throw new IllegalStateException("Package '" + namespace + "' is not supported by Fluent Premium");
         }
 
-        String serviceClientReference = ModelNaming.METHOD_SERVICE_CLIENT + "()";
+        String serviceClientReference;
+        Optional<String> metadataSuffix = FluentStatic.getFluentJavaSettings().getMetadataSuffix();
+        if (metadataSuffix.isPresent() && SECONDARY_SERVICE_CLIENT_ACCESSOR.containsKey(metadataSuffix.get())) {
+            serviceClientReference = SECONDARY_SERVICE_CLIENT_ACCESSOR.get(metadataSuffix.get()) + "()";
+        } else {
+            serviceClientReference = ModelNaming.METHOD_SERVICE_CLIENT + "()";
+        }
         String methodGroupReference = "get" + CodeNamer.toPascalCase(methodGroup.getVariableName()) + "()";
         return serviceClientReference + "." + methodGroupReference;
     }
@@ -127,5 +134,31 @@ public class FluentClientMethodExample implements FluentMethodExample {
         MANAGER_REFERENCE.put("sql", "sqlServers()");
         MANAGER_REFERENCE.put("storage", "storageAccounts()");
         MANAGER_REFERENCE.put("trafficmanager", "trafficManagerProfiles()");
+    }
+
+    // Maps metadata-suffix (from secondary specs in multi-spec packages) to the service client
+    // accessor method on the SDK Manager class. When a secondary spec shares a Manager with the
+    // primary spec, serviceClient() returns the primary inner client. This map provides the correct
+    // accessor for the secondary inner client.
+    // Source of truth:
+    // https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/resourcemanager/api-specs.json
+    private static final Map<String, String> SECONDARY_SERVICE_CLIENT_ACCESSOR = new HashMap<>();
+    static {
+        // resources package secondaries (ResourceManager)
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("feature", "featureClient");
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("policy", "policyClient");
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("lock", "managementLockClient");
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("subscription", "subscriptionClient");
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("change", "resourceChangeClient");
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("databoundary", "dataBoundaryClient");
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("deployments", "deploymentClient");
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("deploymentstacks", "deploymentStackClient");
+        // appservice package secondaries (AppServiceManager)
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("certificateregistration", "certificateRegistrationClient");
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("domainregistration", "domainRegistrationClient");
+        // containerregistry package secondary (ContainerRegistryManager)
+        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("registrytasks", "taskClient");
+        // authorization: msgraph uses default serviceClient() (AuthorizationManager implements
+        // HasServiceClient<MicrosoftGraphClient>), no override needed
     }
 }
