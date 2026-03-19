@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -42,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void TestProperties_WithEndpoint()
+        public void TestGeneratedSettings_WithStringEndpoint()
         {
             var inputParameters = new[]
             {
@@ -59,13 +60,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsNotNull(settingsProvider);
 
-            var properties = settingsProvider!.Properties;
-            // String endpoint parameter should produce a string? property, not Uri?
-            var endpointProp = properties.FirstOrDefault(p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(string), isNullable: true)));
-            Assert.IsNotNull(endpointProp, "Settings should have an Endpoint property of type string?");
-
-            var optionsProp = properties.FirstOrDefault(p => p.Name == "Options");
-            Assert.IsNotNull(optionsProp, "Settings should have an Options property");
+            var writer = new TypeProviderWriter(settingsProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -78,50 +75,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Settings provider should exist but without endpoint-related properties
             Assert.IsNotNull(settingsProvider);
 
-            var endpointProp = settingsProvider!.Properties.FirstOrDefault(p => p.Name == "Endpoint");
+            var endpointProp = settingsProvider!.Properties.FirstOrDefault(p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
             Assert.IsNull(endpointProp, "Settings should not have an Endpoint property when no endpoint parameter exists");
         }
 
         [Test]
-        public void TestBindCoreMethod_WithEndpoint()
-        {
-            var inputParameters = new[]
-            {
-                InputFactory.EndpointParameter(
-                    "endpoint",
-                    InputPrimitiveType.String,
-                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
-                    scope: InputParameterScope.Client,
-                    isEndpoint: true)
-            };
-            var client = InputFactory.Client("TestClient", parameters: inputParameters);
-            var clientProvider = new ClientProvider(client);
-            var settingsProvider = clientProvider.ClientSettings;
-
-            Assert.IsNotNull(settingsProvider);
-
-            var methods = settingsProvider!.Methods;
-            var bindCoreMethod = methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
-            Assert.IsNotNull(bindCoreMethod, "Settings should have a BindCore method");
-
-            // Validate it's protected override
-            Assert.AreEqual(
-                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override,
-                bindCoreMethod!.Signature.Modifiers);
-
-            // Validate it has section parameter
-            Assert.AreEqual(1, bindCoreMethod.Signature.Parameters.Count);
-            Assert.AreEqual("section", bindCoreMethod.Signature.Parameters[0].Name);
-
-            // Validate the body uses string binding for string endpoint parameter
-            var body = bindCoreMethod.BodyStatements;
-            Assert.IsNotNull(body);
-            var bodyString = body!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("IsNullOrEmpty"), "BindCore should use string.IsNullOrEmpty for string endpoint binding");
-        }
-
-        [Test]
-        public void TestProperties_WithUrlEndpoint()
+        public void TestGeneratedSettings_WithUrlEndpoint()
         {
             var inputParameters = new[]
             {
@@ -137,35 +96,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsNotNull(settingsProvider);
 
-            var properties = settingsProvider!.Properties;
-            // Url endpoint parameter should produce a Uri? property
-            var endpointProp = properties.FirstOrDefault(p => p.Name == "Endpoint" && p.Type.Equals(new CSharpType(typeof(Uri), isNullable: true)));
-            Assert.IsNotNull(endpointProp, "Settings should have an Endpoint property of type Uri? for Url endpoint");
-        }
-
-        [Test]
-        public void TestBindCoreMethod_WithUrlEndpoint()
-        {
-            var inputParameters = new[]
-            {
-                InputFactory.EndpointParameter(
-                    "endpoint",
-                    InputPrimitiveType.Url,
-                    scope: InputParameterScope.Client,
-                    isEndpoint: true)
-            };
-            var client = InputFactory.Client("TestClient", parameters: inputParameters);
-            var clientProvider = new ClientProvider(client);
-            var settingsProvider = clientProvider.ClientSettings;
-
-            Assert.IsNotNull(settingsProvider);
-
-            var bindCoreMethod = settingsProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
-            Assert.IsNotNull(bindCoreMethod);
-
-            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("Uri.TryCreate"), "BindCore should use Uri.TryCreate for Url endpoint binding");
-            Assert.IsTrue(bodyString.Contains("UriKind.Absolute"), "BindCore should use UriKind.Absolute for Url endpoint binding");
+            var writer = new TypeProviderWriter(settingsProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -838,5 +771,75 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(ClientSettingsProvider.ClientSettingsType, settingsProvider!.Type.BaseType,
                 "Sub-client settings should inherit from ClientSettings");
         }
+
+        [Test]
+        public void TestSettingsConstructor_WithStringEndpoint()
+        {
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var settingsConstructor = clientProvider.Constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNotNull(settingsConstructor, "Expected a settings constructor for string endpoint");
+
+            // Validate the initializer references the settings endpoint property
+            var initializer = settingsConstructor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsFalse(initializer!.IsBase, "Settings constructor should use this() initializer");
+
+            // The initializer should have arguments for auth policy, endpoint, and options
+            Assert.IsTrue(initializer.Arguments.Count >= 3,
+                "Settings constructor initializer should have at least 3 arguments (auth, endpoint, options)");
+
+            // Validate the endpoint argument references settings?.Endpoint
+            var endpointArg = initializer.Arguments[1].ToDisplayString();
+            Assert.IsTrue(endpointArg.Contains("Endpoint"),
+                $"Endpoint argument should reference Endpoint property, got: {endpointArg}");
+        }
+
+        [Test]
+        public void TestSettingsConstructor_WithUrlEndpoint()
+        {
+            var inputParameters = new[]
+            {
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client("TestClient", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var settingsConstructor = clientProvider.Constructors.FirstOrDefault(IsSettingsConstructor);
+            Assert.IsNotNull(settingsConstructor, "Expected a settings constructor for URL endpoint");
+
+            // Validate the initializer references the settings endpoint property
+            var initializer = settingsConstructor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsFalse(initializer!.IsBase, "Settings constructor should use this() initializer");
+
+            // The initializer should have arguments for auth policy, endpoint, and options
+            Assert.IsTrue(initializer.Arguments.Count >= 3,
+                "Settings constructor initializer should have at least 3 arguments (auth, endpoint, options)");
+
+            // Validate the endpoint argument references settings?.Endpoint
+            var endpointArg = initializer.Arguments[1].ToDisplayString();
+            Assert.IsTrue(endpointArg.Contains("Endpoint"),
+                $"Endpoint argument should reference Endpoint property, got: {endpointArg}");
+        }
+
+        private static bool IsSettingsConstructor(ConstructorProvider c) =>
+            c.Signature?.Initializer != null &&
+            c.Signature?.Modifiers == MethodSignatureModifiers.Public &&
+            c.Signature.Parameters.Any(p => p.Name == "settings");
     }
 }

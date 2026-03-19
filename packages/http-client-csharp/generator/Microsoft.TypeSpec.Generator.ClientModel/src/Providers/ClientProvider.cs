@@ -706,7 +706,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IEnumerable<ConstructorProvider> BuildSettingsConstructors()
         {
-            if (ClientSettings == null || ClientSettings.EndpointPropertyName == null)
+            if (ClientSettings == null || ClientSettings.EndpointProperty == null)
             {
                 yield break;
             }
@@ -731,8 +731,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             args.Add(Static(typeof(AuthenticationPolicy)).Invoke("Create", settingsParam));
 #pragma warning restore SCME0002
 
-            // endpoint argument - we know EndpointPropertyName is not null at this point
-            args.Add(new MemberExpression(new NullConditionalExpression(settingsParam), ClientSettings.EndpointPropertyName));
+            // endpoint argument - we know EndpointProperty is not null at this point
+            args.Add(new MemberExpression(new NullConditionalExpression(settingsParam), ClientSettings.EndpointProperty.Name));
 
             // other required parameters (non-auth, non-endpoint) in primary constructor order
             foreach (var param in ClientSettings.OtherRequiredParams)
