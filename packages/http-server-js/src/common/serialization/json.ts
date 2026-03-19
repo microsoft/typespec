@@ -295,7 +295,6 @@ export function transposeExpressionToJson(
     case "ModelProperty":
       return transposeExpressionToJson(ctx, type.type, expr, module);
     case "Enum":
-      // Enums are emitted as primitive-valued TS enums, so JSON transformation is a no-op.
       return expr;
     case "Intrinsic":
       switch (type.name) {
@@ -541,7 +540,6 @@ export function transposeExpressionFromJson(
     case "ModelProperty":
       return transposeExpressionFromJson(ctx, type.type, expr, module);
     case "Enum":
-      // Enums are emitted as primitive-valued TS enums, so JSON transformation is a no-op.
       return expr;
     case "Intrinsic":
       switch (type.name) {
