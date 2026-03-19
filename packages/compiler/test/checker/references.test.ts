@@ -1,6 +1,7 @@
 /* eslint-disable vitest/valid-describe-callback */
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
+import { getNodeAtPosition } from "../../src/core/parser.js";
 import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
 import { expectDiagnostics, expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
@@ -779,6 +780,27 @@ describe("compiler: references", () => {
         `,
         ref: "WrappedParameters.value::type.select",
       }));
+
+    it("resolves parameter members through wrappers over templated operation instances", async () => {
+      const result = await Tester.compile({
+        "main.tsp": `
+          op testOp<T>(select: T, other: string): void;
+          model ParametersWrapper<O extends Reflection.Operation> {
+            value: O::parameters;
+          }
+          alias WrappedParameters = ParametersWrapper<testOp<string>>;
+          model RefContainer { y: WrappedParameters.value::type.select }
+        `,
+      });
+
+      const file = result.program.sourceFiles.get("/test/main.tsp")!;
+      const text = file.file.text;
+      const wrappedSelect = getNodeAtPosition(file, text.lastIndexOf("select") + 1)!;
+      const wrappedSymbols = result.program.checker.resolveRelatedSymbols(wrappedSelect as any);
+
+      ok(wrappedSymbols?.[0], "Expected wrapped parameter symbol to resolve.");
+      strictEqual(wrappedSymbols[0].name, "select");
+    });
 
     it("emits a diagnostic when referencing a non-existent meta type property", async () => {
       const diagnostics = await Tester.diagnose(`

@@ -3657,17 +3657,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       baseEntity.kind === "TemplateParameterAccess" &&
       baseEntity.node.selector === "::"
     ) {
-      if (shouldUseLateBoundTemplateAccessType(accessedType)) {
-        return createLateBoundTypeSymbol(node, accessedType);
-      }
-      return getTypeSymbol(accessedType) ?? createLateBoundTypeSymbol(node, accessedType);
+      return getPreferredTemplateAccessSymbol(node, accessedType);
     }
 
     if (ctx.mapper !== undefined) {
-      if (shouldUseLateBoundTemplateAccessType(accessedType)) {
-        return createLateBoundTypeSymbol(node, accessedType);
-      }
-      return getTypeSymbol(accessedType) ?? createLateBoundTypeSymbol(node, accessedType);
+      return getPreferredTemplateAccessSymbol(node, accessedType);
     }
 
     return createTemplateAccessSymbol(baseEntity, node, accessedType, useCache);
@@ -3714,10 +3708,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
-    if (shouldUseLateBoundTemplateAccessType(resolvedType)) {
-      return createLateBoundTypeSymbol(node, resolvedType);
-    }
-    return getTypeSymbol(resolvedType) ?? createLateBoundTypeSymbol(node, resolvedType);
+    return getPreferredTemplateAccessSymbol(node, resolvedType);
   }
 
   /** Return true when a type declaration is templated but has not been instantiated. */
@@ -3732,6 +3723,54 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /** Return true when the resolved type should remain late-bound due to templating. */
   function shouldUseLateBoundTemplateAccessType(type: Type): boolean {
     return "templateMapper" in type && type.templateMapper !== undefined;
+  }
+
+  /**
+   * Prefer canonical member symbols for resolved template access results when they already exist.
+   * This preserves symbol identity for downstream cloning and doc lookups in instantiated flows.
+   */
+  function getPreferredTemplateAccessSymbol(node: MemberExpressionNode, type: Type): Sym {
+    const canonicalMemberSymbol = getCanonicalTemplateAccessMemberSymbol(type);
+    if (canonicalMemberSymbol) {
+      return canonicalMemberSymbol;
+    }
+
+    if (!shouldUseLateBoundTemplateAccessType(type)) {
+      return getTypeSymbol(type) ?? createLateBoundTypeSymbol(node, type);
+    }
+
+    return createLateBoundTypeSymbol(node, type);
+  }
+
+  /** Return the exact instantiated member symbol for a resolved type when one exists. */
+  function getCanonicalTemplateAccessMemberSymbol(type: Type): Sym | undefined {
+    switch (type.kind) {
+      case "ModelProperty":
+        return getExactInstantiatedMemberSymbol(type.model?.symbol, type.name, type);
+      case "Operation":
+        return getExactInstantiatedMemberSymbol(type.interface?.symbol, type.name, type);
+      case "EnumMember":
+        return getExactInstantiatedMemberSymbol(type.enum?.symbol, type.name, type);
+      case "UnionVariant":
+        return getExactInstantiatedMemberSymbol(type.union?.symbol, type.name, type);
+      case "ScalarConstructor":
+        return getExactInstantiatedMemberSymbol(type.scalar?.symbol, type.name, type);
+      default:
+        return undefined;
+    }
+  }
+
+  function getExactInstantiatedMemberSymbol(
+    containerSymbol: Sym | undefined,
+    memberName: string | symbol,
+    type: Type,
+  ): Sym | undefined {
+    if (!containerSymbol || typeof memberName !== "string") {
+      return undefined;
+    }
+
+    const memberSymbol = getMemberSymbol(containerSymbol, memberName);
+    return memberSymbol?.type === type ? memberSymbol : undefined;
   }
 
   /**
@@ -4371,15 +4410,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    const resolvedSymbol = getTypeSymbol(resolvedType);
-    if (
-      resolvedSymbol &&
-      !("templateMapper" in resolvedType && resolvedType.templateMapper !== undefined)
-    ) {
-      return resolvedSymbol;
-    }
-
-    return createLateBoundTypeSymbol(node, resolvedType);
+    return getPreferredTemplateAccessSymbol(node, resolvedType);
   }
 
   /** Resolve the effective type used for member lookup on a base symbol. */
@@ -4398,6 +4429,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function createLateBoundTypeSymbol(node: MemberExpressionNode, type: Type): Sym {
     const symbol = createSymbol(node, node.id.sv, SymbolFlags.LateBound);
     mutate(symbol).type = type;
+    const symbolSource = getCanonicalTemplateAccessMemberSymbol(type);
+    if (symbolSource) {
+      mutate(symbol).symbolSource = symbolSource.symbolSource ?? symbolSource;
+    }
     return symbol;
   }
 
@@ -6445,7 +6480,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const shouldRunDecorators = !ctx.hasFlags(CheckFlags.InTemplateDeclaration);
     if (!parentTemplate || shouldRunDecorators) {
-      const docComment = docFromCommentForSym.get(sym);
+      const docComment = getDocCommentForSymbol(sym);
       if (docComment) {
         type.decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
@@ -6463,6 +6498,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         { value: createLiteralType(doc), jsValue: doc },
       ],
     };
+  }
+
+  function getDocCommentForSymbol(sym: Sym | undefined): string | undefined {
+    return sym
+      ? (docFromCommentForSym.get(sym) ??
+          (sym.symbolSource && docFromCommentForSym.get(sym.symbolSource)))
+      : undefined;
   }
 
   function checkDefaultValue(ctx: CheckContext, defaultNode: Node, type: Type): Value | null {
@@ -7810,7 +7852,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): T {
     let clone = initializeClone(type, additionalProps);
     if ("decorators" in clone) {
-      const docComment = docFromCommentForSym.get(sym);
+      const docComment = getDocCommentForSymbol(sym);
       if (docComment) {
         clone.decorators.push(createDocFromCommentDecorator("self", docComment));
       }
