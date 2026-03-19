@@ -96,12 +96,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     this));
             }
 
-            if (_clientProvider.ClientOptions != null)
+            var clientOptions = _clientProvider.EffectiveClientOptions;
+            if (clientOptions != null)
             {
                 properties.Add(new PropertyProvider(
                     null,
                     MethodSignatureModifiers.Public,
-                    _clientProvider.ClientOptions.Type.WithNullable(true),
+                    clientOptions.Type.WithNullable(true),
                     "Options",
                     new AutoPropertyBody(true),
                     this));
@@ -126,9 +127,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
             }
 
-            if (_clientProvider.ClientOptions != null)
+            var clientOptions = _clientProvider.EffectiveClientOptions;
+            if (clientOptions != null)
             {
-                AppendComplexObjectBinding(body, sectionParam, "Options", "options", _clientProvider.ClientOptions.Type);
+                AppendComplexObjectBinding(body, sectionParam, "Options", "options", clientOptions.Type);
             }
 
             var bindCoreMethod = new MethodProvider(

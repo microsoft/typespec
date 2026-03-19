@@ -3,7 +3,7 @@ jobs:
     displayName: Build Packages
 
     variables:
-      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+      TYPESPEC_SKIP_WEBSITE_BUILD: true # Disable docusaurus build
 
     steps:
       - template: /eng/tsp-core/pipelines/templates/install.yml

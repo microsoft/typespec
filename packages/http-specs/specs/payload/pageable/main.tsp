@@ -141,6 +141,53 @@ namespace ServerDrivenPagination {
     };
   };
 
+  /** Scenario where the initial request is not a GET request. However following the next link always result in a GET request. */
+  namespace AlternateInitialVerb {
+    model Filter {
+      filter: string;
+    }
+
+    @scenario
+    @scenarioDoc("""
+      Test case for initial POST request followed by GET for next pages using link pagination.
+      The initial request is a POST with a filter body, and the next page is fetched using a GET request on the next link.
+      
+      Two requests need to be tested.
+      1. Initial request (POST):
+      Expected route: /payload/pageable/server-driven-pagination/link/initial-post
+      Expected request body:
+      ```json
+      { "filter": "foo eq bar" }
+      ```
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ],
+        "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc"
+      }
+      ```
+      2. Next page request (GET):
+      Expected route: /payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+        ]
+      }
+      ```
+      """)
+    @route("/link/initial-post")
+    @list
+    @post
+    op post(@body body: Filter): {
+      @pageItems pets: Pet[];
+      @nextLink next?: url;
+    };
+  }
+
   @route("/continuationtoken")
   namespace ContinuationToken {
     @scenario

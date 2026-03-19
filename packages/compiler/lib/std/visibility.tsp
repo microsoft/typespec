@@ -299,11 +299,59 @@ model VisibilityFilter {
  * }
  * ```
  */
+#deprecated "withVisibilityFilter is deprecated and will be removed in a future release. Use the `FilterVisibility` template or Lifecycle specific templates (e.g. `Read`, `Create`, `Update`, etc.) instead."
 extern dec withVisibilityFilter(
   target: Model,
   filter: valueof VisibilityFilter,
   nameTemplate?: valueof string
 );
+
+/**
+ * A copy of the input model `M` with only the properties that match the given visibility filter.
+ *
+ * This transformation is recursive, so it will also apply the filter to any nested
+ * or referenced models that are the types of any properties in the `target`.
+ *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
+ * @template M the model to apply the visibility filter to.
+ * @template Filter the visibility filter to apply to the properties of the target model.
+ * @template NameTemplate the name template to use when renaming new type instances.
+ *
+ * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(CustomVisibility.A)
+ *   id: int32;
+ *   @removeVisibility(CustomVisibility.A)
+ *   name: string;
+ * }
+ *
+ * enum CustomVisibility {
+ *   A,
+ *   B,
+ * }
+ *
+ * const customFilter: VisibilityFilter = #{ all: #[CustomVisibility.A] };
+ *
+ * // This model will have the `id` property but not the `name` property, since `id` has the CustomVisibility.A visibility and `name` does not.
+ * model DogRead is FilterVisibility<Dog, customFilter, "Read{name}">;
+ * ```
+ */
+alias FilterVisibility<
+  M extends Model,
+  Filter extends valueof VisibilityFilter,
+  NameTemplate extends valueof string
+> = applyVisibilityFilter(M, Filter, NameTemplate);
+
+#suppress "experimental-feature"
+internal extern fn applyVisibilityFilter(
+  input: Model,
+  filter: valueof VisibilityFilter,
+  nameTemplate?: valueof string
+): Model;
 
 /**
  * Transforms the `target` model to include only properties that are visible during the
@@ -338,7 +386,11 @@ extern dec withVisibilityFilter(
  * }
  * ```
  */
+#deprecated "withLifecycleUpdate is deprecated and will be removed in a future release. Use the `Update` template instead."
 extern dec withLifecycleUpdate(target: Model, nameTemplate?: valueof string);
+
+#suppress "experimental-feature"
+internal extern fn applyLifecycleUpdate(input: Model, nameTemplate?: valueof string): Model;
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -366,12 +418,10 @@ extern dec withLifecycleUpdate(target: Model, nameTemplate?: valueof string);
  * model CreateDog is Create<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Create] }, NameTemplate)
-model Create<T extends Reflection.Model, NameTemplate extends valueof string = "Create{name}"> {
-  ...T;
-}
+alias Create<
+  T extends Model,
+  NameTemplate extends valueof string = "Create{name}"
+> = applyVisibilityFilter(T, #{ all: #[Lifecycle.Create] }, NameTemplate);
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -405,12 +455,10 @@ model Create<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model ReadDog is Read<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Read] }, NameTemplate)
-model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Read{name}"> {
-  ...T;
-}
+alias Read<
+  T extends Model,
+  NameTemplate extends valueof string = "Read{name}"
+> = applyVisibilityFilter(T, #{ all: #[Lifecycle.Read] }, NameTemplate);
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -445,12 +493,10 @@ model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Re
  * model UpdateDog is Update<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withLifecycleUpdate(NameTemplate)
-model Update<T extends Reflection.Model, NameTemplate extends valueof string = "Update{name}"> {
-  ...T;
-}
+alias Update<
+  T extends Model,
+  NameTemplate extends valueof string = "Update{name}"
+> = applyLifecycleUpdate(T, NameTemplate);
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -487,15 +533,10 @@ model Update<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model CreateOrUpdateDog is CreateOrUpdate<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ any: #[Lifecycle.Create, Lifecycle.Update] }, NameTemplate)
-model CreateOrUpdate<
-  T extends Reflection.Model,
+alias CreateOrUpdate<
+  T extends Model,
   NameTemplate extends valueof string = "CreateOrUpdate{name}"
-> {
-  ...T;
-}
+> = applyVisibilityFilter(T, #{ any: #[Lifecycle.Create, Lifecycle.Update] }, NameTemplate);
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -531,12 +572,10 @@ model CreateOrUpdate<
  * model DeleteDog is Delete<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Delete] }, NameTemplate)
-model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "Delete{name}"> {
-  ...T;
-}
+alias Delete<
+  T extends Model,
+  NameTemplate extends valueof string = "Delete{name}"
+> = applyVisibilityFilter(T, #{ all: #[Lifecycle.Delete] }, NameTemplate);
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -580,9 +619,7 @@ model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model QueryDog is Query<Dog>;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Query] }, NameTemplate)
-model Query<T extends Reflection.Model, NameTemplate extends valueof string = "Query{name}"> {
-  ...T;
-}
+alias Query<
+  T extends Model,
+  NameTemplate extends valueof string = "Query{name}"
+> = applyVisibilityFilter(T, #{ all: #[Lifecycle.Query] }, NameTemplate);

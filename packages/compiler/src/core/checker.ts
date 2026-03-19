@@ -785,12 +785,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (entity.valueKind === "Function") return entity;
       return constraint ? inferScalarsFromConstraints(entity, constraint.type) : entity;
     }
-    // If a template parameter that can be a value is used in a template declaration then we allow it but we return null because we don't have an actual value.
+    // If a template parameter that can be a value is used where a value is expected,
+    // synthesize a template value placeholder even when the template parameter is mapped
+    // from an outer template declaration.
     if (
       entity.kind === "TemplateParameter" &&
       entity.constraint?.valueType &&
-      entity.constraint.type === undefined &&
-      ctx.mapper === undefined
+      entity.constraint.type === undefined
     ) {
       // We must also observe that the template parameter is used here.
       // ctx.observeTemplateParameter(entity);
@@ -5140,6 +5141,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (entity.entityKind === "Type") {
+      if (
+        entity.kind === "TemplateParameter" &&
+        entity.constraint?.valueType &&
+        entity.constraint.type === undefined
+      ) {
+        return [
+          createValue(
+            {
+              entityKind: "Value",
+              valueKind: "TemplateValue",
+              type: entity.constraint.valueType,
+            },
+            entity.constraint.valueType,
+          ) as any,
+          [],
+        ];
+      }
       return [
         null,
         [
