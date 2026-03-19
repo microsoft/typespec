@@ -6,7 +6,7 @@ import Link from "@typespec/astro-utils/components/link.astro";
 
 export type Props = {
   post: {
-    slug?: string;
+    id: string;
     data: {
       slug?: string;
       redirect_slug?: string;
@@ -21,8 +21,8 @@ export type Props = {
 
 const { post, imageLoading } = Astro.props;
 
-// Get the actual slug to use - prioritize data.slug, then post.slug, then fallback to data.redirect_slug
-const postSlug = post.data.slug || post.slug || post.data.redirect_slug || "";
+// Get the actual slug to use - prioritize data.slug, then post.id, then fallback to data.redirect_slug
+const postSlug = post.data.slug || post.id || post.data.redirect_slug || "";
 
 // Use the determined slug for image resolution
 const image = post.data.image && (await resolveBlogImagePath(postSlug, post.data.image));

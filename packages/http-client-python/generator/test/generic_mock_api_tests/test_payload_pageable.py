@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from payload.pageable import PageableClient
+from payload.pageable.serverdrivenpagination.alternateinitialverb.models import Filter
 
 
 @pytest.fixture
@@ -90,4 +91,9 @@ def test_xml_pagination_list_with_continuation(client: PageableClient):
 
 def test_xml_pagination_list_with_next_link(client: PageableClient):
     result = list(client.xml_pagination.list_with_next_link())
+    assert_result(result)
+
+
+def test_alternate_initial_verb_post(client: PageableClient):
+    result = list(client.server_driven_pagination.alternate_initial_verb.post(Filter(filter="foo eq bar")))
     assert_result(result)
