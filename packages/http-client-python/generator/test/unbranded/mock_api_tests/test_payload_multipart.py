@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from payload.multipart import MultiPartClient, models
 from payload.multipart.formdata.httpparts.nonstring.models import FloatRequest
+from payload.multipart.formdata.file import models as file_models
 
 JPG = Path(__file__).parent / "data/image.jpg"
 PNG = Path(__file__).parent / "data/image.png"
@@ -168,5 +169,32 @@ def test_optional_parts(client: MultiPartClient):
         models.MultiPartOptionalRequest(
             id="123",
             profile_image=open(str(JPG), "rb"),
+        )
+    )
+
+
+def test_file_upload_file_specific_content_type(client: MultiPartClient):
+    client.form_data.file.upload_file_specific_content_type(
+        file_models.UploadFileSpecificContentTypeRequest(
+            file=("image.png", open(str(PNG), "rb"), "image/png"),
+        )
+    )
+
+
+def test_file_upload_file_required_filename(client: MultiPartClient):
+    client.form_data.file.upload_file_required_filename(
+        file_models.UploadFileRequiredFilenameRequest(
+            file=("image.png", open(str(PNG), "rb"), "image/png"),
+        )
+    )
+
+
+def test_file_upload_file_array(client: MultiPartClient):
+    client.form_data.file.upload_file_array(
+        file_models.UploadFileArrayRequest(
+            files=[
+                ("image.png", open(str(PNG), "rb"), "image/png"),
+                ("image.png", open(str(PNG), "rb"), "image/png"),
+            ],
         )
     )

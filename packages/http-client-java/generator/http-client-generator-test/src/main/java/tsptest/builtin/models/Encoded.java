@@ -447,12 +447,12 @@ public final class Encoded implements JsonSerializable<Encoded> {
                 } else if ("unknownBytes".equals(fieldName)) {
                     deserializedEncoded.unknownBytes = reader.getString();
                 } else if ("commaDeliminatedArray".equals(fieldName)) {
-                    String commaDeliminatedArrayEncodedAsString = reader.getString();
-                    List<String> commaDeliminatedArray = commaDeliminatedArrayEncodedAsString == null
-                        ? null
-                        : commaDeliminatedArrayEncodedAsString.isEmpty()
+                    List<String> commaDeliminatedArray = reader.getNullable(nonNullReader -> {
+                        String commaDeliminatedArrayEncodedAsString = nonNullReader.getString();
+                        return commaDeliminatedArrayEncodedAsString.isEmpty()
                             ? new LinkedList<>()
                             : new LinkedList<>(Arrays.asList(commaDeliminatedArrayEncodedAsString.split(",", -1)));
+                    });
                     deserializedEncoded.commaDeliminatedArray = commaDeliminatedArray;
                 } else {
                     reader.skipChildren();

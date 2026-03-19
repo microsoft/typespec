@@ -47,9 +47,7 @@ export type DeclarationType = Model | Enum | Union | Interface | Scalar;
  */
 export function isImportableType(ctx: JsContext, t: Type): t is DeclarationType {
   return (
-    (t.kind === "Model" &&
-      !isArrayModelType(ctx.program, t) &&
-      !isRecordModelType(ctx.program, t)) ||
+    (t.kind === "Model" && !isArrayModelType(t) && !isRecordModelType(t)) ||
     t.kind === "Enum" ||
     t.kind === "Interface"
   );

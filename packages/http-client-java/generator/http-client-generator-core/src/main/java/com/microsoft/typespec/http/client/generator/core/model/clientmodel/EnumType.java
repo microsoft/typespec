@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * The details of an enumerated type that is used by a service.
  */
-public class EnumType implements IType, ConvertToJsonTypeTrait {
+public class EnumType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonTypeTrait {
     /**
      * The name of the new Enum.
      */
@@ -231,6 +231,11 @@ public class EnumType implements IType, ConvertToJsonTypeTrait {
     @Override
     public String convertToJsonType(String variableName) {
         return variableName + " == null ? null : " + variableName + "." + getToMethodName() + "()";
+    }
+
+    @Override
+    public String convertFromJsonType(String variableName) {
+        return variableName + " == null ? null : " + getName() + "." + getFromMethodName() + "(" + variableName + ")";
     }
 
     public static class Builder {

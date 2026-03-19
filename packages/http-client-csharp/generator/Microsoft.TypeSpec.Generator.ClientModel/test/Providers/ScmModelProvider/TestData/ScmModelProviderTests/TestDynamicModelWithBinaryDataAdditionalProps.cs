@@ -2,32 +2,39 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
+using System.ClientModel.Primitives;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using Sample;
 
 namespace Sample.Models
 {
     public partial class DynamicModel
     {
-        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
+        private global::System.ClientModel.Primitives.JsonPatch _patch;
 
         public DynamicModel(string p1)
         {
             global::Sample.Argument.AssertNotNull(p1, nameof(p1));
 
             P1 = p1;
-            _additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
         }
 
-        internal DynamicModel(string p1, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalProperties)
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        internal DynamicModel(string p1, in global::System.ClientModel.Primitives.JsonPatch patch)
         {
             P1 = p1;
-            _additionalBinaryDataProperties = additionalProperties;
+            _patch = patch;
         }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+        [global::System.Text.Json.Serialization.JsonIgnoreAttribute]
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0001")]
+        public ref global::System.ClientModel.Primitives.JsonPatch Patch => ref _patch;
 
         public string P1 { get; set; }
-
-        public global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> AdditionalProperties => _additionalBinaryDataProperties;
     }
 }

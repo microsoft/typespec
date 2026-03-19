@@ -448,6 +448,70 @@ describe("parseApiVersions", () => {
     ok(barClient.apiVersions.includes("bv1"), "Bar client should include bv1");
     ok(barClient.apiVersions.includes("bv2"), "Bar client should include bv2");
   });
+
+  it("should include all API versions from @versioned enum", async () => {
+    const program = await typeSpecCompile(
+      `
+      @service(#{
+        title: "Test Service",
+      })
+      @versioned(Versions)
+      namespace TestService;
+      
+      enum Versions {
+        v1: "v1",
+        v2: "v2",
+        v3: "v3",
+      }
+      
+      @route("/test")
+      op test(): void;
+      `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // Verify all three versions are present in the root apiVersions
+    strictEqual(root.apiVersions.length, 3, "Should have 3 apiVersions");
+    ok(root.apiVersions.includes("v1"), "Should include v1");
+    ok(root.apiVersions.includes("v2"), "Should include v2");
+    ok(root.apiVersions.includes("v3"), "Should include v3");
+  });
+
+  it("should preserve version order from TCGC", async () => {
+    const program = await typeSpecCompile(
+      `
+      @service(#{
+        title: "Test Service",
+      })
+      @versioned(Versions)
+      namespace TestService;
+      
+      enum Versions {
+        "2023-01-01",
+        "2024-01-01",
+        "2025-01-01",
+      }
+      
+      @route("/test")
+      op test(): void;
+      `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // Verify versions are in the order TCGC provides them
+    strictEqual(root.apiVersions.length, 3, "Should have 3 apiVersions");
+    strictEqual(root.apiVersions[0], "2023-01-01", "First version should be 2023-01-01");
+    strictEqual(root.apiVersions[1], "2024-01-01", "Second version should be 2024-01-01");
+    strictEqual(root.apiVersions[2], "2025-01-01", "Third version should be 2025-01-01");
+  });
 });
 
 describe("createModel diagnostic collection", () => {
@@ -472,17 +536,21 @@ describe("createModel diagnostic collection", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const result = createModel(sdkContext);
-    
+
     // Verify the result is a tuple
     ok(Array.isArray(result), "Result should be an array (tuple)");
     strictEqual(result.length, 2, "Result should have exactly 2 elements");
-    
+
     const [codeModel, diagnostics] = result;
-    
+
     // Verify the code model
     ok(codeModel, "CodeModel should be defined");
-    strictEqual(codeModel.name, "Azure.Csharp.Testing", "CodeModel name should be Azure.Csharp.Testing");
-    
+    strictEqual(
+      codeModel.name,
+      "Azure.Csharp.Testing",
+      "CodeModel name should be Azure.Csharp.Testing",
+    );
+
     // Verify diagnostics is an array
     ok(Array.isArray(diagnostics), "Diagnostics should be an array");
   });
@@ -502,7 +570,7 @@ describe("createModel diagnostic collection", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const [, diagnostics] = createModel(sdkContext);
-    
+
     // Verify diagnostics array exists (may be empty or contain diagnostics)
     ok(diagnostics !== undefined, "Diagnostics should not be undefined");
     ok(Array.isArray(diagnostics), "Diagnostics should be an array");

@@ -1,14 +1,13 @@
 import { beforeEach, describe, it } from "vitest";
 import { createUnusedTemplateParameterLinterRule } from "../../src/core/linter-rules/unused-template-parameter.rule.js";
 import { LinterRuleTester, createLinterRuleTester } from "../../src/testing/rule-tester.js";
-import { createTestRunner } from "../../src/testing/test-host.js";
+import { Tester } from "../tester.js";
 
 let ruleTester: LinterRuleTester;
 
 beforeEach(async () => {
-  const runner = await createTestRunner();
   ruleTester = createLinterRuleTester(
-    runner,
+    await Tester.createInstance(),
     createUnusedTemplateParameterLinterRule(),
     "@typespec/compiler",
   );

@@ -12,5 +12,6 @@
   "optionalLiteralInt": 456,
   "optionalLiteralFloat": 4.56,
   "optionalLiteralBool": false,
-  "requiredNullableString": null
+  "requiredNullableString": null,
+  "propertyWithSpecialDocs": "someValue"
 }

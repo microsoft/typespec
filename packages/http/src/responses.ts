@@ -15,7 +15,11 @@ import {
   Type,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decorators.js";
+import {
+  getOperationVerb,
+  getStatusCodeDescription,
+  getStatusCodesWithDiagnostics,
+} from "./decorators.js";
 import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
@@ -118,8 +122,11 @@ function processResponseType(
   }
 
   // Get body
+  const verb = getOperationVerb(program, operation);
   let { body: resolvedBody, metadata } = diagnostics.pipe(
-    resolveHttpPayload(program, responseType, Visibility.Read, HttpPayloadDisposition.Response),
+    resolveHttpPayload(program, responseType, Visibility.Read, HttpPayloadDisposition.Response, {
+      treatContentTypeAsHeader: verb === "head",
+    }),
   );
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(

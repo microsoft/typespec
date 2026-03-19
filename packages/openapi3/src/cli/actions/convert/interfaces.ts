@@ -170,6 +170,7 @@ export interface TypeSpecOperationParameter {
   name: string;
   in: string;
   doc?: string;
+  directives?: TypeSpecDirective[];
   decorators: TypeSpecDecorator[];
   isOptional: boolean;
   schema: Refable<SupportedOpenAPISchema>;

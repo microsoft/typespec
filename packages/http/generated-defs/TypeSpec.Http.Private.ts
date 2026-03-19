@@ -1,6 +1,7 @@
 import type {
   DecoratorContext,
   DecoratorValidatorCallbacks,
+  FunctionContext,
   Model,
   ModelProperty,
   Type,
@@ -32,6 +33,17 @@ export type HttpPartDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
+ * Specify if inapplicable metadata should be included in the payload for the given entity.
+ *
+ * @param value If true, inapplicable metadata will be included in the payload.
+ */
+export type IncludeInapplicableMetadataInPayloadDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  value: boolean,
+) => DecoratorValidatorCallbacks | void;
+
+/**
  * Performs the canonical merge-patch transformation on the given model and injects its
  * transformed properties into the target.
  */
@@ -41,17 +53,6 @@ export type ApplyMergePatchDecorator = (
   source: Model,
   nameTemplate: string,
   options: ApplyMergePatchOptions,
-) => DecoratorValidatorCallbacks | void;
-
-/**
- * Specify if inapplicable metadata should be included in the payload for the given entity.
- *
- * @param value If true, inapplicable metadata will be included in the payload.
- */
-export type IncludeInapplicableMetadataInPayloadDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: boolean,
 ) => DecoratorValidatorCallbacks | void;
 
 /**
@@ -78,8 +79,19 @@ export type TypeSpecHttpPrivateDecorators = {
   plainData: PlainDataDecorator;
   httpFile: HttpFileDecorator;
   httpPart: HttpPartDecorator;
-  applyMergePatch: ApplyMergePatchDecorator;
   includeInapplicableMetadataInPayload: IncludeInapplicableMetadataInPayloadDecorator;
+  applyMergePatch: ApplyMergePatchDecorator;
   mergePatchModel: MergePatchModelDecorator;
   mergePatchProperty: MergePatchPropertyDecorator;
+};
+
+export type ApplyMergePatchTransformFunctionImplementation = (
+  context: FunctionContext,
+  input: Model,
+  nameTemplate: string,
+  options: ApplyMergePatchOptions,
+) => Model;
+
+export type TypeSpecHttpPrivateFunctions = {
+  applyMergePatchTransform: ApplyMergePatchTransformFunctionImplementation;
 };

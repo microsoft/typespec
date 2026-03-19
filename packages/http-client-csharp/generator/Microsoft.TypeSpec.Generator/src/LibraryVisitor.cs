@@ -94,13 +94,11 @@ namespace Microsoft.TypeSpec.Generator
                     }
                 }
 
-                // Update the type with the potentially modified members, filtering out customized members
-                // after the visitors have been applied so that the filtering is done against the final version.
                 type.Update(
-                    type.FilterCustomizedMethods(methods),
-                    type.FilterCustomizedConstructors(constructors),
-                    type.FilterCustomizedProperties(properties),
-                    type.FilterCustomizedFields(fields),
+                    methods,
+                    constructors,
+                    properties,
+                    fields,
                     serializations,
                     nestedTypes);
                 type = PostVisitType(type);

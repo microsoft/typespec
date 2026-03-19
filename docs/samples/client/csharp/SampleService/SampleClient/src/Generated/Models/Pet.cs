@@ -31,6 +31,15 @@ namespace SampleTypeSpec
             Trained = trained;
         }
 
+        /// <summary> Initializes a new instance of <see cref="Pet"/>. </summary>
+        /// <param name="kind"> The kind of animal. </param>
+        /// <param name="name"> Name of the animal. </param>
+        /// <param name="trained"> Whether the pet is trained. </param>
+        private protected Pet(string kind, string name, bool trained) : base(kind, name)
+        {
+            Trained = trained;
+        }
+
         /// <summary> Whether the pet is trained. </summary>
         public bool Trained { get; set; }
     }

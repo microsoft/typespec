@@ -56,6 +56,7 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 | `pnpm lint:fix`             | Fix autofixable issues                                                                                                                                    |
 | `pnpm regen-samples`        | Regen the samples(when the samples test fail)                                                                                                             |
 | `pnpm regen-docs`           | Regen the reference docs                                                                                                                                  |
+| `pnpm tsp-integration`      | Run integration tests against external repos using local package changes                                                                                  |
 
 ### Verbose test logging
 
@@ -70,7 +71,7 @@ TYPESPEC_VERBOSE_TEST_OUTPUT=true.
 ### Recommended extensions
 
 1. [Vitest Test Explorer](https://marketplace.visualstudio.com/items?itemName=vitest.explorer): Run tests from the IDE.
-2. [Prettier](https://marketplace.visualstudio.com/items?itemName=prettier.prettier-vscode): Automatically keep code formatted correctly on save.
+2. [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode): Automatically keep code formatted correctly on save.
 3. [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint): Show eslint errors in warnings in UI.
 4. [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker): Show spell check errors in document.
 
@@ -202,6 +203,62 @@ configuration in Visual Studio, then you can install it by
 double-clicking on packages/typespec-vs/Microsoft.TypeSpec.VisualStudio.vsix
 that gets produced.
 
+## Integration testing
+
+The `tsp-integration` tool allows you to test your local TypeSpec package changes against external repositories (e.g., `azure-rest-api-specs`). It clones the target repo, patches its `package.json` to use your local packages, installs dependencies, and compiles all TypeSpec projects found in the repo.
+
+### Configuration
+
+Integration test suites are defined in `.typespec-integration/config.yaml` at the repo root. Each suite specifies a target repository, branch, glob pattern for finding TypeSpec projects.
+
+### Running from workspace root
+
+```bash
+pnpm integration-test <suite-name>
+```
+
+### CLI options
+
+| Option             | Short | Description                                                                                                                                                               |
+| ------------------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--clean`          |       | Force a fresh clone instead of reusing an existing checkout. By default the tool resets and pulls the existing repo.                                                      |
+| `--stage <name>`   |       | Run only specific stages. Can be specified multiple times. Valid stages: `checkout`, `patch`, `install`, `validate`, `validate:clean`.                                    |
+| `--interactive`    | `-i`  | Enable interactive watch mode. After the initial run you can press **a** to rerun all tests, **f** to rerun only failed tests, or **q** to quit.                          |
+| `--tgz-dir <path>` |       | Use pre-built `.tgz` package artifacts from the given directory instead of resolving packages from the local workspace. Useful in CI with artifacts from `pnpm pack:all`. |
+| `--repo <path>`    |       | Use an existing local repository checkout instead of cloning into the default temp directory (`.typespec-integration/temp/<suite>`).                                      |
+
+### Examples
+
+```bash
+# Run all stages for the azure-specs suite
+pnpm tsp-integration azure-specs
+
+# Force a fresh clone
+pnpm tsp-integration azure-specs --clean
+
+# Interactive mode — rerun failed specs on the fly
+pnpm tsp-integration azure-specs --interactive
+
+# Test against a local clone of azure-rest-api-specs
+pnpm tsp-integration azure-specs --repo ~/dev/azure-rest-api-specs
+
+# Only run the validate stage (skip checkout, patch, install)
+pnpm tsp-integration azure-specs --stage validate
+
+# Use pre-built .tgz artifacts (CI scenario)
+pnpm tsp-integration azure-specs --tgz-dir ./temp/artifacts
+```
+
+### Stages
+
+The tool runs the following stages in order:
+
+1. **checkout** — Clones (or resets) the target repository.
+2. **patch** — Resolves local TypeSpec package versions and patches `package.json` / `overrides` in the target repo.
+3. **install** — Runs `npm install --no-package-lock` in the target repo, then restores the original `package.json`.
+4. **validate** — Finds all TypeSpec projects matching the configured pattern and compiles each entrypoint, running compilations in parallel.
+5. **validate:clean** — Verifies the target repo has no uncommitted changes after validation.
+
 ## TypeSpec website
 
 ### Run locally
@@ -211,6 +268,28 @@ Go to `packages/website` and run the command:
 ```bash
 pnpm start
 ```
+
+## Creating release notes
+
+Release notes are published at each release in `website/src/content/docs/docs/release-notes/`. They follow the pattern `release-YYYY-MM-DD.md`.
+
+Run the following command to generate the changelog:
+
+```bash
+pnpm chronus changelog --policy typespec-stable --policy typespec-preview
+```
+
+Create a new file `website/src/content/docs/docs/release-notes/release-YYYY-MM-DD.md` with this frontmatter and paste the command output below it, removing the `Dependencies` category:
+
+```markdown
+---
+title: "X.Y.0"
+releaseDate: YYYY-MM-DD
+version: "X.Y.0"
+---
+```
+
+See existing release notes for examples.
 
 # Pull request
 
@@ -302,36 +381,36 @@ TypeSpec repo use labels to help categorize and manage issues and PRs. The follo
 
 Area of the codebase
 
-| Name                         | Color   | Description                                                       |
-| ---------------------------- | ------- | ----------------------------------------------------------------- |
-| `compiler:core`              | #453261 | Issues for @typespec/compiler                                     |
-| `compiler:emitter-framework` | #453261 | Issues for the emitter framework                                  |
-| `ide`                        | #846da1 | Issues for VS, VSCode, Monaco, etc.                               |
-| `lib:http`                   | #c7aee6 |                                                                   |
-| `lib:openapi`                | #c7aee6 |                                                                   |
-| `lib:rest`                   | #c7aee6 |                                                                   |
-| `lib:versioning`             | #c7aee6 |                                                                   |
-| `lib:http-specs`             | #c7aee6 | For issues/prs related to the @typespec/http-specs package        |
-| `meta:blog`                  | #007dc8 | Blog updates                                                      |
-| `meta:website`               | #007dc8 | TypeSpec.io updates                                               |
-| `tspd`                       | #004185 | Issues for the tspd tool                                          |
-| `emitter:client:all`         | #e1b300 | General issue for client emitters                                 |
-| `emitter:client:js`          | #e1b300 | Issue for the JS client emitter: @typespec/http-client-js         |
-| `emitter:client:csharp`      | #e1b300 | Issue for the C# client emitter: @typespec/http-client-csharp     |
-| `emitter:client:java`        | #e1b300 | Issue for the Java client emitter: @typespec/http-client-java     |
-| `emitter:client:python`      | #e1b300 | Issue for the Python client emitter: @typespec/http-client-python |
-| `emitter:graphql`            | #957300 | Issues for @typespec/graphql emitter                              |
-| `emitter:json-schema`        | #957300 |                                                                   |
-| `emitter:protobuf`           | #957300 | The protobuf emitter                                              |
-| `emitter:openapi3`           | #957300 | Issues for @typespec/openapi3 emitter                             |
-| `openapi3:converter`         | #957300 | Issues for @typespec/openapi3 openapi to typespec converter       |
-| `emitter:service:csharp`     | #967200 |                                                                   |
-| `emitter:service:js`         | #967200 |                                                                   |
-| `emitter:service:java`       | #967200 | Issue for Java service emitter                                    |
-| `spector`                    | #65bfff | Issues related to spector and the spec sets                       |
-| `eng`                        | #65bfff |                                                                   |
-| `ui:playground`              | #3256a8 |                                                                   |
-| `ui:type-graph-viewer`       | #3256a8 |                                                                   |
+| Name                     | Color   | Description                                                       |
+| ------------------------ | ------- | ----------------------------------------------------------------- |
+| `compiler:core`          | #453261 | Issues for @typespec/compiler                                     |
+| `emitter-framework`      | #453261 | Issues for the emitter framework                                  |
+| `ide`                    | #846da1 | Issues for VS, VSCode, Monaco, etc.                               |
+| `lib:http`               | #c7aee6 |                                                                   |
+| `lib:openapi`            | #c7aee6 |                                                                   |
+| `lib:rest`               | #c7aee6 |                                                                   |
+| `lib:versioning`         | #c7aee6 |                                                                   |
+| `lib:http-specs`         | #c7aee6 | For issues/prs related to the @typespec/http-specs package        |
+| `meta:blog`              | #007dc8 | Blog updates                                                      |
+| `meta:website`           | #007dc8 | TypeSpec.io updates                                               |
+| `tspd`                   | #004185 | Issues for the tspd tool                                          |
+| `emitter:client:all`     | #e1b300 | General issue for client emitters                                 |
+| `emitter:client:js`      | #e1b300 | Issue for the JS client emitter: @typespec/http-client-js         |
+| `emitter:client:csharp`  | #e1b300 | Issue for the C# client emitter: @typespec/http-client-csharp     |
+| `emitter:client:java`    | #e1b300 | Issue for the Java client emitter: @typespec/http-client-java     |
+| `emitter:client:python`  | #e1b300 | Issue for the Python client emitter: @typespec/http-client-python |
+| `emitter:graphql`        | #957300 | Issues for @typespec/graphql emitter                              |
+| `emitter:json-schema`    | #957300 |                                                                   |
+| `emitter:protobuf`       | #957300 | The protobuf emitter                                              |
+| `emitter:openapi3`       | #957300 | Issues for @typespec/openapi3 emitter                             |
+| `openapi3:converter`     | #957300 | Issues for @typespec/openapi3 openapi to typespec converter       |
+| `emitter:service:csharp` | #967200 |                                                                   |
+| `emitter:service:js`     | #967200 |                                                                   |
+| `emitter:service:java`   | #967200 | Issue for Java service emitter                                    |
+| `spector`                | #65bfff | Issues related to spector and the spec sets                       |
+| `eng`                    | #65bfff |                                                                   |
+| `ui:playground`          | #3256a8 |                                                                   |
+| `ui:type-graph-viewer`   | #3256a8 |                                                                   |
 
 #### issue_kinds
 
@@ -378,12 +457,11 @@ Process labels
 
 Misc labels
 
-| Name                       | Color   | Description           |
-| -------------------------- | ------- | --------------------- |
-| `1_0_E2E`                  | #5319E7 |                       |
-| `Client Emitter Migration` | #FD92F0 |                       |
-| `good first issue`         | #7057ff | Good for newcomers    |
-| `mq`                       | #0969da | Good candidate for MQ |
+| Name               | Color   | Description                                        |
+| ------------------ | ------- | -------------------------------------------------- |
+| `good first issue` | #7057ff | Good for newcomers                                 |
+| `mq`               | #0969da | Good candidate for MQ                              |
+| `int:azure-specs`  | #0e8a16 | Run integration tests against azure-rest-api-specs |
 
 <!-- LABEL GENERATED REF END -->
 

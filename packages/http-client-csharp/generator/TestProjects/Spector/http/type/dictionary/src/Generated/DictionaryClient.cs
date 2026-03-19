@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _Type.Dictionary
 {
@@ -11,7 +12,12 @@ namespace _Type.Dictionary
     {
         public DictionaryClient() : this(new Uri("http://localhost:3000"), new DictionaryClientOptions()) => throw null;
 
-        public DictionaryClient(Uri endpoint, DictionaryClientOptions options) => throw null;
+        internal DictionaryClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, DictionaryClientOptions options) => throw null;
+
+        public DictionaryClient(Uri endpoint, DictionaryClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public DictionaryClient(DictionaryClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

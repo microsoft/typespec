@@ -5,10 +5,11 @@ using System;
 using System.ClientModel.Primitives;
 using System.Linq;
 using System.Text.Json;
+using System.Xml;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
-using Microsoft.TypeSpec.Generator.ClientModel.Tests;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -427,6 +428,181 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateXmlGetDateTimeOffsetMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var getDateTimeOffsetMethods = methods.Where(m => m.Signature.Name == "GetDateTimeOffset").ToList();
+            Assert.IsTrue(getDateTimeOffsetMethods.Count >= 2, "GetDateTimeOffset methods should include both JsonElement and XElement versions");
+
+            // Check XElement version
+            var xElementMethod = getDateTimeOffsetMethods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 2 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement));
+            Assert.IsNotNull(xElementMethod, "GetDateTimeOffset for XElement should be generated");
+            Assert.AreEqual(typeof(DateTimeOffset), xElementMethod!.Signature.ReturnType?.FrameworkType);
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(typeof(string), xElementMethod.Signature.Parameters[1].Type.FrameworkType);
+        }
+
+        [Test]
+        public void ValidateXmlGetTimeSpanMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var getTimeSpanMethods = methods.Where(m => m.Signature.Name == "GetTimeSpan").ToList();
+            Assert.IsTrue(getTimeSpanMethods.Count >= 2, "GetTimeSpan methods should include both JsonElement and XElement versions");
+
+            // Check XElement version
+            var xElementMethod = getTimeSpanMethods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 2 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement));
+            Assert.IsNotNull(xElementMethod, "GetTimeSpan for XElement should be generated");
+            Assert.AreEqual(typeof(TimeSpan), xElementMethod!.Signature.ReturnType?.FrameworkType);
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(typeof(string), xElementMethod.Signature.Parameters[1].Type.FrameworkType);
+        }
+
+        [Test]
+        public void ValidateXmlGetBytesFromBase64MethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var getBytesFromBase64Methods = methods.Where(m => m.Signature.Name == "GetBytesFromBase64").ToList();
+            Assert.IsTrue(getBytesFromBase64Methods.Count >= 2, "GetBytesFromBase64 methods should include both JsonElement and XElement versions");
+
+            // Check XElement version
+            var xElementMethod = getBytesFromBase64Methods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 2 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement));
+            Assert.IsNotNull(xElementMethod, "GetBytesFromBase64 for XElement should be generated");
+            Assert.AreEqual(typeof(byte[]), xElementMethod!.Signature.ReturnType?.FrameworkType);
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(typeof(string), xElementMethod.Signature.Parameters[1].Type.FrameworkType);
+        }
+
+        [Test]
+        public void ValidateXmlWriteStringValueMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var writeStringValueMethods = methods
+                .Where(m => m.Signature.Name == "WriteStringValue"
+                    && m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.IsTrue(writeStringValueMethods.Count == 2);
+
+            var xmlWriterDateTimeOverload = writeStringValueMethods.FirstOrDefault(m =>
+                m.Signature.Parameters.Count == 3 &&
+                m.Signature.Parameters[1].Type.FrameworkType == typeof(DateTimeOffset));
+            Assert.IsNotNull(xmlWriterDateTimeOverload);
+
+            var xmlWriterTimeSpanOverload = writeStringValueMethods.FirstOrDefault(m =>
+                m.Signature.Parameters.Count == 3 &&
+                m.Signature.Parameters[1].Type.FrameworkType == typeof(TimeSpan));
+            Assert.IsNotNull(xmlWriterTimeSpanOverload);
+        }
+
+        [Test]
+        public void ValidateXmlWriteObjectValueMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var writeStringValueMethods = methods
+                .Where(m => m.Signature.Name == "WriteObjectValue"
+                    && m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.IsTrue(writeStringValueMethods.Count == 1);
+        }
+
+        [Test]
+        public void ValidateXmlWriteBase64StringVAlueMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var writeStringValueMethods = methods
+                .Where(m => m.Signature.Name == "WriteBase64StringValue"
+                    && m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.IsTrue(writeStringValueMethods.Count == 1);
+        }
+
+        [Test]
+        public void ValidateXmlMethodsAreNotGeneratedWhenNoXmlSupport()
+        {
+            // Load generator without any XML models
+            MockHelpers.LoadMockGenerator();
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+
+            // Verify that no XElement methods are generated
+            var xElementMethods = methods.Where(m =>
+                m.Signature.Parameters.Count > 0 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement)).ToList();
+            Assert.AreEqual(0, xElementMethods.Count, "No XElement methods should be generated when library doesn't support XML");
         }
     }
 }

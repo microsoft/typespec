@@ -9,9 +9,6 @@ configuration:
     eventResponderTasks:
       - if:
           - payloadType: Pull_Request
-          - not:
-              isActivitySender:
-                user: Copilot
         then:
           - if:
               - includesModifiedFiles:
@@ -22,10 +19,11 @@ configuration:
                   label: compiler:core
           - if:
               - includesModifiedFiles:
-                  files: []
+                  files:
+                    - packages/emitter-framework/**/*
             then:
               - addLabel:
-                  label: compiler:emitter-framework
+                  label: emitter-framework
           - if:
               - includesModifiedFiles:
                   files:

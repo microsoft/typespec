@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             Doc = doc;
             Methods = methods;
             Parameters = parameters;
+            IsMultiServiceClient = isMultiServiceClient;
             Parent = parent;
             Children = children ?? [];
             ApiVersions = apiVersions ?? [];

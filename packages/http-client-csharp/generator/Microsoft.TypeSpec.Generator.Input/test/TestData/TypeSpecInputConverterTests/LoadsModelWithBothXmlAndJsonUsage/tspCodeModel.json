@@ -1,0 +1,51 @@
+{
+    "$id": "1",
+    "kind": "model",
+    "name": "XmlAndJsonModel",
+    "namespace": "SampleTypeSpec",
+    "crossLanguageDefinitionId": "SampleTypeSpec.XmlAndJsonModel",
+    "usage": "Input,Output,Xml,Json",
+    "doc": "A model that supports both XML and JSON serialization",
+    "decorators": [],
+    "serializationOptions": {
+        "json": {
+            "name": "XmlAndJsonModel"
+        },
+        "xml": {
+            "name": "XmlAndJsonModelElement"
+        }
+    },
+    "properties": [
+        {
+            "$id": "2",
+            "kind": "property",
+            "name": "name",
+            "serializedName": "name",
+            "doc": "name property",
+            "type": {
+                "$id": "3",
+                "kind": "string",
+                "name": "string",
+                "crossLanguageDefinitionId": "TypeSpec.string",
+                "decorators": []
+            },
+            "optional": false,
+            "readOnly": false,
+            "discriminator": false,
+            "flatten": false,
+            "decorators": [],
+            "crossLanguageDefinitionId": "SampleTypeSpec.XmlAndJsonModel.name",
+            "serializationOptions": {
+                "json": {
+                    "name": "name"
+                },
+                "xml": {
+                    "name": "name",
+                    "attribute": false,
+                    "unwrapped": false
+                }
+            },
+            "isHttpMetadata": false
+        }
+    ]
+}

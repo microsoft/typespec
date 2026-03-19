@@ -52,6 +52,11 @@ public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
     }
 
     private IType createChoiceType(ChoiceSchema enumType) {
+        EnumType result = MapperUtils.mapExternalModel(enumType, true);
+        if (result != null) {
+            return result;
+        }
+
         IType elementType = Mappers.getSchemaMapper().map(enumType.getChoiceType());
         boolean isStringEnum = elementType == ClassType.STRING;
         JavaSettings javaSettings = JavaSettings.getInstance();

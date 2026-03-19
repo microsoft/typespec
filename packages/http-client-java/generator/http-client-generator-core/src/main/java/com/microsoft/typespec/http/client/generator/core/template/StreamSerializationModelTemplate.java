@@ -15,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyReference;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvertFromJsonTypeTrait;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvertToJsonTypeTrait;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
@@ -32,8 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -878,7 +877,11 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             }
 
             methodBlock.indent(() -> {
-                if (valueSerializationMethod != null) {
+                if (elementType == ClassType.BINARY_DATA) {
+                    // Special handling for BinaryData
+                    methodBlock.line("{ if (%1$s == null) { %2$s.writeNull(); } else { %1$s.writeTo(%2$s); } }",
+                        elementName, lambdaWriterName);
+                } else if (valueSerializationMethod != null) {
                     if (isJsonMergePatch && containerType instanceof MapType) {
                         methodBlock.block("", codeBlock -> codeBlock.ifBlock(elementName + "!= null", ifBlock -> {
                             if (elementType instanceof ClassType && ((ClassType) elementType).isSwaggerType()) {
@@ -907,8 +910,6 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     serializeJsonContainerProperty(methodBlock, "writeMap", elementType,
                         ((MapType) elementType).getValueType(), serializedName, propertyValueGetter, depth + 1,
                         isJsonMergePatch);
-                } else if (elementType == ClassType.BINARY_DATA) {
-                    methodBlock.line(elementName + ".writeTo(" + lambdaWriterName + ")");
                 } else {
                     throw new RuntimeException("Unknown value type " + elementType + " in " + containerType
                         + " serialization. Need to add support for it.");
@@ -1182,7 +1183,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     = (property, fromSuper) -> handleJsonPropertyDeserialization(property, whileBlock, ifBlockReference,
                         fromSuper, false);
 
-                Map<String, ClientModelProperty> modelPropertyMap = new HashMap<>();
+                Map<String, ClientModelProperty> modelPropertyMap = new LinkedHashMap<>();
                 for (ClientModelProperty parentProperty : ClientModelUtil.getParentProperties(model)) {
                     modelPropertyMap.put(parentProperty.getName(), parentProperty);
                 }
@@ -1623,13 +1624,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     deserializationBlock.line(property.getName() + " = reader.readUntyped();");
                 }
             } else if (wireType instanceof IterableType) {
-                final String propertyStringVariableName = property.getName() + "EncodedAsString";
                 IType wireElementType = ((IterableType) wireType).getElementType();
-                if (property.getArrayEncoding() != null) {
-                    // need to prepare the expression for propertyStringVariableName,
-                    // to be used in "if (property.getArrayEncoding() == null)" block
-                    deserializationBlock.line("String " + propertyStringVariableName + " = reader.getString();");
-                }
 
                 if (!propertiesManager.hasConstructorArguments()) {
                     deserializationBlock.text(property.getClientType() + " ");
@@ -1640,21 +1635,38 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType, wireElementType,
                         ((IterableType) clientType).getElementType(), 0);
                 } else {
+                    final String propertyStringVariableName = property.getName() + "EncodedAsString";
                     // LinkedList is used to be consistent with internal code of core, e.g. "readArray" API
                     if (wireElementType == ClassType.STRING) {
                         // wireType is String
-                        deserializationBlock.line(
-                            "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
-                            propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
+                        deserializationBlock.line("reader.getNullable(nonNullReader -> {");
+                        deserializationBlock.indent(() -> {
+                            deserializationBlock.line("String %1$s = nonNullReader.getString();",
+                                propertyStringVariableName);
+                            deserializationBlock.line(
+                                "return %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
+                                propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
+                        });
+                        deserializationBlock.line("});");
                     } else {
                         // wireType need to be converted from String
-                        String conversionExpress = wireElementType.defaultValueExpression("valueAsString")
-                            .replace("\"valueAsString\"", "valueAsString");
-                        deserializationBlock.line(
-                            "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.stream(%1$s.split(\"%2$s\", -1)).map(valueAsString -> %3$s).collect(Collectors.toList()));",
-                            propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter(),
-                            conversionExpress);
-
+                        if (wireElementType instanceof ConvertFromJsonTypeTrait) {
+                            String conversionExpress
+                                = ((ConvertFromJsonTypeTrait) wireElementType).convertFromJsonType("valueAsString");
+                            deserializationBlock.line("reader.getNullable(nonNullReader -> {");
+                            deserializationBlock.indent(() -> {
+                                deserializationBlock.line("String %1$s = nonNullReader.getString();",
+                                    propertyStringVariableName);
+                                deserializationBlock.line(
+                                    "return %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.stream(%1$s.split(\"%2$s\", -1)).map(valueAsString -> %3$s).collect(Collectors.toList()));",
+                                    propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter(),
+                                    conversionExpress);
+                            });
+                            deserializationBlock.line("});");
+                        } else {
+                            throw new RuntimeException("Unable to convert type " + wireElementType
+                                + " from String for ArrayEncoding serialization.");
+                        }
                     }
                 }
 
@@ -2494,16 +2506,50 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         private void generateXmlDeserializationLogic(JavaBlock deserializationBlock, ClientModelProperty property,
             boolean fromSuper) {
             IType wireType = property.getWireType();
+            IType clientType = property.getClientType();
 
             // Attempt to determine whether the wire type is simple deserialization.
             // This is primitives, boxed primitives, a small set of string based models, and other ClientModels.
             String simpleDeserialization
                 = getSimpleXmlDeserialization(wireType, property.getXmlName(), null, null, false);
             if (simpleDeserialization != null) {
-                if (propertiesManager.hasConstructorArguments()) {
-                    deserializationBlock.line(property.getName() + " = " + simpleDeserialization + ";");
+                boolean convertToClientType = (clientType != wireType)
+                    && (includePropertyInConstructor(property, settings)
+                        || (fromSuper && !ClientModelUtil.readOnlyNotInCtor(model, property, settings)));
+                BiConsumer<String, JavaBlock> simpleDeserializationConsumer = (logic, block) -> {
+                    if (!propertiesManager.hasConstructorArguments()) {
+                        handleSettingDeserializedValue(deserializationBlock, property, logic, fromSuper);
+                    } else {
+                        deserializationBlock.line(property.getName() + " = " + logic + ";");
+                    }
+                };
+
+                if (convertToClientType) {
+                    // If the wire type is nullable don't attempt to call the convert to client type until it's known
+                    // that
+                    // a value was deserialized. This protects against cases such as UnixTimeLong where the wire type is
+                    // Long and the client type of OffsetDateTime. This is converted using Instant.ofEpochMilli(long)
+                    // which
+                    // would result in a null if the Long is null, which is already guarded using
+                    // reader.readNullable(nonNullReader -> Instant.ofEpochMillis(nonNullReader.readLong())) but this
+                    // itself
+                    // returns null which would have been passed to OffsetDateTime.ofInstant(Instant, ZoneId) which
+                    // would
+                    // have thrown a NullPointerException.
+                    if (wireType.isNullable()) {
+                        // Check if the property is required, if so use a holder name as there will be an existing
+                        // holder
+                        // variable for the value that will be used in the constructor.
+                        String holderName = property.getName() + "Holder";
+                        deserializationBlock.line(wireType + " " + holderName + " = " + simpleDeserialization + ";");
+                        deserializationBlock.ifBlock(holderName + " != null", ifBlock -> simpleDeserializationConsumer
+                            .accept(wireType.convertToClientType(holderName), ifBlock));
+                    } else {
+                        simpleDeserializationConsumer.accept(wireType.convertToClientType(simpleDeserialization),
+                            deserializationBlock);
+                    }
                 } else {
-                    handleSettingDeserializedValue(deserializationBlock, property, simpleDeserialization, fromSuper);
+                    simpleDeserializationConsumer.accept(simpleDeserialization, deserializationBlock);
                 }
             } else if (wireType instanceof IterableType) {
                 IType elementType = ((IterableType) wireType).getElementType();
@@ -2622,7 +2668,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             getClientModelPropertiesInJsonTree(JsonFlattenedPropertiesTree tree) {
             if (tree.getProperty() != null) {
                 // Terminal node only contains a property.
-                return Collections.singletonList(tree.getProperty());
+                return List.of(tree.getProperty());
             } else {
                 List<ClientModelPropertyWithMetadata> treeProperties = new ArrayList<>();
                 for (JsonFlattenedPropertiesTree childNode : tree.getChildrenNodes().values()) {

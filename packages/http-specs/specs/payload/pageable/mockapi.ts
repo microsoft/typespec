@@ -4,8 +4,10 @@ import {
   json,
   MockRequest,
   passOnSuccess,
+  ResolverConfig,
   ScenarioMockApi,
   ValidationError,
+  xml,
 } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
@@ -171,6 +173,34 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_nestedLink = passOnSuccess([
         },
       }),
     },
+    kind: "MockApiDefinition",
+  },
+]);
+
+// POST-THEN-GET LINK PAGINATION
+Scenarios.Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post",
+    method: "post",
+    request: {
+      body: json({ filter: "foo eq bar" }),
+    },
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc`,
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post/nextPage",
+    method: "get",
+    request: {
+      query: { token: "abc" },
+    },
+    response: SecondResponse,
     kind: "MockApiDefinition",
   },
 ]);
@@ -511,3 +541,186 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
       kind: "MockApiDefinition",
     },
   ]);
+
+const XmlContTokenFirstPage = `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextMarker>page2</NextMarker>
+</PetListResult>
+`;
+
+const XmlContTokenSecondPage = `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+`;
+
+Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
+  {
+    uri: "/payload/pageable/xml/list-with-continuation",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: xml(XmlContTokenFirstPage),
+      headers: {
+        "content-type": "application/xml; charset=utf-8",
+      },
+    },
+    handler: (req: MockRequest) => {
+      const marker = req.query?.marker;
+
+      switch (marker) {
+        case undefined:
+          return {
+            status: 200,
+            body: xml(XmlContTokenFirstPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        case "page2":
+          return {
+            status: 200,
+            body: xml(XmlContTokenSecondPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        default:
+          throw new ValidationError("Unsupported marker", `"undefined" | "page2"`, marker);
+      }
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/xml/list-with-continuation",
+    method: "get",
+    request: { query: { marker: "page2" } },
+    response: {
+      status: 200,
+      body: xml(XmlContTokenSecondPage),
+      headers: {
+        "content-type": "application/xml; charset=utf-8",
+      },
+    },
+    handler: (req: MockRequest) => {
+      const marker = req.query?.marker;
+
+      switch (marker) {
+        case undefined:
+          return {
+            status: 200,
+            body: xml(XmlContTokenFirstPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        case "page2":
+          return {
+            status: 200,
+            body: xml(XmlContTokenSecondPage),
+            headers: {
+              "content-type": "application/xml",
+            },
+          };
+        default:
+          throw new ValidationError("Unsupported marker", `"undefined" | "page2"`, marker);
+      }
+    },
+    kind: "MockApiDefinition",
+  },
+]);
+
+const xmlNextLinkFirstPage = (baseUrl: string) => `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>1</Id>
+      <Name>dog</Name>
+    </Pet>
+    <Pet>
+      <Id>2</Id>
+      <Name>cat</Name>
+    </Pet>
+  </Pets>
+  <NextLink>${baseUrl}/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
+</PetListResult>
+`;
+
+const XmlNextLinkSecondPage = `
+<PetListResult>
+  <Pets>
+    <Pet>
+      <Id>3</Id>
+      <Name>bird</Name>
+    </Pet>
+    <Pet>
+      <Id>4</Id>
+      <Name>fish</Name>
+    </Pet>
+  </Pets>
+</PetListResult>
+`;
+
+Scenarios.Payload_Pageable_XmlPagination_listWithNextLink = passOnSuccess([
+  {
+    uri: "/payload/pageable/xml/list-with-next-link",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: {
+        contentType: "application/xml",
+        rawContent: {
+          serialize: (config: ResolverConfig) =>
+            `<?xml version='1.0' encoding='UTF-8'?>` + xmlNextLinkFirstPage(config.baseUrl),
+        },
+      },
+      headers: {
+        "content-type": "application/xml; charset=utf-8",
+      },
+    },
+    handler: (req: MockRequest) => {
+      return {
+        status: 200,
+        body: xml(xmlNextLinkFirstPage(req.baseUrl)),
+        headers: {
+          "content-type": "application/xml",
+        },
+      };
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/xml/list-with-next-link/nextPage",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: xml(XmlNextLinkSecondPage),
+      headers: {
+        "content-type": "application/xml; charset=utf-8",
+      },
+    },
+    kind: "MockApiDefinition",
+  },
+]);

@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -396,7 +395,7 @@ public class ClientModel {
      * @return The property references for this model.
      */
     public List<ClientModelPropertyReference> getPropertyReferences() {
-        return propertyReferences == null ? Collections.emptyList() : propertyReferences;
+        return propertyReferences == null ? List.of() : propertyReferences;
     }
 
     /**
@@ -626,7 +625,7 @@ public class ClientModel {
     public static class Builder {
         private String packageName;
         private String name;
-        private List<String> imports = Collections.emptyList();
+        private List<String> imports = List.of();
         private String description;
         private boolean isPolymorphic;
         private ClientModelProperty polymorphicDiscriminator;
@@ -634,7 +633,7 @@ public class ClientModel {
         private String serializedName;
         private boolean needsFlatten = false;
         private String parentModelName;
-        private List<ClientModel> derivedModels = Collections.emptyList();
+        private List<ClientModel> derivedModels = List.of();
         private String xmlName;
         private List<ClientModelProperty> properties;
         private String xmlNamespace;
@@ -644,7 +643,7 @@ public class ClientModel {
         private ImplementationDetails implementationDetails;
         private boolean usedInXml;
         private String crossLanguageDefinitionId;
-        private Set<String> serializationFormats = Collections.emptySet();
+        private Set<String> serializationFormats = Set.of();
 
         /**
          * Sets the package that this model class belongs to.
@@ -867,7 +866,7 @@ public class ClientModel {
          * @return the Builder itself
          */
         public Builder serializationFormats(Set<String> serializationFormats) {
-            this.serializationFormats = serializationFormats == null ? Collections.emptySet() : serializationFormats;
+            this.serializationFormats = serializationFormats == null ? Set.of() : serializationFormats;
             return this;
         }
 

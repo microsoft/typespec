@@ -11,13 +11,15 @@ namespace SampleTypeSpec
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
 
-        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
         internal PipelineMessage CreateGetWidgetMetricsRequest(string day, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/metrics/widgets/daysOfWeek/", false);
+            uri.AppendPath("/metrics/", false);
+            uri.AppendPath(_metricsNamespace, true);
+            uri.AppendPath("/widgets/daysOfWeek/", false);
             uri.AppendPath(day, true);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;

@@ -19,6 +19,7 @@ import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import specialwords.implementation.ModelPropertiesImpl;
 import specialwords.modelproperties.models.DictMethods;
+import specialwords.modelproperties.models.ModelWithList;
 import specialwords.modelproperties.models.SameAsModel;
 
 /**
@@ -101,6 +102,32 @@ public final class ModelPropertiesAsyncClient {
     }
 
     /**
+     * The withList operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     list: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> withListWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.withListWithResponseAsync(body, requestOptions);
+    }
+
+    /**
      * The sameAsModel operation.
      * 
      * @param body The body parameter.
@@ -138,5 +165,25 @@ public final class ModelPropertiesAsyncClient {
         // Generated convenience method for dictMethodsWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return dictMethodsWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The withList operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> withList(ModelWithList body) {
+        // Generated convenience method for withListWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return withListWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

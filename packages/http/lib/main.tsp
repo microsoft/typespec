@@ -307,14 +307,14 @@ scalar LinkHeader<T extends Record<url> | Link[]> extends string;
  * @patch op update(...MergePatchUpdate<Widget>): Widget;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@mediaTypeHint("application/merge-patch+json")
-@applyMergePatch(T, NameTemplate, #{ visibilityMode: Private.MergePatchVisibilityMode.Update })
-model MergePatchUpdate<
+alias MergePatchUpdate<
   T extends Reflection.Model,
   NameTemplate extends valueof string = "{name}MergePatchUpdate"
-> {}
+> = applyMergePatchTransform(
+  T,
+  NameTemplate,
+  #{ visibilityMode: Private.MergePatchVisibilityMode.Update }
+);
 
 /**
  * Create a MergePatch Request body for creating or updating the given resource Model.
@@ -351,15 +351,11 @@ model MergePatchUpdate<
  * @patch op update(...MergePatchCreateOrUpdate<Widget>): Widget;
  * ```
  */
-@doc("")
-@friendlyName(NameTemplate, T)
-@mediaTypeHint("application/merge-patch+json")
-@applyMergePatch(
+alias MergePatchCreateOrUpdate<
+  T extends Reflection.Model,
+  NameTemplate extends valueof string = "{name}MergePatchCreateOrUpdate"
+> = applyMergePatchTransform(
   T,
   NameTemplate,
   #{ visibilityMode: Private.MergePatchVisibilityMode.CreateOrUpdate }
-)
-model MergePatchCreateOrUpdate<
-  T extends Reflection.Model,
-  NameTemplate extends valueof string = "{name}MergePatchCreateOrUpdate"
-> {}
+);

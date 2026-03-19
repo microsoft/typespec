@@ -70,11 +70,7 @@ export function getEnumType(en: Enum): EnumValueType | undefined {
  * @returns true if the type is an array or a model property with array type, otherwise false
  */
 export function isArrayType(program: Program, type: ModelProperty | Scalar): boolean {
-  return (
-    type.kind === "ModelProperty" &&
-    type.type.kind === "Model" &&
-    isArrayModelType(program, type.type)
-  );
+  return type.kind === "ModelProperty" && type.type.kind === "Model" && isArrayModelType(type.type);
 }
 
 /** Inner representation of s string constraint */

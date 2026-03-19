@@ -133,7 +133,7 @@ function resolveBody(
   }
 
   // non-model or intrinsic/array model -> response body is response type
-  if (requestOrResponseType.kind !== "Model" || isArrayModelType(program, requestOrResponseType)) {
+  if (requestOrResponseType.kind !== "Model" || isArrayModelType(requestOrResponseType)) {
     return diagnostics.wrap({
       bodyKind: "single",
       ...diagnostics.pipe(
@@ -516,7 +516,7 @@ function resolvePartOrParts(
   visibility: Visibility,
   property?: ModelProperty,
 ): DiagnosticResult<HttpOperationPartCommon | undefined> {
-  if (type.kind === "Model" && isArrayModelType(program, type)) {
+  if (type.kind === "Model" && isArrayModelType(type)) {
     const [part, diagnostics] = resolvePart(program, type.indexer.value, visibility, property);
     if (part) {
       return [{ ...part, multi: true }, diagnostics];

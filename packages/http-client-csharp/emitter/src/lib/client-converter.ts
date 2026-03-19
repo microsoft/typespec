@@ -22,6 +22,7 @@ import {
 import {
   fromMethodParameter,
   fromSdkServiceMethod,
+  getMethodParameterSegments,
   getParameterDefaultValue,
 } from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
@@ -60,20 +61,32 @@ function fromSdkClient(
   const uri = getMethodUri(endpointParameter);
 
   // Convert all clientInitialization parameters
-  const clientParameters = diagnostics.pipe(fromSdkClientInitializationParameters(
-    sdkContext,
-    client.clientInitialization.parameters,
-    client.namespace,
-  ));
+  const clientParameters = diagnostics.pipe(
+    fromSdkClientInitializationParameters(
+      sdkContext,
+      client.clientInitialization.parameters,
+      client.namespace,
+    ),
+  );
+
+  const isMultiService = isMultiServiceClient(client);
+  const clientName =
+    !client.parent && isMultiService && !client.name.toLowerCase().endsWith("client")
+      ? `${client.name}Client`
+      : client.name;
 
   inputClient = {
     kind: "client",
-    name: client.name,
+    name: clientName,
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
     methods: client.methods
-      .map((m) => diagnostics.pipe(fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions, client.namespace)))
+      .map((m) =>
+        diagnostics.pipe(
+          fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions, client.namespace),
+        ),
+      )
       .filter((m) => m !== undefined),
     parameters: clientParameters,
     initializedBy: client.clientInitialization.initializedBy,
@@ -82,14 +95,16 @@ function fromSdkClient(
     apiVersions: client.apiVersions,
     parent: undefined,
     children: undefined,
-    isMultiServiceClient: isMultiServiceClient(client),
+    isMultiServiceClient: isMultiService,
   };
 
   sdkContext.__typeCache.updateSdkClientReferences(client, inputClient);
 
   // fill parent
   if (client.parent) {
-    inputClient.parent = diagnostics.pipe(fromSdkClient(sdkContext, client.parent, rootApiVersions));
+    inputClient.parent = diagnostics.pipe(
+      fromSdkClient(sdkContext, client.parent, rootApiVersions),
+    );
   }
   // fill children
   if (client.children) {
@@ -125,7 +140,9 @@ function fromSdkClient(
     return diagnostics.wrap(inputParameters);
   }
 
-  function fromSdkEndpointParameter(p: SdkEndpointParameter): [InputEndpointParameter[], readonly Diagnostic[]] {
+  function fromSdkEndpointParameter(
+    p: SdkEndpointParameter,
+  ): [InputEndpointParameter[], readonly Diagnostic[]] {
     const diagnostics = createDiagnosticCollector();
     if (p.type.kind === "union") {
       return diagnostics.wrap(diagnostics.pipe(fromSdkEndpointType(p.type.variantTypes[0])));
@@ -134,7 +151,9 @@ function fromSdkClient(
     }
   }
 
-  function fromSdkEndpointType(type: SdkEndpointType): [InputEndpointParameter[], readonly Diagnostic[]] {
+  function fromSdkEndpointType(
+    type: SdkEndpointType,
+  ): [InputEndpointParameter[], readonly Diagnostic[]] {
     const diagnostics = createDiagnosticCollector();
     // TODO: support free-style endpoint url with multiple parameters
     const endpointExpr = type.serverUrl
@@ -175,15 +194,16 @@ function fromSdkClient(
         optional: parameter.optional,
         scope: InputParameterScope.Client,
         isEndpoint: isEndpoint,
-        defaultValue: diagnostics.pipe(getParameterDefaultValue(
-          sdkContext,
-          parameter.clientDefaultValue,
-          parameterType,
-        )),
+        defaultValue: diagnostics.pipe(
+          getParameterDefaultValue(sdkContext, parameter.clientDefaultValue, parameterType),
+        ),
         serverUrlTemplate: type.serverUrl,
         skipUrlEncoding: false,
         readOnly: isReadOnly(parameter),
         crossLanguageDefinitionId: parameter.crossLanguageDefinitionId,
+        methodParameterSegments: diagnostics.pipe(
+          getMethodParameterSegments(sdkContext, parameter),
+        ),
       });
     }
     return diagnostics.wrap(parameters);

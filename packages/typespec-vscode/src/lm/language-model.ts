@@ -1,6 +1,6 @@
 import { inspect } from "util";
 import { LanguageModelChat, LanguageModelChatMessage, lm } from "vscode";
-import { ENABLE_LM_LOGGING } from "../const";
+import { debugLoggers } from "../debug";
 import logger, { LogItem } from "../log/logger";
 import { RetryResult, runWithRetry, runWithTimingLog } from "../utils";
 
@@ -23,7 +23,7 @@ export async function sendLmChatRequest(
   /** Only for logging purpose */
   id?: string,
 ): Promise<string | undefined> {
-  const logEnabled = process.env[ENABLE_LM_LOGGING] === "true";
+  const logEnabled = debugLoggers.lm.enabled;
   const lmLog = (item: LogItem) => {
     if (logEnabled || item.level === "error" || item.level === "warning") {
       logger.log(

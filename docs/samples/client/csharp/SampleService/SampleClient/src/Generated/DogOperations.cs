@@ -112,7 +112,7 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdateDogAsDog.");
                 Argument.AssertNotNull(dog, nameof(dog));
 
-                ClientResult result = UpdateDogAsDog(dog, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                ClientResult result = UpdateDogAsDog(dog, cancellationToken.ToRequestOptions());
                 return ClientResult.FromValue((Dog)result, result.GetRawResponse());
             }
             catch (Exception ex)
@@ -138,7 +138,7 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdateDogAsDogAsync.");
                 Argument.AssertNotNull(dog, nameof(dog));
 
-                ClientResult result = await UpdateDogAsDogAsync(dog, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                ClientResult result = await UpdateDogAsDogAsync(dog, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
                 return ClientResult.FromValue((Dog)result, result.GetRawResponse());
             }
             catch (Exception ex)

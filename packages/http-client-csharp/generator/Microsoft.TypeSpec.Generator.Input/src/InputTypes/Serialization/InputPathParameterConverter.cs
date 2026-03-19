@@ -66,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? serverUrlTemplate = null;
             bool allowReserved = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -85,7 +86,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadBoolean("explode", ref explode)
                     || reader.TryReadBoolean("skipUrlEncoding", ref skipUrlEncoding)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments);
 
                 if (!isKnownProperty)
                 {
@@ -106,9 +108,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputPathParameter)} must have a serializedName.");
             parameter.IsApiVersion = isApiVersion;
             parameter.DefaultValue = defaultValue;
-            parameter.Scope = InputParameter.ParseScope(type, name, scope);;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.Explode = explode;
             parameter.SkipUrlEncoding = skipUrlEncoding;
+            parameter.MethodParameterSegments = methodParameterSegments;
 
             return parameter;
         }

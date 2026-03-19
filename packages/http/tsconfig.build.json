@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*.ts", "generated-defs/**/*.ts"],
+  "exclude": ["**/*.test.*"],
+  "references": [{ "path": "../compiler/tsconfig.build.json" }]
+}

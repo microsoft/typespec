@@ -36,7 +36,8 @@ import payload.multipart.implementation.MultiPartClientImpl;
         FormDataClient.class,
         FormDataHttpPartsClient.class,
         FormDataHttpPartsContentTypeClient.class,
-        FormDataHttpPartsNonStringClient.class })
+        FormDataHttpPartsNonStringClient.class,
+        FormDataFileClient.class })
 public final class MultiPartClientBuilder
     implements HttpTrait<MultiPartClientBuilder>, ProxyTrait<MultiPartClientBuilder>,
     ConfigurationTrait<MultiPartClientBuilder>, EndpointTrait<MultiPartClientBuilder> {
@@ -272,5 +273,16 @@ public final class MultiPartClientBuilder
         MultiPartClientImpl innerClient = buildInnerClient();
         return new FormDataHttpPartsNonStringClient(innerClient.getFormDataHttpPartsNonStrings(),
             innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of FormDataFileClient class.
+     * 
+     * @return an instance of FormDataFileClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public FormDataFileClient buildFormDataFileClient() {
+        MultiPartClientImpl innerClient = buildInnerClient();
+        return new FormDataFileClient(innerClient.getFormDataFiles(), innerClient.getInstrumentation());
     }
 }

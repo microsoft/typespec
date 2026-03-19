@@ -189,7 +189,7 @@ function Update-MgmtGenerator {
 
     .PARAMETER EngFolder
         The eng folder path in azure-sdk-for-net. All other paths (mgmt generator, 
-        package paths, Packages.Data.props) are derived from this.
+        package paths, Directory.Generation.Packages.props) are derived from this.
 
     .PARAMETER DebugFolder
         The debug folder path where the packaged generators (.tgz files) are located.
@@ -305,7 +305,7 @@ function Update-AzureGenerator {
         2. Runs npm clean, install, and build
         3. Packages the Azure generator
         4. Builds and packages the Azure.Generator NuGet package
-        5. Updates Packages.Data.props with AzureGeneratorVersion
+        5. Updates Directory.Generation.Packages.props with AzureGeneratorVersion
         
         This function is designed to be called from RegenPreview.ps1.
 
@@ -319,7 +319,7 @@ function Update-AzureGenerator {
         The debug folder path where packaged artifacts will be stored.
 
     .PARAMETER PackagesDataPropsPath
-        Path to the Packages.Data.props file.
+        Path to the Directory.Generation.Packages.props file.
 
     .PARAMETER LocalVersion
         The version string to use for the local package (e.g., "1.0.0-alpha.20250127.abc123").
@@ -371,8 +371,8 @@ function Update-AzureGenerator {
     
     Write-Host "  Azure.Generator NuGet package created" -ForegroundColor Green
 
-    # Update Packages.Data.props with Azure generator version
-    Write-Host "Updating Packages.Data.props..." -ForegroundColor Gray
+    # Update Directory.Generation.Packages.props with Azure generator version
+    Write-Host "Updating Directory.Generation.Packages.props..." -ForegroundColor Gray
     $propsContent = Get-Content $PackagesDataPropsPath -Raw
     $pattern = '(<AzureGeneratorVersion>)([^<]+)(</AzureGeneratorVersion>)'
     
@@ -774,4 +774,195 @@ function Add-LocalNuGetSource {
     $nugetConfig.Save($NuGetConfigPath)
 }
 
-Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Update-OpenAIGenerator", "Add-LocalNuGetSource"
+function Update-AzureSpectorScenarios {
+    <#
+    .SYNOPSIS
+        Regenerates Azure spector test scenarios using local unbranded generator changes.
+
+    .DESCRIPTION
+        This function handles the Azure spector regeneration workflow:
+        1. Updates Directory.Generation.Packages.props with local NuGet version and adds local NuGet source
+        2. Temporarily updates the Azure generator's package.json to use the local unbranded package
+        3. Runs npm install to wire up the local dependency
+        4. Invokes the Azure generator's Generate.ps1 to regenerate spector scenarios
+        5. Restores all modified files to their original state
+        
+        This allows validating that local changes to the unbranded generator (both the TypeScript 
+        emitter and the C# generator framework) don't break the Azure generator's spector test scenarios.
+
+    .PARAMETER AzureGeneratorPath
+        Path to the Azure generator directory in azure-sdk-for-net (eng/packages/http-client-csharp).
+
+    .PARAMETER UnbrandedPackagePath
+        Path to the local unbranded TypeSpec emitter package (.tgz).
+
+    .PARAMETER LocalVersion
+        The version string used for the local NuGet packages.
+
+    .PARAMETER DebugFolder
+        The debug folder path where local NuGet packages are located.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$AzureGeneratorPath,
+        
+        [Parameter(Mandatory=$true)]
+        [string]$UnbrandedPackagePath,
+        
+        [Parameter(Mandatory=$true)]
+        [string]$LocalVersion,
+        
+        [Parameter(Mandatory=$true)]
+        [string]$DebugFolder
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    # Derive the azure-sdk-for-net root from the Azure generator path (eng/packages/http-client-csharp)
+    $sdkRepoPath = Resolve-Path (Join-Path $AzureGeneratorPath ".." ".." "..")
+
+    Write-Host "Azure generator path: $AzureGeneratorPath" -ForegroundColor Gray
+    Write-Host "Unbranded package: $UnbrandedPackagePath" -ForegroundColor Gray
+    Write-Host "Local NuGet version: $LocalVersion" -ForegroundColor Gray
+    Write-Host ""
+
+    $packageJsonPath = Join-Path $AzureGeneratorPath "package.json"
+    if (-not (Test-Path $packageJsonPath)) {
+        throw "Azure generator package.json not found: $packageJsonPath"
+    }
+
+    $originalPackageJson = Get-Content $packageJsonPath -Raw
+
+    # Save original Directory.Generation.Packages.props content for restore
+    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
+    $originalPackagesDataProps = $null
+    if (Test-Path $packagesDataPropsPath) {
+        $originalPackagesDataProps = Get-Content $packagesDataPropsPath -Raw
+    }
+
+    # Save original NuGet.Config content for restore
+    $nugetConfigPath = Join-Path $sdkRepoPath "NuGet.Config"
+    $originalNugetConfig = $null
+    if (Test-Path $nugetConfigPath) {
+        $originalNugetConfig = Get-Content $nugetConfigPath -Raw
+    }
+
+    try {
+        # Step 1: Update Directory.Generation.Packages.props with local NuGet version
+        if ($originalPackagesDataProps) {
+            Write-Host "Updating Directory.Generation.Packages.props with local NuGet version..." -ForegroundColor Gray
+            
+            $pattern = '(<UnbrandedGeneratorVersion>)([^<]+)(</UnbrandedGeneratorVersion>)'
+            
+            if ($originalPackagesDataProps -match $pattern) {
+                $newContent = $originalPackagesDataProps -replace $pattern, "<UnbrandedGeneratorVersion>$LocalVersion</UnbrandedGeneratorVersion>"
+                Set-Content $packagesDataPropsPath -Value $newContent -Encoding utf8 -NoNewline
+                Write-Host "  Updated UnbrandedGeneratorVersion to $LocalVersion" -ForegroundColor Green
+            } else {
+                throw "UnbrandedGeneratorVersion property not found in $packagesDataPropsPath"
+            }
+        }
+
+        # Step 2: Add local NuGet source
+        if ($originalNugetConfig) {
+            Write-Host "Adding local NuGet source..." -ForegroundColor Gray
+            Add-LocalNuGetSource -NuGetConfigPath $nugetConfigPath -SourcePath $DebugFolder
+        }
+
+        # Step 3: Update package.json to use local unbranded package
+        Write-Host "Updating Azure generator to use local unbranded package..." -ForegroundColor Gray
+        $packageJson = $originalPackageJson | ConvertFrom-Json
+
+        $updated = $false
+        if ($packageJson.dependencies -and $packageJson.dependencies.PSObject.Properties['@typespec/http-client-csharp']) {
+            $packageJson.dependencies.'@typespec/http-client-csharp' = "file:$UnbrandedPackagePath"
+            $updated = $true
+        }
+        if ($packageJson.devDependencies -and $packageJson.devDependencies.PSObject.Properties['@typespec/http-client-csharp']) {
+            $packageJson.devDependencies.'@typespec/http-client-csharp' = "file:$UnbrandedPackagePath"
+            $updated = $true
+        }
+
+        if (-not $updated) {
+            throw "@typespec/http-client-csharp not found in Azure generator's dependencies or devDependencies"
+        }
+
+        $packageJson | ConvertTo-Json -Depth 100 | Set-Content $packageJsonPath -Encoding UTF8
+        Write-Host "  Updated dependency to local package" -ForegroundColor Green
+
+        # Step 4: Install dependencies
+        Write-Host "Installing dependencies..." -ForegroundColor Gray
+        Push-Location $AzureGeneratorPath
+        try {
+            $installOutput = & npm install 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host $installOutput -ForegroundColor Red
+                throw "npm install failed in Azure generator"
+            }
+            Write-Host "  Dependencies installed" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
+
+        # Step 5: Run the Azure generator's Generate.ps1
+        $generateScript = Join-Path $AzureGeneratorPath "eng" "scripts" "Generate.ps1"
+        if (-not (Test-Path $generateScript)) {
+            throw "Azure generator Generate.ps1 not found: $generateScript"
+        }
+
+        Write-Host "Running Azure spector generation..." -ForegroundColor Gray
+        Push-Location $AzureGeneratorPath
+        try {
+            $output = & $generateScript -Stubbed $true 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host $output -ForegroundColor Red
+                throw "Azure spector generation failed with exit code $LASTEXITCODE"
+            }
+            Write-Host "  Spector scenarios regenerated successfully" -ForegroundColor Green
+            $generationOutput = $output -join "`n"
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    finally {
+        # Restore all modified files from saved originals
+        Write-Host "Restoring modified files..." -ForegroundColor Gray
+        
+        # Restore package.json
+        Set-Content $packageJsonPath $originalPackageJson -Encoding utf8 -NoNewline
+        
+        # Restore Directory.Generation.Packages.props
+        if ($originalPackagesDataProps -and (Test-Path $packagesDataPropsPath)) {
+            Set-Content $packagesDataPropsPath $originalPackagesDataProps -Encoding utf8 -NoNewline
+        }
+        
+        # Restore NuGet.Config
+        if ($originalNugetConfig -and (Test-Path $nugetConfigPath)) {
+            Set-Content $nugetConfigPath $originalNugetConfig -Encoding utf8 -NoNewline
+        }
+        
+        # Restore package-lock.json via git (generated file, no original to save)
+        Push-Location $AzureGeneratorPath
+        try {
+            $lockFile = Join-Path $AzureGeneratorPath "package-lock.json"
+            if (Test-Path $lockFile) {
+                & git restore "package-lock.json" 2>&1 | Out-Null
+            }
+        }
+        catch {
+            Write-Warning "Failed to restore package-lock.json: $_"
+        }
+        finally {
+            Pop-Location
+        }
+        
+        Write-Host "  All artifacts restored" -ForegroundColor Green
+    }
+
+    Write-Host ""
+    return $generationOutput
+}
+
+Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios"

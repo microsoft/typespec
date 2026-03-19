@@ -1,5 +1,45 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.34
+
+### Bug Fixes
+
+- [#9953](https://github.com/microsoft/typespec/pull/9953) Fix response type of putExtensibleStringValue to include explicit content-type header
+
+
+## 0.1.0-alpha.33
+
+### Features
+
+- [#9785](https://github.com/microsoft/typespec/pull/9785) Add spector case for extensible enum with special word member names
+- [#9660](https://github.com/microsoft/typespec/pull/9660) Add test case for XML model with datetime properties (rfc3339 and rfc7231 encodings)
+- [#9660](https://github.com/microsoft/typespec/pull/9660) Add test case for XML model with enum property
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9945](https://github.com/microsoft/typespec/pull/9945) Fix float comparison in duration encode mockapi for query and header params to use numeric comparison instead of string comparison, allowing values like `35625.0` to match `35625`
+
+
+## 0.1.0-alpha.32
+
+### Features
+
+- [#9390](https://github.com/microsoft/typespec/pull/9390) Add array encoding test for enum and extensible enum arrays.
+- [#9513](https://github.com/microsoft/typespec/pull/9513) Add Spector tests for File type with various content types (body and multipart)
+- [#9499](https://github.com/microsoft/typespec/pull/9499) Add test for xml error deserialization
+- [#9455](https://github.com/microsoft/typespec/pull/9455) Add test for xml pagination with next link
+- [#9455](https://github.com/microsoft/typespec/pull/9455) Add test for xml paging
+
+### Bug Fixes
+
+- [#9570](https://github.com/microsoft/typespec/pull/9570) Fix payload/xml XmlErrorValue response to wrap SimpleModel with content-type "application/xml" for consistency with XmlError
+- [#9636](https://github.com/microsoft/typespec/pull/9636) Fix expectation for query larger unit tests
+
+
 ## 0.1.0-alpha.31
 
 ### Features

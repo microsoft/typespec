@@ -3,8 +3,11 @@
 
 package documentation;
 
+import documentation.lists.models.BulletPointsEnum;
+import documentation.lists.models.BulletPointsModel;
 import org.junit.jupiter.api.Test;
 
+// Markdown in Javadoc is not supported till JDK23
 public class DocumentationTests {
 
     private final ListsClient listsClient = new DocumentationClientBuilder().buildListsClient();
@@ -16,16 +19,10 @@ public class DocumentationTests {
         listsClient.bulletPointsOp();
     }
 
-    // Note: testBulletPointsModel is commented out due to a known issue:
-    // The mock API (mockapi.ts) returns status 200 for POST requests, but the generated client
-    // expects status 204 based on the NoContentResponse return type in the TypeSpec definition.
-    // This is a mismatch between the mock API implementation and the TypeSpec specification.
-    //
-    // @Test
-    // public void testBulletPointsModel() {
-    // BulletPointsModel model = new BulletPointsModel(BulletPointsEnum.SIMPLE);
-    // listsClient.bulletPointsModelWithResponse(BinaryData.fromObject(model), null);
-    // }
+    @Test
+    public void testBulletPointsModel() {
+        listsClient.bulletPointsModel(new BulletPointsModel(BulletPointsEnum.SIMPLE));
+    }
 
     @Test
     public void testNumbered() {

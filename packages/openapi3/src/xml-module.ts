@@ -108,7 +108,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
 
       // Handle array wrapping if necessary
       const hasUnwrappedDecorator = xml.isUnwrapped(program, prop);
-      const isArrayProperty = prop.type?.kind === "Model" && isArrayModelType(program, prop.type);
+      const isArrayProperty = prop.type?.kind === "Model" && isArrayModelType(prop.type);
       if (!isArrayProperty && hasUnwrappedDecorator) {
         reportDiagnostic(program, {
           code: "xml-unwrapped-invalid-property-type",
@@ -188,7 +188,7 @@ function isXmlModelChecker(
   }
 
   if (model.kind === "ModelProperty") {
-    const isArrayProperty = model.type?.kind === "Model" && isArrayModelType(program, model.type);
+    const isArrayProperty = model.type?.kind === "Model" && isArrayModelType(model.type);
     if (isArrayProperty) {
       const propValue = (model.type as ArrayModelType).indexer.value;
       if (propValue.kind === "Scalar") {
@@ -213,7 +213,7 @@ function isXmlModelChecker(
         return true;
       }
 
-      if (prop.type?.kind === "Model" && isArrayModelType(program, prop.type)) {
+      if (prop.type?.kind === "Model" && isArrayModelType(prop.type)) {
         const propValue = (prop.type as ArrayModelType).indexer.value;
         const propModel = propValue as Model;
         if (propModel && !checked.includes(propModel.name)) {

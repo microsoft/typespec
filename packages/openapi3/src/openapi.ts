@@ -44,6 +44,7 @@ import {
   unsafe_MutatorWithNamespace,
 } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
+import { createPerfReporter, perf } from "@typespec/compiler/utils";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,
@@ -116,6 +117,7 @@ import {
   OpenAPI3Tag,
   OpenAPI3VersionedServiceRecord,
   OpenAPISchema3_1,
+  OpenAPITag3_2,
   Refable,
   SupportedOpenAPIDocuments,
 } from "./types.js";
@@ -145,7 +147,10 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
   for (const specVersion of options.openapiVersions) {
     const emitter = createOAPIEmitter(context, options, specVersion);
-    await emitter.emitOpenAPI();
+    const { perf } = await emitter.emitOpenAPI();
+    for (const [key, duration] of Object.entries(perf)) {
+      context.perf.report(key, duration);
+    }
   }
 }
 
@@ -170,6 +175,7 @@ export async function getOpenAPI3(
     emitterOutputDir: "tsp-output",
 
     options: options,
+    perf: createPerfReporter(),
   };
 
   const resolvedOptions = resolveOptions(context);
@@ -200,17 +206,22 @@ export function resolveOptions(
 ): ResolvedOpenAPI3EmitterOptions {
   const resolvedOptions = { ...defaultOptions, ...context.options };
 
-  const fileType =
-    resolvedOptions["file-type"] ?? findFileTypeFromFilename(resolvedOptions["output-file"]);
+  const rawFileType = resolvedOptions["file-type"];
+  const fileTypes: FileType[] = Array.isArray(rawFileType)
+    ? rawFileType
+    : [rawFileType ?? findFileTypeFromFilename(resolvedOptions["output-file"])];
 
   const outputFile =
-    resolvedOptions["output-file"] ?? `openapi.{service-name-if-multiple}.{version}.${fileType}`;
+    resolvedOptions["output-file"] ??
+    (fileTypes.length > 1
+      ? `openapi.{service-name-if-multiple}.{version}.{file-type}`
+      : `openapi.{service-name-if-multiple}.{version}.${fileTypes[0]}`);
 
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
   const specDir = openapiVersions.length > 1 ? "{openapi-version}" : "";
   return {
-    fileType,
+    fileTypes,
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     includeXTypeSpecName: resolvedOptions["include-x-typespec-name"],
@@ -251,7 +262,7 @@ function resolveOperationIdDefaultStrategySeparator(strategy: OperationIdStrateg
 }
 
 export interface ResolvedOpenAPI3EmitterOptions {
-  fileType: FileType;
+  fileTypes: FileType[];
   outputFile: string;
   openapiVersions: OpenAPIVersion[];
   newLine: NewLine;
@@ -300,10 +311,7 @@ function createOAPIEmitter(
   let paramModels: Set<Type>;
 
   // De-dupe the per-endpoint tags that will be added into the #/tags
-  let tags: Set<string>;
-
-  // The per-endpoint tags that will be added into the #/tags
-  const tagsMetadata: { [name: string]: OpenAPI3Tag } = {};
+  let tagsUsedInOperations: Set<string>;
 
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
@@ -340,7 +348,11 @@ function createOAPIEmitter(
   }
 
   async function emitOpenAPI() {
+    const computeTimer = perf.startTimer();
+
     const services = await getOpenAPI();
+    const computeTime = computeTimer.end();
+
     // first, emit diagnostics
     for (const serviceRecord of services) {
       if (serviceRecord.versioned) {
@@ -353,28 +365,42 @@ function createOAPIEmitter(
     }
 
     if (program.compilerOptions.dryRun || program.hasError()) {
-      return;
+      return { perf: { compute: computeTime } };
     }
 
     const multipleService = services.length > 1;
-
+    const writeTimer = perf.startTimer();
     for (const serviceRecord of services) {
-      if (serviceRecord.versioned) {
-        for (const documentRecord of serviceRecord.versions) {
+      for (const fileType of options.fileTypes) {
+        if (serviceRecord.versioned) {
+          for (const documentRecord of serviceRecord.versions) {
+            await emitFile(program, {
+              path: resolveOutputFile(
+                serviceRecord.service,
+                multipleService,
+                fileType,
+                documentRecord.version,
+              ),
+              content: serializeDocument(documentRecord.document, fileType),
+              newLine: options.newLine,
+            });
+          }
+        } else {
           await emitFile(program, {
-            path: resolveOutputFile(serviceRecord.service, multipleService, documentRecord.version),
-            content: serializeDocument(documentRecord.document, options.fileType),
+            path: resolveOutputFile(serviceRecord.service, multipleService, fileType),
+            content: serializeDocument(serviceRecord.document, fileType),
             newLine: options.newLine,
           });
         }
-      } else {
-        await emitFile(program, {
-          path: resolveOutputFile(serviceRecord.service, multipleService),
-          content: serializeDocument(serviceRecord.document, options.fileType),
-          newLine: options.newLine,
-        });
       }
     }
+    const writeTime = writeTimer.end();
+    return {
+      perf: {
+        compute: computeTime,
+        write: writeTime,
+      },
+    };
   }
 
   function initializeEmitter(
@@ -435,16 +461,7 @@ function createOAPIEmitter(
 
     params = new Map();
     paramModels = new Set();
-    tags = new Set();
-
-    // Get Tags Metadata
-    const metadata = getTagsMetadata(program, service.type);
-    if (metadata) {
-      for (const [name, tag] of Object.entries(metadata)) {
-        const tagData: OpenAPI3Tag = { name: name, ...tag };
-        tagsMetadata[name] = tagData;
-      }
-    }
+    tagsUsedInOperations = new Set();
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
@@ -593,11 +610,17 @@ function createOAPIEmitter(
     return document;
   }
 
-  function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
+  function resolveOutputFile(
+    service: Service,
+    multipleService: boolean,
+    fileType: FileType,
+    version?: string,
+  ): string {
     return interpolatePath(options.outputFile, {
       "openapi-version": specVersion,
       "service-name-if-multiple": multipleService ? getNamespaceFullName(service.type) : undefined,
       "service-name": getNamespaceFullName(service.type),
+      "file-type": fileType,
       version,
     });
   }
@@ -739,7 +762,7 @@ function createOAPIEmitter(
       }
       emitParameters();
       emitSchemas(service.type);
-      emitTags();
+      root.tags = resolveDocumentTags(service);
 
       // Clean up empty entries
       if (root.components) {
@@ -837,7 +860,7 @@ function createOAPIEmitter(
         }
         for (const tag of opTags) {
           // Add to root tags if not already there
-          tags.add(tag);
+          tagsUsedInOperations.add(tag);
         }
       }
     }
@@ -901,7 +924,7 @@ function createOAPIEmitter(
       oai3Operation.tags = currentTags;
       for (const tag of currentTags) {
         // Add to root tags if not already there
-        tags.add(tag);
+        tagsUsedInOperations.add(tag);
       }
     }
 
@@ -1577,7 +1600,7 @@ function createOAPIEmitter(
     if (!typeSchema) {
       return undefined;
     }
-    const schema = applyEncoding(
+    let schema = applyEncoding(
       program,
       param,
       applyIntrinsicDecorators(param, typeSchema),
@@ -1585,7 +1608,13 @@ function createOAPIEmitter(
     );
 
     if (param.defaultValue) {
-      schema.default = getDefaultValue(program, param.defaultValue, param);
+      const defaultValue = getDefaultValue(program, param.defaultValue, param);
+      // In OpenAPI 3.0, $ref cannot have sibling properties.
+      if ("$ref" in schema && specVersion === "3.0.0") {
+        schema = { allOf: [{ $ref: schema.$ref }], default: defaultValue };
+      } else {
+        schema.default = defaultValue;
+      }
     }
     // Description is already provided in the parameter itself.
     delete schema.description;
@@ -1775,17 +1804,27 @@ function createOAPIEmitter(
     }
   }
 
-  function emitTags() {
-    // emit Tag from op
-    for (const tag of tags) {
-      if (!tagsMetadata[tag]) {
-        root.tags!.push({ name: tag });
+  /** Resolve tag information to be inserted at the root of the document */
+  function resolveDocumentTags(service: Service): OpenAPI3Tag[] | OpenAPITag3_2[] {
+    const metadata = getTagsMetadata(program, service.type);
+
+    const tags: OpenAPI3Tag[] | OpenAPITag3_2[] = [];
+    for (const tag of tagsUsedInOperations) {
+      if (!metadata?.[tag]) {
+        tags.push({ name: tag });
       }
     }
 
-    for (const key in tagsMetadata) {
-      root.tags!.push(tagsMetadata[key]);
+    for (const [name, tag] of Object.entries(metadata || {})) {
+      const tagData: OpenAPI3Tag = { name: name, ...tag };
+      // For OpenAPI 3.0 and 3.1, drop the 'parent' field (only supported in 3.2)
+      if (specVersion !== "3.2.0" && tag.parent) {
+        delete (tagData as { parent?: string }).parent;
+      }
+      tags.push(tagData);
     }
+
+    return tags;
   }
 
   function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {

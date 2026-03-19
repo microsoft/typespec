@@ -20,6 +20,7 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
+from .utils import create_fake_value
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,8 +41,17 @@ class SampleSerializer(BaseSerializer):
         self.sample = sample
         self.file_name = file_name
         self.sample_params = sample.get("parameters", {})
+        self._imports: str = ""
 
-    def _imports(self) -> FileImportSerializer:
+    @property
+    def imports(self) -> str:
+        return self._imports
+
+    @imports.setter
+    def imports(self, value: str) -> None:
+        self._imports = value
+
+    def get_file_import(self) -> FileImport:
         imports = FileImport(self.code_model)
         client = self.operation_group.client
         namespace = client.client_namespace
@@ -59,7 +69,12 @@ class SampleSerializer(BaseSerializer):
         for param in self.operation.parameters.positional + self.operation.parameters.keyword_only:
             if param.client_default_value is None and not param.optional and param.wire_name in self.sample_params:
                 imports.merge(param.type.imports_for_sample())
-        return FileImportSerializer(imports, True)
+
+        return imports
+
+    @staticmethod
+    def get_imports_from_file_import(file_import: FileImport) -> str:
+        return str(FileImportSerializer(file_import, True))
 
     def _client_params(self) -> dict[str, Any]:
         # client params
@@ -97,19 +112,14 @@ class SampleSerializer(BaseSerializer):
 
     # prepare operation parameters
     def _operation_params(self) -> dict[str, Any]:
-        params = [
-            p
-            for p in (self.operation.parameters.positional + self.operation.parameters.keyword_only)
-            if not p.client_default_value
-        ]
-        failure_info = "fail to find required param named {}"
         operation_params = {}
-        for param in params:
-            if not param.optional:
+        for param in self.operation.parameters.positional + self.operation.parameters.keyword_only:
+            if not param.optional and not param.client_default_value:
                 param_value = self.sample_params.get(param.wire_name)
                 if not param_value:
-                    raise Exception(failure_info.format(param.client_name))  # pylint: disable=broad-exception-raised
-                operation_params[param.client_name] = self.handle_param(param, param_value)
+                    operation_params[param.client_name] = create_fake_value(param.type)
+                else:
+                    operation_params[param.client_name] = self.handle_param(param, param_value)
         return operation_params
 
     def _operation_group_name(self) -> str:
@@ -154,7 +164,7 @@ class SampleSerializer(BaseSerializer):
             operation_params=self._operation_params(),
             operation_group_name=self._operation_group_name(),
             operation_name=self._operation_name(),
-            imports=self._imports(),
+            imports=self.imports,
             client_params=self._client_params(),
             origin_file=self._origin_file(),
             return_var=return_var,

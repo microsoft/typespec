@@ -306,6 +306,14 @@ interface TopLevelArmResourceInterface
     Result,
     Azure.ResourceManager.Foundations.BaseParameters<TopLevelArmResource>
   >;
+
+  @action("publishxml")
+  publishXml is ArmResourceActionSync<
+    TopLevelArmResource,
+    void,
+    File<"application/xml", bytes>,
+    Azure.ResourceManager.Foundations.BaseParameters<TopLevelArmResource>
+  >;
 }
 
 @armResourceOperations

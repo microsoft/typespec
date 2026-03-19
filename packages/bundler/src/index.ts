@@ -1,5 +1,6 @@
 export {
   BundleManifest,
+  CreateTypeSpecBundleOptions,
   TypeSpecBundle,
   TypeSpecBundleDefinition,
   TypeSpecBundleFile,

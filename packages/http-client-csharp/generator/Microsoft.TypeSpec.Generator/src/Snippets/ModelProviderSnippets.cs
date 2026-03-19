@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
             for (int i = 0; i < propertySegments.Count; i++)
             {
-                var property = currentModel.Properties.First(p => p.WireInfo?.SerializedName == propertySegments[i]);
+                var property = FindPropertyInModelHierarchy(currentModel, propertySegments[i]);
 
                 propertyAccessExpression = propertyAccessExpression.Property(property.Name);
 
@@ -43,6 +43,29 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             }
 
             return propertyAccessExpression;
+        }
+
+        /// <summary>
+        /// Searches for a property with the specified serialized name in the model and its base models.
+        /// </summary>
+        private static PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string serializedName)
+        {
+            // First, try to find the property in the current model
+            var property = model.Properties.FirstOrDefault(p => p.WireInfo?.SerializedName == serializedName);
+            if (property != null)
+            {
+                return property;
+            }
+
+            // If not found, search in the base model hierarchy
+            if (model is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            {
+                return FindPropertyInModelHierarchy(modelProvider.BaseModelProvider, serializedName);
+            }
+
+            // If not found anywhere, throw an exception with a helpful message
+            throw new System.InvalidOperationException(
+                $"Property with serialized name '{serializedName}' not found in model '{model.Name}' or its base models.");
         }
 
         private static bool NeedsNullableConditional(PropertyProvider property)

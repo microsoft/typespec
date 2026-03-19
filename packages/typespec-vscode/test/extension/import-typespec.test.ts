@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeAll, beforeEach, describe } from "vitest";
 import {
-  contrastResult,
+  expectFilesInDir,
   packagesInstall,
   packPackages,
   preContrastResult,
@@ -98,7 +98,7 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
       app,
     );
     const resultFilePath = path.resolve(workspacePath, "./ImportTypespecProjectEmptyFolder");
-    await contrastResult(expectedResults, resultFilePath, cs);
+    await expectFilesInDir(expectedResults, resultFilePath);
     app.close();
   });
 });

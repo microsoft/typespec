@@ -155,7 +155,7 @@ export async function emitCodeModel(
       } catch (error: any) {
         const isValid = diagnostics.pipe(await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion));
         // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-        if (isValid) throw new Error(error);
+        if (isValid) throw new Error(error, { cause: error });
       }
       if (!options["save-inputs"]) {
         // delete

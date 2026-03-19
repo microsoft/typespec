@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -125,7 +124,7 @@ public class AsyncSyncClient {
 
         private ServiceClient serviceClient;
 
-        private List<ConvenienceMethod> convenienceMethods = Collections.emptyList();
+        private List<ConvenienceMethod> convenienceMethods = List.of();
         private String crossLanguageDefinitionId;
 
         /**

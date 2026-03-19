@@ -112,8 +112,8 @@ model TopLevelArmResourceProperties {
 }
 
 @error
-model ErrorResponse {
-  error: Error;
+model ErrorResponseMax {
+  error: ErrorMax;
 }
 
 @error
@@ -121,11 +121,11 @@ model ErrorResponseMin {
   error: ErrorMin;
 }
 
-model Error {
+model ErrorMax {
   code: string;
   message: string;
   target: string;
-  details?: Error[];
+  details?: ErrorMax[];
   additionalInfo?: AdditionalInfo[];
   additionalProperty: string;
 }
@@ -222,7 +222,7 @@ union Priority {
 @route("/model")
 interface Fishes {
   @get
-  getModel(): Fish | ErrorResponse;
+  getModel(): Fish | ErrorResponseMax;
 
   @put
   putModel(@body fish: Fish): Fish | ErrorResponseMin;
@@ -253,6 +253,7 @@ interface Functions {
 interface Priorities {
   @post
   setPriority(@query priority: Priority): {
+    @header("Content-Type") contentType: "application/json";
     @body body: Priority;
   };
 }
@@ -263,6 +264,25 @@ interface Items {
   @get
   @list
   list(): ListResult & ArmLroLocationHeader;
+
+  @get
+  @list
+  @route("summary")
+  summary(): ListResultSummary;
+
+  @get
+  @list
+  @route("list2")
+  list2(): ListResult2;
+
+  @get
+  @route("summary2")
+  summary2(): ListResultSummary2;
+}
+
+// model does not contain `@pageItems` property, but inherit them from parent
+model ListResultSummary extends ListResult {
+  summary?: string;
 }
 
 model ListResult {
@@ -271,6 +291,19 @@ model ListResult {
 
   @nextLink
   nextLink?: string;
+}
+
+// This paged model need to be public (instead of in "implementation" package), as its child ListResultSummary2 is public
+model ListResult2 {
+  @pageItems
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+model ListResultSummary2 extends ListResult2 {
+  summary?: string;
 }
 
 model Result {
@@ -287,6 +320,8 @@ model ResultData {
   prop2: string;
 }
 
+// test the serializaton of "unknown"
+@usage(Usage.input | Usage.output)
 model Builtin {
   boolean: boolean;
   string: string;
@@ -304,8 +339,12 @@ model Builtin {
   bytesDict: Record<bytes>;
   url: url;
   nullableFloatDict: Record<float64 | null>;
-  encoded: Encoded;
+  encoding: Encoded;
   uuid: Azure.Core.uuid;
+  `unknown`: unknown;
+  unknownDict: Record<unknown>;
+  unknownArray: unknown[];
+  unknownDictArray: Record<unknown>[];
 }
 
 @encode(DurationKnownEncoding.seconds, float32)

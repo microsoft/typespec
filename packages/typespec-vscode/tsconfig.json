@@ -14,5 +14,5 @@
     "types": ["mocha"],
     "rootDir": "."
   },
-  "exclude": ["dist", "templates", "vitest.config.ts"]
+  "exclude": ["dist", "temp", "templates", "vitest.config.ts"]
 }

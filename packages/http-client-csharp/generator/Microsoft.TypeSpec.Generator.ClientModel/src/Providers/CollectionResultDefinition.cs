@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     NextTokenField = field;
                 }
 
-                if (field.AsParameter.Name == pageSize)
+                if (string.Equals(field.AsParameter.Name, pageSize, StringComparison.OrdinalIgnoreCase))
                 {
                     PageSizeField = field;
                 }
@@ -143,7 +143,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyProvider? property = null;
             for (int i = 0; i < NextPagePropertySegments.Count; i++)
             {
-                property = model.Properties.First(p => p.WireInfo?.SerializedName == NextPagePropertySegments[i]);
+                property = FindPropertyInModelHierarchy(model, NextPagePropertySegments[i]);
 
                 if (i < NextPagePropertySegments.Count - 1)
                 {
@@ -154,12 +154,62 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return property!.Type;
         }
 
+        /// <summary>
+        /// Searches for a property with the specified serialized name in the model and its base models.
+        /// </summary>
+        private PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string serializedName)
+        {
+            // First, try to find the property in the current model
+            var property = model.Properties.FirstOrDefault(p => p.WireInfo?.SerializedName == serializedName);
+            if (property != null)
+            {
+                return property;
+            }
+
+            // If not found, search in the base model hierarchy
+            if (model is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            {
+                return FindPropertyInModelHierarchy(modelProvider.BaseModelProvider, serializedName);
+            }
+
+            // If not found anywhere, throw an exception with a helpful message
+            throw new InvalidOperationException(
+                $"Property with serialized name '{serializedName}' not found in model '{model.Name}' or its base models.");
+        }
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");
 
         protected override string BuildNamespace() => Client.Type.Namespace;
 
         protected override string BuildName()
-            => $"{Client.Type.Name}{Operation.Name.ToIdentifierName()}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
+        {
+            var operationName = Operation.Name.ToIdentifierName();
+            // Check if there is another paging operation in the same client whose name would produce a collision.
+            // If so, use the OriginalName to differentiate.
+            if (HasPagingOperationNameCollision(operationName))
+            {
+                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
+            }
+            return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
+        }
+
+        private bool HasPagingOperationNameCollision(string operationName)
+        {
+            var pagingMethods = Client.InputClient.Methods.OfType<InputPagingServiceMethod>();
+            int count = 0;
+            foreach (var method in pagingMethods)
+            {
+                if (method.Operation.Name.ToIdentifierName() == operationName)
+                {
+                    count++;
+                    if (count > 1)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
@@ -321,7 +371,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             {
                                 Return(Static(typeof(ContinuationToken))
                                 .Invoke("FromBytes", BinaryDataSnippets.FromString(
-                                    nextPageVariable.Property("AbsoluteUri"))))
+                                    new TernaryConditionalExpression(
+                                        nextPageVariable.Property(nameof(Uri.IsAbsoluteUri)),
+                                        nextPageVariable.Property(nameof(Uri.AbsoluteUri)),
+                                        nextPageVariable.Property(nameof(Uri.OriginalString))))))
                             },
                             Return(Null))
                         : new IfElseStatement(new IfStatement(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageVariable)))
@@ -478,7 +531,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             YieldBreak()
                         },
-                        nextPage.Assign(New.Instance<Uri>(nextPageString)).Terminate()
+                        nextPage.Assign(New.Instance<Uri>(nextPageString, FrameworkEnumValue(UriKind.RelativeOrAbsolute))).Terminate()
                     ];
                 case InputResponseLocation.Header:
                     return
@@ -488,7 +541,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                                 {
                                         nextPage.Type.Equals(typeof(Uri)) ?
-                                            nextPage.Assign(New.Instance<Uri>(nextLinkHeader!)).Terminate() :
+                                            nextPage.Assign(New.Instance<Uri>(nextLinkHeader!, FrameworkEnumValue(UriKind.RelativeOrAbsolute))).Terminate() :
                                             nextPage.Assign(nextLinkHeader!).Terminate(),
                                 },
                                 YieldBreak())
@@ -505,7 +558,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Client.RestClient.GetCreateNextLinkRequestMethod(Operation).Signature.Name;
             return ClientField.Invoke(
                     createNextLinkRequestMethodName,
-                    [nextPageUri, ..RequestFields])
+                    [nextPageUri, .. RequestFields])
                 .As<PipelineMessage>();
         }
 

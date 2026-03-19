@@ -4,15 +4,14 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from specs.azure.clientgenerator.core.clientinitialization.aio import (
+from specs.azure.clientgenerator.core.clientinitialization.default.aio import (
     HeaderParamClient,
     MultipleParamsClient,
     MixedParamsClient,
     PathParamClient,
     ParamAliasClient,
-    ParentClient,
 )
-from specs.azure.clientgenerator.core.clientinitialization.models import Input
+from specs.azure.clientgenerator.core.clientinitialization.default.models import Input
 
 
 @pytest.mark.asyncio

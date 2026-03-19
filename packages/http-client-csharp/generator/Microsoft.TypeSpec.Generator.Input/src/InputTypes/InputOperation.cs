@@ -28,7 +28,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool bufferResponse,
             bool generateProtocolMethod,
             bool generateConvenienceMethod,
-            string crossLanguageDefinitionId)
+            string crossLanguageDefinitionId,
+            string? ns)
         {
             Name = name;
             ResourceName = resourceName;
@@ -47,6 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             GenerateProtocolMethod = generateProtocolMethod;
             GenerateConvenienceMethod = generateConvenienceMethod;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            Namespace = ns;
         }
 
         public InputOperation() : this(
@@ -66,15 +68,22 @@ namespace Microsoft.TypeSpec.Generator.Input
             bufferResponse: false,
             generateProtocolMethod: true,
             generateConvenienceMethod: false,
-            crossLanguageDefinitionId: string.Empty)
+            crossLanguageDefinitionId: string.Empty,
+            ns: null)
         { }
 
         public string Name { get; internal set; }
+
+        /// <summary>
+        /// Gets the original name of the operation as defined in the TypeSpec before any mutations.
+        /// </summary>
+        public string? OriginalName { get; internal set; }
         public string? ResourceName { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
         public string? Deprecated { get; internal set; }
         public string? Accessibility { get; internal set; }
+        public string? Namespace { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public IReadOnlyList<InputOperationResponse> Responses { get; internal set; }
         public string HttpMethod { get; internal set; }
@@ -109,7 +118,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool? bufferResponse = null,
             bool? generateProtocolMethod = null,
             bool? generateConvenienceMethod = null,
-            string? crossLanguageDefinitionId = null)
+            string? crossLanguageDefinitionId = null,
+            string? ns = null)
         {
             if (name != null)
             {
@@ -178,6 +188,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (crossLanguageDefinitionId != null)
             {
                 CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            }
+            if (ns != null)
+            {
+                Namespace = ns;
             }
         }
     }

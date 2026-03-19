@@ -35,6 +35,7 @@ import specialwords.implementation.SpecialWordsClientImpl;
     serviceClients = {
         ModelsClient.class,
         ModelPropertiesClient.class,
+        ExtensibleStringsClient.class,
         OperationsClient.class,
         ParametersClient.class })
 public final class SpecialWordsClientBuilder
@@ -249,6 +250,17 @@ public final class SpecialWordsClientBuilder
     public ModelPropertiesClient buildModelPropertiesClient() {
         SpecialWordsClientImpl innerClient = buildInnerClient();
         return new ModelPropertiesClient(innerClient.getModelProperties(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ExtensibleStringsClient class.
+     * 
+     * @return an instance of ExtensibleStringsClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ExtensibleStringsClient buildExtensibleStringsClient() {
+        SpecialWordsClientImpl innerClient = buildInnerClient();
+        return new ExtensibleStringsClient(innerClient.getExtensibleStrings(), innerClient.getInstrumentation());
     }
 
     /**

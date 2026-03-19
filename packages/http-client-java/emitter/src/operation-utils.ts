@@ -1,8 +1,12 @@
 import { ObjectSchema, Parameter, Property, SchemaResponse } from "@autorest/codemodel";
 import {
+  SdkCookieParameter,
+  SdkHeaderParameter,
   SdkHttpOperation,
   SdkLroServiceMetadata,
   SdkModelPropertyType,
+  SdkPathParameter,
+  SdkQueryParameter,
   SdkServiceResponseHeader,
 } from "@azure-tools/typespec-client-generator-core";
 import { Operation, Program, Type, Union } from "@typespec/compiler";
@@ -24,7 +28,8 @@ export const SPECIAL_HEADER_NAMES = new Set([
 
 export const ORIGIN_API_VERSION = "modelerfour:synthesized/api-version";
 
-export const CONTENT_TYPE_KEY = "content-type";
+const CONTENT_TYPE_KEY = "content-type";
+const CONTENT_TYPE_NAME = "contentType";
 
 // azure-core SerializerEncoding.SUPPORTED_MIME_TYPES
 const SUPPORTED_MIME_TYPES = new Set<string>([
@@ -39,6 +44,21 @@ const SUPPORTED_MIME_TYPES = new Set<string>([
   // not in azure-core
   "application/merge-patch+json",
 ]);
+
+export function isContentTypeHeader(
+  header:
+    | SdkPathParameter
+    | SdkQueryParameter
+    | SdkHeaderParameter
+    | SdkCookieParameter
+    | SdkServiceResponseHeader,
+): boolean {
+  return (
+    (header.serializedName && header.serializedName.toLowerCase() === CONTENT_TYPE_KEY) ||
+    // TODO: remove after TCGC bug fix
+    (!header.serializedName && header.name === CONTENT_TYPE_NAME)
+  );
+}
 
 export function isKnownContentType(contentTypes: string[]): boolean {
   return contentTypes
@@ -204,6 +224,13 @@ export function findResponsePropertySegments(
       const propertyArray: Property[] = [];
 
       let currentSchemaProperties: Property[] | undefined = schema.properties;
+      if (currentSchemaProperties && schema.parents && schema.parents.all) {
+        for (const parent of schema.parents.all) {
+          if (parent instanceof ObjectSchema && parent.properties) {
+            currentSchemaProperties = currentSchemaProperties.concat(parent.properties);
+          }
+        }
+      }
       for (const propertySegment of propertySegments) {
         // abort if no properties in current schema. this should not happen though
         if (!currentSchemaProperties) {

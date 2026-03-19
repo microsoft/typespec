@@ -77,7 +77,7 @@ public final class ListsImpl {
             Context context);
 
         @Post("/documentation/lists/bullet-points/model")
-        @ExpectedResponses({ 204 })
+        @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
@@ -88,7 +88,7 @@ public final class ListsImpl {
             Context context);
 
         @Post("/documentation/lists/bullet-points/model")
-        @ExpectedResponses({ 204 })
+        @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })

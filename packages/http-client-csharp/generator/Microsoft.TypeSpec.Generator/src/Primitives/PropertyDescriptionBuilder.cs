@@ -52,6 +52,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     {
                         description = new XmlDocStatement("description", [$"{literalValue:L}"]);
                     }
+                    else if (literalUnderlyingType == typeof(DateTimeOffset) && literalValue is DateTimeOffset dto)
+                    {
+                        //windows and linux us different default dto ToString so we need to be explicit here
+                        //using 02/03/0001 04:05:06 +00:00
+                        description = new XmlDocStatement("description", [$"{dto.ToString("MM/dd/yyyy HH:mm:ss zzz", System.Globalization.CultureInfo.InvariantCulture)}"]);
+                    }
                     else
                     {
                         description = new XmlDocStatement("description", [$"{literalValue}"]);

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeAll, beforeEach, describe } from "vitest";
 import {
-  contrastResult,
+  expectFilesInDir,
   packagesInstall,
   packPackages,
   preContrastResult,
@@ -103,7 +103,7 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
       restoreTspConfigFile(workspacePath, content);
     }
     const resultFilePath = path.resolve(workspacePath, "./tsp-output/@typespec");
-    await contrastResult(expectedResults, resultFilePath, cs);
+    await expectFilesInDir(expectedResults, resultFilePath);
     app.close();
   });
 });

@@ -790,10 +790,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 String effectiveNextMethodArgs = nextMethodArgs;
                 String effectiveFirstPageArgs = firstPageArgs;
                 function.indent(() -> {
-                    function.line("%s,",
-                        this.getPagingSinglePageExpression(clientMethod,
-                            clientMethod.getProxyMethod().getPagingSinglePageMethodName(), effectiveFirstPageArgs,
-                            settings));
+                    function.line("%s,", this.getPagingSinglePageExpression(clientMethod,
+                        clientMethod.getProxyMethod().getPagingSinglePageMethodName(), effectiveFirstPageArgs));
                     function.line("%s);",
                         this.getPagingNextPageExpression(clientMethod,
                             clientMethod.getMethodPageDetails()
@@ -811,8 +809,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 addOptionalVariables(function, clientMethod);
                 function.line("return new PagedIterable<>(");
                 function.indent(() -> function.line(this.getPagingSinglePageExpression(clientMethod,
-                    clientMethod.getProxyMethod().getPagingSinglePageMethodName(), effectiveFirstPageArgs, settings)
-                    + ");"));
+                    clientMethod.getProxyMethod().getPagingSinglePageMethodName(), effectiveFirstPageArgs) + ");"));
             });
         }
     }
@@ -1236,15 +1233,16 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         });
     }
 
-    private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
-        JavaSettings settings) {
+    private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("(pagingOptions) -> {");
         stringBuilder.append("\n");
         stringBuilder.append(getLogExceptionExpressionForPagingOptions(clientMethod));
 
         if ((clientMethod.getMethodPageDetails().getContinuationToken() != null)) {
-            stringBuilder.append("String token = pagingOptions.getContinuationToken();");
+            String continuationTokenVarName
+                = clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter().getName();
+            stringBuilder.append("String " + continuationTokenVarName + " = pagingOptions.getContinuationToken();");
             stringBuilder.append("\n");
         }
         stringBuilder.append("return ");

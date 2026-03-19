@@ -239,7 +239,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         ".mypy_cache",
         ".pytest_cache",
         ".vscode",
-        "_build",
+        ".*_build/",
         "/build/",
         "dist",
         ".nox",
@@ -305,7 +305,7 @@ function checkForPylintIssues(outputDir: string, excludePattern: string) {
   };
 
   const processFile = (filePath: string) => {
-    let fileContent = "";
+    let fileContent;
     fileContent = fs.readFileSync(filePath, "utf-8");
     const pylintDisables: string[] = [];
     const lineEnding = fileContent.includes("\r\n") && os.platform() === "win32" ? "\r\n" : "\n";

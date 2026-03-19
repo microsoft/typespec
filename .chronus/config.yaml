@@ -12,7 +12,7 @@ changeKinds:
     description: Fixes to existing features
 
   dependencies:
-    versionType: patch
+    versionType: none
     title: Bump dependencies
     description: Bumps dependencies
 
@@ -66,13 +66,16 @@ versionPolicies:
     type: independent
     packages:
       - "@typespec/http-client-python"
+      - "@typespec/http-client-java"
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
 additionalPackages:
   - packages/http-client-python
+  - packages/http-client-java
 
 changedFiles:
   - "!**/*.md"
   - "!**/*.test.ts"
+  - "!**/packages/*/test/**/*"
   - "!**/*.e2e.ts"

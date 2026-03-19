@@ -39,6 +39,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal bool HasDynamicProperties => _hasDynamicProperties ??= BuildHasDynamicProperties();
         private bool? _hasDynamicProperties;
 
+        // When true, the model needs to generate both JsonPatch and AdditionalProperties for
+        // backward compatibility (the model was previously shipped with AdditionalProperties).
+        private bool NeedsBackCompatAdditionalProperties => _needsBackCompatAdditionalProperties ??= BuildNeedsBackCompatAdditionalProperties();
+        private bool? _needsBackCompatAdditionalProperties;
+
         internal static SuppressionStatement JsonPatchSuppression = new SuppressionStatement(null,
             Literal(ScmEvaluationTypeDiagnosticId),
             ScmEvaluationTypeSuppressionJustification);
@@ -62,10 +67,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in fields)
             {
-                if (!field.Equals(RawDataField))
+                // Keep the RawDataField when backcompat requires AdditionalProperties to be generated alongside JsonPatch
+                if (field.Equals(RawDataField) && !NeedsBackCompatAdditionalProperties)
                 {
-                    updatedFields.Add(field);
+                    continue;
                 }
+                updatedFields.Add(field);
             }
 
             return [JsonPatchField, .. updatedFields];
@@ -76,6 +83,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (JsonPatchProperty is null)
             {
                 return base.BuildProperties();
+            }
+
+            // For dynamic models with BinaryData additional properties (Record<unknown>),
+            // skip generating AdditionalProperties since JsonPatch handles dynamic properties.
+            // Exception: when backcompat requires preserving AdditionalProperties from the last contract.
+            if (SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties)
+            {
+                return [JsonPatchProperty, .. base.BuildProperties().Where(p => !p.IsAdditionalProperties)];
             }
 
             return [JsonPatchProperty, .. base.BuildProperties()];
@@ -122,7 +137,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             foreach (var statement in constructor.BodyStatements)
                             {
                                 if (statement is ExpressionStatement { Expression: AssignmentExpression assignmentExpression }
-                                    && assignmentExpression.Value.Equals(RawDataField.AsParameter))
+                                    && (assignmentExpression.Value.Equals(RawDataField.AsParameter) ||
+                                        (!NeedsBackCompatAdditionalProperties &&
+                                         assignmentExpression.Variable is MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName })))
                                 {
                                     continue;
                                 }
@@ -152,6 +169,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         constructor.Update(bodyStatements: updatedBody);
                     }
                 }
+                else if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties && constructor.BodyStatements != null)
+                {
+                    // Remove the additional binary data properties initialization from the init constructor
+                    var updatedBody = constructor.BodyStatements
+                        .Where(s => s is not ExpressionStatement
+                        {
+                            Expression: AssignmentExpression
+                            {
+                                Variable: MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }
+                            }
+                        })
+                        .ToList();
+                    constructor.Update(bodyStatements: updatedBody);
+                }
                 updatedConstructors.Add(constructor);
             }
 
@@ -166,7 +197,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private FieldProvider? BuildJsonPatchField()
         {
-            if (!IsDynamicModel || SupportsBinaryDataAdditionalProperties)
+            if (!IsDynamicModel)
             {
                 return null;
             }
@@ -232,9 +263,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return true;
             }
 
-            return FullConstructor.Signature.Parameters
-                .Any(p => p.Field?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true);
+            return FullConstructor.Signature.Parameters.Any(IsAdditionalBinaryDataParameter);
         }
+
+        private static bool IsAdditionalBinaryDataParameter(ParameterProvider p) =>
+            p.Field?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true ||
+            p.Property?.BackingField?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true;
 
         private void UpdateFullConstructorParameters()
         {
@@ -249,8 +283,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var parameter in FullConstructor.Signature.Parameters)
             {
-                if (parameter.Field?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true)
+                if (IsAdditionalBinaryDataParameter(parameter))
                 {
+                    if (NeedsBackCompatAdditionalProperties)
+                    {
+                        // Backcompat: keep the additionalBinaryData parameter
+                        updatedParameters.Add(parameter);
+                    }
                     updatedParameters.Add(jsonPatchParameter);
                 }
                 else
@@ -308,7 +347,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var propertiesWithWireInfo = CanonicalView.Properties;
             if (propertiesWithWireInfo.Any(p =>
-                    p.WireInfo?.SerializedName != null &&
+                    p.WireInfo != null &&
                     ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
                     provider is ScmModelProvider { IsDynamicModel: true }))
             {
@@ -316,7 +355,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return propertiesWithWireInfo
-                .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
+                .Where(p => p.Type.IsCollection && p.WireInfo != null)
                 .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                               p.Type.GetNestedElementType(),
                               out var provider) &&
@@ -341,6 +380,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return null;
+        }
+
+        private bool BuildNeedsBackCompatAdditionalProperties()
+        {
+            if (!IsDynamicModel || !SupportsBinaryDataAdditionalProperties || LastContractView == null)
+            {
+                return false;
+            }
+
+            return LastContractView.Properties.Any(p =>
+                p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
         }
     }
 }

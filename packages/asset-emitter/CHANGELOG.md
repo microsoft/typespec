@@ -1,5 +1,19 @@
 # Changelog - @typespec/asset-emitter
 
+## 0.79.1
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 0.79.0
+
+### Bug Fixes
+
+- [#9580](https://github.com/microsoft/typespec/pull/9580) Keep lexical context for when working with template instance without name
+
+
 ## 0.78.0
 
 ### Bump dependencies

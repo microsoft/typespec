@@ -8,34 +8,38 @@ test.describe("playground UI tests", () => {
 
   test("compiled http sample", async ({ page }) => {
     await page.goto(host);
-    const samplesDropDown = page.locator("_react=SamplesDropdown").locator("select");
-    await samplesDropDown.selectOption({ label: "HTTP service" });
-    const outputContainer = page.locator("_react=FileOutput");
-    await expect(outputContainer).toContainText(`title: Widget Service`);
+
+    // Click the Samples button to open the drawer
+    const samplesButton = page.locator('button[aria-label="Browse samples"]');
+    await samplesButton.click();
+
+    // Wait for the drawer to open and click on the HTTP service card
+    const httpServiceCard = page.locator("text=HTTP service").first();
+    await httpServiceCard.click();
+
+    await expect(page.getByText(`title: Widget Service`)).toBeVisible();
   });
 
   test("report compilation errors", async ({ page }) => {
     await page.goto(host);
-    const typespecEditorContainer = page.locator("_react=TypeSpecEditor");
-    await typespecEditorContainer.click();
-    await typespecEditorContainer.pressSequentially("invalid");
-    const outputContainer = page.locator("_react=OutputView");
-    await expect(outputContainer).toContainText(`No files emitted.`);
+    const typespecEditor = page.locator(".monaco-editor").first();
+    await typespecEditor.click();
+    await page.keyboard.type("invalid");
+    await expect(page.getByText(`No files emitted.`)).toBeVisible();
   });
 
   test("shared link works", async ({ page }) => {
     // Pass code "op sharedCode(): string;"
     // cspell:disable-next-line
     await page.goto(`${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7`);
-    const outputContainer = page.locator("_react=FileOutput");
-    await expect(outputContainer).toContainText(`operationId: sharedCode`);
+    await expect(page.getByText(`operationId: sharedCode`)).toBeVisible();
   });
 
   test("save code with ctrl/cmd+S", async ({ page }) => {
     await page.goto(host);
-    const typespecEditorContainer = page.locator("_react=TypeSpecEditor");
-    await typespecEditorContainer.click();
-    await typespecEditorContainer.pressSequentially("op sharedCode(): string;");
+    const typespecEditor = page.locator(".monaco-editor").first();
+    await typespecEditor.click();
+    await typespecEditor.pressSequentially("op sharedCode(): string;");
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       page.waitForURL(

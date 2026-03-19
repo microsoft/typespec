@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Input.Extensions;
+
 namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputModelProperty : InputProperty
@@ -18,7 +20,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isHttpMetadata,
             bool isApiVersion,
             InputConstant? defaultValue,
-            InputSerializationOptions serializationOptions)
+            InputSerializationOptions serializationOptions,
+            ArrayKnownEncoding? encode = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
@@ -30,11 +33,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsDiscriminator = isDiscriminator;
             IsHttpMetadata = isHttpMetadata;
             SerializationOptions = serializationOptions;
+            Encode = encode;
         }
 
         public bool IsDiscriminator { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
         public bool IsHttpMetadata { get; internal set; }
+        public ArrayKnownEncoding? Encode { get; internal set; }
 
         /// <summary>
         /// Updates the properties of the input model property.

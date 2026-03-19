@@ -1,18 +1,17 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import type { FunctionParameterNode } from "../../src/ast/index.js";
 import { Diagnostic, Model, Type, definePackageFlags } from "../../src/index.js";
 import {
-  BasicTestRunner,
   DiagnosticMatch,
-  TestHost,
-  createTestHost,
-  createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
   extractSquiggles,
+  mockFile,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 interface RelatedTypeOptions {
   source: string;
@@ -20,36 +19,30 @@ interface RelatedTypeOptions {
   commonCode?: string;
 }
 
-let runner: BasicTestRunner;
-let host: TestHost;
-beforeEach(async () => {
-  host = await createTestHost();
-  runner = createTestWrapper(host);
-});
-
 describe("compiler: checker: type relations", () => {
+  const MockTester = Tester.files({
+    "mock.js": mockFile.js({
+      $flags: definePackageFlags({}),
+      $mock: () => null,
+    }),
+  });
+
   async function checkTypeAssignable({ source, target, commonCode }: RelatedTypeOptions): Promise<{
     related: boolean;
     diagnostics: readonly Diagnostic[];
     expectedDiagnosticPos: number;
   }> {
-    host.addJsFile("mock.js", {
-      $flags: definePackageFlags({}),
-      $mock: () => null,
-    });
     const { source: code, pos } = extractCursor(`
     import "./mock.js";
     ${commonCode ?? ""}
     extern dec mock(target: unknown, source: ┆${source}, value: ${target});
    `);
-    await runner.compile(code);
-    const decDeclaration = runner.program
-      .getGlobalNamespaceType()
-      .decoratorDeclarations.get("mock");
+    const { program } = await MockTester.compile(code);
+    const decDeclaration = program.getGlobalNamespaceType().decoratorDeclarations.get("mock");
     const sourceProp = decDeclaration?.parameters[0].type!;
     const targetProp = decDeclaration?.parameters[1].type!;
 
-    const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
+    const [related, diagnostics] = program.checker.isTypeAssignableTo(
       sourceProp,
       targetProp,
       (decDeclaration?.parameters[0].node! as FunctionParameterNode).type!,
@@ -73,7 +66,7 @@ describe("compiler: checker: type relations", () => {
       alias Case = Test<${cursor}${source}>;
    `);
 
-    const diagnostics = await runner.diagnose(code);
+    const diagnostics = await Tester.diagnose(code);
     return { related: diagnostics.length === 0, diagnostics, expectedDiagnosticPos: pos };
   }
 
@@ -107,7 +100,7 @@ describe("compiler: checker: type relations", () => {
 
   describe("model with indexer", () => {
     it("can add property of subtype of indexer", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Foo is Record<int32> {
           prop1: int16;
           prop2: 123;
@@ -116,7 +109,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("cannot add property incompatible with indexer", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Foo is Record<int32> {
           prop1: string;
         }`);
@@ -130,7 +123,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("cannot add property where parent model has incompatible indexer", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Foo extends Record<int32> {
           prop1: string;
         }`);
@@ -144,10 +137,10 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("can intersect 2 record", async () => {
-      const { Bar } = (await runner.compile(`
+      const { Bar } = await Tester.compile(t.code`
         alias Foo = Record<{foo: string}> & Record<{bar: string}>;
-        @test model Bar {foo: Foo}
-      `)) as { Bar: Model };
+        model ${t.model("Bar")} {foo: Foo}
+      `);
       const Foo = Bar.properties.get("foo")!.type as Model;
       ok(Foo.indexer);
       const indexValue = Foo.indexer.value;
@@ -156,7 +149,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("cannot intersect model with property incompatible with record", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         alias A = Record<int32> & {prop1: string};
       `);
       expectDiagnostics(diagnostics, {
@@ -169,7 +162,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("cannot intersect model with a scalar", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         alias A = string & {prop1: string};
       `);
       expectDiagnostics(diagnostics, {
@@ -179,7 +172,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("cannot intersect array and Record", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         alias A = string[] & Record<string>;
       `);
       expectDiagnostics(diagnostics, {
@@ -189,7 +182,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("cannot intersect array and model", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         alias A = string[] & {prop1: string};
       `);
       expectDiagnostics(diagnostics, {
@@ -199,7 +192,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("spread Record<string> lets other property be non string", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Foo {
           age: int32;
           enabled: boolean;
@@ -210,7 +203,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("model is a model that spread record does need to respect indexer", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Foo {
           age: int32;
           enabled: boolean;
@@ -1157,7 +1150,7 @@ describe("compiler: checker: type relations", () => {
 
   describe("Template constraint", () => {
     it("validate template usage using template constraint", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Test<T extends TypeSpec.Reflection.EnumMember> {
           t: Target<T>;
         }
@@ -1172,7 +1165,7 @@ describe("compiler: checker: type relations", () => {
 
     describe("using template parameter as a constraint", () => {
       it("pass if the argument is assignable to the constraint", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           model Template<A, B extends A> {
             a: A;
             b: B;
@@ -1187,7 +1180,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("pass with multiple constraints", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           model Template<A, B extends A, C extends B> {
             a: A;
             b: B;
@@ -1203,7 +1196,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("fail if the argument is not assignable to the constraint", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           model Template<A, B extends A> {
             a: A;
             b: B;
@@ -1221,7 +1214,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("respect the constraint when using in another template", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           model Other<T extends {a: string}> {
             t: T
           }
@@ -1285,6 +1278,13 @@ describe("compiler: checker: type relations", () => {
       });
     });
     testReflectionType("UnionVariant", "Foo.a", `union Foo {a: string, b: int32};`);
+
+    it("can assign never to a Reflection type constraint", async () => {
+      await expectTypeAssignable({
+        source: "never",
+        target: `TypeSpec.Reflection.Model`,
+      });
+    });
   });
 
   describe("Value constraint", () => {
@@ -1294,7 +1294,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("can assign string literal via alias", async () => {
-        const diagnostics = await runner.diagnose(`
+        const diagnostics = await Tester.diagnose(`
           model Foo<T extends valueof string> {}
           alias Test = Foo<A>;
           alias A = "abc";
@@ -1626,7 +1626,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("can use valueof in template parameter constraints", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Foo<T extends valueof string> {
           @doc(T)
           prop1: int16;
@@ -1635,7 +1635,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("valueof X template constraint cannot be used as a type", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Foo<T extends valueof string> {
           kind: T;
         }`);
@@ -1649,7 +1649,7 @@ describe("compiler: checker: type relations", () => {
       const { source, pos } = extractCursor(`
       model A<T extends unknown> {}
       model B<T extends valueof unknown> is A<┆T> {}`);
-      const diagnostics = await runner.diagnose(source);
+      const diagnostics = await Tester.diagnose(source);
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
         message: "Argument of type 'T' is not assignable to parameter of type 'unknown'",
@@ -1658,7 +1658,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     it("cannot use string constraint where valueof string is expected", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await Tester.diagnose(`
         model Foo<T extends string> {
           @doc(T)
           prop1: int16;
@@ -1718,7 +1718,7 @@ describe("compiler: checker: type relations", () => {
 describe("relation error target and messages", () => {
   async function expectRelationDiagnostics(code: string, expected: DiagnosticMatch) {
     const { pos, end, source } = extractSquiggles(code, "┆");
-    const diagnostics = await runner.diagnose(source);
+    const diagnostics = await Tester.diagnose(source);
     expectDiagnostics(diagnostics, {
       pos,
       end,
@@ -1754,7 +1754,7 @@ describe("relation error target and messages", () => {
       "┆",
     );
     const { source, ...pos2 } = extractSquiggles(sourceTmp, "┆");
-    const diagnostics = await runner.diagnose(source);
+    const diagnostics = await Tester.diagnose(source);
     expectDiagnostics(diagnostics, [
       {
         code: "unexpected-property",

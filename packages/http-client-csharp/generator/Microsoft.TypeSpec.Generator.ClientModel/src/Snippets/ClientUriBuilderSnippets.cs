@@ -34,6 +34,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
                 ? uriBuilder.Invoke("AppendQueryDelimited", [name, value, Literal(delimiter), format, PositionalReference("escape", Literal(shouldEscape))])
                 : uriBuilder.Invoke("AppendQueryDelimited", [name, value, Literal(delimiter), PositionalReference("escape", Literal(shouldEscape))]);
 
+        public static InvokeMethodExpression UpdateQuery(this ScopedApi uriBuilder, ValueExpression name, ValueExpression value)
+            => uriBuilder.Invoke("UpdateQuery", name, value);
+
         public static ScopedApi<Uri> ToUri(this ScopedApi uriBuilder)
             => uriBuilder.Invoke("ToUri").As<Uri>();
     }

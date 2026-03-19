@@ -49,6 +49,23 @@ const testScenarios: TestScenario[] = [
   { schema: { type: "number", format: "double" }, expected: "float64" },
   { schema: { type: "number", format: "float" }, expected: "float32" },
   { schema: { type: "number", enum: [3.14, 6.28, 42] }, expected: "3.14 | 6.28 | 42" },
+  // Duration tests with x-ms-duration extension
+  {
+    schema: { type: "integer", format: "int32", "x-ms-duration": "seconds" } as any,
+    expected: "duration",
+  },
+  {
+    schema: { type: "integer", format: "int32", "x-ms-duration": "milliseconds" } as any,
+    expected: "duration",
+  },
+  {
+    schema: { type: "number", format: "float", "x-ms-duration": "seconds" } as any,
+    expected: "duration",
+  },
+  {
+    schema: { type: "number", format: "float", "x-ms-duration": "milliseconds" } as any,
+    expected: "duration",
+  },
   // strings
   { schema: { type: "string" }, expected: "string" },
   {

@@ -109,8 +109,18 @@ export function fromSdkType<T extends SdkType>(
       retVar = diagnostics.pipe(fromSdkArrayType(sdkContext, sdkType));
       break;
     case "constant":
+      // Don't transform optional Content-Type headers into enums - keep them as constants
+      const isContentTypeHeader =
+        sdkProperty &&
+        "kind" in sdkProperty &&
+        sdkProperty.kind === "header" &&
+        "serializedName" in sdkProperty &&
+        typeof sdkProperty.serializedName === "string" &&
+        sdkProperty.serializedName.toLocaleLowerCase() === "content-type";
+
       if (
         sdkProperty &&
+        !isContentTypeHeader &&
         (sdkProperty.optional || sdkProperty?.type.kind === "nullable") &&
         sdkProperty?.type.kind !== "boolean" &&
         sdkType.valueType.kind !== "boolean"
@@ -204,6 +214,7 @@ function fromSdkModelType(
     discriminatorValue: modelType.discriminatorValue,
     decorators: decorators,
     external: fromSdkExternalTypeInfo(modelType),
+    serializationOptions: modelType.serializationOptions,
   } as InputModelType;
 
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
@@ -267,7 +278,9 @@ function fromSdkModelProperty(
     serializedName: serializedName,
     summary: sdkProperty.summary,
     doc: sdkProperty.doc,
-    type: diagnostics.pipe(fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel.namespace)),
+    type: diagnostics.pipe(
+      fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel.namespace),
+    ),
     optional: sdkProperty.optional,
     readOnly: isReadOnly(sdkProperty),
     discriminator: sdkProperty.discriminator,
@@ -277,6 +290,7 @@ function fromSdkModelProperty(
     serializationOptions: sdkProperty.serializationOptions,
     // A property is defined to be metadata if it is marked `@header`, `@cookie`, `@query`, `@path`.
     isHttpMetadata: isHttpMetadata(sdkContext, sdkProperty),
+    encode: sdkProperty.encode,
   } as InputModelProperty;
 
   if (property) {
@@ -286,9 +300,14 @@ function fromSdkModelProperty(
   return diagnostics.wrap(property);
 }
 
-function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType): [InputEnumType, readonly Diagnostic[]] {
+function fromSdkEnumType(
+  sdkContext: CSharpEmitterContext,
+  enumType: SdkEnumType,
+): [InputEnumType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  return diagnostics.wrap(diagnostics.pipe(createEnumType(sdkContext, enumType, enumType.namespace)));
+  return diagnostics.wrap(
+    diagnostics.pipe(createEnumType(sdkContext, enumType, enumType.namespace)),
+  );
 }
 
 function createEnumType(
@@ -347,7 +366,9 @@ function fromSdkDateTimeType(
     encode: dateTimeType.encode,
     wireType: diagnostics.pipe(fromSdkType(sdkContext, dateTimeType.wireType)),
     crossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
-    baseType: dateTimeType.baseType ? diagnostics.pipe(fromSdkType(sdkContext, dateTimeType.baseType)) : undefined,
+    baseType: dateTimeType.baseType
+      ? diagnostics.pipe(fromSdkType(sdkContext, dateTimeType.baseType))
+      : undefined,
     decorators: dateTimeType.decorators,
     external: fromSdkExternalTypeInfo(dateTimeType),
   });
@@ -364,7 +385,9 @@ function fromSdkDurationType(
     encode: durationType.encode,
     wireType: diagnostics.pipe(fromSdkType(sdkContext, durationType.wireType)),
     crossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
-    baseType: durationType.baseType ? diagnostics.pipe(fromSdkType(sdkContext, durationType.baseType)) : undefined,
+    baseType: durationType.baseType
+      ? diagnostics.pipe(fromSdkType(sdkContext, durationType.baseType))
+      : undefined,
     decorators: durationType.decorators,
     external: fromSdkExternalTypeInfo(durationType),
   });
@@ -380,13 +403,18 @@ function fromSdkBuiltInType(
     name: builtInType.name,
     encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined,
     crossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
-    baseType: builtInType.baseType ? diagnostics.pipe(fromSdkType(sdkContext, builtInType.baseType)) : undefined,
+    baseType: builtInType.baseType
+      ? diagnostics.pipe(fromSdkType(sdkContext, builtInType.baseType))
+      : undefined,
     decorators: builtInType.decorators,
     external: fromSdkExternalTypeInfo(builtInType),
   });
 }
 
-function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): [InputUnionType, readonly Diagnostic[]] {
+function fromUnionType(
+  sdkContext: CSharpEmitterContext,
+  union: SdkUnionType,
+): [InputUnionType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const variantTypes: InputType[] = [];
   for (const value of union.variantTypes) {
@@ -430,7 +458,9 @@ function fromSdkEnumValueType(
   enumValueType: SdkEnumValueType,
 ): [InputEnumValueType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  return diagnostics.wrap(diagnostics.pipe(createEnumValueType(sdkContext, enumValueType, enumValueType.enumType)));
+  return diagnostics.wrap(
+    diagnostics.pipe(createEnumValueType(sdkContext, enumValueType, enumValueType.enumType)),
+  );
 }
 
 function createEnumValueType(
@@ -449,7 +479,9 @@ function createEnumValueType(
         : sdkType.name,
     value: typeof sdkType.value === "boolean" ? (sdkType.value ? 1 : 0) : sdkType.value,
     valueType:
-      sdkType.kind === "constant" ? sdkType.valueType : diagnostics.pipe(fromSdkType(sdkContext, sdkType.valueType)),
+      sdkType.kind === "constant"
+        ? sdkType.valueType
+        : diagnostics.pipe(fromSdkType(sdkContext, sdkType.valueType)),
     enumType: enumType,
     summary: sdkType.summary,
     doc: sdkType.doc,

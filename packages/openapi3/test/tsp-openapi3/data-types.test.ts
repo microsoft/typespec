@@ -93,6 +93,219 @@ describe("converts top-level schemas", () => {
     ]);
   });
 
+  describe("handles duration types with x-ms-duration extension", () => {
+    it("string with duration format -> duration (no encoding)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          DurationString: {
+            type: "string",
+            format: "duration",
+          },
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* scalar DurationString extends duration; */
+      expect(scalars.get("DurationString")?.baseScalar?.name).toBe("duration");
+      expect(scalars.get("DurationString")!.decorators.length).toBe(0);
+    });
+
+    it("integer with int32 format and no extension -> int32 (no encoding)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          IntegerInt32: {
+            type: "integer",
+            format: "int32",
+          },
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* scalar IntegerInt32 extends int32; */
+      expect(scalars.get("IntegerInt32")?.baseScalar?.name).toBe("int32");
+      expect(scalars.get("IntegerInt32")!.decorators.length).toBe(0);
+    });
+
+    it("integer with int32 format and x-ms-duration: seconds -> duration with @encode(seconds, int32)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          DurationIntSeconds: {
+            type: "integer",
+            format: "int32",
+            "x-ms-duration": "seconds",
+          } as any,
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* @extension("x-ms-duration", "seconds") @encode("seconds", int32) scalar DurationIntSeconds extends duration; */
+      expect(scalars.get("DurationIntSeconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
+      expectDecorators(scalars.get("DurationIntSeconds")!.decorators, [
+        { name: "encode", args: ["seconds", { kind: "Scalar", name: "int32" }] },
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
+      ]);
+    });
+
+    it("integer with int32 format and x-ms-duration: milliseconds -> duration with @encode(milliseconds, int32)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          DurationIntMilliseconds: {
+            type: "integer",
+            format: "int32",
+            "x-ms-duration": "milliseconds",
+          } as any,
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* @extension("x-ms-duration", "milliseconds") @encode("milliseconds", int32) scalar DurationIntMilliseconds extends duration; */
+      expect(scalars.get("DurationIntMilliseconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
+      expectDecorators(scalars.get("DurationIntMilliseconds")!.decorators, [
+        { name: "encode", args: ["milliseconds", { kind: "Scalar", name: "int32" }] },
+        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
+      ]);
+    });
+
+    it("number with float format and no extension -> float32 (no encoding)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          NumberFloat: {
+            type: "number",
+            format: "float",
+          },
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* scalar NumberFloat extends float32; */
+      expect(scalars.get("NumberFloat")?.baseScalar?.name).toBe("float32");
+      expect(scalars.get("NumberFloat")!.decorators.length).toBe(0);
+    });
+
+    it("number with float format and x-ms-duration: seconds -> duration with @encode(seconds, float32)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          DurationFloatSeconds: {
+            type: "number",
+            format: "float",
+            "x-ms-duration": "seconds",
+          } as any,
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* @extension("x-ms-duration", "seconds") @encode("seconds", float32) scalar DurationFloatSeconds extends duration; */
+      expect(scalars.get("DurationFloatSeconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
+      expectDecorators(scalars.get("DurationFloatSeconds")!.decorators, [
+        { name: "encode", args: ["seconds", { kind: "Scalar", name: "float32" }] },
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
+      ]);
+    });
+
+    it("number with float format and x-ms-duration: milliseconds -> duration with @encode(milliseconds, float32)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          DurationFloatMilliseconds: {
+            type: "number",
+            format: "float",
+            "x-ms-duration": "milliseconds",
+          } as any,
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* @extension("x-ms-duration", "milliseconds") @encode("milliseconds", float32) scalar DurationFloatMilliseconds extends duration; */
+      expect(scalars.get("DurationFloatMilliseconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
+      expectDecorators(scalars.get("DurationFloatMilliseconds")!.decorators, [
+        { name: "encode", args: ["milliseconds", { kind: "Scalar", name: "float32" }] },
+        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
+      ]);
+    });
+
+    it("number with int64 format and x-ms-duration: seconds -> duration with @encode(seconds, int64)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          DurationInt64Seconds: {
+            type: "number",
+            format: "int64",
+            "x-ms-duration": "seconds",
+          } as any,
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* @extension("x-ms-duration", "seconds") @encode("seconds", int64) scalar DurationInt64Seconds extends duration; */
+      expect(scalars.get("DurationInt64Seconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
+      expectDecorators(scalars.get("DurationInt64Seconds")!.decorators, [
+        { name: "encode", args: ["seconds", { kind: "Scalar", name: "int64" }] },
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
+      ]);
+    });
+
+    it("number with decimal format and no extension -> decimal (no encoding)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          NumberDecimal: {
+            type: "number",
+            format: "decimal",
+          },
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* scalar NumberDecimal extends decimal; */
+      expect(scalars.get("NumberDecimal")?.baseScalar?.name).toBe("decimal");
+      expect(scalars.get("NumberDecimal")!.decorators.length).toBe(0);
+    });
+
+    it("number with decimal format and x-ms-duration: seconds -> duration with @encode(seconds, decimal)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          DurationDecimalSeconds: {
+            type: "number",
+            format: "decimal",
+            "x-ms-duration": "seconds",
+          } as any,
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* @extension("x-ms-duration", "seconds") @encode("seconds", decimal) scalar DurationDecimalSeconds extends duration; */
+      expect(scalars.get("DurationDecimalSeconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
+      expectDecorators(scalars.get("DurationDecimalSeconds")!.decorators, [
+        { name: "encode", args: ["seconds", { kind: "Scalar", name: "decimal" }] },
+        { name: "extension", args: ["x-ms-duration", "seconds"] },
+      ]);
+    });
+
+    it("number with decimal format and x-ms-duration: milliseconds -> duration with @encode(milliseconds, decimal)", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          DurationDecimalMilliseconds: {
+            type: "number",
+            format: "decimal",
+            "x-ms-duration": "milliseconds",
+          } as any,
+        },
+      });
+
+      const scalars = serviceNamespace.scalars;
+      /* @extension("x-ms-duration", "milliseconds") @encode("milliseconds", decimal) scalar DurationDecimalMilliseconds extends duration; */
+      expect(scalars.get("DurationDecimalMilliseconds")?.baseScalar?.name).toBe("duration");
+      // Note: TypeSpec compiler may reorder decorators during parsing
+      expectDecorators(scalars.get("DurationDecimalMilliseconds")!.decorators, [
+        { name: "encode", args: ["milliseconds", { kind: "Scalar", name: "decimal" }] },
+        { name: "extension", args: ["x-ms-duration", "milliseconds"] },
+      ]);
+    });
+  });
+
   it("handles arrays", async () => {
     const serviceNamespace = await tspForOpenAPI3({
       schemas: {

@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _Type.Property.Optional
 {
@@ -11,7 +12,12 @@ namespace _Type.Property.Optional
     {
         public OptionalClient() : this(new Uri("http://localhost:3000"), new OptionalClientOptions()) => throw null;
 
-        public OptionalClient(Uri endpoint, OptionalClientOptions options) => throw null;
+        internal OptionalClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, OptionalClientOptions options) => throw null;
+
+        public OptionalClient(Uri endpoint, OptionalClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public OptionalClient(OptionalClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -14,6 +14,7 @@ import com.azure.core.test.TestMode;
 import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import payload.multipart.FormDataClient;
+import payload.multipart.FormDataFileClient;
 import payload.multipart.FormDataHttpPartsClient;
 import payload.multipart.FormDataHttpPartsContentTypeClient;
 import payload.multipart.FormDataHttpPartsNonStringClient;
@@ -27,6 +28,8 @@ class MultiPartClientTestBase extends TestProxyTestBase {
     protected FormDataHttpPartsContentTypeClient formDataHttpPartsContentTypeClient;
 
     protected FormDataHttpPartsNonStringClient formDataHttpPartsNonStringClient;
+
+    protected FormDataFileClient formDataFileClient;
 
     @Override
     protected void beforeTest() {
@@ -67,6 +70,15 @@ class MultiPartClientTestBase extends TestProxyTestBase {
         }
         formDataHttpPartsNonStringClient
             = formDataHttpPartsNonStringClientbuilder.buildFormDataHttpPartsNonStringClient();
+
+        MultiPartClientBuilder formDataFileClientbuilder = new MultiPartClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            formDataFileClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        formDataFileClient = formDataFileClientbuilder.buildFormDataFileClient();
 
     }
 }

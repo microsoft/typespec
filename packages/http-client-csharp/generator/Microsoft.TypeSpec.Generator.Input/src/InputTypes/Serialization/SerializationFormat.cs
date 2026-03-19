@@ -28,5 +28,9 @@ namespace Microsoft.TypeSpec.Generator.Input
         Bytes_Base64Url,
         Bytes_Base64,
         Int_String,
+        Array_CommaDelimited,
+        Array_SpaceDelimited,
+        Array_PipeDelimited,
+        Array_NewlineDelimited,
     }
 }

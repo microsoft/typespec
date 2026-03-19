@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AdvancedXmlModel id="model-123" version="1" isActive="true" xml-id="xml-id-456" ns1:label="test-label" xmlns:ns1="https://example.com/ns1">
+  <name>Test Model</name>
+  <age>42</age>
+  <enabled>true</enabled>
+  <score>3.14</score>
+  <nullableString>nullable value</nullableString>
+  <RenamedProperty>renamed value</RenamedProperty>
+  <unwrappedStrings>string1</unwrappedStrings>
+  <unwrappedStrings>string2</unwrappedStrings>
+  <unwrappedCounts>10</unwrappedCounts>
+  <unwrappedCounts>20</unwrappedCounts>
+  <unwrappedItems>
+    <itemName>Item 1</itemName>
+    <itemValue>100</itemValue>
+  </unwrappedItems>
+  <unwrappedItems>
+    <itemName>Item 2</itemName>
+    <itemValue>200</itemValue>
+  </unwrappedItems>
+  <wrappedColors>
+    <string>red</string>
+    <string>blue</string>
+  </wrappedColors>
+  <ItemCollection>
+    <Item>
+      <itemName>Item 3</itemName>
+      <itemValue>300</itemValue>
+    </Item>
+  </ItemCollection>
+  <nestedModel>
+    <value>nested value</value>
+  </nestedModel>
+  <metadata>
+    <key1>value1</key1>
+    <key2>value2</key2>
+  </metadata>
+  <createdAt>2024-01-15T10:30:00.0000000Z</createdAt>
+  <duration>PT1H30M</duration>
+  <data>U0dWc2JHOGdWMjl5YkdRPQ==</data>
+  <fixedEnum>1</fixedEnum>
+  <extensibleEnum>1</extensibleEnum>
+  <ns2:daysUsed xmlns:ns2="https://example.com/ns2">365</ns2:daysUsed>
+  <foo:fooItems xmlns:foo="http://www.contoso.com/anotherbook.dtd">
+    <string>foo1</string>
+    <string>foo2</string>
+  </foo:fooItems>
+  <bar:anotherModel xmlns:bar="http://www.contoso.com/anothermodel.dtd">
+    <value>another value</value>
+  </bar:anotherModel>
+  <modelsWithNamespaces>
+    <ns:XmlModelWithNamespace xmlns:ns="http://www.example.com/namespace">
+      <foo>namespace content</foo>
+    </ns:XmlModelWithNamespace>
+  </modelsWithNamespaces>
+  <unwrappedModelsWithNamespaces>
+    <foo>content2</foo>
+  </unwrappedModelsWithNamespaces>
+  <listOfListFoo>
+    <Array>
+      <XmlItem>
+        <itemName>Item 1</itemName>
+        <itemValue>100</itemValue>
+      </XmlItem>
+    </Array>
+  </listOfListFoo>
+  <dictionaryFoo>
+    <key1>
+      <itemName>Item 1</itemName>
+      <itemValue>100</itemValue>
+    </key1>
+  </dictionaryFoo>
+  <dictionaryOfDictionaryFoo>
+    <outer1>
+      <inner1>
+        <itemName>Item 1</itemName>
+        <itemValue>100</itemValue>
+      </inner1>
+    </outer1>
+  </dictionaryOfDictionaryFoo>
+  <dictionaryListFoo>
+    <list1>
+      <XmlItem>
+        <itemName>Item 1</itemName>
+        <itemValue>100</itemValue>
+      </XmlItem>
+    </list1>
+  </dictionaryListFoo>
+  <listOfDictionaryFoo>
+    <Record>
+      <key1>
+        <itemName>Item 1</itemName>
+        <itemValue>100</itemValue>
+      </key1>
+    </Record>
+  </listOfDictionaryFoo>
+</AdvancedXmlModel>

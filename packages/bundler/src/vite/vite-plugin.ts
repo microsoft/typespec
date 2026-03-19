@@ -2,6 +2,7 @@ import { resolvePath } from "@typespec/compiler";
 import { resolve } from "path";
 import type { IndexHtmlTransformContext, Plugin, ResolvedConfig } from "vite";
 import {
+  CreateTypeSpecBundleOptions,
   TypeSpecBundle,
   TypeSpecBundleDefinition,
   createTypeSpecBundle,
@@ -29,8 +30,10 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
       config = c;
     },
     async buildStart() {
+      // Minify only in production mode
+      const minify = config.command === "build";
       for (const name of options.libraries) {
-        const bundle = await bundleLibrary(config.root, name);
+        const bundle = await bundleLibrary(config.root, name, { minify });
         bundles[name] = bundle;
         definitions[name] = bundle.definition;
       }
@@ -79,11 +82,17 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
       });
 
       for (const library of options.libraries) {
-        void watchBundleLibrary(config.root, library, (bundle) => {
-          bundles[library] = bundle;
-          definitions[library] = bundle.definition;
-          server.ws.send({ type: "full-reload" });
-        });
+        // Don't minify in dev/watch mode for faster rebuilds
+        void watchBundleLibrary(
+          config.root,
+          library,
+          (bundle) => {
+            bundles[library] = bundle;
+            definitions[library] = bundle.definition;
+            server.ws.send({ type: "full-reload" });
+          },
+          { minify: false },
+        );
       }
     },
 
@@ -132,13 +141,18 @@ function createImportMap(
 
   return importMap;
 }
-async function bundleLibrary(projectRoot: string, name: string) {
-  return await createTypeSpecBundle(resolve(projectRoot, "node_modules", name));
+async function bundleLibrary(
+  projectRoot: string,
+  name: string,
+  options?: CreateTypeSpecBundleOptions,
+) {
+  return await createTypeSpecBundle(resolve(projectRoot, "node_modules", name), options);
 }
 async function watchBundleLibrary(
   projectRoot: string,
   name: string,
   onChange: (bundle: TypeSpecBundle) => void,
+  options?: CreateTypeSpecBundleOptions,
 ) {
-  return await watchTypeSpecBundle(resolve(projectRoot, "node_modules", name), onChange);
+  return await watchTypeSpecBundle(resolve(projectRoot, "node_modules", name), onChange, options);
 }

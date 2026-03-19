@@ -13,6 +13,7 @@ export async function mkTempDir(host: CompilerHost, base: string, prefix: string
     if ((error as any).code === `EACCES`) {
       throw new Error(
         `Cannot create temporary folder at ${path}. Permission denied. Please check your permissions.`,
+        { cause: error },
       );
     } else {
       throw error;

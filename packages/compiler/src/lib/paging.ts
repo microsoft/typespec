@@ -26,7 +26,7 @@ import type {
 } from "../core/types.js";
 import { createStateSymbol } from "../lib/utils.js";
 import { DuplicateTracker, useStateSet } from "../utils/index.js";
-import { isNumericType, isStringType } from "./decorators.js";
+import { isNumericType } from "./decorators.js";
 
 export const [
   /**
@@ -87,7 +87,7 @@ export const [
   /** {@inheritdoc PageItemsDecorator} */
   pageItemsDecorator,
 ] = createMarkerDecorator<PageItemsDecorator>("pageItems", (context, target) => {
-  if (target.type.kind !== "Model" || !isArrayModelType(context.program, target.type)) {
+  if (target.type.kind !== "Model" || !isArrayModelType(target.type)) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       messageId: "withExpected",
@@ -109,18 +109,7 @@ export const [
   markContinuationTokenProperty,
   /** {@inheritdoc ContinuationTokenDecorator} */
   continuationTokenDecorator,
-] = createMarkerDecorator<ContinuationTokenDecorator>("continuationToken", (context, target) => {
-  if (!isStringType(context.program, target.type)) {
-    reportDiagnostic(context.program, {
-      code: "decorator-wrong-target",
-      messageId: "withExpected",
-      format: { decorator: "continuationToken", expected: "string", to: getTypeName(target.type) },
-      target: context.decoratorTarget,
-    });
-    return false;
-  }
-  return true;
-});
+] = createMarkerDecorator<ContinuationTokenDecorator>("continuationToken");
 
 export const [
   /**

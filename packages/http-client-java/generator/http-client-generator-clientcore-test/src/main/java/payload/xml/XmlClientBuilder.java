@@ -44,7 +44,10 @@ import payload.xml.implementation.XmlClientImpl;
         ModelWithEmptyArrayValueClient.class,
         ModelWithTextValueClient.class,
         ModelWithDictionaryValueClient.class,
-        ModelWithEncodedNamesValueClient.class })
+        ModelWithEncodedNamesValueClient.class,
+        ModelWithEnumValueClient.class,
+        ModelWithDatetimeValueClient.class,
+        XmlErrorValueClient.class })
 public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, ProxyTrait<XmlClientBuilder>,
     ConfigurationTrait<XmlClientBuilder>, EndpointTrait<XmlClientBuilder> {
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -375,5 +378,39 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
         XmlClientImpl innerClient = buildInnerClient();
         return new ModelWithEncodedNamesValueClient(innerClient.getModelWithEncodedNamesValues(),
             innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithEnumValueClient class.
+     * 
+     * @return an instance of ModelWithEnumValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithEnumValueClient buildModelWithEnumValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithEnumValueClient(innerClient.getModelWithEnumValues(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ModelWithDatetimeValueClient class.
+     * 
+     * @return an instance of ModelWithDatetimeValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ModelWithDatetimeValueClient buildModelWithDatetimeValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new ModelWithDatetimeValueClient(innerClient.getModelWithDatetimeValues(),
+            innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of XmlErrorValueClient class.
+     * 
+     * @return an instance of XmlErrorValueClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public XmlErrorValueClient buildXmlErrorValueClient() {
+        XmlClientImpl innerClient = buildInnerClient();
+        return new XmlErrorValueClient(innerClient.getXmlErrorValues(), innerClient.getInstrumentation());
     }
 }

@@ -9,7 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class ResourceClientModel {
@@ -20,7 +20,7 @@ public class ResourceClientModel {
 
     private static final ClientModel MODEL_SUB_RESOURCE = new ClientModel.Builder().name(ResourceTypeName.SUB_RESOURCE)
         .packageName("com.azure.core.management")
-        .properties(Collections.singletonList(new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_ID)
+        .properties(List.of(new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_ID)
             .serializedName(ResourceTypeName.FIELD_ID)
             .description("Fully qualified resource Id for the resource.")
             .wireType(ClassType.STRING)

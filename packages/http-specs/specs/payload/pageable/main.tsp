@@ -1,8 +1,10 @@
 import "@typespec/http";
 import "@typespec/spector";
+import "@typespec/xml";
 
 using Http;
 using Spector;
+using Xml;
 
 /**
  * Test for pageable payload.
@@ -138,6 +140,53 @@ namespace ServerDrivenPagination {
       @nextLink next?: url;
     };
   };
+
+  /** Scenario where the initial request is not a GET request. However following the next link always result in a GET request. */
+  namespace AlternateInitialVerb {
+    model Filter {
+      filter: string;
+    }
+
+    @scenario
+    @scenarioDoc("""
+      Test case for initial POST request followed by GET for next pages using link pagination.
+      The initial request is a POST with a filter body, and the next page is fetched using a GET request on the next link.
+      
+      Two requests need to be tested.
+      1. Initial request (POST):
+      Expected route: /payload/pageable/server-driven-pagination/link/initial-post
+      Expected request body:
+      ```json
+      { "filter": "foo eq bar" }
+      ```
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ],
+        "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc"
+      }
+      ```
+      2. Next page request (GET):
+      Expected route: /payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+        ]
+      }
+      ```
+      """)
+    @route("/link/initial-post")
+    @list
+    @post
+    op post(@body body: Filter): {
+      @pageItems pets: Pet[];
+      @nextLink next?: url;
+    };
+  }
 
   @route("/continuationtoken")
   namespace ContinuationToken {
@@ -513,4 +562,142 @@ namespace PageSize {
     @pageItems
     pets: Pet[];
   };
+}
+
+@doc("An XML pet item.")
+@name("Pet")
+model XmlPet {
+  @name("Id") id: string;
+  @name("Name") name: string;
+}
+
+@route("/xml")
+namespace XmlPagination {
+  @scenario
+  @scenarioDoc("""
+    Test case for XML pagination with continuation token. Continuation token is passed in the request query and response body.
+    
+    Two requests need to be tested.
+    
+    1. Initial request:
+    Expected route: /payload/pageable/xml/list
+    
+    Expected response body:
+    ```xml
+    <PetListResult>
+      <Pets>
+        <Pet>
+          <Id>1</Id>
+          <Name>dog</Name>
+        </Pet>
+        <Pet>
+          <Id>2</Id>
+          <Name>cat</Name>
+        </Pet>
+      </Pets>
+      <NextMarker>page2</NextMarker>
+    </PetListResult>
+    ```
+    
+    2. Next page request:
+    Expected route: /payload/pageable/xml/list?marker=page2
+    
+    Expected response body:
+    ```xml
+    <PetListResult>
+      <Pets>
+        <Pet>
+          <Id>3</Id>
+          <Name>bird</Name>
+        </Pet>
+        <Pet>
+          <Id>4</Id>
+          <Name>fish</Name>
+        </Pet>
+      </Pets>
+    </PetListResult>
+    ```
+    """)
+  @route("/list-with-continuation")
+  @list
+  op listWithContinuation(@continuationToken @query marker?: string): {
+    @header("content-type") contentType: "application/xml";
+    @body body: XmlPetListResult;
+  };
+
+  @scenario
+  @scenarioDoc("""
+    Test case for XML pagination with next link.
+    
+    Two requests need to be tested.
+    
+    1. Initial request:
+    Expected route: /payload/pageable/xml/list-with-next-link
+    
+    Expected response body:
+    ```xml
+    <PetListResult>
+      <Pets>
+        <Pet>
+          <Id>1</Id>
+          <Name>dog</Name>
+        </Pet>
+        <Pet>
+          <Id>2</Id>
+          <Name>cat</Name>
+        </Pet>
+      </Pets>
+      <NextLink>http://[host]:[port]/payload/pageable/xml/list-with-next-link/nextPage</NextLink>
+    </PetListResult>
+    ```
+    
+    2. Next page request:
+    Expected route: /payload/pageable/xml/list-with-next-link/nextPage
+    
+    Expected response body:
+    ```xml
+    <PetListResult>
+      <Pets>
+        <Pet>
+          <Id>3</Id>
+          <Name>bird</Name>
+        </Pet>
+        <Pet>
+          <Id>4</Id>
+          <Name>fish</Name>
+        </Pet>
+      </Pets>
+    </PetListResult>
+    ```
+    """)
+  @route("/list-with-next-link")
+  @list
+  op listWithNextLink(): {
+    @header("content-type") contentType: "application/xml";
+    @body body: XmlPetListResultWithNextLink;
+  };
+}
+
+@doc("The XML response for listing pets.")
+@name("PetListResult")
+model XmlPetListResult {
+  @pageItems
+  @name("Pets")
+  pets: XmlPet[];
+
+  @continuationToken
+  @name("NextMarker")
+  nextMarker?: string;
+}
+
+@doc("The XML response for listing pets with next link.")
+@name("PetListResult")
+model XmlPetListResultWithNextLink {
+  @pageItems
+  @name("Pets")
+  pets: XmlPet[];
+
+  @nextLink
+  @name("NextLink")
+  nextLink?: url;
 }

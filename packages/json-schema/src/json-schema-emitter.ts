@@ -536,7 +536,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #getSchemaForScalar(scalar: Scalar) {
-    let result: any = {};
+    let result: any;
     const isStd = this.#isStdType(scalar);
     if (isStd) {
       result = this.#getSchemaForStdScalars(scalar);
@@ -1093,7 +1093,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   modelInstantiationContext(model: Model, name: string | undefined): Context {
     if (name === undefined) {
-      return { scope: this.emitter.createScope({}, "", this.emitter.getContext().scope) };
+      return {};
     } else {
       return this.#newFileScope(model);
     }

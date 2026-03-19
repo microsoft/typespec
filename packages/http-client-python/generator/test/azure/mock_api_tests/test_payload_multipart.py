@@ -169,3 +169,30 @@ def test_optional_parts(client: MultiPartClient):
             profile_image=open(str(JPG), "rb"),
         )
     )
+
+
+def test_file_upload_file_specific_content_type(client: MultiPartClient):
+    client.form_data.file.upload_file_specific_content_type(
+        models.UploadFileSpecificContentTypeRequest(
+            file=("image.png", open(str(PNG), "rb"), "image/png"),
+        )
+    )
+
+
+def test_file_upload_file_required_filename(client: MultiPartClient):
+    client.form_data.file.upload_file_required_filename(
+        models.UploadFileRequiredFilenameRequest(
+            file=("image.png", open(str(PNG), "rb"), "image/png"),
+        )
+    )
+
+
+def test_file_upload_file_array(client: MultiPartClient):
+    client.form_data.file.upload_file_array(
+        models.UploadFileArrayRequest(
+            files=[
+                ("image.png", open(str(PNG), "rb"), "image/png"),
+                ("image.png", open(str(PNG), "rb"), "image/png"),
+            ],
+        )
+    )

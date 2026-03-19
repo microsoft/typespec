@@ -1032,6 +1032,31 @@ export function getCSharpStatusCode(entry: HttpStatusCodesEntry): string | undef
   }
 }
 
+/**
+ * Returns the full return statement for a controller action based on the HTTP status code.
+ * Maps well-known status codes to their idiomatic ASP.NET Core ControllerBase methods,
+ * and falls back to `StatusCode(code, ...)` for all other numeric codes.
+ */
+export function getControllerReturnStatement(
+  status: HttpStatusCodesEntry,
+  hasValue: boolean,
+): string {
+  if (typeof status === "number") {
+    switch (status) {
+      case 200:
+        return hasValue ? "return Ok(result);" : "return Ok();";
+      case 202:
+        return hasValue ? "return Accepted(result);" : "return Accepted();";
+      case 204:
+        return "return NoContent();";
+      default:
+        return hasValue ? `return StatusCode(${status}, result);` : `return StatusCode(${status});`;
+    }
+  }
+  // Fallback for ranges and "*"
+  return hasValue ? "return Ok(result);" : "return Ok();";
+}
+
 export function isEmptyResponseModel(program: Program, model: Type): boolean {
   if (model.kind !== "Model") return false;
   if (model.properties.size === 0) return true;
@@ -1586,7 +1611,7 @@ export class CSharpOperationHelpers {
             nullableType: false,
             hasUniqueItems: hasUniqueItems,
           };
-        } else if (isArrayModelType(program, tsType)) {
+        } else if (isArrayModelType(tsType)) {
           const typeReference = code`${this.emitter.emitTypeReference(tsType.indexer.value)}`;
           modelResult = isByteType(tsType.indexer.value)
             ? {
@@ -1734,7 +1759,7 @@ export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, b
   let current: CSharpType | undefined = undefined;
   let nullable: boolean = false;
   for (const type of types) {
-    let candidate: CSharpType | undefined = undefined;
+    let candidate: CSharpType | undefined;
     switch (type.kind) {
       case "Boolean":
         candidate = new CSharpType({ name: "bool", namespace: "System", isValueType: true });
@@ -1797,6 +1822,8 @@ export async function getFreePort(minPort: number, maxPort: number, tries: numbe
   if (free) {
     return port;
   }
+  // This seems like a bug? tries-- does nothing?
+  // eslint-disable-next-line no-useless-assignment
   return await getFreePort(min, max, tries--);
 
   async function checkPort(port: number, timeout: number = 100): Promise<boolean> {
