@@ -108,6 +108,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
             bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
             ClientSettings = isIndividuallyInitialized
+                && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
                 ? new ClientSettingsProvider(_inputClient, this)
                 : null;
             IsMultiServiceClient = _inputClient.IsMultiServiceClient;

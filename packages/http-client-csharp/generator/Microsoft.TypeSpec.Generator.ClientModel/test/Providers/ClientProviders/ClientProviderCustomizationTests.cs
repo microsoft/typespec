@@ -228,6 +228,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // The client options were not customized
             Assert.IsTrue(clientOptionsProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
 
+            // ClientSettings should not be generated for internal clients
+            Assert.IsNull(((ClientProvider)clientProvider).ClientSettings,
+                "Internal client should not have ClientSettings generated");
+
             // The docs should be generated even when then methods is internal
             foreach (var method in clientProvider.Methods)
             {
@@ -264,6 +268,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientOptionsProvider);
             // The client options were not customized
             Assert.IsTrue(clientOptionsProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+
+            // ClientSettings should not be generated for internal clients
+            Assert.IsNull(((ClientProvider)clientProvider).ClientSettings,
+                "Internal client should not have ClientSettings generated");
 
             // The docs should be generated even when then methods is internal
             foreach (var method in clientProvider.Methods)
