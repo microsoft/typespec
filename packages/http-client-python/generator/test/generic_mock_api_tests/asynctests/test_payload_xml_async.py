@@ -84,7 +84,6 @@ async def test_model_with_array_of_model(client: XmlClient):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Generator bug: unwrapped model arrays use type name instead of itemsName for serialization")
 async def test_model_with_unwrapped_model_array(client: XmlClient):
     model = ModelWithUnwrappedModelArray(
         items_property=[
@@ -109,7 +108,6 @@ async def test_model_with_renamed_wrapped_model_array(client: XmlClient):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Generator bug: unwrapped model arrays use type name instead of itemsName for serialization")
 async def test_model_with_renamed_unwrapped_model_array(client: XmlClient):
     model = ModelWithRenamedUnwrappedModelArray(
         items_property=[
@@ -240,7 +238,6 @@ async def test_model_with_datetime(client: XmlClient):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Generator bug: XML namespace prefix not serialized in PUT request body")
 async def test_model_with_namespace(client: XmlClient):
     model = ModelWithNamespace(id=123, title="The Great Gatsby")
     assert await client.model_with_namespace_value.get() == model
@@ -248,7 +245,6 @@ async def test_model_with_namespace(client: XmlClient):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Generator bug: namespace-qualified XML elements not correctly deserialized to model fields")
 async def test_model_with_namespace_on_properties(client: XmlClient):
     model = ModelWithNamespaceOnProperties(id=123, title="The Great Gatsby", author="F. Scott Fitzgerald")
     assert await client.model_with_namespace_on_properties_value.get() == model
