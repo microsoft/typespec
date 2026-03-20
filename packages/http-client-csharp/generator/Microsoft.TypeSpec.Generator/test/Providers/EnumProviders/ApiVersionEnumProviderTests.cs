@@ -180,8 +180,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             var storageProvider = (ApiVersionEnumProvider)storageEnumType;
 
             // Verify enum names use BuildNameForService when there are no collisions
-            Assert.AreEqual("ServiceKeyVaultVersion", keyVaultProvider.Name);
-            Assert.AreEqual("ServiceStorageVersion", storageProvider.Name);
+            Assert.AreEqual("KeyVaultServiceVersion", keyVaultProvider.Name);
+            Assert.AreEqual("StorageServiceVersion", storageProvider.Name);
         }
 
         [Test]

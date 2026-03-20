@@ -11,29 +11,29 @@ namespace Sample
 {
     public partial class TestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const global::Sample.TestClientOptions.ServiceComputeVersion LatestComputeVersion = global::Sample.TestClientOptions.ServiceComputeVersion.V2024_07_01;
-        private const global::Sample.TestClientOptions.ServiceKeyVaultVersion LatestKeyVaultVersion = global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_5;
-        private const global::Sample.TestClientOptions.ServiceStorageVersion LatestStorageVersion = global::Sample.TestClientOptions.ServiceStorageVersion.V2024_01_01;
+        private const global::Sample.TestClientOptions.ComputeServiceVersion LatestComputeVersion = global::Sample.TestClientOptions.ComputeServiceVersion.V2024_07_01;
+        private const global::Sample.TestClientOptions.KeyVaultServiceVersion LatestKeyVaultVersion = global::Sample.TestClientOptions.KeyVaultServiceVersion.V7_5;
+        private const global::Sample.TestClientOptions.StorageServiceVersion LatestStorageVersion = global::Sample.TestClientOptions.StorageServiceVersion.V2024_01_01;
 
-        public TestClientOptions(global::Sample.TestClientOptions.ServiceKeyVaultVersion serviceKeyVaultVersion = LatestKeyVaultVersion, global::Sample.TestClientOptions.ServiceStorageVersion serviceStorageVersion = LatestStorageVersion, global::Sample.TestClientOptions.ServiceComputeVersion serviceComputeVersion = LatestComputeVersion)
+        public TestClientOptions(global::Sample.TestClientOptions.KeyVaultServiceVersion keyVaultServiceVersion = LatestKeyVaultVersion, global::Sample.TestClientOptions.StorageServiceVersion storageServiceVersion = LatestStorageVersion, global::Sample.TestClientOptions.ComputeServiceVersion computeServiceVersion = LatestComputeVersion)
         {
-            KeyVaultApiVersion = serviceKeyVaultVersion switch
+            KeyVaultApiVersion = keyVaultServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_4 => "7.4",
-                global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_5 => "7.5",
+                global::Sample.TestClientOptions.KeyVaultServiceVersion.V7_4 => "7.4",
+                global::Sample.TestClientOptions.KeyVaultServiceVersion.V7_5 => "7.5",
                 _ => throw new global::System.NotSupportedException()
             };
-            StorageApiVersion = serviceStorageVersion switch
+            StorageApiVersion = storageServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceStorageVersion.V2023_01_01 => "2023-01-01",
-                global::Sample.TestClientOptions.ServiceStorageVersion.V2024_01_01 => "2024-01-01",
+                global::Sample.TestClientOptions.StorageServiceVersion.V2023_01_01 => "2023-01-01",
+                global::Sample.TestClientOptions.StorageServiceVersion.V2024_01_01 => "2024-01-01",
                 _ => throw new global::System.NotSupportedException()
             };
-            ComputeApiVersion = serviceComputeVersion switch
+            ComputeApiVersion = computeServiceVersion switch
             {
-                global::Sample.TestClientOptions.ServiceComputeVersion.V2023_07_01 => "2023-07-01",
-                global::Sample.TestClientOptions.ServiceComputeVersion.V2024_03_01 => "2024-03-01",
-                global::Sample.TestClientOptions.ServiceComputeVersion.V2024_07_01 => "2024-07-01",
+                global::Sample.TestClientOptions.ComputeServiceVersion.V2023_07_01 => "2023-07-01",
+                global::Sample.TestClientOptions.ComputeServiceVersion.V2024_03_01 => "2024-03-01",
+                global::Sample.TestClientOptions.ComputeServiceVersion.V2024_07_01 => "2024-07-01",
                 _ => throw new global::System.NotSupportedException()
             };
         }
@@ -68,20 +68,20 @@ namespace Sample
 
         internal string StorageApiVersion { get; }
 
-        public enum ServiceComputeVersion
+        public enum ComputeServiceVersion
         {
             V2023_07_01 = 1,
             V2024_03_01 = 2,
             V2024_07_01 = 3
         }
 
-        public enum ServiceKeyVaultVersion
+        public enum KeyVaultServiceVersion
         {
             V7_4 = 1,
             V7_5 = 2
         }
 
-        public enum ServiceStorageVersion
+        public enum StorageServiceVersion
         {
             V2023_01_01 = 1,
             V2024_01_01 = 2

@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     // last segment; otherwise, use BuildNameForService with the last segment.
                     return ClientHelper.HasLastSegmentCollision(serviceNamespace, _inputEnum, apiVersionEnums)
                         ? $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}"
-                        : ClientHelper.BuildNameForService(serviceNamespace, ServicePrefix, VersionSuffix);
+                        : ClientHelper.BuildNameForService(serviceNamespace, string.Empty, ApiVersionEnumName);
                 }
             }
 
