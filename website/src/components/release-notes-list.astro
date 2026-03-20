@@ -1,0 +1,62 @@
+---
+import { getCollection } from "astro:content";
+import Link from "@typespec/astro-utils/components/link.astro";
+
+const releaseNotes = await getCollection(
+  "docs",
+  (x) => x.id.startsWith("release-notes/") && x.id !== "release-notes",
+);
+releaseNotes.sort((a, b) => b.id.localeCompare(a.id));
+---
+
+<ul class="release-notes-list">
+  {
+    releaseNotes.map((note) => (
+      <li>
+        <Link href={`/${note.id}`}>
+          <span class="release-version">{note.data.title}</span>
+          {note.data.releaseDate && (
+            <span class="release-date">
+              {note.data.releaseDate.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
+          )}
+        </Link>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .release-notes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .release-notes-list li a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    text-decoration: none;
+    transition: background-color 0.15s;
+  }
+  .release-notes-list li a:hover {
+    background-color: var(--sl-color-gray-6);
+  }
+  .release-version {
+    font-weight: 600;
+  }
+  .release-date {
+    color: var(--sl-color-gray-3);
+    font-size: 0.875rem;
+  }
+</style>

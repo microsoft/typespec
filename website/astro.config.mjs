@@ -22,16 +22,27 @@ export default defineConfig({
     astroExpressiveCode(),
     starlight({
       title: "TypeSpec",
-      sidebar: await processSidebar(
-        resolve(import.meta.dirname, "src/content/docs"),
-        "docs",
-        current,
-      ),
+      sidebar: [
+        ...(await processSidebar(
+          resolve(import.meta.dirname, "src/content/docs"),
+          "docs",
+          current,
+        )),
+        {
+          label: "🚀 Release Notes",
+          link: "/release-notes/",
+        },
+        {
+          label: "🚀 Release Notes",
+          autogenerate: { directory: "release-notes" },
+        },
+      ],
       favicon: "/img/favicon.svg",
       customCss: ["./src/css/custom.css"],
       components: {
         Header: "./src/components/header/header.astro",
         PageFrame: "./src/components/starlight-overrides/PageFrame.astro",
+        Sidebar: "./src/components/starlight-overrides/Sidebar.astro",
       },
       expressiveCode: false, // defined directly above
       head: [
