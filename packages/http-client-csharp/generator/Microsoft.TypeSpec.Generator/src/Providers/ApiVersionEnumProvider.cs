@@ -9,6 +9,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -38,21 +39,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var serviceNamespace = _inputEnum.Namespace;
                 if (!string.IsNullOrEmpty(serviceNamespace))
                 {
-                    var lastSegment = GetLastNamespaceSegment(serviceNamespace);
-                    bool hasCollision = apiVersionEnums.Any(e =>
-                        e != _inputEnum &&
-                        !string.IsNullOrEmpty(e.Namespace) &&
-                        string.Equals(GetLastNamespaceSegment(e.Namespace), lastSegment, StringComparison.OrdinalIgnoreCase));
+                    bool hasCollision = HasLastSegmentCollision(serviceNamespace, apiVersionEnums);
 
                     // Only use the full namespace when there is a collision in the
-                    // last segment; otherwise, use just the last segment.
+                    // last segment; otherwise, use BuildNameForService with the last segment.
                     return hasCollision
                         ? $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}"
-                        : $"{lastSegment.ToIdentifierName()}{VersionSuffix}";
+                        : ClientHelper.BuildNameForService(serviceNamespace, ServicePrefix, VersionSuffix);
                 }
             }
 
             return ApiVersionEnumName;
+        }
+
+        private bool HasLastSegmentCollision(string serviceNamespace, List<InputEnumType> apiVersionEnums)
+        {
+            var lastSegment = GetLastNamespaceSegment(serviceNamespace);
+            return apiVersionEnums.Any(e =>
+                e != _inputEnum &&
+                !string.IsNullOrEmpty(e.Namespace) &&
+                string.Equals(GetLastNamespaceSegment(e.Namespace), lastSegment, StringComparison.OrdinalIgnoreCase));
         }
 
         private static string GetLastNamespaceSegment(string ns)

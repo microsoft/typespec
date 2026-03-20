@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -162,7 +163,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // with another service's last segment.
                     versionPropertyName = collidingSegments.Contains(lastSegment)
                         ? $"{ns.ToIdentifierName()}{ApiVersionSuffix}"
-                        : $"{lastSegment.ToIdentifierName()}{ApiVersionSuffix}";
+                        : ClientHelper.BuildNameForService(ns, ServicePrefix, ApiVersionSuffix);
                 }
                 else
                 {
@@ -187,6 +188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int lastDot = ns.LastIndexOf('.');
             return lastDot >= 0 ? ns.Substring(lastDot + 1) : ns;
         }
+
         private IReadOnlyDictionary<FieldProvider, EnumProvider>? LatestVersionsFields => field ??= BuildLatestVersionsFields();
 
         private Dictionary<FieldProvider, EnumProvider>? BuildLatestVersionsFields()
