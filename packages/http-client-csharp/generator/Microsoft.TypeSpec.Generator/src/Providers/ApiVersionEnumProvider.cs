@@ -9,6 +9,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -38,9 +39,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var serviceNamespace = _inputEnum.Namespace;
                 if (!string.IsNullOrEmpty(serviceNamespace))
                 {
-                    // Use the full namespace to guarantee uniqueness when services
-                    // have different namespaces but the same last segment.
-                    return $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}";
+                    // Only use the full namespace when there is a collision in the
+                    // last segment; otherwise, use BuildNameForService with the last segment.
+                    return ClientHelper.HasLastSegmentCollision(serviceNamespace, _inputEnum, apiVersionEnums)
+                        ? $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}"
+                        : ClientHelper.BuildNameForService(serviceNamespace, string.Empty, ApiVersionEnumName);
                 }
             }
 

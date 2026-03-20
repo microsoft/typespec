@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -133,11 +134,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                // For multi-service clients, use the full namespace to guarantee uniqueness
-                // (the last segment alone can collide when services share a namespace).
-                var versionPropertyName = _inputClient.IsMultiServiceClient
-                    ? $"{inputEnum.Namespace.ToIdentifierName()}{ApiVersionSuffix}"
-                    : VersionSuffix;
+                string versionPropertyName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    versionPropertyName = VersionSuffix;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    // Use the full namespace only when the last segment collides;
+                    // otherwise, use BuildNameForService for shorter names.
+                    versionPropertyName = !string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys)
+                        ? $"{serviceNamespace.ToIdentifierName()}{ApiVersionSuffix}"
+                        : ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, string.Empty, ApiVersionSuffix);
+                }
 
                 var versionProperty = new PropertyProvider(
                     null,
@@ -161,11 +172,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             Dictionary<FieldProvider, EnumProvider> latestVersionFields = new(_serviceVersionsEnums.Count);
-            foreach (var enumProvider in _serviceVersionsEnums.Values)
+            foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                var fieldName = _inputClient.IsMultiServiceClient
-                    ? $"{LatestPrefix}{enumProvider.Name.ToIdentifierName()}"
-                    : LatestVersionFieldName;
+                string fieldName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    fieldName = LatestVersionFieldName;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    // Use the full namespace only when the last segment collides;
+                    // otherwise, use BuildNameForService for shorter names.
+                    fieldName = !string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys)
+                        ? $"{LatestPrefix}{serviceNamespace.ToIdentifierName()}{VersionSuffix}"
+                        : ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, LatestPrefix, VersionSuffix);
+                }
                 var field = new FieldProvider(
                     modifiers: FieldModifiers.Private | FieldModifiers.Const,
                     type: enumProvider.Type,

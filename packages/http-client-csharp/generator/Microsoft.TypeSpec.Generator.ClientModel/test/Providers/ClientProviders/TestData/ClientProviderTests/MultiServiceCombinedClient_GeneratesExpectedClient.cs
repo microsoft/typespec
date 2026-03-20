@@ -13,8 +13,8 @@ namespace Sample
     public partial class TestClient
     {
         private readonly global::System.Uri _endpoint;
-        private readonly string _sampleServiceAApiVersion;
-        private readonly string _sampleServiceBApiVersion;
+        private readonly string _serviceAApiVersion;
+        private readonly string _serviceBApiVersion;
 
         protected TestClient()
         {
@@ -39,8 +39,8 @@ namespace Sample
             {
                 Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
-            _sampleServiceAApiVersion = options.SampleServiceAApiVersion;
-            _sampleServiceBApiVersion = options.SampleServiceBApiVersion;
+            _serviceAApiVersion = options.ServiceAApiVersion;
+            _serviceBApiVersion = options.ServiceBApiVersion;
         }
 
         public TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)

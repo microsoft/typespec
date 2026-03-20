@@ -752,6 +752,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var nestedTypes = clientOptionsProvider!.NestedTypes;
             Assert.AreEqual(2, nestedTypes.Count);
             CollectionAssert.AllItemsAreUnique(nestedTypes.Select(t => t.Name).ToList());
+
+            var writer = new TypeProviderWriter(clientOptionsProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
