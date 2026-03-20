@@ -25,7 +25,7 @@ def _check_command_available(command: str) -> bool:
     try:
         subprocess.run([command, "--version"], capture_output=True, check=True)
         return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, PermissionError):
         return False
 
 
@@ -50,7 +50,7 @@ def detect_package_manager() -> str:
     try:
         subprocess.run([sys.executable, "-m", "pip", "--version"], capture_output=True, check=True)
         return "python -m pip"
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, PermissionError):
         pass
 
     raise PackageManagerNotFoundError("No suitable package manager found. Please install either uv or pip.")
