@@ -178,9 +178,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.IsTrue(storageEnumType is ApiVersionEnumProvider);
             var storageProvider = (ApiVersionEnumProvider)storageEnumType;
 
-            // Verify enum names use the full namespace for uniqueness: {FullNamespace}Version
-            Assert.AreEqual("SampleKeyVaultVersion", keyVaultProvider.Name);
-            Assert.AreEqual("SampleStorageVersion", storageProvider.Name);
+            // Verify enum names use only the last namespace segment when there are no collisions: {LastSegment}Version
+            Assert.AreEqual("KeyVaultVersion", keyVaultProvider.Name);
+            Assert.AreEqual("StorageVersion", storageProvider.Name);
         }
 
         [Test]
@@ -210,6 +210,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
 
             // Verify enum names follow the multiservice naming pattern: Service{ServiceName}Version
             Assert.AreEqual("ServiceVersion", keyVaultProvider.Name);
+        }
+
+        [Test]
+        public void MultiServiceClient_WithCollidingLastSegments_UsesFullNamespace()
+        {
+            // When two services have different full namespaces but the same last segment,
+            // the full namespace should be used to avoid collisions.
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersion",
+                [("1.0", "1.0"), ("2.0", "2.0")],
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceOne.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersion",
+                [("3.0", "3.0"), ("4.0", "4.0")],
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceTwo.Tests");
+
+            var client = InputFactory.Client("TestClient", isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                inputEnumTypes: [serviceOneEnum, serviceTwoEnum],
+                inputClients: [client]);
+
+            var mockDeclaringType = new Mock<TypeProvider>();
+            mockDeclaringType.Protected().Setup<string>("BuildName").Returns("TestClientOptions");
+            mockDeclaringType.Protected().Setup<string>("BuildNamespace").Returns("Azure");
+
+            var serviceOneEnumType = EnumProvider.Create(serviceOneEnum, mockDeclaringType.Object);
+            Assert.IsTrue(serviceOneEnumType is ApiVersionEnumProvider);
+            var serviceOneProvider = (ApiVersionEnumProvider)serviceOneEnumType;
+
+            var serviceTwoEnumType = EnumProvider.Create(serviceTwoEnum, mockDeclaringType.Object);
+            Assert.IsTrue(serviceTwoEnumType is ApiVersionEnumProvider);
+            var serviceTwoProvider = (ApiVersionEnumProvider)serviceTwoEnumType;
+
+            // Verify enum names use the full namespace for uniqueness when last segments collide
+            Assert.AreEqual("AzureServiceOneTestsVersion", serviceOneProvider.Name);
+            Assert.AreEqual("AzureServiceTwoTestsVersion", serviceTwoProvider.Name);
         }
     }
 }

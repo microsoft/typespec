@@ -11,21 +11,21 @@ namespace Sample
 {
     public partial class TestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const global::Sample.TestClientOptions.SampleServiceAVersion LatestSampleServiceAVersion = global::Sample.TestClientOptions.SampleServiceAVersion.V2_0;
-        private const global::Sample.TestClientOptions.SampleServiceBVersion LatestSampleServiceBVersion = global::Sample.TestClientOptions.SampleServiceBVersion.V4_0;
+        private const global::Sample.TestClientOptions.ServiceAVersion LatestServiceAVersion = global::Sample.TestClientOptions.ServiceAVersion.V2_0;
+        private const global::Sample.TestClientOptions.ServiceBVersion LatestServiceBVersion = global::Sample.TestClientOptions.ServiceBVersion.V4_0;
 
-        public TestClientOptions(global::Sample.TestClientOptions.SampleServiceAVersion sampleServiceAVersion = LatestSampleServiceAVersion, global::Sample.TestClientOptions.SampleServiceBVersion sampleServiceBVersion = LatestSampleServiceBVersion)
+        public TestClientOptions(global::Sample.TestClientOptions.ServiceAVersion serviceAVersion = LatestServiceAVersion, global::Sample.TestClientOptions.ServiceBVersion serviceBVersion = LatestServiceBVersion)
         {
-            SampleServiceAApiVersion = sampleServiceAVersion switch
+            ServiceAApiVersion = serviceAVersion switch
             {
-                global::Sample.TestClientOptions.SampleServiceAVersion.V1_0 => "1.0",
-                global::Sample.TestClientOptions.SampleServiceAVersion.V2_0 => "2.0",
+                global::Sample.TestClientOptions.ServiceAVersion.V1_0 => "1.0",
+                global::Sample.TestClientOptions.ServiceAVersion.V2_0 => "2.0",
                 _ => throw new global::System.NotSupportedException()
             };
-            SampleServiceBApiVersion = sampleServiceBVersion switch
+            ServiceBApiVersion = serviceBVersion switch
             {
-                global::Sample.TestClientOptions.SampleServiceBVersion.V3_0 => "3.0",
-                global::Sample.TestClientOptions.SampleServiceBVersion.V4_0 => "4.0",
+                global::Sample.TestClientOptions.ServiceBVersion.V3_0 => "3.0",
+                global::Sample.TestClientOptions.ServiceBVersion.V4_0 => "4.0",
                 _ => throw new global::System.NotSupportedException()
             };
         }
@@ -33,33 +33,33 @@ namespace Sample
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
         internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
-            SampleServiceAApiVersion = "2.0";
-            SampleServiceBApiVersion = "4.0";
+            ServiceAApiVersion = "2.0";
+            ServiceBApiVersion = "4.0";
             if (((section is null) || !section.Exists()))
             {
                 return;
             }
-            if ((section["SampleServiceAApiVersion"] is string sampleServiceAApiVersion))
+            if ((section["ServiceAApiVersion"] is string serviceAApiVersion))
             {
-                this.SampleServiceAApiVersion = sampleServiceAApiVersion;
+                this.ServiceAApiVersion = serviceAApiVersion;
             }
-            if ((section["SampleServiceBApiVersion"] is string sampleServiceBApiVersion))
+            if ((section["ServiceBApiVersion"] is string serviceBApiVersion))
             {
-                this.SampleServiceBApiVersion = sampleServiceBApiVersion;
+                this.ServiceBApiVersion = serviceBApiVersion;
             }
         }
 
-        internal string SampleServiceAApiVersion { get; }
+        internal string ServiceAApiVersion { get; }
 
-        internal string SampleServiceBApiVersion { get; }
+        internal string ServiceBApiVersion { get; }
 
-        public enum SampleServiceAVersion
+        public enum ServiceAVersion
         {
             V1_0 = 1,
             V2_0 = 2
         }
 
-        public enum SampleServiceBVersion
+        public enum ServiceBVersion
         {
             V3_0 = 1,
             V4_0 = 2

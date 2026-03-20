@@ -131,13 +131,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
+
+            // Precompute which last namespace segments have collisions
+            HashSet<string>? collidingSegments = null;
+            if (_inputClient.IsMultiServiceClient)
+            {
+                var segmentCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var (inputEnum, _) in _serviceVersionsEnums)
+                {
+                    var segment = GetLastNamespaceSegment(inputEnum.Namespace);
+                    segmentCounts[segment] = segmentCounts.TryGetValue(segment, out var count) ? count + 1 : 1;
+                }
+                collidingSegments = new HashSet<string>(
+                    segmentCounts.Where(kv => kv.Value > 1).Select(kv => kv.Key),
+                    StringComparer.OrdinalIgnoreCase);
+            }
+
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                // For multi-service clients, use the full namespace to guarantee uniqueness
-                // (the last segment alone can collide when services share a namespace).
-                var versionPropertyName = _inputClient.IsMultiServiceClient
-                    ? $"{inputEnum.Namespace.ToIdentifierName()}{ApiVersionSuffix}"
-                    : VersionSuffix;
+                string versionPropertyName;
+                if (_inputClient.IsMultiServiceClient)
+                {
+                    var ns = inputEnum.Namespace;
+                    var lastSegment = GetLastNamespaceSegment(ns);
+                    // Only use the full namespace when the last segment collides
+                    // with another service's last segment.
+                    versionPropertyName = collidingSegments!.Contains(lastSegment)
+                        ? $"{ns.ToIdentifierName()}{ApiVersionSuffix}"
+                        : $"{lastSegment.ToIdentifierName()}{ApiVersionSuffix}";
+                }
+                else
+                {
+                    versionPropertyName = VersionSuffix;
+                }
 
                 var versionProperty = new PropertyProvider(
                     null,
@@ -150,6 +176,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return properties;
+        }
+
+        private static string GetLastNamespaceSegment(string ns)
+        {
+            int lastDot = ns.LastIndexOf('.');
+            return lastDot >= 0 ? ns.Substring(lastDot + 1) : ns;
         }
         private IReadOnlyDictionary<FieldProvider, EnumProvider>? LatestVersionsFields => field ??= BuildLatestVersionsFields();
 

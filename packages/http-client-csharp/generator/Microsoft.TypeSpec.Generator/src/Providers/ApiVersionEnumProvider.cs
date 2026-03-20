@@ -38,13 +38,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var serviceNamespace = _inputEnum.Namespace;
                 if (!string.IsNullOrEmpty(serviceNamespace))
                 {
-                    // Use the full namespace to guarantee uniqueness when services
-                    // have different namespaces but the same last segment.
-                    return $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}";
+                    var lastSegment = GetLastNamespaceSegment(serviceNamespace);
+                    bool hasCollision = apiVersionEnums.Any(e =>
+                        e != _inputEnum &&
+                        !string.IsNullOrEmpty(e.Namespace) &&
+                        string.Equals(GetLastNamespaceSegment(e.Namespace), lastSegment, StringComparison.OrdinalIgnoreCase));
+
+                    // Only use the full namespace when there is a collision in the
+                    // last segment; otherwise, use just the last segment.
+                    return hasCollision
+                        ? $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}"
+                        : $"{lastSegment.ToIdentifierName()}{VersionSuffix}";
                 }
             }
 
             return ApiVersionEnumName;
+        }
+
+        private static string GetLastNamespaceSegment(string ns)
+        {
+            int lastDot = ns.LastIndexOf('.');
+            return lastDot >= 0 ? ns.Substring(lastDot + 1) : ns;
         }
 
         protected override FormattableString BuildDescription() => $"{ApiVersionEnumDescription}";
