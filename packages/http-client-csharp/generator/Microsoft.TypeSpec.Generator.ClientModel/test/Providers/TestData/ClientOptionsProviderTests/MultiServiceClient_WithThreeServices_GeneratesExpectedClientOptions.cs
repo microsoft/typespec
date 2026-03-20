@@ -11,25 +11,25 @@ namespace Sample
 {
     public partial class TestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const global::Sample.TestClientOptions.ServiceComputeVersion LatestServiceComputeVersion = global::Sample.TestClientOptions.ServiceComputeVersion.V2024_07_01;
-        private const global::Sample.TestClientOptions.ServiceKeyVaultVersion LatestServiceKeyVaultVersion = global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_5;
-        private const global::Sample.TestClientOptions.ServiceStorageVersion LatestServiceStorageVersion = global::Sample.TestClientOptions.ServiceStorageVersion.V2024_01_01;
+        private const global::Sample.TestClientOptions.ServiceComputeVersion LatestComputeVersion = global::Sample.TestClientOptions.ServiceComputeVersion.V2024_07_01;
+        private const global::Sample.TestClientOptions.ServiceKeyVaultVersion LatestKeyVaultVersion = global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_5;
+        private const global::Sample.TestClientOptions.ServiceStorageVersion LatestStorageVersion = global::Sample.TestClientOptions.ServiceStorageVersion.V2024_01_01;
 
-        public TestClientOptions(global::Sample.TestClientOptions.ServiceKeyVaultVersion serviceKeyVaultVersion = LatestServiceKeyVaultVersion, global::Sample.TestClientOptions.ServiceStorageVersion serviceStorageVersion = LatestServiceStorageVersion, global::Sample.TestClientOptions.ServiceComputeVersion serviceComputeVersion = LatestServiceComputeVersion)
+        public TestClientOptions(global::Sample.TestClientOptions.ServiceKeyVaultVersion serviceKeyVaultVersion = LatestKeyVaultVersion, global::Sample.TestClientOptions.ServiceStorageVersion serviceStorageVersion = LatestStorageVersion, global::Sample.TestClientOptions.ServiceComputeVersion serviceComputeVersion = LatestComputeVersion)
         {
-            SampleKeyVaultApiVersion = serviceKeyVaultVersion switch
+            KeyVaultApiVersion = serviceKeyVaultVersion switch
             {
                 global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_4 => "7.4",
                 global::Sample.TestClientOptions.ServiceKeyVaultVersion.V7_5 => "7.5",
                 _ => throw new global::System.NotSupportedException()
             };
-            SampleStorageApiVersion = serviceStorageVersion switch
+            StorageApiVersion = serviceStorageVersion switch
             {
                 global::Sample.TestClientOptions.ServiceStorageVersion.V2023_01_01 => "2023-01-01",
                 global::Sample.TestClientOptions.ServiceStorageVersion.V2024_01_01 => "2024-01-01",
                 _ => throw new global::System.NotSupportedException()
             };
-            SampleComputeApiVersion = serviceComputeVersion switch
+            ComputeApiVersion = serviceComputeVersion switch
             {
                 global::Sample.TestClientOptions.ServiceComputeVersion.V2023_07_01 => "2023-07-01",
                 global::Sample.TestClientOptions.ServiceComputeVersion.V2024_03_01 => "2024-03-01",
@@ -41,32 +41,32 @@ namespace Sample
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
         internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
-            SampleComputeApiVersion = "2024-07-01";
-            SampleKeyVaultApiVersion = "7.5";
-            SampleStorageApiVersion = "2024-01-01";
+            ComputeApiVersion = "2024-07-01";
+            KeyVaultApiVersion = "7.5";
+            StorageApiVersion = "2024-01-01";
             if (((section is null) || !section.Exists()))
             {
                 return;
             }
-            if ((section["SampleComputeApiVersion"] is string sampleComputeApiVersion))
+            if ((section["ComputeApiVersion"] is string computeApiVersion))
             {
-                this.SampleComputeApiVersion = sampleComputeApiVersion;
+                this.ComputeApiVersion = computeApiVersion;
             }
-            if ((section["SampleKeyVaultApiVersion"] is string sampleKeyVaultApiVersion))
+            if ((section["KeyVaultApiVersion"] is string keyVaultApiVersion))
             {
-                this.SampleKeyVaultApiVersion = sampleKeyVaultApiVersion;
+                this.KeyVaultApiVersion = keyVaultApiVersion;
             }
-            if ((section["SampleStorageApiVersion"] is string sampleStorageApiVersion))
+            if ((section["StorageApiVersion"] is string storageApiVersion))
             {
-                this.SampleStorageApiVersion = sampleStorageApiVersion;
+                this.StorageApiVersion = storageApiVersion;
             }
         }
 
-        internal string SampleComputeApiVersion { get; }
+        internal string ComputeApiVersion { get; }
 
-        internal string SampleKeyVaultApiVersion { get; }
+        internal string KeyVaultApiVersion { get; }
 
-        internal string SampleStorageApiVersion { get; }
+        internal string StorageApiVersion { get; }
 
         public enum ServiceComputeVersion
         {
