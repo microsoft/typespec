@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -249,6 +250,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             // Verify enum names use the full namespace for uniqueness when last segments collide
             Assert.AreEqual("AzureServiceOneTestsVersion", serviceOneProvider.Name);
             Assert.AreEqual("AzureServiceTwoTestsVersion", serviceTwoProvider.Name);
+
+            // Validate generated output
+            var writerOne = new TypeProviderWriter(serviceOneProvider);
+            var fileOne = writerOne.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("ServiceOne"), fileOne.Content);
+
+            var writerTwo = new TypeProviderWriter(serviceTwoProvider);
+            var fileTwo = writerTwo.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("ServiceTwo"), fileTwo.Content);
         }
     }
 }

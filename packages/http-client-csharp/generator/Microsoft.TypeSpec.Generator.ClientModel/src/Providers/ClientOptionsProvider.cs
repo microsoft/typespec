@@ -10,7 +10,6 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -132,43 +131,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
-
-            // Precompute which last namespace segments have collisions
-            var collidingSegments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (_inputClient.IsMultiServiceClient)
-            {
-                var segmentCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-                foreach (var (inputEnum, _) in _serviceVersionsEnums)
-                {
-                    var segment = GetLastNamespaceSegment(inputEnum.Namespace);
-                    segmentCounts[segment] = segmentCounts.TryGetValue(segment, out var count) ? count + 1 : 1;
-                }
-                foreach (var kv in segmentCounts)
-                {
-                    if (kv.Value > 1)
-                    {
-                        collidingSegments.Add(kv.Key);
-                    }
-                }
-            }
-
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                string versionPropertyName;
-                if (_inputClient.IsMultiServiceClient)
-                {
-                    var ns = inputEnum.Namespace;
-                    var lastSegment = GetLastNamespaceSegment(ns);
-                    // Only use the full namespace when the last segment collides
-                    // with another service's last segment.
-                    versionPropertyName = collidingSegments.Contains(lastSegment)
-                        ? $"{ns.ToIdentifierName()}{ApiVersionSuffix}"
-                        : ClientHelper.BuildNameForService(ns, ServicePrefix, ApiVersionSuffix);
-                }
-                else
-                {
-                    versionPropertyName = VersionSuffix;
-                }
+                // For multi-service clients, use the full namespace to guarantee uniqueness
+                // (the last segment alone can collide when services share a namespace).
+                var versionPropertyName = _inputClient.IsMultiServiceClient
+                    ? $"{inputEnum.Namespace.ToIdentifierName()}{ApiVersionSuffix}"
+                    : VersionSuffix;
 
                 var versionProperty = new PropertyProvider(
                     null,
@@ -182,13 +151,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return properties;
         }
-
-        private static string GetLastNamespaceSegment(string ns)
-        {
-            int lastDot = ns.LastIndexOf('.');
-            return lastDot >= 0 ? ns.Substring(lastDot + 1) : ns;
-        }
-
         private IReadOnlyDictionary<FieldProvider, EnumProvider>? LatestVersionsFields => field ??= BuildLatestVersionsFields();
 
         private Dictionary<FieldProvider, EnumProvider>? BuildLatestVersionsFields()

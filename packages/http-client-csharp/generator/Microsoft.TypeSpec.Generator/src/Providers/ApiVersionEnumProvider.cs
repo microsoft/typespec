@@ -39,32 +39,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var serviceNamespace = _inputEnum.Namespace;
                 if (!string.IsNullOrEmpty(serviceNamespace))
                 {
-                    bool hasCollision = HasLastSegmentCollision(serviceNamespace, apiVersionEnums);
-
                     // Only use the full namespace when there is a collision in the
                     // last segment; otherwise, use BuildNameForService with the last segment.
-                    return hasCollision
+                    return ClientHelper.HasLastSegmentCollision(serviceNamespace, _inputEnum, apiVersionEnums)
                         ? $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}"
                         : ClientHelper.BuildNameForService(serviceNamespace, ServicePrefix, VersionSuffix);
                 }
             }
 
             return ApiVersionEnumName;
-        }
-
-        private bool HasLastSegmentCollision(string serviceNamespace, List<InputEnumType> apiVersionEnums)
-        {
-            var lastSegment = GetLastNamespaceSegment(serviceNamespace);
-            return apiVersionEnums.Any(e =>
-                e != _inputEnum &&
-                !string.IsNullOrEmpty(e.Namespace) &&
-                string.Equals(GetLastNamespaceSegment(e.Namespace), lastSegment, StringComparison.OrdinalIgnoreCase));
-        }
-
-        private static string GetLastNamespaceSegment(string ns)
-        {
-            int lastDot = ns.LastIndexOf('.');
-            return lastDot >= 0 ? ns.Substring(lastDot + 1) : ns;
         }
 
         protected override FormattableString BuildDescription() => $"{ApiVersionEnumDescription}";

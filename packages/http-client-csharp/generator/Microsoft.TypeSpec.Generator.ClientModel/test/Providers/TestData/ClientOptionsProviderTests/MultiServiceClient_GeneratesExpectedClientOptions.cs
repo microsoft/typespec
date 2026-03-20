@@ -16,13 +16,13 @@ namespace Sample
 
         public TestClientOptions(global::Sample.TestClientOptions.ServiceAVersion serviceAVersion = LatestServiceAVersion, global::Sample.TestClientOptions.ServiceBVersion serviceBVersion = LatestServiceBVersion)
         {
-            ServiceAApiVersion = serviceAVersion switch
+            SampleServiceAApiVersion = serviceAVersion switch
             {
                 global::Sample.TestClientOptions.ServiceAVersion.V1_0 => "1.0",
                 global::Sample.TestClientOptions.ServiceAVersion.V2_0 => "2.0",
                 _ => throw new global::System.NotSupportedException()
             };
-            ServiceBApiVersion = serviceBVersion switch
+            SampleServiceBApiVersion = serviceBVersion switch
             {
                 global::Sample.TestClientOptions.ServiceBVersion.V3_0 => "3.0",
                 global::Sample.TestClientOptions.ServiceBVersion.V4_0 => "4.0",
@@ -33,25 +33,25 @@ namespace Sample
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
         internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
-            ServiceAApiVersion = "2.0";
-            ServiceBApiVersion = "4.0";
+            SampleServiceAApiVersion = "2.0";
+            SampleServiceBApiVersion = "4.0";
             if (((section is null) || !section.Exists()))
             {
                 return;
             }
-            if ((section["ServiceAApiVersion"] is string serviceAApiVersion))
+            if ((section["SampleServiceAApiVersion"] is string sampleServiceAApiVersion))
             {
-                this.ServiceAApiVersion = serviceAApiVersion;
+                this.SampleServiceAApiVersion = sampleServiceAApiVersion;
             }
-            if ((section["ServiceBApiVersion"] is string serviceBApiVersion))
+            if ((section["SampleServiceBApiVersion"] is string sampleServiceBApiVersion))
             {
-                this.ServiceBApiVersion = serviceBApiVersion;
+                this.SampleServiceBApiVersion = sampleServiceBApiVersion;
             }
         }
 
-        internal string ServiceAApiVersion { get; }
+        internal string SampleServiceAApiVersion { get; }
 
-        internal string ServiceBApiVersion { get; }
+        internal string SampleServiceBApiVersion { get; }
 
         public enum ServiceAVersion
         {
