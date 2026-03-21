@@ -1,4 +1,4 @@
-import deepEqual from "deep-equal";
+import { matchValues } from "./match-engine.js";
 import {
   validateBodyEmpty,
   validateBodyEquals,
@@ -9,7 +9,7 @@ import {
   validateRawBodyEquals,
   validateXmlBodyEquals,
 } from "./request-validations.js";
-import { CollectionFormat, RequestExt } from "./types.js";
+import { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./types.js";
 import { ValidationError } from "./validation-error.js";
 
 /**
@@ -89,18 +89,22 @@ export class RequestExpectation {
    * @param expected Expected value
    */
   public deepEqual(actual: unknown, expected: unknown, message = "Values not deep equal"): void {
-    if (!deepEqual(actual, expected, { strict: true })) {
-      throw new ValidationError(message, expected, actual);
+    const result = matchValues(actual, expected);
+    if (!result.pass) {
+      throw new ValidationError(`${message}: ${result.message}`, expected, actual);
     }
   }
 
   /**
-   * Expect the body of the request to be semantically equivalent to the provided XML string.
-   * The XML declaration prefix will automatically be added to expectedBody.
-   * @param expectedBody expected value of request body.
+   * Expect the body of the request to be semantically equivalent to the provided XML.
+   * Accepts a plain string or a Resolver (e.g. from `xml\`...\``).
+   * When a Resolver with matchers is provided, matcher-aware comparison is used.
+   * The XML declaration prefix will automatically be added.
+   * @param expectedBody expected XML body as a string or Resolver.
+   * @param config resolver config (required when expectedBody is a Resolver).
    * @throws {ValidationError} if there is an error.
    */
-  public xmlBodyEquals(expectedBody: string): void {
-    validateXmlBodyEquals(this.originalRequest, expectedBody);
+  public xmlBodyEquals(expectedBody: string | Resolver, config?: ResolverConfig): void {
+    validateXmlBodyEquals(this.originalRequest, expectedBody, config);
   }
 }

@@ -110,6 +110,8 @@ export interface ResolverConfig {
 
 export interface Resolver {
   serialize(config: ResolverConfig): string;
+  /** Returns the expanded content with matchers preserved (for comparison). */
+  resolve(config: ResolverConfig): unknown;
 }
 
 export interface MockMultipartBody {

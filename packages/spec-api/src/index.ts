@@ -1,3 +1,13 @@
+export {
+  createMatcher,
+  err,
+  isMatcher,
+  match,
+  matchValues,
+  ok,
+  type MatchResult,
+  type MockValueMatcher,
+} from "./matchers/index.js";
 export { MockRequest } from "./mock-request.js";
 export {
   BODY_EMPTY_ERROR_MESSAGE,
