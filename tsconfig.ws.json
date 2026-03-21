@@ -30,7 +30,8 @@
     { "path": "packages/xml/tsconfig.build.json" },
     { "path": "./packages/http-server-js/tsconfig.json" },
     { "path": "packages/http-server-csharp/tsconfig.build.json" },
-    { "path": "packages/astro-utils/tsconfig.build.json" }
+    { "path": "packages/astro-utils/tsconfig.build.json" },
+    { "path": "packages/tspq/tsconfig.build.json" }
   ],
   "files": []
 }

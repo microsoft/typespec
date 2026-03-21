@@ -1,0 +1,14 @@
+{
+  "name": "Widget.Widget",
+  "kind": "Model",
+  "namespace": "Widget",
+  "description": "Widget model",
+  "state": {
+    "maps": {
+      "Symbol(TypeSpec.docs)": {
+        "value": "Widget model",
+        "source": "decorator"
+      }
+    }
+  }
+}

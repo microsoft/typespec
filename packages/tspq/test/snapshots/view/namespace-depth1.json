@@ -1,0 +1,73 @@
+{
+  "name": "Widget",
+  "kind": "Namespace",
+  "namespace": "",
+  "details": {
+    "namespaces": [],
+    "models": [
+      {
+        "name": "Widget.Widget",
+        "kind": "Model",
+        "namespace": "Widget",
+        "description": "Widget model",
+        "state": {
+          "maps": {
+            "Symbol(TypeSpec.docs)": {
+              "value": "Widget model",
+              "source": "decorator"
+            }
+          }
+        }
+      }
+    ],
+    "scalars": [
+      {
+        "name": "Widget.WidgetId",
+        "kind": "Scalar",
+        "namespace": "Widget"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "Widget.WidgetOps",
+        "kind": "Interface",
+        "namespace": "Widget"
+      }
+    ],
+    "operations": [],
+    "unions": [
+      {
+        "name": "Widget.Choice",
+        "kind": "Union",
+        "namespace": "Widget"
+      }
+    ],
+    "enums": [
+      {
+        "name": "Widget.Kind",
+        "kind": "Enum",
+        "namespace": "Widget",
+        "description": "Widget enum",
+        "state": {
+          "maps": {
+            "Symbol(TypeSpec.docs)": {
+              "value": "Widget enum",
+              "source": "decorator"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "state": {
+    "maps": {
+      "Symbol(@typespec/compiler.services)": {
+        "title": "Widget Service",
+        "type": {
+          "kind": "Namespace",
+          "name": "Widget"
+        }
+      }
+    }
+  }
+}

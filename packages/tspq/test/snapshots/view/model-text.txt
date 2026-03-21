@@ -1,0 +1,17 @@
+Type: Widget.Widget
+Kind: Model
+Namespace: Widget
+Description: Widget model
+Location: <stripped>
+
+Details
+Base model: (none)
+Derived models: (none)
+Properties:
+- id: string
+- name?: string
+
+Decorator State
+State maps:
+- Symbol(TypeSpec.docs):
+  { value: 'Widget model', source: 'decorator' }
