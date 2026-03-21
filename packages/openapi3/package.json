@@ -14,7 +14,9 @@
     "url": "https://github.com/microsoft/typespec/issues"
   },
   "keywords": [
-    "typespec"
+    "typespec",
+    "typespec-lib",
+    "typespec-emitter"
   ],
   "bin": {
     "tsp-openapi3": "cmd/tsp-openapi3.js"

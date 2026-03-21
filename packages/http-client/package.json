@@ -57,5 +57,8 @@
     "lint:fix": "eslint . --report-unused-disable-directives --fix",
     "format": "prettier .  --write",
     "format:check": "prettier --check ."
-  }
+  },
+  "keywords": [
+    "typespec-lib"
+  ]
 }

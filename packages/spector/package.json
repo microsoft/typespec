@@ -69,5 +69,8 @@
     "@typespec/tspd": "workspace:^",
     "rimraf": "~6.1.3",
     "typescript": "~5.9.3"
-  }
+  },
+  "keywords": [
+    "typespec-lib"
+  ]
 }
