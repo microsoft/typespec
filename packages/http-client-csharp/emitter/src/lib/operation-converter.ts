@@ -9,6 +9,7 @@ import {
   isHttpMetadata,
   SdkBodyParameter,
   SdkBuiltInKinds,
+  SdkClientType,
   SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
@@ -32,6 +33,7 @@ import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
+import { ClientOptions } from "../type/client-options.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
 import { InputConstant } from "../type/input-constant.js";
@@ -74,6 +76,7 @@ export function fromSdkServiceMethod(
   uri: string,
   rootApiVersions: string[],
   namespace: string,
+  client?: SdkClientType<SdkHttpOperation>,
 ): InputServiceMethod | undefined {
   let method = sdkContext.__typeCache.methods.get(sdkMethod);
   if (method) {
@@ -89,6 +92,7 @@ export function fromSdkServiceMethod(
         uri,
         rootApiVersions,
         namespace,
+        client,
       );
       break;
     case "paging":
@@ -98,6 +102,7 @@ export function fromSdkServiceMethod(
         uri,
         rootApiVersions,
         namespace,
+        client,
       );
       pagingServiceMethod.pagingMetadata = loadPagingServiceMetadata(
         sdkContext,
@@ -105,6 +110,7 @@ export function fromSdkServiceMethod(
         rootApiVersions,
         uri,
         namespace,
+        client,
       );
       method = pagingServiceMethod;
       break;
@@ -115,6 +121,7 @@ export function fromSdkServiceMethod(
         uri,
         rootApiVersions,
         namespace,
+        client,
       );
       lroServiceMethod.lroMetadata = loadLongRunningMetadata(sdkContext, sdkMethod);
       method = lroServiceMethod;
@@ -126,6 +133,7 @@ export function fromSdkServiceMethod(
         uri,
         rootApiVersions,
         namespace,
+        client,
       );
       lroPagingMethod.lroMetadata = loadLongRunningMetadata(sdkContext, sdkMethod);
       lroPagingMethod.pagingMetadata = loadPagingServiceMetadata(
@@ -134,6 +142,7 @@ export function fromSdkServiceMethod(
         rootApiVersions,
         uri,
         namespace,
+        client,
       );
       method = lroPagingMethod;
       break;
@@ -159,6 +168,7 @@ export function fromSdkServiceMethodOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
+  client?: SdkClientType<SdkHttpOperation>,
 ): InputOperation {
   let operation = sdkContext.__typeCache.operations.get(method.operation);
   if (operation) {
@@ -177,6 +187,13 @@ export function fromSdkServiceMethodOperation(
     generateConvenience = false;
   }
 
+  const includeRootSlash = resolveIncludeRootSlash(method, client);
+  const operationPath = method.operation.path;
+  const path =
+    !includeRootSlash && operationPath.length > 0 && operationPath[0] === "/"
+      ? operationPath.substring(1)
+      : operationPath;
+
   operation = {
     name: method.name,
     resourceName:
@@ -191,7 +208,7 @@ export function fromSdkServiceMethodOperation(
     responses: fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
     httpMethod: parseHttpRequestMethod(method.operation.verb),
     uri: uri,
-    path: method.operation.path,
+    path: path,
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
     requestMediaTypes: getRequestMediaTypes(method.operation),
     bufferResponse: true,
@@ -242,6 +259,7 @@ function createServiceMethod<T extends InputServiceMethod>(
   uri: string,
   rootApiVersions: string[],
   namespace: string,
+  client?: SdkClientType<SdkHttpOperation>,
 ): T {
   return {
     kind: method.kind,
@@ -250,7 +268,7 @@ function createServiceMethod<T extends InputServiceMethod>(
     apiVersions: method.apiVersions,
     doc: method.doc,
     summary: method.summary,
-    operation: fromSdkServiceMethodOperation(sdkContext, method, uri, rootApiVersions),
+    operation: fromSdkServiceMethodOperation(sdkContext, method, uri, rootApiVersions, client),
     parameters: fromSdkServiceMethodParameters(sdkContext, method, rootApiVersions, namespace),
     response: fromSdkServiceMethodResponse(sdkContext, method.response),
     exception: method.exception
@@ -706,6 +724,7 @@ function loadPagingServiceMetadata(
   rootApiVersions: string[],
   uri: string,
   namespace: string,
+  client?: SdkClientType<SdkHttpOperation>,
 ): InputPagingServiceMetadata {
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
@@ -727,6 +746,7 @@ function loadPagingServiceMetadata(
         uri,
         rootApiVersions,
         namespace,
+        client,
       );
     }
 
@@ -989,7 +1009,7 @@ function getCollectionHeaderPrefix(
   sdkContext: CSharpEmitterContext,
   p: SdkHeaderParameter,
 ): string | undefined {
-  const value = getClientOptions(p, "collectionHeaderPrefix");
+  const value = getClientOptions(p, ClientOptions.collectionHeaderPrefix);
   if (value === undefined) {
     return undefined;
   }
@@ -1002,11 +1022,35 @@ function getCollectionHeaderPrefix(
     sdkContext.logger.reportDiagnostic({
       code: "general-warning",
       format: {
-        message: `The 'collectionHeaderPrefix' client option must be a string value, but got '${typeof value}'. The option will be ignored.`,
+        message: `The '${ClientOptions.collectionHeaderPrefix}' client option must be a string value, but got '${typeof value}'. The option will be ignored.`,
       },
       target: p.__raw ?? NoTarget,
     });
     return undefined;
   }
   return value;
+}
+
+function resolveIncludeRootSlash(
+  method: SdkServiceMethod<SdkHttpOperation>,
+  client?: SdkClientType<SdkHttpOperation>,
+): boolean {
+  // First check the method/operation level
+  const methodOption = getClientOptions(method, ClientOptions.includeRootSlash);
+  if (methodOption !== undefined) {
+    return methodOption !== false;
+  }
+
+  // Walk up the client hierarchy
+  let current: SdkClientType<SdkHttpOperation> | undefined = client;
+  while (current) {
+    const clientOption = getClientOptions(current, ClientOptions.includeRootSlash);
+    if (clientOption !== undefined) {
+      return clientOption !== false;
+    }
+    current = current.parent;
+  }
+
+  // Default: include root slash
+  return true;
 }
