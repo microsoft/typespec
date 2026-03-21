@@ -2072,6 +2072,8 @@ it("handles nullable types correctly", async () => {
       ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
       ["IContosoOperations.cs", [`Task FooAsync( );`]],
     ],
+    // Ensure nullable string does not get JsonStringEnumConverter attribute
+    [["Foo.cs", ["JsonStringEnumConverter"]]],
   );
 });
 
