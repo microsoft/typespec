@@ -154,6 +154,58 @@ it("emit warning if using contentType parameter without a body", async () => {
   });
 });
 
+it("emit warning if bytes body has application/xml content type", async () => {
+  const [_, diagnostics] = await compileOperations(`
+      @post op post(@header contentType: "application/xml", @body body: bytes): void;
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/http/bytes-xml-body",
+    severity: "warning",
+  });
+});
+
+it("emit warning if bytes body has text/xml content type", async () => {
+  const [_, diagnostics] = await compileOperations(`
+      @post op post(@header contentType: "text/xml", @body body: bytes): void;
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/http/bytes-xml-body",
+    severity: "warning",
+  });
+});
+
+it("emit warning if bytes body has application/soap+xml content type", async () => {
+  const [_, diagnostics] = await compileOperations(`
+      @post op post(@header contentType: "application/soap+xml", @body body: bytes): void;
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/http/bytes-xml-body",
+    severity: "warning",
+  });
+});
+
+it("emit warning if bytes response body has application/xml content type", async () => {
+  const [_, diagnostics] = await compileOperations(`
+      @get op get(): { @header contentType: "application/xml", @body body: bytes };
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/http/bytes-xml-body",
+    severity: "warning",
+  });
+});
+
+it("does not emit warning for bytes body with non-xml content type", async () => {
+  const [_, diagnostics] = await compileOperations(`
+      @post op post(@header contentType: "application/octet-stream", @body body: bytes): void;
+    `);
+
+  expectDiagnosticEmpty(diagnostics);
+});
+
 it("resolve body when defined with @body", async () => {
   const [routes, diagnostics] = await compileOperations(`
       @get op get(@query select: string, @body bodyParam: string): string;

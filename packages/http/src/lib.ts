@@ -214,6 +214,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`The MergePatch transform does not operate on http envelope metadata.  Remove any http metadata decorators ('@query', '@header', '@path', '@cookie', '@statusCode') from the model passed to the MergePatch template. Found '${"metadataType"}' decorating property '${"propertyName"}'`,
       },
     },
+    "bytes-xml-body": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Using 'bytes' as the body type with XML content type '${"contentType"}' will treat the payload as raw binary data rather than structured XML. Use a model type for structured XML serialization.`,
+      },
+    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },
