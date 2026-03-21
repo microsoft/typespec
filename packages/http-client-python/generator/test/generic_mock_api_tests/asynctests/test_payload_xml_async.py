@@ -7,12 +7,21 @@ import datetime
 import pytest
 from payload.xml.aio import XmlClient
 from payload.xml.models import (
+    Author,
+    Book,
     SimpleModel,
     ModelWithSimpleArrays,
     ModelWithArrayOfModel,
     ModelWithAttributes,
     ModelWithUnwrappedArray,
+    ModelWithUnwrappedModelArray,
     ModelWithRenamedArrays,
+    ModelWithRenamedProperty,
+    ModelWithRenamedAttribute,
+    ModelWithRenamedNestedModel,
+    ModelWithRenamedWrappedModelArray,
+    ModelWithRenamedUnwrappedModelArray,
+    ModelWithRenamedWrappedAndItemModelArray,
     ModelWithOptionalField,
     ModelWithRenamedFields,
     ModelWithEmptyArray,
@@ -21,6 +30,10 @@ from payload.xml.models import (
     ModelWithEncodedNames,
     ModelWithEnum,
     ModelWithDatetime,
+    ModelWithNamespace,
+    ModelWithNamespaceOnProperties,
+    ModelWithNestedModel,
+    ModelWithWrappedPrimitiveCustomItemNames,
 )
 
 
@@ -38,10 +51,24 @@ async def test_simple_model(client: XmlClient):
 
 
 @pytest.mark.asyncio
+async def test_model_with_renamed_property(client: XmlClient):
+    model = ModelWithRenamedProperty(title="foo", author="bar")
+    assert await client.model_with_renamed_property_value.get() == model
+    await client.model_with_renamed_property_value.put(model)
+
+
+@pytest.mark.asyncio
 async def test_model_with_simple_arrays(client: XmlClient):
     model = ModelWithSimpleArrays(colors=["red", "green", "blue"], counts=[1, 2])
     assert await client.model_with_simple_arrays_value.get() == model
     await client.model_with_simple_arrays_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_wrapped_primitive_custom_item_names(client: XmlClient):
+    model = ModelWithWrappedPrimitiveCustomItemNames(tags=["fiction", "classic"])
+    assert await client.model_with_wrapped_primitive_custom_item_names_value.get() == model
+    await client.model_with_wrapped_primitive_custom_item_names_value.put(model)
 
 
 @pytest.mark.asyncio
@@ -57,10 +84,65 @@ async def test_model_with_array_of_model(client: XmlClient):
 
 
 @pytest.mark.asyncio
+async def test_model_with_unwrapped_model_array(client: XmlClient):
+    model = ModelWithUnwrappedModelArray(
+        items_property=[
+            SimpleModel(name="foo", age=123),
+            SimpleModel(name="bar", age=456),
+        ]
+    )
+    assert await client.model_with_unwrapped_model_array_value.get() == model
+    await client.model_with_unwrapped_model_array_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_wrapped_model_array(client: XmlClient):
+    model = ModelWithRenamedWrappedModelArray(
+        items_property=[
+            SimpleModel(name="foo", age=123),
+            SimpleModel(name="bar", age=456),
+        ]
+    )
+    assert await client.model_with_renamed_wrapped_model_array_value.get() == model
+    await client.model_with_renamed_wrapped_model_array_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_unwrapped_model_array(client: XmlClient):
+    model = ModelWithRenamedUnwrappedModelArray(
+        items_property=[
+            SimpleModel(name="foo", age=123),
+            SimpleModel(name="bar", age=456),
+        ]
+    )
+    assert await client.model_with_renamed_unwrapped_model_array_value.get() == model
+    await client.model_with_renamed_unwrapped_model_array_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_wrapped_and_item_model_array(client: XmlClient):
+    model = ModelWithRenamedWrappedAndItemModelArray(
+        books=[
+            Book(title="The Great Gatsby"),
+            Book(title="Les Miserables"),
+        ]
+    )
+    assert await client.model_with_renamed_wrapped_and_item_model_array_value.get() == model
+    await client.model_with_renamed_wrapped_and_item_model_array_value.put(model)
+
+
+@pytest.mark.asyncio
 async def test_model_with_attributes(client: XmlClient):
     model = ModelWithAttributes(id1=123, id2="foo", enabled=True)
     assert await client.model_with_attributes_value.get() == model
     await client.model_with_attributes_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_attribute(client: XmlClient):
+    model = ModelWithRenamedAttribute(id=123, title="The Great Gatsby", author="F. Scott Fitzgerald")
+    assert await client.model_with_renamed_attribute_value.get() == model
+    await client.model_with_renamed_attribute_value.put(model)
 
 
 @pytest.mark.asyncio
@@ -82,6 +164,20 @@ async def test_model_with_optional_field(client: XmlClient):
     model = ModelWithOptionalField(item="widget")
     assert await client.model_with_optional_field_value.get() == model
     await client.model_with_optional_field_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_nested_model(client: XmlClient):
+    model = ModelWithNestedModel(nested=SimpleModel(name="foo", age=123))
+    assert await client.model_with_nested_model_value.get() == model
+    await client.model_with_nested_model_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_renamed_nested_model(client: XmlClient):
+    model = ModelWithRenamedNestedModel(author=Author(name="foo"))
+    assert await client.model_with_renamed_nested_model_value.get() == model
+    await client.model_with_renamed_nested_model_value.put(model)
 
 
 @pytest.mark.asyncio
@@ -139,6 +235,20 @@ async def test_model_with_datetime(client: XmlClient):
     assert result.rfc3339 == model.rfc3339
     assert result.rfc7231 == model.rfc7231
     await client.model_with_datetime_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_namespace(client: XmlClient):
+    model = ModelWithNamespace(id=123, title="The Great Gatsby")
+    assert await client.model_with_namespace_value.get() == model
+    await client.model_with_namespace_value.put(model)
+
+
+@pytest.mark.asyncio
+async def test_model_with_namespace_on_properties(client: XmlClient):
+    model = ModelWithNamespaceOnProperties(id=123, title="The Great Gatsby", author="F. Scott Fitzgerald")
+    assert await client.model_with_namespace_on_properties_value.get() == model
+    await client.model_with_namespace_on_properties_value.put(model)
 
 
 @pytest.mark.asyncio

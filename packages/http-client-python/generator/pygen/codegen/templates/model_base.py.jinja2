@@ -630,7 +630,11 @@ class Model(_MyMutableMapping):
                 for rf in self._attr_to_rest_field.values():
                     prop_meta = getattr(rf, "_xml", {})
                     xml_name = prop_meta.get("name", rf._rest_name)
-                    xml_ns = prop_meta.get("ns", model_meta.get("ns", None))
+                    xml_ns = prop_meta.get("ns") or prop_meta.get("namespace")
+                    # If the property has no namespace but the model uses a default namespace
+                    # (declared without a prefix), child elements inherit that namespace.
+                    if xml_ns is None and not model_meta.get("prefix"):
+                        xml_ns = model_meta.get("ns") or model_meta.get("namespace")
                     if xml_ns:
                         xml_name = "{" + xml_ns + "}" + xml_name
 
@@ -761,7 +765,9 @@ class Model(_MyMutableMapping):
             model_meta = getattr(cls, "_xml", {})
             prop_meta = getattr(discriminator, "_xml", {})
             xml_name = prop_meta.get("name", discriminator._rest_name)
-            xml_ns = prop_meta.get("ns", model_meta.get("ns", None))
+            xml_ns = prop_meta.get("ns") or prop_meta.get("namespace")
+            if xml_ns is None and not model_meta.get("prefix"):
+                xml_ns = model_meta.get("ns") or model_meta.get("namespace")
             if xml_ns:
                 xml_name = "{" + xml_ns + "}" + xml_name
 
@@ -1254,10 +1260,15 @@ def _get_element(
 
         # if prop is a model, then use the prop element directly, else generate a wrapper of model
         if wrapped_element is None:
+            # When serializing as an array item (parent_meta is set), check if the parent has an
+            # explicit itemsName. This ensures correct element names for unwrapped arrays (where
+            # the element tag is the property/items name, not the model type name).
+            _items_name = parent_meta.get("itemsName") if parent_meta is not None else None
+            element_name = _items_name if _items_name else (model_meta.get("name") or o.__class__.__name__)
             wrapped_element = _create_xml_element(
-                model_meta.get("name", o.__class__.__name__),
+                element_name,
                 model_meta.get("prefix"),
-                model_meta.get("ns"),
+                model_meta.get("ns") or model_meta.get("namespace"),
             )
 
         readonly_props = []
@@ -1279,7 +1290,9 @@ def _get_element(
                 # additional properties will not have rest field, use the wire name as xml name
                 prop_meta = {"name": k}
 
-            # if no ns for prop, use model's
+            # Propagate model namespace to properties only for old-style "ns"-keyed models.
+            # DPG-generated models use the "namespace" key and explicitly declare namespace on
+            # each property that needs it, so propagation is intentionally skipped for them.
             if prop_meta.get("ns") is None and model_meta.get("ns"):
                 prop_meta["ns"] = model_meta.get("ns")
                 prop_meta["prefix"] = model_meta.get("prefix")
@@ -1292,9 +1305,10 @@ def _get_element(
                 wrapped_element.text = _get_primitive_type_value(v)
             elif prop_meta.get("attribute", False):
                 xml_name = prop_meta.get("name", k)
-                if prop_meta.get("ns"):
-                    ET.register_namespace(prop_meta.get("prefix"), prop_meta.get("ns"))  # pyright: ignore
-                    xml_name = "{" + prop_meta.get("ns") + "}" + xml_name  # pyright: ignore
+                _attr_ns = prop_meta.get("ns") or prop_meta.get("namespace")
+                if _attr_ns:
+                    ET.register_namespace(prop_meta.get("prefix"), _attr_ns)  # pyright: ignore
+                    xml_name = "{" + _attr_ns + "}" + xml_name  # pyright: ignore
                 # attribute should be primitive type
                 wrapped_element.set(xml_name, _get_primitive_type_value(v))
             else:
@@ -1312,7 +1326,7 @@ def _get_element(
                     exclude_readonly,
                     {
                         "name": k,
-                        "ns": parent_meta.get("ns") if parent_meta else None,
+                        "ns": (parent_meta.get("ns") or parent_meta.get("namespace")) if parent_meta else None,
                         "prefix": parent_meta.get("prefix") if parent_meta else None,
                     },
                 )
@@ -1327,7 +1341,7 @@ def _get_element(
             {
                 "name": parent_meta.get("itemsName", parent_meta.get("name")),
                 "prefix": parent_meta.get("itemsPrefix", parent_meta.get("prefix")),
-                "ns": parent_meta.get("itemsNs", parent_meta.get("ns")),
+                "ns": parent_meta.get("itemsNs") or parent_meta.get("ns") or parent_meta.get("namespace"),
             },
         )
 
@@ -1340,7 +1354,7 @@ def _get_wrapped_element(
     meta: typing.Optional[dict[str, typing.Any]],
 ) -> ET.Element:
     wrapped_element = _create_xml_element(
-        meta.get("name") if meta else None, meta.get("prefix") if meta else None, meta.get("ns") if meta else None
+        meta.get("name") if meta else None, meta.get("prefix") if meta else None, (meta.get("ns") or meta.get("namespace")) if meta else None
     )
     if isinstance(v, (dict, list)):
         wrapped_element.extend(_get_element(v, exclude_readonly, meta))
@@ -1365,7 +1379,16 @@ def _create_xml_element(
   tag: typing.Any, prefix: typing.Optional[str] = None, ns: typing.Optional[str] = None
 ) -> ET.Element:
     if prefix and ns:
-        ET.register_namespace(prefix, ns)
+        try:
+            ET.register_namespace(prefix, ns)
+        except ValueError:
+            # Some prefixes (e.g. 'ns2') match Python's reserved 'ns\d+' pattern used for
+            # auto-generated prefixes, causing register_namespace to raise ValueError.
+            # Fall back to directly registering in the internal namespace map so the intended
+            # prefix is honoured when serialising to XML.
+            _ns_map = getattr(ET, "_namespace_map", None)
+            if _ns_map is not None:
+                _ns_map[ns] = prefix
     if ns:
         return ET.Element("{" + ns + "}" + tag)
     return ET.Element(tag)
