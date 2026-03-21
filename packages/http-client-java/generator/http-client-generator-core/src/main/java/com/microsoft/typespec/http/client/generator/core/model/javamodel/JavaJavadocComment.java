@@ -13,6 +13,13 @@ public class JavaJavadocComment {
     // escape the "@" in Javadoc description, if it is not used in inline tag like {@link }
     private static final Pattern ESCAPE_AT = Pattern.compile("(?<!\\{)@");
 
+    // Markdown formatting patterns
+    // Match ***text*** (bold italic), **text** (bold), or *text* (italic)
+    // Uses non-greedy matching and requires the closing marker to not be followed by the same marker
+    private static final Pattern BOLD_ITALIC_PATTERN = Pattern.compile("\\*\\*\\*(.+?)\\*\\*\\*");
+    private static final Pattern BOLD_PATTERN = Pattern.compile("\\*\\*(.+?)\\*\\*");
+    private static final Pattern ITALIC_PATTERN = Pattern.compile("(?<!\\*)\\*(?!\\*)(.+?)\\*(?!\\*)");
+
     public JavaJavadocComment(JavaFileContents contents) {
         this.contents = contents;
     }
@@ -25,13 +32,131 @@ public class JavaJavadocComment {
         return value == null || value.isEmpty() || value.endsWith(".") ? value : value + '.';
     }
 
+    /**
+     * Converts Markdown formatting to JavaDoc HTML tags.
+     * Converts:
+     * - ***text*** to &lt;b&gt;&lt;i&gt;text&lt;/i&gt;&lt;/b&gt; (bold italic)
+     * - **text** to &lt;b&gt;text&lt;/b&gt; (bold)
+     * - *text* to &lt;i&gt;text&lt;/i&gt; (italic)
+     * - Lines starting with "- " to &lt;ul&gt;&lt;li&gt; (bullet points)
+     * - Lines starting with "N. " to &lt;ol&gt;&lt;li&gt; (numbered lists)
+     *
+     * @param text the text with Markdown formatting
+     * @return the text with JavaDoc HTML formatting
+     */
+    private static String convertMarkdownToJavadoc(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+
+        // Process line by line to handle bullet points and numbered lists
+        String[] lines = text.split("\n");
+        StringBuilder result = new StringBuilder();
+        boolean inUnorderedList = false;
+        boolean inOrderedList = false;
+
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            String trimmedLine = line.trim();
+
+            // Check for bullet points (lines starting with "- ")
+            if (trimmedLine.startsWith("- ")) {
+                if (!inUnorderedList) {
+                    if (inOrderedList) {
+                        result.append("</ol>\n");
+                        inOrderedList = false;
+                    }
+                    result.append("<ul>\n");
+                    inUnorderedList = true;
+                }
+                // Extract the content after "- " and convert inline formatting
+                String content = convertInlineFormatting(trimmedLine.substring(2).trim());
+                result.append("<li>").append(content).append("</li>\n");
+            }
+            // Check for numbered lists (lines starting with "N. " where N is a digit)
+            else if (trimmedLine.matches("^\\d+\\.\\s+.*")) {
+                if (!inOrderedList) {
+                    if (inUnorderedList) {
+                        result.append("</ul>\n");
+                        inUnorderedList = false;
+                    }
+                    result.append("<ol>\n");
+                    inOrderedList = true;
+                }
+                // Extract the content after "N. " and convert inline formatting
+                String content = convertInlineFormatting(trimmedLine.replaceFirst("^\\d+\\.\\s+", ""));
+                result.append("<li>").append(content).append("</li>\n");
+            }
+            // Regular line
+            else {
+                // Close any open lists
+                if (inUnorderedList) {
+                    result.append("</ul>\n");
+                    inUnorderedList = false;
+                }
+                if (inOrderedList) {
+                    result.append("</ol>\n");
+                    inOrderedList = false;
+                }
+
+                if (!trimmedLine.isEmpty()) {
+                    result.append(convertInlineFormatting(line));
+                }
+
+                // Add newline if not the last line
+                if (i < lines.length - 1) {
+                    result.append("\n");
+                }
+            }
+        }
+
+        // Close any remaining open lists
+        if (inUnorderedList) {
+            result.append("</ul>");
+        }
+        if (inOrderedList) {
+            result.append("</ol>");
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * Converts inline Markdown formatting (bold, italic) to JavaDoc HTML tags.
+     *
+     * @param text the text with inline Markdown formatting
+     * @return the text with JavaDoc HTML formatting
+     */
+    private static String convertInlineFormatting(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+
+        // Convert ***bold italic*** first (must come before ** and *)
+        text = BOLD_ITALIC_PATTERN.matcher(text).replaceAll("<b><i>$1</i></b>");
+
+        // Convert **bold**
+        text = BOLD_PATTERN.matcher(text).replaceAll("<b>$1</b>");
+
+        // Convert *italic*
+        text = ITALIC_PATTERN.matcher(text).replaceAll("<i>$1</i>");
+
+        return text;
+    }
+
     private static String processText(String value) {
-        String text = CodeNamer.escapeXmlComment(ensurePeriod(trim(value)));
-        if (text != null) {
+        String text = trim(value);
+        if (text != null && !text.isEmpty()) {
+            // Ensure period at the end before any processing
+            text = ensurePeriod(text);
+            // Escape XML special characters FIRST (before markdown conversion)
+            text = CodeNamer.escapeXmlComment(text);
             // escape "@" that isn't prefixed with "{"
             text = ESCAPE_AT.matcher(text).replaceAll("&#064;");
             // escape tab
             text = text.replace("\t", " ");
+            // Convert Markdown formatting to JavaDoc HTML tags AFTER escaping
+            text = convertMarkdownToJavadoc(text);
         }
         return CodeNamer.escapeIllegalUnicodeEscape(CodeNamer.escapeComment(text));
     }
