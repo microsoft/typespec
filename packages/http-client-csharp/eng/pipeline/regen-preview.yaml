@@ -1,0 +1,267 @@
+# Manual trigger for Regen Preview Pipeline
+# This pipeline regenerates libraries in azure-sdk-for-net and creates a draft PR with the changes
+trigger: none
+
+pr: none
+
+parameters:
+  - name: LibraryType
+    displayName: Library Type to Regenerate
+    type: string
+    default: All
+    values:
+      - All
+      - Unbranded
+      - Azure
+      - Mgmt
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
+  parameters:
+    stages:
+      # Build stage - Build the emitter packages
+      - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+        parameters:
+          BuildPrereleaseVersion: true
+          UseTypeSpecNext: false
+          Publish: "none"
+          PackagePath: /packages/http-client-csharp
+          EmitterPackageJsonPath: packages/http-client-csharp/package.json
+          Packages:
+            - name: typespec-http-client-csharp
+              file: typespec-http-client-csharp-*.tgz
+              type: npm
+            - name: Microsoft.TypeSpec.Generator
+              file: Microsoft.TypeSpec.Generator.*.nupkg
+              type: nuget
+            - name: Microsoft.TypeSpec.Generator.ClientModel
+              file: Microsoft.TypeSpec.Generator.ClientModel.*.nupkg
+              type: nuget
+            - name: Microsoft.TypeSpec.Generator.Input
+              file: Microsoft.TypeSpec.Generator.Input.*.nupkg
+              type: nuget
+            - name: Microsoft.TypeSpec.Generator.Customization
+              file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
+              type: nuget
+          UnitTestArgs: -UnitTests
+          StagePrefix: "CSharp"
+          LanguageShortName: "csharp"
+          HasNugetPackages: true
+          CadlRanchName: "@typespec/http-client-csharp"
+          AdditionalInitializeSteps:
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 8"
+                performMultiLevelLookup: true
+                useGlobalJson: false
+                version: 8.x
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 9"
+                performMultiLevelLookup: true
+                useGlobalJson: false
+                version: 9.x
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+            - task: UseDotNet@2
+              inputs:
+                displayName: "Install .NET 10"
+                performMultiLevelLookup: true
+                useGlobalJson: true
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+      # Regen Preview stage - Run RegenPreview.ps1 and create PR
+      - stage: RegenPreview
+        displayName: Regenerate Libraries and Create PR
+        dependsOn:
+          - CSharp_Build
+        condition: succeeded()
+        variables:
+          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: RunRegenPreview
+            displayName: Run Regeneration Preview
+            steps:
+              - checkout: self
+
+              - task: UseNode@1
+                displayName: "Install Node.js"
+                inputs:
+                  version: "22.x"
+
+              - task: NuGetAuthenticate@1
+
+              - task: UseDotNet@2
+                inputs:
+                  useGlobalJson: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+              # Clone azure-sdk-for-net repository
+              - pwsh: |
+                  $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "azure-sdk-for-net-regen-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                  New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+                  Write-Host "Created temp directory: $tempDir"
+                  Write-Host "##vso[task.setvariable variable=AzureSdkRepoPath]$tempDir"
+
+                  # Clone azure-sdk-for-net with sparse checkout
+                  Write-Host "Cloning azure-sdk-for-net repository with sparse checkout..."
+                  git init $tempDir
+                  if ($LASTEXITCODE -ne 0) { throw "Failed to initialize repository" }
+
+                  Push-Location $tempDir
+                  try {
+                    git remote add origin "https://github.com/Azure/azure-sdk-for-net.git"
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to add remote" }
+
+                    git sparse-checkout init --cone
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to initialize sparse checkout" }
+
+                    git sparse-checkout set eng/packages/http-client-csharp eng sdk
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to set sparse checkout patterns" }
+
+                    git fetch --depth 1 origin main
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to fetch from origin" }
+
+                    git checkout main
+                    if ($LASTEXITCODE -ne 0) { throw "Failed to checkout main branch" }
+
+                    Write-Host "Successfully cloned azure-sdk-for-net"
+                  }
+                  finally {
+                    Pop-Location
+                  }
+                displayName: Clone azure-sdk-for-net repository
+
+              # Run RegenPreview.ps1
+              - task: PowerShell@2
+                displayName: Run RegenPreview.ps1
+                continueOnError: true
+                inputs:
+                  pwsh: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+                  targetType: inline
+                  script: |
+                    $ErrorActionPreference = 'Continue'
+
+                    # Determine script arguments based on LibraryType parameter
+                    $scriptArgs = @(
+                      '-SdkLibraryRepoPath', '$(AzureSdkRepoPath)'
+                    )
+
+                    $libraryType = '${{ parameters.LibraryType }}'
+                    if ($libraryType -ne 'All') {
+                      $scriptArgs += "-$libraryType"
+                    }
+
+                    Write-Host "Running RegenPreview.ps1 with arguments: $($scriptArgs -join ' ')"
+
+                    try {
+                      & $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/RegenPreview.ps1 @scriptArgs
+                      $exitCode = $LASTEXITCODE
+                      Write-Host "RegenPreview.ps1 completed with exit code: $exitCode"
+                      Write-Host "##vso[task.setvariable variable=RegenExitCode]$exitCode"
+
+                      if ($exitCode -eq 0) {
+                        Write-Host "##vso[task.setvariable variable=RegenSuccess]true"
+                      } else {
+                        Write-Host "##vso[task.setvariable variable=RegenSuccess]false"
+                      }
+                    }
+                    catch {
+                      Write-Host "Error running RegenPreview.ps1: $_"
+                      Write-Host "##vso[task.setvariable variable=RegenSuccess]false"
+                      Write-Host "##vso[task.setvariable variable=RegenExitCode]1"
+                    }
+
+              # Display failed libraries from regen-report.json
+              - pwsh: |
+                  $ErrorActionPreference = 'Continue'
+                  
+                  try {
+                    $reportPath = '$(Build.SourcesDirectory)/packages/http-client-csharp/regen-report.json'
+                    if (Test-Path $reportPath) {
+                      Write-Host "Reading regeneration report..." -ForegroundColor Cyan
+                      $report = Get-Content $reportPath -Raw | ConvertFrom-Json
+                      $failedLibraries = @($report | Where-Object { $_.Success -eq $false })
+                      
+                      if ($failedLibraries.Count -gt 0) {
+                        Write-Host ""
+                        Write-Host "==================== FAILED LIBRARIES ====================" -ForegroundColor Red
+                        Write-Host "Total Failed: $($failedLibraries.Count)" -ForegroundColor Red
+                        Write-Host ""
+                        
+                        foreach ($lib in $failedLibraries) {
+                          Write-Host "Library: $($lib.Library)" -ForegroundColor Yellow
+                          Write-Host "  Service: $($lib.Service)" -ForegroundColor Gray
+                          Write-Host "  Path: $($lib.Path)" -ForegroundColor Gray
+                          if ($lib.Generator) {
+                            Write-Host "  Generator: $($lib.Generator)" -ForegroundColor Gray
+                          }
+                          Write-Host "  Error: $($lib.Error)" -ForegroundColor Red
+                          if ($lib.Output) {
+                            $outputPreview = $lib.Output.Substring(0, [Math]::Min(500, $lib.Output.Length))
+                            Write-Host "  Output Preview:" -ForegroundColor Gray
+                            Write-Host "    $outputPreview" -ForegroundColor DarkGray
+                            if ($lib.Output.Length -gt 500) {
+                              Write-Host "    ... (truncated, see full output in regen-report.json artifact)" -ForegroundColor DarkGray
+                            }
+                          }
+                          Write-Host ""
+                        }
+                        Write-Host "=========================================================" -ForegroundColor Red
+                      } else {
+                        Write-Host "All libraries regenerated successfully!" -ForegroundColor Green
+                      }
+                    } else {
+                      Write-Host "Regeneration report not found at: $reportPath" -ForegroundColor Yellow
+                    }
+                  }
+                  catch {
+                    Write-Host "Warning: Failed to parse regeneration report: $_" -ForegroundColor Yellow
+                    Write-Host "The full report is available in the pipeline artifacts." -ForegroundColor Gray
+                  }
+                displayName: Display failed libraries
+                condition: always()
+
+              # Upload regen-report.json as artifact
+              - task: PublishPipelineArtifact@1
+                displayName: Upload regen-report.json
+                condition: always()
+                inputs:
+                  targetPath: '$(Build.SourcesDirectory)/packages/http-client-csharp/regen-report.json'
+                  artifactName: 'regen-report'
+                  publishLocation: 'pipeline'
+
+              # Set TypeSpec commit URL variable
+              - pwsh: |
+                  $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
+                  $commitSha = '$(Build.SourceVersion)'
+                  $typeSpecCommitUrl = "$repoUrl/commit/$commitSha"
+                  Write-Host "##vso[task.setvariable variable=TypeSpecCommitUrl]$typeSpecCommitUrl"
+                  
+                  # Set library type variable
+                  $libraryType = '${{ parameters.LibraryType }}'
+                  Write-Host "##vso[task.setvariable variable=LibraryType]$libraryType"
+                displayName: Set TypeSpec commit URL and library type
+
+              # Create PR in azure-sdk-for-net
+              - task: PowerShell@2
+                displayName: Create PR in azure-sdk-for-net
+                condition: always()
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-RegenPreviewPr.ps1
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
+                    -AuthToken '$(azuresdk-github-pat)'
+                    -AzureSdkRepoPath '$(AzureSdkRepoPath)'
+                    -RegenSuccess $${{ eq(variables['RegenSuccess'], 'true') }}
+                    -BranchName 'regen-preview/http-client-csharp-$(PackageVersion)-$(Build.BuildId)'
+                    -BuildUri '$(Build.BuildUri)'
+                    -LibraryType '$(LibraryType)'
