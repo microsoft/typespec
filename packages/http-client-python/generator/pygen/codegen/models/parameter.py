@@ -109,10 +109,16 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         if type_description:
             base_description = add_to_description(base_description, type_description)
         if self.optional and isinstance(self.type, ConstantType):
-            base_description = add_to_description(
-                base_description,
-                f"Known values are {self.get_declaration()} and None.",
-            )
+            if self.is_api_version:
+                base_description = add_to_description(
+                    base_description,
+                    f"Known values are {self.get_declaration()}.",
+                )
+            else:
+                base_description = add_to_description(
+                    base_description,
+                    f"Known values are {self.get_declaration()} and None.",
+                )
         if not (self.optional or self.client_default_value):
             base_description = add_to_description(base_description, "Required.")
         if self.client_default_value is not None:
