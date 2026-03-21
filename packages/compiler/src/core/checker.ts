@@ -149,6 +149,7 @@ import {
   SyntaxKind,
   TemplateArgumentNode,
   TemplateParameter,
+  TemplateParameterAccess,
   TemplateParameterDeclarationNode,
   TemplateableNode,
   TemplatedType,
@@ -535,6 +536,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Tracking the template parameters used or not.
    */
   const templateParameterUsageMap = new Map<TemplateParameterDeclarationNode, boolean>();
+  const templateAccessSymbolCache = new Map<string, Sym>();
+  const templateAccessCacheKeys = new WeakMap<TemplateParameterAccess, string>();
+  const symbolCacheIds = new WeakMap<Sym, number>();
+  let nextSymbolCacheId = 1;
 
   const checker: Checker = {
     getTypeForNode,
@@ -747,7 +752,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
       return errorType;
     }
-    if (entity.kind === "TemplateParameter") {
+    if (entity.kind === "TemplateParameter" || entity.kind === "TemplateParameterAccess") {
       if (entity.constraint?.valueType) {
         // means this template constraint will accept values
         reportCheckerDiagnostic(
@@ -789,7 +794,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     // synthesize a template value placeholder even when the template parameter is mapped
     // from an outer template declaration.
     if (
-      entity.kind === "TemplateParameter" &&
+      (entity.kind === "TemplateParameter" || entity.kind === "TemplateParameterAccess") &&
       entity.constraint?.valueType &&
       entity.constraint.type === undefined
     ) {
@@ -1220,7 +1225,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     function visit(node: Node) {
       const entity = checkNode(ctx, node);
       let hasError = false;
-      if (entity !== null && "kind" in entity && entity.kind === "TemplateParameter") {
+      if (
+        entity !== null &&
+        "kind" in entity &&
+        (entity.kind === "TemplateParameter" || entity.kind === "TemplateParameterAccess")
+      ) {
+        if (entity.kind === "TemplateParameterAccess") {
+          return entity;
+        }
         for (let i = index; i < templateParameters.length; i++) {
           if (entity.node?.symbol === templateParameters[i].symbol) {
             reportCheckerDiagnostic(
@@ -2324,7 +2336,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const indexers: ModelIndexer[] = [];
     const modelOptions: [Node, Model][] = options.filter((entry): entry is [Node, Model] => {
       const [optionNode, option] = entry;
-      if (option.kind === "TemplateParameter") {
+      if (option.kind === "TemplateParameter" || option.kind === "TemplateParameterAccess") {
         return false;
       }
       if (option.kind !== "Model") {
@@ -3191,31 +3203,44 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
       }
     } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
-      let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
+      const memberExpression = identifier.parent;
+      let baseType = getCompletionBaseType(memberExpression.base);
+
+      let base = resolver.getNodeLinks(memberExpression.base).resolvedSymbol;
+
+      if (base && base.flags & SymbolFlags.Alias) {
+        base = getAliasedSymbol(CheckContext.DEFAULT, base);
+      }
+
+      if (!baseType && base) {
+        baseType = getCompletionBaseTypeFromSymbol(base);
+      }
+
+      if (baseType && (!base || !!(base.flags & SymbolFlags.TemplateParameter))) {
+        if (memberExpression.selector === "::") {
+          addMetaCompletionsForType(baseType);
+        } else {
+          addMemberCompletionsForType(baseType);
+        }
+      }
 
       if (base) {
-        if (base.flags & SymbolFlags.Alias) {
-          base = getAliasedSymbol(CheckContext.DEFAULT, base);
-        }
-
-        if (base) {
-          if (identifier.parent.selector === "::") {
-            if (base?.node === undefined && base?.declarations && base.declarations.length > 0) {
-              // Process meta properties separately, such as `::parameters`, `::returnType`
-              const nodeModels = base?.declarations[0];
-              if (nodeModels.kind === SyntaxKind.OperationStatement) {
-                const operation = nodeModels as OperationStatementNode;
-                addCompletion("parameters", operation.symbol);
-                addCompletion("returnType", operation.symbol);
-              }
-            } else if (base?.node?.kind === SyntaxKind.ModelProperty) {
-              // Process meta properties separately, such as `::type`
-              const metaProperty = base.node as ModelPropertyNode;
-              addCompletion("type", metaProperty.symbol);
+        if (memberExpression.selector === "::") {
+          if (base?.node === undefined && base?.declarations && base.declarations.length > 0) {
+            // Process meta properties separately, such as `::parameters`, `::returnType`
+            const nodeModels = base?.declarations[0];
+            if (nodeModels.kind === SyntaxKind.OperationStatement) {
+              const operation = nodeModels as OperationStatementNode;
+              addCompletion("parameters", operation.symbol);
+              addCompletion("returnType", operation.symbol);
             }
-          } else {
-            addCompletions(base.exports ?? base.members);
+          } else if (base?.node?.kind === SyntaxKind.ModelProperty) {
+            // Process meta properties separately, such as `::type`
+            const metaProperty = base.node as ModelPropertyNode;
+            addCompletion("type", metaProperty.symbol);
           }
+        } else {
+          addCompletions(base.exports ?? base.members);
         }
       }
     } else {
@@ -3267,6 +3292,115 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     return completions;
+
+    /** Resolve a usable base type for member/meta-member completions. */
+    function getCompletionBaseType(base: IdentifierNode | MemberExpressionNode): Type | undefined {
+      const entity = getTypeOrValueForNode(base, CheckContext.DEFAULT);
+      if (!entity || !isType(entity) || isErrorType(entity)) {
+        if (base.kind === SyntaxKind.Identifier) {
+          const scopedTemplateParameter = getTemplateParameterTypeFromScope(base);
+          if (scopedTemplateParameter) {
+            return resolveTemplateConstraintType(scopedTemplateParameter);
+          }
+        }
+        const templateBase = probeTemplateAccessBaseEntity(base);
+        return templateBase ? resolveTemplateConstraintType(templateBase) : undefined;
+      }
+
+      if (isTemplateAccessType(entity)) {
+        return resolveTemplateConstraintType(entity);
+      }
+
+      return entity;
+    }
+
+    /** Resolve a completion base type from a symbol when node-based typing is unavailable. */
+    function getCompletionBaseTypeFromSymbol(base: Sym): Type | undefined {
+      if (base.flags & SymbolFlags.LateBound) {
+        const lateBoundType = base.type;
+        return lateBoundType && isType(lateBoundType)
+          ? resolveCompletionType(lateBoundType)
+          : undefined;
+      }
+
+      if (base.flags & SymbolFlags.TemplateParameter) {
+        const mapped = checkTemplateParameterDeclaration(
+          CheckContext.DEFAULT,
+          getSymNode(base) as TemplateParameterDeclarationNode,
+        );
+        return isType(mapped) ? resolveCompletionType(mapped) : undefined;
+      }
+
+      return undefined;
+    }
+
+    /** Normalize template access types to their effective constraint for completion. */
+    function resolveCompletionType(type: Type): Type | undefined {
+      return isTemplateAccessType(type) ? resolveTemplateConstraintType(type) : type;
+    }
+
+    /** Add member completions based on the resolved base type kind. */
+    function addMemberCompletionsForType(baseType: Type) {
+      switch (baseType.kind) {
+        case "Model":
+          for (const property of walkPropertiesInherited(baseType)) {
+            const ownerSymbol = baseType.node?.symbol;
+            const propertySymbol =
+              (ownerSymbol ? getMemberSymbol(ownerSymbol, property.name) : undefined) ??
+              property.node?.symbol;
+            if (propertySymbol) {
+              addCompletion(property.name, propertySymbol);
+            }
+          }
+          return;
+        case "Interface":
+          for (const [name, operation] of baseType.operations) {
+            const operationSymbol = operation.node?.symbol;
+            if (operationSymbol) {
+              addCompletion(name, operationSymbol);
+            }
+          }
+          return;
+        case "Enum":
+          for (const [name, member] of baseType.members) {
+            const enumMemberSymbol = member.node?.symbol;
+            if (enumMemberSymbol) {
+              addCompletion(name, enumMemberSymbol);
+            }
+          }
+          return;
+        case "Union":
+          for (const [name, variant] of baseType.variants) {
+            if (typeof name === "string" && variant.node?.symbol) {
+              addCompletion(name, variant.node.symbol);
+            }
+          }
+          return;
+        case "Scalar":
+          for (const [name, constructor] of baseType.constructors) {
+            const constructorSymbol = constructor.node?.symbol;
+            if (constructorSymbol) {
+              addCompletion(name, constructorSymbol);
+            }
+          }
+          return;
+        case "Namespace":
+          addCompletions(baseType.node?.symbol?.exports);
+          return;
+      }
+    }
+
+    /** Add `::` meta-member completions for the resolved base type. */
+    function addMetaCompletionsForType(baseType: Type) {
+      const baseSymbol = getTypeSymbol(baseType);
+      if (!baseSymbol) {
+        return;
+      }
+
+      for (const metaMemberName of resolver.getMetaMemberNames(baseSymbol)) {
+        addCompletion(metaMemberName, baseSymbol);
+      }
+    }
 
     function addCompletions(table: SymbolTable | undefined) {
       if (!table) {
@@ -3362,7 +3496,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       node,
       resolvedOptions as SymbolResolutionOptions & { locationContext: LocationContext },
     );
-    if (!resolvedOptions.resolveDeclarationOfTemplate) {
+    if (ctx.mapper === undefined && !resolvedOptions.resolveDeclarationOfTemplate) {
       referenceSymCache.set(node, sym);
     }
     return sym;
@@ -3416,6 +3550,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return undefined;
       }
 
+      const directTemplateAccessSym = tryResolveTemplateAccessSymbol(ctx, node, base);
+      if (directTemplateAccessSym) {
+        return directTemplateAccessSym;
+      }
+
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
         if (!options.resolveDeclarationOfTemplate && isTemplatedNode(getSymNode(base))) {
@@ -3467,7 +3606,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         base = baseSym;
       }
-      const sym = resolveMemberInContainer(base, node, options);
+      const templateAccessSym = tryResolveTemplateAccessSymbol(ctx, node, base);
+      if (templateAccessSym) {
+        return templateAccessSym;
+      }
+
+      const sym = resolveMemberInContainer(ctx, base, node, options);
 
       checkSymbolAccess(options.locationContext, node, sym);
 
@@ -3477,6 +3621,588 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     compilerAssert(false, `Unknown type reference kind "${SyntaxKind[(node as any).kind]}"`, node);
   }
 
+  /**
+   * Resolve member/meta-member access rooted in a template parameter or template access chain.
+   * Falls back to late-bound symbols when the concrete symbol cannot be safely determined.
+   *
+   * @param ctx Check context for mapper and usage observation.
+   * @param node Member expression being resolved.
+   * @param baseSym Resolved symbol for the member expression base.
+   * @returns The resolved symbol for the template access, or `undefined` when not applicable.
+   */
+  function tryResolveTemplateAccessSymbol(
+    ctx: CheckContext,
+    node: MemberExpressionNode,
+    baseSym: Sym,
+  ): Sym | undefined {
+    const mappedSymbol = tryResolveMappedTemplateAccessSymbol(ctx, node, baseSym);
+    if (mappedSymbol) {
+      return mappedSymbol;
+    }
+
+    const baseEntity = getTemplateAccessBaseEntity(ctx, node.base, baseSym);
+    if (!baseEntity) {
+      return undefined;
+    }
+
+    observeTemplateAccessBase(ctx, baseEntity);
+    const accessedType = resolveTemplateAccessType(ctx, node, baseEntity);
+    const useCache = ctx.mapper === undefined;
+    if (isErrorType(accessedType)) {
+      return createTemplateAccessSymbol(baseEntity, node, errorType, useCache);
+    }
+
+    if (
+      node.selector === "." &&
+      baseEntity.kind === "TemplateParameterAccess" &&
+      baseEntity.node.selector === "::"
+    ) {
+      return getPreferredTemplateAccessSymbol(node, accessedType);
+    }
+
+    if (ctx.mapper !== undefined) {
+      return getPreferredTemplateAccessSymbol(node, accessedType);
+    }
+
+    return createTemplateAccessSymbol(baseEntity, node, accessedType, useCache);
+  }
+
+  /**
+   * Resolve template access directly from a mapped template argument when available.
+   *
+   * @param ctx Check context containing the active template mapper.
+   * @param node Member expression being resolved.
+   * @param baseSym Base symbol for the access expression.
+   * @returns A concrete or late-bound symbol for the mapped access, or `undefined`.
+   */
+  function tryResolveMappedTemplateAccessSymbol(
+    ctx: CheckContext,
+    node: MemberExpressionNode,
+    baseSym: Sym,
+  ): Sym | undefined {
+    if (!ctx.mapper || !(baseSym.flags & SymbolFlags.TemplateParameter)) {
+      return undefined;
+    }
+
+    const declared = checkTemplateParameterDeclaration(
+      CheckContext.DEFAULT,
+      getSymNode(baseSym) as TemplateParameterDeclarationNode,
+    );
+    if (!isType(declared) || declared.kind !== "TemplateParameter") {
+      return undefined;
+    }
+
+    const mapped = ctx.mapper.getMappedType(declared);
+    if (!isType(mapped) || isTemplateAccessType(mapped)) {
+      return undefined;
+    }
+    if (isUninstantiatedTemplateType(mapped)) {
+      return undefined;
+    }
+
+    const resolvedType =
+      node.selector === "."
+        ? resolveMemberTypeFromConstraint(mapped, node.id.sv)
+        : resolveMetaTypeFromConstraint(ctx, mapped, node);
+    if (!resolvedType) {
+      return undefined;
+    }
+
+    return getPreferredTemplateAccessSymbol(node, resolvedType);
+  }
+
+  /** Return true when a type declaration is templated but has not been instantiated. */
+  function isUninstantiatedTemplateType(type: Type): boolean {
+    if ("templateMapper" in type && type.templateMapper !== undefined) {
+      return false;
+    }
+    const node = type.node;
+    return Boolean(node && "templateParameters" in node && node.templateParameters.length > 0);
+  }
+
+  /** Return true when the resolved type should remain late-bound due to templating. */
+  function shouldUseLateBoundTemplateAccessType(type: Type): boolean {
+    return "templateMapper" in type && type.templateMapper !== undefined;
+  }
+
+  /**
+   * Prefer canonical member symbols for resolved template access results when they already exist.
+   * This preserves symbol identity for downstream cloning and doc lookups in instantiated flows.
+   */
+  function getPreferredTemplateAccessSymbol(node: MemberExpressionNode, type: Type): Sym {
+    const canonicalMemberSymbol = getCanonicalTemplateAccessMemberSymbol(type);
+    if (canonicalMemberSymbol) {
+      return canonicalMemberSymbol;
+    }
+
+    if (!shouldUseLateBoundTemplateAccessType(type)) {
+      return getTypeSymbol(type) ?? createLateBoundTypeSymbol(node, type);
+    }
+
+    return createLateBoundTypeSymbol(node, type);
+  }
+
+  /** Return the exact instantiated member symbol for a resolved type when one exists. */
+  function getCanonicalTemplateAccessMemberSymbol(type: Type): Sym | undefined {
+    switch (type.kind) {
+      case "ModelProperty":
+        return getExactInstantiatedMemberSymbol(type.model?.symbol, type.name, type);
+      case "Operation":
+        return getExactInstantiatedMemberSymbol(type.interface?.symbol, type.name, type);
+      case "EnumMember":
+        return getExactInstantiatedMemberSymbol(type.enum?.symbol, type.name, type);
+      case "UnionVariant":
+        return getExactInstantiatedMemberSymbol(type.union?.symbol, type.name, type);
+      case "ScalarConstructor":
+        return getExactInstantiatedMemberSymbol(type.scalar?.symbol, type.name, type);
+      default:
+        return undefined;
+    }
+  }
+
+  function getExactInstantiatedMemberSymbol(
+    containerSymbol: Sym | undefined,
+    memberName: string | symbol,
+    type: Type,
+  ): Sym | undefined {
+    if (!containerSymbol || typeof memberName !== "string") {
+      return undefined;
+    }
+
+    const memberSymbol = getMemberSymbol(containerSymbol, memberName);
+    return memberSymbol?.type === type ? memberSymbol : undefined;
+  }
+
+  /**
+   * Resolve the template entity (parameter or access) that acts as the base for a member expression.
+   */
+  function getTemplateAccessBaseEntity(
+    _ctx: CheckContext,
+    baseNode: IdentifierNode | MemberExpressionNode,
+    baseSym: Sym,
+  ): TemplateParameter | TemplateParameterAccess | undefined {
+    if (baseSym.flags & SymbolFlags.LateBound) {
+      const lateBoundType = baseSym.type;
+      if (lateBoundType && lateBoundType.kind === "TemplateParameterAccess") {
+        return lateBoundType;
+      }
+      return undefined;
+    }
+
+    if (baseSym.flags & SymbolFlags.TemplateParameter) {
+      const baseSymbolNode = getSymNode(baseSym);
+      const mapped = checkTemplateParameterDeclaration(
+        CheckContext.DEFAULT,
+        baseSymbolNode as TemplateParameterDeclarationNode,
+      );
+      return isType(mapped) && isTemplateAccessType(mapped) ? mapped : undefined;
+    }
+
+    if (baseNode.kind === SyntaxKind.Identifier) {
+      const templateParameterType = getTemplateParameterTypeFromScope(baseNode);
+      if (templateParameterType) {
+        return templateParameterType;
+      }
+      return undefined;
+    }
+
+    return probeTemplateAccessBaseEntity(baseNode);
+  }
+
+  /** Probe a node for a template access base without surfacing diagnostics. */
+  function probeTemplateAccessBaseEntity(
+    node: IdentifierNode | MemberExpressionNode,
+  ): TemplateParameter | TemplateParameterAccess | undefined {
+    const oldDiagnosticHook = onCheckerDiagnostic;
+    onCheckerDiagnostic = () => {};
+    const entity = checkTypeOrValueReference(CheckContext.DEFAULT, node, false);
+    onCheckerDiagnostic = oldDiagnosticHook;
+    return isType(entity) && isTemplateAccessType(entity) ? entity : undefined;
+  }
+
+  /** Resolve a template parameter type from lexical scope by identifier name. */
+  function getTemplateParameterTypeFromScope(
+    identifier: IdentifierNode,
+  ): TemplateParameter | TemplateParameterAccess | undefined {
+    const declaration = findTemplateParameterDeclarationInScope(identifier, identifier.sv);
+    if (!declaration) {
+      return undefined;
+    }
+
+    const mapped = checkTemplateParameterDeclaration(CheckContext.DEFAULT, declaration);
+    return isType(mapped) && isTemplateAccessType(mapped) ? mapped : undefined;
+  }
+
+  /** Find the closest template parameter declaration matching the given name. */
+  function findTemplateParameterDeclarationInScope(
+    node: Node,
+    name: string,
+  ): TemplateParameterDeclarationNode | undefined {
+    let current: Node | undefined = node.parent;
+    while (current) {
+      if ("templateParameters" in current && current.templateParameters) {
+        const declaration = current.templateParameters.find((x) => x.id.sv === name);
+        if (declaration) {
+          return declaration;
+        }
+      }
+      current = current.parent;
+    }
+    return undefined;
+  }
+
+  /**
+   * Resolve the resulting type for a template parameter access expression.
+   *
+   * @param ctx Check context for mapper-aware resolution.
+   * @param node Access expression (`.` or `::`) being resolved.
+   * @param baseEntity Template parameter or prior template access chain.
+   * @returns The resolved member/meta-member type, or `errorType` when not guaranteed.
+   */
+  function resolveTemplateAccessType(
+    ctx: CheckContext,
+    node: MemberExpressionNode,
+    baseEntity: TemplateParameter | TemplateParameterAccess,
+  ): Type {
+    const baseType = resolveTemplateAccessBaseType(ctx, baseEntity);
+    if (!baseType) {
+      if (hasErrorTemplateConstraint(baseEntity)) {
+        return errorType;
+      }
+      reportTemplateAccessNotGuaranteed(node, baseEntity);
+      return errorType;
+    }
+
+    const resolvedType =
+      node.selector === "."
+        ? resolveMemberTypeFromConstraint(baseType, node.id.sv)
+        : resolveMetaTypeFromConstraint(ctx, baseType, node);
+
+    if (!resolvedType) {
+      reportTemplateAccessNotGuaranteed(node, baseType);
+      return errorType;
+    }
+
+    return resolvedType;
+  }
+
+  /**
+   * Resolve the concrete base type that a template access should evaluate against.
+   *
+   * @param ctx Check context containing optional template mapper.
+   * @param baseEntity Template parameter/access entity.
+   * @returns The mapped or constrained base type, if determinable.
+   */
+  function resolveTemplateAccessBaseType(
+    ctx: CheckContext,
+    baseEntity: TemplateParameter | TemplateParameterAccess,
+  ): Type | undefined {
+    if (ctx.mapper && baseEntity.kind === "TemplateParameterAccess") {
+      const mappedBaseType = resolveTemplateAccessBaseType(ctx, baseEntity.base);
+      if (!mappedBaseType) {
+        return undefined;
+      }
+
+      return baseEntity.node.selector === "."
+        ? resolveMemberTypeFromConstraint(mappedBaseType, baseEntity.node.id.sv)
+        : resolveMetaTypeFromConstraint(ctx, mappedBaseType, baseEntity.node);
+    }
+
+    if (ctx.mapper && baseEntity.kind === "TemplateParameter") {
+      const mapped = ctx.mapper.getMappedType(baseEntity);
+      if (isType(mapped)) {
+        if (isTemplateAccessType(mapped)) {
+          return resolveTemplateConstraintType(mapped);
+        }
+        if (isUninstantiatedTemplateType(mapped)) {
+          return resolveTemplateConstraintType(baseEntity);
+        }
+        return mapped;
+      }
+    }
+    return resolveTemplateConstraintType(baseEntity);
+  }
+
+  /**
+   * Resolve the terminal non-template constraint type for a template access chain.
+   *
+   * @param templateType Template parameter or access node.
+   * @returns The terminal constrained type, or `undefined` when missing/invalid/cyclic.
+   */
+  function resolveTemplateConstraintType(
+    templateType: TemplateParameter | TemplateParameterAccess,
+  ): Type | undefined {
+    const visited = new Set<TemplateParameter | TemplateParameterAccess>();
+    let current: TemplateParameter | TemplateParameterAccess = templateType;
+    while (true) {
+      if (visited.has(current)) {
+        return undefined;
+      }
+      visited.add(current);
+
+      const constraintType = current.constraint?.type;
+      if (!constraintType || isErrorType(constraintType)) {
+        return undefined;
+      }
+      if (!isTemplateAccessType(constraintType)) {
+        return constraintType;
+      }
+      current = constraintType;
+    }
+  }
+
+  /** Return true when a template access chain includes an error constraint. */
+  function hasErrorTemplateConstraint(
+    templateType: TemplateParameter | TemplateParameterAccess,
+  ): boolean {
+    let current: TemplateParameter | TemplateParameterAccess = templateType;
+    while (true) {
+      const constraintType = current.constraint?.type;
+      if (constraintType && isErrorType(constraintType)) {
+        return true;
+      }
+      if (current.kind !== "TemplateParameterAccess") {
+        return false;
+      }
+      current = current.base;
+    }
+  }
+
+  /** Track template parameter usage for a template access base chain. */
+  function observeTemplateAccessBase(
+    ctx: CheckContext,
+    base: TemplateParameter | TemplateParameterAccess,
+  ) {
+    const root = getTemplateAccessRoot(base);
+    ctx.observeTemplateParameter(root);
+    templateParameterUsageMap.set(root.node, true);
+  }
+
+  /** Return the root template parameter for a template access chain. */
+  function getTemplateAccessRoot(
+    base: TemplateParameter | TemplateParameterAccess,
+  ): TemplateParameter {
+    let current: TemplateParameter | TemplateParameterAccess = base;
+    while (current.kind === "TemplateParameterAccess") {
+      current = current.base;
+    }
+    return current;
+  }
+
+  /** Resolve `.` access from a constrained type by kind-specific member lookup. */
+  function resolveMemberTypeFromConstraint(
+    constraintType: Type,
+    memberName: string,
+  ): Type | undefined {
+    switch (constraintType.kind) {
+      case "Model":
+        for (const property of walkPropertiesInherited(constraintType)) {
+          if (property.name === memberName) {
+            return property;
+          }
+        }
+        return undefined;
+      case "Interface":
+        return constraintType.operations.get(memberName);
+      case "Enum":
+        return constraintType.members.get(memberName);
+      case "Union":
+        return constraintType.variants.get(memberName);
+      case "Scalar":
+        return constraintType.constructors.get(memberName);
+      default:
+        return undefined;
+    }
+  }
+
+  /**
+   * Resolve `::` meta-member access from a constrained type.
+   *
+   * @param ctx Check context used for symbol-to-entity evaluation.
+   * @param constraintType Base constrained type.
+   * @param node Meta-member expression node.
+   * @returns The resolved meta-member type, `unknownType` for projection-only cases, or `undefined`.
+   */
+  function resolveMetaTypeFromConstraint(
+    ctx: CheckContext,
+    constraintType: Type,
+    node: MemberExpressionNode,
+  ): Type | undefined {
+    if (constraintType.kind === "ModelProperty" && node.id.sv === "type") {
+      return constraintType.type;
+    }
+    if (constraintType.kind === "Operation") {
+      switch (node.id.sv) {
+        case "parameters":
+          return constraintType.parameters;
+        case "returnType":
+          return constraintType.returnType;
+      }
+    }
+
+    const constraintSymbol = getTypeSymbol(constraintType);
+    if (!constraintSymbol) {
+      return undefined;
+    }
+
+    const metaMemberNames = resolver.getMetaMemberNames(constraintSymbol);
+    if (!metaMemberNames.includes(node.id.sv)) {
+      return undefined;
+    }
+
+    if (isReflectionMetaProjectionSymbol(constraintSymbol)) {
+      // Reflection model symbols expose meta-member names by projection, but their
+      // underlying nodes are not concrete ModelProperty/Operation nodes.
+      return unknownType;
+    }
+
+    const resolved = resolver.resolveMetaMemberByName(constraintSymbol, node.id.sv);
+    if (resolved.resolutionResult & ResolutionResultFlags.Resolved && resolved.resolvedSymbol) {
+      const entity = checkTypeOrValueReferenceSymbol(ctx, resolved.resolvedSymbol, node, false);
+      if (entity === null) {
+        return undefined;
+      }
+      if (entity.entityKind === "Indeterminate") {
+        return entity.type;
+      }
+      return isType(entity) ? entity : undefined;
+    }
+
+    return unknownType;
+  }
+
+  /** Return true for TypeSpec.Reflection model symbols backed by projection metadata. */
+  function isReflectionMetaProjectionSymbol(sym: Sym): boolean {
+    return (
+      sym.node?.kind === SyntaxKind.ModelStatement &&
+      sym.parent?.name === "Reflection" &&
+      sym.parent?.parent?.name === "TypeSpec"
+    );
+  }
+
+  /** Report an invalid-ref diagnostic for unsupported template member/meta-member access. */
+  function reportTemplateAccessNotGuaranteed(
+    node: MemberExpressionNode,
+    baseType: Type | TemplateParameter | TemplateParameterAccess,
+  ) {
+    reportCheckerDiagnostic(
+      createDiagnostic({
+        code: "invalid-ref",
+        messageId: node.selector === "." ? "member" : "metaProperty",
+        format: { kind: getTemplateAccessKindName(baseType), id: node.id.sv },
+        target: node,
+      }),
+    );
+  }
+
+  /** Get the diagnostic kind label used when template access resolution fails. */
+  function getTemplateAccessKindName(
+    type: Type | TemplateParameter | TemplateParameterAccess,
+  ): string {
+    switch (type.kind) {
+      case "Model":
+      case "ModelProperty":
+      case "Enum":
+      case "Interface":
+      case "Union":
+      case "Operation":
+      case "Scalar":
+      case "TemplateParameter":
+      case "TemplateParameterAccess":
+        return type.kind;
+      default:
+        return "Type";
+    }
+  }
+
+  /** Type guard for template parameters and template parameter access types. */
+  function isTemplateAccessType(type: Type): type is TemplateParameter | TemplateParameterAccess {
+    return type.kind === "TemplateParameter" || type.kind === "TemplateParameterAccess";
+  }
+
+  /**
+   * Create (or retrieve from cache) a late-bound symbol representing template access.
+   *
+   * @param base Template parameter/access base.
+   * @param node Member expression node.
+   * @param constraintType Resolved constraint for the access result.
+   * @param useCache Whether to reuse/access symbol cache.
+   * @returns A symbol whose type is `TemplateParameterAccess`.
+   */
+  function createTemplateAccessSymbol(
+    base: TemplateParameter | TemplateParameterAccess,
+    node: MemberExpressionNode,
+    constraintType: Type,
+    useCache = true,
+  ): Sym {
+    const cacheKey = getTemplateAccessCacheKey(base, node);
+    if (useCache) {
+      const existing = templateAccessSymbolCache.get(cacheKey);
+      if (existing) {
+        return existing;
+      }
+    }
+
+    const constraint = {
+      entityKind: "MixedParameterConstraint",
+      node,
+      type: constraintType,
+    } satisfies MixedParameterConstraint;
+
+    const type = createAndFinishType({
+      kind: "TemplateParameterAccess",
+      node,
+      base,
+      path: getTemplateAccessPath(base) + node.selector + node.id.sv,
+      constraint,
+    });
+    templateAccessCacheKeys.set(type, cacheKey);
+
+    const symbol = createSymbol(node, node.id.sv, SymbolFlags.LateBound);
+    mutate(symbol).type = type;
+    if (useCache) {
+      templateAccessSymbolCache.set(cacheKey, symbol);
+    }
+    return symbol;
+  }
+
+  /** Compute the user-facing access path for a template access chain. */
+  function getTemplateAccessPath(base: TemplateParameter | TemplateParameterAccess): string {
+    return base.kind === "TemplateParameterAccess" ? base.path : base.node.id.sv;
+  }
+
+  /** Build a stable cache key for a template access symbol/type chain. */
+  function getTemplateAccessCacheKey(
+    base: TemplateParameter | TemplateParameterAccess,
+    node: MemberExpressionNode,
+  ): string {
+    let baseKey: string;
+    if (base.kind === "TemplateParameterAccess") {
+      const cacheKey = templateAccessCacheKeys.get(base);
+      compilerAssert(cacheKey, "Expected template access cache key");
+      baseKey = cacheKey;
+    } else {
+      baseKey = `tp:${getSymbolCacheId(base.node.symbol)}`;
+    }
+    return `${baseKey}${node.selector}${node.id.sv}`;
+  }
+
+  /** Resolve the merged symbol associated with a type, when one exists. */
+  function getTypeSymbol(type: Type): Sym | undefined {
+    return type.node?.symbol ? getMergedSymbol(type.node.symbol) : undefined;
+  }
+
+  /** Get a stable numeric id for a symbol used in template access cache keys. */
+  function getSymbolCacheId(sym: Sym): number {
+    const existing = symbolCacheIds.get(sym);
+    if (existing !== undefined) {
+      return existing;
+    }
+
+    const id = nextSymbolCacheId++;
+    symbolCacheIds.set(sym, id);
+    return id;
+  }
   function checkSymbolAccess(sourceLocation: LocationContext, node: Node, symbol: Sym | undefined) {
     if (!symbol) return;
 
@@ -3520,7 +4246,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
     }
   }
-
   function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {
     const duplicateNames = symbols.map((s) =>
       getFullyQualifiedSymbolName(s, { useGlobalPrefixAtTopLevel: true }),
@@ -3535,10 +4260,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function resolveMemberInContainer(
+    ctx: CheckContext,
     base: Sym,
     node: MemberExpressionNode,
     options: SymbolResolutionOptions,
   ) {
+    const symbolFromType = resolveMemberOnSymbolType(ctx, base, node);
+    if (symbolFromType) {
+      return symbolFromType;
+    }
+
     const { finalSymbol: sym, resolvedSymbol: nextSym } = resolver.resolveMemberExpressionForSym(
       base,
       node,
@@ -3624,6 +4355,88 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /**
+   * Resolve a member/meta-member access from the base symbol's resolved type.
+   *
+   * @param ctx Check context.
+   * @param base Base symbol.
+   * @param node Member expression to resolve.
+   * @returns Concrete symbol, late-bound symbol, or `undefined` when unresolved.
+   */
+  function resolveMemberOnSymbolType(
+    ctx: CheckContext,
+    base: Sym,
+    node: MemberExpressionNode,
+  ): Sym | undefined {
+    const baseType = getMemberResolutionType(ctx, base);
+    if (!baseType) {
+      return undefined;
+    }
+
+    const resolvedBaseType = isTemplateAccessType(baseType)
+      ? resolveTemplateAccessBaseType(ctx, baseType)
+      : baseType;
+    if (!resolvedBaseType) {
+      return undefined;
+    }
+
+    const resolvedType =
+      node.selector === "."
+        ? resolveMemberTypeFromConstraint(resolvedBaseType, node.id.sv)
+        : resolveMetaTypeFromConstraint(ctx, resolvedBaseType, node);
+    if (!resolvedType) {
+      return undefined;
+    }
+
+    if (node.selector === ".") {
+      const table = base.exports ?? base.members;
+      if (table) {
+        const directMember = resolver.getAugmentedSymbolTable(table).get(node.id.sv);
+        if (directMember) {
+          return directMember;
+        }
+      }
+    }
+
+    if (
+      node.selector === "::" &&
+      node.id.sv === "type" &&
+      resolvedType.kind === "TemplateParameterAccess" &&
+      resolvedType.base.kind === "TemplateParameterAccess" &&
+      resolvedType.base.node.selector === "."
+    ) {
+      const sourceProperty = resolveTemplateConstraintType(resolvedType.base);
+      if (sourceProperty) {
+        return getTypeSymbol(sourceProperty) ?? createLateBoundTypeSymbol(node, sourceProperty);
+      }
+    }
+
+    return getPreferredTemplateAccessSymbol(node, resolvedType);
+  }
+
+  /** Resolve the effective type used for member lookup on a base symbol. */
+  function getMemberResolutionType(ctx: CheckContext, base: Sym): Type | undefined {
+    if (base.flags & SymbolFlags.LateBound) {
+      return base.type && isType(base.type) ? base.type : undefined;
+    }
+    if (base.flags & SymbolFlags.Member) {
+      const type = checkMemberSym(ctx, base);
+      return isErrorType(type) ? undefined : type;
+    }
+    return undefined;
+  }
+
+  /** Create a late-bound symbol carrying a precomputed type for member resolution. */
+  function createLateBoundTypeSymbol(node: MemberExpressionNode, type: Type): Sym {
+    const symbol = createSymbol(node, node.id.sv, SymbolFlags.LateBound);
+    mutate(symbol).type = type;
+    const symbolSource = getCanonicalTemplateAccessMemberSymbol(type);
+    if (symbolSource) {
+      mutate(symbol).symbolSource = symbolSource.symbolSource ?? symbolSource;
+    }
+    return symbol;
+  }
+
+  /**
    * Return the symbol that is aliased by this alias declaration. If no such symbol is aliased,
    * return the symbol for the alias instead. For member containers which need to be late bound
    * (i.e. they contain symbols we don't know until we've instantiated the type and the type is an
@@ -3633,7 +4446,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const node = getSymNode(aliasSymbol);
     const links = resolver.getSymbolLinks(aliasSymbol);
     if (!links.aliasResolutionIsTemplate) {
-      return links.aliasedSymbol ?? resolver.getNodeLinks(node).resolvedSymbol;
+      const aliased = links.aliasedSymbol ?? resolver.getNodeLinks(node).resolvedSymbol;
+      if (aliased && isTemplatedNode(getSymNode(aliased))) {
+        const aliasType = getTypeForNode(node as AliasStatementNode, ctx);
+        return lateBindContainer(aliasType, aliasSymbol);
+      }
+      return aliased;
     }
 
     // Otherwise for templates we need to get the type and retrieve the late bound symbol.
@@ -3706,7 +4524,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (typeOrValue !== null) {
         if (isValue(typeOrValue)) {
           hasValue = true;
-        } else if ("kind" in typeOrValue && typeOrValue.kind === "TemplateParameter") {
+        } else if (
+          "kind" in typeOrValue &&
+          (typeOrValue.kind === "TemplateParameter" ||
+            typeOrValue.kind === "TemplateParameterAccess")
+        ) {
           if (typeOrValue.constraint) {
             if (typeOrValue.constraint.valueType) {
               hasValue = true;
@@ -3738,7 +4560,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       for (const [span, typeOrValue] of spanTypeOrValues) {
         if (
           typeOrValue !== null &&
-          (!("kind" in typeOrValue) || typeOrValue.kind !== "TemplateParameter")
+          (!("kind" in typeOrValue) ||
+            (typeOrValue.kind !== "TemplateParameter" &&
+              typeOrValue.kind !== "TemplateParameterAccess"))
         ) {
           compilerAssert(typeOrValue !== null && isValue(typeOrValue), "Expected value.");
           str += stringifyValueForTemplate(typeOrValue);
@@ -4543,7 +5367,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (target.entityKind === "Type") {
       if (target.kind === "Scalar" || target.kind === "ScalarConstructor") {
         return target;
-      } else if (target.kind === "TemplateParameter") {
+      } else if (target.kind === "TemplateParameter" || target.kind === "TemplateParameterAccess") {
         const callable = target.constraint && constraintIsCallable(target.constraint);
         if (!callable) {
           reportCheckerDiagnostic(
@@ -5187,7 +6011,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (isType(entity)) {
-      if (entity.kind === "TemplateParameter") {
+      if (entity.kind === "TemplateParameter" || entity.kind === "TemplateParameterAccess") {
         if (entity.constraint === undefined || entity.constraint.type !== undefined) {
           // means this template constraint will accept values
           reportCheckerDiagnostic(
@@ -5544,7 +6368,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): [ModelProperty[], ModelIndexer | undefined] {
     const targetType = getTypeForNode(targetNode, ctx);
 
-    if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
+    if (
+      targetType.kind === "TemplateParameter" ||
+      targetType.kind === "TemplateParameterAccess" ||
+      isErrorType(targetType)
+    ) {
       return [[], undefined];
     }
     if (targetType.kind !== "Model") {
@@ -5652,7 +6480,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const shouldRunDecorators = !ctx.hasFlags(CheckFlags.InTemplateDeclaration);
     if (!parentTemplate || shouldRunDecorators) {
-      const docComment = docFromCommentForSym.get(sym);
+      const docComment = getDocCommentForSymbol(sym);
       if (docComment) {
         type.decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
@@ -5670,6 +6498,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         { value: createLiteralType(doc), jsValue: doc },
       ],
     };
+  }
+
+  function getDocCommentForSymbol(sym: Sym | undefined): string | undefined {
+    return sym
+      ? (docFromCommentForSym.get(sym) ??
+          (sym.symbolSource && docFromCommentForSym.get(sym.symbolSource)))
+      : undefined;
   }
 
   function checkDefaultValue(ctx: CheckContext, defaultNode: Node, type: Type): Value | null {
@@ -7017,7 +7852,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): T {
     let clone = initializeClone(type, additionalProps);
     if ("decorators" in clone) {
-      const docComment = docFromCommentForSym.get(sym);
+      const docComment = getDocCommentForSymbol(sym);
       if (docComment) {
         clone.decorators.push(createDocFromCommentDecorator("self", docComment));
       }

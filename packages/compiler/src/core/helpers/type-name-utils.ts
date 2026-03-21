@@ -31,6 +31,8 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return getNamespaceFullName(type, options);
     case "TemplateParameter":
       return getIdentifierName(type.node.id.sv, options);
+    case "TemplateParameterAccess":
+      return getIdentifierName(type.path, options);
     case "Scalar":
       return getScalarName(type, options);
     case "Model":

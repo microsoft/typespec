@@ -1,6 +1,7 @@
 /* eslint-disable vitest/valid-describe-callback */
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
+import { getNodeAtPosition } from "../../src/core/parser.js";
 import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
 import { expectDiagnostics, expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
@@ -693,12 +694,71 @@ describe("compiler: references", () => {
         `,
         ref: "Person.address::type.city",
       }));
+
+    describe("ModelProperty::type through template parameter constrained to Reflection.ModelProperty", () =>
+      itCanReference({
+        code: `
+          model Person {
+            address: Address
+          }
+          model Address {
+            @test("target") city: string
+          }
+          model Wrapper<P extends Reflection.ModelProperty> {
+            value: P::type;
+          }
+          alias Wrapped = Wrapper<Person.address>;
+        `,
+        ref: "Wrapped.value::type.city",
+      }));
+
+    describe("ModelProperty::type through template member access constrained to a concrete model", () =>
+      itCanReference({
+        code: `
+          model X {
+            @test("target") a: string;
+          }
+          model Y<M extends X> {
+            p: M.a::type;
+          }
+          alias YOfX = Y<X>;
+        `,
+        ref: "YOfX.p::type",
+        resolveTarget: (target: any) => target.type,
+      }));
     describe("Operation::returnType", () =>
       itCanReference({
         code: `
           op testOp(): {@test("target")status: 200};
         `,
         ref: "testOp::returnType.status",
+      }));
+
+    describe("Operation::returnType through template parameter constrained to Reflection.Operation", () =>
+      itCanReference({
+        code: `
+          op testOp(): { @test("target") status: 200 };
+          model ReturnWrapper<T extends Reflection.Operation> {
+            value: T::returnType;
+          }
+          alias WrappedReturn = ReturnWrapper<testOp>;
+        `,
+        ref: "WrappedReturn.value::type.status",
+      }));
+
+    describe("Operation::returnType through template parameter constrained to Reflection.Operation with templated operation", () =>
+      itCanReference({
+        code: `
+            model X<s extends Reflection.Scalar> {
+              @test("target") y: s;
+            }
+            op foo<s extends Reflection.Scalar>(): X<s>;
+            model ReturnWrapper<O extends Reflection.Operation> {
+              value: O::returnType;
+            }
+            alias WrappedReturn = ReturnWrapper<foo<string>>;
+          `,
+        ref: "WrappedReturn.value::type.y",
       }));
 
     describe("Operation::parameters", () =>
@@ -708,6 +768,39 @@ describe("compiler: references", () => {
         `,
         ref: "testOp::parameters.select",
       }));
+
+    describe("Operation::parameters through template parameter constrained to Reflection.Operation", () =>
+      itCanReference({
+        code: `
+          op testOp(@test("target") select: string, other: string): void;
+          model ParametersWrapper<T extends Reflection.Operation> {
+            value: T::parameters;
+          }
+          alias WrappedParameters = ParametersWrapper<testOp>;
+        `,
+        ref: "WrappedParameters.value::type.select",
+      }));
+
+    it("resolves parameter members through wrappers over templated operation instances", async () => {
+      const result = await Tester.compile({
+        "main.tsp": `
+          op testOp<T>(select: T, other: string): void;
+          model ParametersWrapper<O extends Reflection.Operation> {
+            value: O::parameters;
+          }
+          alias WrappedParameters = ParametersWrapper<testOp<string>>;
+          model RefContainer { y: WrappedParameters.value::type.select }
+        `,
+      });
+
+      const file = result.program.sourceFiles.get("/test/main.tsp")!;
+      const text = file.file.text;
+      const wrappedSelect = getNodeAtPosition(file, text.lastIndexOf("select") + 1)!;
+      const wrappedSymbols = result.program.checker.resolveRelatedSymbols(wrappedSelect as any);
+
+      ok(wrappedSymbols?.[0], "Expected wrapped parameter symbol to resolve.");
+      strictEqual(wrappedSymbols[0].name, "select");
+    });
 
     it("emits a diagnostic when referencing a non-existent meta type property", async () => {
       const diagnostics = await Tester.diagnose(`
@@ -728,6 +821,19 @@ describe("compiler: references", () => {
           message: `Model doesn't have meta property foo`,
         },
       ]);
+    });
+
+    it("emits a diagnostic when template access is not guaranteed by the constraint", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model Y<M extends Reflection.Model> {
+          p: M.a::type;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-ref",
+        message: `Model doesn't have member a`,
+      });
     });
 
     it("allows spreading meta type property", async () => {

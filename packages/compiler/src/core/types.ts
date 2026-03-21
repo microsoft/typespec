@@ -154,6 +154,7 @@ export type Type =
   | StringTemplate
   | StringTemplateSpan
   | TemplateParameter
+  | TemplateParameterAccess
   | Tuple
   | Union
   | UnionVariant;
@@ -711,6 +712,42 @@ export interface TemplateParameter extends BaseType {
   constraint?: MixedParameterConstraint;
   /** @internal */
   default?: Type | Value | IndeterminateEntity;
+}
+
+/**
+ * This is a type you should never see in the program.
+ * If you do you might be missing a `isTemplateDeclaration` check to exclude that type.
+ * Working with template declarations is not something that is currently supported.
+ *
+ * `TemplateParameterAccess` represents a member or meta-member access rooted in a template
+ * parameter inside a template declaration, such as `T.id` or `T::returnType`.
+ *
+ * @experimental
+ */
+export interface TemplateParameterAccess extends BaseType {
+  kind: "TemplateParameterAccess";
+  /** @internal */
+  node: MemberExpressionNode;
+  /**
+   * The base of this template parameter access, which could be another template parameter access for chained accesses like `T.id.name`.
+   *
+   * @internal
+   */
+  base: TemplateParameter | TemplateParameterAccess;
+  /**
+   * User-facing access path like `T.id` or `T::returnType`.
+   *
+   * @internal
+   */
+  path: string;
+  /**
+   * The type or value constraint of this template parameter access.
+   *
+   * The constraint is used to determine assignability in template declarations.
+   *
+   * @internal
+   */
+  constraint?: MixedParameterConstraint;
 }
 
 export interface Decorator extends BaseType {
