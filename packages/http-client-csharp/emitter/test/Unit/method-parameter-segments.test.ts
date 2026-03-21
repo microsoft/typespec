@@ -38,7 +38,7 @@ describe("MethodParameterSegments", () => {
 
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const root = createModel(sdkContext);
+      const [root] = createModel(sdkContext);
       ok(root, "Output model should be generated");
       const clients = root.clients;
       ok(clients && clients.length > 0, "Should have at least one client");
@@ -100,7 +100,7 @@ describe("MethodParameterSegments", () => {
 
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const root = createModel(sdkContext);
+      const [root] = createModel(sdkContext);
       ok(root, "Output model should be generated");
       const clients = root.clients;
       ok(clients && clients.length > 0, "Should have at least one client");
@@ -153,7 +153,7 @@ describe("MethodParameterSegments", () => {
 
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const root = createModel(sdkContext);
+      const [root] = createModel(sdkContext);
       ok(root, "Output model should be generated");
       const clients = root.clients;
       ok(clients && clients.length > 0, "Should have at least one client");
@@ -209,7 +209,7 @@ describe("MethodParameterSegments", () => {
 
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const root = createModel(sdkContext);
+      const [root] = createModel(sdkContext);
       ok(root, "Output model should be generated");
       const clients = root.clients;
       ok(clients && clients.length > 0, "Should have at least one client");
@@ -247,7 +247,7 @@ describe("MethodParameterSegments", () => {
       const program = await typeSpecCompile(tsp, runner, { IsTCGCNeeded: true });
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const root = createModel(sdkContext);
+      const [root] = createModel(sdkContext);
 
       ok(root, "Output model should be generated");
       const clients = root.clients;
@@ -293,7 +293,7 @@ describe("MethodParameterSegments", () => {
       const program = await typeSpecCompile(tsp, runner, { IsTCGCNeeded: true });
       const context = createEmitterContext(program);
       const sdkContext = await createCSharpSdkContext(context);
-      const root = createModel(sdkContext);
+      const [root] = createModel(sdkContext);
 
       ok(root, "Output model should be generated");
       const clients = root.clients;
