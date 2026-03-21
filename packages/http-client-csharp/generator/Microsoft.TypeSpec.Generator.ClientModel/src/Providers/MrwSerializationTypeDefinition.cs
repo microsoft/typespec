@@ -244,6 +244,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_model is ScmModelProvider { IsDynamicModel: true, HasDynamicProperties: true })
             {
                 methods.AddRange(BuildPropagateGetMethod(), BuildPropagateSetMethod());
+
+                // Add V2 helper methods for every qualifying list/array property
+                foreach (var prop in GetQualifyingDynamicListProperties())
+                {
+                    methods.AddRange(BuildTryResolveArrayMethod(prop), BuildActiveItemsMethod(prop));
+                }
             }
 
             return [.. methods];
