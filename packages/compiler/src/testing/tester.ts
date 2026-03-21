@@ -72,7 +72,16 @@ async function createTesterFs(base: string, options: TesterOptions) {
   };
 
   const sl = await createSourceLoader(host);
-  const selfName = JSON.parse((await host.readFile(resolvePath(base, "package.json"))).text).name;
+  const packageJsonPath = resolvePath(base, "package.json");
+  let packageJsonContent: string;
+  try {
+    packageJsonContent = (await host.readFile(packageJsonPath)).text;
+  } catch (e) {
+    throw new Error(
+      `createTester failed to read '${packageJsonPath}'. The first argument to createTester must be the library root directory containing a package.json. Got: '${base}'`,
+    );
+  }
+  const selfName = JSON.parse(packageJsonContent).name;
   const moduleHost: ResolveModuleHost = {
     realpath: async (x) => x,
     stat: host.stat,
