@@ -131,12 +131,6 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
             invokeMethod.InstanceReference = newInstanceReference;
             invokeMethod.Arguments = arguments;
-            invokeMethod.MethodName = invokeMethod.MethodName;
-            invokeMethod.MethodSignature = invokeMethod.MethodSignature;
-            invokeMethod.TypeArguments = invokeMethod.TypeArguments;
-            invokeMethod.CallAsAsync = invokeMethod.CallAsAsync;
-            invokeMethod.AddConfigureAwaitFalse = invokeMethod.AddConfigureAwaitFalse;
-            invokeMethod.ExtensionType = invokeMethod.ExtensionType;
 
             return invokeMethod;
         }
