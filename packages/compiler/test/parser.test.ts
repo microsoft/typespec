@@ -843,6 +843,57 @@ describe("compiler: parser", () => {
         ],
       ]);
     });
+
+    describe("#enable and #disable are parsed as standalone statements", () => {
+      parseEach([
+        [
+          `#enable "someFeature"\nmodel Foo {}`,
+          (node) => {
+            strictEqual(node.statements.length, 2);
+            const directive = node.statements[0];
+            strictEqual(directive.kind, SyntaxKind.DirectiveExpression);
+            if (directive.kind === SyntaxKind.DirectiveExpression) {
+              strictEqual(directive.target.sv, "enable");
+              strictEqual(directive.arguments.length, 1);
+              strictEqual(directive.arguments[0].kind, SyntaxKind.StringLiteral);
+              if (directive.arguments[0].kind === SyntaxKind.StringLiteral) {
+                strictEqual(directive.arguments[0].value, "someFeature");
+              }
+            }
+            strictEqual(node.statements[1].kind, SyntaxKind.ModelStatement);
+            // #enable should NOT be attached to the model
+            strictEqual(node.statements[1].directives?.length ?? 0, 0);
+          },
+        ],
+        [
+          `#disable "someFeature"\nmodel Foo {}`,
+          (node) => {
+            strictEqual(node.statements.length, 2);
+            const directive = node.statements[0];
+            strictEqual(directive.kind, SyntaxKind.DirectiveExpression);
+            if (directive.kind === SyntaxKind.DirectiveExpression) {
+              strictEqual(directive.target.sv, "disable");
+            }
+          },
+        ],
+        [
+          `#enable "feature1"\n#enable "feature2"\nmodel Foo {}`,
+          (node) => {
+            strictEqual(node.statements.length, 3);
+            strictEqual(node.statements[0].kind, SyntaxKind.DirectiveExpression);
+            strictEqual(node.statements[1].kind, SyntaxKind.DirectiveExpression);
+            strictEqual(node.statements[2].kind, SyntaxKind.ModelStatement);
+          },
+        ],
+        [
+          `#enable "someFeature"`,
+          (node) => {
+            strictEqual(node.statements.length, 1);
+            strictEqual(node.statements[0].kind, SyntaxKind.DirectiveExpression);
+          },
+        ],
+      ]);
+    });
   });
 
   describe("augment decorator statements", () => {

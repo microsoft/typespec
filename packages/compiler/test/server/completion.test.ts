@@ -2668,6 +2668,14 @@ describe("identifiers", () => {
           label: "deprecated",
           kind: CompletionItemKind.Keyword,
         },
+        {
+          label: "enable",
+          kind: CompletionItemKind.Keyword,
+        },
+        {
+          label: "disable",
+          kind: CompletionItemKind.Keyword,
+        },
       ]);
     });
 
