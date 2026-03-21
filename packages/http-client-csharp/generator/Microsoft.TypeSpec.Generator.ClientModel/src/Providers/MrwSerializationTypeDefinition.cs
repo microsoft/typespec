@@ -66,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
+        private readonly bool _hasSystemObjectModelBase;
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
         private CSharpType RootType => _rootType ??= GetRootModelType();
@@ -91,6 +92,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
             _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
             _shouldOverrideMethods = _model.BaseModelProvider != null && !_isStruct;
+            _hasSystemObjectModelBase = _model.BaseModelProvider is SystemObjectModelProvider;
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -482,7 +484,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods)
+            if (_shouldOverrideMethods && !_hasSystemObjectModelBase)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -506,7 +508,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods)
+            if (_shouldOverrideMethods && !_hasSystemObjectModelBase)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -554,7 +556,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods)
+            if (_shouldOverrideMethods && !_hasSystemObjectModelBase)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
