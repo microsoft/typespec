@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
@@ -364,8 +365,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
-
                     var ifElseStatement = nextPageType.Equals(typeof(Uri))
                         ? new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
                             {
@@ -384,6 +383,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             },
                             Return(Null));
 
+                    // For the untyped CollectionResult (no item model type), use Utf8JsonReader to read only
+                    // the specific properties needed from the response, avoiding full model deserialization.
+                    if (ItemModelType == null)
+                    {
+                        var contentExpression = PageParameter.ToApi<ClientResponseApi>().GetRawResponse().Content();
+                        var readStatements = BuildReadNextPageWithUtf8JsonReader(nextPageVariable, contentExpression, nextPagePropertySegments!, declareVariable: true);
+                        return [.. readStatements, ifElseStatement];
+                    }
+
+                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
                     return
                     [
                         Declare(nextPageVariable, resultExpression),
@@ -405,6 +414,127 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // Invalid location is logged by the emitter.
                     return [];
             }
+        }
+
+        /// <summary>
+        /// Builds the statements to read the next page value from a JSON response using Utf8JsonReader,
+        /// navigating through the given property segments path. This avoids deserializing the entire
+        /// response into the model type when only specific properties are needed.
+        /// </summary>
+        /// <param name="nextPageVar">The variable to assign the next page value to.</param>
+        /// <param name="contentExpression">The expression to get the response content from.</param>
+        /// <param name="segments">The JSON property path segments to navigate.</param>
+        /// <param name="declareVariable">
+        /// When <c>true</c>, the first statement declares the variable with a null initializer.
+        /// When <c>false</c>, the first statement is an assignment to null (variable already declared).
+        /// </param>
+        private MethodBodyStatement[] BuildReadNextPageWithUtf8JsonReader(
+            VariableExpression nextPageVar,
+            ValueExpression contentExpression,
+            IReadOnlyList<string> segments,
+            bool declareVariable = false)
+        {
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var readerVar = new VariableExpression(typeof(Utf8JsonReader), "reader");
+
+            MethodBodyStatement initStatement = declareVariable
+                ? Declare(nextPageVar, Null)
+                : nextPageVar.Assign(Null).Terminate();
+
+            return
+            [
+                // Initialize next page variable to null
+                initStatement,
+                // Declare data from the response content
+                Declare(dataVar, contentExpression),
+                // Declare reader from the data span
+                Declare(readerVar, New.Instance(typeof(Utf8JsonReader), ReadOnlyMemorySnippets.Span(dataVar.As<BinaryData>().ToMemory()))),
+                // Read past the root StartObject token
+                readerVar.Read().Terminate(),
+                // Navigate the JSON path and assign the next page value
+                BuildReaderLoopForSegments(readerVar, nextPageVar, segments, 0)
+            ];
+        }
+
+        /// <summary>
+        /// Recursively builds a while loop that navigates a JSON reader through the given property segments
+        /// and assigns the found value to the target variable.
+        /// </summary>
+        private WhileStatement BuildReaderLoopForSegments(
+            VariableExpression reader,
+            VariableExpression targetVar,
+            IReadOnlyList<string> segments,
+            int segmentIndex)
+        {
+            var propertyName = segments[segmentIndex];
+            bool isLastSegment = segmentIndex == segments.Count - 1;
+
+            // Condition: reader.TokenType == PropertyName && reader.ValueTextEquals(propertyName)
+            var isPropertyMatch = reader.TokenType().Equal(JsonTokenTypeSnippets.PropertyName)
+                .And(reader.ValueTextEquals(propertyName));
+
+            var loop = new WhileStatement(reader.Read());
+
+            // Build the "found property" handler
+            var foundPropertyStatement = new IfStatement(isPropertyMatch);
+            if (isLastSegment)
+            {
+                // Read the value and assign to target
+                foreach (var stmt in BuildTerminalPropertyReadStatements(reader, targetVar))
+                    foundPropertyStatement.Add(stmt);
+            }
+            else
+            {
+                // Navigate into the nested object
+                var innerLoop = BuildReaderLoopForSegments(reader, targetVar, segments, segmentIndex + 1);
+                foundPropertyStatement.Add(reader.Read().Terminate());
+                foundPropertyStatement.Add(new IfStatement(reader.TokenType().Equal(JsonTokenTypeSnippets.StartObject)) { innerLoop });
+                foundPropertyStatement.Add(Break);
+            }
+
+            loop.Add(foundPropertyStatement);
+
+            // Skip nested objects/arrays that appear as property values to avoid false property name matches
+            loop.Add(new IfStatement(
+                reader.TokenType().Equal(JsonTokenTypeSnippets.StartObject)
+                    .Or(reader.TokenType().Equal(JsonTokenTypeSnippets.StartArray)))
+            {
+                reader.Skip().Terminate()
+            });
+
+            return loop;
+        }
+
+        /// <summary>
+        /// Builds the statements to read the terminal property value from the reader and assign it to the target variable.
+        /// </summary>
+        private static MethodBodyStatement[] BuildTerminalPropertyReadStatements(
+            VariableExpression reader,
+            VariableExpression targetVar)
+        {
+            if (targetVar.Type.Equals(typeof(Uri)))
+            {
+                // Read the string value and convert to Uri if non-empty
+                var strVar = new VariableExpression(typeof(string), "nextPageStr");
+                return
+                [
+                    reader.Read().Terminate(),
+                    Declare(strVar, reader.GetString()),
+                    new IfStatement(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), strVar)))
+                    {
+                        targetVar.Assign(New.Instance<Uri>(strVar, FrameworkEnumValue(UriKind.RelativeOrAbsolute))).Terminate()
+                    },
+                    Break
+                ];
+            }
+
+            // Read the string value directly
+            return
+            [
+                reader.Read().Terminate(),
+                targetVar.Assign(reader.GetString()).Terminate(),
+                Break
+            ];
         }
 
         private MethodBodyStatement[] BuildGetRawPagesForNextLink()
@@ -509,6 +639,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
+                    // For the untyped CollectionResult (no item model type), use Utf8JsonReader to read only
+                    // the specific properties needed from the response, avoiding full model deserialization.
+                    if (ItemModelType == null)
+                    {
+                        var contentExpression = result.GetRawResponse().Content();
+                        var readStatements = BuildReadNextPageWithUtf8JsonReader(nextPage, contentExpression, NextPagePropertySegments);
+
+                        IfStatement nullCheckCondition = nextPage.Type.Equals(typeof(Uri))
+                            ? new IfStatement(nextPage.Equal(Null))
+                            : new IfStatement(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPage));
+                        nullCheckCondition.Add(YieldBreak());
+
+                        return [.. readStatements, nullCheckCondition];
+                    }
+
                     var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, responseModel);
                     if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
                     {

@@ -14,5 +14,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static ValueExpression StartObject => FrameworkEnumValue(JsonTokenType.StartObject);
         public static ValueExpression EndObject => FrameworkEnumValue(JsonTokenType.EndObject);
         public static ValueExpression Null => FrameworkEnumValue(JsonTokenType.Null);
+        public static ValueExpression PropertyName => FrameworkEnumValue(JsonTokenType.PropertyName);
     }
 }
