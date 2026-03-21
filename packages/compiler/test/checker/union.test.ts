@@ -70,6 +70,14 @@ describe("declarations", () => {
     strictEqual(varXType.kind, "Scalar");
     strictEqual(varXType.name, "int32");
   });
+
+  it("supports interpolated union declaration names", async () => {
+    const { UnionA } = await Tester.compile(t.code`
+      const suffix = "A";
+      @test union ${t.union("UnionA")} { variant: string };
+    `);
+    strictEqual(UnionA.kind, "Union");
+  });
 });
 
 describe("expressions", () => {

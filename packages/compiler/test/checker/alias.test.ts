@@ -135,6 +135,18 @@ describe("compiler: aliases", () => {
     strictEqual(Baz.properties.get("x")!.type, Bar);
   });
 
+  it("disallows interpolated alias declaration names", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      alias \`Alias\${"A"}\` = string;
+      `,
+    );
+
+    const diagnostics = await testHost.diagnose("./");
+    expectDiagnostics(diagnostics, [{ code: "invalid-interpolated-identifier-context" }]);
+  });
+
   it("model expression defined in alias use containing namespace", async () => {
     const { Test, Foo } = await Tester.compile(t.code`
       namespace ${t.namespace("Foo")} {

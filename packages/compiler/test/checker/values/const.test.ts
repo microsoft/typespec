@@ -34,6 +34,11 @@ it("declare const in namespace", async () => {
   strictEqual(value.value.asNumber(), 123);
 });
 
+it("disallows interpolated const declaration names", async () => {
+  const diagnostics = await diagnoseUsage(`┆const \`Const\${"A"}\` = "ok";┆`);
+  expectDiagnostics(diagnostics.diagnostics, [{ code: "invalid-interpolated-identifier-context" }]);
+});
+
 describe("invalid assignment", () => {
   async function expectInvalidAssignment(code: string) {
     const { diagnostics, pos, end } = await diagnoseUsage(code);

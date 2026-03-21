@@ -19,6 +19,24 @@ describe("compiler: enums", () => {
     ok(!E.members.get("C")!.value);
   });
 
+  it("supports interpolated enum and enum member names", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      const suffix = "A";
+      @test enum \`E\${suffix}\` {
+        \`M\${suffix}\`
+      }
+      `,
+    );
+
+    const { EA } = (await testHost.compile("./")) as {
+      EA: Enum;
+    };
+
+    ok(EA.members.get("MA"));
+  });
+
   it("can have values", async () => {
     const { E, A, B, C } = await Tester.compile(t.code`
       enum ${t.enum("E")} {

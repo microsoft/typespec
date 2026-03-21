@@ -43,6 +43,18 @@ describe("compiler: namespaces with blocks", () => {
     strictEqual(Test.kind, "Namespace" as const);
   });
 
+  it("disallows interpolated namespace declaration names", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      namespace \`Ns\${"A"}\` {}
+      `,
+    );
+
+    const diagnostics = await testHost.diagnose("./");
+    expectDiagnostics(diagnostics, [{ code: "invalid-interpolated-identifier-context" }]);
+  });
+
   it("merges like namespaces", async () => {
     const { N, X, Y, Z } = await Tester.compile(t.code`
       namespace ${t.namespace("N")} { model ${t.model("X")} { x: string } }
