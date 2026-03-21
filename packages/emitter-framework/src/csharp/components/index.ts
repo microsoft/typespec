@@ -4,4 +4,5 @@ export * from "./extensible-enum/extensible-enum.jsx";
 export * from "./json-converter/json-converter-resolver.jsx";
 export * from "./json-converter/json-converter.jsx";
 export * from "./property/property.jsx";
+export * from "./struct/struct.jsx";
 export * from "./type-expression.jsx";
