@@ -30,7 +30,7 @@ npm install [path-to-typespec-http-client-java-tgz]
 
 ## End-to-end Tests
 
-There is 2 end-to-end test modules:
+There are 2 end-to-end test modules:
 
 - `packages/http-client-java/generator/http-client-generator-clientcore-test` for testing of unbranded code
 - `packages/http-client-java/generator/http-client-generator-test` for testing of branded code
