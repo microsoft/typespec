@@ -2676,7 +2676,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         // Error recovery: If a list *is* surrounded by punctuation, then
         // the list ends at statement keyword or end-of-file under the
         // assumption that the closing delimiter is missing. This check is
-        // duplicated from above to preempt the parseExpected(delimeter)
+        // duplicated from above to preempt the parseExpected(delimiter)
         // below.
         if (parseExpected(kind.close)) {
           mutate(r.range).end = previousTokenEnd;

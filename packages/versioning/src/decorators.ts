@@ -391,7 +391,7 @@ export function getUseDependencies(
     while (current) {
       const data = getNamespaceUseDependencyState(program, current);
       if (!data) {
-        // See if the namspace has a version enum
+        // See if the namespace has a version enum
         if (searchEnum) {
           const versions = getVersion(program, current)?.getVersions();
           if (versions?.length) {

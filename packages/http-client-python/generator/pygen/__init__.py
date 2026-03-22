@@ -222,7 +222,7 @@ class ReaderAndWriter:
         kwargs["output-folder"] = str(self.output_folder)
         self.options = OptionsDict(kwargs)
         if python_json:
-            _LOGGER.warning("Loading python.json file. This behavior will be depreacted")
+            _LOGGER.warning("Loading python.json file. This behavior will be deprecated")
         self.options.update(python_json)
 
     def read_file(self, path: Union[str, Path]) -> str:

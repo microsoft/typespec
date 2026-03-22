@@ -4,7 +4,7 @@ import { createDiagnostic } from "./lib.js";
 /**
  * Resolve the content types from a model property by looking at the value.
  * @property property Model property
- * @returns List of contnet types and any diagnostics if there was an issue.
+ * @returns List of content types and any diagnostics if there was an issue.
  */
 export function getContentTypes(property: ModelProperty): [string[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();

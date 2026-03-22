@@ -617,7 +617,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version }) => {
     });
   });
 
-  it("parmeter with default value and $ref wraps $ref in allOf in OpenAPI 3.0 only", async () => {
+  it("parameter with default value and $ref wraps $ref in allOf in OpenAPI 3.0 only", async () => {
     const res = await openApiFor(
       `
       enum Example { a, b}

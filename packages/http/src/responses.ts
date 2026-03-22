@@ -128,7 +128,7 @@ function processResponseType(
       treatContentTypeAsHeader: verb === "head",
     }),
   );
-  // Get explicity defined status codes
+  // Get explicitly defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
     getResponseStatusCodes(program, responseType, metadata),
   );
@@ -183,7 +183,7 @@ function processResponseType(
 }
 
 /**
- * Get explicity defined status codes from response type and metadata
+ * Get explicitly defined status codes from response type and metadata
  * Return is an array of strings, possibly empty, which indicates no explicitly defined status codes.
  * We do not check for duplicates here -- that will be done by the caller.
  */
