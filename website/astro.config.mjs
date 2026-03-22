@@ -49,6 +49,18 @@ export default defineConfig({
             src: "1ds-init.js",
           },
         },
+        {
+          tag: "script",
+          attrs: {
+            type: "module",
+          },
+          content: `const els = document.querySelectorAll("pre.mermaid");
+if (els.length > 0) {
+  const { default: mermaid } = await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs");
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run({ nodes: els });
+}`,
+        },
       ],
       social: [
         {
@@ -70,7 +82,7 @@ export default defineConfig({
     // @ts-expect-error wrong type
     remarkPlugins: [remarkHeadingID],
     rehypePlugins: [
-      rehypeMermaid,
+      [rehypeMermaid, { strategy: "pre-mermaid" }],
       [rehypeAstroRelativeMarkdownLinks, { base, collectionBase: false, trailingSlash: "always" }],
     ],
     shikiConfig: {
