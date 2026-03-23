@@ -1249,7 +1249,13 @@ export function createServer(
           if (!s || s.length <= 0) {
             return;
           }
-          if (s[0] === sym[0] || (sym[0].type && s[0].type === sym[0].type)) {
+          if (
+            s.some((candidate) =>
+              sym.some(
+                (target) => candidate === target || (target.type && candidate.type === target.type),
+              ),
+            )
+          ) {
             references.push(node);
           }
         }

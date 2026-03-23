@@ -2837,13 +2837,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (sym) {
-      if (sym.symbolSource) {
-        return [sym.symbolSource];
-      } else {
-        return [sym];
+      const relatedSource = getRelatedSymbolSource(sym);
+      if (relatedSource) {
+        return sym.flags & SymbolFlags.LateBound ? [sym, relatedSource] : [relatedSource];
       }
+      return [sym];
     }
     return undefined; //sym?.symbolSource ?? sym;
+  }
+
+  function getRelatedSymbolSource(sym: Sym): Sym | undefined {
+    if (sym.symbolSource) {
+      return sym.symbolSource;
+    }
+
+    const type = sym.type;
+    if (type && isType(type)) {
+      return getTemplateAccessSymbolSource(type);
+    }
+
+    return undefined;
   }
 
   function getTemplateDeclarationsForArgument(ctx: CheckContext, node: TemplateArgumentNode) {
@@ -4024,10 +4037,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function getCanonicalResolvedMemberType(
+  function getCanonicalResolvedMemberSymbol(
     containerType: Type,
     memberName: string,
-  ): Type | undefined {
+  ): Sym | undefined {
     switch (containerType.kind) {
       case "Model":
       case "Interface":
@@ -4040,20 +4053,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const containerSymbol = containerType.symbol;
-    if (
-      containerSymbol === undefined ||
-      !(containerSymbol.flags & SymbolFlags.LateBound) ||
-      !containerSymbol.members
-    ) {
+    if (containerSymbol === undefined || !containerSymbol.members) {
       return undefined;
     }
 
-    const existingMember = getMemberSymbol(containerSymbol, memberName);
-    if (!existingMember?.type) {
+    let memberSymbol = getMemberSymbol(containerSymbol, memberName);
+    if (!memberSymbol?.type && containerSymbol.flags & SymbolFlags.LateBound) {
       lateBindMembers(containerType);
+      memberSymbol = getMemberSymbol(containerSymbol, memberName);
     }
 
-    const memberType = getMemberSymbol(containerSymbol, memberName)?.type;
+    return memberSymbol;
+  }
+
+  function getCanonicalResolvedMemberType(
+    containerType: Type,
+    memberName: string,
+  ): Type | undefined {
+    const memberType = getCanonicalResolvedMemberSymbol(containerType, memberName)?.type;
     return memberType && isType(memberType) ? memberType : undefined;
   }
 
@@ -4421,14 +4438,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
-    const resolvedType =
-      node.selector === "."
-        ? resolveMemberTypeFromConstraint(resolvedBaseType, node.id.sv)
-        : resolveMetaTypeFromConstraint(ctx, resolvedBaseType, node);
-    if (!resolvedType) {
-      return undefined;
-    }
-
     if (node.selector === ".") {
       const table = base.exports ?? base.members;
       if (table) {
@@ -4437,6 +4446,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           return directMember;
         }
       }
+
+      const canonicalMember = getCanonicalResolvedMemberSymbol(resolvedBaseType, node.id.sv);
+      if (canonicalMember) {
+        return canonicalMember;
+      }
+    }
+
+    const resolvedType =
+      node.selector === "."
+        ? resolveMemberTypeFromConstraint(resolvedBaseType, node.id.sv)
+        : resolveMetaTypeFromConstraint(ctx, resolvedBaseType, node);
+    if (!resolvedType) {
+      return undefined;
     }
 
     if (
@@ -4488,6 +4510,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function getModelPropertySymbolSource(type: ModelProperty): Sym | undefined {
+    let fallback: Sym | undefined;
     for (
       let property: ModelProperty | undefined = type;
       property;
@@ -4500,10 +4523,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           : undefined) ??
         getTypeSymbol(property);
       if (symbolSource) {
-        return symbolSource;
+        fallback ??= symbolSource;
+        if (!property.sourceProperty) {
+          return symbolSource;
+        }
       }
     }
-    return undefined;
+    return fallback;
   }
 
   /**
@@ -6581,10 +6607,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function getDocCommentForSymbol(sym: Sym | undefined): string | undefined {
-    return sym
-      ? (docFromCommentForSym.get(sym) ??
-          (sym.symbolSource && docFromCommentForSym.get(sym.symbolSource)))
-      : undefined;
+    if (!sym) {
+      return undefined;
+    }
+
+    const relatedSource = getRelatedSymbolSource(sym);
+    return (
+      docFromCommentForSym.get(sym) ??
+      (relatedSource && docFromCommentForSym.get(relatedSource)) ??
+      (sym.flags & SymbolFlags.LateBound && sym.type && isType(sym.type)
+        ? getDocCommentForType(sym.type)
+        : undefined)
+    );
   }
 
   function getDocCommentForType(type: Type | undefined): string | undefined {

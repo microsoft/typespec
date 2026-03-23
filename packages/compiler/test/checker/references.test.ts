@@ -792,6 +792,22 @@ describe("compiler: references", () => {
         ref: "WrappedParameters.value::type.wrappedSelection",
       }));
 
+    describe("Operation::parameters through nested wrappers over templated operation instances", () =>
+      itCanReference({
+        code: `
+          op testOp<T>(@test("target") wrappedSelection: T, other: string): void;
+          model ParametersWrapper<O extends Reflection.Operation> {
+            value: O::parameters;
+          }
+          model ModelWrapper<M extends Reflection.Model> {
+            value: M;
+          }
+          alias WrappedParameters = ParametersWrapper<testOp<string>>;
+          alias WrappedAgain = ModelWrapper<WrappedParameters.value::type>;
+        `,
+        ref: "WrappedAgain.value::type.wrappedSelection",
+      }));
+
     it("emits a diagnostic when referencing a non-existent meta type property", async () => {
       const diagnostics = await Tester.diagnose(`
         model A {

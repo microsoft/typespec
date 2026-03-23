@@ -6,6 +6,14 @@ import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: operations", () => {
+  function getRootSourceProperty(property: any) {
+    let current = property;
+    while (current?.sourceProperty) {
+      current = current.sourceProperty;
+    }
+    return current;
+  }
+
   it("can return void", async () => {
     const { foo } = await Tester.compile(t.code`
       op ${t.op("foo")}(): void;
@@ -70,6 +78,33 @@ describe("compiler: operations", () => {
     `);
     strictEqual(getDoc(program, b.parameters.properties.get("one")!), "override for b");
     strictEqual(getDoc(program, c.parameters.properties.get("one")!), "base doc");
+  });
+
+  it("preserves canonical parameter type and source identity through nested template access wrappers", async () => {
+    const { direct, target } = await Tester.compile(t.code`
+      model Box<T> {
+        value: T;
+      }
+      op source<T>(wrappedSelection: Box<T>, other: string): void;
+      model ParametersWrapper<O extends Reflection.Operation> {
+        value: O::parameters;
+      }
+      model ModelWrapper<M extends Reflection.Model> {
+        value: M;
+      }
+      alias WrappedParameters = ParametersWrapper<source<string>>;
+      alias WrappedAgain = ModelWrapper<WrappedParameters.value::type>;
+      op ${t.op("target")}(...WrappedAgain.value::type): void;
+      op ${t.op("direct")} is source<string>;
+    `);
+
+    const targetSelection = target.parameters.properties.get("wrappedSelection");
+    const directSelection = direct.parameters.properties.get("wrappedSelection");
+    ok(targetSelection);
+    ok(directSelection);
+
+    strictEqual(targetSelection.type, directSelection.type);
+    strictEqual(getRootSourceProperty(targetSelection), getRootSourceProperty(directSelection));
   });
 
   it("can be templated and referenced to define other operations", async () => {
