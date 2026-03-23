@@ -3883,7 +3883,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // This should not crash — previously it threw due to duplicate field names
             Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
 
-            // Verify we have two distinct api version fields using the full namespace
+            // Verify we have two distinct api version fields using the shortest unique namespace suffix
             var apiVersionFields = clientProvider!.Fields
                 .Where(f => f.Name.Contains("ApiVersion", StringComparison.OrdinalIgnoreCase))
                 .OrderBy(f => f.Name)
@@ -3891,9 +3891,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(2, apiVersionFields.Count);
             Assert.AreNotEqual(apiVersionFields[0].Name, apiVersionFields[1].Name);
 
-            // Full namespace produces unique names: "Azure.ServiceOne.Tests" → "AzureServiceOneTests"
-            Assert.AreEqual("_azureServiceOneTestsApiVersion", apiVersionFields[0].Name);
-            Assert.AreEqual("_azureServiceTwoTestsApiVersion", apiVersionFields[1].Name);
+            // Shortest unique suffix: "ServiceOne.Tests" → "ServiceOneTests"
+            Assert.AreEqual("_serviceOneTestsApiVersion", apiVersionFields[0].Name);
+            Assert.AreEqual("_serviceTwoTestsApiVersion", apiVersionFields[1].Name);
         }
 
         [TestCase("{endpoint}")]

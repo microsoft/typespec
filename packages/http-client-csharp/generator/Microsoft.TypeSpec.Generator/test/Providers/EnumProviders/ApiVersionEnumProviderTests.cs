@@ -214,10 +214,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
         }
 
         [Test]
-        public void MultiServiceClient_WithCollidingLastSegments_UsesFullNamespace()
+        public void MultiServiceClient_WithCollidingLastSegments_UsesShortestUniquePrefix()
         {
             // When two services have different full namespaces but the same last segment,
-            // the full namespace should be used to avoid collisions.
+            // the shortest unique namespace suffix should be used to avoid collisions.
             var serviceOneEnum = InputFactory.StringEnum(
                 "ServiceOneVersion",
                 [("1.0", "1.0"), ("2.0", "2.0")],
@@ -247,9 +247,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.IsTrue(serviceTwoEnumType is ApiVersionEnumProvider);
             var serviceTwoProvider = (ApiVersionEnumProvider)serviceTwoEnumType;
 
-            // Verify enum names use the full namespace for uniqueness when last segments collide
-            Assert.AreEqual("AzureServiceOneTestsVersion", serviceOneProvider.Name);
-            Assert.AreEqual("AzureServiceTwoTestsVersion", serviceTwoProvider.Name);
+            // Verify enum names use the shortest unique namespace suffix (2 segments: ServiceOne.Tests)
+            Assert.AreEqual("ServiceOneTestsVersion", serviceOneProvider.Name);
+            Assert.AreEqual("ServiceTwoTestsVersion", serviceTwoProvider.Name);
 
             // Validate generated output
             var writerOne = new TypeProviderWriter(serviceOneProvider);

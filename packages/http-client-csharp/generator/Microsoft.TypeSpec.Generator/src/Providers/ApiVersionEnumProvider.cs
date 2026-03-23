@@ -45,17 +45,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         return ClientHelper.BuildNameForService(serviceNamespace, string.Empty, ApiVersionEnumName);
                     }
 
-                    // Last segment collides — use the full namespace.
-                    string fullNamespaceName = $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}";
-
-                    // If the full namespace also collides (multiple enums share the exact same namespace),
-                    // append the enum's input name for disambiguation.
-                    if (ClientHelper.HasFullNamespaceCollision(serviceNamespace, _inputEnum, apiVersionEnums))
-                    {
-                        return $"{serviceNamespace.ToIdentifierName()}{_inputEnum.Name.ToIdentifierName()}{VersionSuffix}";
-                    }
-
-                    return fullNamespaceName;
+                    // Last segment collides — find the shortest unique namespace suffix.
+                    string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, _inputEnum, apiVersionEnums);
+                    return $"{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
                 }
             }
 

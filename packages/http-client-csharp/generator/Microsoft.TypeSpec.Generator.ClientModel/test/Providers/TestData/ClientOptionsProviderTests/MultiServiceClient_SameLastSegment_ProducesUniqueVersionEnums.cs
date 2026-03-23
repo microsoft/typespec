@@ -11,21 +11,21 @@ namespace Sample
 {
     public partial class TestClientOptions : global::System.ClientModel.Primitives.ClientPipelineOptions
     {
-        private const global::Sample.TestClientOptions.AzureServiceOneTestsVersion LatestAzureServiceOneTestsVersion = global::Sample.TestClientOptions.AzureServiceOneTestsVersion.V2_0;
-        private const global::Sample.TestClientOptions.AzureServiceTwoTestsVersion LatestAzureServiceTwoTestsVersion = global::Sample.TestClientOptions.AzureServiceTwoTestsVersion.V4_0;
+        private const global::Sample.TestClientOptions.ServiceOneTestsVersion LatestServiceOneTestsVersion = global::Sample.TestClientOptions.ServiceOneTestsVersion.V2_0;
+        private const global::Sample.TestClientOptions.ServiceTwoTestsVersion LatestServiceTwoTestsVersion = global::Sample.TestClientOptions.ServiceTwoTestsVersion.V4_0;
 
-        public TestClientOptions(global::Sample.TestClientOptions.AzureServiceOneTestsVersion azureServiceOneTestsVersion = LatestAzureServiceOneTestsVersion, global::Sample.TestClientOptions.AzureServiceTwoTestsVersion azureServiceTwoTestsVersion = LatestAzureServiceTwoTestsVersion)
+        public TestClientOptions(global::Sample.TestClientOptions.ServiceOneTestsVersion serviceOneTestsVersion = LatestServiceOneTestsVersion, global::Sample.TestClientOptions.ServiceTwoTestsVersion serviceTwoTestsVersion = LatestServiceTwoTestsVersion)
         {
-            AzureServiceOneTestsApiVersion = azureServiceOneTestsVersion switch
+            ServiceOneTestsApiVersion = serviceOneTestsVersion switch
             {
-                global::Sample.TestClientOptions.AzureServiceOneTestsVersion.V1_0 => "1.0",
-                global::Sample.TestClientOptions.AzureServiceOneTestsVersion.V2_0 => "2.0",
+                global::Sample.TestClientOptions.ServiceOneTestsVersion.V1_0 => "1.0",
+                global::Sample.TestClientOptions.ServiceOneTestsVersion.V2_0 => "2.0",
                 _ => throw new global::System.NotSupportedException()
             };
-            AzureServiceTwoTestsApiVersion = azureServiceTwoTestsVersion switch
+            ServiceTwoTestsApiVersion = serviceTwoTestsVersion switch
             {
-                global::Sample.TestClientOptions.AzureServiceTwoTestsVersion.V3_0 => "3.0",
-                global::Sample.TestClientOptions.AzureServiceTwoTestsVersion.V4_0 => "4.0",
+                global::Sample.TestClientOptions.ServiceTwoTestsVersion.V3_0 => "3.0",
+                global::Sample.TestClientOptions.ServiceTwoTestsVersion.V4_0 => "4.0",
                 _ => throw new global::System.NotSupportedException()
             };
         }
@@ -33,33 +33,33 @@ namespace Sample
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0002")]
         internal TestClientOptions(global::Microsoft.Extensions.Configuration.IConfigurationSection section) : base(section)
         {
-            AzureServiceOneTestsApiVersion = "2.0";
-            AzureServiceTwoTestsApiVersion = "4.0";
+            ServiceOneTestsApiVersion = "2.0";
+            ServiceTwoTestsApiVersion = "4.0";
             if (((section is null) || !section.Exists()))
             {
                 return;
             }
-            if ((section["AzureServiceOneTestsApiVersion"] is string azureServiceOneTestsApiVersion))
+            if ((section["ServiceOneTestsApiVersion"] is string serviceOneTestsApiVersion))
             {
-                this.AzureServiceOneTestsApiVersion = azureServiceOneTestsApiVersion;
+                this.ServiceOneTestsApiVersion = serviceOneTestsApiVersion;
             }
-            if ((section["AzureServiceTwoTestsApiVersion"] is string azureServiceTwoTestsApiVersion))
+            if ((section["ServiceTwoTestsApiVersion"] is string serviceTwoTestsApiVersion))
             {
-                this.AzureServiceTwoTestsApiVersion = azureServiceTwoTestsApiVersion;
+                this.ServiceTwoTestsApiVersion = serviceTwoTestsApiVersion;
             }
         }
 
-        internal string AzureServiceOneTestsApiVersion { get; }
+        internal string ServiceOneTestsApiVersion { get; }
 
-        internal string AzureServiceTwoTestsApiVersion { get; }
+        internal string ServiceTwoTestsApiVersion { get; }
 
-        public enum AzureServiceOneTestsVersion
+        public enum ServiceOneTestsVersion
         {
             V1_0 = 1,
             V2_0 = 2
         }
 
-        public enum AzureServiceTwoTestsVersion
+        public enum ServiceTwoTestsVersion
         {
             V3_0 = 1,
             V4_0 = 2

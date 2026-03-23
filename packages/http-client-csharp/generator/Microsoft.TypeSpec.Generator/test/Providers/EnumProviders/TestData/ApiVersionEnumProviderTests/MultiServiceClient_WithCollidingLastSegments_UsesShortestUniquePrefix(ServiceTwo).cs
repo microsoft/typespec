@@ -4,7 +4,7 @@
 
 namespace Azure.ServiceTwo.Tests
 {
-    public enum AzureServiceTwoTestsVersion
+    public enum ServiceTwoTestsVersion
     {
         V3_0 = 1,
         V4_0 = 2

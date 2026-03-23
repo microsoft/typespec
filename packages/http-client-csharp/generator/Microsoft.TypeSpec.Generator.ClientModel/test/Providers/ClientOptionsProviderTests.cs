@@ -760,12 +760,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void MultiServiceClient_OriginalIssueSpec_ProducesUniqueVersionEnums()
+        public void MultiServiceClient_UniqueNamespaces_ProducesUniqueVersionEnums()
         {
-            // Simulates the spec from the original issue #10055:
-            // ServiceOne (namespace ServiceOne) with Versions enum (2024-01-01)
-            // ServiceTwo (namespace ServiceTwo) with Versions enum (2024-06-01)
-            // Combined in a multi-service client
             List<string> serviceOneVersions = ["2024-01-01"];
             List<string> serviceTwoVersions = ["2024-06-01"];
 
@@ -846,8 +842,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         {
             // Regression test for the scenario where both enums share the exact same namespace
             // (e.g., when tspconfig remaps both services to the same C# output namespace).
-            // This is the actual crash scenario from issue #10055 where the mgmt emitter
-            // remaps both ServiceOne.Versions and ServiceTwo.Versions to the same namespace.
             List<string> serviceOneVersions = ["2024-01-01"];
             List<string> serviceTwoVersions = ["2024-06-01"];
 
@@ -901,8 +895,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
             Assert.IsNotNull(clientProvider);
 
-            // The key validation: accessing Fields and Methods must not crash
-            // (this was the original crash site from issue #10055)
             Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
             Assert.DoesNotThrow(() => _ = clientProvider!.Methods);
 

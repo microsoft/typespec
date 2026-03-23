@@ -145,10 +145,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (!string.IsNullOrEmpty(serviceNamespace) &&
                         ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
                     {
-                        // Last segment collides — use the full namespace.
-                        versionPropertyName = ClientHelper.HasFullNamespaceCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys)
-                            ? $"{serviceNamespace.ToIdentifierName()}{inputEnum.Name.ToIdentifierName()}{ApiVersionSuffix}"
-                            : $"{serviceNamespace.ToIdentifierName()}{ApiVersionSuffix}";
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        versionPropertyName = $"{uniquePrefix.ToIdentifierName()}{ApiVersionSuffix}";
                     }
                     else
                     {
@@ -191,10 +190,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (!string.IsNullOrEmpty(serviceNamespace) &&
                         ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
                     {
-                        // Last segment collides — use the full namespace.
-                        fieldName = ClientHelper.HasFullNamespaceCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys)
-                            ? $"{LatestPrefix}{serviceNamespace.ToIdentifierName()}{inputEnum.Name.ToIdentifierName()}{VersionSuffix}"
-                            : $"{LatestPrefix}{serviceNamespace.ToIdentifierName()}{VersionSuffix}";
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        fieldName = $"{LatestPrefix}{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
                     }
                     else
                     {
