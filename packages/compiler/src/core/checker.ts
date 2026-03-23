@@ -2818,14 +2818,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           }
         }
         sym = resolveTypeReferenceSym(ctx, ref, resolveDecorator);
-        if (sym && !sym.symbolSource && sym.declarations.length === 0) {
-          const resolvedEntity = checkTypeOrValueReference(ctx, ref, resolveDecorator);
-          if (resolvedEntity && "kind" in resolvedEntity) {
-            sym = getTemplateAccessSymbolSource(resolvedEntity) ?? sym;
-          } else if (resolvedEntity?.entityKind === "Indeterminate") {
-            sym = getTemplateAccessSymbolSource(resolvedEntity.type) ?? sym;
-          }
-        }
         break;
       case IdentifierKind.TemplateArgument:
         const templates = getTemplateDeclarationsForArgument(ctx, node as TemplateArgumentNode);
@@ -3436,7 +3428,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     function addCompletion(key: string, sym: Sym, options: { suffix?: string } = {}) {
-      if (sym.symbolSource) {
+      if (sym.symbolSource && !(sym.flags & SymbolFlags.LateBound)) {
         sym = sym.symbolSource;
       }
       if (!shouldAddCompletion(sym)) {
@@ -3714,7 +3706,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const resolvedType =
       node.selector === "."
-        ? resolveMemberTypeFromConstraint(ctx, mapped, node.id.sv)
+        ? resolveMemberTypeFromConstraint(mapped, node.id.sv)
         : resolveMetaTypeFromConstraint(ctx, mapped, node);
     if (!resolvedType) {
       return undefined;
@@ -3747,11 +3739,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return canonicalMemberSymbol;
     }
 
-    const canonicalContainerSymbol = getCanonicalTemplateAccessContainerSymbol(type);
-    if (canonicalContainerSymbol) {
-      return canonicalContainerSymbol;
-    }
-
     if (!shouldUseLateBoundTemplateAccessType(type)) {
       return getTypeSymbol(type) ?? createLateBoundTypeSymbol(node, type);
     }
@@ -3772,21 +3759,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return getExactInstantiatedMemberSymbol(type.union?.symbol, type.name, type);
       case "ScalarConstructor":
         return getExactInstantiatedMemberSymbol(type.scalar?.symbol, type.name, type);
-      default:
-        return undefined;
-    }
-  }
-
-  function getCanonicalTemplateAccessContainerSymbol(type: Type): Sym | undefined {
-    switch (type.kind) {
-      case "Model":
-      case "Interface":
-      case "Union":
-        lateBindMemberContainer(type);
-        if (type.symbol?.members) {
-          lateBindMembers(type);
-        }
-        return type.symbol;
       default:
         return undefined;
     }
@@ -3907,7 +3879,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const resolvedType =
       node.selector === "."
-        ? resolveMemberTypeFromConstraint(ctx, baseType, node.id.sv)
+        ? resolveMemberTypeFromConstraint(baseType, node.id.sv)
         : resolveMetaTypeFromConstraint(ctx, baseType, node);
 
     if (!resolvedType) {
@@ -3936,7 +3908,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       return baseEntity.node.selector === "."
-        ? resolveMemberTypeFromConstraint(ctx, mappedBaseType, baseEntity.node.id.sv)
+        ? resolveMemberTypeFromConstraint(mappedBaseType, baseEntity.node.id.sv)
         : resolveMetaTypeFromConstraint(ctx, mappedBaseType, baseEntity.node);
     }
 
@@ -4023,11 +3995,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   /** Resolve `.` access from a constrained type by kind-specific member lookup. */
   function resolveMemberTypeFromConstraint(
-    ctx: CheckContext,
     constraintType: Type,
     memberName: string,
   ): Type | undefined {
-    const canonicalMemberType = getCanonicalResolvedMemberType(ctx, constraintType, memberName);
+    const canonicalMemberType = getCanonicalResolvedMemberType(constraintType, memberName);
     if (canonicalMemberType) {
       return canonicalMemberType;
     }
@@ -4054,7 +4025,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function getCanonicalResolvedMemberType(
-    ctx: CheckContext,
     containerType: Type,
     memberName: string,
   ): Type | undefined {
@@ -4070,25 +4040,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const containerSymbol = containerType.symbol;
-    if (!containerSymbol?.members) {
+    if (
+      containerSymbol === undefined ||
+      !(containerSymbol.flags & SymbolFlags.LateBound) ||
+      !containerSymbol.members
+    ) {
       return undefined;
     }
 
-    if (containerSymbol.flags & SymbolFlags.LateBound) {
+    const existingMember = getMemberSymbol(containerSymbol, memberName);
+    if (!existingMember?.type) {
       lateBindMembers(containerType);
     }
 
-    const memberSymbol = getMemberSymbol(containerSymbol, memberName);
-    if (!memberSymbol) {
-      return undefined;
-    }
-
-    if (memberSymbol.type && isType(memberSymbol.type)) {
-      return memberSymbol.type;
-    }
-
-    const checkedMemberType = checkMemberSym(ctx, memberSymbol);
-    return isErrorType(checkedMemberType) ? undefined : checkedMemberType;
+    const memberType = getMemberSymbol(containerSymbol, memberName)?.type;
+    return memberType && isType(memberType) ? memberType : undefined;
   }
 
   /**
@@ -4236,10 +4202,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const symbol = createSymbol(node, node.id.sv, SymbolFlags.LateBound);
     mutate(symbol).type = type;
-    const symbolSource = getTemplateAccessSymbolSource(constraintType);
-    if (symbolSource) {
-      mutate(symbol).symbolSource = symbolSource;
-    }
     if (useCache) {
       templateAccessSymbolCache.set(cacheKey, symbol);
     }
@@ -4461,7 +4423,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const resolvedType =
       node.selector === "."
-        ? resolveMemberTypeFromConstraint(ctx, resolvedBaseType, node.id.sv)
+        ? resolveMemberTypeFromConstraint(resolvedBaseType, node.id.sv)
         : resolveMetaTypeFromConstraint(ctx, resolvedBaseType, node);
     if (!resolvedType) {
       return undefined;
@@ -4472,16 +4434,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (table) {
         const directMember = resolver.getAugmentedSymbolTable(table).get(node.id.sv);
         if (directMember) {
-          if (
-            !directMember.type &&
-            !directMember.symbolSource &&
-            directMember.declarations.length === 0
-          ) {
-            const directMemberType = checkMemberSym(ctx, directMember);
-            if (!isErrorType(directMemberType)) {
-              return getPreferredTemplateAccessSymbol(node, directMemberType);
-            }
-          }
           return directMember;
         }
       }
@@ -6247,7 +6199,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * access a symbol for a type that is created during the check phase.
    */
   function lateBindMemberContainer(type: Type) {
-    if ((type as any).symbol) return;
+    const existingSymbol = (type as any).symbol as Sym | undefined;
+    if (
+      existingSymbol &&
+      !(isTemplateInstance(type) && !(existingSymbol.flags & SymbolFlags.LateBound))
+    ) {
+      return;
+    }
 
     switch (type.kind) {
       case "Model":
