@@ -66,5 +66,20 @@ namespace Microsoft.TypeSpec.Generator.Shared
                 !string.IsNullOrEmpty(e.Namespace) &&
                 string.Equals(GetLastNamespaceSegment(e.Namespace), lastSegment, StringComparison.OrdinalIgnoreCase));
         }
+        /// <summary>
+        /// Determines whether the full namespace of the given service namespace
+        /// collides with any other enum's full namespace in the collection.
+        /// </summary>
+        /// <param name="serviceNamespace">The namespace to check for collisions.</param>
+        /// <param name="currentEnum">The current enum to exclude from the comparison.</param>
+        /// <param name="apiVersionEnums">All API version enums to compare against.</param>
+        /// <returns>True if another enum has the same full namespace.</returns>
+        public static bool HasFullNamespaceCollision(string serviceNamespace, InputEnumType currentEnum, IEnumerable<InputEnumType> apiVersionEnums)
+        {
+            return apiVersionEnums.Any(e =>
+                e != currentEnum &&
+                !string.IsNullOrEmpty(e.Namespace) &&
+                string.Equals(e.Namespace, serviceNamespace, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

@@ -124,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal IReadOnlyDictionary<EnumProvider, PropertyProvider>? VersionProperties => field ??= BuildVersionProperties();
 
-        private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
+         private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
         {
             if (_serviceVersionsEnums is null)
             {
@@ -142,12 +142,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 else
                 {
                     var serviceNamespace = inputEnum.Namespace;
-                    // Use the full namespace only when the last segment collides;
-                    // otherwise, use BuildNameForService for shorter names.
-                    versionPropertyName = !string.IsNullOrEmpty(serviceNamespace) &&
-                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys)
-                        ? $"{serviceNamespace.ToIdentifierName()}{ApiVersionSuffix}"
-                        : ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, string.Empty, ApiVersionSuffix);
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — use the full namespace.
+                        versionPropertyName = ClientHelper.HasFullNamespaceCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys)
+                            ? $"{serviceNamespace.ToIdentifierName()}{inputEnum.Name.ToIdentifierName()}{ApiVersionSuffix}"
+                            : $"{serviceNamespace.ToIdentifierName()}{ApiVersionSuffix}";
+                    }
+                    else
+                    {
+                        versionPropertyName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, string.Empty, ApiVersionSuffix);
+                    }
                 }
 
                 var versionProperty = new PropertyProvider(
@@ -182,12 +188,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 else
                 {
                     var serviceNamespace = inputEnum.Namespace;
-                    // Use the full namespace only when the last segment collides;
-                    // otherwise, use BuildNameForService for shorter names.
-                    fieldName = !string.IsNullOrEmpty(serviceNamespace) &&
-                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys)
-                        ? $"{LatestPrefix}{serviceNamespace.ToIdentifierName()}{VersionSuffix}"
-                        : ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, LatestPrefix, VersionSuffix);
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — use the full namespace.
+                        fieldName = ClientHelper.HasFullNamespaceCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys)
+                            ? $"{LatestPrefix}{serviceNamespace.ToIdentifierName()}{inputEnum.Name.ToIdentifierName()}{VersionSuffix}"
+                            : $"{LatestPrefix}{serviceNamespace.ToIdentifierName()}{VersionSuffix}";
+                    }
+                    else
+                    {
+                        fieldName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, LatestPrefix, VersionSuffix);
+                    }
                 }
                 var field = new FieldProvider(
                     modifiers: FieldModifiers.Private | FieldModifiers.Const,

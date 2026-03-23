@@ -39,11 +39,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var serviceNamespace = _inputEnum.Namespace;
                 if (!string.IsNullOrEmpty(serviceNamespace))
                 {
-                    // Only use the full namespace when there is a collision in the
-                    // last segment; otherwise, use BuildNameForService with the last segment.
-                    return ClientHelper.HasLastSegmentCollision(serviceNamespace, _inputEnum, apiVersionEnums)
-                        ? $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}"
-                        : ClientHelper.BuildNameForService(serviceNamespace, string.Empty, ApiVersionEnumName);
+                    if (!ClientHelper.HasLastSegmentCollision(serviceNamespace, _inputEnum, apiVersionEnums))
+                    {
+                        // No collision in the last segment — use BuildNameForService with the last segment.
+                        return ClientHelper.BuildNameForService(serviceNamespace, string.Empty, ApiVersionEnumName);
+                    }
+
+                    // Last segment collides — use the full namespace.
+                    string fullNamespaceName = $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}";
+
+                    // If the full namespace also collides (multiple enums share the exact same namespace),
+                    // append the enum's input name for disambiguation.
+                    if (ClientHelper.HasFullNamespaceCollision(serviceNamespace, _inputEnum, apiVersionEnums))
+                    {
+                        return $"{serviceNamespace.ToIdentifierName()}{_inputEnum.Name.ToIdentifierName()}{VersionSuffix}";
+                    }
+
+                    return fullNamespaceName;
                 }
             }
 
