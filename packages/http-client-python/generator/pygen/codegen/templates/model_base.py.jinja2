@@ -1307,7 +1307,14 @@ def _get_element(
                 xml_name = prop_meta.get("name", k)
                 _attr_ns = prop_meta.get("ns") or prop_meta.get("namespace")
                 if _attr_ns:
-                    ET.register_namespace(prop_meta.get("prefix"), _attr_ns)  # pyright: ignore
+                    _attr_prefix = prop_meta.get("prefix")
+                    if _attr_prefix:
+                        try:
+                            ET.register_namespace(_attr_prefix, _attr_ns)  # pyright: ignore
+                        except ValueError:
+                            # ElementTree reserves prefixes matching "ns\\d+" and will raise ValueError.
+                            # In that case, skip explicit registration and rely on Clark-notation only.
+                            pass
                     xml_name = "{" + _attr_ns + "}" + xml_name  # pyright: ignore
                 # attribute should be primitive type
                 wrapped_element.set(xml_name, _get_primitive_type_value(v))
