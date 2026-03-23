@@ -719,7 +719,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
             Thing spreadModel = new Thing(
-                default,
+                name,
                 requiredUnion,
                 "accept",
                 requiredNullableString,
@@ -770,7 +770,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
             Thing spreadModel = new Thing(
-                default,
+                name,
                 requiredUnion,
                 "accept",
                 requiredNullableString,
