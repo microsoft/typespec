@@ -5,15 +5,16 @@ import SidebarSublist from "@astrojs/starlight/components/SidebarSublist.astro";
 
 const { sidebar } = Astro.locals.starlightRoute;
 const pathname = Astro.url.pathname;
+const base = import.meta.env.BASE_URL;
 
 type SidebarEntry = (typeof sidebar)[number];
 
-const isReleaseNotes = pathname.startsWith("/release-notes");
+const isReleaseNotes = pathname.startsWith(base + "release-notes");
 
 /** Returns true for sidebar groups that contain release notes entries. */
 function isReleaseNotesGroup(entry: SidebarEntry): boolean {
   if (entry.type !== "group") return false;
-  return entry.entries.some((e) => e.type === "link" && e.href.startsWith("/release-notes/"));
+  return entry.entries.some((e) => e.type === "link" && e.href.startsWith(base + "release-notes/"));
 }
 
 const filtered = sidebar.filter((entry) =>
