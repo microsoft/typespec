@@ -99,6 +99,5 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
     );
     const resultFilePath = path.resolve(workspacePath, "./ImportTypespecProjectEmptyFolder");
     await expectFilesInDir(expectedResults, resultFilePath);
-    app.close();
   });
 });

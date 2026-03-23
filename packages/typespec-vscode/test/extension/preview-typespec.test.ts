@@ -80,6 +80,5 @@ describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
       cs,
     );
     await rm(cs.caseDir, { recursive: true });
-    app.close();
   });
 });

@@ -89,6 +89,5 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       app,
     );
     await expectFilesInDir(expectedResults, workspacePath);
-    app.close();
   });
 });
