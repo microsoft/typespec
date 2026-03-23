@@ -38,8 +38,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var serviceNamespace = _inputEnum.Namespace;
                 if (!string.IsNullOrEmpty(serviceNamespace))
                 {
-                    // Use the full namespace to guarantee uniqueness when services
-                    // have different namespaces but the same last segment.
+                    // Check if another API version enum has the same namespace,
+                    // which would produce a name collision.
+                    bool hasNamespaceCollision = apiVersionEnums.Any(e =>
+                        !ReferenceEquals(e, _inputEnum) &&
+                        string.Equals(e.Namespace, serviceNamespace, StringComparison.OrdinalIgnoreCase));
+
+                    if (hasNamespaceCollision)
+                    {
+                        // Include the input enum name to disambiguate.
+                        return $"{serviceNamespace.ToIdentifierName()}{_inputEnum.Name.ToIdentifierName()}{VersionSuffix}";
+                    }
+
                     return $"{serviceNamespace.ToIdentifierName()}{VersionSuffix}";
                 }
             }

@@ -130,14 +130,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
+            // For multi-service clients, detect namespace collisions so we can disambiguate.
+            HashSet<string>? collidingNamespaceIdents = null;
+            if (_inputClient.IsMultiServiceClient)
+            {
+                var nsGroups = _serviceVersionsEnums.Keys
+                    .GroupBy(e => e.Namespace.ToIdentifierName(), StringComparer.Ordinal);
+                foreach (var group in nsGroups)
+                {
+                    if (group.Count() > 1)
+                    {
+                        collidingNamespaceIdents ??= new HashSet<string>(StringComparer.Ordinal);
+                        collidingNamespaceIdents.Add(group.Key);
+                    }
+                }
+            }
+
             var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
+            var usedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                // For multi-service clients, use the full namespace to guarantee uniqueness
-                // (the last segment alone can collide when services share a namespace).
-                var versionPropertyName = _inputClient.IsMultiServiceClient
-                    ? $"{inputEnum.Namespace.ToIdentifierName()}{ApiVersionSuffix}"
-                    : VersionSuffix;
+                string versionPropertyName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    versionPropertyName = VersionSuffix;
+                }
+                else
+                {
+                    var nsIdent = inputEnum.Namespace.ToIdentifierName();
+                    // When multiple enums share the same namespace, include the enum name
+                    // to guarantee unique property names and prevent downstream crashes.
+                    versionPropertyName = collidingNamespaceIdents?.Contains(nsIdent) == true
+                        ? $"{nsIdent}{inputEnum.Name.ToIdentifierName()}{ApiVersionSuffix}"
+                        : $"{nsIdent}{ApiVersionSuffix}";
+                }
+
+                // Final uniqueness guarantee (e.g., if enum names also collide).
+                var baseName = versionPropertyName;
+                int counter = 1;
+                while (!usedNames.Add(versionPropertyName))
+                {
+                    versionPropertyName = $"{baseName}{++counter}";
+                }
 
                 var versionProperty = new PropertyProvider(
                     null,
@@ -161,11 +195,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             Dictionary<FieldProvider, EnumProvider> latestVersionFields = new(_serviceVersionsEnums.Count);
+            var usedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var enumProvider in _serviceVersionsEnums.Values)
             {
                 var fieldName = _inputClient.IsMultiServiceClient
                     ? $"{LatestPrefix}{enumProvider.Name.ToIdentifierName()}"
                     : LatestVersionFieldName;
+
+                // Ensure unique field names when multiple enums produce the same name.
+                var baseName = fieldName;
+                int counter = 1;
+                while (!usedNames.Add(fieldName))
+                {
+                    fieldName = $"{baseName}{++counter}";
+                }
+
                 var field = new FieldProvider(
                     modifiers: FieldModifiers.Private | FieldModifiers.Const,
                     type: enumProvider.Type,

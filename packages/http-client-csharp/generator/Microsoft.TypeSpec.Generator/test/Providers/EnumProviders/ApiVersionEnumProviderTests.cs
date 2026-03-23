@@ -211,5 +211,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             // Verify enum names follow the multiservice naming pattern: Service{ServiceName}Version
             Assert.AreEqual("ServiceVersion", keyVaultProvider.Name);
         }
+
+        [Test]
+        public void MultiServiceClient_WithSameNamespace_GeneratesUniqueEnumNames()
+        {
+            // Regression test: when two services have the same namespace, the enum names
+            // should include the input enum name to remain unique.
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersions",
+                [("1.0", "1.0"), ("2.0", "2.0")],
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.Mgmt.Service.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersions",
+                [("3.0", "3.0"), ("4.0", "4.0")],
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.Mgmt.Service.Tests");
+
+            var client = InputFactory.Client("TestClient", isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                inputEnumTypes: [serviceOneEnum, serviceTwoEnum],
+                inputClients: [client]);
+
+            var mockDeclaringType = new Mock<TypeProvider>();
+            mockDeclaringType.Protected().Setup<string>("BuildName").Returns("TestClientOptions");
+            mockDeclaringType.Protected().Setup<string>("BuildNamespace").Returns("Azure.Mgmt.Service.Tests");
+
+            var enumTypeOne = EnumProvider.Create(serviceOneEnum, mockDeclaringType.Object);
+            Assert.IsTrue(enumTypeOne is ApiVersionEnumProvider);
+            var providerOne = (ApiVersionEnumProvider)enumTypeOne;
+
+            var enumTypeTwo = EnumProvider.Create(serviceTwoEnum, mockDeclaringType.Object);
+            Assert.IsTrue(enumTypeTwo is ApiVersionEnumProvider);
+            var providerTwo = (ApiVersionEnumProvider)enumTypeTwo;
+
+            // Names should be unique despite sharing the same namespace
+            Assert.AreNotEqual(providerOne.Name, providerTwo.Name);
+            Assert.AreEqual("AzureMgmtServiceTestsServiceOneVersionsVersion", providerOne.Name);
+            Assert.AreEqual("AzureMgmtServiceTestsServiceTwoVersionsVersion", providerTwo.Name);
+        }
     }
 }
