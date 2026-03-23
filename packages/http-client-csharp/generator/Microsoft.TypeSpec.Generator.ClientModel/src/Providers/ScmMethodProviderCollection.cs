@@ -299,9 +299,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var param in ctor.Signature.Parameters)
             {
                 var wireName = param.Property?.WireInfo?.SerializedName;
-                var matched = wireName != null && convenienceMethodParamsByWireName.TryGetValue(wireName, out var convenienceParam);
 
-                if (matched)
+                if (wireName != null && convenienceMethodParamsByWireName.TryGetValue(wireName, out var convenienceParam))
                 {
                     if (convenienceParam.Type.IsList)
                     {
