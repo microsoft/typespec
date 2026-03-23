@@ -2631,6 +2631,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const doc = paramDocs.get(name);
         if (doc) {
           docFromCommentForSym.set(memberSym, doc);
+          const declarationSymbol = memberSym.node?.symbol;
+          if (declarationSymbol && declarationSymbol !== memberSym) {
+            docFromCommentForSym.set(declarationSymbol, doc);
+          }
         }
       }
     }
@@ -2814,6 +2818,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           }
         }
         sym = resolveTypeReferenceSym(ctx, ref, resolveDecorator);
+        if (sym && !sym.symbolSource && sym.declarations.length === 0) {
+          const resolvedEntity = checkTypeOrValueReference(ctx, ref, resolveDecorator);
+          if (resolvedEntity && "kind" in resolvedEntity) {
+            sym = getTemplateAccessSymbolSource(resolvedEntity) ?? sym;
+          } else if (resolvedEntity?.entityKind === "Indeterminate") {
+            sym = getTemplateAccessSymbolSource(resolvedEntity.type) ?? sym;
+          }
+        }
         break;
       case IdentifierKind.TemplateArgument:
         const templates = getTemplateDeclarationsForArgument(ctx, node as TemplateArgumentNode);
@@ -3702,7 +3714,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const resolvedType =
       node.selector === "."
-        ? resolveMemberTypeFromConstraint(mapped, node.id.sv)
+        ? resolveMemberTypeFromConstraint(ctx, mapped, node.id.sv)
         : resolveMetaTypeFromConstraint(ctx, mapped, node);
     if (!resolvedType) {
       return undefined;
@@ -3735,6 +3747,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return canonicalMemberSymbol;
     }
 
+    const canonicalContainerSymbol = getCanonicalTemplateAccessContainerSymbol(type);
+    if (canonicalContainerSymbol) {
+      return canonicalContainerSymbol;
+    }
+
     if (!shouldUseLateBoundTemplateAccessType(type)) {
       return getTypeSymbol(type) ?? createLateBoundTypeSymbol(node, type);
     }
@@ -3755,6 +3772,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return getExactInstantiatedMemberSymbol(type.union?.symbol, type.name, type);
       case "ScalarConstructor":
         return getExactInstantiatedMemberSymbol(type.scalar?.symbol, type.name, type);
+      default:
+        return undefined;
+    }
+  }
+
+  function getCanonicalTemplateAccessContainerSymbol(type: Type): Sym | undefined {
+    switch (type.kind) {
+      case "Model":
+      case "Interface":
+      case "Union":
+        lateBindMemberContainer(type);
+        if (type.symbol?.members) {
+          lateBindMembers(type);
+        }
+        return type.symbol;
       default:
         return undefined;
     }
@@ -3875,7 +3907,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const resolvedType =
       node.selector === "."
-        ? resolveMemberTypeFromConstraint(baseType, node.id.sv)
+        ? resolveMemberTypeFromConstraint(ctx, baseType, node.id.sv)
         : resolveMetaTypeFromConstraint(ctx, baseType, node);
 
     if (!resolvedType) {
@@ -3904,7 +3936,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       return baseEntity.node.selector === "."
-        ? resolveMemberTypeFromConstraint(mappedBaseType, baseEntity.node.id.sv)
+        ? resolveMemberTypeFromConstraint(ctx, mappedBaseType, baseEntity.node.id.sv)
         : resolveMetaTypeFromConstraint(ctx, mappedBaseType, baseEntity.node);
     }
 
@@ -3991,9 +4023,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   /** Resolve `.` access from a constrained type by kind-specific member lookup. */
   function resolveMemberTypeFromConstraint(
+    ctx: CheckContext,
     constraintType: Type,
     memberName: string,
   ): Type | undefined {
+    const canonicalMemberType = getCanonicalResolvedMemberType(ctx, constraintType, memberName);
+    if (canonicalMemberType) {
+      return canonicalMemberType;
+    }
+
     switch (constraintType.kind) {
       case "Model":
         for (const property of walkPropertiesInherited(constraintType)) {
@@ -4013,6 +4051,44 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       default:
         return undefined;
     }
+  }
+
+  function getCanonicalResolvedMemberType(
+    ctx: CheckContext,
+    containerType: Type,
+    memberName: string,
+  ): Type | undefined {
+    switch (containerType.kind) {
+      case "Model":
+      case "Interface":
+      case "Enum":
+      case "Union":
+      case "Scalar":
+        break;
+      default:
+        return undefined;
+    }
+
+    const containerSymbol = containerType.symbol;
+    if (!containerSymbol?.members) {
+      return undefined;
+    }
+
+    if (containerSymbol.flags & SymbolFlags.LateBound) {
+      lateBindMembers(containerType);
+    }
+
+    const memberSymbol = getMemberSymbol(containerSymbol, memberName);
+    if (!memberSymbol) {
+      return undefined;
+    }
+
+    if (memberSymbol.type && isType(memberSymbol.type)) {
+      return memberSymbol.type;
+    }
+
+    const checkedMemberType = checkMemberSym(ctx, memberSymbol);
+    return isErrorType(checkedMemberType) ? undefined : checkedMemberType;
   }
 
   /**
@@ -4160,6 +4236,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const symbol = createSymbol(node, node.id.sv, SymbolFlags.LateBound);
     mutate(symbol).type = type;
+    const symbolSource = getTemplateAccessSymbolSource(constraintType);
+    if (symbolSource) {
+      mutate(symbol).symbolSource = symbolSource;
+    }
     if (useCache) {
       templateAccessSymbolCache.set(cacheKey, symbol);
     }
@@ -4381,7 +4461,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const resolvedType =
       node.selector === "."
-        ? resolveMemberTypeFromConstraint(resolvedBaseType, node.id.sv)
+        ? resolveMemberTypeFromConstraint(ctx, resolvedBaseType, node.id.sv)
         : resolveMetaTypeFromConstraint(ctx, resolvedBaseType, node);
     if (!resolvedType) {
       return undefined;
@@ -4392,6 +4472,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (table) {
         const directMember = resolver.getAugmentedSymbolTable(table).get(node.id.sv);
         if (directMember) {
+          if (
+            !directMember.type &&
+            !directMember.symbolSource &&
+            directMember.declarations.length === 0
+          ) {
+            const directMemberType = checkMemberSym(ctx, directMember);
+            if (!isErrorType(directMemberType)) {
+              return getPreferredTemplateAccessSymbol(node, directMemberType);
+            }
+          }
           return directMember;
         }
       }
@@ -4429,11 +4519,39 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function createLateBoundTypeSymbol(node: MemberExpressionNode, type: Type): Sym {
     const symbol = createSymbol(node, node.id.sv, SymbolFlags.LateBound);
     mutate(symbol).type = type;
-    const symbolSource = getCanonicalTemplateAccessMemberSymbol(type);
+    const symbolSource = getTemplateAccessSymbolSource(type);
     if (symbolSource) {
-      mutate(symbol).symbolSource = symbolSource.symbolSource ?? symbolSource;
+      mutate(symbol).symbolSource = symbolSource;
     }
     return symbol;
+  }
+
+  /** Get the best source symbol to associate with a template-access-derived symbol. */
+  function getTemplateAccessSymbolSource(type: Type): Sym | undefined {
+    const symbolSource =
+      type.kind === "ModelProperty"
+        ? getModelPropertySymbolSource(type)
+        : (getCanonicalTemplateAccessMemberSymbol(type) ?? getTypeSymbol(type));
+    return symbolSource?.symbolSource ?? symbolSource;
+  }
+
+  function getModelPropertySymbolSource(type: ModelProperty): Sym | undefined {
+    for (
+      let property: ModelProperty | undefined = type;
+      property;
+      property = property.sourceProperty
+    ) {
+      const symbolSource =
+        getCanonicalTemplateAccessMemberSymbol(property) ??
+        (property.model?.symbol && typeof property.name === "string"
+          ? getMemberSymbol(property.model.symbol, property.name)
+          : undefined) ??
+        getTypeSymbol(property);
+      if (symbolSource) {
+        return symbolSource;
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -6205,6 +6323,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         containerSym,
       );
       mutate(sym).type = member;
+      const symbolSource = getTypeSymbol(member);
+      if (symbolSource) {
+        mutate(sym).symbolSource = symbolSource.symbolSource ?? symbolSource;
+      }
       compilerAssert(containerSym.members, "containerSym.members is undefined");
       containerMembers.set(member.name, sym);
     }
@@ -6505,6 +6627,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ? (docFromCommentForSym.get(sym) ??
           (sym.symbolSource && docFromCommentForSym.get(sym.symbolSource)))
       : undefined;
+  }
+
+  function getDocCommentForType(type: Type | undefined): string | undefined {
+    if (!type) {
+      return undefined;
+    }
+
+    if (type.kind === "ModelProperty") {
+      for (
+        let property: ModelProperty | undefined = type;
+        property;
+        property = property.sourceProperty
+      ) {
+        const docComment = getDocCommentForSymbol(getTemplateAccessSymbolSource(property));
+        if (docComment) {
+          return docComment;
+        }
+      }
+      return undefined;
+    }
+
+    return getDocCommentForSymbol(getTemplateAccessSymbolSource(type));
   }
 
   function checkDefaultValue(ctx: CheckContext, defaultNode: Node, type: Type): Value | null {
@@ -7852,7 +7996,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): T {
     let clone = initializeClone(type, additionalProps);
     if ("decorators" in clone) {
-      const docComment = getDocCommentForSymbol(sym);
+      const docComment = getDocCommentForSymbol(sym) ?? getDocCommentForType(type);
       if (docComment) {
         clone.decorators.push(createDocFromCommentDecorator("self", docComment));
       }

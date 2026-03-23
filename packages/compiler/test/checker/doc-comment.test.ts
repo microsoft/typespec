@@ -341,6 +341,22 @@ describe("@param", () => {
     strictEqual(doc, "Doc comment");
   });
 
+  it("preserves @param docs through wrappers over templated operation instances", async () => {
+    const result = (await Tester.compile(`
+      /**
+       * @param wrappedSelection Doc comment
+       */
+      op /*source*/source<T>(wrappedSelection: T, other: string): void;
+      model ParametersWrapper<O extends Reflection.Operation> {
+        value: O::parameters;
+      }
+      alias WrappedParameters = ParametersWrapper<source<string>>;
+      op /*target*/target(...WrappedParameters.value::type): void;
+    `)) as any;
+    const doc = getDoc(result.program, result.target.parameters.properties.get("wrappedSelection"));
+    strictEqual(doc, "Doc comment");
+  });
+
   it("applies to distinct parameters", async () => {
     // One @param has a hyphen but the other does not (should handle both cases)
     const { addUser, program } = await Tester.compile(t.code`
