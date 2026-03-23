@@ -123,7 +123,7 @@ extends:
               - task: NuGetAuthenticate@1
 
               - pwsh: |
-                  Write-Host "Creating .npmrc file $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc for registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/"
+                  Write-Host "Creating .npmrc file $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc for registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
                   $parentFolder = Split-Path -Path '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' -Parent
 
                   if (!(Test-Path $parentFolder)) {
@@ -131,7 +131,7 @@ extends:
                     New-Item -Path $parentFolder -ItemType Directory | Out-Null
                   }
 
-                  $content = "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/`n`nalways-auth=true"
+                  $content = "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n`nalways-auth=true"
                   $content | Out-File '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc'
 
                   Write-Host "##[section].npmrc file created successfully. Contents:"

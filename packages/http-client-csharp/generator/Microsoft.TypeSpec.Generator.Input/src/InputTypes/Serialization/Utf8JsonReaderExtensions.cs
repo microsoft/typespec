@@ -164,9 +164,15 @@ namespace Microsoft.TypeSpec.Generator.Input
                 throw new JsonException();
             }
             reader.Read();
+            string? id = null;
             var result = new Dictionary<string, T>();
             while (reader.TokenType != JsonTokenType.EndObject)
             {
+                // Skip $id metadata (reference tracking), just like TryReadReferenceId does
+                if (reader.TryReadReferenceId(ref id))
+                {
+                    continue;
+                }
                 var key = reader.GetString() ?? throw new JsonException("Dictionary key cannot be null");
                 reader.Read();
                 var item = reader.ReadWithConverter<T>(options);
