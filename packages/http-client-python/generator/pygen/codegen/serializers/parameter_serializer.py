@@ -162,13 +162,14 @@ class ParameterSerializer:
             param.wire_name,
             self.serialize_parameter(param, serializer_name),
         )
-        if not param.optional and (param.in_method_signature or param.constant):
-            retval = [set_parameter]
-        else:
+        is_content_type = getattr(param, "is_content_type", False)
+        if is_content_type or param.optional or not (param.in_method_signature or param.constant):
             retval = [
                 f"if {param.full_client_name} is not None:",
                 f"    {set_parameter}",
             ]
+        else:
+            retval = [set_parameter]
         return retval
 
     @staticmethod

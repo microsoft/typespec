@@ -449,7 +449,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                     file_import.add_import("json", ImportType.STDLIB)
             if self.enable_import_deserialize_xml:
                 file_import.add_submodule_import(relative_path, "_deserialize_xml", ImportType.LOCAL)
-            elif self.need_deserialize:
+            if self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
             if self.default_error_deserialization(serialize_namespace) or self.non_default_errors:
                 xml_non_default_errors = any(
