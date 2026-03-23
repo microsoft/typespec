@@ -18,6 +18,9 @@ export default defineConfig({
   base,
   site: "https://typespec.io",
   trailingSlash: "always",
+  redirects: {
+    "/docs/release-notes/[...slug]": "/release-notes/[...slug]",
+  },
   integrations: [
     astroExpressiveCode(),
     starlight({
