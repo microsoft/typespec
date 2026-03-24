@@ -17,7 +17,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
-import tsptest.visibility.implementation.VisibilityClientImpl;
+import tsptest.visibility.implementation.VisibilityOpsImpl;
 import tsptest.visibility.models.Dog;
 import tsptest.visibility.models.ReadDog;
 import tsptest.visibility.models.RoundTripModel;
@@ -27,17 +27,17 @@ import tsptest.visibility.models.WriteDog;
  * Initializes a new instance of the asynchronous VisibilityClient type.
  */
 @ServiceClient(builder = VisibilityClientBuilder.class, isAsync = true)
-public final class VisibilityAsyncClient {
+public final class VisibilityOpAsyncClient {
     @Generated
-    private final VisibilityClientImpl serviceClient;
+    private final VisibilityOpsImpl serviceClient;
 
     /**
-     * Initializes an instance of VisibilityAsyncClient class.
+     * Initializes an instance of VisibilityOpAsyncClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    VisibilityAsyncClient(VisibilityClientImpl serviceClient) {
+    VisibilityOpAsyncClient(VisibilityOpsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 

@@ -15,7 +15,7 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import tsptest.visibility.implementation.VisibilityClientImpl;
+import tsptest.visibility.implementation.VisibilityOpsImpl;
 import tsptest.visibility.models.Dog;
 import tsptest.visibility.models.ReadDog;
 import tsptest.visibility.models.RoundTripModel;
@@ -25,17 +25,17 @@ import tsptest.visibility.models.WriteDog;
  * Initializes a new instance of the synchronous VisibilityClient type.
  */
 @ServiceClient(builder = VisibilityClientBuilder.class)
-public final class VisibilityClient {
+public final class VisibilityOpClient {
     @Generated
-    private final VisibilityClientImpl serviceClient;
+    private final VisibilityOpsImpl serviceClient;
 
     /**
-     * Initializes an instance of VisibilityClient class.
+     * Initializes an instance of VisibilityOpClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    VisibilityClient(VisibilityClientImpl serviceClient) {
+    VisibilityOpClient(VisibilityOpsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
