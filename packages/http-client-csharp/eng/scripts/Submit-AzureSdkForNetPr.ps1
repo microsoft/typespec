@@ -131,6 +131,11 @@ try {
     
     Push-Location $tempDir
 
+    # Set the authentication token for gh CLI early so that scripts invoked
+    # during the build (e.g. Emitter_Version_Dashboard.ps1) can call the
+    # GitHub API to resolve commit hashes in shallow clones.
+    $env:GH_TOKEN = $AuthToken
+
     # Configure git user for commits in this repository
     git config user.name "azure-sdk"
     git config user.email "azuresdk@microsoft.com"
@@ -658,9 +663,6 @@ try {
 
     # Create PR using GitHub CLI
     Write-Host "Creating PR in $RepoOwner/$RepoName using gh CLI..."
-    
-    # Set the authentication token for gh CLI
-    $env:GH_TOKEN = $AuthToken
     
     # Create the PR using gh CLI
     $ghArgs = @("pr", "create", "--repo", "$RepoOwner/$RepoName", "--title", $PRTitle, "--body", $PRBody, "--base", $BaseBranch, "--head", $PRBranch)
