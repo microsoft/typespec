@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             EnclosingType = enclosingType;
-            _serializationFormat = GetSerializationFormat(inputProperty);
+            _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty);
             _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
@@ -335,8 +335,5 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 BuildDocs();
             }
         }
-
-        private static SerializationFormat GetSerializationFormat(InputProperty inputProperty)
-            => CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty);
     }
 }
