@@ -6,10 +6,40 @@ import { processSidebar } from "@typespec/astro-utils/sidebar";
 import astroExpressiveCode from "astro-expressive-code";
 import rehypeAstroRelativeMarkdownLinks from "astro-rehype-relative-markdown-links";
 import { defineConfig } from "astro/config";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "pathe";
 import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
 import current from "./src/content/current-sidebar";
+
+/** Scan the release-notes directory and return the slug of the latest release note. */
+function getLatestReleaseNoteSlug() {
+  const dir = resolve(import.meta.dirname, "src/content/docs/release-notes");
+  const files = readdirSync(dir).filter((f) => /\.mdx?$/.test(f) && !f.startsWith("index"));
+
+  let latestSlug = "";
+  let latestDate = 0;
+
+  for (const file of files) {
+    const content = readFileSync(resolve(dir, file), "utf-8");
+    const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+    if (!fmMatch) continue;
+
+    const dateMatch = fmMatch[1].match(/releaseDate:\s*(\S+)/);
+    if (!dateMatch) continue;
+
+    const date = new Date(dateMatch[1]).getTime();
+    if (date > latestDate) {
+      latestDate = date;
+      const slugMatch = fmMatch[1].match(/slug:\s*(\S+)/);
+      latestSlug = slugMatch ? slugMatch[1] : `release-notes/${file.replace(/\.mdx?$/, "")}`;
+    }
+  }
+
+  return latestSlug;
+}
+
+const latestReleaseNote = getLatestReleaseNoteSlug();
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
@@ -19,6 +49,8 @@ export default defineConfig({
   site: "https://typespec.io",
   trailingSlash: "always",
   redirects: {
+    // Point the old release-notes index to the latest release note.
+    ...(latestReleaseNote ? { "/release-notes/": `/${latestReleaseNote}/` } : {}),
     // Redirect old /docs/ date-based paths to version-based (already existed in HEAD, updated targets)
     "/docs/release-notes/release-2025-04-02/": "/release-notes/typespec-1-0-0-rc-0/",
     "/docs/release-notes/release-2025-04-22/": "/release-notes/typespec-1-0-0-rc-1/",
@@ -46,7 +78,7 @@ export default defineConfig({
         )),
         {
           label: "🚀 Release Notes",
-          link: "/release-notes/",
+          link: latestReleaseNote ? `/${latestReleaseNote}/` : "/release-notes/",
         },
         {
           label: "🚀 Release Notes",
