@@ -314,7 +314,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var param in ctor.Signature.Parameters)
             {
                 var wireName = param.Property?.WireInfo?.SerializedName;
-                convenienceMethodParamsByWireName.TryGetValue(wireName ?? string.Empty, out var convenienceParam);
+                ParameterProvider? convenienceParam = null;
+                if (wireName != null)
+                {
+                    convenienceMethodParamsByWireName.TryGetValue(wireName, out convenienceParam);
+                }
 
                 if (convenienceParam != null)
                 {
