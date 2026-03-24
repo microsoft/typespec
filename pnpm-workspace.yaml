@@ -175,7 +175,6 @@ catalog:
   strip-json-comments: ~5.0.3
   swagger-ui-dist: ^5.32.0
   swagger-ui-express: ^5.0.1
-  syncpack: ^13.0.3
   tar: ^7.5.11
   temporal-polyfill: ^0.3.2
   tree-sitter-c-sharp: ^0.23.1

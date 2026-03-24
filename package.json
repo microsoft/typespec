@@ -9,12 +9,10 @@
     "build:all": "pnpm -r --workspace-concurrency=Infinity build",
     "check:eng": "tsc -p ./tsconfig.eng.json --noEmit",
     "setup:min": "pnpm install && pnpm --filter \"@typespec/prettier-plugin-typespec...\" --filter \"@typespec/tspd...\" run build",
-    "check-version-mismatch": "syncpack list-mismatches",
     "change": "chronus",
     "clean": "pnpm -r run clean",
     "cspell": "cspell --no-progress .",
     "dogfood": "pnpm install && pnpm build && pnpm -r dogfood",
-    "fix-version-mismatch": "syncpack fix-mismatches",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "format:dir": "prettier --write",
@@ -66,21 +64,10 @@
     "prettier-plugin-organize-imports": "catalog:",
     "prettier-plugin-sh": "catalog:",
     "rimraf": "catalog:",
-    "syncpack": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "vitest": "catalog:",
     "yaml": "catalog:"
-  },
-  "syncpack": {
-    "dependencyTypes": [
-      "dev",
-      "overrides",
-      "peer",
-      "pnpmOverrides",
-      "prod",
-      "resolutions"
-    ]
   }
 }
