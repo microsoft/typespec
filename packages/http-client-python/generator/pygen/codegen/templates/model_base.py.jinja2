@@ -630,15 +630,11 @@ class Model(_MyMutableMapping):
                 for rf in self._attr_to_rest_field.values():
                     prop_meta = getattr(rf, "_xml", {})
                     xml_name = prop_meta.get("name", rf._rest_name)
-                    xml_ns = prop_meta.get("ns")
-                    if xml_ns is None:
-                        xml_ns = prop_meta.get("namespace")
+                    xml_ns = _get_xml_ns(prop_meta)
                     # If the property has no namespace but the model uses a default namespace
                     # (declared without a prefix), child elements inherit that namespace.
                     if xml_ns is None and not model_meta.get("prefix"):
-                        xml_ns = model_meta.get("ns")
-                        if xml_ns is None:
-                            xml_ns = model_meta.get("namespace")
+                        xml_ns = _get_xml_ns(model_meta)
                     if xml_ns:
                         xml_name = "{" + xml_ns + "}" + xml_name
 
@@ -771,13 +767,9 @@ class Model(_MyMutableMapping):
             model_meta = getattr(cls, "_xml", {})
             prop_meta = getattr(discriminator, "_xml", {})
             xml_name = prop_meta.get("name", discriminator._rest_name)
-            xml_ns = prop_meta.get("ns")
-            if xml_ns is None:
-                xml_ns = prop_meta.get("namespace")
+            xml_ns = _get_xml_ns(prop_meta)
             if xml_ns is None and not model_meta.get("prefix"):
-                xml_ns = model_meta.get("ns")
-                if xml_ns is None:
-                    xml_ns = model_meta.get("namespace")
+                xml_ns = _get_xml_ns(model_meta)
             if xml_ns:
                 xml_name = "{" + xml_ns + "}" + xml_name
 
@@ -1259,6 +1251,17 @@ def serialize_xml(model: Model, exclude_readonly: bool = False) -> str:
     return ET.tostring(_get_element(model, exclude_readonly), encoding="unicode")  # type: ignore
 
 
+def _get_xml_ns(meta: dict[str, typing.Any]) -> typing.Optional[str]:
+    """Return the XML namespace from a metadata dict, checking both 'ns' (old-style) and 'namespace' (DPG) keys.
+
+    Returns the value of 'ns' if present (even empty string); falls back to 'namespace' otherwise.
+    """
+    ns = meta.get("ns")
+    if ns is None:
+        ns = meta.get("namespace")
+    return ns
+
+
 def _get_element(
     o: typing.Any,
     exclude_readonly: bool = False,
@@ -1275,9 +1278,7 @@ def _get_element(
             # the element tag is the property/items name, not the model type name).
             _items_name = parent_meta.get("itemsName") if parent_meta is not None else None
             element_name = _items_name if _items_name else (model_meta.get("name") or o.__class__.__name__)
-            _model_ns = model_meta.get("ns")
-            if _model_ns is None:
-                _model_ns = model_meta.get("namespace")
+            _model_ns = _get_xml_ns(model_meta)
             wrapped_element = _create_xml_element(
                 element_name,
                 model_meta.get("prefix"),
@@ -1318,9 +1319,7 @@ def _get_element(
                 wrapped_element.text = _get_primitive_type_value(v)
             elif prop_meta.get("attribute", False):
                 xml_name = prop_meta.get("name", k)
-                _attr_ns = prop_meta.get("ns")
-                if _attr_ns is None:
-                    _attr_ns = prop_meta.get("namespace")
+                _attr_ns = _get_xml_ns(prop_meta)
                 if _attr_ns:
                     _attr_prefix = prop_meta.get("prefix")
                     if _attr_prefix:
@@ -1341,11 +1340,7 @@ def _get_element(
         return [_get_element(x, exclude_readonly, parent_meta) for x in o]  # type: ignore
     if isinstance(o, dict):
         result = []
-        _dict_ns = None
-        if parent_meta:
-            _dict_ns = parent_meta.get("ns")
-            if _dict_ns is None:
-                _dict_ns = parent_meta.get("namespace")
+        _dict_ns = _get_xml_ns(parent_meta) if parent_meta else None
         for k, v in o.items():
             result.append(
                 _get_wrapped_element(
@@ -1364,9 +1359,7 @@ def _get_element(
     if parent_meta:
         _items_ns = parent_meta.get("itemsNs")
         if _items_ns is None:
-            _items_ns = parent_meta.get("ns")
-        if _items_ns is None:
-            _items_ns = parent_meta.get("namespace")
+            _items_ns = _get_xml_ns(parent_meta)
         return _get_wrapped_element(
             o,
             exclude_readonly,
@@ -1385,12 +1378,7 @@ def _get_wrapped_element(
     exclude_readonly: bool,
     meta: typing.Optional[dict[str, typing.Any]],
 ) -> ET.Element:
-    if meta:
-        _meta_ns = meta.get("ns")
-        if _meta_ns is None:
-            _meta_ns = meta.get("namespace")
-    else:
-        _meta_ns = None
+    _meta_ns = _get_xml_ns(meta) if meta else None
     wrapped_element = _create_xml_element(
         meta.get("name") if meta else None, meta.get("prefix") if meta else None, _meta_ns
     )
