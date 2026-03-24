@@ -1,5 +1,7 @@
 ---
 title: 0.61 - October 2024
+releaseDate: 2024-10-09
+version: "0.61"
 ---
 
 :::caution

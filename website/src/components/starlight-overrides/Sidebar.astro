@@ -2,6 +2,7 @@
 import MobileMenuFooter from "@astrojs/starlight/components/MobileMenuFooter.astro";
 import SidebarPersister from "@astrojs/starlight/components/SidebarPersister.astro";
 import SidebarSublist from "@astrojs/starlight/components/SidebarSublist.astro";
+import { getCollection } from "astro:content";
 
 const { sidebar } = Astro.locals.starlightRoute;
 const pathname = Astro.url.pathname;
@@ -21,10 +22,22 @@ const filtered = sidebar.filter((entry) =>
   isReleaseNotes ? isReleaseNotesGroup(entry) : !isReleaseNotesGroup(entry),
 );
 
-// Reverse release notes entries so newest appear first.
-for (const entry of filtered) {
-  if (entry.type === "group" && isReleaseNotesGroup(entry)) {
-    entry.entries.reverse();
+// Sort release notes entries by releaseDate so newest appear first.
+if (isReleaseNotes) {
+  const releaseNotes = await getCollection("docs", (x) => x.id.startsWith("release-notes/"));
+  const dateByHref = new Map<string, number>();
+  for (const note of releaseNotes) {
+    const href = base + note.id + "/";
+    dateByHref.set(href, note.data.releaseDate?.getTime() ?? 0);
+  }
+  for (const entry of filtered) {
+    if (entry.type === "group" && isReleaseNotesGroup(entry)) {
+      entry.entries.sort((a, b) => {
+        const dateA = a.type === "link" ? (dateByHref.get(a.href) ?? 0) : 0;
+        const dateB = b.type === "link" ? (dateByHref.get(b.href) ?? 0) : 0;
+        return dateB - dateA;
+      });
+    }
   }
 }
 ---

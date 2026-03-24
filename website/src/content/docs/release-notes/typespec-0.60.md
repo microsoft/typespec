@@ -1,5 +1,7 @@
 ---
 title: 0.60 - September 2024
+releaseDate: 2024-09-10
+version: "0.60"
 ---
 
 ## Features

@@ -1,5 +1,7 @@
 ---
 title: 0.59 - August 2024
+releaseDate: 2024-08-06
+version: "0.59"
 ---
 
 :::caution

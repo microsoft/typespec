@@ -18,6 +18,21 @@ export default defineConfig({
   base,
   site: "https://typespec.io",
   trailingSlash: "always",
+  redirects: {
+    "/docs/release-notes/release-2025-04-02/": "/release-notes/typespec-1.0.0-rc.0/",
+    "/docs/release-notes/release-2025-04-22/": "/release-notes/typespec-1.0.0-rc.1/",
+    "/docs/release-notes/release-2025-05-06/": "/release-notes/typespec-1.0.0/",
+    "/docs/release-notes/release-2025-06-10/": "/release-notes/typespec-1.1.0/",
+    "/docs/release-notes/release-2025-07-15/": "/release-notes/typespec-1.2.0/",
+    "/docs/release-notes/release-2025-08-06/": "/release-notes/typespec-1.3.0/",
+    "/docs/release-notes/release-2025-09-09/": "/release-notes/typespec-1.4.0/",
+    "/docs/release-notes/release-2025-10-08/": "/release-notes/typespec-1.5.0/",
+    "/docs/release-notes/release-2025-11-11/": "/release-notes/typespec-1.6.0/",
+    "/docs/release-notes/release-2025-12-09/": "/release-notes/typespec-1.7.0/",
+    "/docs/release-notes/release-2026-01-13/": "/release-notes/typespec-1.8.0/",
+    "/docs/release-notes/release-2026-02-10/": "/release-notes/typespec-1.9.0/",
+    "/docs/release-notes/release-2026-03-10/": "/release-notes/typespec-1.10.0/",
+  },
   integrations: [
     astroExpressiveCode(),
     starlight({

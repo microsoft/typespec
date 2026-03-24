@@ -1,5 +1,7 @@
 ---
 title: 0.56 - May 2024
+releaseDate: 2024-05-07
+version: "0.56"
 ---
 
 :::caution
