@@ -15,6 +15,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         public Compilation? LastContract { get; }
 
         private readonly Lazy<IReadOnlyDictionary<string, INamedTypeSymbol>> _nameMap;
+        private readonly Lazy<IReadOnlyDictionary<string, string>> _namespaceOverrides;
 
         public SourceInputModel(Compilation? customization, Compilation? lastContract)
         {
@@ -22,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             LastContract = lastContract;
 
             _nameMap = new(PopulateNameMap);
+            _namespaceOverrides = new(PopulateNamespaceOverrides);
         }
 
         private IReadOnlyDictionary<string, INamedTypeSymbol> PopulateNameMap()
@@ -50,6 +52,14 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null)
         {
             return FindTypeInCustomization(Customization, ns, name, false, declaringTypeName);
+        }
+
+        /// <summary>
+        /// Gets the namespace override for a type if one was specified via [assembly: CodeGenNamespace] in custom code.
+        /// </summary>
+        public string? GetNamespaceOverride(string typeName)
+        {
+            return _namespaceOverrides.Value.TryGetValue(typeName, out var ns) ? ns : null;
         }
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
@@ -111,6 +121,28 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             }
 
             return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
+        }
+
+        private IReadOnlyDictionary<string, string> PopulateNamespaceOverrides()
+        {
+            var overrides = new Dictionary<string, string>();
+            if (Customization == null)
+            {
+                return overrides;
+            }
+
+            foreach (var attribute in Customization.Assembly.GetAttributes())
+            {
+                if (attribute.AttributeClass?.Name == CodeGenAttributes.CodeGenNamespaceAttributeName
+                    && attribute.ConstructorArguments.Length >= 2
+                    && attribute.ConstructorArguments[0].Value is string typeName
+                    && attribute.ConstructorArguments[1].Value is string @namespace)
+                {
+                    overrides[typeName] = @namespace;
+                }
+            }
+
+            return overrides;
         }
 
         private bool TryGetName(ISymbol symbol, [NotNullWhen(true)] out string? name)

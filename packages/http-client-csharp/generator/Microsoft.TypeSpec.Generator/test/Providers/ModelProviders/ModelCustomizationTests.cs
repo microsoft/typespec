@@ -46,6 +46,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanChangeModelNamespaceWithAssemblyAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            Assert.IsNull(modelTypeProvider.CustomCodeView, "CustomCodeView should be null since no custom type is defined");
+            Assert.AreEqual("NewNamespace.Models", modelTypeProvider.Type.Namespace);
+            Assert.AreEqual("MockInputModel", modelTypeProvider.Type.Name);
+        }
+
+        [Test]
         public async Task CanChangePropertyName()
         {
             var props = new[]

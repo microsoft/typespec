@@ -45,5 +45,13 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var codeGenTypeAttribute = new CodeGenTypeAttribute("PropertyName");
             Assert.AreEqual("PropertyName", codeGenTypeAttribute.OriginalName);
         }
+
+        [Test]
+        public void CodeGenNamespaceAttributeEmitted()
+        {
+            var codeGenNamespaceAttribute = new CodeGenNamespaceAttribute("EnumTypeName", "New.Namespace.Models");
+            Assert.AreEqual("EnumTypeName", codeGenNamespaceAttribute.TypeName);
+            Assert.AreEqual("New.Namespace.Models", codeGenNamespaceAttribute.Namespace);
+        }
     }
 }

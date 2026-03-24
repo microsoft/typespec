@@ -90,6 +90,28 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        /// <summary>
+        /// Safely gets a namespace override from the SourceInputModel if it's available.
+        /// Returns null if the generator or SourceInputModel is not yet initialized.
+        /// </summary>
+        internal static string? GetNamespaceOverride(string typeName)
+        {
+            if (_instance == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return _instance.SourceInputModel.GetNamespaceOverride(typeName);
+            }
+            catch (InvalidOperationException)
+            {
+                // SourceInputModel not yet initialized
+                return null;
+            }
+        }
+
         public string LicenseHeader => Configuration.LicenseInfo?.Header ?? string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary;
@@ -103,7 +125,8 @@ namespace Microsoft.TypeSpec.Generator
             new CodeGenTypeAttributeDefinition(),
             new CodeGenMemberAttributeDefinition(),
             new CodeGenSuppressAttributeDefinition(),
-            new CodeGenSerializationAttributeDefinition()
+            new CodeGenSerializationAttributeDefinition(),
+            new CodeGenNamespaceAttributeDefinition()
         ];
 
         protected internal virtual void Configure()

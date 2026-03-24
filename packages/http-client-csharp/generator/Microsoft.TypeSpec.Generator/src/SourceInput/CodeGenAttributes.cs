@@ -19,6 +19,8 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         public const string CodeGenSerializationAttributeName = "CodeGenSerializationAttribute";
 
+        public const string CodeGenNamespaceAttributeName = "CodeGenNamespaceAttribute";
+
         private const string SerializationName = "SerializationName";
 
         private const string SerializationValueHook = "SerializationValueHook";

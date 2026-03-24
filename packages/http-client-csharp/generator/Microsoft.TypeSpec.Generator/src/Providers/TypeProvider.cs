@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
+                generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? CodeModelGenerator.GetNamespaceOverride(BuildName()) ?? BuildNamespace(),
                 generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
                 DeclaringTypeProvider?.Type.Name);
 
@@ -134,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public CSharpType Type => _type ??=
             new(
                 CustomCodeView?.Name ?? BuildName(),
-                CustomCodeView?.Type.Namespace ?? BuildNamespace(),
+                GetResolvedNamespace(),
                 this is EnumProvider ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
@@ -148,6 +148,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
+
+        /// <summary>
+        /// Resolves the namespace for this type, checking custom code view first,
+        /// then assembly-level CodeGenNamespace overrides, then the default namespace.
+        /// </summary>
+        private string GetResolvedNamespace()
+        {
+            if (CustomCodeView?.Type.Namespace is { } customNs)
+            {
+                return customNs;
+            }
+
+            var overrideNs = CodeModelGenerator.GetNamespaceOverride(BuildName());
+            if (overrideNs != null)
+            {
+                return overrideNs;
+            }
+
+            return BuildNamespace();
+        }
 
         protected virtual string BuildNamespace() => CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
 
