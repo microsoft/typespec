@@ -281,16 +281,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Match convenience method parameters to constructor parameters by wire (serialized) name
             // to handle cases where C# names diverge due to @clientName renames, @encodedName,
             // or casing differences between the convenience parameters and model properties.
-            // Falls back to C# name matching for parameters without wire information.
             var convenienceMethodParamsByWireName = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
-            var convenienceMethodParamsByName = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
             foreach (var p in ConvenienceMethodParameters)
             {
                 if (p.WireInfo?.SerializedName != null)
                 {
                     convenienceMethodParamsByWireName.TryAdd(p.WireInfo.SerializedName, p);
                 }
-                convenienceMethodParamsByName.TryAdd(p.Name, p);
+            }
+
+            // For customized properties (where OriginalName identifies the original property),
+            // use the original property's wire info to ensure the dictionary has the correct mapping.
+            foreach (var property in spreadSource.CanonicalView.Properties)
+            {
+                if (property.OriginalName != null && property.WireInfo?.SerializedName is { } wireName)
+                {
+                    var matchedParam = ConvenienceMethodParameters.FirstOrDefault(
+                        p => string.Equals(p.WireInfo?.SerializedName, wireName, StringComparison.OrdinalIgnoreCase));
+                    if (matchedParam != null)
+                    {
+                        convenienceMethodParamsByWireName.TryAdd(wireName, matchedParam);
+                    }
+                }
+            }
+
+            // Build a lookup from property name to wire name so we can resolve wire names
+            // for custom constructor parameters that don't have a Property reference.
+            var propertyWireNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var property in spreadSource.CanonicalView.Properties)
+            {
+                if (property.WireInfo?.SerializedName is { } propWireName)
+                {
+                    propertyWireNames.TryAdd(property.Name, propWireName);
+                }
             }
 
             List<ValueExpression> expressions = new(spreadSource.Properties.Count);
@@ -301,10 +324,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var param in ctor.Signature.Parameters)
             {
+                // Get wire name from the parameter's property if available, otherwise resolve
+                // from the model's properties by matching the parameter name to a property name.
                 var wireName = param.Property?.WireInfo?.SerializedName;
-                if (!(wireName != null && convenienceMethodParamsByWireName.TryGetValue(wireName, out var convenienceParam)))
+                if (wireName == null)
                 {
-                    convenienceMethodParamsByName.TryGetValue(param.Name, out convenienceParam);
+                    propertyWireNames.TryGetValue(param.Name, out wireName);
+                }
+
+                ParameterProvider? convenienceParam = null;
+                if (wireName != null)
+                {
+                    convenienceMethodParamsByWireName.TryGetValue(wireName, out convenienceParam);
                 }
 
                 if (convenienceParam != null)
