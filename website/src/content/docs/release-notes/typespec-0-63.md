@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-0-63
 title: 0.63 - December 2024
 releaseDate: 2024-12-10
 version: "0.63"

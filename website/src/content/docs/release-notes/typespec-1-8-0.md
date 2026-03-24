@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-1-8-0
 title: "1.8.0"
 releaseDate: 2026-01-13
 version: "1.8.0"

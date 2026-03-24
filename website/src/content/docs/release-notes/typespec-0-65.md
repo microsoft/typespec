@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-0-65
 title: 0.65 - February 2025
 releaseDate: 2025-02-11
 version: "0.65"

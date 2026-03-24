@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-0-66
 title: 0.66 - March 2025
 releaseDate: 2025-03-04
 version: "0.66"

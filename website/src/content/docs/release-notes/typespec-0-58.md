@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-0-58
 title: 0.58 - July 2024
 releaseDate: 2024-07-16
 version: "0.58"

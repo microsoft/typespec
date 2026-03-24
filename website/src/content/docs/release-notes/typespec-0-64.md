@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-0-64
 title: 0.64 - January 2025
 releaseDate: 2025-01-15
 version: "0.64"

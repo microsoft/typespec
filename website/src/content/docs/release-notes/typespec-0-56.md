@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-0-56
 title: 0.56 - May 2024
 releaseDate: 2024-05-07
 version: "0.56"

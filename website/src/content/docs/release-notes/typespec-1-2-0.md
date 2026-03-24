@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-1-2-0
 title: "1.2.0"
 releaseDate: 2025-07-15
 version: "1.2.0"

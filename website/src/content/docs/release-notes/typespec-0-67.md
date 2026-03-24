@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-0-67
 title: "0.67"
 releaseDate: 2025-03-18
 version: "0.67"

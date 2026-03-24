@@ -1,4 +1,5 @@
 ---
+slug: release-notes/typespec-0-55
 title: 0.55 - April 2024
 releaseDate: 2024-04-02
 version: "0.55"
