@@ -623,11 +623,9 @@ try {
         git add $sdkPath
     }
 
-    # Add the dashboard if it was regenerated
+    # Add the regenerated dashboard
     $dashboardPath = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.md"
-    if (Test-Path $dashboardPath) {
-        git add $dashboardPath
-    }
+    git add $dashboardPath
     
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
