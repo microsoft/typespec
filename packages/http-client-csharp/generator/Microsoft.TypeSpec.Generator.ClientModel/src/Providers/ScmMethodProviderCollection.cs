@@ -278,7 +278,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private List<ValueExpression> GetSpreadConversion(TypeProvider spreadSource)
         {
-            var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
+            // Match convenience method parameters to constructor parameters by wire (serialized) name
+            // to handle cases where C# names diverge due to @clientName renames, @encodedName,
+            // or casing differences between the convenience parameters and model properties.
+            // Falls back to C# name matching for parameters without wire information.
+            var convenienceMethodParamsByWireName = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
+            var convenienceMethodParamsByName = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in ConvenienceMethodParameters)
+            {
+                if (p.WireInfo?.SerializedName != null)
+                {
+                    convenienceMethodParamsByWireName.TryAdd(p.WireInfo.SerializedName, p);
+                }
+                convenienceMethodParamsByName.TryAdd(p.Name, p);
+            }
+
             List<ValueExpression> expressions = new(spreadSource.Properties.Count);
             // we should make this find more deterministic
             var ctor = spreadSource.CanonicalView.Constructors.First(c =>
@@ -287,7 +301,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var param in ctor.Signature.Parameters)
             {
-                if (convenienceMethodParams.TryGetValue(param.Name, out var convenienceParam))
+                var wireName = param.Property?.WireInfo?.SerializedName;
+                if (!(wireName != null && convenienceMethodParamsByWireName.TryGetValue(wireName, out var convenienceParam)))
+                {
+                    convenienceMethodParamsByName.TryGetValue(param.Name, out convenienceParam);
+                }
+
+                if (convenienceParam != null)
                 {
                     if (convenienceParam.Type.IsList)
                     {
