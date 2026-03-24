@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -38,7 +39,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var serviceNamespace = _inputEnum.Namespace;
                 if (!string.IsNullOrEmpty(serviceNamespace))
                 {
-                    return ClientHelper.BuildNameForService(serviceNamespace, ServicePrefix, VersionSuffix);
+                    if (!ClientHelper.HasLastSegmentCollision(serviceNamespace, _inputEnum, apiVersionEnums))
+                    {
+                        // No collision in the last segment — use BuildNameForService with the last segment.
+                        return ClientHelper.BuildNameForService(serviceNamespace, string.Empty, ApiVersionEnumName);
+                    }
+
+                    // Last segment collides — find the shortest unique namespace suffix.
+                    string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, _inputEnum, apiVersionEnums);
+                    return $"{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
                 }
             }
 

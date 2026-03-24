@@ -1178,7 +1178,6 @@ interface Widgets {
       [
         "IWidgets.cs",
         [
-          "using TypeSpec.Http;",
           "public interface IWidgets",
           "Task<Widget> UpdateAsync( string id, WidgetMergePatchUpdate body);",
         ],
@@ -1186,7 +1185,6 @@ interface Widgets {
       [
         "WidgetsController.cs",
         [
-          "using TypeSpec.Http;",
           "public partial class WidgetsController: ControllerBase",
           "public virtual async Task<IActionResult> Update(string id, WidgetMergePatchUpdate body)",
         ],
@@ -1194,7 +1192,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace TypeSpec.Http {",
+          "namespace Microsoft.Contoso {",
           "public string Id { get; set; }",
           "public int? Weight { get; set; }",
           "public string Color { get; set; }",
@@ -1231,8 +1229,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace TypeSpec.Http {",
-          "using Microsoft.Contoso;",
+          "namespace Microsoft.Contoso {",
           "public string Id { get; set; }",
           "public int? Weight { get; set; }",
           "public WidgetColor? Color { get; set; }",
@@ -1274,7 +1271,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace TypeSpec.Http {",
+          "namespace Microsoft.Contoso {",
           "using Microsoft.Contoso.Colors;",
           "using Microsoft.Contoso.Sizes;",
           "public string Id { get; set; }",
@@ -1345,8 +1342,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace TypeSpec.Http {",
-          "using Microsoft.Contoso;",
+          "namespace Microsoft.Contoso {",
           "public string Id { get; set; }",
           "public WidgetColor? Color { get; set; }",
         ],
@@ -1359,8 +1355,8 @@ it("Handles MergePatchUpdate with string-enum union property from different name
   // String-enum unions (e.g. union Color { "red", "blue" }) also use createEnumContext
   // and should get the correct using directive when in a different namespace.
   // Note: string-enum unions are MergePatch-transformed, so the property type becomes
-  // WidgetColorMergePatchUpdate (a new union in TypeSpec.Http), but the using directive
-  // for the original union's namespace is still needed for the union's definition file.
+  // WidgetColorMergePatchUpdate, but the using directive for the original union's
+  // namespace is still needed for the union's definition file.
   await compileAndValidateMultiple(
     tester,
     `
@@ -1384,7 +1380,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace TypeSpec.Http {",
+          "namespace Microsoft.Contoso {",
           "using Microsoft.Contoso.Colors;",
           "public string Id { get; set; }",
         ],
@@ -1395,7 +1391,7 @@ interface Widgets {
 
 it("Handles MergePatchUpdate with array of models from different namespace", async () => {
   // Arrays of model types from different namespaces are also MergePatch-transformed,
-  // creating e.g. TagMergePatchUpdateReplaceOnly[] in TypeSpec.Http.
+  // creating e.g. TagMergePatchUpdateReplaceOnly[] in the service namespace.
   // The using directive for the original model's namespace should still be present.
   await compileAndValidateMultiple(
     tester,
@@ -1420,7 +1416,7 @@ interface Widgets {
       [
         "WidgetMergePatchUpdate.cs",
         [
-          "namespace TypeSpec.Http {",
+          "namespace Microsoft.Contoso {",
           "using Microsoft.Contoso.Tags;",
           "public string Id { get; set; }",
         ],

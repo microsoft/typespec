@@ -9,6 +9,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,13 +21,9 @@ namespace SampleTypeSpec
     public partial class SampleTypeSpecClient
     {
         private readonly Uri _endpoint;
-        /// <summary> A credential used to authenticate to the service. </summary>
-        private readonly ApiKeyCredential _keyCredential;
         private const string AuthorizationHeader = "my-api-key";
-        /// <summary> A credential provider used to authenticate to the service. </summary>
-        private readonly AuthenticationTokenProvider _tokenProvider;
         /// <summary> The OAuth2 flows supported by the service. </summary>
-        private readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
+        private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
         {
             new Dictionary<string, object>
             {
@@ -55,21 +52,34 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
+        /// <param name="authenticationPolicy"> The authentication policy to use for pipeline creation. </param>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
-        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential, SampleTypeSpecClientOptions options)
+        internal SampleTypeSpecClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNull(credential, nameof(credential));
 
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            _keyCredential = credential;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
+            if (authenticationPolicy != null)
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
+            }
+            else
+            {
+                Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly) }, Array.Empty<PipelinePolicy>());
+            }
             _apiVersion = options.Version;
+        }
+
+        /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="credential"> A credential used to authenticate to the service. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential, SampleTypeSpecClientOptions options) : this(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(credential, AuthorizationHeader), endpoint, options)
+        {
         }
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
@@ -77,17 +87,15 @@ namespace SampleTypeSpec
         /// <param name="tokenProvider"> A credential provider used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="tokenProvider"/> is null. </exception>
-        public SampleTypeSpecClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options)
+        public SampleTypeSpecClient(Uri endpoint, AuthenticationTokenProvider tokenProvider, SampleTypeSpecClientOptions options) : this(new BearerTokenPolicy(tokenProvider, _flows), endpoint, options)
         {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNull(tokenProvider, nameof(tokenProvider));
+        }
 
-            options ??= new SampleTypeSpecClientOptions();
-
-            _endpoint = endpoint;
-            _tokenProvider = tokenProvider;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), new BearerTokenPolicy(_tokenProvider, _flows) }, Array.Empty<PipelinePolicy>());
-            _apiVersion = options.Version;
+        /// <summary> Initializes a new instance of SampleTypeSpecClient from a <see cref="SampleTypeSpecClientSettings"/>. </summary>
+        /// <param name="settings"> The settings for SampleTypeSpecClient. </param>
+        [Experimental("SCME0002")]
+        public SampleTypeSpecClient(SampleTypeSpecClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.SampleTypeSpecUrl, settings?.Options)
+        {
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -718,7 +726,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
             Thing spreadModel = new Thing(
-                default,
+                name,
                 requiredUnion,
                 "accept",
                 requiredNullableString,
@@ -769,7 +777,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(propertyWithSpecialDocs, nameof(propertyWithSpecialDocs));
 
             Thing spreadModel = new Thing(
-                default,
+                name,
                 requiredUnion,
                 "accept",
                 requiredNullableString,
@@ -1879,6 +1887,16 @@ namespace SampleTypeSpec
 
             ClientResult result = await UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> Initializes a new instance of Notebooks. </summary>
+        /// <param name="notebook"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="notebook"/> is null. </exception>
+        public virtual Notebooks GetNotebooksClient(string notebook)
+        {
+            Argument.AssertNotNull(notebook, nameof(notebook));
+
+            return new Notebooks(Pipeline, _endpoint, notebook);
         }
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>

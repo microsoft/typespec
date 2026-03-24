@@ -5,10 +5,14 @@
 package tsptest.armstreamstyleserialization.implementation;
 
 import com.azure.core.http.rest.PagedIterable;
+import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.Context;
 import com.azure.core.util.logging.ClientLogger;
 import tsptest.armstreamstyleserialization.fluent.ItemsClient;
+import tsptest.armstreamstyleserialization.fluent.models.ListResultSummary2Inner;
 import tsptest.armstreamstyleserialization.models.Items;
+import tsptest.armstreamstyleserialization.models.ListResultSummary2;
 import tsptest.armstreamstyleserialization.models.Result;
 
 public final class ItemsImpl implements Items {
@@ -30,6 +34,37 @@ public final class ItemsImpl implements Items {
 
     public PagedIterable<Result> list(Context context) {
         return this.serviceClient().list(context);
+    }
+
+    public PagedIterable<Result> summary() {
+        return this.serviceClient().summary();
+    }
+
+    public PagedIterable<Result> summary(Context context) {
+        return this.serviceClient().summary(context);
+    }
+
+    public PagedIterable<Result> list2() {
+        return this.serviceClient().list2();
+    }
+
+    public PagedIterable<Result> list2(Context context) {
+        return this.serviceClient().list2(context);
+    }
+
+    public Response<ListResultSummary2> summary2WithResponse(Context context) {
+        Response<ListResultSummary2Inner> inner = this.serviceClient().summary2WithResponse(context);
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new ListResultSummary2Impl(inner.getValue(), this.manager()));
+    }
+
+    public ListResultSummary2 summary2() {
+        ListResultSummary2Inner inner = this.serviceClient().summary2();
+        if (inner != null) {
+            return new ListResultSummary2Impl(inner, this.manager());
+        } else {
+            return null;
+        }
     }
 
     private ItemsClient serviceClient() {

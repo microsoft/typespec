@@ -9,7 +9,6 @@ import { defineConfig } from "astro/config";
 import { resolve } from "pathe";
 import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
 import current from "./src/content/current-sidebar";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
@@ -77,16 +76,5 @@ export default defineConfig({
     shikiConfig: {
       langs: [TypeSpecLang],
     },
-  },
-  vite: {
-    plugins: [
-      // @ts-expect-error incompatible types due to version mismatch
-      nodePolyfills({
-        include: ["buffer"],
-        globals: {
-          process: "dev",
-        },
-      }),
-    ],
   },
 });

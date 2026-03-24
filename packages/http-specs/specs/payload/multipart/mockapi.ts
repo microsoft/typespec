@@ -437,9 +437,11 @@ Scenarios.Payload_MultiPart_FormData_File_uploadFileSpecificContentType = passOn
   uri: "/multipart/form-data/file/specific-content-type",
   method: "post",
   request: {
-    headers: {
-      "content-type": "multipart/form-data",
-    },
+    body: multipart({
+      files: [
+        { fieldname: "file", originalname: "image.png", buffer: pngFile, mimetype: "image/png" },
+      ],
+    }),
   },
   response: {
     status: 204,
@@ -460,9 +462,11 @@ Scenarios.Payload_MultiPart_FormData_File_uploadFileRequiredFilename = passOnSuc
   uri: "/multipart/form-data/file/required-filename",
   method: "post",
   request: {
-    headers: {
-      "content-type": "multipart/form-data",
-    },
+    body: multipart({
+      files: [
+        { fieldname: "file", originalname: "image.png", buffer: pngFile, mimetype: "image/png" },
+      ],
+    }),
   },
   response: {
     status: 204,
@@ -483,9 +487,12 @@ Scenarios.Payload_MultiPart_FormData_File_uploadFileArray = passOnSuccess({
   uri: "/multipart/form-data/file/file-array",
   method: "post",
   request: {
-    headers: {
-      "content-type": "multipart/form-data",
-    },
+    body: multipart({
+      files: [
+        { fieldname: "files", originalname: "image.png", buffer: pngFile, mimetype: "image/png" },
+        { fieldname: "files", originalname: "image.png", buffer: pngFile, mimetype: "image/png" },
+      ],
+    }),
   },
   response: {
     status: 204,

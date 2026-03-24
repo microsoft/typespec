@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace Routes._QueryParameters.QueryContinuation.Standard
     public partial class QueryParametersQueryContinuationStandard
     {
         protected QueryParametersQueryContinuationStandard() => throw null;
+
+        internal QueryParametersQueryContinuationStandard(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

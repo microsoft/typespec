@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -12,6 +13,8 @@ namespace _Type.Property.AdditionalProperties
     public partial class SpreadDifferentModelArray
     {
         protected SpreadDifferentModelArray() => throw null;
+
+        internal SpreadDifferentModelArray(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

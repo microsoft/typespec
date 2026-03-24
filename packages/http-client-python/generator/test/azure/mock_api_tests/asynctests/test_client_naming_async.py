@@ -16,17 +16,17 @@ async def client():
 
 @pytest.mark.asyncio
 async def test_client(client: NamingClient):
-    await client.client(models.ClientNameModel(client_name=True))
+    await client.property.client(models.ClientNameModel(client_name=True))
 
 
 @pytest.mark.asyncio
 async def test_language(client: NamingClient):
-    await client.language(models.LanguageClientNameModel(python_name=True))
+    await client.property.language(models.LanguageClientNameModel(python_name=True))
 
 
 @pytest.mark.asyncio
 async def test_compatible_with_encoded_name(client: NamingClient):
-    await client.compatible_with_encoded_name(models.ClientNameAndJsonEncodedNameModel(client_name=True))
+    await client.property.compatible_with_encoded_name(models.ClientNameAndJsonEncodedNameModel(client_name=True))
 
 
 @pytest.mark.asyncio
@@ -41,12 +41,12 @@ async def test_parameter(client: NamingClient):
 
 @pytest.mark.asyncio
 async def test_header_request(client: NamingClient):
-    await client.request(client_name="true")
+    await client.header.request(client_name="true")
 
 
 @pytest.mark.asyncio
 async def test_header_response(client: NamingClient):
-    assert (await client.response(cls=lambda x, y, z: z))["default-name"] == "true"
+    assert (await client.header.response(cls=lambda x, y, z: z))["default-name"] == "true"
 
 
 @pytest.mark.asyncio

@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
 using Routes._PathParameters.MatrixExpansion.Explode;
 using Routes._PathParameters.MatrixExpansion.Standard;
@@ -11,6 +12,8 @@ namespace Routes._PathParameters.MatrixExpansion
     public partial class PathParametersMatrixExpansion
     {
         protected PathParametersMatrixExpansion() => throw null;
+
+        internal PathParametersMatrixExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

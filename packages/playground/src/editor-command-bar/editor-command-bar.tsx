@@ -1,17 +1,24 @@
-import { Link, Toolbar, ToolbarButton, Tooltip } from "@fluentui/react-components";
-import { Broom16Filled, Bug16Regular, Save16Regular } from "@fluentui/react-icons";
-import { useMemo, type FunctionComponent, type ReactNode } from "react";
+import {
+  Broom16Filled,
+  Bug16Regular,
+  Checkmark16Regular,
+  DocumentBulletList24Regular,
+  Save16Regular,
+} from "@fluentui/react-icons";
+import { useCallback, useMemo, useState, type FunctionComponent } from "react";
 import { EmitterDropdown } from "../react/emitter-dropdown.js";
-import { SamplesDrawerTrigger } from "../react/samples-drawer/index.js";
+import type { CommandBarItem } from "../react/responsive-command-bar/index.js";
+import { ResponsiveCommandBar } from "../react/responsive-command-bar/index.js";
+import { SamplesDrawerOverlay, SamplesDrawerTrigger } from "../react/samples-drawer/index.js";
+import { useIsMobile } from "../react/use-mobile.js";
 import type { BrowserHost, PlaygroundSample } from "../types.js";
-import style from "./editor-command-bar.module.css";
 
 export interface EditorCommandBarProps {
-  documentationUrl?: string;
   saveCode: () => Promise<void> | void;
   formatCode: () => Promise<void> | void;
   fileBug?: () => Promise<void> | void;
-  commandBarButtons?: ReactNode;
+  /** Additional items provided by the consumer. */
+  commandBarItems?: readonly CommandBarItem[];
   host: BrowserHost;
   selectedEmitter: string;
   onSelectedEmitterChange: (emitter: string) => void;
@@ -20,28 +27,22 @@ export interface EditorCommandBarProps {
   selectedSampleName: string;
   onSelectedSampleNameChange: (sampleName: string) => void;
 }
-export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
-  documentationUrl,
-  saveCode,
-  formatCode,
-  fileBug,
-  host,
-  selectedEmitter,
-  onSelectedEmitterChange,
-  samples,
-  selectedSampleName,
-  onSelectedSampleNameChange,
-  commandBarButtons,
-}) => {
-  const documentation = documentationUrl ? (
-    <label>
-      <Link href={documentationUrl} target="_blank">
-        Docs
-      </Link>
-    </label>
-  ) : undefined;
 
-  const bugButton = fileBug ? <FileBugButton onClick={fileBug} /> : undefined;
+export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = (props) => {
+  const {
+    saveCode,
+    formatCode,
+    fileBug,
+    host,
+    selectedEmitter,
+    onSelectedEmitterChange,
+    samples,
+    onSelectedSampleNameChange,
+    commandBarItems: externalItems,
+  } = props;
+
+  const isMobile = useIsMobile();
+  const [samplesDrawerOpen, setSamplesDrawerOpen] = useState(false);
 
   const emitters = useMemo(
     () =>
@@ -51,56 +52,100 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
     [host.libraries],
   );
 
-  return (
-    <div className={style["bar"]}>
-      <Toolbar>
-        <Tooltip content="Save" relationship="description" withArrow>
-          <ToolbarButton aria-label="Save" icon={<Save16Regular />} onClick={saveCode as any} />
-        </Tooltip>
-        <Tooltip content="Format" relationship="description" withArrow>
-          <ToolbarButton aria-label="Format" icon={<Broom16Filled />} onClick={formatCode as any} />
-        </Tooltip>
-        {samples && (
-          <>
-            <SamplesDrawerTrigger
-              samples={samples}
-              onSelectedSampleNameChange={onSelectedSampleNameChange}
-            />
-            <div className={style["spacer"]}></div>
-          </>
-        )}
+  const handleFileBug = useCallback(() => {
+    if (fileBug) void fileBug();
+  }, [fileBug]);
+
+  const items = useMemo<CommandBarItem[]>(() => {
+    const result: CommandBarItem[] = [
+      {
+        id: "save",
+        label: "Save",
+        icon: <Save16Regular />,
+        onClick: saveCode as () => void,
+        pinned: true,
+      },
+      {
+        id: "format",
+        label: "Format",
+        icon: <Broom16Filled />,
+        onClick: formatCode as () => void,
+        pinned: true,
+      },
+    ];
+
+    if (samples) {
+      result.push({
+        id: "samples",
+        label: "Browse Samples",
+        icon: <DocumentBulletList24Regular />,
+        onClick: () => setSamplesDrawerOpen(true),
+        toolbarItem: (
+          <SamplesDrawerTrigger
+            samples={samples}
+            onSelectedSampleNameChange={onSelectedSampleNameChange}
+          />
+        ),
+      });
+    }
+
+    result.push({
+      id: "emitter",
+      label: "Emitter",
+      toolbarItem: (
         <EmitterDropdown
           emitters={emitters}
-          onSelectedEmitterChange={onSelectedEmitterChange}
           selectedEmitter={selectedEmitter}
+          onSelectedEmitterChange={onSelectedEmitterChange}
         />
+      ),
+      children: emitters.map((emitter) => ({
+        id: `emitter-${emitter}`,
+        label: emitter,
+        icon: emitter === selectedEmitter ? <Checkmark16Regular /> : undefined,
+        onClick: () => onSelectedEmitterChange(emitter),
+      })),
+    });
 
-        {documentation && (
-          <>
-            <div className={style["spacer"]}></div>
-            {documentation}
-          </>
-        )}
-        <div className={style["divider"]}></div>
-        {commandBarButtons}
-        {bugButton}
-      </Toolbar>
-    </div>
-  );
-};
+    if (externalItems) {
+      result.push(...externalItems);
+    }
 
-interface FileBugButtonProps {
-  onClick: () => Promise<void> | void;
-}
-const FileBugButton: FunctionComponent<FileBugButtonProps> = ({ onClick }) => {
+    if (fileBug) {
+      result.push({
+        id: "file-bug",
+        label: "File Bug",
+        align: "right",
+        icon: <Bug16Regular />,
+        onClick: handleFileBug,
+      });
+    }
+
+    return result;
+  }, [
+    saveCode,
+    formatCode,
+    samples,
+    onSelectedSampleNameChange,
+    emitters,
+    selectedEmitter,
+    onSelectedEmitterChange,
+    externalItems,
+    fileBug,
+    handleFileBug,
+  ]);
+
   return (
-    <Tooltip content="File Bug Report" relationship="description" withArrow>
-      <ToolbarButton
-        appearance="subtle"
-        aria-label="File Bug Report"
-        icon={<Bug16Regular />}
-        onClick={onClick as any}
-      ></ToolbarButton>
-    </Tooltip>
+    <>
+      <ResponsiveCommandBar items={items} isMobile={isMobile} />
+      {isMobile && samples && (
+        <SamplesDrawerOverlay
+          samples={samples}
+          onSelectedSampleNameChange={onSelectedSampleNameChange}
+          open={samplesDrawerOpen}
+          onOpenChange={setSamplesDrawerOpen}
+        />
+      )}
+    </>
   );
 };

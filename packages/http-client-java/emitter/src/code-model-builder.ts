@@ -1886,9 +1886,7 @@ export class CodeModelBuilder {
 
         // group schema
 
-        // TODO: double check this suppression
-        // eslint-disable-next-line no-useless-assignment
-        let coreNamespace = this.namespace;
+        let coreNamespace;
         if (this.isAzureV1()) {
           coreNamespace = "com.azure.core.http";
         } else {
@@ -2831,13 +2829,15 @@ export class CodeModelBuilder {
     }
 
     // discriminator
-    if (type.discriminatedSubtypes && type.discriminatorProperty) {
+    if (type.discriminatorProperty) {
       objectSchema.discriminator = new Discriminator(
         this.processModelProperty(type.discriminatorProperty),
       );
-      for (const discriminatorValue in type.discriminatedSubtypes) {
-        const subType = type.discriminatedSubtypes[discriminatorValue];
-        this.processSchema(subType, subType.name);
+      if (type.discriminatedSubtypes) {
+        for (const discriminatorValue in type.discriminatedSubtypes) {
+          const subType = type.discriminatedSubtypes[discriminatorValue];
+          this.processSchema(subType, subType.name);
+        }
       }
     }
 

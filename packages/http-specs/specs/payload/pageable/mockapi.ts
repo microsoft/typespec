@@ -4,6 +4,7 @@ import {
   json,
   MockRequest,
   passOnSuccess,
+  ResolverConfig,
   ScenarioMockApi,
   ValidationError,
   xml,
@@ -172,6 +173,34 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_nestedLink = passOnSuccess([
         },
       }),
     },
+    kind: "MockApiDefinition",
+  },
+]);
+
+// POST-THEN-GET LINK PAGINATION
+Scenarios.Payload_Pageable_ServerDrivenPagination_AlternateInitialVerb_post = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post",
+    method: "post",
+    request: {
+      body: json({ filter: "foo eq bar" }),
+    },
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/initial-post/nextPage?token=abc`,
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/server-driven-pagination/link/initial-post/nextPage",
+    method: "get",
+    request: {
+      query: { token: "abc" },
+    },
+    response: SecondResponse,
     kind: "MockApiDefinition",
   },
 ]);
@@ -553,7 +582,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
       status: 200,
       body: xml(XmlContTokenFirstPage),
       headers: {
-        "content-type": "application/xml",
+        "content-type": "application/xml; charset=utf-8",
       },
     },
     handler: (req: MockRequest) => {
@@ -590,7 +619,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithContinuation = passOnSuccess([
       status: 200,
       body: xml(XmlContTokenSecondPage),
       headers: {
-        "content-type": "application/xml",
+        "content-type": "application/xml; charset=utf-8",
       },
     },
     handler: (req: MockRequest) => {
@@ -659,9 +688,15 @@ Scenarios.Payload_Pageable_XmlPagination_listWithNextLink = passOnSuccess([
     request: {},
     response: {
       status: 200,
-      body: xml(xmlNextLinkFirstPage("PLACEHOLDER_BASE_URL")),
+      body: {
+        contentType: "application/xml",
+        rawContent: {
+          serialize: (config: ResolverConfig) =>
+            `<?xml version='1.0' encoding='UTF-8'?>` + xmlNextLinkFirstPage(config.baseUrl),
+        },
+      },
       headers: {
-        "content-type": "application/xml",
+        "content-type": "application/xml; charset=utf-8",
       },
     },
     handler: (req: MockRequest) => {
@@ -683,7 +718,7 @@ Scenarios.Payload_Pageable_XmlPagination_listWithNextLink = passOnSuccess([
       status: 200,
       body: xml(XmlNextLinkSecondPage),
       headers: {
-        "content-type": "application/xml",
+        "content-type": "application/xml; charset=utf-8",
       },
     },
     kind: "MockApiDefinition",

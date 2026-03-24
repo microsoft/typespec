@@ -4,6 +4,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
+import { InputMethodParameter } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -122,5 +123,83 @@ describe("ClientInitialization", () => {
       const childClient = client.children[0];
       ok("initializedBy" in childClient, "Child client should have initializedBy field");
     }
+  });
+
+  it("should include paramAlias on client parameters when @paramAlias is used", async () => {
+    const program = await typeSpecCompile(
+      `
+        @service(#{
+          title: "Test Service",
+        })
+        @server("https://example.com", "Test endpoint")
+        namespace TestService;
+
+        op upload(@path blobName: string): void;
+
+        model TestServiceClientOptions {
+          @paramAlias("blobName")
+          blob: string;
+        }
+
+        @@clientInitialization(TestService, {parameters: TestServiceClientOptions});
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const client = root.clients[0];
+    ok(client, "Client should exist");
+    ok(client.parameters, "Client should have parameters");
+
+    // Find the method parameter with paramAlias
+    const blobParam = client.parameters.find((p) => p.kind === "method" && p.name === "blob") as
+      | InputMethodParameter
+      | undefined;
+    ok(blobParam, "Should have a 'blob' method parameter");
+    strictEqual(blobParam.paramAlias, "blobName", "paramAlias should be 'blobName'");
+  });
+
+  it("should not include paramAlias when @paramAlias is not used", async () => {
+    const program = await typeSpecCompile(
+      `
+        @service(#{
+          title: "Test Service",
+        })
+        @server("https://example.com", "Test endpoint")
+        namespace TestService;
+
+        op upload(@path blobName: string): void;
+
+        model TestServiceClientOptions {
+          blobName: string;
+        }
+
+        @@clientInitialization(TestService, {parameters: TestServiceClientOptions});
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    const client = root.clients[0];
+    ok(client, "Client should exist");
+    ok(client.parameters, "Client should have parameters");
+
+    const blobParam = client.parameters.find(
+      (p) => p.kind === "method" && p.name === "blobName",
+    ) as InputMethodParameter | undefined;
+    ok(blobParam, "Should have a 'blobName' method parameter");
+    strictEqual(
+      blobParam.paramAlias,
+      undefined,
+      "paramAlias should be undefined when @paramAlias is not used",
+    );
   });
 });

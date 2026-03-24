@@ -185,7 +185,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeMergePatchUpdateReplaceOnly'
-      description: ''
     PersonMergePatchUpdateReplaceOnly:
       type: object
       required:

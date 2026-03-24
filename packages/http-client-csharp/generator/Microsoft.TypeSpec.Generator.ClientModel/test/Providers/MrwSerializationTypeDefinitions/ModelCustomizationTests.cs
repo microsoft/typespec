@@ -367,13 +367,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var customCodeView = modelProvider.CustomCodeView;
             Assert.IsNotNull(customCodeView, "CustomCodeView should be detected");
             var customMethods = customCodeView!.Methods;
-            var customOperator = customMethods.FirstOrDefault(m => 
+            var customOperator = customMethods.FirstOrDefault(m =>
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
             Assert.IsNotNull(customOperator, "Custom explicit operator should be detected in CustomCodeView");
 
             // Verify that the custom explicit operator is recognized and not generated
-            var explicitOperator = serializationProvider!.Methods.FirstOrDefault(m => 
+            var explicitOperator = serializationProvider!.Methods.FirstOrDefault(m =>
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
             Assert.IsNull(explicitOperator, "Custom explicit operator should not be generated");

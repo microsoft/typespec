@@ -134,6 +134,19 @@ describe("compiler: models", () => {
         strictEqual(foo.defaultValue?.valueKind, "StringValue");
       });
 
+      it(`set it with valid passthrough template constraint`, async () => {
+        const diagnostics = await Tester.diagnose(`
+          model X<V extends valueof uint32> {
+            i: uint32 = V;
+          }
+
+          model Y<V extends valueof uint32> {
+            x: X<V>;
+          }
+        `);
+        expectDiagnosticEmpty(diagnostics);
+      });
+
       it(`error if constraint is not compatible with property type`, async () => {
         const diagnostics = await Tester.diagnose(`
         model A<T extends valueof int32> { foo?: string = T }

@@ -91,7 +91,7 @@ class ServerTestsGenerator {
       switch (body.contentType) {
         case "application/xml":
         case "text/plain":
-          if (body.rawContent !== responseData) {
+          if (raw !== responseData) {
             throw new ValidationError("Response data mismatch", raw, responseData);
           }
           break;

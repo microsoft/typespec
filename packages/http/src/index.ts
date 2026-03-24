@@ -147,4 +147,4 @@ export type {
 } from "./types.js";
 
 /** @internal */
-export { $decorators } from "./tsp-index.js";
+export { $decorators, $functions } from "./tsp-index.js";

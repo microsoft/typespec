@@ -25,9 +25,9 @@
   "dependencies": {
     "@azure/identity": "~4.13.0",
     "@azure/storage-blob": "~12.31.0",
-    "@types/node": "~25.3.0",
-    "@types/semver": "^7.5.8",
-    "semver": "^7.7.1"
+    "@types/node": "~25.5.0",
+    "@types/semver": "^7.7.1",
+    "semver": "^7.7.4"
   },
   "devDependencies": {
     "rimraf": "~6.1.3",
