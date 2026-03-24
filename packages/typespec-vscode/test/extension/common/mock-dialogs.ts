@@ -53,40 +53,23 @@ export async function stubMultipleDialogs<T extends keyof Dialog>(
   });
 
   // https://github.com/microsoft/playwright/issues/8278#issuecomment-1009957411
-  // Retry to handle transient "Execution context was destroyed" errors
-  // that occur when VS Code reloads during startup.
-  const maxRetries = 3;
-  const retryDelayMs = 1000;
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await app.evaluate(({ dialog }, mocks) => {
-        mocks.forEach((mock) => {
-          const thisDialog = dialog[mock.method];
-          if (!thisDialog) {
-            throw new Error(`can't find ${mock.method} on dialog module.`);
-          }
-          if (mock.method.endsWith("Sync")) {
-            dialog[mock.method] = () => {
-              return mock.value;
-            };
-          } else {
-            dialog[mock.method] = async () => {
-              return mock.value;
-            };
-          }
-        });
-      }, mocksRequired);
-    } catch (error: any) {
-      const isRetryable =
-        error.message?.includes("Execution context was destroyed") ||
-        error.message?.includes("Target page, context or browser has been closed");
-      if (!isRetryable || attempt === maxRetries) {
-        throw error;
+  return app.evaluate(({ dialog }, mocks) => {
+    mocks.forEach((mock) => {
+      const thisDialog = dialog[mock.method];
+      if (!thisDialog) {
+        throw new Error(`can't find ${mock.method} on dialog module.`);
       }
-      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
-    }
-  }
+      if (mock.method.endsWith("Sync")) {
+        dialog[mock.method] = () => {
+          return mock.value;
+        };
+      } else {
+        dialog[mock.method] = async () => {
+          return mock.value;
+        };
+      }
+    });
+  }, mocksRequired);
 }
 
 /**
