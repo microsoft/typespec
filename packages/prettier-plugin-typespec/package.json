@@ -14,13 +14,13 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
-    "prettier": "~3.8.1"
+    "prettier": "catalog:"
   },
   "devDependencies": {
     "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
-    "esbuild": "^0.27.4",
-    "vitest": "^4.1.0"
+    "esbuild": "catalog:",
+    "vitest": "catalog:"
   },
   "files": [
     "dist/**/*",
