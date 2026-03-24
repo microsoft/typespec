@@ -477,5 +477,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public async Task CanPreserveArrayEncodingForCustomizedProperty()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String), encode: ArrayKnownEncoding.CommaDelimited)
+            };
+
+            var inputModel = InputFactory.Model("Model", properties: props, usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            // validate the custom property has the correct wire info serialization format
+            var customCodeView = modelProvider.CustomCodeView;
+            Assert.IsNotNull(customCodeView);
+            Assert.AreEqual(1, customCodeView!.Properties.Count);
+            Assert.AreEqual(SerializationFormat.Array_CommaDelimited, customCodeView.Properties[0].WireInfo?.SerializationFormat);
+
+            // validate the serialization output uses the encoded array delimiter
+            var mrwSerialization = (MrwSerializationTypeDefinition)serializationProvider!;
+            var writeMethod = mrwSerialization.BuildJsonModelWriteCoreMethod();
+            var methodBody = writeMethod.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(methodBody.Contains("string.Join(\",\", Prop2)"),
+                $"Expected serialization to use string.Join with comma delimiter for customized property, but got: {methodBody}");
+        }
     }
 }

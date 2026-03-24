@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
@@ -34,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// </summary>
         /// <param name="inputProperty">The input model property.</param>
         internal PropertyWireInformation(InputProperty inputProperty)
-            : base(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type), inputProperty.SerializedName)
+            : base(GetSerializationFormat(inputProperty), inputProperty.SerializedName)
         // TODO -- this is only temporary because we do not support other type of serialization, improvement tracking https://github.com/microsoft/typespec/issues/5861
         {
             InputModelProperty? modelProperty = inputProperty as InputModelProperty;
@@ -48,6 +49,18 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             SerializationOptions = modelProperty?.SerializationOptions != null
                 ? CodeModelGenerator.Instance.TypeFactory.CreateSerializationOptions(modelProperty.SerializationOptions)
                 : null;
+        }
+
+        private static SerializationFormat GetSerializationFormat(InputProperty inputProperty)
+        {
+            if (inputProperty is InputModelProperty modelProperty &&
+                inputProperty.Type is InputArrayType &&
+                modelProperty.Encode.HasValue)
+            {
+                return modelProperty.Encode.Value.ToSerializationFormat();
+            }
+
+            return CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
         }
     }
 }
