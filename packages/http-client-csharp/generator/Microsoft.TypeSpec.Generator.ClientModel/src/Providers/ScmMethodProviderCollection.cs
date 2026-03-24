@@ -305,6 +305,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
+            // Build a lookup from property name to wire name so we can resolve wire names
+            // for custom constructor parameters that don't have a Property reference.
+            var propertyWireNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var property in spreadSource.CanonicalView.Properties)
+            {
+                if (property.WireInfo?.SerializedName is { } propWireName)
+                {
+                    propertyWireNames.TryAdd(property.Name, propWireName);
+                }
+            }
+
             List<ValueExpression> expressions = new(spreadSource.Properties.Count);
             // we should make this find more deterministic
             var ctor = spreadSource.CanonicalView.Constructors.First(c =>
@@ -313,7 +324,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var param in ctor.Signature.Parameters)
             {
+                // Get wire name from the parameter's property if available, otherwise resolve
+                // from the model's properties by matching the parameter name to a property name.
                 var wireName = param.Property?.WireInfo?.SerializedName;
+                if (wireName == null)
+                {
+                    propertyWireNames.TryGetValue(param.Name, out wireName);
+                }
+
                 ParameterProvider? convenienceParam = null;
                 if (wireName != null)
                 {
