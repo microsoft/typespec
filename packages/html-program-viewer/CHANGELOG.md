@@ -1,5 +1,16 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.80.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9617](https://github.com/microsoft/typespec/pull/9617) Fix type graph viewer to display Symbol-keyed decorator state
+
+
 ## 0.79.0
 
 ### Bump dependencies

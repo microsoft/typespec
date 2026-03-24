@@ -320,7 +320,8 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdateTree.");
                 Argument.AssertNotNull(tree, nameof(tree));
 
-                ClientResult result = UpdateTree(tree, cancellationToken.ToRequestOptions());
+                using BinaryContent content = tree.ToBinaryContent("X");
+                ClientResult result = UpdateTree(content, cancellationToken.ToRequestOptions());
                 return ClientResult.FromValue((Tree)result, result.GetRawResponse());
             }
             catch (Exception ex)
@@ -346,7 +347,8 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdateTreeAsync.");
                 Argument.AssertNotNull(tree, nameof(tree));
 
-                ClientResult result = await UpdateTreeAsync(tree, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                using BinaryContent content = tree.ToBinaryContent("X");
+                ClientResult result = await UpdateTreeAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
                 return ClientResult.FromValue((Tree)result, result.GetRawResponse());
             }
             catch (Exception ex)
@@ -440,7 +442,8 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdateTreeAsJson.");
                 Argument.AssertNotNull(tree, nameof(tree));
 
-                ClientResult result = UpdateTreeAsJson(tree, cancellationToken.ToRequestOptions());
+                using BinaryContent content = tree.ToBinaryContent("J");
+                ClientResult result = UpdateTreeAsJson(content, cancellationToken.ToRequestOptions());
                 return ClientResult.FromValue((Tree)result, result.GetRawResponse());
             }
             catch (Exception ex)
@@ -466,7 +469,8 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Entering method UpdateTreeAsJsonAsync.");
                 Argument.AssertNotNull(tree, nameof(tree));
 
-                ClientResult result = await UpdateTreeAsJsonAsync(tree, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+                using BinaryContent content = tree.ToBinaryContent("J");
+                ClientResult result = await UpdateTreeAsJsonAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
                 return ClientResult.FromValue((Tree)result, result.GetRawResponse());
             }
             catch (Exception ex)

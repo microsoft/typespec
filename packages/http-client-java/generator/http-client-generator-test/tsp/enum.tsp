@@ -202,4 +202,12 @@ interface EnumOp {
     @header
     colorArrayOpt?: ColorModel[],
   ): void;
+
+  // The request and response should be `@header contentType: "application/json", @body body: ColorModel`
+  // The test here is to make sure the generated code still compile pass, even if it is not the expected operation definition.
+  @post
+  @route("operation/wrong-body")
+  getWrongBody(@body body: ColorModelBase): {
+    @body body: ColorModelBase;
+  };
 }

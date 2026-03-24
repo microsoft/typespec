@@ -868,9 +868,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        var defaultValue = (property.IsDiscriminator && _model.DiscriminatorValue != null && property.Type.IsFrameworkType)
-                           ? Literal(_model.DiscriminatorValue)
-                           : Default;
+                        ValueExpression defaultValue;
+                        if (property.IsDiscriminator && _model.DiscriminatorValue != null && property.Type.IsFrameworkType)
+                        {
+                            defaultValue = Literal(_model.DiscriminatorValue);
+                        }
+                        else if (IsXmlUnwrappedRequiredCollection(property))
+                        {
+                            defaultValue = New.List(property.Type.ElementType);
+                        }
+                        else
+                        {
+                            defaultValue = Default;
+                        }
                         propertyDeclarationStatements.Add(Declare(variableRef, defaultValue));
                     }
                 }
@@ -893,6 +903,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
             return propertyDeclarationStatements;
+        }
+
+        private static bool IsXmlUnwrappedRequiredCollection(PropertyProvider property)
+        {
+            var wireInfo = property.WireInfo;
+            if (wireInfo == null || !wireInfo.IsRequired || wireInfo.IsNullable || !property.Type.IsCollection)
+            {
+                return false;
+            }
+
+            var xmlWireInfo = (wireInfo.SerializationOptions as ScmSerializationOptions)?.Xml;
+            return xmlWireInfo?.Unwrapped == true;
         }
 
         private MethodBodyStatement[] BuildPersistableModelWriteCoreMethodBody()

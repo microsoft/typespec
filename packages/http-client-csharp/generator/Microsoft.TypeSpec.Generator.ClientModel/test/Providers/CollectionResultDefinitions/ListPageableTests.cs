@@ -63,7 +63,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 .OfType<RestClientProvider>().ToList();
 
             Assert.IsTrue(restClientProviders.Count > 0, "RestClientProvider should be generated");
-            
+
             var parameterNames = restClientProviders
                 .SelectMany(p => p.Methods)
                 .SelectMany(m => m.Signature.Parameters)
@@ -134,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual("top", topParam!.Name,
                 "Parameter name should be 'top' (from LastContractView), not 'maxCount' (conversion should be prevented)");
         }
-        
+
         [Test]
         public void NoNextLinkOrContinuationTokenOfT()
         {

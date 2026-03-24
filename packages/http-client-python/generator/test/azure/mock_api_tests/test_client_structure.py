@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import pytest
 from client.structure.service.models import ClientType
 from client.structure.service import ServiceClient
 from client.structure.multiclient import ClientAClient, ClientBClient
@@ -35,23 +36,25 @@ def test_structure_multiclient():
     client_b.renamed_six()
 
 
+@pytest.mark.skip(reason="will reopen the cases after upgrade `@azure-tools/typespec-client-generator-core` to 0.67.0")
 def test_structure_renamed_operation():
     client = RenamedOperationClient(endpoint="http://localhost:3000", client=ClientType.RENAMED_OPERATION)
     client.renamed_one()
     client.renamed_three()
     client.renamed_five()
 
-    client.group.renamed_two()
-    client.group.renamed_four()
-    client.group.renamed_six()
+    client.renamed_two()
+    client.renamed_four()
+    client.renamed_six()
 
 
+@pytest.mark.skip(reason="will reopen the cases after upgrade `@azure-tools/typespec-client-generator-core` to 0.67.0")
 def test_structure_two_operation_group():
     client = TwoOperationGroupClient(endpoint="http://localhost:3000", client=ClientType.TWO_OPERATION_GROUP)
-    client.group1.one()
-    client.group1.three()
-    client.group1.four()
+    client.one()
+    client.three()
+    client.four()
 
-    client.group2.two()
-    client.group2.five()
-    client.group2.six()
+    client.two()
+    client.five()
+    client.six()

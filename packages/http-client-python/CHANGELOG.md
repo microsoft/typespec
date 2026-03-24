@@ -1,5 +1,18 @@
 # Change Log - @typespec/http-client-python
 
+## 0.28.0
+
+### Features
+
+- [#9898](https://github.com/microsoft/typespec/pull/9898) Remove enum value padding because we generate our enum value names with upper case so there is no need
+
+### Bug Fixes
+
+- [#9778](https://github.com/microsoft/typespec/pull/9778) Return empty list instead of None for non-optional unwrapped XML list fields during deserialization
+- [#9952](https://github.com/microsoft/typespec/pull/9952) Fix extensible enum member names incorrectly getting an `Enum` suffix when the member name matched a Python reserved word (e.g. `ANDEnum` → `AND`, `CLASSEnum` → `CLASS`).
+- [#9964](https://github.com/microsoft/typespec/pull/9964) Remove includeRootSlash client option logic, which should be handled at the TypeSpec core level
+
+
 ## 0.27.2
 
 ### Bump dependencies

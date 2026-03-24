@@ -394,7 +394,8 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
   for (const type of typesMap.values()) {
     if (
       type["type"] === "model" &&
-      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly
+      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly &&
+      (type["usage"] & UsageFlags.Input) === 0
     ) {
       type["usage"] = UsageFlags.None;
     }

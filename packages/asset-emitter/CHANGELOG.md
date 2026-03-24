@@ -1,5 +1,12 @@
 # Changelog - @typespec/asset-emitter
 
+## 0.79.1
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
 ## 0.79.0
 
 ### Bug Fixes

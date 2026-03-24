@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -17,6 +18,8 @@ namespace Routes._PathParameters
     public partial class PathParameters
     {
         protected PathParameters() => throw null;
+
+        internal PathParameters(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -105,7 +105,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static ScopedApi<bool> TryGetSingle(this ScopedApi<JsonElement> jsonElement, out ScopedApi<float> floatValue)
         {
             var floatValueDeclaration = new VariableExpression(typeof(float), "floatValue");
-            floatValue= floatValueDeclaration.As<float>();
+            floatValue = floatValueDeclaration.As<float>();
             var invocation = new InvokeMethodExpression(jsonElement, nameof(JsonElement.TryGetSingle), [new DeclarationExpression(floatValueDeclaration, true)]);
             return invocation.As<bool>();
         }

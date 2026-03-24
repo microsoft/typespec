@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Authentication.OAuth2
 {
     public partial class OAuth2ClientOptions : ClientPipelineOptions
     {
+        public OAuth2ClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal OAuth2ClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

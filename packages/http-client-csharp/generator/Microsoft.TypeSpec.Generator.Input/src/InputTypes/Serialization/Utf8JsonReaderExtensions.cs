@@ -146,6 +146,43 @@ namespace Microsoft.TypeSpec.Generator.Input
             return true;
         }
 
+        public static bool TryReadComplexType<T>(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref IReadOnlyDictionary<string, T>? value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            if (reader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new JsonException();
+            }
+            reader.Read();
+            string? id = null;
+            var result = new Dictionary<string, T>();
+            while (reader.TokenType != JsonTokenType.EndObject)
+            {
+                // Skip $id metadata (reference tracking), just like TryReadReferenceId does
+                if (reader.TryReadReferenceId(ref id))
+                {
+                    continue;
+                }
+                var key = reader.GetString() ?? throw new JsonException("Dictionary key cannot be null");
+                reader.Read();
+                var item = reader.ReadWithConverter<T>(options);
+                result[key] = item ?? throw new JsonException();
+            }
+            reader.Read();
+            value = result;
+            return true;
+        }
+
         public static T? ReadWithConverter<T>(this ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
             var converter = (JsonConverter<T>)options.GetConverter(typeof(T));

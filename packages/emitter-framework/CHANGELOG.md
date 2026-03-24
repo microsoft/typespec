@@ -1,5 +1,20 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.17.0
+
+### Features
+
+- [#7993](https://github.com/microsoft/typespec/pull/7993) [csharp] Add new `ExtensibleEnumDeclaration` component allowing an unbound enum representation using a c# `struct`
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9879](https://github.com/microsoft/typespec/pull/9879) Add the missing export in index for extensible-enum in csharp
+
+
 ## 0.16.0
 
 ### Bump dependencies

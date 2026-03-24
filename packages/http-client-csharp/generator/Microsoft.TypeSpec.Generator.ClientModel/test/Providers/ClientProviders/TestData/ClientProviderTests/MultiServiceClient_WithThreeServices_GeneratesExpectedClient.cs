@@ -15,9 +15,9 @@ namespace Sample
     {
         private readonly global::System.Uri _endpoint;
         private readonly string _subscriptionId;
-        private readonly string _serviceComputeApiVersion;
-        private readonly string _serviceKeyVaultApiVersion;
-        private readonly string _serviceStorageApiVersion;
+        private readonly string _computeApiVersion;
+        private readonly string _keyVaultApiVersion;
+        private readonly string _storageApiVersion;
         private global::Sample.KeyVault.KeyVault _cachedKeyVault;
         private global::Sample.Storage.Storage _cachedStorage;
         private global::Sample.Compute.Compute _cachedCompute;
@@ -30,7 +30,7 @@ namespace Sample
         {
         }
 
-        public TestClient(global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options)
+        internal TestClient(global::System.ClientModel.Primitives.AuthenticationPolicy authenticationPolicy, global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options)
         {
             global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
             global::Sample.Argument.AssertNotNullOrEmpty(subscriptionId, nameof(subscriptionId));
@@ -39,27 +39,38 @@ namespace Sample
 
             _endpoint = endpoint;
             _subscriptionId = subscriptionId;
-            Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
-            _serviceComputeApiVersion = options.ServiceComputeApiVersion;
-            _serviceKeyVaultApiVersion = options.ServiceKeyVaultApiVersion;
-            _serviceStorageApiVersion = options.ServiceStorageApiVersion;
+            if ((authenticationPolicy != null))
+            {
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            }
+            else
+            {
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            }
+            _computeApiVersion = options.ComputeApiVersion;
+            _keyVaultApiVersion = options.KeyVaultApiVersion;
+            _storageApiVersion = options.StorageApiVersion;
+        }
+
+        public TestClient(global::System.Uri endpoint, string subscriptionId, global::Sample.TestClientOptions options) : this(null, endpoint, subscriptionId, options)
+        {
         }
 
         public global::System.ClientModel.Primitives.ClientPipeline Pipeline { get; }
 
         public virtual global::Sample.KeyVault.KeyVault GetKeyVaultClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedKeyVault) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedKeyVault, new global::Sample.KeyVault.KeyVault(Pipeline, _endpoint, _serviceKeyVaultApiVersion, _subscriptionId), null) ?? _cachedKeyVault));
+            return (global::System.Threading.Volatile.Read(ref _cachedKeyVault) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedKeyVault, new global::Sample.KeyVault.KeyVault(Pipeline, _endpoint, _keyVaultApiVersion, _subscriptionId), null) ?? _cachedKeyVault));
         }
 
         public virtual global::Sample.Storage.Storage GetStorageClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedStorage) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedStorage, new global::Sample.Storage.Storage(Pipeline, _endpoint, _serviceStorageApiVersion, _subscriptionId), null) ?? _cachedStorage));
+            return (global::System.Threading.Volatile.Read(ref _cachedStorage) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedStorage, new global::Sample.Storage.Storage(Pipeline, _endpoint, _storageApiVersion, _subscriptionId), null) ?? _cachedStorage));
         }
 
         public virtual global::Sample.Compute.Compute GetComputeClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedCompute) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCompute, new global::Sample.Compute.Compute(Pipeline, _endpoint, _serviceComputeApiVersion, _subscriptionId), null) ?? _cachedCompute));
+            return (global::System.Threading.Volatile.Read(ref _cachedCompute) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCompute, new global::Sample.Compute.Compute(Pipeline, _endpoint, _computeApiVersion, _subscriptionId), null) ?? _cachedCompute));
         }
     }
 }

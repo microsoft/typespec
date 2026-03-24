@@ -7,3 +7,6 @@ generator/test/.diff-summary.md
 
 # Regeneration marker (tracks when generated code was last regenerated)
 .last-regenerate
+
+# local folder for debug
+alpha

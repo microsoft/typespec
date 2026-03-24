@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             type = CreateCSharpTypeCore(inputType);
-            TypeCache.Add(inputType, type);
+            TypeCache[inputType] = type;
             return type;
         }
 

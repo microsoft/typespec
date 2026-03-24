@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace Routes._PathParameters.SimpleExpansion.Explode
     public partial class PathParametersSimpleExpansionExplode
     {
         protected PathParametersSimpleExpansionExplode() => throw null;
+
+        internal PathParametersSimpleExpansionExplode(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

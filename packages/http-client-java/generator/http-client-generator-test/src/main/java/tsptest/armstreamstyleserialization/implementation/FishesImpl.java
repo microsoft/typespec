@@ -30,12 +30,8 @@ public final class FishesImpl implements Fishes {
 
     public Response<Fish> getModelWithResponse(Context context) {
         Response<FishInner> inner = this.serviceClient().getModelWithResponse(context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new FishImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new FishImpl(inner.getValue(), this.manager()));
     }
 
     public Fish getModel() {
@@ -49,12 +45,8 @@ public final class FishesImpl implements Fishes {
 
     public Response<Fish> putModelWithResponse(FishInner fish, Context context) {
         Response<FishInner> inner = this.serviceClient().putModelWithResponse(fish, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new FishImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new FishImpl(inner.getValue(), this.manager()));
     }
 
     public Fish putModel(FishInner fish) {
@@ -68,12 +60,8 @@ public final class FishesImpl implements Fishes {
 
     public Response<OutputOnlyModel> getOutputOnlyModelWithResponse(Context context) {
         Response<OutputOnlyModelInner> inner = this.serviceClient().getOutputOnlyModelWithResponse(context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new OutputOnlyModelImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new OutputOnlyModelImpl(inner.getValue(), this.manager()));
     }
 
     public OutputOnlyModel getOutputOnlyModel() {

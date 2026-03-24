@@ -77,7 +77,7 @@ finally {
 }
 
 if ($PublishType -eq "internal") {
-    $feedUrl = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry"
+    $feedUrl = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry"
 
     $overrides = @{
         "@typespec/http-client-python" = "$feedUrl/@typespec/http-client-python/-/http-client-python-$emitterVersion.tgz"

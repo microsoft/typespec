@@ -130,6 +130,10 @@ try {
     }
     
     Push-Location $tempDir
+
+    # Configure git user for commits in this repository
+    git config user.name "azure-sdk"
+    git config user.email "azuresdk@microsoft.com"
     
     # Add the remote
     git remote add origin "https://github.com/$RepoOwner/$RepoName.git"
@@ -145,7 +149,8 @@ try {
     
     # Set the sparse checkout patterns - only the directories we need
     # Note: 'eng' covers eng/packages/http-client-csharp, eng/packages/http-client-csharp-mgmt, and all eng/ artifacts
-    git sparse-checkout set eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src
+    # Note: 'doc/GeneratorVersions' is needed for regenerating the emitter version dashboard
+    git sparse-checkout set eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src doc/GeneratorVersions
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to set sparse checkout patterns"
     }
@@ -549,6 +554,11 @@ try {
         }
     }
 
+    # Regenerate the emitter version dashboard
+    Write-Host "Regenerating emitter version dashboard..."
+    $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
+    & $dashboardScript -RepoRoot $tempDir
+
     # Check if there are changes to commit
     $gitStatus = git status --porcelain
     if (-not $gitStatus) {
@@ -611,6 +621,12 @@ try {
     $sdkPath = Join-Path $tempDir "sdk"
     if (Test-Path $sdkPath) {
         git add $sdkPath
+    }
+
+    # Add the regenerated dashboard
+    $dashboardPath = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.md"
+    if (Test-Path $dashboardPath) {
+        git add $dashboardPath
     }
     
     if ($LASTEXITCODE -ne 0) {

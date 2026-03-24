@@ -11,10 +11,12 @@ import encode.duration.property.models.FloatMillisecondsDurationProperty;
 import encode.duration.property.models.FloatMillisecondsLargerUnitDurationProperty;
 import encode.duration.property.models.FloatSecondsDurationArrayProperty;
 import encode.duration.property.models.FloatSecondsDurationProperty;
+import encode.duration.property.models.FloatSecondsLargerUnitDurationProperty;
 import encode.duration.property.models.ISO8601DurationProperty;
 import encode.duration.property.models.Int32MillisecondsDurationProperty;
 import encode.duration.property.models.Int32MillisecondsLargerUnitDurationProperty;
 import encode.duration.property.models.Int32SecondsDurationProperty;
+import encode.duration.property.models.Int32SecondsLargerUnitDurationProperty;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +45,10 @@ public class EncodeDurationTests {
 
         queryClient.int32Seconds(SECOND36);
 
+        queryClient.int32SecondsLargerUnit(Duration.ofMinutes(2));
+
+        queryClient.floatSecondsLargerUnit(Duration.ofMinutes(2).plusSeconds(30));
+
         queryClient.iso8601(DAY40);
 
         queryClient.int32SecondsArray(Arrays.asList(SECOND36, Duration.ofSeconds(47)));
@@ -51,12 +57,11 @@ public class EncodeDurationTests {
 
         queryClient.int32MillisecondsLargerUnit(Duration.ofMinutes(3));
 
-//        TODO: floatMilliseconds/float64Milliseconds send 35625.0 instead of 35625 as query param
-//        queryClient.floatMilliseconds(MILLIS35625);
-//
-//        queryClient.floatMillisecondsLargerUnit(Duration.ofMinutes(3).plusSeconds(30));
-//
-//        queryClient.float64Milliseconds(MILLIS35625);
+        queryClient.floatMilliseconds(MILLIS35625);
+
+        queryClient.floatMillisecondsLargerUnit(Duration.ofMinutes(3).plusSeconds(30));
+
+        queryClient.float64Milliseconds(MILLIS35625);
 
         queryClient.int32MillisecondsArray(Arrays.asList(MILLIS36000, Duration.ofMillis(47000)));
     }
@@ -71,6 +76,10 @@ public class EncodeDurationTests {
 
         headerClient.int32Seconds(SECOND36);
 
+        headerClient.int32SecondsLargerUnit(Duration.ofMinutes(2));
+
+        headerClient.floatSecondsLargerUnit(Duration.ofMinutes(2).plusSeconds(30));
+
         headerClient.iso8601(DAY40);
 
         headerClient.iso8601Array(Arrays.asList(DAY40, Duration.ofDays(50)));
@@ -79,12 +88,11 @@ public class EncodeDurationTests {
 
         headerClient.int32MillisecondsLargerUnit(Duration.ofMinutes(3));
 
-//        TODO: floatMilliseconds/float64Milliseconds send 35625.0 instead of 35625 as header value
-//        headerClient.floatMilliseconds(MILLIS35625);
-//
-//        headerClient.floatMillisecondsLargerUnit(Duration.ofMinutes(3).plusSeconds(30));
-//
-//        headerClient.float64Milliseconds(MILLIS35625);
+        headerClient.floatMilliseconds(MILLIS35625);
+
+        headerClient.floatMillisecondsLargerUnit(Duration.ofMinutes(3).plusSeconds(30));
+
+        headerClient.float64Milliseconds(MILLIS35625);
 
         headerClient.int32MillisecondsArray(Arrays.asList(MILLIS36000, Duration.ofMillis(47000)));
     }
@@ -101,6 +109,16 @@ public class EncodeDurationTests {
 
         Assertions.assertEquals(SECOND36,
             propertyClient.int32Seconds(new Int32SecondsDurationProperty(SECOND36)).getValue());
+
+        Assertions.assertEquals(Duration.ofMinutes(2),
+            propertyClient.int32SecondsLargerUnit(new Int32SecondsLargerUnitDurationProperty(Duration.ofMinutes(2)))
+                .getValue());
+
+        Assertions.assertEquals(Duration.ofMinutes(2).plusSeconds(30),
+            propertyClient
+                .floatSecondsLargerUnit(
+                    new FloatSecondsLargerUnitDurationProperty(Duration.ofMinutes(2).plusSeconds(30)))
+                .getValue());
 
         propertyClient.iso8601(new ISO8601DurationProperty(DAY40));
 

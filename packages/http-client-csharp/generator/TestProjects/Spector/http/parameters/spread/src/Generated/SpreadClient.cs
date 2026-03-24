@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using Parameters.Spread._Alias;
 using Parameters.Spread._Model;
 
@@ -13,7 +14,12 @@ namespace Parameters.Spread
     {
         public SpreadClient() : this(new Uri("http://localhost:3000"), new SpreadClientOptions()) => throw null;
 
-        public SpreadClient(Uri endpoint, SpreadClientOptions options) => throw null;
+        internal SpreadClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, SpreadClientOptions options) => throw null;
+
+        public SpreadClient(Uri endpoint, SpreadClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public SpreadClient(SpreadClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

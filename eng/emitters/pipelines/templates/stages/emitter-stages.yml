@@ -7,7 +7,9 @@ parameters:
   - name: UseTypeSpecNext
     type: boolean
 
-  # Whether to publish to the internal feed.
+  # Whether and where to publish packages. Values: 'none', 'internal', 'public'.
+  # 'internal' publishes to the internal feed only.
+  # 'public' publishes to the internal feed AND to npmjs.org.
   - name: Publish
     type: string
     default: "none"
@@ -281,27 +283,35 @@ stages:
                 artifact: build_artifacts_${{ parameters.LanguageShortName }}
                 displayName: Download build artifacts
 
-              # Create authenticated .npmrc file for publishing
-              - ${{ if eq(parameters.Publish, 'internal') }}:
-                  - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
-                    parameters:
-                      npmrcPath: $(buildArtifactsPath)/packages/.npmrc
-                      registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/
-              - ${{ else }}:
-                  - pwsh: |
-                      "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
-                    displayName: Authenticate .npmrc for npmjs.org
-                    workingDirectory: $(buildArtifactsPath)/packages
+              # Always publish to internal feed
+              - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
+                parameters:
+                  npmrcPath: $(buildArtifactsPath)/packages/.npmrc
+                  registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
 
-              # per package, publishing using appropriate tool
               - ${{ each package in parameters.Packages }}:
                   - ${{ if eq(package.type, 'npm') }}:
                       - pwsh: |
                           $file = Resolve-Path "${{ package.file }}"
                           Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
                           npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                        displayName: Publish ${{ package.name }}
+                        displayName: Publish ${{ package.name }} to internal feed
                         workingDirectory: $(buildArtifactsPath)/packages
+
+              # If publishing publicly, also publish to npmjs.org
+              - ${{ if eq(parameters.Publish, 'public') }}:
+                  - pwsh: |
+                      "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
+                    displayName: Authenticate .npmrc for npmjs.org
+                    workingDirectory: $(buildArtifactsPath)/packages
+                  - ${{ each package in parameters.Packages }}:
+                      - ${{ if eq(package.type, 'npm') }}:
+                          - pwsh: |
+                              $file = Resolve-Path "${{ package.file }}"
+                              Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
+                              npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
+                            displayName: Publish ${{ package.name }} to npmjs.org
+                            workingDirectory: $(buildArtifactsPath)/packages
               - ${{ if parameters.HasNugetPackages }}:
                   - task: 1ES.PublishNuget@1
                     displayName: Publish Nuget packages

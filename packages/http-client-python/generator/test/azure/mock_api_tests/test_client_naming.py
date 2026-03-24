@@ -14,15 +14,15 @@ def client():
 
 
 def test_client(client: NamingClient):
-    client.client(models.ClientNameModel(client_name=True))
+    client.property.client(models.ClientNameModel(client_name=True))
 
 
 def test_language(client: NamingClient):
-    client.language(models.LanguageClientNameModel(python_name=True))
+    client.property.language(models.LanguageClientNameModel(python_name=True))
 
 
 def test_compatible_with_encoded_name(client: NamingClient):
-    client.compatible_with_encoded_name(models.ClientNameAndJsonEncodedNameModel(client_name=True))
+    client.property.compatible_with_encoded_name(models.ClientNameAndJsonEncodedNameModel(client_name=True))
 
 
 def test_operation(client: NamingClient):
@@ -34,11 +34,11 @@ def test_parameter(client: NamingClient):
 
 
 def test_header_request(client: NamingClient):
-    client.request(client_name="true")
+    client.header.request(client_name="true")
 
 
 def test_header_response(client: NamingClient):
-    assert client.response(cls=lambda x, y, z: z)["default-name"] == "true"
+    assert client.header.response(cls=lambda x, y, z: z)["default-name"] == "true"
 
 
 def test_model_client(client: NamingClient):

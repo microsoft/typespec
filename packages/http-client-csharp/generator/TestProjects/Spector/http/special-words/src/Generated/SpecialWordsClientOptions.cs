@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace SpecialWords
 {
     public partial class SpecialWordsClientOptions : ClientPipelineOptions
     {
+        public SpecialWordsClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal SpecialWordsClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

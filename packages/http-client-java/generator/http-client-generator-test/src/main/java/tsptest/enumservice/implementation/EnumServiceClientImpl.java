@@ -4,6 +4,7 @@
 
 package tsptest.enumservice.implementation;
 
+import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
 import com.azure.core.annotation.HeaderParam;
@@ -415,6 +416,26 @@ public final class EnumServiceClientImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> setStringEnumArrayHeaderSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("color-array") String colorArray, RequestOptions requestOptions, Context context);
+
+        @Post("/enum/operation/wrong-body")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<BinaryData>> getWrongBody(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("text/plain") BinaryData body, RequestOptions requestOptions, Context context);
+
+        @Post("/enum/operation/wrong-body")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<BinaryData> getWrongBodySync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("text/plain") BinaryData body, RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -1316,5 +1337,72 @@ public final class EnumServiceClientImpl {
             .collect(Collectors.joining(","));
         return service.setStringEnumArrayHeaderSync(this.getEndpoint(), colorArrayConverted, requestOptions,
             Context.NONE);
+    }
+
+    /**
+     * The getWrongBody operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * String
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * String
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return simple string along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getWrongBodyWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+        final String contentType = "text/plain";
+        final String accept = "text/plain";
+        return FluxUtil.withContext(
+            context -> service.getWrongBody(this.getEndpoint(), contentType, accept, body, requestOptions, context));
+    }
+
+    /**
+     * The getWrongBody operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * String
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * String
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return simple string along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getWrongBodyWithResponse(BinaryData body, RequestOptions requestOptions) {
+        final String contentType = "text/plain";
+        final String accept = "text/plain";
+        return service.getWrongBodySync(this.getEndpoint(), contentType, accept, body, requestOptions, Context.NONE);
     }
 }

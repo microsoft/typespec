@@ -1,5 +1,16 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.24
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9752](https://github.com/microsoft/typespec/pull/9752) Update to how coverage manifest are managed. The manifest upload each individual one as a single file
+
+
 ## 0.1.0-alpha.23
 
 ### Bump dependencies

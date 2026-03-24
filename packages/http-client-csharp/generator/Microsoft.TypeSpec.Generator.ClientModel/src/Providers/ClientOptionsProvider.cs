@@ -10,8 +10,9 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Shared;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Shared;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -123,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal IReadOnlyDictionary<EnumProvider, PropertyProvider>? VersionProperties => field ??= BuildVersionProperties();
 
-        private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
+         private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
         {
             if (_serviceVersionsEnums is null)
             {
@@ -133,9 +134,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                var versionPropertyName = _inputClient.IsMultiServiceClient
-                    ? ClientHelper.BuildNameForService(inputEnum.Namespace, ServicePrefix, ApiVersionSuffix)
-                    : VersionSuffix;
+                string versionPropertyName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    versionPropertyName = VersionSuffix;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        versionPropertyName = $"{uniquePrefix.ToIdentifierName()}{ApiVersionSuffix}";
+                    }
+                    else
+                    {
+                        versionPropertyName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, string.Empty, ApiVersionSuffix);
+                    }
+                }
 
                 var versionProperty = new PropertyProvider(
                     null,
@@ -159,11 +177,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             Dictionary<FieldProvider, EnumProvider> latestVersionFields = new(_serviceVersionsEnums.Count);
-            foreach (var enumProvider in _serviceVersionsEnums.Values)
+            foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                var fieldName = _inputClient.IsMultiServiceClient
-                    ? $"{LatestPrefix}{enumProvider.Name.ToIdentifierName()}"
-                    : LatestVersionFieldName;
+                string fieldName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    fieldName = LatestVersionFieldName;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        fieldName = $"{LatestPrefix}{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
+                    }
+                    else
+                    {
+                        fieldName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, LatestPrefix, VersionSuffix);
+                    }
+                }
                 var field = new FieldProvider(
                     modifiers: FieldModifiers.Private | FieldModifiers.Const,
                     type: enumProvider.Type,
@@ -230,9 +265,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
+            var configSectionCtor = BuildConfigurationSectionConstructor();
+
             if (LatestVersionsFields is null)
             {
-                return [];
+                var defaultCtor = new ConstructorProvider(
+                    new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, []),
+                    MethodBodyStatement.Empty,
+                    this);
+                return [defaultCtor, configSectionCtor];
             }
 
             var constructorBody = new List<MethodBodyStatement>();
@@ -249,10 +290,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 FormattableString versionParamDescription = $"The service version";
                 if (_inputClient.IsMultiServiceClient)
                 {
-                    versionParameterName = ClientHelper.BuildNameForService(
-                        serviceVersionEnum.Name,
-                        ServicePrefix,
-                        VersionSuffix).ToVariableName();
+                    versionParameterName = serviceVersionEnum.Name.ToVariableName();
                     versionParamDescription = $"The {serviceVersionEnum.Name} service version";
                 }
 
@@ -281,7 +319,85 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new ConstructorSignature(Type, $"Initializes a new instance of {_clientProvider.Name}Options.", MethodSignatureModifiers.Public, constructorParameters),
                 constructorBody,
                 this);
-            return [constructor];
+            return [constructor, configSectionCtor];
+        }
+
+        private ConstructorProvider BuildConfigurationSectionConstructor()
+        {
+            var sectionParam = new ParameterProvider(
+                "section",
+                $"The configuration section.",
+                ClientSettingsProvider.IConfigurationSectionType);
+
+            var experimentalAttr = new AttributeStatement(
+                typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute),
+                [Literal(ClientSettingsProvider.ClientSettingsDiagnosticId)]);
+
+            // Set version to latest version before the guard so it is always initialized
+            var body = new List<MethodBodyStatement>();
+            if (LatestVersionsFields != null && VersionProperties != null)
+            {
+                foreach (var (_, serviceVersionEnum) in LatestVersionsFields.OrderBy(kvp => kvp.Key.Name))
+                {
+                    if (VersionProperties.TryGetValue(serviceVersionEnum, out var versionProperty))
+                    {
+                        var latestVersion = serviceVersionEnum.EnumValues[^1];
+                        body.Add(versionProperty.Assign(Literal(latestVersion.Value)).Terminate());
+                    }
+                }
+            }
+
+            // if (section is null || !section.Exists()) { return; }
+            var guardCondition = sectionParam.Is(Null).Or(Not(sectionParam.Invoke("Exists")));
+            var guardStatement = new IfStatement(guardCondition) { Return() };
+
+            body.Add(guardStatement);
+
+            // Bind version properties from configuration (after guard, default already set before guard)
+            if (LatestVersionsFields != null && VersionProperties != null)
+            {
+                foreach (var (_, serviceVersionEnum) in LatestVersionsFields.OrderBy(kvp => kvp.Key.Name))
+                {
+                    if (VersionProperties.TryGetValue(serviceVersionEnum, out var versionProperty))
+                    {
+                        // if (section["VersionPropertyName"] is string version) { Version = version; }
+                        var versionVarDecl = Declare(versionProperty.Name.ToVariableName(), new CSharpType(typeof(string)), out var versionVar);
+                        var ifVersionStatement = new IfStatement(new IndexerExpression(sectionParam, Literal(versionProperty.Name)).Is(versionVarDecl));
+                        ifVersionStatement.Add(This.Property(versionProperty.Name).Assign(versionVar).Terminate());
+                        body.Add(ifVersionStatement);
+                    }
+                }
+            }
+
+            // Build a set of version property names for O(1) lookup
+            var versionPropertyNames = VersionProperties?.Values.Select(vp => vp.Name).ToHashSet();
+
+            // Bind non-version properties from configuration using type-aware binding
+            foreach (var property in Properties)
+            {
+                if (versionPropertyNames?.Contains(property.Name) == true)
+                {
+                    continue;
+                }
+
+                ClientSettingsProvider.AppendBindingForProperty(
+                    body,
+                    sectionParam,
+                    property.Name,
+                    property.Name.ToVariableName(),
+                    property.Type);
+            }
+
+            return new ConstructorProvider(
+                new ConstructorSignature(
+                    Type,
+                    $"Initializes a new instance of {_clientProvider.Name}Options from configuration.",
+                    MethodSignatureModifiers.Internal,
+                    [sectionParam],
+                    attributes: [experimentalAttr],
+                    initializer: new ConstructorInitializer(true, [sectionParam])),
+                new MethodBodyStatements([.. body]),
+                this);
         }
 
         protected override PropertyProvider[] BuildProperties()

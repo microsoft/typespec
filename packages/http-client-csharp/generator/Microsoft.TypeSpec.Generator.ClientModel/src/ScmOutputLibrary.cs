@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel
@@ -41,6 +42,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             if (clientOptions != null)
             {
                 types.Add(clientOptions);
+            }
+
+            // Emit the Settings class for any publicly constructible client (root or individually-initialized sub-client).
+            var clientSettings = client.ClientSettings;
+            if (clientSettings != null && client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            {
+                types.Add(clientSettings);
             }
 
             // We use the spec view methods so that we include collection definitions even if the user is customizing or suppressing
