@@ -103,7 +103,7 @@ jobs:
       - run: pnpm run lint
         name: Lint
 
-  # Check version mismatch
+  # Check that all dependencies use the pnpm catalog
   version-consistency:
     name: Versions consistency
     runs-on: ubuntu-latest
@@ -117,5 +117,5 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: pnpm run check-version-mismatch
-        name: Check version mismatch
+      - run: pnpm run check-catalog
+        name: Check catalog usage

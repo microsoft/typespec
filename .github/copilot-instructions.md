@@ -109,7 +109,7 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 - Generate external signatures: `pnpm gen-compiler-extern-signature`
 - Regenerate samples: `pnpm regen-samples`
 - Regenerate docs: `pnpm regen-docs`
-- Sync dependency versions: `pnpm fix-version-mismatch`
+- Check catalog usage: `pnpm check-catalog`
 
 ## Troubleshooting
 

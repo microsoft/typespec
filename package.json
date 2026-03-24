@@ -9,6 +9,7 @@
     "build:all": "pnpm -r --workspace-concurrency=Infinity build",
     "check:eng": "tsc -p ./tsconfig.eng.json --noEmit",
     "setup:min": "pnpm install && pnpm --filter \"@typespec/prettier-plugin-typespec...\" --filter \"@typespec/tspd...\" run build",
+    "check-catalog": "tsx eng/common/scripts/check-catalog.ts",
     "change": "chronus",
     "clean": "pnpm -r run clean",
     "cspell": "cspell --no-progress .",
