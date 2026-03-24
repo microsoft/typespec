@@ -286,7 +286,7 @@
     "@types/mocha": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
-    "@types/vscode": "catalog:",
+    "@types/vscode": "~1.110.0",
     "@types/which": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",

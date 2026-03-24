@@ -192,9 +192,6 @@ catalogs:
     '@types/swagger-ui-express':
       specifier: ^4.1.8
       version: 4.1.8
-    '@types/vscode':
-      specifier: ~1.110.0
-      version: 1.110.0
     '@types/which':
       specifier: ^3.0.4
       version: 3.0.4
@@ -2967,7 +2964,7 @@ importers:
         specifier: 'catalog:'
         version: 7.7.1
       '@types/vscode':
-        specifier: 'catalog:'
+        specifier: ~1.110.0
         version: 1.110.0
       '@types/which':
         specifier: 'catalog:'

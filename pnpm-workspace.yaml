@@ -78,7 +78,6 @@ catalog:
   "@types/swagger-ui": ~5.21.1
   "@types/swagger-ui-dist": ~3.30.6
   "@types/swagger-ui-express": ^4.1.8
-  "@types/vscode": ~1.110.0
   "@types/which": ^3.0.4
   "@types/xml2js": ^0.4.14
   "@types/yargs": ~17.0.35
