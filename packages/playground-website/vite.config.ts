@@ -18,9 +18,6 @@ export default defineConfig(({ mode }) => {
   const useLocalLibraries = env["VITE_USE_LOCAL_LIBRARIES"] === "true";
   const config = definePlaygroundViteConfig({
     ...TypeSpecPlaygroundConfig,
-    links: {
-      documentationUrl: "https://typespec.io",
-    },
     skipBundleLibraries: !useLocalLibraries,
   });
 
