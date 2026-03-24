@@ -466,6 +466,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("return new global::Sample.Models.MockInputModel(\"constant\", prop2, additionalBinaryDataProperties: null);\n", factoryMethod.BodyStatements!.ToDisplayString());
         }
 
+        [Test]
+        public async Task SkipsCodeGenMemberInternalProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property("prop1", InputPrimitiveType.String),
+                    InputFactory.Property("prop2", InputPrimitiveType.String)
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelFactoryProvider = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().SingleOrDefault();
+            Assert.IsNotNull(modelFactoryProvider);
+
+            var factoryMethod = modelFactoryProvider!.Methods.FirstOrDefault(m => m.Signature.Name == "MockInputModel");
+            Assert.IsNotNull(factoryMethod);
+
+            // prop1 is customized via CodeGenMember to be internal, so it should not appear in the factory method
+            Assert.AreEqual(1, factoryMethod!.Signature.Parameters.Count);
+            Assert.AreEqual("prop2", factoryMethod.Signature.Parameters[0].Name);
+
+            // The body should pass default for the internal property
+            var body = factoryMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("default", body);
+        }
+
         private static InputModelType[] GetTestModels()
         {
             InputType additionalPropertiesUnknown = InputPrimitiveType.Any;

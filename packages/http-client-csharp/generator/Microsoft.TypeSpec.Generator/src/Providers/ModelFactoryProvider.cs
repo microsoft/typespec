@@ -459,6 +459,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
+                // Skip parameters for properties that were customized via CodeGenMember to be non-public
+                if (param.Property?.OriginalName != null
+                    && !param.Property!.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
                 parameters.Add(GetModelFactoryParam(param));
             }
             return [.. parameters];
