@@ -249,13 +249,6 @@ const sidebar: SidebarItem[] = [
       "extending-typespec/writing-scaffolding-template",
     ],
   },
-  {
-    label: "🚀 Release Notes",
-    autogenerate: {
-      order: "desc",
-      directory: "release-notes",
-    },
-  },
 ];
 
 export default sidebar;
