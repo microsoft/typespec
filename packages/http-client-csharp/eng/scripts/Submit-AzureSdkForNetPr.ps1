@@ -555,20 +555,9 @@ try {
     }
 
     # Regenerate the emitter version dashboard
+    Write-Host "Regenerating emitter version dashboard..."
     $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
-    if (Test-Path $dashboardScript) {
-        Write-Host "Regenerating emitter version dashboard..."
-        try {
-            & $dashboardScript -RepoRoot $tempDir
-            if ($LASTEXITCODE -ne 0) {
-                Write-Warning "Dashboard generation failed with exit code $LASTEXITCODE. Continuing without dashboard update."
-            }
-        } catch {
-            Write-Warning "Dashboard generation failed: $($_.Exception.Message). Continuing without dashboard update."
-        }
-    } else {
-        Write-Host "Dashboard script not found at $dashboardScript. Skipping dashboard generation."
-    }
+    & $dashboardScript -RepoRoot $tempDir
 
     # Check if there are changes to commit
     $gitStatus = git status --porcelain
