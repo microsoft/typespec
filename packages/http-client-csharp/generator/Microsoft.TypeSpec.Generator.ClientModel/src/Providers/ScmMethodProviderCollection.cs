@@ -281,16 +281,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Match convenience method parameters to constructor parameters by wire (serialized) name
             // to handle cases where C# names diverge due to @clientName renames, @encodedName,
             // or casing differences between the convenience parameters and model properties.
-            // Falls back to C# name matching for parameters without wire information.
             var convenienceMethodParamsByWireName = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
-            var convenienceMethodParamsByName = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
             foreach (var p in ConvenienceMethodParameters)
             {
                 if (p.WireInfo?.SerializedName != null)
                 {
                     convenienceMethodParamsByWireName.TryAdd(p.WireInfo.SerializedName, p);
                 }
-                convenienceMethodParamsByName.TryAdd(p.Name, p);
+            }
+
+            // For customized properties (where OriginalName identifies the original property),
+            // use the original property's wire info to ensure the dictionary has the correct mapping.
+            foreach (var property in spreadSource.CanonicalView.Properties)
+            {
+                if (property.OriginalName != null && property.WireInfo?.SerializedName is { } wireName)
+                {
+                    var matchedParam = ConvenienceMethodParameters.FirstOrDefault(
+                        p => string.Equals(p.WireInfo?.SerializedName, wireName, StringComparison.OrdinalIgnoreCase));
+                    if (matchedParam != null)
+                    {
+                        convenienceMethodParamsByWireName.TryAdd(wireName, matchedParam);
+                    }
+                }
             }
 
             List<ValueExpression> expressions = new(spreadSource.Properties.Count);
@@ -302,10 +314,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var param in ctor.Signature.Parameters)
             {
                 var wireName = param.Property?.WireInfo?.SerializedName;
-                if (!(wireName != null && convenienceMethodParamsByWireName.TryGetValue(wireName, out var convenienceParam)))
-                {
-                    convenienceMethodParamsByName.TryGetValue(param.Name, out convenienceParam);
-                }
+                convenienceMethodParamsByWireName.TryGetValue(wireName ?? string.Empty, out var convenienceParam);
 
                 if (convenienceParam != null)
                 {
