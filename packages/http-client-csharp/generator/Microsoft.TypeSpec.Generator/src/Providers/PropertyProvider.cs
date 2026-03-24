@@ -336,20 +336,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private SerializationFormat GetSerializationFormat(InputProperty inputProperty)
-        {
-            // Handle array encoding from InputModelProperty
-            if (inputProperty is InputModelProperty modelProperty &&
-                inputProperty.Type is InputArrayType)
-            {
-                var arrayEncoding = modelProperty.Encode;
-                if (arrayEncoding.HasValue)
-                {
-                    return arrayEncoding.Value.ToSerializationFormat();
-                }
-            }
-
-            return CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
-        }
+        private static SerializationFormat GetSerializationFormat(InputProperty inputProperty)
+            => CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty);
     }
 }
