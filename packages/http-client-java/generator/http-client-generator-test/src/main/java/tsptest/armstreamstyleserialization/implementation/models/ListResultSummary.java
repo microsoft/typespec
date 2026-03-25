@@ -11,6 +11,7 @@ import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.util.List;
+import tsptest.armstreamstyleserialization.models.ListResult;
 import tsptest.armstreamstyleserialization.models.Result;
 
 /**

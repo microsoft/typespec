@@ -618,16 +618,6 @@ export class CodeModelBuilder {
           }
         }
       }
-      if (schemaUsage?.includes(SchemaContext.PublicPaged)) {
-        // Public would override PublicSpread
-        if (schemaUsage?.includes(SchemaContext.Public)) {
-          // remove PublicPaged, as it been overridden by Public
-          schemaUsage.splice(schemaUsage.indexOf(SchemaContext.PublicPaged), 1);
-        } else {
-          // add Public
-          schemaUsage.push(SchemaContext.Public);
-        }
-      }
     }
   }
 
@@ -1053,7 +1043,6 @@ export class CodeModelBuilder {
       lroMetadata = this.processLroMetadata(codeModelOperation, sdkMethod);
     }
 
-    const isPagedResponse = sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging";
     // responses
     for (const response of sdkMethod.operation.responses) {
       this.processResponse(
@@ -1061,7 +1050,7 @@ export class CodeModelBuilder {
         response.statusCodes,
         response,
         lroMetadata.longRunning,
-        isPagedResponse,
+        false,
       );
     }
 
@@ -1072,7 +1061,6 @@ export class CodeModelBuilder {
         response.statusCodes,
         response,
         lroMetadata.longRunning,
-        false,
         true,
       );
     }
@@ -1103,6 +1091,12 @@ export class CodeModelBuilder {
       // this operation is not valid for pageable (which should return a JSON object), and hence will be generated without pageable
       return;
     }
+
+    op.responses?.forEach((r) => {
+      if (r instanceof SchemaResponse) {
+        this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+      }
+    });
 
     // pageItems
     const pageItemsResponseProperty = findResponsePropertySegments(
@@ -2232,8 +2226,7 @@ export class CodeModelBuilder {
     statusCode: number | HttpStatusCodeRange | "*",
     sdkResponse: SdkHttpResponse | SdkHttpErrorResponse,
     longRunning: boolean,
-    isPagedResponse: boolean = false,
-    isErrorResponse: boolean = false,
+    isErrorResponse: boolean,
   ) {
     // TODO: what to do if more than 1 response?
     // It happens when the response type is Union, on one status code.
@@ -2408,16 +2401,8 @@ export class CodeModelBuilder {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Output] });
 
         if (trackConvenienceApi) {
-          const schemaIsPublicBeforeProcess =
-            response.schema instanceof ObjectSchema &&
-            (response.schema as SchemaUsage).usage?.includes(SchemaContext.Public);
-          const publicSchemaContext =
-            isPagedResponse && !schemaIsPublicBeforeProcess
-              ? SchemaContext.PublicPaged
-              : SchemaContext.Public;
-
           this.trackSchemaUsage(response.schema, {
-            usage: [op.internalApi ? SchemaContext.Internal : publicSchemaContext],
+            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
           });
         }
       }
@@ -3594,35 +3579,28 @@ export class CodeModelBuilder {
       }
     };
 
-    const schemaUsageDetails = schema as SchemaUsage;
-    const originalUsage = schemaUsageDetails.usage;
-    // Exclude "PublicPaged" and "PublicSpread" that are not to be propagated
-    const updatedSchemaUsage = originalUsage?.filter(
-      (it) => it !== SchemaContext.PublicPaged && it !== SchemaContext.PublicSpread,
+    // Exclude context that not to be propagated
+    const updatedSchemaUsage = (schema as SchemaUsage).usage?.filter(
+      (it) => it !== SchemaContext.Paged && it !== SchemaContext.PublicSpread,
     );
-    // Propagate "Public" usage to schema if it has "PublicPaged" or "PublicSpread" usage
-    const hasPublicUsage = originalUsage?.includes(SchemaContext.Public);
-    const addPublicIfUsageIncludes = (context: SchemaContext) => {
-      if (
-        updatedSchemaUsage &&
-        originalUsage?.includes(context) &&
-        !hasPublicUsage &&
-        !updatedSchemaUsage.includes(SchemaContext.Public)
-      ) {
-        updatedSchemaUsage.push(SchemaContext.Public);
-      }
-    };
-    addPublicIfUsageIncludes(SchemaContext.PublicSpread);
-    addPublicIfUsageIncludes(SchemaContext.PublicPaged);
-
-    const schemaUsageToPropagate = {
+    const indexSpread = (schema as SchemaUsage).usage?.indexOf(SchemaContext.PublicSpread);
+    if (
+      updatedSchemaUsage &&
+      indexSpread &&
+      indexSpread >= 0 &&
+      !(schema as SchemaUsage).usage?.includes(SchemaContext.Public)
+    ) {
+      // Propagate Public, if schema is PublicSpread
+      updatedSchemaUsage.push(SchemaContext.Public);
+    }
+    const schemaUsage = {
       usage: updatedSchemaUsage,
-      serializationFormats: schemaUsageDetails.serializationFormats?.filter(
+      serializationFormats: (schema as SchemaUsage).serializationFormats?.filter(
         (it) => it !== KnownMediaType.Multipart,
       ),
     };
     // Propagate the usage of the initial schema itself
-    innerPropagateSchemaUsage(schema, schemaUsageToPropagate);
+    innerPropagateSchemaUsage(schema, schemaUsage);
   }
 
   private trackSchemaUsage(schema: Schema, schemaUsage: SchemaUsage): void {

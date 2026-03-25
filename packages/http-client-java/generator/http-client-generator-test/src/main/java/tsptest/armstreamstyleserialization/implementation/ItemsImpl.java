@@ -12,6 +12,7 @@ import com.azure.core.util.logging.ClientLogger;
 import tsptest.armstreamstyleserialization.fluent.ItemsClient;
 import tsptest.armstreamstyleserialization.fluent.models.ListResultSummary2Inner;
 import tsptest.armstreamstyleserialization.models.Items;
+import tsptest.armstreamstyleserialization.models.ListResult3;
 import tsptest.armstreamstyleserialization.models.ListResultSummary2;
 import tsptest.armstreamstyleserialization.models.Result;
 
@@ -65,6 +66,22 @@ public final class ItemsImpl implements Items {
         } else {
             return null;
         }
+    }
+
+    public PagedIterable<Result> list3() {
+        return this.serviceClient().list3();
+    }
+
+    public PagedIterable<Result> list3(Context context) {
+        return this.serviceClient().list3(context);
+    }
+
+    public Response<Void> postWithResponse(ListResult3 body, Context context) {
+        return this.serviceClient().postWithResponse(body, context);
+    }
+
+    public void post(ListResult3 body) {
+        this.serviceClient().post(body);
     }
 
     private ItemsClient serviceClient() {
