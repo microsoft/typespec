@@ -1,0 +1,35 @@
+name: GitHub Actions - Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/**
+  pull_request:
+    paths:
+      - .github/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            .github
+
+      # Content copied from https://raw.githubusercontent.com/rhysd/actionlint/2ab3a12c7848f6c15faca9a92612ef4261d0e370/.github/actionlint-matcher.json
+      - name: Add ActionLint Problem Matcher
+        run: echo "::add-matcher::.github/matchers/actionlint.json"
+
+      - name: Lint workflows
+        uses: docker://rhysd/actionlint:1.7.11
+        with:
+          args: -color -verbose
