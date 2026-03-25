@@ -5,8 +5,10 @@ package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.exam
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
@@ -93,16 +95,61 @@ public class FluentClientMethodExample implements FluentMethodExample {
             throw new IllegalStateException("Package '" + namespace + "' is not supported by Fluent Premium");
         }
 
-        String serviceClientReference;
-        Optional<String> metadataSuffix = FluentStatic.getFluentJavaSettings().getMetadataSuffix();
-        if (metadataSuffix.isPresent() && SECONDARY_SERVICE_CLIENT_ACCESSOR.containsKey(metadataSuffix.get())) {
-            serviceClientReference = SECONDARY_SERVICE_CLIENT_ACCESSOR.get(metadataSuffix.get()) + "()";
-        } else {
-            serviceClientReference = ModelNaming.METHOD_SERVICE_CLIENT + "()";
-        }
+        String serviceClientReference = resolveServiceClientAccessor();
         String methodGroupReference = "get" + CodeNamer.toPascalCase(methodGroup.getVariableName()) + "()";
         return serviceClientReference + "." + methodGroupReference;
     }
+
+    /**
+     * Resolves the service client accessor method name on the Manager class.
+     *
+     * <p>For multi-service packages (e.g., ResourceManager with multiple inner clients), the method group may belong
+     * to a secondary service client. In that case, the accessor is derived from the secondary client's interface name
+     * (e.g., {@code FeatureClient} → {@code featureClient()}) instead of the default {@code serviceClient()}.
+     *
+     * <p>For Swagger multi-service packages, each spec runs as a separate codegen invocation producing a single
+     * {@code ServiceClient}. The {@code metadata-suffix} option signals that this is a secondary spec, and the
+     * accessor is resolved via convention or an override map for legacy non-conforming specs.
+     */
+    private String resolveServiceClientAccessor() {
+        Client client = FluentStatic.getClient();
+        ServiceClient primaryServiceClient = client.getServiceClient();
+        String methodGroupOwner = this.methodGroup.getServiceClientName();
+
+        // TypeSpec multi-client: check if the method group belongs to a non-primary service client
+        List<ServiceClient> allServiceClients = client.getServiceClients();
+        if (allServiceClients != null
+            && allServiceClients.size() > 1
+            && !methodGroupOwner.equals(primaryServiceClient.getClassName())) {
+            // Find the secondary service client that owns this method group
+            for (ServiceClient sc : allServiceClients) {
+                if (sc.getClassName().equals(methodGroupOwner)) {
+                    return CodeNamer.toCamelCase(sc.getInterfaceName()) + "()";
+                }
+            }
+        }
+
+        // Swagger multi-service: metadata-suffix indicates a secondary spec
+        Optional<String> metadataSuffix = FluentStatic.getFluentJavaSettings().getMetadataSuffix();
+        if (metadataSuffix.isPresent()) {
+            String override = ACCESSOR_OVERRIDE.get(metadataSuffix.get());
+            if (override != null) {
+                return override + "()";
+            }
+            // Convention: derive from service client interface name
+            return CodeNamer.toCamelCase(primaryServiceClient.getInterfaceName()) + "()";
+        }
+
+        return ModelNaming.METHOD_SERVICE_CLIENT + "()";
+    }
+
+    // Override map for legacy Swagger specs where the Manager accessor doesn't follow
+    // the toCamelCase(interfaceName) convention.
+    // Verified against azure-sdk-for-java ResourceManager.java.
+    // Source: https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/resourcemanager/api-specs.json
+    private static final Map<String, String> ACCESSOR_OVERRIDE = Map.of("change", "resourceChangeClient", "deployments",
+        "deploymentClient", "deploymentstacks", "deploymentStackClient", "databoundary", "dataBoundaryClient",
+        "msgraph", ModelNaming.METHOD_SERVICE_CLIENT);
 
     @Override
     public String getMethodName() {
@@ -136,29 +183,4 @@ public class FluentClientMethodExample implements FluentMethodExample {
         MANAGER_REFERENCE.put("trafficmanager", "trafficManagerProfiles()");
     }
 
-    // Maps metadata-suffix (from secondary specs in multi-spec packages) to the service client
-    // accessor method on the SDK Manager class. When a secondary spec shares a Manager with the
-    // primary spec, serviceClient() returns the primary inner client. This map provides the correct
-    // accessor for the secondary inner client.
-    // Source of truth:
-    // https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/resourcemanager/api-specs.json
-    private static final Map<String, String> SECONDARY_SERVICE_CLIENT_ACCESSOR = new HashMap<>();
-    static {
-        // resources package secondaries (ResourceManager)
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("feature", "featureClient");
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("policy", "policyClient");
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("lock", "managementLockClient");
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("subscription", "subscriptionClient");
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("change", "resourceChangeClient");
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("databoundary", "dataBoundaryClient");
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("deployments", "deploymentClient");
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("deploymentstacks", "deploymentStackClient");
-        // appservice package secondaries (AppServiceManager)
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("certificateregistration", "certificateRegistrationClient");
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("domainregistration", "domainRegistrationClient");
-        // containerregistry package secondary (ContainerRegistryManager)
-        SECONDARY_SERVICE_CLIENT_ACCESSOR.put("registrytasks", "taskClient");
-        // authorization: msgraph uses default serviceClient() (AuthorizationManager implements
-        // HasServiceClient<MicrosoftGraphClient>), no override needed
-    }
 }
