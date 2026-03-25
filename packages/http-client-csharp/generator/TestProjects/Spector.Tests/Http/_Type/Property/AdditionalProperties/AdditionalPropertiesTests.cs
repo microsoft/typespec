@@ -842,6 +842,45 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.AdditionalProperties
         });
 
         [SpectorTest]
+        public Task SpreadRecordNonDiscriminatedUnion3Get() => Test(async host =>
+        {
+            var response = await new AdditionalPropertiesClient(host, null).GetSpreadRecordNonDiscriminatedUnion3Client().GetAsync();
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+            Assert.AreEqual("abc", response.Value.Name);
+            Assert.AreEqual(2, response.Value.AdditionalProperties.Count);
+            using var jsonDoc = System.Text.Json.JsonDocument.Parse(response.Value.AdditionalProperties["prop1"].ToMemory());
+            var prop1Items = jsonDoc.RootElement.EnumerateArray()
+                .Select(e => ModelReaderWriter.Read<WidgetData2>(BinaryData.FromString(e.GetRawText())))
+                .ToList();
+            Assert.AreEqual(2, prop1Items.Count);
+            Assert.AreEqual("2021-01-01T00:00:00Z", prop1Items[0]!.Start);
+            Assert.AreEqual("2021-01-01T00:00:00Z", prop1Items[1]!.Start);
+            var prop2 = ModelReaderWriter.Read<WidgetData1>(response.Value.AdditionalProperties["prop2"]);
+            Assert.AreEqual(new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero), prop2!.Start);
+            Assert.AreEqual(new DateTimeOffset(2021, 1, 2, 0, 0, 0, TimeSpan.Zero), prop2.End);
+        });
+
+        [SpectorTest]
+        public Task SpreadRecordNonDiscriminatedUnion3Put() => Test(async host =>
+        {
+            var prop1BinaryData = BinaryData.FromString(
+                "[{\"kind\":\"kind1\",\"start\":\"2021-01-01T00:00:00Z\"},{\"kind\":\"kind1\",\"start\":\"2021-01-01T00:00:00Z\"}]");
+            var value = new SpreadRecordForNonDiscriminatedUnion3("abc")
+            {
+                AdditionalProperties =
+                {
+                    ["prop1"] = prop1BinaryData,
+                    ["prop2"] = ModelReaderWriter.Write(new WidgetData1(new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero))
+                    {
+                        End = new DateTimeOffset(2021, 1, 2, 0, 0, 0, TimeSpan.Zero)
+                    })
+                }
+            };
+            var response = await new AdditionalPropertiesClient(host, null).GetSpreadRecordNonDiscriminatedUnion3Client().PutAsync(value);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
         public Task SpreadRecordUnionGet() => Test(async host =>
         {
             var response = await new AdditionalPropertiesClient(host, null).GetSpreadRecordUnionClient().GetAsync();
