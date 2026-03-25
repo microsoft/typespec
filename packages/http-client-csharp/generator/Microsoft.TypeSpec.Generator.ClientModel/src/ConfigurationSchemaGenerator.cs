@@ -19,6 +19,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     /// </summary>
     internal static class ConfigurationSchemaGenerator
     {
+        internal const string DefaultSectionName = "Clients";
+        internal const string DefaultOptionsRef = "options";
+
         private static readonly JsonSerializerOptions s_jsonOptions = new()
         {
             WriteIndented = true
@@ -28,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         /// Generates the ConfigurationSchema.json content based on the output library's type providers.
         /// Returns null if no clients with <see cref="ClientSettingsProvider"/> are found.
         /// </summary>
-        internal static string? Generate(OutputLibrary output)
+        internal static string? Generate(OutputLibrary output, string sectionName = DefaultSectionName, string optionsRef = DefaultOptionsRef)
         {
             var clientsWithSettings = output.TypeProviders
                 .OfType<ClientProvider>()
@@ -39,12 +42,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             {
                 return null;
             }
-
-            // Determine if Azure or SCM based on the options base type namespace.
-            var optionsBaseType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType;
-            bool isAzure = optionsBaseType.Namespace?.StartsWith("Azure", StringComparison.Ordinal) == true;
-            string sectionName = isAzure ? "AzureClients" : "Clients";
-            string optionsRef = isAzure ? "azureOptions" : "options";
 
             var schema = BuildSchema(clientsWithSettings, sectionName, optionsRef);
             return JsonSerializer.Serialize(schema, s_jsonOptions);
