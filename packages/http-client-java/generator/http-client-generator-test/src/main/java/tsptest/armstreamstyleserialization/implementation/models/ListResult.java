@@ -7,6 +7,7 @@ package tsptest.armstreamstyleserialization.implementation.models;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
+import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
@@ -14,48 +15,24 @@ import java.util.List;
 import tsptest.armstreamstyleserialization.models.Result;
 
 /**
- * The ListResultSummary model.
+ * The ListResult model.
  */
 @Immutable
-public final class ListResultSummary extends ListResult {
+public class ListResult implements JsonSerializable<ListResult> {
     /*
-     * The summary property.
+     * The items property.
      */
-    private String summary;
+    private List<Result> items;
 
     /*
      * The nextLink property.
      */
     private String nextLink;
 
-    /*
-     * The items property.
-     */
-    private List<Result> items;
-
     /**
-     * Creates an instance of ListResultSummary class.
+     * Creates an instance of ListResult class.
      */
-    private ListResultSummary() {
-    }
-
-    /**
-     * Get the summary property: The summary property.
-     * 
-     * @return the summary value.
-     */
-    public String summary() {
-        return this.summary;
-    }
-
-    /**
-     * Get the nextLink property: The nextLink property.
-     * 
-     * @return the nextLink value.
-     */
-    @Override
-    public String nextLink() {
-        return this.nextLink;
+    protected ListResult() {
     }
 
     /**
@@ -63,9 +40,39 @@ public final class ListResultSummary extends ListResult {
      * 
      * @return the items value.
      */
-    @Override
     public List<Result> items() {
         return this.items;
+    }
+
+    /**
+     * Set the items property: The items property.
+     * 
+     * @param items the items value to set.
+     * @return the ListResult object itself.
+     */
+    ListResult withItems(List<Result> items) {
+        this.items = items;
+        return this;
+    }
+
+    /**
+     * Get the nextLink property: The nextLink property.
+     * 
+     * @return the nextLink value.
+     */
+    public String nextLink() {
+        return this.nextLink;
+    }
+
+    /**
+     * Set the nextLink property: The nextLink property.
+     * 
+     * @param nextLink the nextLink value to set.
+     * @return the ListResult object itself.
+     */
+    ListResult withNextLink(String nextLink) {
+        this.nextLink = nextLink;
+        return this;
     }
 
     /**
@@ -73,17 +80,16 @@ public final class ListResultSummary extends ListResult {
      * 
      * @throws IllegalArgumentException thrown if the instance is not valid.
      */
-    @Override
     public void validate() {
         if (items() == null) {
             throw LOGGER.atError()
-                .log(new IllegalArgumentException("Missing required property items in model ListResultSummary"));
+                .log(new IllegalArgumentException("Missing required property items in model ListResult"));
         } else {
             items().forEach(e -> e.validate());
         }
     }
 
-    private static final ClientLogger LOGGER = new ClientLogger(ListResultSummary.class);
+    private static final ClientLogger LOGGER = new ClientLogger(ListResult.class);
 
     /**
      * {@inheritDoc}
@@ -91,41 +97,38 @@ public final class ListResultSummary extends ListResult {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeArrayField("items", items(), (writer, element) -> writer.writeJson(element));
-        jsonWriter.writeStringField("nextLink", nextLink());
-        jsonWriter.writeStringField("summary", this.summary);
+        jsonWriter.writeArrayField("items", this.items, (writer, element) -> writer.writeJson(element));
+        jsonWriter.writeStringField("nextLink", this.nextLink);
         return jsonWriter.writeEndObject();
     }
 
     /**
-     * Reads an instance of ListResultSummary from the JsonReader.
+     * Reads an instance of ListResult from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of ListResultSummary if the JsonReader was pointing to an instance of it, or null if it was
-     * pointing to JSON null.
+     * @return An instance of ListResult if the JsonReader was pointing to an instance of it, or null if it was pointing
+     * to JSON null.
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
-     * @throws IOException If an error occurs while reading the ListResultSummary.
+     * @throws IOException If an error occurs while reading the ListResult.
      */
-    public static ListResultSummary fromJson(JsonReader jsonReader) throws IOException {
+    public static ListResult fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            ListResultSummary deserializedListResultSummary = new ListResultSummary();
+            ListResult deserializedListResult = new ListResult();
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("items".equals(fieldName)) {
                     List<Result> items = reader.readArray(reader1 -> Result.fromJson(reader1));
-                    deserializedListResultSummary.items = items;
+                    deserializedListResult.items = items;
                 } else if ("nextLink".equals(fieldName)) {
-                    deserializedListResultSummary.nextLink = reader.getString();
-                } else if ("summary".equals(fieldName)) {
-                    deserializedListResultSummary.summary = reader.getString();
+                    deserializedListResult.nextLink = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
 
-            return deserializedListResultSummary;
+            return deserializedListResult;
         });
     }
 }

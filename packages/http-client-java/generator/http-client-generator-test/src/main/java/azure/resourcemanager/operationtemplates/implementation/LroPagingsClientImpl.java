@@ -6,7 +6,7 @@ package azure.resourcemanager.operationtemplates.implementation;
 
 import azure.resourcemanager.operationtemplates.fluent.LroPagingsClient;
 import azure.resourcemanager.operationtemplates.fluent.models.ProductInner;
-import azure.resourcemanager.operationtemplates.models.ProductListResult;
+import azure.resourcemanager.operationtemplates.implementation.models.ProductListResult;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
 import com.azure.core.annotation.HeaderParam;
