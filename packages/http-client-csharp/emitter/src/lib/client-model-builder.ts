@@ -99,8 +99,8 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
         type.namespace = model.namespace;
         type.access = model.access;
         type.usage = model.usage;
-      } else if (type.kind === "enum" && type.crossLanguageDefinitionId === "") {
-        // Fix enum names for enums created from constants
+      } else if (type.kind === "enum" && (type.crossLanguageDefinitionId === "" || type.name === "")) {
+        // Fix enum names for enums created from constants or anonymous unions
         type.name = `${model.name}${firstLetterToUpperCase(property.name)}`;
         type.namespace = model.namespace;
         type.access = model.access;
