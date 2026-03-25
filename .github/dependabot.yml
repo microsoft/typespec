@@ -88,6 +88,8 @@ updates:
       microsoft:
         patterns:
           - "@microsoft/*"
+      chronus:
+        patterns:
           - "@chronus/*"
       tree-sitter:
         patterns:
