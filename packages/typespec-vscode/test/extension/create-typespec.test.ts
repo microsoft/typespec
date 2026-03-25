@@ -69,6 +69,9 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       workspacePath: workspacePath,
     });
     await cs.screenshot(page, "after_launch");
+    // Wait for VS Code UI to be ready before mocking dialogs to avoid
+    // "Execution context was destroyed" errors from window reloads.
+    await page.waitForSelector(".explorer-viewlet", { timeout: 30000 });
     await mockShowOpenDialog(app, [workspacePath]);
     await startWithCommandPalette(page, "Create Typespec Project", cs);
     await cs.screenshot(page, "after_start_command");
@@ -86,6 +89,5 @@ describe.each(CreateCasesConfigList)("CreateTypespecProject", async (item) => {
       app,
     );
     await expectFilesInDir(expectedResults, workspacePath);
-    app.close();
   });
 });
