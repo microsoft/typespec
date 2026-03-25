@@ -139,9 +139,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? _xmlWriterSnippet.WriteStartElement(ns.Prefix, nameHintExpression, ns.Namespace)
                 : _xmlWriterSnippet.WriteStartElement(nameHintExpression);
 
+            // Collect namespace declarations from properties that differ from the root namespace
+            var propertyNamespaces = AllCategorizedXmlProperties.Namespaces;
+            var nsDeclarations = new List<MethodBodyStatement>();
+            if (propertyNamespaces != null)
+            {
+                var rootNs = ns?.Namespace;
+                foreach (var kvp in propertyNamespaces)
+                {
+                    if (kvp.Key != rootNs)
+                    {
+                        nsDeclarations.Add(
+                            _xmlWriterSnippet.Invoke(
+                                nameof(System.Xml.XmlWriter.WriteAttributeString),
+                                [Literal("xmlns"), Literal(kvp.Value.Prefix), Null, Literal(kvp.Key)]).Terminate());
+                    }
+                }
+            }
+
+            var ifBody = new List<MethodBodyStatement> { writeStartElement };
+            ifBody.AddRange(nsDeclarations);
+
             return
             [
-                new IfStatement(nameHintNotNull) { writeStartElement },
+                new IfStatement(nameHintNotNull) { ifBody.ToArray() },
                 MethodBodyStatement.EmptyLine,
                 This.Invoke(XmlModelWriteCoreMethodName, _xmlWriterParameter, _serializationOptionsParameter).Terminate(),
                 MethodBodyStatement.EmptyLine,

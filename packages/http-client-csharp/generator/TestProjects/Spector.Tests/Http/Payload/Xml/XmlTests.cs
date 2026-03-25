@@ -409,6 +409,14 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
         });
 
         [SpectorTest]
+        public Task PutModelWithRenamedProperty() => Test(async (host) =>
+        {
+            var model = new ModelWithRenamedProperty("foo", "bar");
+            var response = await new XmlClient(host, null).GetModelWithRenamedPropertyValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
         public Task GetModelWithNestedModel() => Test(async (host) =>
         {
             var response = await new XmlClient(host, null).GetModelWithNestedModelValueClient().GetAsync();
@@ -416,6 +424,14 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
             Assert.NotNull(response.Value.Nested);
             Assert.AreEqual("foo", response.Value.Nested.Name);
             Assert.AreEqual(123, response.Value.Nested.Age);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithNestedModel() => Test(async (host) =>
+        {
+            var model = new ModelWithNestedModel(new SimpleModel("foo", 123));
+            var response = await new XmlClient(host, null).GetModelWithNestedModelValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [SpectorTest]
@@ -428,6 +444,14 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
         });
 
         [SpectorTest]
+        public Task PutModelWithRenamedNestedModel() => Test(async (host) =>
+        {
+            var model = new ModelWithRenamedNestedModel(new Author("foo"));
+            var response = await new XmlClient(host, null).GetModelWithRenamedNestedModelValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
         public Task GetModelWithWrappedPrimitiveCustomItemNames() => Test(async (host) =>
         {
             var response = await new XmlClient(host, null).GetModelWithWrappedPrimitiveCustomItemNamesValueClient().GetAsync();
@@ -435,6 +459,14 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
             Assert.AreEqual(2, response.Value.Tags.Count);
             Assert.AreEqual("fiction", response.Value.Tags[0]);
             Assert.AreEqual("classic", response.Value.Tags[1]);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithWrappedPrimitiveCustomItemNames() => Test(async (host) =>
+        {
+            var model = new ModelWithWrappedPrimitiveCustomItemNames(new[] { "fiction", "classic" });
+            var response = await new XmlClient(host, null).GetModelWithWrappedPrimitiveCustomItemNamesValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [SpectorTest]
@@ -450,6 +482,18 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
         });
 
         [SpectorTest]
+        public Task PutModelWithUnwrappedModelArray() => Test(async (host) =>
+        {
+            var model = new ModelWithUnwrappedModelArray(new[]
+            {
+                new SimpleModel("foo", 123),
+                new SimpleModel("bar", 456)
+            });
+            var response = await new XmlClient(host, null).GetModelWithUnwrappedModelArrayValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
         public Task GetModelWithRenamedWrappedModelArray() => Test(async (host) =>
         {
             var response = await new XmlClient(host, null).GetModelWithRenamedWrappedModelArrayValueClient().GetAsync();
@@ -459,6 +503,18 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
             Assert.AreEqual(123, response.Value.Items[0].Age);
             Assert.AreEqual("bar", response.Value.Items[1].Name);
             Assert.AreEqual(456, response.Value.Items[1].Age);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithRenamedWrappedModelArray() => Test(async (host) =>
+        {
+            var model = new ModelWithRenamedWrappedModelArray(new[]
+            {
+                new SimpleModel("foo", 123),
+                new SimpleModel("bar", 456)
+            });
+            var response = await new XmlClient(host, null).GetModelWithRenamedWrappedModelArrayValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [SpectorTest]
@@ -474,6 +530,18 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
         });
 
         [SpectorTest]
+        public Task PutModelWithRenamedUnwrappedModelArray() => Test(async (host) =>
+        {
+            var model = new ModelWithRenamedUnwrappedModelArray(new[]
+            {
+                new SimpleModel("foo", 123),
+                new SimpleModel("bar", 456)
+            });
+            var response = await new XmlClient(host, null).GetModelWithRenamedUnwrappedModelArrayValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
         public Task GetModelWithRenamedWrappedAndItemModelArray() => Test(async (host) =>
         {
             var response = await new XmlClient(host, null).GetModelWithRenamedWrappedAndItemModelArrayValueClient().GetAsync();
@@ -481,6 +549,18 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
             Assert.AreEqual(2, response.Value.Books.Count);
             Assert.AreEqual("The Great Gatsby", response.Value.Books[0].Title);
             Assert.AreEqual("Les Miserables", response.Value.Books[1].Title);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithRenamedWrappedAndItemModelArray() => Test(async (host) =>
+        {
+            var model = new ModelWithRenamedWrappedAndItemModelArray(new[]
+            {
+                new Book("The Great Gatsby"),
+                new Book("Les Miserables")
+            });
+            var response = await new XmlClient(host, null).GetModelWithRenamedWrappedAndItemModelArrayValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [SpectorTest]
@@ -494,12 +574,28 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
         });
 
         [SpectorTest]
+        public Task PutModelWithRenamedAttribute() => Test(async (host) =>
+        {
+            var model = new ModelWithRenamedAttribute(123, "The Great Gatsby", "F. Scott Fitzgerald");
+            var response = await new XmlClient(host, null).GetModelWithRenamedAttributeValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
         public Task GetModelWithNamespace() => Test(async (host) =>
         {
             var response = await new XmlClient(host, null).GetModelWithNamespaceValueClient().GetAsync();
             Assert.AreEqual(200, response.GetRawResponse().Status);
             Assert.AreEqual(123, response.Value.Id);
             Assert.AreEqual("The Great Gatsby", response.Value.Title);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithNamespace() => Test(async (host) =>
+        {
+            var model = new ModelWithNamespace(123, "The Great Gatsby");
+            var response = await new XmlClient(host, null).GetModelWithNamespaceValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
         [SpectorTest]
@@ -510,6 +606,14 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
             Assert.AreEqual(123, response.Value.Id);
             Assert.AreEqual("The Great Gatsby", response.Value.Title);
             Assert.AreEqual("F. Scott Fitzgerald", response.Value.Author);
+        });
+
+        [SpectorTest]
+        public Task PutModelWithNamespaceOnProperties() => Test(async (host) =>
+        {
+            var model = new ModelWithNamespaceOnProperties(123, "The Great Gatsby", "F. Scott Fitzgerald");
+            var response = await new XmlClient(host, null).GetModelWithNamespaceOnPropertiesValueClient().PutAsync(model);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
         });
     }
 }
