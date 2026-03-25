@@ -1004,19 +1004,19 @@ namespace Microsoft.TypeSpec.Generator
             return codeWriterScope;
         }
 
-        internal void Append(CodeWriterDeclaration declaration, bool isDeclaration = true)
+        internal void Append(CodeWriterDeclaration declaration, bool referenceOnly = false)
         {
             if (declaration.HasBeenDeclared(_scopes))
             {
                 WriteIdentifier(declaration.GetActualName(_scopes.Peek()));
             }
-            else if (isDeclaration)
+            else if (referenceOnly)
             {
-                WriteDeclaration(declaration);
+                WriteIdentifier(declaration.RequestedName);
             }
             else
             {
-                WriteIdentifier(declaration.RequestedName);
+                WriteDeclaration(declaration);
             }
         }
 
