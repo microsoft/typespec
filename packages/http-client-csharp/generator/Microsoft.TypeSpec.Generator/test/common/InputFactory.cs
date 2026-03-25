@@ -278,7 +278,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? summary = null,
             string? serializedName = null,
             string? doc = null,
-            InputSerializationOptions? serializationOptions = null)
+            InputSerializationOptions? serializationOptions = null,
+            ArrayKnownEncoding? encode = null)
         {
             serializationOptions ??= new InputSerializationOptions();
             return new InputModelProperty(
@@ -294,7 +295,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: null,
                 isDiscriminator: isDiscriminator,
                 serializedName: serializedName ?? wireName ?? name.ToVariableName(),
-                serializationOptions: serializationOptions);
+                serializationOptions: serializationOptions,
+                encode: encode);
         }
 
         public static InputHeaderParameter HeaderParameter(
