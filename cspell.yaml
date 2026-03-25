@@ -256,7 +256,6 @@ words:
   - strs
   - stubbed
   - swaggerui
-  - syncpack
   - TCGC
   - terlson
   - timegm
@@ -337,6 +336,7 @@ ignorePaths:
   - packages/mutator-framework/**/*.test.ts
   - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
+  - pnpm-workspace.yaml
   - "**/*.mp4"
   - "**/*.plist"
   - .git/**
