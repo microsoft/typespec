@@ -311,6 +311,7 @@ model ListResult2 {
 }
 
 // This paged model need to be public (instead of in "implementation" package), as it is referenced in public API or public model
+@access(Access.public)
 model ListResult3 {
   @pageItems
   items: Result[];
