@@ -20,7 +20,7 @@ export enum SchemaContext {
   External = "external",
 
   /** Schema is used from the pageable operation. This usage does not propagate. */
-  Paged = "paged",
+  PublicPaged = "paged",
 
   /** Schema as spread/flatten model. "Public", if present in usage, will have precedence over "PublicSpread". This usage does not propagate. Instead, it propagate "Public". */
   PublicSpread = "spread",
