@@ -18,7 +18,6 @@ namespace Sample
             if ((nameHint != null))
             {
                 writer.WriteStartElement(nameHint);
-                writer.WriteAttributeString("xmlns", "ns1", null, "https://example.com/ns1");
             }
 
             this.XmlModelWriteCore(writer, options);

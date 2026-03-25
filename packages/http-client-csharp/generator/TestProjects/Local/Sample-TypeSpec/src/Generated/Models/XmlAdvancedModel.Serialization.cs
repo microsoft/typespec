@@ -108,11 +108,6 @@ namespace SampleTypeSpec
             if (nameHint != null)
             {
                 writer.WriteStartElement(nameHint);
-                writer.WriteAttributeString("xmlns", "ns1", null, "https://example.com/ns1");
-                writer.WriteAttributeString("xmlns", "ns2", null, "https://example.com/ns2");
-                writer.WriteAttributeString("xmlns", "foo", null, "http://www.contoso.com/anotherbook.dtd");
-                writer.WriteAttributeString("xmlns", "bar", null, "http://www.contoso.com/anothermodel.dtd");
-                writer.WriteAttributeString("xmlns", "ns1", null, "http://www.example.com/namespace");
             }
 
             XmlModelWriteCore(writer, options);

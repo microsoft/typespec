@@ -139,20 +139,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? _xmlWriterSnippet.WriteStartElement(ns.Prefix, nameHintExpression, ns.Namespace)
                 : _xmlWriterSnippet.WriteStartElement(nameHintExpression);
 
-            // Collect namespace declarations from properties that differ from the root namespace
-            var propertyNamespaces = AllCategorizedXmlProperties.Namespaces;
+            // When the model has a root namespace, pre-declare property namespaces that
+            // differ from the root so they appear on the root element rather than inline.
             var nsDeclarations = new List<MethodBodyStatement>();
-            if (propertyNamespaces != null)
+            if (ns != null)
             {
-                var rootNs = ns?.Namespace;
-                foreach (var kvp in propertyNamespaces)
+                var propertyNamespaces = AllCategorizedXmlProperties.Namespaces;
+                if (propertyNamespaces != null)
                 {
-                    if (kvp.Key != rootNs)
+                    foreach (var kvp in propertyNamespaces)
                     {
-                        nsDeclarations.Add(
-                            _xmlWriterSnippet.Invoke(
-                                nameof(System.Xml.XmlWriter.WriteAttributeString),
-                                [Literal("xmlns"), Literal(kvp.Value.Prefix), Null, Literal(kvp.Key)]).Terminate());
+                        if (kvp.Key != ns.Namespace)
+                        {
+                            nsDeclarations.Add(
+                                _xmlWriterSnippet.Invoke(
+                                    nameof(System.Xml.XmlWriter.WriteAttributeString),
+                                    [Literal("xmlns"), Literal(kvp.Value.Prefix), Null, Literal(kvp.Key)]).Terminate());
+                        }
                     }
                 }
             }
