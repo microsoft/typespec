@@ -184,8 +184,8 @@ catalogs:
       specifier: ^7.7.1
       version: 7.7.1
     '@types/swagger-ui':
-      specifier: ~5.21.1
-      version: 5.21.1
+      specifier: ~5.32.0
+      version: 5.32.0
     '@types/swagger-ui-dist':
       specifier: ~3.30.6
       version: 3.30.6
@@ -2171,7 +2171,7 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       '@types/swagger-ui':
         specifier: 'catalog:'
-        version: 5.21.1
+        version: 5.32.0
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.0.1(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
@@ -6909,8 +6909,8 @@ packages:
   '@types/swagger-ui-express@4.1.8':
     resolution: {integrity: sha512-AhZV8/EIreHFmBV5wAs0gzJUNq9JbbSXgJLQubCC0jtIo6prnI9MIRRxnU4MZX9RB9yXxF1V4R7jtLl/Wcj31g==}
 
-  '@types/swagger-ui@5.21.1':
-    resolution: {integrity: sha512-DUmUH59eeOtvAqcWwBduH2ws0cc5i95KHsXCS4FsOfbUq/clW8TN+HqRBj7q5p9MSsSNK43RziIGItNbrAGLxg==}
+  '@types/swagger-ui@5.32.0':
+    resolution: {integrity: sha512-diMOqNQf6gkc3ghDIgjs/AfwbwZidja2e02+fJRIfNbbQ25W0EMGLe+f9/tHh/UFRfwYR2UXR3QSPGGkBu7uNg==}
 
   '@types/treeify@1.0.3':
     resolution: {integrity: sha512-hx0o7zWEUU4R2Amn+pjCBQQt23Khy/Dk56gQU5xi5jtPL1h83ACJCeFaB2M/+WO1AntvWrSoVnnCAfI1AQH4Cg==}
@@ -19080,7 +19080,7 @@ snapshots:
       '@types/express': 5.0.6
       '@types/serve-static': 2.2.0
 
-  '@types/swagger-ui@5.21.1': {}
+  '@types/swagger-ui@5.32.0': {}
 
   '@types/treeify@1.0.3': {}
 
