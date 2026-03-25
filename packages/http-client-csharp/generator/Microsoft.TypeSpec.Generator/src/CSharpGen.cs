@@ -118,6 +118,9 @@ namespace Microsoft.TypeSpec.Generator
                 await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
 
+            // Write additional output files (e.g. configuration schemas)
+            await CodeModelGenerator.Instance.WriteAdditionalFiles(outputPath);
+
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
         }
 
