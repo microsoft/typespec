@@ -21,6 +21,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    exclude-paths:
+      - "packages/http-client-csharp"
+      - "packages/http-client-java"
+      - "packages/http-client-python"
     groups:
       alloy:
         patterns:
