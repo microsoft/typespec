@@ -1,5 +1,6 @@
 version: 2
 updates:
+  # Python dependencies for http-client-python
   - package-ecosystem: "pip"
     directories:
       - "/packages/http-client-python/eng/"
@@ -14,13 +15,114 @@ updates:
       include: "scope"
     labels:
       - "emitter:client:python"
+
+  # Main pnpm workspace (npm dependencies via catalog)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     groups:
       alloy:
         patterns:
           - "@alloy-js/*"
-    allow:
-      - dependency-name: "@alloy-js/*"
+      types:
+        patterns:
+          - "@types/*"
+      testing:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "@playwright/test"
+          - "playwright"
+          - "@testing-library/*"
+          - "mocha"
+          - "happy-dom"
+          - "c8"
+      linting:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "eslint-plugin-*"
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
+          - "cspell"
+      build-tools:
+        patterns:
+          - "esbuild"
+          - "esbuild-*"
+          - "vite"
+          - "vite-*"
+          - "@vitejs/*"
+          - "typescript"
+          - "tsx"
+          - "rollup-*"
+      website:
+        patterns:
+          - "astro"
+          - "astro-*"
+          - "@astrojs/*"
+          - "@expressive-code/*"
+          - "@docsearch/*"
+          - "rehype-*"
+          - "remark-*"
+          - "typedoc"
+          - "typedoc-*"
+          - "sharp"
+      ui:
+        patterns:
+          - "react"
+          - "react-*"
+          - "@fluentui/*"
+          - "storybook"
+          - "@storybook/*"
+          - "prism-react-renderer"
+          - "clsx"
+      vscode:
+        patterns:
+          - "@vscode/*"
+          - "vscode-*"
+      formatting:
+        patterns:
+          - "prettier"
+          - "prettier-plugin-*"
+      microsoft:
+        patterns:
+          - "@microsoft/*"
+      chronus:
+        patterns:
+          - "@chronus/*"
+      tree-sitter:
+        patterns:
+          - "tree-sitter-*"
+          - "web-tree-sitter"
+      octokit:
+        patterns:
+          - "@octokit/*"
+      azure:
+        patterns:
+          - "@azure/*"
+      yarnpkg:
+        patterns:
+          - "@yarnpkg/*"
+      babel:
+        patterns:
+          - "@babel/*"
+      scalar:
+        patterns:
+          - "@scalar/*"
+      monaco:
+        patterns:
+          - "monaco-editor"
+          - "monaco-editor-core"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    exclude-paths:
+      - ".github/workflows/*.lock.{yaml,yml}"
+    groups:
+      actions:
+        patterns:
+          - "*"
