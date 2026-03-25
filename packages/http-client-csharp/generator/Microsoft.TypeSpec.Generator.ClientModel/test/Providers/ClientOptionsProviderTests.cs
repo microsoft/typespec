@@ -752,6 +752,163 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var nestedTypes = clientOptionsProvider!.NestedTypes;
             Assert.AreEqual(2, nestedTypes.Count);
             CollectionAssert.AllItemsAreUnique(nestedTypes.Select(t => t.Name).ToList());
+
+            var writer = new TypeProviderWriter(clientOptionsProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultiServiceClient_UniqueNamespaces_ProducesUniqueVersionEnums()
+        {
+            List<string> serviceOneVersions = ["2024-01-01"];
+            List<string> serviceTwoVersions = ["2024-06-01"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            var serviceOneEnum = InputFactory.StringEnum(
+                "Versions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "ServiceOne");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "Versions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "ServiceTwo");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceOneOperation = InputFactory.Operation(
+                "ServiceOneOperation",
+                parameters: [apiVersionParameter],
+                ns: "ServiceOne");
+
+            var serviceTwoOperation = InputFactory.Operation(
+                "ServiceTwoOperation",
+                parameters: [apiVersionParameter],
+                ns: "ServiceTwo");
+
+            var client = InputFactory.Client(
+                "MultiServiceClient",
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceOneMethod", serviceOneOperation),
+                    InputFactory.BasicServiceMethod("ServiceTwoMethod", serviceTwoOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // Validate that Fields access does not crash (the original issue crashed here)
+            Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
+
+            // Validate that Methods access does not crash (original crash site: Fields.ToDictionary in BuildMethods)
+            Assert.DoesNotThrow(() => _ = clientProvider!.Methods);
+
+            var clientOptionsProvider = clientProvider?.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+
+            // Validate nested service version enums have unique names
+            var nestedTypes = clientOptionsProvider!.NestedTypes;
+            Assert.AreEqual(2, nestedTypes.Count);
+            CollectionAssert.AllItemsAreUnique(nestedTypes.Select(t => t.Name).ToList());
+
+            // Verify enum names follow the XServiceVersion pattern
+            Assert.AreEqual("ServiceOneServiceVersion", nestedTypes[0].Name);
+            Assert.AreEqual("ServiceTwoServiceVersion", nestedTypes[1].Name);
+
+            var writer = new TypeProviderWriter(clientOptionsProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void MultiServiceClient_SameNamespace_ProducesUniqueVersionEnums()
+        {
+            // Regression test for the scenario where both enums share the exact same namespace
+            // (e.g., when tspconfig remaps both services to the same C# output namespace).
+            List<string> serviceOneVersions = ["2024-01-01"];
+            List<string> serviceTwoVersions = ["2024-06-01"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            // Both enums have the EXACT SAME namespace (simulates tspconfig namespace override)
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceOneOperation = InputFactory.Operation(
+                "ServiceOneOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+
+            var serviceTwoOperation = InputFactory.Operation(
+                "ServiceTwoOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.Generator.MgmtTypeSpec.MultiService.Tests");
+
+            var client = InputFactory.Client(
+                "MultiServiceClient",
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceOneMethod", serviceOneOperation),
+                    InputFactory.BasicServiceMethod("ServiceTwoMethod", serviceTwoOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
+            Assert.DoesNotThrow(() => _ = clientProvider!.Methods);
+
+            var clientOptionsProvider = clientProvider?.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+
+            // Validate nested service version enums have unique names
+            var nestedTypes = clientOptionsProvider!.NestedTypes;
+            Assert.AreEqual(2, nestedTypes.Count);
+            CollectionAssert.AllItemsAreUnique(nestedTypes.Select(t => t.Name).ToList());
+
+            var writer = new TypeProviderWriter(clientOptionsProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]

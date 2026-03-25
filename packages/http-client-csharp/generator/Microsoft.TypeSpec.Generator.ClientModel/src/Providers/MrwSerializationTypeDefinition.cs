@@ -1074,7 +1074,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
                     var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
                     {
-                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, parameter.Property?.SerializationFormat)
+                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, wireInfo.SerializationFormat)
                     };
                     propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
@@ -1754,7 +1754,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.SerializationFormat));
+                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat));
             }
 
             foreach (var field in _model.CanonicalView.Fields)

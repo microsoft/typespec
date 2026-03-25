@@ -4,6 +4,564 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@alloy-js/cli':
+      specifier: ^0.22.0
+      version: 0.22.0
+    '@alloy-js/core':
+      specifier: ^0.22.0
+      version: 0.22.0
+    '@alloy-js/csharp':
+      specifier: ^0.22.0
+      version: 0.22.0
+    '@alloy-js/markdown':
+      specifier: ^0.22.0
+      version: 0.22.0
+    '@alloy-js/python':
+      specifier: ^0.3.0
+      version: 0.3.0
+    '@alloy-js/rollup-plugin':
+      specifier: ^0.1.0
+      version: 0.1.0
+    '@alloy-js/typescript':
+      specifier: ^0.22.0
+      version: 0.22.0
+    '@astrojs/check':
+      specifier: ^0.9.7
+      version: 0.9.7
+    '@astrojs/react':
+      specifier: ^5.0.0
+      version: 5.0.0
+    '@astrojs/starlight':
+      specifier: ^0.38.1
+      version: 0.38.1
+    '@azure/identity':
+      specifier: ~4.13.0
+      version: 4.13.0
+    '@azure/storage-blob':
+      specifier: ~12.31.0
+      version: 12.31.0
+    '@babel/code-frame':
+      specifier: ~7.29.0
+      version: 7.29.0
+    '@babel/core':
+      specifier: ^7.29.0
+      version: 7.29.0
+    '@chronus/chronus':
+      specifier: ^1.3.1
+      version: 1.3.1
+    '@chronus/github':
+      specifier: ^1.0.6
+      version: 1.0.6
+    '@chronus/github-pr-commenter':
+      specifier: ^1.0.6
+      version: 1.0.6
+    '@docsearch/css':
+      specifier: ^4.6.0
+      version: 4.6.0
+    '@docsearch/js':
+      specifier: ^4.6.0
+      version: 4.6.0
+    '@eslint/js':
+      specifier: ^10.0.1
+      version: 10.0.1
+    '@expressive-code/core':
+      specifier: ^0.41.7
+      version: 0.41.7
+    '@fluentui/react-components':
+      specifier: ~9.73.3
+      version: 9.73.3
+    '@fluentui/react-icons':
+      specifier: ^2.0.321
+      version: 2.0.321
+    '@fluentui/react-list':
+      specifier: ^9.6.11
+      version: 9.6.11
+    '@inquirer/prompts':
+      specifier: ^8.3.0
+      version: 8.3.0
+    '@microsoft/api-extractor':
+      specifier: ^7.57.7
+      version: 7.57.7
+    '@microsoft/api-extractor-model':
+      specifier: ^7.33.4
+      version: 7.33.4
+    '@microsoft/tsdoc':
+      specifier: ^0.16.0
+      version: 0.16.0
+    '@microsoft/tsdoc-config':
+      specifier: ^0.18.1
+      version: 0.18.1
+    '@octokit/core':
+      specifier: ^7.0.6
+      version: 7.0.6
+    '@octokit/plugin-paginate-graphql':
+      specifier: ^6.0.0
+      version: 6.0.0
+    '@octokit/plugin-rest-endpoint-methods':
+      specifier: ^17.0.0
+      version: 17.0.0
+    '@playwright/test':
+      specifier: ^1.58.2
+      version: 1.58.2
+    '@pnpm/workspace.find-packages':
+      specifier: ^1000.0.64
+      version: 1000.0.64
+    '@scalar/json-magic':
+      specifier: ^0.11.5
+      version: 0.11.7
+    '@scalar/openapi-parser':
+      specifier: ^0.24.1
+      version: 0.24.17
+    '@scalar/openapi-types':
+      specifier: ^0.5.0
+      version: 0.5.4
+    '@storybook/cli':
+      specifier: ^10.1.8
+      version: 10.2.19
+    '@storybook/react-vite':
+      specifier: ^10.1.8
+      version: 10.2.19
+    '@testing-library/dom':
+      specifier: ^10.4.1
+      version: 10.4.1
+    '@testing-library/jest-dom':
+      specifier: ^6.9.1
+      version: 6.9.1
+    '@testing-library/react':
+      specifier: ^16.3.2
+      version: 16.3.2
+    '@types/babel__code-frame':
+      specifier: ~7.27.0
+      version: 7.27.0
+    '@types/body-parser':
+      specifier: ^1.19.6
+      version: 1.19.6
+    '@types/cross-spawn':
+      specifier: ~6.0.6
+      version: 6.0.6
+    '@types/debounce':
+      specifier: ~1.2.4
+      version: 1.2.4
+    '@types/deep-equal':
+      specifier: ^1.0.4
+      version: 1.0.4
+    '@types/express':
+      specifier: ^5.0.6
+      version: 5.0.6
+    '@types/micromatch':
+      specifier: ^4.0.10
+      version: 4.0.10
+    '@types/mocha':
+      specifier: ^10.0.10
+      version: 10.0.10
+    '@types/morgan':
+      specifier: ^1.9.10
+      version: 1.9.10
+    '@types/multer':
+      specifier: ^2.1.0
+      version: 2.1.0
+    '@types/mustache':
+      specifier: ~4.2.6
+      version: 4.2.6
+    '@types/node':
+      specifier: ~25.5.0
+      version: 25.5.0
+    '@types/plist':
+      specifier: ~3.0.5
+      version: 3.0.5
+    '@types/react':
+      specifier: ~19.2.14
+      version: 19.2.14
+    '@types/react-dom':
+      specifier: ~19.2.3
+      version: 19.2.3
+    '@types/remark-heading-id':
+      specifier: ^1.0.0
+      version: 1.0.0
+    '@types/semver':
+      specifier: ^7.7.1
+      version: 7.7.1
+    '@types/swagger-ui':
+      specifier: ~5.32.0
+      version: 5.32.0
+    '@types/swagger-ui-dist':
+      specifier: ~3.30.6
+      version: 3.30.6
+    '@types/swagger-ui-express':
+      specifier: ^4.1.8
+      version: 4.1.8
+    '@types/which':
+      specifier: ^3.0.4
+      version: 3.0.4
+    '@types/xml2js':
+      specifier: ^0.4.14
+      version: 0.4.14
+    '@types/yargs':
+      specifier: ~17.0.35
+      version: 17.0.35
+    '@typescript-eslint/parser':
+      specifier: ^8.57.0
+      version: 8.57.0
+    '@typescript-eslint/rule-tester':
+      specifier: ^8.57.0
+      version: 8.57.0
+    '@typescript-eslint/types':
+      specifier: ^8.57.0
+      version: 8.57.0
+    '@typescript-eslint/utils':
+      specifier: ^8.57.0
+      version: 8.57.0
+    '@typespec/ts-http-runtime':
+      specifier: 0.3.4
+      version: 0.3.4
+    '@vitejs/plugin-react':
+      specifier: ~6.0.1
+      version: 6.0.1
+    '@vitest/coverage-v8':
+      specifier: ^4.1.0
+      version: 4.1.0
+    '@vitest/eslint-plugin':
+      specifier: ^1.6.12
+      version: 1.6.12
+    '@vitest/ui':
+      specifier: ^4.1.0
+      version: 4.1.0
+    '@vscode/extension-telemetry':
+      specifier: ^1.5.1
+      version: 1.5.1
+    '@vscode/test-electron':
+      specifier: ^2.5.2
+      version: 2.5.2
+    '@vscode/test-web':
+      specifier: ^0.0.80
+      version: 0.0.80
+    '@vscode/vsce':
+      specifier: ~3.7.1
+      version: 3.7.1
+    '@yarnpkg/core':
+      specifier: ^4.5.0
+      version: 4.5.0
+    '@yarnpkg/fslib':
+      specifier: ^3.1.4
+      version: 3.1.5
+    '@yarnpkg/plugin-nm':
+      specifier: ^4.0.8
+      version: 4.0.8
+    '@yarnpkg/plugin-npm':
+      specifier: ^3.4.0
+      version: 3.4.1
+    '@yarnpkg/plugin-pnp':
+      specifier: ^4.1.3
+      version: 4.1.3
+    ajv:
+      specifier: ~8.18.0
+      version: 8.18.0
+    ajv-formats:
+      specifier: ~3.0.1
+      version: 3.0.1
+    astro:
+      specifier: ^6.0.4
+      version: 6.0.4
+    astro-expressive-code:
+      specifier: ^0.41.7
+      version: 0.41.7
+    astro-rehype-relative-markdown-links:
+      specifier: ^0.18.1
+      version: 0.18.1
+    body-parser:
+      specifier: ^2.2.2
+      version: 2.2.2
+    c8:
+      specifier: ^11.0.0
+      version: 11.0.0
+    change-case:
+      specifier: ~5.4.4
+      version: 5.4.4
+    chokidar:
+      specifier: ~5.0.0
+      version: 5.0.0
+    clsx:
+      specifier: ^2.1.1
+      version: 2.1.1
+    concurrently:
+      specifier: ^9.2.1
+      version: 9.2.1
+    cross-env:
+      specifier: ~10.1.0
+      version: 10.1.0
+    cross-spawn:
+      specifier: ^7.0.6
+      version: 7.0.6
+    cspell:
+      specifier: ^9.7.0
+      version: 9.7.0
+    date-fns:
+      specifier: ^4.1.0
+      version: 4.1.0
+    debounce:
+      specifier: ~3.0.0
+      version: 3.0.0
+    decimal.js:
+      specifier: ^10.6.0
+      version: 10.6.0
+    deep-equal:
+      specifier: ^2.2.3
+      version: 2.2.3
+    ecmarkup:
+      specifier: ~23.0.2
+      version: 23.0.2
+    env-paths:
+      specifier: ^4.0.0
+      version: 4.0.0
+    es-module-shims:
+      specifier: ~2.8.0
+      version: 2.8.0
+    esbuild:
+      specifier: ^0.27.4
+      version: 0.27.4
+    esbuild-plugins-node-modules-polyfill:
+      specifier: ^1.8.1
+      version: 1.8.1
+    eslint:
+      specifier: ^10.0.3
+      version: 10.0.3
+    eslint-plugin-react-hooks:
+      specifier: 7.0.1
+      version: 7.0.1
+    eslint-plugin-unicorn:
+      specifier: ^63.0.0
+      version: 63.0.0
+    execa:
+      specifier: ^9.6.1
+      version: 9.6.1
+    express:
+      specifier: ^5.2.1
+      version: 5.2.1
+    fs-extra:
+      specifier: ^11.3.4
+      version: 11.3.4
+    globby:
+      specifier: ~16.1.1
+      version: 16.1.1
+    grammarkdown:
+      specifier: ~3.3.2
+      version: 3.3.2
+    happy-dom:
+      specifier: ^20.8.4
+      version: 20.8.4
+    inquirer:
+      specifier: ^13.3.0
+      version: 13.3.0
+    is-unicode-supported:
+      specifier: ^2.1.0
+      version: 2.1.0
+    json5:
+      specifier: ^2.2.3
+      version: 2.2.3
+    log-symbols:
+      specifier: ^7.0.1
+      version: 7.0.1
+    lzutf8:
+      specifier: 0.6.3
+      version: 0.6.3
+    micromatch:
+      specifier: ^4.0.8
+      version: 4.0.8
+    mocha:
+      specifier: ^11.7.5
+      version: 11.7.5
+    monaco-editor:
+      specifier: ~0.55.1
+      version: 0.55.1
+    monaco-editor-core:
+      specifier: ^0.55.1
+      version: 0.55.1
+    morgan:
+      specifier: ^1.10.1
+      version: 1.10.1
+    multer:
+      specifier: ^2.1.1
+      version: 2.1.1
+    mustache:
+      specifier: ~4.2.0
+      version: 4.2.0
+    node-stdlib-browser:
+      specifier: ~1.3.1
+      version: 1.3.1
+    onigasm:
+      specifier: ~2.2.5
+      version: 2.2.5
+    ora:
+      specifier: ^9.3.0
+      version: 9.3.0
+    p-limit:
+      specifier: ^7.3.0
+      version: 7.3.0
+    pathe:
+      specifier: ^2.0.3
+      version: 2.0.3
+    picocolors:
+      specifier: ~1.1.1
+      version: 1.1.1
+    playwright:
+      specifier: ^1.58.2
+      version: 1.58.2
+    plist:
+      specifier: ~3.1.0
+      version: 3.1.0
+    postject:
+      specifier: 1.0.0-alpha.6
+      version: 1.0.0-alpha.6
+    prettier:
+      specifier: ~3.8.1
+      version: 3.8.1
+    prettier-plugin-astro:
+      specifier: ^0.14.1
+      version: 0.14.1
+    prettier-plugin-organize-imports:
+      specifier: ~4.3.0
+      version: 4.3.0
+    prettier-plugin-sh:
+      specifier: ^0.18.0
+      version: 0.18.0
+    prism-react-renderer:
+      specifier: ^2.4.1
+      version: 2.4.1
+    react:
+      specifier: ~19.2.4
+      version: 19.2.4
+    react-dom:
+      specifier: ~19.2.4
+      version: 19.2.4
+    react-error-boundary:
+      specifier: ^6.1.1
+      version: 6.1.1
+    react-hotkeys-hook:
+      specifier: ^5.2.4
+      version: 5.2.4
+    react-markdown:
+      specifier: ^10.1.0
+      version: 10.1.0
+    rehype-mermaid:
+      specifier: ^3.0.0
+      version: 3.0.0
+    remark-heading-id:
+      specifier: ^1.0.1
+      version: 1.0.1
+    rimraf:
+      specifier: ~6.1.3
+      version: 6.1.3
+    rollup-plugin-visualizer:
+      specifier: 6.0.4
+      version: 6.0.4
+    semver:
+      specifier: ^7.7.4
+      version: 7.7.4
+    sharp:
+      specifier: ^0.34.5
+      version: 0.34.5
+    simple-git:
+      specifier: ^3.33.0
+      version: 3.33.0
+    source-map-support:
+      specifier: ~0.5.21
+      version: 0.5.21
+    storybook:
+      specifier: ^10.2.19
+      version: 10.2.19
+    strip-json-comments:
+      specifier: ~5.0.3
+      version: 5.0.3
+    swagger-ui-dist:
+      specifier: ^5.32.0
+      version: 5.32.0
+    swagger-ui-express:
+      specifier: ^5.0.1
+      version: 5.0.1
+    tar:
+      specifier: ^7.5.11
+      version: 7.5.11
+    temporal-polyfill:
+      specifier: ^0.3.2
+      version: 0.3.2
+    tree-sitter-c-sharp:
+      specifier: ^0.23.1
+      version: 0.23.1
+    tree-sitter-java:
+      specifier: ^0.23.5
+      version: 0.23.5
+    tree-sitter-javascript:
+      specifier: ^0.25.0
+      version: 0.25.0
+    tree-sitter-python:
+      specifier: ^0.25.0
+      version: 0.25.0
+    tree-sitter-typescript:
+      specifier: ^0.23.2
+      version: 0.23.2
+    tsx:
+      specifier: ^4.21.0
+      version: 4.21.0
+    typedoc:
+      specifier: ^0.28.17
+      version: 0.28.17
+    typedoc-plugin-markdown:
+      specifier: ^4.10.0
+      version: 4.10.0
+    typescript:
+      specifier: ~5.9.3
+      version: 5.9.3
+    typescript-eslint:
+      specifier: ^8.57.0
+      version: 8.57.0
+    uri-template:
+      specifier: ^2.0.0
+      version: 2.0.0
+    vite:
+      specifier: ^8.0.1
+      version: 8.0.1
+    vite-plugin-checker:
+      specifier: ^0.12.0
+      version: 0.12.0
+    vite-plugin-dts:
+      specifier: 4.5.4
+      version: 4.5.4
+    vitest:
+      specifier: ^4.1.0
+      version: 4.1.0
+    vscode-languageclient:
+      specifier: ~9.0.1
+      version: 9.0.1
+    vscode-languageserver:
+      specifier: ~9.0.1
+      version: 9.0.1
+    vscode-languageserver-textdocument:
+      specifier: ~1.0.12
+      version: 1.0.12
+    vscode-oniguruma:
+      specifier: ~2.0.1
+      version: 2.0.1
+    vscode-textmate:
+      specifier: ~9.3.2
+      version: 9.3.2
+    web-tree-sitter:
+      specifier: ^0.26.7
+      version: 0.26.7
+    which:
+      specifier: ^6.0.1
+      version: 6.0.1
+    xml2js:
+      specifier: ^0.6.2
+      version: 0.6.2
+    yaml:
+      specifier: ~2.8.2
+      version: 2.8.2
+    yargs:
+      specifier: ~18.0.0
+      version: 18.0.0
+
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
   rollup: 4.49.0
@@ -13,97 +571,94 @@ importers:
   .:
     devDependencies:
       '@chronus/chronus':
-        specifier: ^1.3.1
+        specifier: 'catalog:'
         version: 1.3.1
       '@chronus/github':
-        specifier: ^1.0.6
+        specifier: 'catalog:'
         version: 1.0.6
       '@chronus/github-pr-commenter':
-        specifier: ^1.0.6
+        specifier: 'catalog:'
         version: 1.0.6
       '@eslint/js':
-        specifier: ^10.0.1
+        specifier: 'catalog:'
         version: 10.0.1(eslint@10.0.3)
       '@microsoft/api-extractor':
-        specifier: ^7.57.7
+        specifier: 'catalog:'
         version: 7.57.7(@types/node@25.5.0)
       '@octokit/core':
-        specifier: ^7.0.6
+        specifier: 'catalog:'
         version: 7.0.6
       '@octokit/plugin-paginate-graphql':
-        specifier: ^6.0.0
+        specifier: 'catalog:'
         version: 6.0.0(@octokit/core@7.0.6)
       '@octokit/plugin-rest-endpoint-methods':
-        specifier: ^17.0.0
+        specifier: 'catalog:'
         version: 17.0.0(@octokit/core@7.0.6)
       '@types/micromatch':
-        specifier: ^4.0.10
+        specifier: 'catalog:'
         version: 4.0.10
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/eslint-plugin':
-        specifier: ^1.6.12
+        specifier: 'catalog:'
         version: 1.6.12(eslint@10.0.3)(typescript@5.9.3)(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       cspell:
-        specifier: ^9.7.0
+        specifier: 'catalog:'
         version: 9.7.0
       eslint:
-        specifier: ^10.0.3
+        specifier: 'catalog:'
         version: 10.0.3
       eslint-plugin-react-hooks:
-        specifier: 7.0.1
+        specifier: 'catalog:'
         version: 7.0.1(eslint@10.0.3)
       eslint-plugin-unicorn:
-        specifier: ^63.0.0
+        specifier: 'catalog:'
         version: 63.0.0(eslint@10.0.3)
       micromatch:
-        specifier: ^4.0.8
+        specifier: 'catalog:'
         version: 4.0.8
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       playwright:
-        specifier: ^1.58.2
+        specifier: 'catalog:'
         version: 1.58.2
       prettier:
-        specifier: ~3.8.1
+        specifier: 'catalog:'
         version: 3.8.1
       prettier-plugin-astro:
-        specifier: ^0.14.1
+        specifier: 'catalog:'
         version: 0.14.1
       prettier-plugin-organize-imports:
-        specifier: ~4.3.0
+        specifier: 'catalog:'
         version: 4.3.0(prettier@3.8.1)(typescript@5.9.3)
       prettier-plugin-sh:
-        specifier: ^0.18.0
+        specifier: 'catalog:'
         version: 0.18.0(prettier@3.8.1)
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
-      syncpack:
-        specifier: ^13.0.3
-        version: 13.0.4(typescript@5.9.3)
       tsx:
-        specifier: ^4.21.0
+        specifier: 'catalog:'
         version: 4.21.0
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       typescript-eslint:
-        specifier: ^8.57.0
+        specifier: 'catalog:'
         version: 8.57.0(eslint@10.0.3)(typescript@5.9.3)
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
 
   e2e: {}
@@ -111,139 +666,139 @@ importers:
   packages/asset-emitter:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/astro-utils:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.7
+        specifier: 'catalog:'
         version: 0.9.7(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
       '@astrojs/starlight':
-        specifier: ^0.38.1
+        specifier: 'catalog:'
         version: 0.38.1(astro@6.0.4(@azure/identity@4.13.0)(@azure/storage-blob@12.31.0)(@types/node@25.5.0)(lightningcss@1.32.0)(rollup@4.49.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
       '@expressive-code/core':
-        specifier: ^0.41.7
+        specifier: 'catalog:'
         version: 0.41.7
       '@typespec/playground':
         specifier: workspace:^
         version: link:../playground
       astro-expressive-code:
-        specifier: ^0.41.7
+        specifier: 'catalog:'
         version: 0.41.7(astro@6.0.4(@azure/identity@4.13.0)(@azure/storage-blob@12.31.0)(@types/node@25.5.0)(lightningcss@1.32.0)(rollup@4.49.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
       pathe:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       react:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
     devDependencies:
       '@types/react':
-        specifier: ~19.2.14
+        specifier: 'catalog:'
         version: 19.2.14
       astro:
-        specifier: ^6.0.4
+        specifier: 'catalog:'
         version: 6.0.4(@azure/identity@4.13.0)(@azure/storage-blob@12.31.0)(@types/node@25.5.0)(lightningcss@1.32.0)(rollup@4.49.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
 
   packages/best-practices:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/bundle-uploader:
     dependencies:
       '@azure/identity':
-        specifier: ~4.13.0
+        specifier: 'catalog:'
         version: 4.13.0
       '@azure/storage-blob':
-        specifier: ~12.31.0
+        specifier: 'catalog:'
         version: 12.31.0
       '@pnpm/workspace.find-packages':
-        specifier: ^1000.0.64
+        specifier: 'catalog:'
         version: 1000.0.64(@pnpm/logger@1001.0.1)(@pnpm/worker@1000.6.6(@pnpm/logger@1001.0.1)(@types/node@25.5.0))(typanion@3.14.0)
       '@typespec/bundler':
         specifier: workspace:^
         version: link:../bundler
       json5:
-        specifier: ^2.2.3
+        specifier: 'catalog:'
         version: 2.2.3
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       semver:
-        specifier: ^7.7.4
+        specifier: 'catalog:'
         version: 7.7.4
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/semver':
-        specifier: ^7.7.1
+        specifier: 'catalog:'
         version: 7.7.1
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/bundler:
     dependencies:
@@ -251,260 +806,260 @@ importers:
         specifier: workspace:^
         version: link:../compiler
       esbuild:
-        specifier: ^0.27.4
+        specifier: 'catalog:'
         version: 0.27.4
       esbuild-plugins-node-modules-polyfill:
-        specifier: ^1.8.1
+        specifier: 'catalog:'
         version: 1.8.1(esbuild@0.27.4)
       node-stdlib-browser:
-        specifier: ~1.3.1
+        specifier: 'catalog:'
         version: 1.3.1
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       yargs:
-        specifier: ~18.0.0
+        specifier: 'catalog:'
         version: 18.0.0
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/yargs':
-        specifier: ~17.0.35
+        specifier: 'catalog:'
         version: 17.0.35
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vite:
-        specifier: ^7.2.7
-        version: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 'catalog:'
+        version: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/compiler:
     dependencies:
       '@babel/code-frame':
-        specifier: ~7.29.0
+        specifier: 'catalog:'
         version: 7.29.0
       '@inquirer/prompts':
-        specifier: ^8.3.0
+        specifier: 'catalog:'
         version: 8.3.0(@types/node@25.5.0)
       ajv:
-        specifier: ~8.18.0
+        specifier: 'catalog:'
         version: 8.18.0
       change-case:
-        specifier: ~5.4.4
+        specifier: 'catalog:'
         version: 5.4.4
       env-paths:
-        specifier: ^4.0.0
+        specifier: 'catalog:'
         version: 4.0.0
       globby:
-        specifier: ~16.1.1
+        specifier: 'catalog:'
         version: 16.1.1
       is-unicode-supported:
-        specifier: ^2.1.0
+        specifier: 'catalog:'
         version: 2.1.0
       mustache:
-        specifier: ~4.2.0
+        specifier: 'catalog:'
         version: 4.2.0
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       prettier:
-        specifier: ~3.8.1
+        specifier: 'catalog:'
         version: 3.8.1
       semver:
-        specifier: ^7.7.4
+        specifier: 'catalog:'
         version: 7.7.4
       tar:
-        specifier: ^7.5.11
+        specifier: 'catalog:'
         version: 7.5.11
       temporal-polyfill:
-        specifier: ^0.3.2
+        specifier: 'catalog:'
         version: 0.3.2
       vscode-languageserver:
-        specifier: ~9.0.1
+        specifier: 'catalog:'
         version: 9.0.1
       vscode-languageserver-textdocument:
-        specifier: ~1.0.12
+        specifier: 'catalog:'
         version: 1.0.12
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
       yargs:
-        specifier: ~18.0.0
+        specifier: 'catalog:'
         version: 18.0.0
     devDependencies:
       '@types/babel__code-frame':
-        specifier: ~7.27.0
+        specifier: 'catalog:'
         version: 7.27.0
       '@types/mustache':
-        specifier: ~4.2.6
+        specifier: 'catalog:'
         version: 4.2.6
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/semver':
-        specifier: ^7.7.1
+        specifier: 'catalog:'
         version: 7.7.1
       '@types/yargs':
-        specifier: ~17.0.35
+        specifier: 'catalog:'
         version: 17.0.35
       '@typespec/internal-build-utils':
         specifier: workspace:^
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       grammarkdown:
-        specifier: ~3.3.2
+        specifier: 'catalog:'
         version: 3.3.2
       pathe:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       source-map-support:
-        specifier: ~0.5.21
+        specifier: 'catalog:'
         version: 0.5.21
       tmlanguage-generator:
         specifier: workspace:^
         version: link:../tmlanguage-generator
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vscode-oniguruma:
-        specifier: ~2.0.1
+        specifier: 'catalog:'
         version: 2.0.1
       vscode-textmate:
-        specifier: ~9.3.2
+        specifier: 'catalog:'
         version: 9.3.2
 
   packages/emitter-framework:
     dependencies:
       '@alloy-js/csharp':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@alloy-js/core':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@alloy-js/python':
-        specifier: ^0.3.0
+        specifier: 'catalog:'
         version: 0.3.0
       '@alloy-js/rollup-plugin':
-        specifier: ^0.1.0
+        specifier: 'catalog:'
         version: 0.1.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@alloy-js/typescript':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
       concurrently:
-        specifier: ^9.2.1
+        specifier: 'catalog:'
         version: 9.2.1
       pathe:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       prettier:
-        specifier: ~3.8.1
+        specifier: 'catalog:'
         version: 3.8.1
       tree-sitter-c-sharp:
-        specifier: ^0.23.1
+        specifier: 'catalog:'
         version: 0.23.1
       tree-sitter-java:
-        specifier: ^0.23.5
+        specifier: 'catalog:'
         version: 0.23.5
       tree-sitter-javascript:
-        specifier: ^0.25.0
+        specifier: 'catalog:'
         version: 0.25.0
       tree-sitter-python:
-        specifier: ^0.25.0
+        specifier: 'catalog:'
         version: 0.25.0
       tree-sitter-typescript:
-        specifier: ^0.23.2
+        specifier: 'catalog:'
         version: 0.23.2
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       web-tree-sitter:
-        specifier: ^0.26.7
+        specifier: 'catalog:'
         version: 0.26.7
 
   packages/eslint-plugin-typespec:
     dependencies:
       '@typescript-eslint/utils':
-        specifier: ^8.57.0
+        specifier: 'catalog:'
         version: 8.57.0(eslint@10.0.3)(typescript@5.9.3)
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typescript-eslint/parser':
-        specifier: ^8.57.0
+        specifier: 'catalog:'
         version: 8.57.0(eslint@10.0.3)(typescript@5.9.3)
       '@typescript-eslint/rule-tester':
-        specifier: ^8.57.0
+        specifier: 'catalog:'
         version: 8.57.0(eslint@10.0.3)(typescript@5.9.3)
       '@typescript-eslint/types':
-        specifier: ^8.57.0
+        specifier: 'catalog:'
         version: 8.57.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       eslint:
-        specifier: ^10.0.3
+        specifier: 'catalog:'
         version: 10.0.3
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/events:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -516,65 +1071,65 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/html-program-viewer:
     dependencies:
       '@fluentui/react-components':
-        specifier: ~9.73.3
+        specifier: 'catalog:'
         version: 9.73.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)
       '@fluentui/react-icons':
-        specifier: ^2.0.321
+        specifier: 'catalog:'
         version: 2.0.321(react@19.2.4)
       '@fluentui/react-list':
-        specifier: ^9.6.11
+        specifier: 'catalog:'
         version: 9.6.11(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)
       react:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4
       react-dom:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
       react-hotkeys-hook:
-        specifier: ^5.2.4
+        specifier: 'catalog:'
         version: 5.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
       '@babel/core':
-        specifier: ^7.29.0
+        specifier: 'catalog:'
         version: 7.29.0
       '@testing-library/dom':
-        specifier: ^10.4.1
+        specifier: 'catalog:'
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^6.9.1
+        specifier: 'catalog:'
         version: 6.9.1
       '@testing-library/react':
-        specifier: ^16.3.2
+        specifier: 'catalog:'
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/react':
-        specifier: ~19.2.14
+        specifier: 'catalog:'
         version: 19.2.14
       '@types/react-dom':
-        specifier: ~19.2.3
+        specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.14)
       '@typespec/compiler':
         specifier: workspace:^
@@ -583,40 +1138,40 @@ importers:
         specifier: workspace:^
         version: link:../react-components
       '@vitejs/plugin-react':
-        specifier: ~5.1.2
-        version: 5.1.4(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 6.0.1(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vite:
-        specifier: ^7.2.7
-        version: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 'catalog:'
+        version: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-checker:
-        specifier: ^0.12.0
-        version: 0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vite-plugin-dts:
-        specifier: 4.5.4
-        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/http:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -631,23 +1186,23 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/http-canonicalization:
     dependencies:
@@ -665,31 +1220,31 @@ importers:
         version: link:../mutator-framework
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       concurrently:
-        specifier: ^9.2.1
+        specifier: 'catalog:'
         version: 9.2.1
       prettier:
-        specifier: ~3.8.1
+        specifier: 'catalog:'
         version: 3.8.1
 
   packages/http-client:
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@alloy-js/core':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@alloy-js/rollup-plugin':
-        specifier: ^0.1.0
+        specifier: 'catalog:'
         version: 0.1.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@alloy-js/typescript':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -707,19 +1262,19 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@alloy-js/typescript':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -734,17 +1289,17 @@ importers:
         specifier: workspace:^
         version: link:../rest
       prettier:
-        specifier: ~3.8.1
+        specifier: 'catalog:'
         version: 3.8.1
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@alloy-js/rollup-plugin':
-        specifier: ^0.1.0
+        specifier: 'catalog:'
         version: 0.1.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@types/yargs':
-        specifier: ~17.0.35
+        specifier: 'catalog:'
         version: 17.0.35
       '@typespec/http':
         specifier: workspace:^
@@ -756,7 +1311,7 @@ importers:
         specifier: workspace:^
         version: link:../spector
       '@typespec/ts-http-runtime':
-        specifier: 0.3.4
+        specifier: 'catalog:'
         version: 0.3.4
       '@typespec/tspd':
         specifier: workspace:^
@@ -765,49 +1320,49 @@ importers:
         specifier: workspace:^
         version: link:../versioning
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       change-case:
-        specifier: ~5.4.4
+        specifier: 'catalog:'
         version: 5.4.4
       concurrently:
-        specifier: ^9.2.1
+        specifier: 'catalog:'
         version: 9.2.1
       cross-env:
-        specifier: ~10.1.0
+        specifier: 'catalog:'
         version: 10.1.0
       execa:
-        specifier: ^9.6.1
+        specifier: 'catalog:'
         version: 9.6.1
       fs-extra:
-        specifier: ^11.3.4
+        specifier: 'catalog:'
         version: 11.3.4
       globby:
-        specifier: ~16.1.1
+        specifier: 'catalog:'
         version: 16.1.1
       inquirer:
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.3.0(@types/node@25.5.0)
       ora:
-        specifier: ^9.3.0
+        specifier: 'catalog:'
         version: 9.3.0
       p-limit:
-        specifier: ^7.3.0
+        specifier: 'catalog:'
         version: 7.3.0
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       uri-template:
-        specifier: ^2.0.0
+        specifier: 'catalog:'
         version: 2.0.0
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       yargs:
-        specifier: ~18.0.0
+        specifier: 'catalog:'
         version: 18.0.0
 
   packages/http-server-csharp:
@@ -816,29 +1371,29 @@ importers:
         specifier: workspace:^
         version: link:../asset-emitter
       change-case:
-        specifier: ~5.4.4
+        specifier: 'catalog:'
         version: 5.4.4
       cross-spawn:
-        specifier: ^7.0.6
+        specifier: 'catalog:'
         version: 7.0.6
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
       yargs:
-        specifier: ~18.0.0
+        specifier: 'catalog:'
         version: 18.0.0
     devDependencies:
       '@types/cross-spawn':
-        specifier: ~6.0.6
+        specifier: 'catalog:'
         version: 6.0.6
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/yargs':
-        specifier: ~17.0.35
+        specifier: 'catalog:'
         version: 17.0.35
       '@typespec/compiler':
         specifier: workspace:^
@@ -874,56 +1429,56 @@ importers:
         specifier: workspace:^
         version: link:../versioning
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       fs-extra:
-        specifier: ^11.3.4
+        specifier: 'catalog:'
         version: 11.3.4
       globby:
-        specifier: ~16.1.1
+        specifier: 'catalog:'
         version: 16.1.1
       inquirer:
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.3.0(@types/node@25.5.0)
       ora:
-        specifier: ^9.3.0
+        specifier: 'catalog:'
         version: 9.3.0
       p-limit:
-        specifier: ^7.3.0
+        specifier: 'catalog:'
         version: 7.3.0
       pathe:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/http-server-js:
     dependencies:
       prettier:
-        specifier: ~3.8.1
+        specifier: 'catalog:'
         version: 3.8.1
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
     devDependencies:
       '@types/express':
-        specifier: ^5.0.6
+        specifier: 'catalog:'
         version: 5.0.6
       '@types/morgan':
-        specifier: ^1.9.10
+        specifier: 'catalog:'
         version: 1.9.10
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/swagger-ui-express':
-        specifier: ^4.1.8
+        specifier: 'catalog:'
         version: 4.1.8
       '@typespec/compiler':
         specifier: workspace:^
@@ -947,58 +1502,58 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       decimal.js:
-        specifier: ^10.6.0
+        specifier: 'catalog:'
         version: 10.6.0
       express:
-        specifier: ^5.2.1
+        specifier: 'catalog:'
         version: 5.2.1
       fs-extra:
-        specifier: ^11.3.4
+        specifier: 'catalog:'
         version: 11.3.4
       globby:
-        specifier: ~16.1.1
+        specifier: 'catalog:'
         version: 16.1.1
       inquirer:
-        specifier: ^13.3.0
+        specifier: 'catalog:'
         version: 13.3.0(@types/node@25.5.0)
       morgan:
-        specifier: ^1.10.1
+        specifier: 'catalog:'
         version: 1.10.1
       ora:
-        specifier: ^9.3.0
+        specifier: 'catalog:'
         version: 9.3.0
       p-limit:
-        specifier: ^7.3.0
+        specifier: 'catalog:'
         version: 7.3.0
       pathe:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       swagger-ui-express:
-        specifier: ^5.0.1
+        specifier: 'catalog:'
         version: 5.0.1(express@5.2.1)
       temporal-polyfill:
-        specifier: ^0.3.2
+        specifier: 'catalog:'
         version: 0.3.2
       tsx:
-        specifier: ^4.21.0
+        specifier: 'catalog:'
         version: 4.21.0
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       yargs:
-        specifier: ~18.0.0
+        specifier: 'catalog:'
         version: 18.0.0
 
   packages/http-specs:
@@ -1025,17 +1580,17 @@ importers:
         specifier: workspace:^
         version: link:../xml
       deep-equal:
-        specifier: ^2.2.3
+        specifier: 'catalog:'
         version: 2.2.3
     devDependencies:
       '@types/deep-equal':
-        specifier: ^1.0.4
+        specifier: 'catalog:'
         version: 1.0.4
       '@types/multer':
-        specifier: ^2.1.0
+        specifier: 'catalog:'
         version: 2.1.0
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/json-schema':
         specifier: workspace:^
@@ -1047,69 +1602,69 @@ importers:
         specifier: workspace:^
         version: link:../openapi3
       concurrently:
-        specifier: ^9.2.1
+        specifier: 'catalog:'
         version: 9.2.1
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
 
   packages/internal-build-utils:
     dependencies:
       '@pnpm/workspace.find-packages':
-        specifier: ^1000.0.64
+        specifier: 'catalog:'
         version: 1000.0.64(@pnpm/logger@1001.0.1)(@pnpm/worker@1000.6.6(@pnpm/logger@1001.0.1)(@types/node@25.5.0))(typanion@3.14.0)
       cross-spawn:
-        specifier: ^7.0.6
+        specifier: 'catalog:'
         version: 7.0.6
       cspell:
-        specifier: ^9.7.0
+        specifier: 'catalog:'
         version: 9.7.0
       semver:
-        specifier: ^7.7.4
+        specifier: 'catalog:'
         version: 7.7.4
       strip-json-comments:
-        specifier: ~5.0.3
+        specifier: 'catalog:'
         version: 5.0.3
       yargs:
-        specifier: ~18.0.0
+        specifier: 'catalog:'
         version: 18.0.0
     devDependencies:
       '@types/cross-spawn':
-        specifier: ~6.0.6
+        specifier: 'catalog:'
         version: 6.0.6
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/semver':
-        specifier: ^7.7.1
+        specifier: 'catalog:'
         version: 7.7.1
       '@types/yargs':
-        specifier: ~17.0.35
+        specifier: 'catalog:'
         version: 17.0.35
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       chokidar:
-        specifier: ~5.0.0
+        specifier: 'catalog:'
         version: 5.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/json-schema:
     dependencies:
@@ -1117,11 +1672,11 @@ importers:
         specifier: workspace:^
         version: link:../asset-emitter
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -1136,107 +1691,107 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       ajv:
-        specifier: ~8.18.0
+        specifier: 'catalog:'
         version: 8.18.0
       ajv-formats:
-        specifier: ~3.0.1
+        specifier: 'catalog:'
         version: 3.0.1(ajv@8.18.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/library-linter:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/monarch:
     dependencies:
       monaco-editor-core:
-        specifier: ^0.55.1
+        specifier: 'catalog:'
         version: 0.55.1
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       happy-dom:
-        specifier: ^20.8.4
+        specifier: 'catalog:'
         version: 20.8.4
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/mutator-framework:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
       concurrently:
-        specifier: ^9.2.1
+        specifier: 'catalog:'
         version: 9.2.1
       prettier:
-        specifier: ~3.8.1
+        specifier: 'catalog:'
         version: 3.8.1
 
   packages/openapi:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -1254,47 +1809,47 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/openapi3:
     dependencies:
       '@scalar/json-magic':
-        specifier: ^0.11.5
+        specifier: 'catalog:'
         version: 0.11.7
       '@scalar/openapi-parser':
-        specifier: ^0.24.1
+        specifier: 'catalog:'
         version: 0.24.17
       '@scalar/openapi-types':
-        specifier: ^0.5.0
+        specifier: 'catalog:'
         version: 0.5.4
       '@typespec/asset-emitter':
         specifier: workspace:^
         version: link:../asset-emitter
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/yargs':
-        specifier: ~17.0.35
+        specifier: 'catalog:'
         version: 17.0.35
       '@typespec/compiler':
         specifier: workspace:^
@@ -1333,26 +1888,26 @@ importers:
         specifier: workspace:^
         version: link:../xml
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       cross-env:
-        specifier: ~10.1.0
+        specifier: 'catalog:'
         version: 10.1.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/pack:
     dependencies:
@@ -1360,44 +1915,44 @@ importers:
         specifier: workspace:^
         version: link:../compiler
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       source-map-support:
-        specifier: ~0.5.21
+        specifier: 'catalog:'
         version: 0.5.21
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vite:
-        specifier: ^7.2.7
-        version: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 'catalog:'
+        version: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/playground:
     dependencies:
       '@fluentui/react-components':
-        specifier: ~9.73.3
+        specifier: 'catalog:'
         version: 9.73.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)
       '@fluentui/react-icons':
-        specifier: ^2.0.321
+        specifier: 'catalog:'
         version: 2.0.321(react@19.2.4)
       '@typespec/bundler':
         specifier: workspace:^
@@ -1427,119 +1982,119 @@ importers:
         specifier: workspace:^
         version: link:../versioning
       clsx:
-        specifier: ^2.1.1
+        specifier: 'catalog:'
         version: 2.1.1
       debounce:
-        specifier: ~3.0.0
+        specifier: 'catalog:'
         version: 3.0.0
       lzutf8:
-        specifier: 0.6.3
+        specifier: 'catalog:'
         version: 0.6.3
       monaco-editor:
-        specifier: ~0.55.1
+        specifier: 'catalog:'
         version: 0.55.1
       react:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4
       react-dom:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
       react-error-boundary:
-        specifier: ^6.1.1
+        specifier: 'catalog:'
         version: 6.1.1(react@19.2.4)
       swagger-ui-dist:
-        specifier: ^5.32.0
+        specifier: 'catalog:'
         version: 5.32.0
       vscode-languageserver:
-        specifier: ~9.0.1
+        specifier: 'catalog:'
         version: 9.0.1
       vscode-languageserver-textdocument:
-        specifier: ~1.0.12
+        specifier: 'catalog:'
         version: 1.0.12
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
     devDependencies:
       '@babel/core':
-        specifier: ^7.29.0
+        specifier: 'catalog:'
         version: 7.29.0
       '@playwright/test':
-        specifier: ^1.58.2
+        specifier: 'catalog:'
         version: 1.58.2
       '@storybook/cli':
-        specifier: ^10.1.8
+        specifier: 'catalog:'
         version: 10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@storybook/react-vite':
-        specifier: ^10.1.8
-        version: 10.2.19(esbuild@0.27.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 10.2.19(esbuild@0.27.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       '@testing-library/dom':
-        specifier: ^10.4.1
+        specifier: 'catalog:'
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^6.9.1
+        specifier: 'catalog:'
         version: 6.9.1
       '@testing-library/react':
-        specifier: ^16.3.2
+        specifier: 'catalog:'
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@types/debounce':
-        specifier: ~1.2.4
+        specifier: 'catalog:'
         version: 1.2.4
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/react':
-        specifier: ~19.2.14
+        specifier: 'catalog:'
         version: 19.2.14
       '@types/react-dom':
-        specifier: ~19.2.3
+        specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.14)
       '@types/swagger-ui-dist':
-        specifier: ~3.30.6
+        specifier: 'catalog:'
         version: 3.30.6
       '@typespec/react-components':
         specifier: workspace:^
         version: link:../react-components
       '@vitejs/plugin-react':
-        specifier: ~5.1.2
-        version: 5.1.4(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 6.0.1(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       cross-env:
-        specifier: ~10.1.0
+        specifier: 'catalog:'
         version: 10.1.0
       es-module-shims:
-        specifier: ~2.8.0
+        specifier: 'catalog:'
         version: 2.8.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       storybook:
-        specifier: ^10.2.19
+        specifier: 'catalog:'
         version: 10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vite:
-        specifier: ^7.2.7
-        version: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 'catalog:'
+        version: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-checker:
-        specifier: ^0.12.0
-        version: 0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vite-plugin-dts:
-        specifier: 4.5.4
-        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/playground-website:
     dependencies:
       '@fluentui/react-components':
-        specifier: ~9.73.3
+        specifier: 'catalog:'
         version: 9.73.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)
       '@fluentui/react-icons':
-        specifier: ^2.0.321
+        specifier: 'catalog:'
         version: 2.0.321(react@19.2.4)
       '@typespec/compiler':
         specifier: workspace:^
@@ -1587,74 +2142,74 @@ importers:
         specifier: workspace:^
         version: link:../xml
       es-module-shims:
-        specifier: ~2.8.0
+        specifier: 'catalog:'
         version: 2.8.0
       react:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4
       react-dom:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
       '@babel/core':
-        specifier: ^7.29.0
+        specifier: 'catalog:'
         version: 7.29.0
       '@playwright/test':
-        specifier: ^1.58.2
+        specifier: 'catalog:'
         version: 1.58.2
       '@types/debounce':
-        specifier: ~1.2.4
+        specifier: 'catalog:'
         version: 1.2.4
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/react':
-        specifier: ~19.2.14
+        specifier: 'catalog:'
         version: 19.2.14
       '@types/react-dom':
-        specifier: ~19.2.3
+        specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.14)
       '@types/swagger-ui':
-        specifier: ~5.21.1
-        version: 5.21.1
+        specifier: 'catalog:'
+        version: 5.32.0
       '@vitejs/plugin-react':
-        specifier: ~5.1.2
-        version: 5.1.4(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 6.0.1(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       cross-env:
-        specifier: ~10.1.0
+        specifier: 'catalog:'
         version: 10.1.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       rollup-plugin-visualizer:
-        specifier: 6.0.4
-        version: 6.0.4(rolldown@1.0.0-rc.9)(rollup@4.49.0)
+        specifier: 'catalog:'
+        version: 6.0.4(rolldown@1.0.0-rc.10)(rollup@4.49.0)
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vite:
-        specifier: ^7.2.7
-        version: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 'catalog:'
+        version: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-dts:
-        specifier: 4.5.4
-        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/prettier-plugin-typespec:
     dependencies:
       prettier:
-        specifier: ~3.8.1
+        specifier: 'catalog:'
         version: 3.8.1
     devDependencies:
       '@typespec/compiler':
@@ -1664,19 +2219,19 @@ importers:
         specifier: workspace:^
         version: link:../internal-build-utils
       esbuild:
-        specifier: ^0.27.4
+        specifier: 'catalog:'
         version: 0.27.4
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/protobuf:
     devDependencies:
       '@types/micromatch':
-        specifier: ^4.0.10
+        specifier: 'catalog:'
         version: 4.0.10
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -1685,98 +2240,98 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       micromatch:
-        specifier: ^4.0.8
+        specifier: 'catalog:'
         version: 4.0.8
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/react-components:
     dependencies:
       '@fluentui/react-components':
-        specifier: ~9.73.3
+        specifier: 'catalog:'
         version: 9.73.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)
       '@fluentui/react-icons':
-        specifier: ^2.0.321
+        specifier: 'catalog:'
         version: 2.0.321(react@19.2.4)
       react:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4
       react-dom:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
       '@babel/core':
-        specifier: ^7.29.0
+        specifier: 'catalog:'
         version: 7.29.0
       '@testing-library/dom':
-        specifier: ^10.4.1
+        specifier: 'catalog:'
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^6.9.1
+        specifier: 'catalog:'
         version: 6.9.1
       '@testing-library/react':
-        specifier: ^16.3.2
+        specifier: 'catalog:'
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/react':
-        specifier: ~19.2.14
+        specifier: 'catalog:'
         version: 19.2.14
       '@types/react-dom':
-        specifier: ~19.2.3
+        specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
-        specifier: ~5.1.2
-        version: 5.1.4(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 6.0.1(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vite:
-        specifier: ^7.2.7
-        version: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 'catalog:'
+        version: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-checker:
-        specifier: ^0.12.0
-        version: 0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vite-plugin-dts:
-        specifier: 4.5.4
-        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/rest:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -1791,23 +2346,23 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/samples:
     dependencies:
@@ -1858,163 +2413,163 @@ importers:
         version: link:../versioning
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/internal-build-utils':
         specifier: workspace:^
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       cross-env:
-        specifier: ~10.1.0
+        specifier: 'catalog:'
         version: 10.1.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/spec:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/internal-build-utils':
         specifier: workspace:^
         version: link:../internal-build-utils
       ecmarkup:
-        specifier: ~23.0.2
+        specifier: 'catalog:'
         version: 23.0.2
 
   packages/spec-api:
     dependencies:
       deep-equal:
-        specifier: ^2.2.3
+        specifier: 'catalog:'
         version: 2.2.3
       express:
-        specifier: ^5.2.1
+        specifier: 'catalog:'
         version: 5.2.1
       xml2js:
-        specifier: ^0.6.2
+        specifier: 'catalog:'
         version: 0.6.2
     devDependencies:
       '@types/deep-equal':
-        specifier: ^1.0.4
+        specifier: 'catalog:'
         version: 1.0.4
       '@types/express':
-        specifier: ^5.0.6
+        specifier: 'catalog:'
         version: 5.0.6
       '@types/multer':
-        specifier: ^2.1.0
+        specifier: 'catalog:'
         version: 2.1.0
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/xml2js':
-        specifier: ^0.4.14
+        specifier: 'catalog:'
         version: 0.4.14
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/spec-coverage-sdk:
     dependencies:
       '@azure/identity':
-        specifier: ~4.13.0
+        specifier: 'catalog:'
         version: 4.13.0
       '@azure/storage-blob':
-        specifier: ~12.31.0
+        specifier: 'catalog:'
         version: 12.31.0
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/semver':
-        specifier: ^7.7.1
+        specifier: 'catalog:'
         version: 7.7.1
       semver:
-        specifier: ^7.7.4
+        specifier: 'catalog:'
         version: 7.7.4
     devDependencies:
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
 
   packages/spec-dashboard:
     dependencies:
       '@fluentui/react-components':
-        specifier: ~9.73.3
+        specifier: 'catalog:'
         version: 9.73.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)
       '@fluentui/react-icons':
-        specifier: ^2.0.321
+        specifier: 'catalog:'
         version: 2.0.321(react@19.2.4)
       '@typespec/spec-coverage-sdk':
         specifier: workspace:^
         version: link:../spec-coverage-sdk
       react:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4
       react-dom:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
       react-markdown:
-        specifier: ^10.1.0
+        specifier: 'catalog:'
         version: 10.1.0(@types/react@19.2.14)(react@19.2.4)
     devDependencies:
       '@types/react':
-        specifier: ~19.2.14
+        specifier: 'catalog:'
         version: 19.2.14
       '@types/react-dom':
-        specifier: ~19.2.3
+        specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
-        specifier: ~5.1.2
-        version: 5.1.4(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 6.0.1(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       rollup-plugin-visualizer:
-        specifier: 6.0.4
-        version: 6.0.4(rolldown@1.0.0-rc.9)(rollup@4.49.0)
+        specifier: 'catalog:'
+        version: 6.0.4(rolldown@1.0.0-rc.10)(rollup@4.49.0)
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vite:
-        specifier: ^7.2.7
-        version: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 'catalog:'
+        version: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-checker:
-        specifier: ^0.12.0
-        version: 0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vite-plugin-dts:
-        specifier: 4.5.4
-        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/spector:
     dependencies:
       '@azure/identity':
-        specifier: ~4.13.0
+        specifier: 'catalog:'
         version: 4.13.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -2035,86 +2590,86 @@ importers:
         specifier: workspace:^
         version: link:../versioning
       ajv:
-        specifier: ~8.18.0
+        specifier: 'catalog:'
         version: 8.18.0
       body-parser:
-        specifier: ^2.2.2
+        specifier: 'catalog:'
         version: 2.2.2
       deep-equal:
-        specifier: ^2.2.3
+        specifier: 'catalog:'
         version: 2.2.3
       express:
-        specifier: ^5.2.1
+        specifier: 'catalog:'
         version: 5.2.1
       globby:
-        specifier: ~16.1.1
+        specifier: 'catalog:'
         version: 16.1.1
       micromatch:
-        specifier: ^4.0.8
+        specifier: 'catalog:'
         version: 4.0.8
       morgan:
-        specifier: ^1.10.1
+        specifier: 'catalog:'
         version: 1.10.1
       multer:
-        specifier: ^2.1.1
+        specifier: 'catalog:'
         version: 2.1.1
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       source-map-support:
-        specifier: ~0.5.21
+        specifier: 'catalog:'
         version: 0.5.21
       xml2js:
-        specifier: ^0.6.2
+        specifier: 'catalog:'
         version: 0.6.2
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
       yargs:
-        specifier: ~18.0.0
+        specifier: 'catalog:'
         version: 18.0.0
     devDependencies:
       '@types/body-parser':
-        specifier: ^1.19.6
+        specifier: 'catalog:'
         version: 1.19.6
       '@types/deep-equal':
-        specifier: ^1.0.4
+        specifier: 'catalog:'
         version: 1.0.4
       '@types/express':
-        specifier: ^5.0.6
+        specifier: 'catalog:'
         version: 5.0.6
       '@types/micromatch':
-        specifier: ^4.0.10
+        specifier: 'catalog:'
         version: 4.0.10
       '@types/morgan':
-        specifier: ^1.9.10
+        specifier: 'catalog:'
         version: 1.9.10
       '@types/multer':
-        specifier: ^2.1.0
+        specifier: 'catalog:'
         version: 2.1.0
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/xml2js':
-        specifier: ^0.4.14
+        specifier: 'catalog:'
         version: 0.4.14
       '@types/yargs':
-        specifier: ~17.0.35
+        specifier: 'catalog:'
         version: 17.0.35
       '@typespec/tspd':
         specifier: workspace:^
         version: link:../tspd
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
 
   packages/sse:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -2135,83 +2690,83 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/standalone:
     dependencies:
       '@yarnpkg/core':
-        specifier: ^4.5.0
+        specifier: 'catalog:'
         version: 4.5.0(typanion@3.14.0)
       '@yarnpkg/fslib':
-        specifier: ^3.1.4
-        version: 3.1.4
+        specifier: 'catalog:'
+        version: 3.1.5
       '@yarnpkg/plugin-nm':
-        specifier: ^4.0.8
+        specifier: 'catalog:'
         version: 4.0.8(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-npm':
-        specifier: ^3.4.0
-        version: 3.4.0(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
+        specifier: 'catalog:'
+        version: 3.4.1(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-pnp':
-        specifier: ^4.1.3
+        specifier: 'catalog:'
         version: 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       esbuild:
-        specifier: ^0.27.4
+        specifier: 'catalog:'
         version: 0.27.4
       execa:
-        specifier: ^9.6.1
+        specifier: 'catalog:'
         version: 9.6.1
       ora:
-        specifier: ^9.3.0
+        specifier: 'catalog:'
         version: 9.3.0
       postject:
-        specifier: 1.0.0-alpha.6
+        specifier: 'catalog:'
         version: 1.0.0-alpha.6
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       tsx:
-        specifier: ^4.21.0
+        specifier: 'catalog:'
         version: 4.21.0
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/streams:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -2223,167 +2778,167 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/tmlanguage-generator:
     dependencies:
       onigasm:
-        specifier: ~2.2.5
+        specifier: 'catalog:'
         version: 2.2.5
       plist:
-        specifier: ~3.1.0
+        specifier: 'catalog:'
         version: 3.1.0
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/plist':
-        specifier: ~3.0.5
+        specifier: 'catalog:'
         version: 3.0.5
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
 
   packages/tsp-integration:
     dependencies:
       '@pnpm/workspace.find-packages':
-        specifier: ^1000.0.64
+        specifier: 'catalog:'
         version: 1000.0.64(@pnpm/logger@1001.0.1)(@pnpm/worker@1000.6.6(@pnpm/logger@1001.0.1)(@types/node@25.5.0))(typanion@3.14.0)
       execa:
-        specifier: ^9.6.1
+        specifier: 'catalog:'
         version: 9.6.1
       globby:
-        specifier: ~16.1.1
+        specifier: 'catalog:'
         version: 16.1.1
       log-symbols:
-        specifier: ^7.0.1
+        specifier: 'catalog:'
         version: 7.0.1
       ora:
-        specifier: ^9.3.0
+        specifier: 'catalog:'
         version: 9.3.0
       pathe:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       simple-git:
-        specifier: ^3.33.0
+        specifier: 'catalog:'
         version: 3.33.0
       tar:
-        specifier: ^7.5.11
+        specifier: 'catalog:'
         version: 7.5.11
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
     devDependencies:
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@alloy-js/markdown':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@alloy-js/typescript':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@microsoft/api-extractor':
-        specifier: ^7.57.7
+        specifier: 'catalog:'
         version: 7.57.7(@types/node@25.5.0)
       '@microsoft/api-extractor-model':
-        specifier: ^7.33.4
+        specifier: 'catalog:'
         version: 7.33.4(@types/node@25.5.0)
       '@microsoft/tsdoc':
-        specifier: ^0.16.0
+        specifier: 'catalog:'
         version: 0.16.0
       '@microsoft/tsdoc-config':
-        specifier: ^0.18.1
+        specifier: 'catalog:'
         version: 0.18.1
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
       picocolors:
-        specifier: ~1.1.1
+        specifier: 'catalog:'
         version: 1.1.1
       prettier:
-        specifier: ~3.8.1
+        specifier: 'catalog:'
         version: 3.8.1
       typedoc:
-        specifier: ^0.28.17
+        specifier: 'catalog:'
         version: 0.28.17(typescript@5.9.3)
       typedoc-plugin-markdown:
-        specifier: ^4.10.0
+        specifier: 'catalog:'
         version: 4.10.0(typedoc@0.28.17(typescript@5.9.3))
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
       yargs:
-        specifier: ~18.0.0
+        specifier: 'catalog:'
         version: 18.0.0
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.22.0
+        specifier: 'catalog:'
         version: 0.22.0
       '@alloy-js/rollup-plugin':
-        specifier: ^0.1.0
+        specifier: 'catalog:'
         version: 0.1.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/yargs':
-        specifier: ~17.0.35
+        specifier: 'catalog:'
         version: 17.0.35
       '@typespec/prettier-plugin-typespec':
         specifier: workspace:^
         version: link:../prettier-plugin-typespec
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       source-map-support:
-        specifier: ~0.5.21
+        specifier: 'catalog:'
         version: 0.5.21
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/typespec-vs:
     devDependencies:
@@ -2397,22 +2952,22 @@ importers:
   packages/typespec-vscode:
     devDependencies:
       '@types/cross-spawn':
-        specifier: ~6.0.6
+        specifier: 'catalog:'
         version: 6.0.6
       '@types/mocha':
-        specifier: ^10.0.10
+        specifier: 'catalog:'
         version: 10.0.10
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@types/semver':
-        specifier: ^7.7.1
+        specifier: 'catalog:'
         version: 7.7.1
       '@types/vscode':
         specifier: ~1.110.0
         version: 1.110.0
       '@types/which':
-        specifier: ^3.0.4
+        specifier: 'catalog:'
         version: 3.0.4
       '@typespec/compiler':
         specifier: workspace:^
@@ -2421,70 +2976,70 @@ importers:
         specifier: workspace:^
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vscode/extension-telemetry':
-        specifier: ^1.5.1
+        specifier: 'catalog:'
         version: 1.5.1(tslib@2.8.1)
       '@vscode/test-electron':
-        specifier: ^2.5.2
+        specifier: 'catalog:'
         version: 2.5.2
       '@vscode/test-web':
-        specifier: ^0.0.80
+        specifier: 'catalog:'
         version: 0.0.80
       '@vscode/vsce':
-        specifier: ~3.7.1
+        specifier: 'catalog:'
         version: 3.7.1
       ajv:
-        specifier: ~8.18.0
+        specifier: 'catalog:'
         version: 8.18.0
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       cross-spawn:
-        specifier: ^7.0.6
+        specifier: 'catalog:'
         version: 7.0.6
       esbuild:
-        specifier: ^0.27.4
+        specifier: 'catalog:'
         version: 0.27.4
       mocha:
-        specifier: ^11.7.5
+        specifier: 'catalog:'
         version: 11.7.5
       playwright:
-        specifier: ^1.58.2
+        specifier: 'catalog:'
         version: 1.58.2
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       semver:
-        specifier: ^7.7.4
+        specifier: 'catalog:'
         version: 7.7.4
       swagger-ui-dist:
-        specifier: ^5.32.0
+        specifier: 'catalog:'
         version: 5.32.0
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       vscode-languageclient:
-        specifier: ~9.0.1
+        specifier: 'catalog:'
         version: 9.0.1
       which:
-        specifier: ^6.0.1
+        specifier: 'catalog:'
         version: 6.0.1
       yaml:
-        specifier: ~2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
 
   packages/versioning:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -2496,28 +3051,28 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   packages/xml:
     devDependencies:
       '@types/node':
-        specifier: ~25.5.0
+        specifier: 'catalog:'
         version: 25.5.0
       '@typespec/compiler':
         specifier: workspace:^
@@ -2529,49 +3084,49 @@ importers:
         specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       '@vitest/ui':
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0(vitest@4.1.0)
       c8:
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.0
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^4.1.0
-        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: 'catalog:'
+        version: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   website:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.7
+        specifier: 'catalog:'
         version: 0.9.7(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
       '@astrojs/react':
-        specifier: ^5.0.0
+        specifier: 'catalog:'
         version: 5.0.0(@types/node@25.5.0)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tsx@4.21.0)(yaml@2.8.2)
       '@astrojs/starlight':
-        specifier: ^0.38.1
+        specifier: 'catalog:'
         version: 0.38.1(astro@6.0.4(@azure/identity@4.13.0)(@azure/storage-blob@12.31.0)(@types/node@25.5.0)(lightningcss@1.32.0)(rollup@4.49.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
       '@docsearch/css':
-        specifier: ^4.6.0
+        specifier: 'catalog:'
         version: 4.6.0
       '@docsearch/js':
-        specifier: ^4.6.0
+        specifier: 'catalog:'
         version: 4.6.0
       '@expressive-code/core':
-        specifier: ^0.41.7
+        specifier: 'catalog:'
         version: 0.41.7
       '@fluentui/react-components':
-        specifier: ~9.73.3
+        specifier: 'catalog:'
         version: 9.73.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)
       '@fluentui/react-icons':
-        specifier: ^2.0.321
+        specifier: 'catalog:'
         version: 2.0.321(react@19.2.4)
       '@typespec/compiler':
         specifier: workspace:^
@@ -2580,47 +3135,47 @@ importers:
         specifier: workspace:^
         version: link:../packages/playground
       astro:
-        specifier: ^6.0.4
+        specifier: 'catalog:'
         version: 6.0.4(@azure/identity@4.13.0)(@azure/storage-blob@12.31.0)(@types/node@25.5.0)(lightningcss@1.32.0)(rollup@4.49.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       astro-rehype-relative-markdown-links:
-        specifier: ^0.18.1
+        specifier: 'catalog:'
         version: 0.18.1(astro@6.0.4(@azure/identity@4.13.0)(@azure/storage-blob@12.31.0)(@types/node@25.5.0)(lightningcss@1.32.0)(rollup@4.49.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
       clsx:
-        specifier: ^2.1.1
+        specifier: 'catalog:'
         version: 2.1.1
       date-fns:
-        specifier: ^4.1.0
+        specifier: 'catalog:'
         version: 4.1.0
       es-module-shims:
-        specifier: ~2.8.0
+        specifier: 'catalog:'
         version: 2.8.0
       pathe:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3
       prism-react-renderer:
-        specifier: ^2.4.1
+        specifier: 'catalog:'
         version: 2.4.1(react@19.2.4)
       react:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4
       react-dom:
-        specifier: ~19.2.4
+        specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
       sharp:
-        specifier: ^0.34.5
+        specifier: 'catalog:'
         version: 0.34.5
       typescript:
-        specifier: ~5.9.3
+        specifier: 'catalog:'
         version: 5.9.3
     devDependencies:
       '@types/react':
-        specifier: ~19.2.14
+        specifier: 'catalog:'
         version: 19.2.14
       '@types/react-dom':
-        specifier: ~19.2.3
+        specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.14)
       '@types/remark-heading-id':
-        specifier: ^1.0.0
+        specifier: 'catalog:'
         version: 1.0.0
       '@typespec/astro-utils':
         specifier: workspace:^
@@ -2680,16 +3235,16 @@ importers:
         specifier: workspace:^
         version: link:../packages/xml
       astro-expressive-code:
-        specifier: ^0.41.7
+        specifier: 'catalog:'
         version: 0.41.7(astro@6.0.4(@azure/identity@4.13.0)(@azure/storage-blob@12.31.0)(@types/node@25.5.0)(lightningcss@1.32.0)(rollup@4.49.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
       rehype-mermaid:
-        specifier: ^3.0.0
+        specifier: 'catalog:'
         version: 3.0.0(playwright@1.58.2)
       remark-heading-id:
-        specifier: ^1.0.1
+        specifier: 'catalog:'
         version: 1.0.1
       rimraf:
-        specifier: ~6.1.3
+        specifier: 'catalog:'
         version: 6.1.3
 
 packages:
@@ -3484,11 +4039,11 @@ packages:
   '@emmetio/stream-reader@2.2.0':
     resolution: {integrity: sha512-fXVXEyFA5Yv3M3n8sUGT7+fvecGrZP4k6FnWWMSZVQf69kAq0LLpaBQLGcPR30m3zMmKYhECP4k/ZkzvhEW5kw==}
 
-  '@emnapi/core@1.9.0':
-    resolution: {integrity: sha512-0DQ98G9ZQZOxfUcQn1waV2yS8aWdZ6kJMbYCJB3oUBecjWYO1fqJ+a1DRfPF3O5JEkwqwP1A9QEN/9mYm2Yd0w==}
+  '@emnapi/core@1.9.1':
+    resolution: {integrity: sha512-mukuNALVsoix/w1BJwFzwXBN/dHeejQtuVzcDsfOEsdpCumXb/E9j8w11h5S54tT1xhifGfbbSm/ICrObRb3KA==}
 
-  '@emnapi/runtime@1.9.0':
-    resolution: {integrity: sha512-QN75eB0IH2ywSpRpNddCRfQIhmJYBCJ1x5Lb3IscKAL8bMnVAKnRg8dCoXbHzVLLH7P38N2Z3mtulB7W0J0FKw==}
+  '@emnapi/runtime@1.9.1':
+    resolution: {integrity: sha512-VYi5+ZVLhpgK4hQ0TAjiQiZ6ol0oe4mBx7mVv7IflsiEp0OWoVsp/+f9Vc1hOhE0TtkORVrI1GvzyreqpgWtkA==}
 
   '@emnapi/wasi-threads@1.2.0':
     resolution: {integrity: sha512-N10dEJNSsUx41Z6pZsXU8FjPjpBEplgH24sfkmITrBED1/U2Esum9F3lfLrMjKHHjmi557zQn7kR9R+XWXu5Rg==}
@@ -4880,12 +5435,8 @@ packages:
   '@oslojs/encoding@1.1.0':
     resolution: {integrity: sha512-70wQhgYmndg4GCPxPPxPGevRKqTIJ2Nh4OkiMWmDAVYsTQ+Ta7Sq+rPevXyXGdzr30/qZBnyOalCszoMxlyldQ==}
 
-  '@oxc-project/runtime@0.115.0':
-    resolution: {integrity: sha512-Rg8Wlt5dCbXhQnsXPrkOjL1DTSvXLgb2R/KYfnf1/K+R0k6UMLEmbQXPM+kwrWqSmWA2t0B1EtHy2/3zikQpvQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-
-  '@oxc-project/types@0.115.0':
-    resolution: {integrity: sha512-4n91DKnebUS4yjUHl2g3/b2T+IUdCfmoZGhmwsovZCDaJSs+QkVAM+0AqqTxHSsHfeiMuueT75cZaZcT/m0pSw==}
+  '@oxc-project/types@0.120.0':
+    resolution: {integrity: sha512-k1YNu55DuvAip/MGE1FTsIuU3FUCn6v/ujG9V7Nq5Df/kX2CWb13hhwD0lmJGMGqE+bE1MXvv9SZVnMzEXlWcg==}
 
   '@pagefind/darwin-arm64@1.4.0':
     resolution: {integrity: sha512-2vMqkbv3lbx1Awea90gTaBsvpzgRs7MuSgKDxW0m9oV1GPZCZbZBJg/qL83GIUEN2BFlY46dtUZi54pwH+/pTQ==}
@@ -5478,106 +6029,109 @@ packages:
     resolution: {integrity: sha512-Tb5wIMvBf/nLejTQ61krK644/CEMB/cpiaIFXqGApfGqO3GwcR3qnI0DbmkFVCl2OyEp8LnLX3EkucoL0+tbFg==}
     engines: {node: ^v12.20.0 || ^14.13.0 || >=16.0.0}
 
-  '@rolldown/binding-android-arm64@1.0.0-rc.9':
-    resolution: {integrity: sha512-lcJL0bN5hpgJfSIz/8PIf02irmyL43P+j1pTCfbD1DbLkmGRuFIA4DD3B3ZOvGqG0XiVvRznbKtN0COQVaKUTg==}
+  '@rolldown/binding-android-arm64@1.0.0-rc.10':
+    resolution: {integrity: sha512-jOHxwXhxmFKuXztiu1ORieJeTbx5vrTkcOkkkn2d35726+iwhrY1w/+nYY/AGgF12thg33qC3R1LMBF5tHTZHg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [android]
 
-  '@rolldown/binding-darwin-arm64@1.0.0-rc.9':
-    resolution: {integrity: sha512-J7Zk3kLYFsLtuH6U+F4pS2sYVzac0qkjcO5QxHS7OS7yZu2LRs+IXo+uvJ/mvpyUljDJ3LROZPoQfgBIpCMhdQ==}
+  '@rolldown/binding-darwin-arm64@1.0.0-rc.10':
+    resolution: {integrity: sha512-gED05Teg/vtTZbIJBc4VNMAxAFDUPkuO/rAIyyxZjTj1a1/s6z5TII/5yMGZ0uLRCifEtwUQn8OlYzuYc0m70w==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [darwin]
 
-  '@rolldown/binding-darwin-x64@1.0.0-rc.9':
-    resolution: {integrity: sha512-iwtmmghy8nhfRGeNAIltcNXzD0QMNaaA5U/NyZc1Ia4bxrzFByNMDoppoC+hl7cDiUq5/1CnFthpT9n+UtfFyg==}
+  '@rolldown/binding-darwin-x64@1.0.0-rc.10':
+    resolution: {integrity: sha512-rI15NcM1mA48lqrIxVkHfAqcyFLcQwyXWThy+BQ5+mkKKPvSO26ir+ZDp36AgYoYVkqvMcdS8zOE6SeBsR9e8A==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [darwin]
 
-  '@rolldown/binding-freebsd-x64@1.0.0-rc.9':
-    resolution: {integrity: sha512-DLFYI78SCiZr5VvdEplsVC2Vx53lnA4/Ga5C65iyldMVaErr86aiqCoNBLl92PXPfDtUYjUh+xFFor40ueNs4Q==}
+  '@rolldown/binding-freebsd-x64@1.0.0-rc.10':
+    resolution: {integrity: sha512-XZRXHdTa+4ME1MuDVp021+doQ+z6Ei4CCFmNc5/sKbqb8YmkiJdj8QKlV3rCI0AJtAeSB5n0WGPuJWNL9p/L2w==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [freebsd]
 
-  '@rolldown/binding-linux-arm-gnueabihf@1.0.0-rc.9':
-    resolution: {integrity: sha512-CsjTmTwd0Hri6iTw/DRMK7kOZ7FwAkrO4h8YWKoX/kcj833e4coqo2wzIFywtch/8Eb5enQ/lwLM7w6JX1W5RQ==}
+  '@rolldown/binding-linux-arm-gnueabihf@1.0.0-rc.10':
+    resolution: {integrity: sha512-R0SQMRluISSLzFE20sPWYHVmJdDQnRyc/FzSCN72BqQmh2SOZUFG+N3/vBZpR4C6WpEUVYJLrYUXaj43sJsNLA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm]
     os: [linux]
 
-  '@rolldown/binding-linux-arm64-gnu@1.0.0-rc.9':
-    resolution: {integrity: sha512-2x9O2JbSPxpxMDhP9Z74mahAStibTlrBMW0520+epJH5sac7/LwZW5Bmg/E6CXuEF53JJFW509uP+lSedaUNxg==}
+  '@rolldown/binding-linux-arm64-gnu@1.0.0-rc.10':
+    resolution: {integrity: sha512-Y1reMrV/o+cwpduYhJuOE3OMKx32RMYCidf14y+HssARRmhDuWXJ4yVguDg2R/8SyyGNo+auzz64LnPK9Hq6jg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-arm64-musl@1.0.0-rc.9':
-    resolution: {integrity: sha512-JA1QRW31ogheAIRhIg9tjMfsYbglXXYGNPLdPEYrwFxdbkQCAzvpSCSHCDWNl4hTtrol8WeboCSEpjdZK8qrCg==}
+  '@rolldown/binding-linux-arm64-musl@1.0.0-rc.10':
+    resolution: {integrity: sha512-vELN+HNb2IzuzSBUOD4NHmP9yrGwl1DVM29wlQvx1OLSclL0NgVWnVDKl/8tEks79EFek/kebQKnNJkIAA4W2g==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@rolldown/binding-linux-ppc64-gnu@1.0.0-rc.9':
-    resolution: {integrity: sha512-aOKU9dJheda8Kj8Y3w9gnt9QFOO+qKPAl8SWd7JPHP+Cu0EuDAE5wokQubLzIDQWg2myXq2XhTpOVS07qqvT+w==}
+  '@rolldown/binding-linux-ppc64-gnu@1.0.0-rc.10':
+    resolution: {integrity: sha512-ZqrufYTgzxbHwpqOjzSsb0UV/aV2TFIY5rP8HdsiPTv/CuAgCRjM6s9cYFwQ4CNH+hf9Y4erHW1GjZuZ7WoI7w==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ppc64]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-s390x-gnu@1.0.0-rc.9':
-    resolution: {integrity: sha512-OalO94fqj7IWRn3VdXWty75jC5dk4C197AWEuMhIpvVv2lw9fiPhud0+bW2ctCxb3YoBZor71QHbY+9/WToadA==}
+  '@rolldown/binding-linux-s390x-gnu@1.0.0-rc.10':
+    resolution: {integrity: sha512-gSlmVS1FZJSRicA6IyjoRoKAFK7IIHBs7xJuHRSmjImqk3mPPWbR7RhbnfH2G6bcmMEllCt2vQ/7u9e6bBnByg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-x64-gnu@1.0.0-rc.9':
-    resolution: {integrity: sha512-cVEl1vZtBsBZna3YMjGXNvnYYrOJ7RzuWvZU0ffvJUexWkukMaDuGhUXn0rjnV0ptzGVkvc+vW9Yqy6h8YX4pg==}
+  '@rolldown/binding-linux-x64-gnu@1.0.0-rc.10':
+    resolution: {integrity: sha512-eOCKUpluKgfObT2pHjztnaWEIbUabWzk3qPZ5PuacuPmr4+JtQG4k2vGTY0H15edaTnicgU428XW/IH6AimcQw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-x64-musl@1.0.0-rc.9':
-    resolution: {integrity: sha512-UzYnKCIIc4heAKgI4PZ3dfBGUZefGCJ1TPDuLHoCzgrMYPb5Rv6TLFuYtyM4rWyHM7hymNdsg5ik2C+UD9VDbA==}
+  '@rolldown/binding-linux-x64-musl@1.0.0-rc.10':
+    resolution: {integrity: sha512-Xdf2jQbfQowJnLcgYfD/m0Uu0Qj5OdxKallD78/IPPfzaiaI4KRAwZzHcKQ4ig1gtg1SuzC7jovNiM2TzQsBXA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@rolldown/binding-openharmony-arm64@1.0.0-rc.9':
-    resolution: {integrity: sha512-+6zoiF+RRyf5cdlFQP7nm58mq7+/2PFaY2DNQeD4B87N36JzfF/l9mdBkkmTvSYcYPE8tMh/o3cRlsx1ldLfog==}
+  '@rolldown/binding-openharmony-arm64@1.0.0-rc.10':
+    resolution: {integrity: sha512-o1hYe8hLi1EY6jgPFyxQgQ1wcycX+qz8eEbVmot2hFkgUzPxy9+kF0u0NIQBeDq+Mko47AkaFFaChcvZa9UX9Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [openharmony]
 
-  '@rolldown/binding-wasm32-wasi@1.0.0-rc.9':
-    resolution: {integrity: sha512-rgFN6sA/dyebil3YTlL2evvi/M+ivhfnyxec7AccTpRPccno/rPoNlqybEZQBkcbZu8Hy+eqNJCqfBR8P7Pg8g==}
+  '@rolldown/binding-wasm32-wasi@1.0.0-rc.10':
+    resolution: {integrity: sha512-Ugv9o7qYJudqQO5Y5y2N2SOo6S4WiqiNOpuQyoPInnhVzCY+wi/GHltcLHypG9DEUYMB0iTB/huJrpadiAcNcA==}
     engines: {node: '>=14.0.0'}
     cpu: [wasm32]
 
-  '@rolldown/binding-win32-arm64-msvc@1.0.0-rc.9':
-    resolution: {integrity: sha512-lHVNUG/8nlF1IQk1C0Ci574qKYyty2goMiPlRqkC5R+3LkXDkL5Dhx8ytbxq35m+pkHVIvIxviD+TWLdfeuadA==}
+  '@rolldown/binding-win32-arm64-msvc@1.0.0-rc.10':
+    resolution: {integrity: sha512-7UODQb4fQUNT/vmgDZBl3XOBAIOutP5R3O/rkxg0aLfEGQ4opbCgU5vOw/scPe4xOqBwL9fw7/RP1vAMZ6QlAQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [win32]
 
-  '@rolldown/binding-win32-x64-msvc@1.0.0-rc.9':
-    resolution: {integrity: sha512-G0oA4+w1iY5AGi5HcDTxWsoxF509hrFIPB2rduV5aDqS9FtDg1CAfa7V34qImbjfhIcA8C+RekocJZA96EarwQ==}
+  '@rolldown/binding-win32-x64-msvc@1.0.0-rc.10':
+    resolution: {integrity: sha512-PYxKHMVHOb5NJuDL53vBUl1VwUjymDcYI6rzpIni0C9+9mTiJedvUxSk7/RPp7OOAm3v+EjgMu9bIy3N6b408w==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
 
+  '@rolldown/pluginutils@1.0.0-rc.10':
+    resolution: {integrity: sha512-UkVDEFk1w3mveXeKgaTuYfKWtPbvgck1dT8TUG3bnccrH0XtLTuAyfCoks4Q/M5ZGToSVJTIQYCzy2g/atAOeg==}
+
   '@rolldown/pluginutils@1.0.0-rc.3':
     resolution: {integrity: sha512-eybk3TjzzzV97Dlj5c+XrBFW57eTNhzod66y9HrBlzJ6NsCrWCp/2kaPS3K9wJmurBC0Tdw4yPjXKZqlznim3Q==}
 
-  '@rolldown/pluginutils@1.0.0-rc.9':
-    resolution: {integrity: sha512-w6oiRWgEBl04QkFZgmW+jnU1EC9b57Oihi2ot3HNWIQRqgHp5PnYDia5iZ5FF7rpa4EQdiqMDXjlqKGXBhsoXw==}
+  '@rolldown/pluginutils@1.0.0-rc.7':
+    resolution: {integrity: sha512-qujRfC8sFVInYSPPMLQByRh7zhwkGFS4+tyMQ83srV1qrxL4g8E2tyxVVyxd0+8QeBM1mIk9KbWxkegRr76XzA==}
 
   '@rollup/plugin-babel@6.1.0':
     resolution: {integrity: sha512-dFZNuFD2YRcoomP4oYf+DvQNSUA9ih+A3vUqopQx5EdtPGo3WBnQcI/S8pwpz91UsGfL0HsMSOlaMld8HrbubA==}
@@ -6355,8 +6909,8 @@ packages:
   '@types/swagger-ui-express@4.1.8':
     resolution: {integrity: sha512-AhZV8/EIreHFmBV5wAs0gzJUNq9JbbSXgJLQubCC0jtIo6prnI9MIRRxnU4MZX9RB9yXxF1V4R7jtLl/Wcj31g==}
 
-  '@types/swagger-ui@5.21.1':
-    resolution: {integrity: sha512-DUmUH59eeOtvAqcWwBduH2ws0cc5i95KHsXCS4FsOfbUq/clW8TN+HqRBj7q5p9MSsSNK43RziIGItNbrAGLxg==}
+  '@types/swagger-ui@5.32.0':
+    resolution: {integrity: sha512-diMOqNQf6gkc3ghDIgjs/AfwbwZidja2e02+fJRIfNbbQ25W0EMGLe+f9/tHh/UFRfwYR2UXR3QSPGGkBu7uNg==}
 
   '@types/treeify@1.0.3':
     resolution: {integrity: sha512-hx0o7zWEUU4R2Amn+pjCBQQt23Khy/Dk56gQU5xi5jtPL1h83ACJCeFaB2M/+WO1AntvWrSoVnnCAfI1AQH4Cg==}
@@ -6469,11 +7023,24 @@ packages:
   '@upsetjs/venn.js@2.0.0':
     resolution: {integrity: sha512-WbBhLrooyePuQ1VZxrJjtLvTc4NVfpOyKx0sKqioq9bX1C1m7Jgykkn8gLrtwumBioXIqam8DLxp88Adbue6Hw==}
 
-  '@vitejs/plugin-react@5.1.4':
-    resolution: {integrity: sha512-VIcFLdRi/VYRU8OL/puL7QXMYafHmqOnwTZY50U1JPlCNj30PxCMx65c494b1K9be9hX83KVt0+gTEwTWLqToA==}
+  '@vitejs/plugin-react@5.2.0':
+    resolution: {integrity: sha512-YmKkfhOAi3wsB1PhJq5Scj3GXMn3WvtQ/JC0xoopuHoXSdmtdStOpFrYaT1kie2YgFBcIe64ROzMYRjCrYOdYw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
-      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+
+  '@vitejs/plugin-react@6.0.1':
+    resolution: {integrity: sha512-l9X/E3cDb+xY3SWzlG1MOGt2usfEHGMNIaegaUGFsLkb3RCn/k8/TOXBcab+OndDI4TBtktT8/9BwwW8Vi9KUQ==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    peerDependencies:
+      '@rolldown/plugin-babel': ^0.1.7 || ^0.2.0
+      babel-plugin-react-compiler: ^1.0.0
+      vite: ^8.0.0
+    peerDependenciesMeta:
+      '@rolldown/plugin-babel':
+        optional: true
+      babel-plugin-react-compiler:
+        optional: true
 
   '@vitest/coverage-v8@4.1.0':
     resolution: {integrity: sha512-nDWulKeik2bL2Va/Wl4x7DLuTKAXa906iRFooIRPR+huHkcvp9QDkPQ2RJdmjOFrqOqvNfoSQLF68deE3xC3CQ==}
@@ -6678,12 +7245,12 @@ packages:
     peerDependencies:
       '@yarnpkg/core': ^4.4.2
 
-  '@yarnpkg/fslib@3.1.4':
-    resolution: {integrity: sha512-Yyguw5RM+xI1Bv0RFbs1ZF5HwU+9/He4YT7yeT722yAlLfkz9IzZHO6a5yStEshxiliPn9Fdj4H54a785xpK/g==}
+  '@yarnpkg/fslib@3.1.5':
+    resolution: {integrity: sha512-hXaPIWl5GZA+rXcx+yaKWUuePJruZuD+3A5A2X6paEBfFsyCD7oEp88lSMj1ym1ehBWUmhNH/YGOp+SrbmSBPg==}
     engines: {node: '>=18.12.0'}
 
-  '@yarnpkg/libui@3.0.2':
-    resolution: {integrity: sha512-IhFCZdemMFAa5WiXqSdfLLPqBDGX3QmbgUcsRuCqLnr0unPr5JjVmFSkFXlVig3yP9in7BjG1a0I0QO7ZyYAaQ==}
+  '@yarnpkg/libui@3.1.0':
+    resolution: {integrity: sha512-3R5juEPlnokseN+m19vh8pGmLOdWiU+q5oRLSJDGzpezKiGKiF7R2cZpOJi3A3tal/EFezmPwuHu00YWzfU4Bg==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
       ink: ^3.0.8
@@ -6731,13 +7298,13 @@ packages:
       '@yarnpkg/cli': ^4.9.2
       '@yarnpkg/core': ^4.4.2
 
-  '@yarnpkg/plugin-essentials@4.4.4':
-    resolution: {integrity: sha512-fKI4eRZ1QHqlaaL/LYypRrw8+wRS77vholyGDAAd9eXnMKAHrZfY94Rss9XAxAAN3++S91c5lhu54JhwPF+KKQ==}
+  '@yarnpkg/plugin-essentials@4.4.5':
+    resolution: {integrity: sha512-vRQ7UoMK0okr+IVXkLu6JrpANYvmsZ8ljGQhNDI6XhOIU0pSPWD3I0JRh1449SMdQQtn8q8n0uwrzzUcvmQdFA==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
-      '@yarnpkg/cli': ^4.10.0
-      '@yarnpkg/core': ^4.4.4
-      '@yarnpkg/plugin-git': ^3.1.3
+      '@yarnpkg/cli': ^4.13.0
+      '@yarnpkg/core': ^4.6.0
+      '@yarnpkg/plugin-git': ^3.1.4
 
   '@yarnpkg/plugin-exec@3.0.2':
     resolution: {integrity: sha512-lvBq0tc/k4CyvxFEhohiw/5rUi0kRWuFnAUnoXn6c0GJaldfK8gCyYhKfxwFZmcDOfM8h2JrDtzZdWqVk5D7lw==}
@@ -6777,13 +7344,13 @@ packages:
       '@yarnpkg/cli': ^4.9.2
       '@yarnpkg/core': ^4.4.2
 
-  '@yarnpkg/plugin-interactive-tools@4.0.3':
-    resolution: {integrity: sha512-+uk7Jqnje/iDZH/zWZqoDLATGjciM5vH82M/RtZWATc3/AOmH1tIvM70lwgp4Be5K5FjaRjF+3LkuEdAR+IziQ==}
+  '@yarnpkg/plugin-interactive-tools@4.1.0':
+    resolution: {integrity: sha512-C/gIsjj+q7ekx5KyEBSQyydTGWggVenaw2gIpbkGKi56Gd9p3HfNdH5/Gp8aa93QZA+DEzy1t25ssxgX4+U6bg==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
-      '@yarnpkg/cli': ^4.9.2
-      '@yarnpkg/core': ^4.4.2
-      '@yarnpkg/plugin-essentials': ^4.4.1
+      '@yarnpkg/cli': ^4.13.0
+      '@yarnpkg/core': ^4.6.0
+      '@yarnpkg/plugin-essentials': ^4.4.5
 
   '@yarnpkg/plugin-jsr@1.1.1':
     resolution: {integrity: sha512-aukUcLl6FiOg04GXagVfT7wtkl7/qQlRQmECHyk+r5mt+gBWQX8H8lE4Nxmy0t3J4DX/aW5BTFRifTlQkF8nNQ==}
@@ -6804,20 +7371,20 @@ packages:
       '@yarnpkg/cli': ^4.10.0
       '@yarnpkg/core': ^4.4.4
 
-  '@yarnpkg/plugin-npm-cli@4.4.0':
-    resolution: {integrity: sha512-ZgQ8GPwWVXCdPCLzUra+KgXgi1+DJgEE+vL4r5wWTvSGVY84F6+jSWoDCiIZOYJkGW/dZ3D2dI5Ntm46LsoKTQ==}
+  '@yarnpkg/plugin-npm-cli@4.4.1':
+    resolution: {integrity: sha512-GyrHRYqq0y2MIxBzxuHv1Clus6GgssBfb93WZZClWRLJeFc7v8iaIFczFIQQSggc4/ltvNCXF98whSLRd7cKLA==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
-      '@yarnpkg/cli': ^4.12.0
-      '@yarnpkg/core': ^4.5.0
-      '@yarnpkg/plugin-npm': ^3.4.0
+      '@yarnpkg/cli': ^4.13.0
+      '@yarnpkg/core': ^4.6.0
+      '@yarnpkg/plugin-npm': ^3.4.1
       '@yarnpkg/plugin-pack': ^4.0.4
 
-  '@yarnpkg/plugin-npm@3.4.0':
-    resolution: {integrity: sha512-fvv/7ZRy7XGV9yuTsmB+bJ27ur7xJqKguVuwZAQKDGvesKM5IFB1kfkP8KwwUp2zambVajkmFAJXGmEikHVcWg==}
+  '@yarnpkg/plugin-npm@3.4.1':
+    resolution: {integrity: sha512-zs0d0e7u7Lltxe5IBiH1wgnufM1Vt3FZ176ECb3TGFXzwRURcaCQgFuLxkH6rpFdMxWmy/AzwNWQYphb1opDbQ==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
-      '@yarnpkg/core': ^4.5.0
+      '@yarnpkg/core': ^4.6.0
       '@yarnpkg/plugin-pack': ^4.0.4
 
   '@yarnpkg/plugin-pack@4.0.4':
@@ -6871,13 +7438,13 @@ packages:
       '@yarnpkg/core': ^4.4.3
       '@yarnpkg/plugin-git': ^3.1.3
 
-  '@yarnpkg/plugin-workspace-tools@4.1.6':
-    resolution: {integrity: sha512-sf1dBtjyLEMgRpcpn2DhC4AQ5xjqQe6hyuUL+n4WdosRI2SAvshnmKo3+wbRFDDcklMya25ubDGjCt11W1LidQ==}
+  '@yarnpkg/plugin-workspace-tools@4.1.7':
+    resolution: {integrity: sha512-uVf0+73H6BPmSOVdB/9ueBiyKQy4Li1ztVLIrdGc9ogQW+KOOjQDiWZKNRosKwL/70hKxAt534K6EqQtjSpuqA==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
-      '@yarnpkg/cli': ^4.9.3
-      '@yarnpkg/core': ^4.4.3
-      '@yarnpkg/plugin-git': ^3.1.3
+      '@yarnpkg/cli': ^4.13.0
+      '@yarnpkg/core': ^4.6.0
+      '@yarnpkg/plugin-git': ^3.1.4
 
   '@yarnpkg/pnp@4.1.3':
     resolution: {integrity: sha512-PsRujup+6DpgXexQe0Wh4h+syQhdruhounJjqbBMXV3meOzqr7k0Nj9+jwQ4t16EZJrhVxH7vRvjZ+VitH5aWQ==}
@@ -7668,10 +8235,6 @@ packages:
     resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
     engines: {node: '>=18'}
 
-  commander@13.1.0:
-    resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
-    engines: {node: '>=18'}
-
   commander@14.0.3:
     resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
     engines: {node: '>=20'}
@@ -7774,15 +8337,6 @@ packages:
 
   cose-base@2.2.0:
     resolution: {integrity: sha512-AzlgcsCbUMymkADOJtQm3wO9S3ltPfYOFD5033keQn9NJzIbtnZj+UdBJe7DYml/8TdbtHJW3j58SOnKhWY/5g==}
-
-  cosmiconfig@9.0.1:
-    resolution: {integrity: sha512-hr4ihw+DBqcvrsEDioRO31Z17x71pUYoNe/4h6Z0wB72p7MU7/9gH8Q3s12NFhHPfYBBOV3qyfUxmr/Yn3shnQ==}
-    engines: {node: '>=14'}
-    peerDependencies:
-      typescript: '>=4.9.5'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   create-ecdh@4.0.4:
     resolution: {integrity: sha512-mf+TCx8wWc9VpuxfP2ht0iSISLZnt0JgWlrOKZiNqyUZWnjIaCIVNQArMHnCZKfEYRg6IM7A+NeJoN8gf/Ws0A==}
@@ -8321,9 +8875,6 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  effect@3.19.19:
-    resolution: {integrity: sha512-Yc8U/SVXo2dHnaP7zNBlAo83h/nzSJpi7vph6Hzyl4ulgMBIgPmz3UzOjb9sBgpFE00gC0iETR244sfXDNLHRg==}
-
   electron-to-chromium@1.5.313:
     resolution: {integrity: sha512-QBMrTWEf00GXZmJyx2lbYD45jpI3TUFnNIzJ5BBc8piGUDwMPa1GV6HJWTZVvY/eiN3fSopl7NRbgGp9sZ9LTA==}
 
@@ -8624,10 +9175,6 @@ packages:
 
   extend@3.0.2:
     resolution: {integrity: sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==}
-
-  fast-check@3.23.2:
-    resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
-    engines: {node: '>=8.0.0'}
 
   fast-content-type-parse@3.0.0:
     resolution: {integrity: sha512-ZvLdcY8P+N8mGQJahJV5G4U88CSvT1rP8ApL6uETe88MBXrBHAkZlSEySdUlyztF7ccb+Znos3TFqaepHxdhBg==}
@@ -10356,10 +10903,6 @@ packages:
     resolution: {integrity: sha512-7o1wEA2RyMP7Iu7GNba9vc0RWWGACJOCZBJX2GJWip0ikV+wcOsgVuY9uE8CPiyQhkGFSlhuSkZPavN7u1c2Fw==}
     engines: {node: '>=10'}
 
-  minimatch@9.0.5:
-    resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
-    engines: {node: '>=16 || 14 >=14.17'}
-
   minimatch@9.0.9:
     resolution: {integrity: sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -10608,10 +11151,6 @@ packages:
   npm-normalize-package-bin@5.0.0:
     resolution: {integrity: sha512-CJi3OS4JLsNMmr2u07OJlhcrPxCeOeP/4xq67aWNai6TNWWbTrlNDgl8NcFKVlcBKp18GPj+EzbNIgrBfZhsag==}
     engines: {node: ^20.17.0 || >=22.9.0}
-
-  npm-package-arg@12.0.2:
-    resolution: {integrity: sha512-f1NpFjNI9O4VbKMOlA5QoBq/vSQPORHcTZ2feJpFkTHJ9eQkdlmZEKSjcAhxTGInC7RlEyScT9ui67NaOsjFWA==}
-    engines: {node: ^18.17.0 || >=20.5.0}
 
   npm-package-arg@13.0.2:
     resolution: {integrity: sha512-IciCE3SY3uE84Ld8WZU23gAPPV9rIYod4F+rc+vJ7h7cwAJt9Vk6TVsK60ry7Uj3SRS3bqRRIGuTp9YVlk6WNA==}
@@ -11232,9 +11771,6 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  pure-rand@6.1.0:
-    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
-
   qs@6.15.0:
     resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
     engines: {node: '>=0.6'}
@@ -11592,8 +12128,8 @@ packages:
   robust-predicates@3.0.2:
     resolution: {integrity: sha512-IXgzBWvWQwE6PrDI05OvmXUIruQTcoMDzRsOd5CDvHCVLcLHMTSYvOK5Cm46kWqlV3yAbuSpBZdJ5oP5OUoStg==}
 
-  rolldown@1.0.0-rc.9:
-    resolution: {integrity: sha512-9EbgWge7ZH+yqb4d2EnELAntgPTWbfL8ajiTW+SyhJEC4qhBbkCKbqFV4Ge4zmu5ziQuVbWxb/XwLZ+RIO7E8Q==}
+  rolldown@1.0.0-rc.10:
+    resolution: {integrity: sha512-q7j6vvarRFmKpgJUT8HCAUljkgzEp4LAhPlJUvQhA5LA1SUL36s5QCysMutErzL3EbNOZOkoziSx9iZC4FddKA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
@@ -12154,11 +12690,6 @@ packages:
     engines: {node: '>=18.12'}
     hasBin: true
 
-  syncpack@13.0.4:
-    resolution: {integrity: sha512-kJ9VlRxNCsBD5pJAE29oXeBYbPLhEySQmK4HdpsLv81I6fcDDW17xeJqMwiU3H7/woAVsbgq25DJNS8BeiN5+w==}
-    engines: {node: '>=18.18.0'}
-    hasBin: true
-
   table-layout@1.0.2:
     resolution: {integrity: sha512-qd/R7n5rQTRFi+Zf2sk5XVVd9UQl6ZkduPFC3S7WEGJAmetDTjY3qPN50eSKzwuzEyQKy5TN2TiZdkIjos2L6A==}
     engines: {node: '>=8.0.0'}
@@ -12236,10 +12767,6 @@ packages:
 
   through2@2.0.5:
     resolution: {integrity: sha512-/mrRod8xqpA+IHSLyGCQ2s8SPHiCDEeQJSep1jqLYeEUClOFG2Qsh+4FU6G9VeqpZnGW/Su8LQGc4YKni5rYSQ==}
-
-  tightrope@0.2.0:
-    resolution: {integrity: sha512-Kw36UHxJEELq2VUqdaSGR2/8cAsPgMtvX8uGVU6Jk26O66PhXec0A5ZnRYs47btbtwPDpXXF66+Fo3vimCM9aQ==}
-    engines: {node: '>=16'}
 
   timers-browserify@2.0.12:
     resolution: {integrity: sha512-9phl76Cqm6FhSX9Xe1ZUAMLtm1BLkKj2Qd5ApyWkXzsMRaA7dgr81kf4wJmQf/hAvg8EEyJxDo3du/0KlhPiKQ==}
@@ -12401,9 +12928,6 @@ packages:
   ts-dedent@2.2.0:
     resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
     engines: {node: '>=6.10'}
-
-  ts-toolbelt@9.6.0:
-    resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
 
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
@@ -12797,10 +13321,6 @@ packages:
     resolution: {integrity: sha512-YuKoXDAhBYxY7SfOKxHBDoSyENFeW5VvIIQp2TGQuit8gpK6MnWaQelBKxso72DoxTZfZdcP3W90LqpSkgPzLQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
-  validate-npm-package-name@6.0.2:
-    resolution: {integrity: sha512-IUoow1YUtvoBBC06dXs8bR8B9vuA3aJfmQNKMoaPG/OFsPmoQvw8xh+6Ye25Gx9DQhoEom3Pcu9MKHerm/NpUQ==}
-    engines: {node: ^18.17.0 || >=20.5.0}
-
   validate-npm-package-name@7.0.2:
     resolution: {integrity: sha512-hVDIBwsRruT73PbK7uP5ebUt+ezEtCmzZz3F59BSr2F6OVFnJ/6h8liuvdLrQ88Xmnk6/+xGGuq+pG9WwTuy3A==}
     engines: {node: ^20.17.0 || >=22.9.0}
@@ -12912,13 +13432,13 @@ packages:
       yaml:
         optional: true
 
-  vite@8.0.0:
-    resolution: {integrity: sha512-fPGaRNj9Zytaf8LEiBhY7Z6ijnFKdzU/+mL8EFBaKr7Vw1/FWcTBAMW0wLPJAGMPX38ZPVCVgLceWiEqeoqL2Q==}
+  vite@8.0.1:
+    resolution: {integrity: sha512-wt+Z2qIhfFt85uiyRt5LPU4oVEJBXj8hZNWKeqFG4gRG/0RaRGJ7njQCwzFVjO+v4+Ipmf5CY7VdmZRAYYBPHw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
       '@types/node': ^20.19.0 || >=22.12.0
-      '@vitejs/devtools': ^0.0.0-alpha.31
+      '@vitejs/devtools': ^0.1.0
       esbuild: ^0.27.0
       jiti: '>=1.21.0'
       less: ^4.0.0
@@ -13662,7 +14182,7 @@ snapshots:
       '@astrojs/internal-helpers': 0.8.0
       '@types/react': 19.2.14
       '@types/react-dom': 19.2.3(@types/react@19.2.14)
-      '@vitejs/plugin-react': 5.1.4(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+      '@vitejs/plugin-react': 5.2.0(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
       devalue: 5.6.4
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
@@ -14506,13 +15026,13 @@ snapshots:
 
   '@emmetio/stream-reader@2.2.0': {}
 
-  '@emnapi/core@1.9.0':
+  '@emnapi/core@1.9.1':
     dependencies:
       '@emnapi/wasi-threads': 1.2.0
       tslib: 2.8.1
     optional: true
 
-  '@emnapi/runtime@1.9.0':
+  '@emnapi/runtime@1.9.1':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -15986,7 +16506,7 @@ snapshots:
 
   '@img/sharp-wasm32@0.34.5':
     dependencies:
-      '@emnapi/runtime': 1.9.0
+      '@emnapi/runtime': 1.9.1
     optional: true
 
   '@img/sharp-win32-arm64@0.34.5':
@@ -16134,11 +16654,11 @@ snapshots:
 
   '@istanbuljs/schema@0.1.3': {}
 
-  '@joshwooding/vite-plugin-react-docgen-typescript@0.6.4(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@joshwooding/vite-plugin-react-docgen-typescript@0.6.4(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       glob: 13.0.6
       react-docgen-typescript: 2.4.0(typescript@5.9.3)
-      vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
     optionalDependencies:
       typescript: 5.9.3
 
@@ -16322,8 +16842,8 @@ snapshots:
 
   '@napi-rs/wasm-runtime@1.1.1':
     dependencies:
-      '@emnapi/core': 1.9.0
-      '@emnapi/runtime': 1.9.0
+      '@emnapi/core': 1.9.1
+      '@emnapi/runtime': 1.9.1
       '@tybys/wasm-util': 0.10.1
     optional: true
 
@@ -16578,9 +17098,7 @@ snapshots:
 
   '@oslojs/encoding@1.1.0': {}
 
-  '@oxc-project/runtime@0.115.0': {}
-
-  '@oxc-project/types@0.115.0': {}
+  '@oxc-project/types@0.120.0': {}
 
   '@pagefind/darwin-arm64@1.4.0':
     optional: true
@@ -17132,7 +17650,7 @@ snapshots:
     dependencies:
       '@pnpm/byline': 1.0.0
       '@pnpm/error': 1000.0.5
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/shell': 4.0.0(typanion@3.14.0)
       node-gyp: 11.5.0
       resolve-from: 5.0.0
@@ -17613,56 +18131,58 @@ snapshots:
 
   '@reteps/dockerfmt@0.3.6': {}
 
-  '@rolldown/binding-android-arm64@1.0.0-rc.9':
+  '@rolldown/binding-android-arm64@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-darwin-arm64@1.0.0-rc.9':
+  '@rolldown/binding-darwin-arm64@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-darwin-x64@1.0.0-rc.9':
+  '@rolldown/binding-darwin-x64@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-freebsd-x64@1.0.0-rc.9':
+  '@rolldown/binding-freebsd-x64@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-linux-arm-gnueabihf@1.0.0-rc.9':
+  '@rolldown/binding-linux-arm-gnueabihf@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-linux-arm64-gnu@1.0.0-rc.9':
+  '@rolldown/binding-linux-arm64-gnu@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-linux-arm64-musl@1.0.0-rc.9':
+  '@rolldown/binding-linux-arm64-musl@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-linux-ppc64-gnu@1.0.0-rc.9':
+  '@rolldown/binding-linux-ppc64-gnu@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-linux-s390x-gnu@1.0.0-rc.9':
+  '@rolldown/binding-linux-s390x-gnu@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-linux-x64-gnu@1.0.0-rc.9':
+  '@rolldown/binding-linux-x64-gnu@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-linux-x64-musl@1.0.0-rc.9':
+  '@rolldown/binding-linux-x64-musl@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-openharmony-arm64@1.0.0-rc.9':
+  '@rolldown/binding-openharmony-arm64@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-wasm32-wasi@1.0.0-rc.9':
+  '@rolldown/binding-wasm32-wasi@1.0.0-rc.10':
     dependencies:
       '@napi-rs/wasm-runtime': 1.1.1
     optional: true
 
-  '@rolldown/binding-win32-arm64-msvc@1.0.0-rc.9':
+  '@rolldown/binding-win32-arm64-msvc@1.0.0-rc.10':
     optional: true
 
-  '@rolldown/binding-win32-x64-msvc@1.0.0-rc.9':
+  '@rolldown/binding-win32-x64-msvc@1.0.0-rc.10':
     optional: true
+
+  '@rolldown/pluginutils@1.0.0-rc.10': {}
 
   '@rolldown/pluginutils@1.0.0-rc.3': {}
 
-  '@rolldown/pluginutils@1.0.0-rc.9': {}
+  '@rolldown/pluginutils@1.0.0-rc.7': {}
 
   '@rollup/plugin-babel@6.1.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(rollup@4.49.0)':
     dependencies:
@@ -18039,12 +18559,12 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@storybook/builder-vite@10.2.19(esbuild@0.27.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@storybook/builder-vite@10.2.19(esbuild@0.27.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
-      '@storybook/csf-plugin': 10.2.19(esbuild@0.27.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+      '@storybook/csf-plugin': 10.2.19(esbuild@0.27.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       storybook: 10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       ts-dedent: 2.2.0
-      vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - esbuild
       - rollup
@@ -18088,14 +18608,14 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@storybook/csf-plugin@10.2.19(esbuild@0.27.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@storybook/csf-plugin@10.2.19(esbuild@0.27.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       storybook: 10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       unplugin: 2.3.11
     optionalDependencies:
       esbuild: 0.27.4
       rollup: 4.49.0
-      vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
 
   '@storybook/global@5.0.0': {}
 
@@ -18110,11 +18630,11 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
       storybook: 10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
 
-  '@storybook/react-vite@10.2.19(esbuild@0.27.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@storybook/react-vite@10.2.19(esbuild@0.27.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
-      '@joshwooding/vite-plugin-react-docgen-typescript': 0.6.4(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+      '@joshwooding/vite-plugin-react-docgen-typescript': 0.6.4(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       '@rollup/pluginutils': 5.3.0(rollup@4.49.0)
-      '@storybook/builder-vite': 10.2.19(esbuild@0.27.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+      '@storybook/builder-vite': 10.2.19(esbuild@0.27.4)(rollup@4.49.0)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       '@storybook/react': 10.2.19(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(storybook@10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)
       empathic: 2.0.0
       magic-string: 0.30.21
@@ -18124,7 +18644,7 @@ snapshots:
       resolve: 1.22.11
       storybook: 10.2.19(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       tsconfig-paths: 4.2.0
-      vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - esbuild
       - rollup
@@ -18536,7 +19056,7 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 24.12.0
+      '@types/node': 25.5.0
 
   '@types/semver@7.7.1': {}
 
@@ -18560,7 +19080,7 @@ snapshots:
       '@types/express': 5.0.6
       '@types/serve-static': 2.2.0
 
-  '@types/swagger-ui@5.21.1': {}
+  '@types/swagger-ui@5.32.0': {}
 
   '@types/treeify@1.0.3': {}
 
@@ -18713,7 +19233,7 @@ snapshots:
       d3-selection: 3.0.0
       d3-transition: 3.0.1(d3-selection@3.0.0)
 
-  '@vitejs/plugin-react@5.1.4(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@vitejs/plugin-react@5.2.0(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.0)
@@ -18724,6 +19244,11 @@ snapshots:
       vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
+
+  '@vitejs/plugin-react@6.0.1(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))':
+    dependencies:
+      '@rolldown/pluginutils': 1.0.0-rc.7
+      vite: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
 
   '@vitest/coverage-v8@4.1.0(vitest@4.1.0)':
     dependencies:
@@ -18737,7 +19262,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.0.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+      vitest: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   '@vitest/eslint-plugin@1.6.12(eslint@10.0.3)(typescript@5.9.3)(vitest@4.1.0)':
     dependencies:
@@ -18746,7 +19271,7 @@ snapshots:
       eslint: 10.0.3
     optionalDependencies:
       typescript: 5.9.3
-      vitest: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+      vitest: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
     transitivePeerDependencies:
       - supports-color
 
@@ -18767,21 +19292,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.0(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@vitest/mocker@4.1.0(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 4.1.0
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
-
-  '@vitest/mocker@4.1.0(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))':
-    dependencies:
-      '@vitest/spy': 4.1.0
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -18818,7 +19335,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.1.0
-      vitest: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
+      vitest: 4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -19040,34 +19557,34 @@ snapshots:
   '@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
-      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.4)
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.5)
       '@yarnpkg/parsers': 3.0.3
       '@yarnpkg/plugin-catalog': 1.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-compat': 4.0.12(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-patch@4.0.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-constraints': 4.0.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-dlx': 4.0.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-essentials': 4.4.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-essentials': 4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-exec': 3.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/plugin-file': 3.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-github': 3.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-http': 3.0.3(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/plugin-init': 4.1.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-interactive-tools': 4.0.3(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)
+      '@yarnpkg/plugin-interactive-tools': 4.1.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))
       '@yarnpkg/plugin-jsr': 1.1.1(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/plugin-link': 3.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/plugin-nm': 4.0.8(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-npm': 3.4.0(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
-      '@yarnpkg/plugin-npm-cli': 4.4.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-npm@3.4.0(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-npm': 3.4.1(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-npm-cli': 4.4.1(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-npm@3.4.1(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-pack': 4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-patch': 4.0.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-pnp': 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-pnpm': 2.1.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-stage': 4.0.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-typescript': 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)
+      '@yarnpkg/plugin-typescript': 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)
       '@yarnpkg/plugin-version': 4.2.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))(typanion@3.14.0)
-      '@yarnpkg/plugin-workspace-tools': 4.1.6(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/plugin-workspace-tools': 4.1.7(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/shell': 4.1.3(typanion@3.14.0)
       ci-info: 4.4.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
@@ -19085,8 +19602,8 @@ snapshots:
       '@arcanis/slice-ansi': 1.1.1
       '@types/semver': 7.7.1
       '@types/treeify': 1.0.3
-      '@yarnpkg/fslib': 3.1.4
-      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.4)
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.5)
       '@yarnpkg/parsers': 3.0.3
       '@yarnpkg/shell': 4.1.3(typanion@3.14.0)
       camelcase: 5.3.1
@@ -19115,26 +19632,26 @@ snapshots:
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
 
-  '@yarnpkg/fslib@3.1.4':
+  '@yarnpkg/fslib@3.1.5':
     dependencies:
       tslib: 2.8.1
 
-  '@yarnpkg/libui@3.0.2(ink@3.2.0(@types/react@19.2.14)(react@17.0.2))(react@17.0.2)':
+  '@yarnpkg/libui@3.1.0(ink@3.2.0(@types/react@19.2.14)(react@17.0.2))(react@17.0.2)':
     dependencies:
       ink: 3.2.0(@types/react@19.2.14)(react@19.2.4)
       react: 17.0.2
       tslib: 2.8.1
 
-  '@yarnpkg/libzip@3.2.2(@yarnpkg/fslib@3.1.4)':
+  '@yarnpkg/libzip@3.2.2(@yarnpkg/fslib@3.1.5)':
     dependencies:
       '@types/emscripten': 1.41.5
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       tslib: 2.8.1
 
   '@yarnpkg/nm@4.0.7(typanion@3.14.0)':
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/pnp': 4.1.3
     transitivePeerDependencies:
       - typanion
@@ -19147,7 +19664,7 @@ snapshots:
   '@yarnpkg/plugin-catalog@1.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/plugin-pack': 4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       tslib: 2.8.1
 
@@ -19161,7 +19678,7 @@ snapshots:
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.45.1
       tau-prolog: 0.2.81
@@ -19173,17 +19690,17 @@ snapshots:
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-essentials@4.4.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
+  '@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/parsers': 3.0.3
       '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       ci-info: 4.4.0
@@ -19198,21 +19715,21 @@ snapshots:
   '@yarnpkg/plugin-exec@3.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       tslib: 2.8.1
 
   '@yarnpkg/plugin-file@3.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
-      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.4)
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.5)
       tslib: 2.8.1
 
   '@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)':
     dependencies:
       '@types/semver': 7.7.1
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.45.1
       git-url-parse: 13.1.1
@@ -19224,7 +19741,7 @@ snapshots:
   '@yarnpkg/plugin-github@3.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       tslib: 2.8.1
 
@@ -19237,18 +19754,18 @@ snapshots:
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-interactive-tools@4.0.3(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)':
+  '@yarnpkg/plugin-interactive-tools@4.1.0(@types/react@19.2.14)(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/libui': 3.0.2(ink@3.2.0(@types/react@19.2.14)(react@17.0.2))(react@17.0.2)
-      '@yarnpkg/plugin-essentials': 4.4.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/libui': 3.1.0(ink@3.2.0(@types/react@19.2.14)(react@17.0.2))(react@17.0.2)
+      '@yarnpkg/plugin-essentials': 4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       algoliasearch: 4.27.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       diff: 5.2.2
@@ -19257,30 +19774,30 @@ snapshots:
       react: 17.0.2
       semver: 7.7.4
       tslib: 2.8.1
+      typanion: 3.14.0
     transitivePeerDependencies:
       - '@types/react'
       - bufferutil
-      - typanion
       - utf-8-validate
 
   '@yarnpkg/plugin-jsr@1.1.1(@yarnpkg/core@4.5.0(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       tslib: 2.8.1
 
   '@yarnpkg/plugin-link@3.0.2(@yarnpkg/core@4.5.0(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       tslib: 2.8.1
 
   '@yarnpkg/plugin-nm@4.0.8(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
-      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.4)
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.5)
       '@yarnpkg/nm': 4.0.7(typanion@3.14.0)
       '@yarnpkg/parsers': 3.0.3
       '@yarnpkg/plugin-pnp': 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
@@ -19291,12 +19808,12 @@ snapshots:
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-npm-cli@4.4.0(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-npm@3.4.0(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
+  '@yarnpkg/plugin-npm-cli@4.4.1(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-npm@3.4.1(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
-      '@yarnpkg/plugin-npm': 3.4.0(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/plugin-npm': 3.4.1(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-pack': 4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       enquirer: 2.4.1
@@ -19305,10 +19822,10 @@ snapshots:
       tslib: 2.8.1
       typanion: 3.14.0
 
-  '@yarnpkg/plugin-npm@3.4.0(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
+  '@yarnpkg/plugin-npm@3.4.1(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-pack@4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/plugin-pack': 4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       enquirer: 2.4.1
       es-toolkit: 1.45.1
@@ -19324,7 +19841,7 @@ snapshots:
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       micromatch: 4.0.8
       tar-stream: 2.2.0
@@ -19336,8 +19853,8 @@ snapshots:
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
-      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.4)
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/libzip': 3.2.2(@yarnpkg/fslib@3.1.5)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -19347,7 +19864,7 @@ snapshots:
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/plugin-stage': 4.0.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/pnp': 4.1.3
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
@@ -19360,7 +19877,7 @@ snapshots:
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/plugin-pnp': 4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-stage': 4.0.2(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
@@ -19373,18 +19890,18 @@ snapshots:
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - typanion
 
-  '@yarnpkg/plugin-typescript@4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)':
+  '@yarnpkg/plugin-typescript@4.1.3(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-essentials@4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)))(typanion@3.14.0)':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
-      '@yarnpkg/plugin-essentials': 4.4.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/plugin-essentials': 4.4.5(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-pack': 4.0.4(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       algoliasearch: 4.27.0
       semver: 7.7.4
@@ -19396,8 +19913,8 @@ snapshots:
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
-      '@yarnpkg/libui': 3.0.2(ink@3.2.0(@types/react@19.2.14)(react@17.0.2))(react@17.0.2)
+      '@yarnpkg/fslib': 3.1.5
+      '@yarnpkg/libui': 3.1.0(ink@3.2.0(@types/react@19.2.14)(react@17.0.2))(react@17.0.2)
       '@yarnpkg/parsers': 3.0.3
       '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
@@ -19412,11 +19929,11 @@ snapshots:
       - typanion
       - utf-8-validate
 
-  '@yarnpkg/plugin-workspace-tools@4.1.6(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
+  '@yarnpkg/plugin-workspace-tools@4.1.7(@yarnpkg/cli@4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0)))(@yarnpkg/core@4.5.0(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0))':
     dependencies:
       '@yarnpkg/cli': 4.12.0(@types/react@19.2.14)(@yarnpkg/core@4.5.0(typanion@3.14.0))
       '@yarnpkg/core': 4.5.0(typanion@3.14.0)
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.45.1
@@ -19428,11 +19945,11 @@ snapshots:
   '@yarnpkg/pnp@4.1.3':
     dependencies:
       '@types/node': 18.19.130
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
 
   '@yarnpkg/shell@4.0.0(typanion@3.14.0)':
     dependencies:
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/parsers': 3.0.3
       chalk: 3.0.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
@@ -19445,7 +19962,7 @@ snapshots:
 
   '@yarnpkg/shell@4.1.3(typanion@3.14.0)':
     dependencies:
-      '@yarnpkg/fslib': 3.1.4
+      '@yarnpkg/fslib': 3.1.5
       '@yarnpkg/parsers': 3.0.3
       chalk: 4.1.2
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
@@ -20370,8 +20887,6 @@ snapshots:
 
   commander@12.1.0: {}
 
-  commander@13.1.0: {}
-
   commander@14.0.3: {}
 
   commander@7.2.0: {}
@@ -20456,15 +20971,6 @@ snapshots:
   cose-base@2.2.0:
     dependencies:
       layout-base: 2.0.1
-
-  cosmiconfig@9.0.1(typescript@5.9.3):
-    dependencies:
-      env-paths: 2.2.1
-      import-fresh: 3.3.1
-      js-yaml: 4.1.1
-      parse-json: 5.2.0
-    optionalDependencies:
-      typescript: 5.9.3
 
   create-ecdh@4.0.4:
     dependencies:
@@ -21112,11 +21618,6 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  effect@3.19.19:
-    dependencies:
-      '@standard-schema/spec': 1.1.0
-      fast-check: 3.23.2
-
   electron-to-chromium@1.5.313: {}
 
   elliptic@6.6.1:
@@ -21531,10 +22032,6 @@ snapshots:
       is-extendable: 0.1.1
 
   extend@3.0.2: {}
-
-  fast-check@3.23.2:
-    dependencies:
-      pure-rand: 6.1.0
 
   fast-content-type-parse@3.0.0: {}
 
@@ -23189,7 +23686,7 @@ snapshots:
 
   md5.js@1.3.5:
     dependencies:
-      hash-base: 3.0.5
+      hash-base: 3.1.2
       inherits: 2.0.4
       safe-buffer: 5.2.1
 
@@ -23766,10 +24263,6 @@ snapshots:
     dependencies:
       brace-expansion: 2.0.2
 
-  minimatch@9.0.5:
-    dependencies:
-      brace-expansion: 2.0.2
-
   minimatch@9.0.9:
     dependencies:
       brace-expansion: 2.0.2
@@ -24063,13 +24556,6 @@ snapshots:
   npm-normalize-package-bin@3.0.1: {}
 
   npm-normalize-package-bin@5.0.0: {}
-
-  npm-package-arg@12.0.2:
-    dependencies:
-      hosted-git-info: 8.1.0
-      proc-log: 5.0.0
-      semver: 7.7.4
-      validate-npm-package-name: 6.0.2
 
   npm-package-arg@13.0.2:
     dependencies:
@@ -24744,8 +25230,6 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  pure-rand@6.1.0: {}
-
   qs@6.15.0:
     dependencies:
       side-channel: 1.1.0
@@ -25229,35 +25713,35 @@ snapshots:
 
   robust-predicates@3.0.2: {}
 
-  rolldown@1.0.0-rc.9:
+  rolldown@1.0.0-rc.10:
     dependencies:
-      '@oxc-project/types': 0.115.0
-      '@rolldown/pluginutils': 1.0.0-rc.9
+      '@oxc-project/types': 0.120.0
+      '@rolldown/pluginutils': 1.0.0-rc.10
     optionalDependencies:
-      '@rolldown/binding-android-arm64': 1.0.0-rc.9
-      '@rolldown/binding-darwin-arm64': 1.0.0-rc.9
-      '@rolldown/binding-darwin-x64': 1.0.0-rc.9
-      '@rolldown/binding-freebsd-x64': 1.0.0-rc.9
-      '@rolldown/binding-linux-arm-gnueabihf': 1.0.0-rc.9
-      '@rolldown/binding-linux-arm64-gnu': 1.0.0-rc.9
-      '@rolldown/binding-linux-arm64-musl': 1.0.0-rc.9
-      '@rolldown/binding-linux-ppc64-gnu': 1.0.0-rc.9
-      '@rolldown/binding-linux-s390x-gnu': 1.0.0-rc.9
-      '@rolldown/binding-linux-x64-gnu': 1.0.0-rc.9
-      '@rolldown/binding-linux-x64-musl': 1.0.0-rc.9
-      '@rolldown/binding-openharmony-arm64': 1.0.0-rc.9
-      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.9
-      '@rolldown/binding-win32-arm64-msvc': 1.0.0-rc.9
-      '@rolldown/binding-win32-x64-msvc': 1.0.0-rc.9
+      '@rolldown/binding-android-arm64': 1.0.0-rc.10
+      '@rolldown/binding-darwin-arm64': 1.0.0-rc.10
+      '@rolldown/binding-darwin-x64': 1.0.0-rc.10
+      '@rolldown/binding-freebsd-x64': 1.0.0-rc.10
+      '@rolldown/binding-linux-arm-gnueabihf': 1.0.0-rc.10
+      '@rolldown/binding-linux-arm64-gnu': 1.0.0-rc.10
+      '@rolldown/binding-linux-arm64-musl': 1.0.0-rc.10
+      '@rolldown/binding-linux-ppc64-gnu': 1.0.0-rc.10
+      '@rolldown/binding-linux-s390x-gnu': 1.0.0-rc.10
+      '@rolldown/binding-linux-x64-gnu': 1.0.0-rc.10
+      '@rolldown/binding-linux-x64-musl': 1.0.0-rc.10
+      '@rolldown/binding-openharmony-arm64': 1.0.0-rc.10
+      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.10
+      '@rolldown/binding-win32-arm64-msvc': 1.0.0-rc.10
+      '@rolldown/binding-win32-x64-msvc': 1.0.0-rc.10
 
-  rollup-plugin-visualizer@6.0.4(rolldown@1.0.0-rc.9)(rollup@4.49.0):
+  rollup-plugin-visualizer@6.0.4(rolldown@1.0.0-rc.10)(rollup@4.49.0):
     dependencies:
       open: 8.4.2
       picomatch: 4.0.3
       source-map: 0.7.6
       yargs: 17.7.2
     optionalDependencies:
-      rolldown: 1.0.0-rc.9
+      rolldown: 1.0.0-rc.10
       rollup: 4.49.0
 
   rollup@4.49.0:
@@ -25938,28 +26422,6 @@ snapshots:
       better-path-resolve: 1.0.0
       rename-overwrite: 6.0.6
 
-  syncpack@13.0.4(typescript@5.9.3):
-    dependencies:
-      chalk: 5.6.2
-      chalk-template: 1.1.2
-      commander: 13.1.0
-      cosmiconfig: 9.0.1(typescript@5.9.3)
-      effect: 3.19.19
-      enquirer: 2.4.1
-      fast-check: 3.23.2
-      globby: 14.1.0
-      jsonc-parser: 3.3.1
-      minimatch: 9.0.5
-      npm-package-arg: 12.0.2
-      ora: 8.2.0
-      prompts: 2.4.2
-      read-yaml-file: 2.1.0
-      semver: 7.7.4
-      tightrope: 0.2.0
-      ts-toolbelt: 9.6.0
-    transitivePeerDependencies:
-      - typescript
-
   table-layout@1.0.2:
     dependencies:
       array-back: 4.0.2
@@ -26098,8 +26560,6 @@ snapshots:
       readable-stream: 2.3.8
       xtend: 4.0.2
 
-  tightrope@0.2.0: {}
-
   timers-browserify@2.0.12:
     dependencies:
       setimmediate: 1.0.5
@@ -26216,8 +26676,6 @@ snapshots:
       typescript: 5.9.3
 
   ts-dedent@2.2.0: {}
-
-  ts-toolbelt@9.6.0: {}
 
   tsconfck@3.1.6(typescript@5.9.3):
     optionalDependencies:
@@ -26557,8 +27015,6 @@ snapshots:
     dependencies:
       builtins: 5.1.0
 
-  validate-npm-package-name@6.0.2: {}
-
   validate-npm-package-name@7.0.2: {}
 
   vary@1.1.2: {}
@@ -26584,7 +27040,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-checker@0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)):
+  vite-plugin-checker@0.12.0(eslint@10.0.3)(optionator@0.9.4)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@babel/code-frame': 7.29.0
       chokidar: 4.0.3
@@ -26593,14 +27049,14 @@ snapshots:
       picomatch: 4.0.3
       tiny-invariant: 1.3.3
       tinyglobby: 0.2.15
-      vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
       vscode-uri: 3.1.0
     optionalDependencies:
       eslint: 10.0.3
       optionator: 0.9.4
       typescript: 5.9.3
 
-  vite-plugin-dts@4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)):
+  vite-plugin-dts@4.5.4(@types/node@25.5.0)(rollup@4.49.0)(typescript@5.9.3)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@microsoft/api-extractor': 7.57.7(@types/node@25.5.0)
       '@rollup/pluginutils': 5.3.0(rollup@4.49.0)
@@ -26613,7 +27069,7 @@ snapshots:
       magic-string: 0.30.21
       typescript: 5.9.3
     optionalDependencies:
-      vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - '@types/node'
       - rollup
@@ -26634,13 +27090,12 @@ snapshots:
       tsx: 4.21.0
       yaml: 2.8.2
 
-  vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2):
+  vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
-      '@oxc-project/runtime': 0.115.0
       lightningcss: 1.32.0
       picomatch: 4.0.3
       postcss: 8.5.8
-      rolldown: 1.0.0-rc.9
+      rolldown: 1.0.0-rc.10
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 25.5.0
@@ -26653,10 +27108,10 @@ snapshots:
     optionalDependencies:
       vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
 
-  vitest@4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)):
+  vitest@4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@vitest/expect': 4.1.0
-      '@vitest/mocker': 4.1.0(vite@7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2))
+      '@vitest/mocker': 4.1.0(vite@8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/pretty-format': 4.1.0
       '@vitest/runner': 4.1.0
       '@vitest/snapshot': 4.1.0
@@ -26673,37 +27128,7 @@ snapshots:
       tinyexec: 1.0.4
       tinyglobby: 0.2.15
       tinyrainbow: 3.1.0
-      vite: 7.3.1(@types/node@25.5.0)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.2)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 25.5.0
-      '@vitest/ui': 4.1.0(vitest@4.1.0)
-      happy-dom: 20.8.4
-      jsdom: 25.0.1
-    transitivePeerDependencies:
-      - msw
-
-  vitest@4.1.0(@types/node@25.5.0)(@vitest/ui@4.1.0)(happy-dom@20.8.4)(jsdom@25.0.1)(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)):
-    dependencies:
-      '@vitest/expect': 4.1.0
-      '@vitest/mocker': 4.1.0(vite@8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2))
-      '@vitest/pretty-format': 4.1.0
-      '@vitest/runner': 4.1.0
-      '@vitest/snapshot': 4.1.0
-      '@vitest/spy': 4.1.0
-      '@vitest/utils': 4.1.0
-      es-module-lexer: 2.0.0
-      expect-type: 1.3.0
-      magic-string: 0.30.21
-      obug: 2.1.1
-      pathe: 2.0.3
-      picomatch: 4.0.3
-      std-env: 4.0.0
-      tinybench: 2.9.0
-      tinyexec: 1.0.4
-      tinyglobby: 0.2.15
-      tinyrainbow: 3.1.0
-      vite: 8.0.0(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.1(@types/node@25.5.0)(esbuild@0.27.4)(tsx@4.21.0)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 25.5.0

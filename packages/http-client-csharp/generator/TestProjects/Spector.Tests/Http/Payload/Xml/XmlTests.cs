@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -387,6 +388,15 @@ namespace TestProjects.Spector.Tests.Http.Payload.Xml
             Assert.NotNull(model);
             Assert.AreEqual(DateTimeOffset.Parse("2022-08-26T18:38:00Z"), model.Rfc3339);
             Assert.AreEqual(DateTimeOffset.Parse("Fri, 26 Aug 2022 14:38:00 GMT"), model.Rfc7231);
+        });
+
+        [SpectorTest]
+        public Task GetXmlErrorValue() => Test((host) =>
+        {
+            var exception = Assert.ThrowsAsync<ClientResultException>(
+                async () => await new XmlClient(host, null).GetXmlErrorValueClient().GetAsync());
+            Assert.AreEqual(400, exception!.Status);
+            return Task.CompletedTask;
         });
     }
 }

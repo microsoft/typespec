@@ -25,6 +25,9 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
 
+# Internal dev feed for npm package resolution
+$DevFeedUrl = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+
 # Define the list of dependencies to inject
 $InjectedDependencies = @(
     '@azure-tools/typespec-azure-core',
@@ -41,7 +44,7 @@ function Test-PackageVersion {
     )
     
     Write-Host "Checking if $PackageName@$Version exists..."
-    $checkResult = & npm view "$PackageName@$Version" version 2>&1
+    $checkResult = & npm view "$PackageName@$Version" version --registry $DevFeedUrl 2>&1
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ Found $PackageName@$Version"
@@ -61,7 +64,7 @@ function Get-PackageDependencyVersion {
     )
     
     Write-Host "Getting $DependencyName version from $PackageName@$PackageVersion..."
-    $result = & npm view "$PackageName@$PackageVersion" devDependencies.$DependencyName 2>&1
+    $result = & npm view "$PackageName@$PackageVersion" devDependencies.$DependencyName --registry $DevFeedUrl 2>&1
     
     if ($LASTEXITCODE -eq 0 -and $result) {
         $dependencyVersion = $result.Trim()
@@ -81,7 +84,7 @@ function Get-LatestGAVersion {
     )
     
     Write-Host "Getting latest GA version for $PackageName..."
-    $result = & npm view $PackageName dist-tags.latest 2>&1
+    $result = & npm view $PackageName dist-tags.latest --registry $DevFeedUrl 2>&1
     
     if ($LASTEXITCODE -eq 0 -and $result) {
         $latestVersion = $result.Trim()
@@ -102,7 +105,7 @@ function Test-TcgcCompatibility {
     )
     
     Write-Host "Checking if $PackageName@$PackageVersion is compatible with tcgc@$TcgcVersion..."
-    $tcgcRange = & npm view "${PackageName}@${PackageVersion}" "peerDependencies.@azure-tools/typespec-client-generator-core" 2>&1
+    $tcgcRange = & npm view "${PackageName}@${PackageVersion}" "peerDependencies.@azure-tools/typespec-client-generator-core" --registry $DevFeedUrl 2>&1
     
     if ($LASTEXITCODE -ne 0 -or -not $tcgcRange) {
         Write-Host "  No tcgc peer dependency found, assuming compatible"
@@ -131,7 +134,7 @@ function Get-PreviousGAVersions {
     )
     
     Write-Host "Getting previous GA versions of $PackageName (before $BeforeVersion)..."
-    $result = & npm view $PackageName versions --json 2>&1
+    $result = & npm view $PackageName versions --json --registry $DevFeedUrl 2>&1
     
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "Could not retrieve versions for $PackageName"
@@ -283,7 +286,7 @@ try {
 
     # Validate dependencies by running npm install
     Write-Host "Validating dependencies with npm install..."
-    $npmInstallResult = & npm install 2>&1
+    $npmInstallResult = & npm install --registry $DevFeedUrl 2>&1
     if ($LASTEXITCODE -ne 0) {
         Write-Error "npm install failed after injecting dependencies: $npmInstallResult"
         exit 1
