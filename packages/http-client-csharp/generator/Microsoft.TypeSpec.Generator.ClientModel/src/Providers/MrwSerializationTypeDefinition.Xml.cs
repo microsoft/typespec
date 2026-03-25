@@ -152,9 +152,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         if (kvp.Key != ns.Namespace)
                         {
                             nsDeclarations.Add(
-                                _xmlWriterSnippet.Invoke(
-                                    nameof(System.Xml.XmlWriter.WriteAttributeString),
-                                    [Literal("xmlns"), Literal(kvp.Value.Prefix), Null, Literal(kvp.Key)]).Terminate());
+                                _xmlWriterSnippet.WriteNamespaceDeclaration(kvp.Value.Prefix, kvp.Key));
                         }
                     }
                 }
