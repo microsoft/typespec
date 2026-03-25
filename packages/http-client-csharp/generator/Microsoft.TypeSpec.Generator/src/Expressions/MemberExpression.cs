@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
             if (Declaration is not null)
             {
-                writer.Append(Declaration);
+                writer.AppendDeclarationReference(Declaration);
             }
             else
             {

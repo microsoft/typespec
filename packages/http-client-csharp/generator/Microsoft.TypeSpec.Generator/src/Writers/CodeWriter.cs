@@ -1016,6 +1016,18 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        internal void AppendDeclarationReference(CodeWriterDeclaration declaration)
+        {
+            if (declaration.HasBeenDeclared(_scopes))
+            {
+                WriteIdentifier(declaration.GetActualName(_scopes.Peek()));
+            }
+            else
+            {
+                WriteIdentifier(declaration.RequestedName);
+            }
+        }
+
         internal void WriteTypeModifiers(TypeSignatureModifiers modifiers)
         {
             AppendRawIf("public ", modifiers.HasFlag(TypeSignatureModifiers.Public))
