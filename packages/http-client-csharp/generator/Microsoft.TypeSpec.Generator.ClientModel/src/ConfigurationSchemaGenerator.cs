@@ -88,13 +88,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             var settings = client.ClientSettings!;
             var properties = new JsonObject();
 
-            // Add endpoint property
+            // Add endpoint property (Name is already transformed by PropertyProvider construction)
             if (settings.EndpointProperty != null)
             {
                 properties[settings.EndpointProperty.Name] = BuildPropertySchema(settings.EndpointProperty);
             }
 
-            // Add other required parameters
+            // Add other required parameters (raw param names need ToIdentifierName() for PascalCase)
             foreach (var param in settings.OtherRequiredParams)
             {
                 var propName = param.Name.ToIdentifierName();
@@ -233,18 +233,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         private static JsonObject GetJsonSchemaForEnum(CSharpType enumType)
         {
+            // Search both top-level and nested types (e.g., service version enums nested in options) in a single pass
             var enumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SelectMany(t => new[] { t }.Concat(t.NestedTypes))
                 .OfType<EnumProvider>()
                 .FirstOrDefault(e => e.Type.Equals(enumType));
-
-            if (enumProvider == null)
-            {
-                // Try nested types (e.g., service version enums nested in options)
-                enumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                    .SelectMany(t => t.NestedTypes)
-                    .OfType<EnumProvider>()
-                    .FirstOrDefault(e => e.Type.Equals(enumType));
-            }
 
             if (enumProvider != null)
             {
