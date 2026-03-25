@@ -118,6 +118,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    exclude-paths:
+      - ".github/workflows/*.lock.{yaml,yml}"
     groups:
       actions:
         patterns:
