@@ -101,9 +101,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
-            Name = inputProperty.Name == enclosingType.Name
-                ? $"{inputProperty.Name.ToIdentifierName()}Property"
-                : inputProperty.Name.ToIdentifierName();
+            var identifierName = inputProperty.Name.ToIdentifierName();
+            Name = identifierName == enclosingType.Name
+                ? $"{identifierName}Property"
+                : identifierName;
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);

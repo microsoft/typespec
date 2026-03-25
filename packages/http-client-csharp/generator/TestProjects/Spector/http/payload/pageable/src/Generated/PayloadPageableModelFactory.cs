@@ -18,6 +18,6 @@ namespace Payload.Pageable
 
         public static XmlPet XmlPet(string id = default, string name = default) => throw null;
 
-        public static Filter Filter(string filter = default) => throw null;
+        public static Filter Filter(string filterProperty = default) => throw null;
     }
 }

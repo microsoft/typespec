@@ -6,7 +6,7 @@ namespace Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb
 {
     public partial class Filter
     {
-        public Filter(string filter) => throw null;
+        public Filter(string filterProperty) => throw null;
 
         public string FilterProperty => throw null;
     }
