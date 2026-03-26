@@ -19,7 +19,7 @@ RUN pnpm install --filter "@typespec/compiler..."
 RUN pnpm --filter "@typespec/compiler..." run build
 
 WORKDIR /app/packages/compiler
-RUN npm pack
+RUN pnpm pack
 
 # --------------------------------
 #  Setup final image

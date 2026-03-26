@@ -25,20 +25,20 @@
     "test:watch": "vitest -w"
   },
   "dependencies": {
-    "@pnpm/workspace.find-packages": "^1000.0.64",
-    "execa": "^9.6.1",
-    "globby": "~16.1.1",
-    "log-symbols": "^7.0.1",
-    "ora": "^9.3.0",
-    "pathe": "^2.0.3",
-    "picocolors": "~1.1.1",
-    "simple-git": "^3.33.0",
-    "tar": "^7.5.11",
-    "yaml": "~2.8.2"
+    "@pnpm/workspace.find-packages": "catalog:",
+    "execa": "catalog:",
+    "globby": "catalog:",
+    "log-symbols": "catalog:",
+    "ora": "catalog:",
+    "pathe": "catalog:",
+    "picocolors": "catalog:",
+    "simple-git": "catalog:",
+    "tar": "catalog:",
+    "yaml": "catalog:"
   },
   "devDependencies": {
-    "typescript": "~5.9.3",
-    "vitest": "^4.1.0"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "bugs": "https://github.com/microsoft/typespec/issues"
 }

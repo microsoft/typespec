@@ -139,9 +139,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? _xmlWriterSnippet.WriteStartElement(ns.Prefix, nameHintExpression, ns.Namespace)
                 : _xmlWriterSnippet.WriteStartElement(nameHintExpression);
 
+            // When the model has a root namespace, pre-declare property namespaces that
+            // differ from the root so they appear on the root element rather than inline.
+            var nsDeclarations = new List<MethodBodyStatement>();
+            if (ns != null)
+            {
+                var propertyNamespaces = AllCategorizedXmlProperties.Namespaces;
+                if (propertyNamespaces != null)
+                {
+                    foreach (var kvp in propertyNamespaces)
+                    {
+                        if (kvp.Key != ns.Namespace)
+                        {
+                            nsDeclarations.Add(
+                                _xmlWriterSnippet.WriteNamespaceDeclaration(kvp.Value.Prefix, kvp.Key));
+                        }
+                    }
+                }
+            }
+
+            var ifBody = new List<MethodBodyStatement> { writeStartElement };
+            ifBody.AddRange(nsDeclarations);
+
             return
             [
-                new IfStatement(nameHintNotNull) { writeStartElement },
+                new IfStatement(nameHintNotNull) { ifBody.ToArray() },
                 MethodBodyStatement.EmptyLine,
                 This.Invoke(XmlModelWriteCoreMethodName, _xmlWriterParameter, _serializationOptionsParameter).Terminate(),
                 MethodBodyStatement.EmptyLine,

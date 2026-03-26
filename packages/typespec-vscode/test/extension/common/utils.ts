@@ -59,7 +59,18 @@ export const test = baseTest.extend<{
           `--folder-uri=file:${path.resolve(workspacePath)}`,
         ].filter((v): v is string => !!v),
       });
+
+      // Ensure Electron is always closed on teardown, even if later steps fail.
+      teardowns.push(async () => {
+        try {
+          await app.close();
+        } catch (error) {}
+      });
+
       const page = await app.firstWindow();
+      // Wait for the page to fully load to reduce the chance of
+      // VS Code reloading the window and destroying the execution context.
+      await page.waitForLoadState("domcontentloaded");
       const tracePath = join(projectRoot, "test-results", task.name, "trace.zip");
       const artifactsDir = join(tempDir, "playwright-artifacts");
       await fs.promises.mkdir(artifactsDir, { recursive: true }); // make sure the directory exists

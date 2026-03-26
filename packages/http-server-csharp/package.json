@@ -64,16 +64,16 @@
   },
   "dependencies": {
     "@typespec/asset-emitter": "workspace:^",
-    "change-case": "~5.4.4",
-    "cross-spawn": "^7.0.6",
-    "picocolors": "~1.1.1",
-    "yaml": "~2.8.2",
-    "yargs": "~18.0.0"
+    "change-case": "catalog:",
+    "cross-spawn": "catalog:",
+    "picocolors": "catalog:",
+    "yaml": "catalog:",
+    "yargs": "catalog:"
   },
   "devDependencies": {
-    "@types/cross-spawn": "~6.0.6",
-    "@types/node": "~25.5.0",
-    "@types/yargs": "~17.0.35",
+    "@types/cross-spawn": "catalog:",
+    "@types/node": "catalog:",
+    "@types/yargs": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/http-specs": "workspace:^",
@@ -85,15 +85,15 @@
     "@typespec/spector": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
-    "@vitest/coverage-v8": "^4.1.0",
-    "@vitest/ui": "^4.1.0",
-    "fs-extra": "^11.3.4",
-    "globby": "~16.1.1",
-    "inquirer": "^13.3.0",
-    "ora": "^9.3.0",
-    "p-limit": "^7.3.0",
-    "pathe": "^2.0.3",
-    "typescript": "~5.9.3",
-    "vitest": "^4.1.0"
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
+    "fs-extra": "catalog:",
+    "globby": "catalog:",
+    "inquirer": "catalog:",
+    "ora": "catalog:",
+    "p-limit": "catalog:",
+    "pathe": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

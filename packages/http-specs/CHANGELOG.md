@@ -1,5 +1,17 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.35
+
+### Features
+
+- Added new scenario for next link based pagination where the initial verb is not GET
+- Add missing scenarios for xml handling
+
+### Bug Fixes
+
+- Accept both `2022-08-26T18:38:00.000Z` and `2022-08-26T18:38:00Z` as valid RFC3339 UTC datetime forms in the `ModelWithDatetime` XML scenario.
+
+
 ## 0.1.0-alpha.34
 
 ### Bug Fixes
