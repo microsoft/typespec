@@ -110,6 +110,10 @@ export function resolveValues<T extends Record<string, unknown>>(
         }
         resolvingValues.delete(keyPath);
         return resultObject;
+      } else if (value !== undefined && Array.isArray(value)) {
+        /* If the value is an array, it's responsibility of the emitter to handle interpolationq. */
+        resolvingValues.delete(keyPath);
+        return value;
       }
       resolvingValues.delete(keyPath);
       return value;
