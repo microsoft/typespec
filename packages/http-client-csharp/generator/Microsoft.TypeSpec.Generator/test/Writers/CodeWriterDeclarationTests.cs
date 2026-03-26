@@ -169,7 +169,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
-        public void FieldDedupUpdatesReferencesViaMemberExpression()
+        public void FieldDeduplicationUpdatesReferencesViaMemberExpression()
         {
             var type = new TestTypeProvider();
             var field1 = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, typeof(string), "_scope", type);
