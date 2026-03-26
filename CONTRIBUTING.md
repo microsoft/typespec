@@ -51,7 +51,7 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 | `pnpm format`               | Format                                                                                                                                                    |
 | `pnpm format:check`         | Validate files are formatted                                                                                                                              |
 | `pnpm gen-extern-signature` | Regenerate TypeScript signature for decorators(except compiler)                                                                                           |
-| `pnpm change add`           | Add a change description (valid kinds: `feature`, `fix`, `breaking`, `deprecation`, `dependencies`, `internal`) |
+| `pnpm change add`           | Add a change description (see valid kinds in [`.chronus/config.yaml`](.chronus/config.yaml))                    |
 | `pnpm lint`                 | Run linters                                                                                                                                               |
 | `pnpm lint:fix`             | Fix autofixable issues                                                                                                                                    |
 | `pnpm regen-samples`        | Regen the samples(when the samples test fail)                                                                                                             |
