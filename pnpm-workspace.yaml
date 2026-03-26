@@ -87,9 +87,9 @@ catalog:
   "@typescript-eslint/utils": ^8.57.0
   "@typespec/ts-http-runtime": 0.3.4
   "@vitejs/plugin-react": ~6.0.1
-  "@vitest/coverage-v8": ^4.1.0
-  "@vitest/eslint-plugin": ^1.6.12
-  "@vitest/ui": ^4.1.0
+  "@vitest/coverage-v8": ^4.1.1
+  "@vitest/eslint-plugin": ^1.6.13
+  "@vitest/ui": ^4.1.1
   "@vscode/extension-telemetry": ^1.5.1
   "@vscode/test-electron": ^2.5.2
   "@vscode/test-web": ^0.0.80
@@ -190,7 +190,7 @@ catalog:
   vite: ^8.0.1
   vite-plugin-checker: ^0.12.0
   vite-plugin-dts: 4.5.4
-  vitest: ^4.1.0
+  vitest: ^4.1.1
   vscode-languageclient: ~9.0.1
   vscode-languageserver: ~9.0.1
   vscode-languageserver-textdocument: ~1.0.12
