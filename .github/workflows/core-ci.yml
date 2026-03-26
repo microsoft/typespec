@@ -181,4 +181,3 @@ jobs:
 
       - name: Build Docker image
         run: docker build -f ./docker/Dockerfile .
-
