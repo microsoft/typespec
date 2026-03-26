@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             EnclosingType = enclosingType;
-            _serializationFormat = GetSerializationFormat(inputProperty);
+            _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty);
             _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
@@ -101,9 +101,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
-            Name = inputProperty.Name == enclosingType.Name
-                ? $"{inputProperty.Name.ToIdentifierName()}Property"
-                : inputProperty.Name.ToIdentifierName();
+            var identifierName = inputProperty.Name.ToIdentifierName();
+            Name = identifierName == enclosingType.Name
+                ? $"{identifierName}Property"
+                : identifierName;
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
@@ -334,22 +335,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // rebuild the docs if they are not provided
                 BuildDocs();
             }
-        }
-
-        private SerializationFormat GetSerializationFormat(InputProperty inputProperty)
-        {
-            // Handle array encoding from InputModelProperty
-            if (inputProperty is InputModelProperty modelProperty &&
-                inputProperty.Type is InputArrayType)
-            {
-                var arrayEncoding = modelProperty.Encode;
-                if (arrayEncoding.HasValue)
-                {
-                    return arrayEncoding.Value.ToSerializationFormat();
-                }
-            }
-
-            return CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
         }
     }
 }
