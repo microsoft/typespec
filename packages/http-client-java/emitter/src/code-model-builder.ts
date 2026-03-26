@@ -506,6 +506,14 @@ export class CodeModelBuilder {
           this.trackSchemaUsage(schema, {
             usage: [SchemaContext.Public],
           });
+          if (schema instanceof ObjectSchema && schema.usage) {
+            const schemaUsage: SchemaContext[] | undefined = schema.usage;
+            // And, remove the Paged, as we assume customer explicitly asks Public
+            const index = schemaUsage.indexOf(SchemaContext.Paged);
+            if (index >= 0) {
+              schemaUsage.splice(index, 1);
+            }
+          }
         } else if (access === "internal") {
           const schema = this.processSchema(model, model.name);
 

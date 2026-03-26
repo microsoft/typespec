@@ -40,7 +40,7 @@ public final class ModelWithTextValueClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return contains an attribute and text along with {@link Response}.
+     * @return §8.1 — Contains an attribute and text along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -54,7 +54,7 @@ public final class ModelWithTextValueClient {
      * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return contains an attribute and text.
+     * @return §8.1 — Contains an attribute and text.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
