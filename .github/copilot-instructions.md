@@ -48,7 +48,7 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
    mkdir test-tsp && cd test-tsp
    echo 'import "@typespec/rest"; import "@typespec/openapi3"; op ping(): void;' > main.tsp
    echo '{"dependencies": {"@typespec/compiler": "latest", "@typespec/rest": "latest", "@typespec/openapi3": "latest"}}' > package.json
-   
+
    # Install and compile
    /path/to/typespec/packages/compiler/cmd/tsp.js install
    /path/to/typespec/packages/compiler/cmd/tsp.js compile main.tsp --emit @typespec/openapi3
