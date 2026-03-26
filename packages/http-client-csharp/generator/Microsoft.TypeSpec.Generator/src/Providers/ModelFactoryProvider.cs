@@ -460,8 +460,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // Skip parameters for properties that were customized via CodeGenMember to be non-public
-                if (param.Property?.OriginalName != null
-                    && !param.Property!.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                if (!param.Property!.Modifiers.HasFlag(MethodSignatureModifiers.Public))
                 {
                     continue;
                 }
