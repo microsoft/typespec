@@ -264,11 +264,27 @@ Write changeset messages that are:
 
 ### Multiple packages
 
-If changes affect multiple packages, list all of them:
+If changes affect multiple packages **with the same change kind**, list all of them in a single changeset:
 
 ```yaml
 packages:
   - "@typespec/http-client-python"
+  - "@typespec/http-client-csharp"
+```
+
+**If packages have different change kinds, create separate changeset files for each.** For example, if the PR adds a feature to `@typespec/http-client-python` and fixes a bug in `@typespec/http-client-csharp`, create two files:
+
+```yaml
+# File 1: feature for python
+changeKind: feature
+packages:
+  - "@typespec/http-client-python"
+```
+
+```yaml
+# File 2: fix for csharp
+changeKind: fix
+packages:
   - "@typespec/http-client-csharp"
 ```
 

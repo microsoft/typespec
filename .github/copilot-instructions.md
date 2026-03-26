@@ -123,10 +123,124 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 - Always run the linting and the formatting commands before any commit.
 - Follow conventional commits.
 
+## Writing Tests
+
+Tests use [vitest](https://vitest.dev/) with the new **tester v2** framework (`createTester`).
+
+### Use the new tester API (v2)
+
+**Do NOT** use the legacy `createTestHost`, `createTestRunner`, or `BasicTestRunner` APIs. These are deprecated.
+
+Instead, use `createTester` from `@typespec/compiler/testing`:
+
+```ts title="test/test-host.ts"
+import { resolvePath } from "@typespec/compiler";
+import { createTester } from "@typespec/compiler/testing";
+
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/http", "@typespec/my-lib"],
+})
+  .importLibraries()
+  .using("MyLib");
+```
+
+```ts title="test/my-feature.test.ts"
+import { t } from "@typespec/compiler/testing";
+import { expect, it } from "vitest";
+import { Tester } from "./test-host.js";
+
+it("does something", async () => {
+  const { Foo, program } = await Tester.compile(t.code`
+    model ${t.model("Foo")} { name: string }
+  `);
+  expect(Foo.name).toBe("Foo");
+});
+```
+
+Key differences from the old API:
+- No `beforeEach` setup needed — use `Tester` directly in each test
+- Use `t.code` template literal with markers (`t.model()`, `t.modelProperty()`, etc.) instead of `@test` decorator
+- The `program` is available on the compile result — no need for `runner.program`
+- See the [testing documentation](https://typespec.io/docs/extending-typespec/testing) for the full migration guide
+
+### Do NOT wrap tests in a top-level `describe`
+
+The test file name already provides context. Use `it()` directly at the top level. Only use `describe()` to group **sub-categories** of tests within a file:
+
+```ts
+// ✅ Good — flat structure with describe for sub-groups
+import { it, describe } from "vitest";
+
+it("basic case works", async () => { ... });
+
+it("handles empty input", async () => { ... });
+
+describe("edge cases", () => {
+  it("handles null", async () => { ... });
+  it("handles undefined", async () => { ... });
+});
+```
+
+```ts
+// ❌ Bad — unnecessary top-level describe wrapping the whole file
+import { describe, it } from "vitest";
+
+describe("MyFeature", () => {        // <- redundant, the file is already named my-feature.test.ts
+  it("basic case works", async () => { ... });
+  it("handles empty input", async () => { ... });
+});
+```
+
 ## Pull Request instructions
 
-- When the work is done, run `pnpm chronus add` to add a changelog entry. Select the correct type of change (fix, feat, docs, etc.) and provide a clear description based on the initial issue description. Only add an area tag when the package has multiple areas and the change targets a secondary area; use bracket format like `[converter]` or `[formatter]` (for example, a secondary openapi3 converter change should start with `[converter]`). Avoid generic area prefixes like `core -` and do not add any area tag for single-area packages. For new features, include a short code block in the changelog entry that showcases the new functionality; skip code blocks for simple bug fixes.
+### Changelog entries
+
+When the work is done, run `pnpm chronus add` to add a changelog entry. The valid change kinds are:
+
+| Kind | When to use |
+|------|------------|
+| `feature` | New features or capabilities |
+| `fix` | Bug fixes to existing features |
+| `breaking` | Changes that break existing features or APIs |
+| `deprecation` | Deprecating an existing feature (not breaking) |
+| `dependencies` | Dependency version bumps |
+| `internal` | Internal changes not user-facing (refactoring, tests, tooling, docs) |
+
+> **IMPORTANT:** Do **NOT** use `feat`, `docs`, `patch`, `minor`, or `major` as change kinds — these are not valid. Use the exact kinds listed above.
+
+**If a PR affects multiple packages with different types of changes, create a separate changelog entry for each.** For example, if the PR adds a feature to `@typespec/http` and fixes a bug in `@typespec/openapi3`, run `pnpm chronus add` twice to create two separate changelog entries — one with `feature` for `@typespec/http` and one with `fix` for `@typespec/openapi3`. Do NOT bundle different change types into a single entry.
+
+### Changelog message guidelines
+
+- Provide a clear description based on the initial issue description.
+- Only add an area tag when the package has multiple areas and the change targets a secondary area; use bracket format like `[converter]` or `[formatter]` (for example, a secondary openapi3 converter change should start with `[converter]`). Avoid generic area prefixes like `core -` and do not add any area tag for single-area packages.
+- For new features, include a short code block in the changelog entry that showcases the new functionality; skip code blocks for simple bug fixes.
+
+### TDD approach
+
 - Always start by defining additional unit tests/updating existing unit tests to fulfill the requirements first. Then make changes to the code accordingly. If you are following the TDD (Test Driven Development) approach, make sure to run the tests and see them fail before implementing the code changes.
+
+## Branch Naming Conventions
+
+### Hotfix / patch releases
+
+For patch releases to previously released versions, push changes to a `release/*` branch:
+
+- **Pattern:** `release/<version>` (e.g., `release/v0.60`, `release/v1.0`)
+- A backmerge PR from the release branch to `main` is created automatically
+- The publish pipeline triggers on both `main` and `release/*` branches
+
+### Out-of-sync releases
+
+When a standalone package (e.g., `http-client-python`, `http-client-java`) needs an independent release, use a `publish/` branch:
+
+- **Pattern:** `publish/<package>-release-<MM-DD>` (e.g., `publish/python-release-03-26`)
+- These branches skip certain CI checks (consistency, external-integration) and auto-publish on merge
+- Do **NOT** use `release/*` for standalone package releases — that pattern is reserved for the core TypeSpec lockstep packages
+
+### Regular feature branches
+
+- No enforced naming convention, but use descriptive names (e.g., `fix/openapi3-multipart-union`, `feature/add-xml-support`)
 
 ## Available Task Instructions
 
