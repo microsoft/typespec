@@ -12,6 +12,9 @@ on:
   # Allow manual triggering
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 # This check is optional by default
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -30,18 +33,18 @@ jobs:
 
     steps:
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
 
       - name: Checkout Azure/typespec-azure repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: Azure/typespec-azure
           submodules: true
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v5
 
       - name: Update core submodule to PR commit
         run: |
@@ -74,7 +77,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
           fetch-depth: 0

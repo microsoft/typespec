@@ -278,6 +278,14 @@ interface Items {
   @get
   @route("summary2")
   summary2(): ListResultSummary2;
+
+  @get
+  @list
+  @route("list3")
+  list3(): ListResult3;
+
+  @post
+  post(@body body: ListResult3): void;
 }
 
 // model does not contain `@pageItems` property, but inherit them from parent
@@ -295,6 +303,16 @@ model ListResult {
 
 // This paged model need to be public (instead of in "implementation" package), as its child ListResultSummary2 is public
 model ListResult2 {
+  @pageItems
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+// This paged model need to be public (instead of in "implementation" package), as it is referenced in public API or public model
+@access(Access.public)
+model ListResult3 {
   @pageItems
   items: Result[];
 
