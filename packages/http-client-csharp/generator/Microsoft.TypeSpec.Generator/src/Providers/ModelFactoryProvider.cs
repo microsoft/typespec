@@ -459,8 +459,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // Skip parameters for non-public properties - ex. properties that were customized via CodeGenMember
-                if (!param.Property!.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                // Skip parameters for non-public/protected properties - ex. properties that were customized via CodeGenMember
+                if (!param.Property!.Modifiers.HasFlag(MethodSignatureModifiers.Public) && !param.Property!.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 {
                     continue;
                 }
