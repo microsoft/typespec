@@ -12,6 +12,9 @@ on:
   # Allow manual triggering
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 # This check is optional by default
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

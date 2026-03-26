@@ -10,6 +10,9 @@ on:
       - ".github/workflows/sync-labels.yml"
       - "CONTRIBUTING.md"
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
