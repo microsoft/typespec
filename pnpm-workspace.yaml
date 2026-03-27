@@ -130,7 +130,7 @@ catalog:
   fs-extra: ^11.3.4
   globby: ~16.1.1
   grammarkdown: ~3.3.2
-  happy-dom: ^20.8.4
+  happy-dom: ^20.8.8
   inquirer: ^13.3.0
   is-unicode-supported: ^2.1.0
   json5: ^2.2.3
