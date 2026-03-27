@@ -88,7 +88,7 @@ catalog:
   "@typespec/ts-http-runtime": 0.3.4
   "@vitejs/plugin-react": ~6.0.1
   "@vitest/coverage-v8": ^4.1.0
-  "@vitest/eslint-plugin": ^1.6.12
+  "@vitest/eslint-plugin": ^1.6.13
   "@vitest/ui": ^4.1.0
   "@vscode/extension-telemetry": ^1.5.1
   "@vscode/test-electron": ^2.5.2
