@@ -1,5 +1,6 @@
 import "@typespec/rest";
 import "@azure-tools/typespec-azure-core";
+import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
 using TypeSpec.Rest;
@@ -109,4 +110,19 @@ interface SkipSpecialHeaders {
       @header foo: string;
     }>
   >;
+}
+
+enum AcceptHeaderNoneConstant {
+  APPLICATION_JSON_METADATA_NONE: "application/json;odata.metadata=none",
+}
+
+@route("/constant-optional-accept-header-with-default-value")
+interface ConstantAcceptHeaderWithDefaultValueAsRequired {
+  @doc("Accept header with constant type and default value should be marked as required, before we support clientDefaultValue. Issue: https://github.com/microsoft/typespec/issues/10178")
+  @get
+  retrieve(
+    @header
+    @Azure.ClientGenerator.Core.Legacy.clientDefaultValue("application/json;odata.metadata=minimal")
+    accept?: "application/json;odata.metadata=minimal",
+  ): OkResponse;
 }
