@@ -51,7 +51,7 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 | `pnpm format`               | Format                                                                                                                                                    |
 | `pnpm format:check`         | Validate files are formatted                                                                                                                              |
 | `pnpm gen-extern-signature` | Regenerate TypeScript signature for decorators(except compiler)                                                                                           |
-| `pnpm change add`           | Add a change description                                                                                                                                  |
+| `pnpm change add`           | Add a change description (see valid kinds in [`.chronus/config.yaml`](.chronus/config.yaml))                                                              |
 | `pnpm lint`                 | Run linters                                                                                                                                               |
 | `pnpm lint:fix`             | Fix autofixable issues                                                                                                                                    |
 | `pnpm regen-samples`        | Regen the samples(when the samples test fail)                                                                                                             |
@@ -65,6 +65,15 @@ this output on the command line, set environment variable
 TYPESPEC_VERBOSE_TEST_OUTPUT=true.
 
 **For the compiler you will need to run it manually or run the whole workspace build. This is because for the tool to run it needs the compiler to build first.**
+
+### Writing tests
+
+Tests use [vitest](https://vitest.dev/) with the `createTester` API from `@typespec/compiler/testing`. **Do not** use the legacy `createTestHost`/`createTestRunner` APIs — they are deprecated. See the [testing documentation](https://typespec.io/docs/extending-typespec/testing) for the full guide and migration instructions.
+
+**Test structure rules:**
+
+- Do **not** wrap tests in a top-level `describe`. The test file name already provides context. Use `it()` directly at the top level. Only use `describe()` for sub-groups within a file.
+- Use `it` (not `test`) for test functions, as enforced by ESLint (`vitest/consistent-test-it`).
 
 ## Using VS Code
 

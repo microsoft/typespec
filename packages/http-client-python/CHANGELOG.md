@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.28.2
+
+### Bug Fixes
+
+- [#10167](https://github.com/microsoft/typespec/pull/10167) Fix import of `_deserialize` in mix of xml and non-xml models
+
+
 ## 0.28.1
 
 ### Bug Fixes
