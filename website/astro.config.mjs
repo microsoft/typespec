@@ -98,6 +98,7 @@ export default defineConfig({
           tag: "script",
           attrs: {
             src: "https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js",
+            crossorigin: "anonymous",
           },
         },
         {
@@ -106,6 +107,7 @@ export default defineConfig({
             type: "module",
             async: true,
             src: "1ds-init.js",
+            integrity: "sha384-idYZGvEvTNaaqBGjIeT/diHjEM13+k+Utpb4k+TjTW/ui8yYALU1FXvgk+lG/EZG",
           },
         },
       ],
