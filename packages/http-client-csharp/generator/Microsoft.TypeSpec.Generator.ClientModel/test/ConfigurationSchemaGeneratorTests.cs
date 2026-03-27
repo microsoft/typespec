@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
@@ -26,6 +28,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             singletonField?.SetValue(null, null);
 
             MockHelpers.LoadMockGenerator();
+        }
+
+        private static string GetExpectedJsonFromFile([CallerMemberName] string method = "", [CallerFilePath] string filePath = "")
+        {
+            var callingClass = Path.GetFileName(filePath).Split('.').First();
+            var path = Path.Combine(Path.GetDirectoryName(filePath)!, "TestData", callingClass, $"{method}.json");
+            return File.ReadAllText(path);
         }
 
         [Test]
@@ -61,6 +70,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var testClient = clients["properties"]?["TestService"];
             Assert.IsNotNull(testClient, "Schema should have a well-known 'TestService' entry");
             Assert.AreEqual("object", testClient!["type"]?.GetValue<string>());
+
+            var expected = GetExpectedJsonFromFile();
+            Assert.AreEqual(expected, result);
         }
 
         [Test]
@@ -629,6 +641,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var connectionConfigProp = clientEntry!["properties"]?["ConnectionConfig"];
             Assert.IsNotNull(connectionConfigProp, "Constructor parameter model should appear as top-level client property");
             Assert.AreEqual("#/definitions/connectionConfig", connectionConfigProp!["$ref"]?.GetValue<string>());
+
+            var expected = GetExpectedJsonFromFile();
+            Assert.AreEqual(expected, result);
         }
 
         [Test]
@@ -648,6 +663,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var clientsSection = doc["properties"]?["Clients"]?["properties"];
             Assert.IsNotNull(clientsSection?["ServiceA"], "Should include ServiceA");
             Assert.IsNotNull(clientsSection?["ServiceB"], "Should include ServiceB");
+
+            var expected = GetExpectedJsonFromFile();
+            Assert.AreEqual(expected, result);
         }
 
         [Test]

@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "Clients": {
+      "type": "object",
+      "properties": {
+        "ServiceA": {
+          "type": "object",
+          "description": "Configuration for ServiceA.",
+          "properties": {
+            "Credential": {
+              "$ref": "#/definitions/credential"
+            },
+            "Options": {
+              "$ref": "#/definitions/serviceAOptions"
+            }
+          }
+        },
+        "ServiceB": {
+          "type": "object",
+          "description": "Configuration for ServiceB.",
+          "properties": {
+            "Credential": {
+              "$ref": "#/definitions/credential"
+            },
+            "Options": {
+              "$ref": "#/definitions/serviceBOptions"
+            }
+          }
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "description": "Configuration for a named client instance."
+      }
+    }
+  },
+  "definitions": {
+    "serviceAOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
+    },
+    "serviceBOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
+    }
+  }
+}

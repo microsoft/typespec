@@ -320,7 +320,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             // Search for the model provider in the output library
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .SelectMany(t => new[] { t }.Concat(t.NestedTypes))
-                .FirstOrDefault(m => !(m is EnumProvider) && m.Type.Equals(modelType));
+                .FirstOrDefault(m => m is ModelProvider && m.Type.Equals(modelType));
 
             if (modelProvider != null)
             {
