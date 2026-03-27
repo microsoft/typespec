@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "Clients": {
+      "type": "object",
+      "properties": {
+        "Notebooks": {
+          "type": "object",
+          "description": "Configuration for Notebooks.",
+          "properties": {
+            "SampleTypeSpecUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "Gets or sets the SampleTypeSpecUrl."
+            },
+            "Notebook": {
+              "type": "string"
+            },
+            "Credential": {
+              "$ref": "#/definitions/credential"
+            },
+            "Options": {
+              "$ref": "#/definitions/options"
+            }
+          }
+        },
+        "Metrics": {
+          "type": "object",
+          "description": "Configuration for Metrics.",
+          "properties": {
+            "SampleTypeSpecUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "Gets or sets the SampleTypeSpecUrl."
+            },
+            "MetricsNamespace": {
+              "type": "string"
+            },
+            "Credential": {
+              "$ref": "#/definitions/credential"
+            },
+            "Options": {
+              "$ref": "#/definitions/options"
+            }
+          }
+        },
+        "SampleTypeSpecClient": {
+          "type": "object",
+          "description": "Configuration for SampleTypeSpecClient.",
+          "properties": {
+            "SampleTypeSpecUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "Gets or sets the SampleTypeSpecUrl."
+            },
+            "Credential": {
+              "$ref": "#/definitions/credential"
+            },
+            "Options": {
+              "$ref": "#/definitions/options"
+            }
+          }
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "description": "Configuration for a named client instance."
+      }
+    }
+  }
+}

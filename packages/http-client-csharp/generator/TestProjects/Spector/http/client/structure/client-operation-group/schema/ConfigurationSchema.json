@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "Clients": {
+      "type": "object",
+      "properties": {
+        "FirstClient": {
+          "type": "object",
+          "description": "Configuration for FirstClient.",
+          "properties": {
+            "Endpoint": {
+              "type": "string",
+              "format": "uri",
+              "description": "Gets or sets the Endpoint."
+            },
+            "Client": {
+              "enum": [
+                "default",
+                "multi-client",
+                "renamed-operation",
+                "two-operation-group",
+                "client-operation-group"
+              ]
+            },
+            "Credential": {
+              "$ref": "#/definitions/credential"
+            },
+            "Options": {
+              "$ref": "#/definitions/options"
+            }
+          }
+        },
+        "SubNamespaceSecondClient": {
+          "type": "object",
+          "description": "Configuration for SubNamespaceSecondClient.",
+          "properties": {
+            "Endpoint": {
+              "type": "string",
+              "format": "uri",
+              "description": "Gets or sets the Endpoint."
+            },
+            "Client": {
+              "enum": [
+                "default",
+                "multi-client",
+                "renamed-operation",
+                "two-operation-group",
+                "client-operation-group"
+              ]
+            },
+            "Credential": {
+              "$ref": "#/definitions/credential"
+            },
+            "Options": {
+              "$ref": "#/definitions/options"
+            }
+          }
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "description": "Configuration for a named client instance."
+      }
+    }
+  }
+}
