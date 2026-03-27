@@ -20,3 +20,11 @@ Invoke-LoggedCommand "git -c core.safecrlf=false diff --ignore-space-at-eol --ex
 if($LastExitCode -ne 0) {
     throw "Changes detected"
 }
+
+# Check for untracked files that should have been committed (e.g. newly generated files)
+$untrackedOutput = Invoke-LoggedCommand "git ls-files --others --exclude-standard -- $packageRoot"
+if ($untrackedOutput) {
+    Write-Host "Untracked files detected:"
+    Write-Host $untrackedOutput
+    throw "Untracked files detected"
+}
