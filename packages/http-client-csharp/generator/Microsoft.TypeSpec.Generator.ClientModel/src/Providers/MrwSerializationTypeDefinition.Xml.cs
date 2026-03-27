@@ -1076,6 +1076,80 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
         }
 
+        internal static ValueExpression DeserializeXmlValueCore(
+            CSharpType valueType,
+            ScopedApi<XElement> element,
+            ScopedApi<ModelReaderWriterOptions> mrwOptions,
+            SerializationFormat format)
+        {
+            var underlyingType = valueType.IsNullable && valueType.Arguments.Count > 0
+                ? valueType.Arguments[0]
+                : valueType;
+
+            if (underlyingType.IsEnum && underlyingType.UnderlyingEnumType != null)
+            {
+                var underlyingExpression = CreateXmlDeserializePrimitiveExpression(element, underlyingType.UnderlyingEnumType, format);
+                return underlyingType.ToEnum(underlyingExpression);
+            }
+
+            if (!underlyingType.IsFrameworkType)
+            {
+                return GetDeserializationMethodInvocationForType(underlyingType, element, null, mrwOptions);
+            }
+
+            return CreateXmlDeserializePrimitiveExpression(element, valueType, format);
+        }
+
+        internal static MethodBodyStatement SerializeXmlValueCore(
+            CSharpType valueType,
+            ValueExpression value,
+            ScopedApi<XmlWriter> xmlWriter,
+            ScopedApi<ModelReaderWriterOptions> mrwOptions,
+            SerializationFormat serializationFormat)
+        {
+            var underlyingType = valueType.IsNullable && valueType.Arguments.Count > 0
+                ? valueType.Arguments[0]
+                : valueType;
+
+            if (!underlyingType.IsFrameworkType)
+            {
+                return underlyingType.IsEnum
+                    ? xmlWriter.WriteValue(SerializeXmlValueExpressionCore(value, valueType, serializationFormat))
+                    : xmlWriter.WriteObjectValue(value.As(valueType), mrwOptions);
+            }
+
+            return underlyingType.FrameworkType switch
+            {
+                Type t when (t == typeof(DateTimeOffset) || t == typeof(TimeSpan)) && serializationFormat.ToFormatSpecifier() is string formatSpecifier
+                    => xmlWriter.WriteStringValue(value.NullableStructValue(valueType), formatSpecifier),
+                Type t when (t == typeof(byte[]) || t == typeof(BinaryData)) && serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
+                    => xmlWriter.WriteBase64StringValue(t == typeof(BinaryData)
+                    ? value.As<BinaryData>().ToArray()
+                    : value.NullableStructValue(valueType),
+                    serializationFormat.ToFormatSpecifier()),
+                _ => xmlWriter.WriteValue(SerializeXmlValueExpressionCore(value, valueType, serializationFormat))
+            };
+        }
+
+        internal static ValueExpression SerializeXmlValueExpressionCore(ValueExpression value, CSharpType valueType, SerializationFormat serializationFormat)
+        {
+            var underlyingType = valueType.IsNullable && valueType.Arguments.Count > 0
+                ? valueType.Arguments[0]
+                : valueType;
+
+            if (underlyingType.IsEnum)
+            {
+                return underlyingType.ToSerial(value.NullableStructValue(valueType));
+            }
+
+            if (!underlyingType.IsFrameworkType)
+            {
+                return value;
+            }
+
+            return CreateXmlSerializePrimitiveExpression(value.NullableStructValue(valueType), underlyingType, serializationFormat);
+        }
+
         private MethodBodyStatement CreateXmlDeserializeAttributeStatements(
             ScopedApi<XAttribute> attrVariable,
             List<XmlPropertyInfo> attributeProperties,
