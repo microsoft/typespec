@@ -46,10 +46,12 @@ import tsptest.specialheaders.implementation.SpecialHeadersClientImpl;
         EtagHeadersClient.class,
         EtagHeadersOptionalBodyClient.class,
         SkipSpecialHeadersClient.class,
+        ConstantAcceptHeaderWithDefaultValueAsRequiredClient.class,
         RepeatabilityHeadersAsyncClient.class,
         EtagHeadersAsyncClient.class,
         EtagHeadersOptionalBodyAsyncClient.class,
-        SkipSpecialHeadersAsyncClient.class })
+        SkipSpecialHeadersAsyncClient.class,
+        ConstantAcceptHeaderWithDefaultValueAsRequiredAsyncClient.class })
 public final class SpecialHeadersClientBuilder implements HttpTrait<SpecialHeadersClientBuilder>,
     ConfigurationTrait<SpecialHeadersClientBuilder>, EndpointTrait<SpecialHeadersClientBuilder> {
     @Generated
@@ -333,6 +335,18 @@ public final class SpecialHeadersClientBuilder implements HttpTrait<SpecialHeade
     }
 
     /**
+     * Builds an instance of ConstantAcceptHeaderWithDefaultValueAsRequiredAsyncClient class.
+     * 
+     * @return an instance of ConstantAcceptHeaderWithDefaultValueAsRequiredAsyncClient.
+     */
+    @Generated
+    public ConstantAcceptHeaderWithDefaultValueAsRequiredAsyncClient
+        buildConstantAcceptHeaderWithDefaultValueAsRequiredAsyncClient() {
+        return new ConstantAcceptHeaderWithDefaultValueAsRequiredAsyncClient(
+            buildInnerClient().getConstantAcceptHeaderWithDefaultValueAsRequireds());
+    }
+
+    /**
      * Builds an instance of RepeatabilityHeadersClient class.
      * 
      * @return an instance of RepeatabilityHeadersClient.
@@ -370,6 +384,18 @@ public final class SpecialHeadersClientBuilder implements HttpTrait<SpecialHeade
     @Generated
     public SkipSpecialHeadersClient buildSkipSpecialHeadersClient() {
         return new SkipSpecialHeadersClient(buildInnerClient().getSkipSpecialHeaders());
+    }
+
+    /**
+     * Builds an instance of ConstantAcceptHeaderWithDefaultValueAsRequiredClient class.
+     * 
+     * @return an instance of ConstantAcceptHeaderWithDefaultValueAsRequiredClient.
+     */
+    @Generated
+    public ConstantAcceptHeaderWithDefaultValueAsRequiredClient
+        buildConstantAcceptHeaderWithDefaultValueAsRequiredClient() {
+        return new ConstantAcceptHeaderWithDefaultValueAsRequiredClient(
+            buildInnerClient().getConstantAcceptHeaderWithDefaultValueAsRequireds());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(SpecialHeadersClientBuilder.class);

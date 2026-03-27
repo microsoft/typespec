@@ -665,7 +665,7 @@ public final class RepeatabilityHeadersImpl {
         RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1),
             () -> this.createLroWithResponseAsync(name, resource, requestOptions),
-            new tsptest.specialheaders.implementation.OperationLocationPollingStrategy<>(
+            new OperationLocationPollingStrategy<>(
                 new PollingStrategyOptions(this.client.getHttpPipeline())
                     .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
                     .setContext(requestOptions != null && requestOptions.getContext() != null
@@ -727,7 +727,7 @@ public final class RepeatabilityHeadersImpl {
         RequestOptions requestOptions) {
         return SyncPoller.createPoller(Duration.ofSeconds(1),
             () -> this.createLroWithResponse(name, resource, requestOptions),
-            new tsptest.specialheaders.implementation.SyncOperationLocationPollingStrategy<>(
+            new SyncOperationLocationPollingStrategy<>(
                 new PollingStrategyOptions(this.client.getHttpPipeline())
                     .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
                     .setContext(requestOptions != null && requestOptions.getContext() != null
@@ -789,7 +789,7 @@ public final class RepeatabilityHeadersImpl {
         RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1),
             () -> this.createLroWithResponseAsync(name, resource, requestOptions),
-            new tsptest.specialheaders.implementation.OperationLocationPollingStrategy<>(
+            new OperationLocationPollingStrategy<>(
                 new PollingStrategyOptions(this.client.getHttpPipeline())
                     .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
                     .setContext(requestOptions != null && requestOptions.getContext() != null
@@ -851,7 +851,7 @@ public final class RepeatabilityHeadersImpl {
         RequestOptions requestOptions) {
         return SyncPoller.createPoller(Duration.ofSeconds(1),
             () -> this.createLroWithResponse(name, resource, requestOptions),
-            new tsptest.specialheaders.implementation.SyncOperationLocationPollingStrategy<>(
+            new SyncOperationLocationPollingStrategy<>(
                 new PollingStrategyOptions(this.client.getHttpPipeline())
                     .setEndpoint("{endpoint}".replace("{endpoint}", this.client.getEndpoint()))
                     .setContext(requestOptions != null && requestOptions.getContext() != null

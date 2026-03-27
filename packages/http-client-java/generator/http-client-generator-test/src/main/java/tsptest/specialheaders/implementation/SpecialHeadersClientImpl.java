@@ -129,6 +129,20 @@ public final class SpecialHeadersClientImpl {
     }
 
     /**
+     * The ConstantAcceptHeaderWithDefaultValueAsRequiredsImpl object to access its operations.
+     */
+    private final ConstantAcceptHeaderWithDefaultValueAsRequiredsImpl constantAcceptHeaderWithDefaultValueAsRequireds;
+
+    /**
+     * Gets the ConstantAcceptHeaderWithDefaultValueAsRequiredsImpl object to access its operations.
+     * 
+     * @return the ConstantAcceptHeaderWithDefaultValueAsRequiredsImpl object.
+     */
+    public ConstantAcceptHeaderWithDefaultValueAsRequiredsImpl getConstantAcceptHeaderWithDefaultValueAsRequireds() {
+        return this.constantAcceptHeaderWithDefaultValueAsRequireds;
+    }
+
+    /**
      * Initializes an instance of SpecialHeadersClient client.
      * 
      * @param endpoint Service host.
@@ -169,5 +183,7 @@ public final class SpecialHeadersClientImpl {
         this.etagHeaders = new EtagHeadersImpl(this);
         this.etagHeadersOptionalBodies = new EtagHeadersOptionalBodiesImpl(this);
         this.skipSpecialHeaders = new SkipSpecialHeadersImpl(this);
+        this.constantAcceptHeaderWithDefaultValueAsRequireds
+            = new ConstantAcceptHeaderWithDefaultValueAsRequiredsImpl(this);
     }
 }
