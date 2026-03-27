@@ -18,7 +18,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/mediaTypeClientOptions"
             }
           }
         }
@@ -27,6 +27,15 @@
         "type": "object",
         "description": "Configuration for a named client instance."
       }
+    }
+  },
+  "definitions": {
+    "mediaTypeClientOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
     }
   }
 }

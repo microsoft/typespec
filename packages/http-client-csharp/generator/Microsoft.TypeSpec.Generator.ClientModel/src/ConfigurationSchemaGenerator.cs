@@ -144,37 +144,50 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 };
             }
 
-            // Get client-specific option properties (public, non-version properties)
-            var customProperties = clientOptions.Properties
-                .Where(p => p.Modifiers.HasFlag(MethodSignatureModifiers.Public))
-                .ToList();
+            // Build a named local definition for this client's options type that inherits from the base options.
+            // This follows the same pattern used in the Azure emitter where client options types extend the
+            // core options type using allOf.
+            var optionsTypeName = clientOptions.Name;
+            var definitionName = optionsTypeName.Length > 1
+                ? char.ToLowerInvariant(optionsTypeName[0]) + optionsTypeName.Substring(1)
+                : optionsTypeName.ToLowerInvariant();
 
-            if (customProperties.Count == 0)
+            if (!localDefinitions.ContainsKey(definitionName))
             {
-                return new JsonObject
+                // Get client-specific option properties (public, non-version properties)
+                var customProperties = clientOptions.Properties
+                    .Where(p => p.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                    .ToList();
+
+                var allOfArray = new JsonArray
                 {
-                    ["$ref"] = $"#/definitions/{optionsRef}"
+                    new JsonObject { ["$ref"] = $"#/definitions/{optionsRef}" }
                 };
-            }
 
-            // Use allOf to extend the base options with client-specific properties
-            var extensionProperties = new JsonObject();
-            foreach (var prop in customProperties)
-            {
-                extensionProperties[prop.Name] = GetJsonSchemaForType(prop.Type, localDefinitions);
+                if (customProperties.Count > 0)
+                {
+                    var extensionProperties = new JsonObject();
+                    foreach (var prop in customProperties)
+                    {
+                        extensionProperties[prop.Name] = GetJsonSchemaForType(prop.Type, localDefinitions);
+                    }
+
+                    allOfArray.Add(new JsonObject
+                    {
+                        ["type"] = "object",
+                        ["properties"] = extensionProperties
+                    });
+                }
+
+                localDefinitions[definitionName] = new JsonObject
+                {
+                    ["allOf"] = allOfArray
+                };
             }
 
             return new JsonObject
             {
-                ["allOf"] = new JsonArray
-                {
-                    new JsonObject { ["$ref"] = $"#/definitions/{optionsRef}" },
-                    new JsonObject
-                    {
-                        ["type"] = "object",
-                        ["properties"] = extensionProperties
-                    }
-                }
+                ["$ref"] = $"#/definitions/{definitionName}"
             };
         }
 

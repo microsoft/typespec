@@ -21,7 +21,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/firstClientOptions"
             }
           }
         },
@@ -41,7 +41,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/subNamespaceSecondClientOptions"
             }
           }
         }
@@ -60,6 +60,20 @@
         "renamed-operation",
         "two-operation-group",
         "client-operation-group"
+      ]
+    },
+    "firstClientOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
+    },
+    "subNamespaceSecondClientOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
       ]
     }
   }

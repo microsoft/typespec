@@ -21,7 +21,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/twoOperationGroupClientOptions"
             }
           }
         }
@@ -40,6 +40,13 @@
         "renamed-operation",
         "two-operation-group",
         "client-operation-group"
+      ]
+    },
+    "twoOperationGroupClientOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
       ]
     }
   }

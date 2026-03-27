@@ -21,7 +21,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/clientAClientOptions"
             }
           }
         },
@@ -41,7 +41,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/clientBClientOptions"
             }
           }
         }
@@ -53,6 +53,20 @@
     }
   },
   "definitions": {
+    "clientAClientOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
+    },
+    "clientBClientOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
+    },
     "clientType": {
       "enum": [
         "default",

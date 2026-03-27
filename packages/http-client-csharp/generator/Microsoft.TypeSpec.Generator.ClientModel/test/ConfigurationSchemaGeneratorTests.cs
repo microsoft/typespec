@@ -97,12 +97,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var options = clientEntry?["properties"]?["Options"];
             Assert.IsNotNull(options, "Client entry should have an Options property");
 
-            // Without client-specific options, should be a simple $ref
-            Assert.AreEqual("#/definitions/options", options!["$ref"]?.GetValue<string>());
+            // Options should reference a local named definition that inherits from the base options
+            var optionsRef = options!["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef, "Options should be a $ref");
+            Assert.That(optionsRef, Does.StartWith("#/definitions/"), "Options $ref should point to a local definition");
+
+            // Verify the local definition exists and inherits from base options via allOf
+            var defName = optionsRef!.Replace("#/definitions/", "");
+            var optionsDef = doc["definitions"]?[defName];
+            Assert.IsNotNull(optionsDef, $"Local definition '{defName}' should exist");
+
+            var allOf = optionsDef!["allOf"];
+            Assert.IsNotNull(allOf, "Options definition should use allOf to inherit from base options");
+            Assert.AreEqual("#/definitions/options", allOf!.AsArray()[0]?["$ref"]?.GetValue<string>());
         }
 
         [Test]
-        public void Generate_DoesNotIncludeBaseDefinitions_WhenNoCustomTypes()
+        public void Generate_IncludesOptionsDefinition_InheritingFromBase()
         {
             var client = InputFactory.Client("TestService");
             var clientProvider = new ClientProvider(client);
@@ -113,10 +124,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.IsNotNull(result);
             var doc = JsonNode.Parse(result!)!;
 
-            // When no custom types (enums, models) are used, there should be no local definitions.
-            // Common definitions (credential, options) are provided by System.ClientModel base schema.
+            // The options type should always be defined as a local definition that inherits from base options.
+            // Common definitions (credential, base options) are provided by System.ClientModel base schema.
             var definitions = doc["definitions"];
-            Assert.IsNull(definitions, "Schema should not include local definitions when no custom types are used");
+            Assert.IsNotNull(definitions, "Schema should include local definitions for the options type");
+
+            // Find the options definition and verify it inherits from the base options
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            var optionsRef = clientEntry?["properties"]?["Options"]?["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef, "Options should reference a local definition");
+            var defName = optionsRef!.Replace("#/definitions/", "");
+            var optionsDef = definitions![defName];
+            Assert.IsNotNull(optionsDef, $"Options definition '{defName}' should exist");
+
+            var allOf = optionsDef!["allOf"];
+            Assert.IsNotNull(allOf, "Options definition should use allOf to inherit from base options");
+            Assert.AreEqual("#/definitions/options", allOf!.AsArray()[0]?["$ref"]?.GetValue<string>(),
+                "First allOf element should reference the base options type");
         }
 
         [Test]
@@ -172,8 +196,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             // Verify the option property references the local definition via $ref
             var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
             var options = clientEntry?["properties"]?["Options"];
-            var allOf = options?["allOf"];
-            Assert.IsNotNull(allOf, "Options should use allOf when client has custom options");
+            var optionsRef = options?["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef, "Options should reference a local definition");
+            var optionsDefName = optionsRef!.Replace("#/definitions/", "");
+
+            // The options definition should use allOf with custom properties
+            var optionsDef = definitions![optionsDefName];
+            Assert.IsNotNull(optionsDef, $"Options definition '{optionsDefName}' should exist");
+            var allOf = optionsDef!["allOf"];
+            Assert.IsNotNull(allOf, "Options definition should use allOf");
 
             var extensionProperties = allOf!.AsArray()[1]?["properties"];
             var retryModeProp = extensionProperties!["RetryMode"];
@@ -268,12 +299,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var options = clientEntry?["properties"]?["Options"];
             Assert.IsNotNull(options, "Client entry should have an Options property");
 
-            // When there are custom options, should use allOf
-            var allOf = options!["allOf"];
-            Assert.IsNotNull(allOf, "Options should use allOf when client has custom options");
+            // Options should reference a named local definition
+            var optionsRef = options!["$ref"]?.GetValue<string>();
+            Assert.IsNotNull(optionsRef, "Options should be a $ref to a local definition");
+            var defName = optionsRef!.Replace("#/definitions/", "");
+
+            // Verify the local definition uses allOf to inherit from base options with custom properties
+            var optionsDef = doc["definitions"]?[defName];
+            Assert.IsNotNull(optionsDef, $"Options definition '{defName}' should exist");
+
+            var allOf = optionsDef!["allOf"];
+            Assert.IsNotNull(allOf, "Options definition should use allOf");
 
             var allOfArray = allOf!.AsArray();
-            Assert.AreEqual(2, allOfArray.Count);
+            Assert.AreEqual(2, allOfArray.Count,
+                "allOf should have base options ref + custom properties extension");
             Assert.AreEqual("#/definitions/options", allOfArray[0]?["$ref"]?.GetValue<string>());
             Assert.AreEqual("object", allOfArray[1]?["type"]?.GetValue<string>());
 

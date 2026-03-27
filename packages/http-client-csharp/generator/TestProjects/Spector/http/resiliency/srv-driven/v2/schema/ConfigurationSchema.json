@@ -21,7 +21,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/resiliencyServiceDrivenClientOptions"
             }
           }
         }
@@ -30,6 +30,15 @@
         "type": "object",
         "description": "Configuration for a named client instance."
       }
+    }
+  },
+  "definitions": {
+    "resiliencyServiceDrivenClientOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
     }
   }
 }

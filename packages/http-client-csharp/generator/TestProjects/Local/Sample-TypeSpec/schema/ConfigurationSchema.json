@@ -21,7 +21,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/sampleTypeSpecClientOptions"
             }
           }
         },
@@ -41,7 +41,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/sampleTypeSpecClientOptions"
             }
           }
         },
@@ -58,7 +58,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/sampleTypeSpecClientOptions"
             }
           }
         }
@@ -67,6 +67,15 @@
         "type": "object",
         "description": "Configuration for a named client instance."
       }
+    }
+  },
+  "definitions": {
+    "sampleTypeSpecClientOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
     }
   }
 }

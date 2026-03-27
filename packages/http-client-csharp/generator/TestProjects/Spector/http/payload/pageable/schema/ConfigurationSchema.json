@@ -18,7 +18,7 @@
               "$ref": "#/definitions/credential"
             },
             "Options": {
-              "$ref": "#/definitions/options"
+              "$ref": "#/definitions/pageableClientOptions"
             }
           }
         }
@@ -27,6 +27,15 @@
         "type": "object",
         "description": "Configuration for a named client instance."
       }
+    }
+  },
+  "definitions": {
+    "pageableClientOptions": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/options"
+        }
+      ]
     }
   }
 }
