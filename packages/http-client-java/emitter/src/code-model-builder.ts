@@ -1522,12 +1522,22 @@ export class CodeModelBuilder {
       }
 
       const nullable = param.type.kind === "nullable";
+
+      // When Accept header is optional with constant type and has clientDefaultValue,
+      // treat as required constant — always sent, hidden from public API.
+      const isAcceptConstantWithDefault =
+        param.kind === "header" &&
+        param.serializedName.toLowerCase() === "accept" &&
+        param.optional &&
+        sdkType.kind === "constant" &&
+        param.clientDefaultValue !== undefined;
+
       const parameter = new Parameter(parameterName, param.doc ?? "", schema, {
         summary: param.summary,
         implementation: parameterOnClient
           ? ImplementationLocation.Client
           : ImplementationLocation.Method,
-        required: !param.optional,
+        required: isAcceptConstantWithDefault || !param.optional,
         nullable: nullable,
         protocol: {
           http: new HttpParameter(param.kind, {
