@@ -409,7 +409,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.IsNotNull(optionsDef);
 
             var allOf = optionsDef!["allOf"]!.AsArray();
-            Assert.AreEqual(2, allOf.Count);
+            Assert.AreEqual(2, allOf.Count, "allOf should have base options + extension");
 
             var extensionProperties = allOf[1]?["properties"];
             Assert.IsNotNull(extensionProperties);
