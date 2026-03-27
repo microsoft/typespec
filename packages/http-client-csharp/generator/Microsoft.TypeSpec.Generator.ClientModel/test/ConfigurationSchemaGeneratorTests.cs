@@ -567,6 +567,71 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         }
 
         [Test]
+        public void Generate_ConstructorParameter_IncludesModelDefinition()
+        {
+            // Create a model type with properties to use as a required constructor parameter
+            var connectionConfigModel = InputFactory.Model(
+                "ConnectionConfig",
+                properties:
+                [
+                    InputFactory.Property("Host", InputPrimitiveType.String),
+                    InputFactory.Property("Port", InputPrimitiveType.Int32)
+                ]);
+
+            // Reset and reload mock with the model registered
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+            MockHelpers.LoadMockGenerator(inputModels: () => [connectionConfigModel]);
+
+            InputParameter[] inputParameters =
+            [
+                InputFactory.EndpointParameter(
+                    "endpoint",
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true),
+                InputFactory.QueryParameter(
+                    "connectionConfig",
+                    connectionConfigModel,
+                    isRequired: true,
+                    scope: InputParameterScope.Client,
+                    isApiVersion: false)
+            ];
+            var client = InputFactory.Client("TestService", parameters: inputParameters);
+            var clientProvider = new ClientProvider(client);
+
+            var output = new TestOutputLibrary([clientProvider]);
+            var result = ConfigurationSchemaGenerator.Generate(output);
+
+            Assert.IsNotNull(result);
+            var doc = JsonNode.Parse(result!)!;
+
+            // Verify local definitions contain the model
+            var definitions = doc["definitions"];
+            Assert.IsNotNull(definitions, "Schema should include local definitions");
+
+            var connectionConfigDef = definitions!["connectionConfig"];
+            Assert.IsNotNull(connectionConfigDef, "Definitions should include 'connectionConfig' model");
+            Assert.AreEqual("object", connectionConfigDef!["type"]?.GetValue<string>());
+
+            // Verify the model definition has its properties
+            var modelProperties = connectionConfigDef["properties"];
+            Assert.IsNotNull(modelProperties, "Model definition should have properties");
+            Assert.IsNotNull(modelProperties!["Host"], "Model should have Host property");
+            Assert.AreEqual("string", modelProperties["Host"]!["type"]?.GetValue<string>());
+            Assert.IsNotNull(modelProperties["Port"], "Model should have Port property");
+            Assert.AreEqual("integer", modelProperties["Port"]!["type"]?.GetValue<string>());
+
+            // Verify the model appears as a top-level constructor parameter property (not under Options)
+            var clientEntry = doc["properties"]?["Clients"]?["properties"]?["TestService"];
+            Assert.IsNotNull(clientEntry);
+            var connectionConfigProp = clientEntry!["properties"]?["ConnectionConfig"];
+            Assert.IsNotNull(connectionConfigProp, "Constructor parameter model should appear as top-level client property");
+            Assert.AreEqual("#/definitions/connectionConfig", connectionConfigProp!["$ref"]?.GetValue<string>());
+        }
+
+        [Test]
         public void Generate_HandlesMultipleClients()
         {
             var client1 = InputFactory.Client("ServiceA");
